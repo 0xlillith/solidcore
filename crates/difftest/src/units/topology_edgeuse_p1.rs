@@ -679,6 +679,22 @@ fn read_surface(rd: &mut Rd<'_>) -> Result<Option<Surface>, HarnessError> {
         let n = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
         return Ok(Some(Surface::from(Plane::from_normal(o, n))));
     }
+    if kind == 3.0 {
+        // an SmPlane with its frame, UV scale and analytic domain (`sc_edgeuse_graph.h`)
+        let mut v = [0.0; 13];
+        for x in &mut v {
+            *x = rd.num()?;
+        }
+        let [ox, oy, oz, xx, xy, xz, yx, yy, yz, su, sv, u0, v0] = v;
+        let (u1, v1) = (rd.num()?, rd.num()?);
+        return Ok(Some(Surface::from(Plane::new(
+            Vec3::new(ox, oy, oz),
+            Vec3::new(xx, xy, xz),
+            Vec3::new(yx, yy, yz),
+            solidcore::Vec2::new(su, sv),
+            &Extent2d::from_bounds(u0, v0, u1, v1),
+        ))));
+    }
     if kind != 0.0 {
         return Err(harness("export: a surface is neither a plane nor a B-spline"));
     }

@@ -139,15 +139,15 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmStatus s = p->EvaluateBinormalStepOff(t, dist, pnt, bin, &tan, &nrm, has_c ? &c : NULL,
                                                 has_n ? &n : NULL, &uv, ok_make);
         o.push_back(st(s));
-        if (s == SM_SUCCESS)
-        {
-            put_vec(o, pnt);
-            put_vec(o, bin);
-            put_vec(o, tan);
-            put_vec(o, nrm);
-            o.push_back(uv.x);
-            o.push_back(uv.y);
-        }
+        // the out-params are compared whatever the status: a failing call leaves what it
+        // wrote before failing (zeros from EvaluateBinormal's init, the edge point's
+        // values once that succeeded)
+        put_vec(o, pnt);
+        put_vec(o, bin);
+        put_vec(o, tan);
+        put_vec(o, nrm);
+        o.push_back(uv.x);
+        o.push_back(uv.y);
         break;
     }
     case OP_REBUILD:

@@ -22,10 +22,12 @@
 //!   without face use, face, surface, edge, edge curve, primary edge use or start
 //!   vertex) the port returns [`SolidError::InvalidInput`]; `NER` is
 //!   [`SolidError::null_pointer`], `SER` the callee's error.
-//! - **Surface owner.** `CreateUVTrimCurve` and `EvaluateBinormal` clear the surface's
-//!   owner (`SmTemporaryChangeValue`) so the solvers do not trim to the face; the port
-//!   works on a copy of the face's surface whose owner is cleared. The surface cache
-//!   flags `EvaluateBinormal` switches (`m_bPointTestEnabled`,
+//! - **Surface owner.** `CreateUVTrimCurve` clears the surface's owner
+//!   (`SmTemporaryChangeValue`) for the rest of the call, so the solvers do not trim
+//!   to the face; the port works on a copy of the face's surface whose owner is
+//!   cleared. `EvaluateBinormal` clears it only around `GlobalPointSolve` and
+//!   `IsOnSeam` (a copy there); every other surface call uses the face's surface as it
+//!   is. The surface cache flags `EvaluateBinormal` switches (`m_bPointTestEnabled`,
 //!   `m_bProcessBoundaryCurves`) have nothing to act on because the Rust surface
 //!   solvers build no surface cache. `EvaluateBinormal` first gets the surface cache of
 //!   the face's surface (`smsurf_GetSurfaceCache`), whose construction creates the UV
@@ -53,7 +55,7 @@
 //!   still propagates.
 //! - **Upstream defects.** The two-singular-end-points recovery builds the joined UV
 //!   curve into the temporary second-half array, which is destroyed unused, so it never
-//!   produces a curve (`plan/upstream-issues.md` WR-96); the port builds and discards
+//!   produces a curve (`plan/upstream-issues.md` WR-98); the port builds and discards
 //!   it as upstream does. `NormalizedEvaluate` returns `SM_SUCCESS` for a point it
 //!   dropped to the surface even where upstream's trim curve was missing.
 //! - **Unported callees.** `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`),
@@ -112,6 +114,20 @@ const UNSURE: i32 = crate::surface::surface::p2::UNSURE;
 
 fn null(reason: &'static str) -> SolidError {
     SolidError::invalid_input(OP, reason)
+}
+
+/// The status of `SmVector3d::AngleBetween` of a zero-length vector, which upstream
+/// checks with `SER`: `SM_ERR_INVALID_INPUT` (1007), a failing status, not a null
+/// dereference.
+fn vec_status<T>(r: Result<T>) -> Result<T> {
+    r.map_err(|e| match e {
+        SolidError::InvalidInput { .. } => SolidError::Upstream {
+            operation: OP,
+            code: 1007, // SM_ERR_INVALID_INPUT
+            entity: None,
+        },
+        e => e,
+    })
 }
 
 // ---- unported callees -------------------------------------------------------------------
@@ -213,8 +229,13 @@ fn surface_local_point_solve(
     point: Point3,
     guess: Point2,
 ) -> Result<(bool, Point2, f64)> {
-    let r =
-        surface.local_point_solve::<NoObject>(k, domain, SolverOperation::Minimize, point, guess)?;
+    let r = surface.local_point_solve::<NoObject>(
+        k,
+        domain,
+        SolverOperation::Minimize,
+        point,
+        guess,
+    )?;
     Ok((
         r.found,
         Point2::new(r.solution.start.param(0)?, r.solution.start.param(1)?),
@@ -223,16 +244,14 @@ fn surface_local_point_solve(
 }
 
 /// The status of a callee whose failure upstream tests (`lResult != SM_SUCCESS`):
-/// `None` for a failing status; [`SolidError::Unported`], [`SolidError::InvalidInput`]
-/// and [`SolidError::NotFound`] propagate.
+/// `None` for any failing status, soft [`SolidError::InvalidInput`] and
+/// [`SolidError::NotFound`] included (`DropCurve`, `DropAndTrimCurve` and
+/// `CreateByJoining` report their bad arguments as statuses);
+/// [`SolidError::Unported`] propagates.
 fn status<T>(r: Result<T>) -> Result<Option<T>> {
     match r {
         Ok(v) => Ok(Some(v)),
-        Err(
-            e @ (SolidError::Unported { .. }
-            | SolidError::InvalidInput { .. }
-            | SolidError::NotFound { .. }),
-        ) => Err(e),
+        Err(e @ SolidError::Unported { .. }) => Err(e),
         Err(_) => Ok(None),
     }
 }
@@ -669,7 +688,11 @@ pub fn create_uv_trim_curve(
         if uv_curves.len() == 2 && on_seam {
             // Take care of seam curves by choosing the correct projected curve. This
             // should work for both continuous and discontinuous seam curves.
-            if pick_seam_curve(
+            // (upstream's "failed to choose one seam curve" test after each removal,
+            // `size > 1`, is dead code: a removal leaves one curve. When the tangent
+            // matches neither U nor V within two degrees both curves stay and fall
+            // through to the 10% rule below, which keeps curve 0.)
+            pick_seam_curve(
                 k,
                 b,
                 eu,
@@ -678,11 +701,7 @@ pub fn create_uv_trim_curve(
                 &edge_domain,
                 &mut uv_curves,
                 fail,
-            )? {
-                // failed to choose one seam curve - try again with a different tolerance
-                uv_curves.clear();
-                continue;
-            }
+            )?;
         } // end 2 UVCurves check -- looking for seam curves
 
         // no curves with DropCurve() (possibly curve crossing seam) - try again with
@@ -797,18 +816,24 @@ pub fn create_uv_trim_curve(
         let drop_curve_end_3d = ignored(surface.evaluate_point(uv_end_2d))?.unwrap_or(Vec3::UNDEF);
 
         // Get the local XSect Tolerances
+        // (`SmTol::GetXSectTol3d(pEdge, pVertex)` takes the system zone tolerance for a
+        // missing vertex; a missing vertex is dereferenced only where that end's
+        // parameter differs)
         let (start_vertex, end_vertex) = crate::topology::edge::start_end_vertices(b, e)?;
-        let start_vertex =
-            start_vertex.ok_or_else(|| null("CreateUVTrimCurve: edge without start vertex"))?;
-        let end_vertex =
-            end_vertex.ok_or_else(|| null("CreateUVTrimCurve: edge without end vertex"))?;
         let edge_tol = b.edge(e)?.tolerance;
-        let start_xsect_tol =
-            xsect_tol_3d_from_zones(k, edge_tol, b.vertex(start_vertex)?.tolerance);
-        let end_xsect_tol = xsect_tol_3d_from_zones(k, edge_tol, b.vertex(end_vertex)?.tolerance);
+        let vertex_zone_tol = |v: Option<crate::topology::VertexId>| -> Result<f64> {
+            match v {
+                Some(v) => Ok(b.vertex(v)?.tolerance),
+                None => Ok(crate::geom::tol::zone_tol_3d(k, SmallTopoType::NormalSize)),
+            }
+        };
+        let start_xsect_tol = xsect_tol_3d_from_zones(k, edge_tol, vertex_zone_tol(start_vertex)?);
+        let end_xsect_tol = xsect_tol_3d_from_zones(k, edge_tol, vertex_zone_tol(end_vertex)?);
 
         // when Edge/UVCurve min params differ
         if !are_same(uv_ivl.min(), edge_domain.min()) {
+            let start_vertex =
+                start_vertex.ok_or_else(|| null("CreateUVTrimCurve: edge without start vertex"))?;
             if b.vertex(start_vertex)?.point.distance(drop_curve_start_3d) < start_xsect_tol {
                 edit_uv_min = true;
             } else {
@@ -821,6 +846,8 @@ pub fn create_uv_trim_curve(
 
         // when Edge/UVCurve max params differ
         if !are_same(uv_ivl.max(), edge_domain.max()) {
+            let end_vertex =
+                end_vertex.ok_or_else(|| null("CreateUVTrimCurve: edge without end vertex"))?;
             if b.vertex(end_vertex)?.point.distance(drop_curve_end_3d) < end_xsect_tol {
                 edit_uv_max = true;
             } else {
@@ -1029,7 +1056,7 @@ fn trim_other_uv_curves(
 /// The recovery for a curve whose both ends drop to singularities: drops the two halves
 /// separately and joins them. Upstream leaves the joined curve in the array of the
 /// second half, which is destroyed unused (module docs; `plan/upstream-issues.md`
-/// WR-96): the result is always "no curves", with `lResult` success when the join worked. Returns `lResult`.
+/// WR-98): the result is always "no curves", with `lResult` success when the join worked. Returns `lResult`.
 #[allow(clippy::too_many_arguments)]
 fn two_singular_end_points(
     k: &Kernel,
@@ -1054,11 +1081,21 @@ fn two_singular_end_points(
     let end_point = ignored(curve.evaluate_point(edge_domain.max()))?.unwrap_or(Vec3::UNDEF);
 
     // drop curve endpoints onto surface
-    let start_drop = ignored(surface_drop_point(k, surface, start_point, &surface_uv_domain))?;
+    let start_drop = ignored(surface_drop_point(
+        k,
+        surface,
+        start_point,
+        &surface_uv_domain,
+    ))?;
     if let Some(d) = start_drop.filter(|d| d.found) {
         start_singularity = surface_is_singularity(k, surface, d.uv)?.0;
         if start_singularity {
-            let end_drop = ignored(surface_drop_point(k, surface, end_point, &surface_uv_domain))?;
+            let end_drop = ignored(surface_drop_point(
+                k,
+                surface,
+                end_point,
+                &surface_uv_domain,
+            ))?;
             if let Some(d) = end_drop.filter(|d| d.found) {
                 end_singularity = surface_is_singularity(k, surface, d.uv)?.0;
             }
@@ -1137,7 +1174,7 @@ fn two_singular_end_points(
                     ))?;
 
                     // when stitching worked (the joined curve is dropped with the
-                    // second half's array: upstream defect WR-96, module docs)
+                    // second half's array: upstream defect WR-98, module docs)
                     if joined.is_some() {
                         l_result = true;
                         fail.create_path_type =
@@ -1152,8 +1189,9 @@ fn two_singular_end_points(
 }
 
 /// The seam choice of `CreateUVTrimCurve` for two UV curves along either side of a
-/// seam: keeps the one whose side the binormal points to. Returns whether both curves
-/// remain (a failure to choose: the caller tries a larger tolerance).
+/// seam: keeps the one whose side the binormal points to. Where the edge tangent lines
+/// up with neither the U nor the V derivative within two degrees both curves remain
+/// (the caller falls through to the 10% rule).
 #[allow(clippy::too_many_arguments)]
 fn pick_seam_curve(
     k: &Kernel,
@@ -1164,7 +1202,7 @@ fn pick_seam_curve(
     edge_domain: &Extent1d,
     uv_curves: &mut Vec<Curve>,
     fail: &mut DropCurveFail<ObjectHandle>,
-) -> Result<bool> {
+) -> Result<()> {
     // Get this edgeuse's Position (3d) near edge's midPoint (status ignored).
     let mid_param = if orientation(b, eu)? == OrientType::Same {
         0.48765
@@ -1211,16 +1249,16 @@ fn pick_seam_curve(
     let (binormal, tangent) = (mid.binormal, mid.tangent);
 
     // Get angles between Binormal and the facePoints' U and V derivs.
-    let ang_bin_u1 = du1.angle_between(binormal)?;
-    let ang_bin_u2 = du2.angle_between(binormal)?;
+    let ang_bin_u1 = vec_status(du1.angle_between(binormal))?;
+    let ang_bin_u2 = vec_status(du2.angle_between(binormal))?;
     let (max_ang_bin_u, min_ang_bin_u) = if ang_bin_u1 > ang_bin_u2 {
         (ang_bin_u1, ang_bin_u2)
     } else {
         (ang_bin_u2, ang_bin_u1)
     };
 
-    let ang_bin_v1 = dv1.angle_between(binormal)?;
-    let ang_bin_v2 = dv2.angle_between(binormal)?;
+    let ang_bin_v1 = vec_status(dv1.angle_between(binormal))?;
+    let ang_bin_v2 = vec_status(dv2.angle_between(binormal))?;
     let (max_ang_bin_v, min_ang_bin_v) = if ang_bin_v1 > ang_bin_v2 {
         (ang_bin_v1, ang_bin_v2)
     } else {
@@ -1228,10 +1266,10 @@ fn pick_seam_curve(
     };
 
     // get angles between tangent and the facePoints' U and V tangents
-    let mut ang_tan_u1 = du1.angle_between(tangent)?;
-    let mut ang_tan_v1 = dv1.angle_between(tangent)?;
-    let mut ang_tan_u2 = du2.angle_between(tangent)?;
-    let mut ang_tan_v2 = dv2.angle_between(tangent)?;
+    let mut ang_tan_u1 = vec_status(du1.angle_between(tangent))?;
+    let mut ang_tan_v1 = vec_status(dv1.angle_between(tangent))?;
+    let mut ang_tan_u2 = vec_status(du2.angle_between(tangent))?;
+    let mut ang_tan_v2 = vec_status(dv2.angle_between(tangent))?;
 
     // The angles with the edge-curve tangent are used only for checking which
     // derivative lines up with the edge. For that, we don't care parallal or
@@ -1265,7 +1303,7 @@ fn pick_seam_curve(
             || (PI - max_ang_bin_v > min_ang_bin_v && uv_pnt1.y < uv_pnt2.y); // keep min curve and min curve is 1st
         remove_seam_curve(b, eu, uv_curves, fail, keep_first)?;
     }
-    Ok(uv_curves.len() > 1)
+    Ok(())
 }
 
 /// Removes the 2nd (`keep_first`) or the 1st UV curve of a seam pair.
@@ -1341,12 +1379,8 @@ fn brute_force(
                 points.push(pnt);
                 params.push(param);
 
-                // the solution's object is the surface
-                let mut s = *sol;
-                if s.objects[0].is_none() {
-                    s.objects[0] = Some(NoObject);
-                }
-                let (dist, dev) = calc_dist_and_dev(p0, &s, |_| Some(surface), want_deviation)?;
+                // (the solution's own first object, as `sm_CalcDistAndDev` reads it)
+                let (dist, dev) = calc_dist_and_dev(p0, sol, |_| Some(surface), want_deviation)?;
                 max_dist = max_dist.max(dist);
                 // (Note, dMaxDev is 0 if ptr is Null.)
                 max_dev = max_dev.max(dev.unwrap_or(0.0));
@@ -1482,7 +1516,9 @@ pub fn get_or_create_uv_trim_curve(
             let gap = max_edge_face_gap(k, b, eu, false)?;
             out.dist_to_surf = gap.map_or(0.0, |g| g.gap_3d);
         }
-        if let Some(f) = drop_curve_fail(b, eu)?.0 {
+        // `m_pDropCurveFail` itself, not `GetDropCurveFail()`: the record of this edge
+        // use only (`SetUVTrimCurve` nulls the non-owner's)
+        if let Some(f) = b.edgeuse(eu)?.drop_curve_fail.as_deref() {
             if f.fail_status != SM_SUCCESS {
                 out.status = Err(SolidError::Upstream {
                     operation: OP,
@@ -1744,10 +1780,16 @@ pub fn evaluate_binormal_uv(
     let f = crate::topology::edgeuse::p1::face(b, eu)?
         .ok_or_else(|| null("EvaluateBinormal: edge use without face"))?;
     let face_rec = b.face(f)?;
-    let face_surface = face_rec
-        .surface
-        .clone()
-        .ok_or_else(|| null("EvaluateBinormal: face without surface"))?;
+    let face_surface = {
+        let live = face_rec
+            .surface
+            .as_ref()
+            .ok_or_else(|| null("EvaluateBinormal: face without surface"))?;
+        // (a copy that keeps the face's owner: the copy constructor resets it)
+        let mut copy = live.clone();
+        copy.set_owner(live.owner());
+        copy
+    };
     let domain = face_rec.uv_domain;
     let face_uv_orientation = {
         let fu = faceuse(b, eu)?.ok_or_else(|| null("EvaluateBinormal: no face use"))?;
@@ -1774,9 +1816,10 @@ pub fn evaluate_binormal_uv(
     }
     let uv_trim: Option<Curve> = uv_trim_curve(b, eu)?.0.cloned();
 
-    // the surface without owner (for the solvers: no face trimming)
-    let mut surface = face_surface;
-    let _ = surface.set_owner(None::<ObjectRef>);
+    // the face's surface; its owner is cleared (a copy, `solve_surface`) only around
+    // `GlobalPointSolve` and `IsOnSeam` below, as upstream's `SmTemporaryChangeValue`
+    // scope does
+    let surface = face_surface;
 
     let mut uv = Point2::UNDEF;
     let mut got_uv = false;
@@ -1861,8 +1904,13 @@ pub fn evaluate_binormal_uv(
         // domain instead of Face's domain.
         let srf_domain = surface.natural_uv_domain();
 
+        // This 'turns off point testing' when GPS does not use the cache (a copy of
+        // the surface without owner stands for upstream's temporary change)
+        let mut solve_surface = surface.clone();
+        let _ = solve_surface.set_owner(None::<ObjectRef>);
+
         // Find Surface sUV point for EdgePoint
-        let mut solutions = surface.global_point_solve::<NoObject>(
+        let mut solutions = solve_surface.global_point_solve::<NoObject>(
             k,
             &srf_domain,
             SolverOperation::Minimize,
@@ -1874,7 +1922,7 @@ pub fn evaluate_binormal_uv(
         if solutions.is_empty() {
             // try again with a bigger tolerance
             tol *= 1000.0;
-            solutions = surface.global_point_solve::<NoObject>(
+            solutions = solve_surface.global_point_solve::<NoObject>(
                 k,
                 &srf_domain,
                 SolverOperation::Minimize,
@@ -1908,7 +1956,7 @@ pub fn evaluate_binormal_uv(
         } else if let [sol] = sols {
             // the solution is the sUV point
             uv = Point2::new(sol.start.param(0)?, sol.start.param(1)?);
-        } else if let Some(seam_uv) = seam_pair_uv(k, &surface, sols)? {
+        } else if let Some(seam_uv) = seam_pair_uv(k, &solve_surface, sols)? {
             // If on a seam, doesn't matter which we use, the normal vector will be the
             // same. either solution can be the sUVPoint and we have no way of telling
             // which to choose

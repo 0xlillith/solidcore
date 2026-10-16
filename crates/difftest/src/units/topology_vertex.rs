@@ -329,6 +329,8 @@ fn ints(v: &[f64]) -> Vec<i64> {
 struct Rd<'a> {
     v: &'a [f64],
     at: usize,
+    /// The type of the first face surface held only as its B-spline part.
+    inexact: Option<i64>,
 }
 
 impl Rd<'_> {
@@ -426,7 +428,26 @@ fn read_surface(rd: &mut Rd<'_>) -> Result<Option<Surface>, HarnessError> {
     if kind == -1.0 {
         return Ok(None);
     }
-    if kind != 0.0 {
+    if kind == 3.0 {
+        // an SmPlane with its frame, UV scale and analytic domain
+        let mut v = [0.0; 15];
+        for x in &mut v {
+            *x = rd.num()?;
+        }
+        let [ox, oy, oz, xx, xy, xz, yx, yy, yz, su, sv, u0, v0, u1, v1] = v;
+        return Ok(Some(Surface::from(solidcore::surface::plane::Plane::new(
+            Vec3::new(ox, oy, oz),
+            Vec3::new(xx, xy, xz),
+            Vec3::new(yx, yy, yz),
+            solidcore::Vec2::new(su, sv),
+            &solidcore::geom::extent2d::Extent2d::from_bounds(u0, v0, u1, v1),
+        ))));
+    }
+    if kind == 4.0 {
+        // a subclass held as its B-spline part: the Rust surface is a stand-in
+        let ty = rd.num()? as i64;
+        rd.inexact.get_or_insert(ty);
+    } else if kind != 0.0 {
         return Err(harness("export: a surface is not a B-spline"));
     }
     let oob = rd.num()? != 0.0;
@@ -456,10 +477,10 @@ fn read_surface(rd: &mut Rd<'_>) -> Result<Option<Surface>, HarnessError> {
 }
 
 /// Builds the Rust B-rep from the shim's export (see the module docs).
-fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
+fn import(ex: &[f64]) -> Result<(Brep, Option<i64>), HarnessError> {
     let c = ffi::counts(ex).ok_or_else(|| harness("import of a failed build"))?;
     let [n_r, n_s, n_fu, n_f, n_lu, n_l, n_eu, n_e, n_vu, n_v] = c;
-    let mut rd = Rd { v: ex, at: 1 };
+    let mut rd = Rd { v: ex, at: 1, inexact: None };
     let validate_only = rd.num()? != 0.0;
     rd.at = 12;
 
@@ -730,7 +751,7 @@ fn import(ex: &[f64]) -> Result<Brep, HarnessError> {
     for vu in vertexuses {
         b.add_vertexuse_record(vu).map_err(|e| harness(e.to_string()))?;
     }
-    Ok(b)
+    Ok((b, rd.inexact))
 }
 
 fn id<I: Copy>(o: Option<I>, f: impl Fn(I) -> u32) -> i64 {
@@ -1242,7 +1263,7 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(c) = ffi::counts(&ex) else {
         return Ok(build_failure(&ex));
     };
-    let b = import(&ex)?;
+    let (b, _) = import(&ex)?;
     let op = match resolve(&i.op, c, &b) {
         Ok(op) => op,
         Err(o) => return Ok(*o),
@@ -1355,11 +1376,26 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(c) = ffi::counts(&ex) else {
         return Ok(build_failure(&ex));
     };
-    let mut b = import(&ex)?;
+    let (mut b, inexact) = import(&ex)?;
     let op = match resolve(&i.op, c, &b) {
         Ok(op) => op,
         Err(o) => return Ok(*o),
     };
+    // The gap, topological-vertex and pole queries solve against the face surfaces: a face
+    // surface the export holds only as its B-spline part (a cone, sphere, torus, revolution
+    // or extrusion subclass) is a stand-in whose solves differ from the analytic ones.
+    if let (Some(ty), OpIn::Gaps { .. } | OpIn::Topological { .. } | OpIn::OnPole { .. }) =
+        (inexact, &op)
+    {
+        let (unit, symbol) = match ty {
+            15012 | 15013 => ("surface.cone_p1", "SmCone (no SurfaceKind)"),
+            15014 => ("surface.sphere", "SmSphere"),
+            15015 => ("surface.torus", "SmTorus (no SurfaceKind)"),
+            15030 => ("surface.surf_of_extrusion_p2", "SurfaceKind::SurfOfExtrusion"),
+            _ => ("topology.brep_p7", "SmBrep::ReadFromFile"),
+        };
+        return Ok(Output::deferred(unit, symbol));
+    }
     match run_rust_op(&mut b, &op) {
         Ok(o) => Ok(o),
         Err(Fail::Solid(e)) => rust_err(&e),

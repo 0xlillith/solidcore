@@ -419,22 +419,39 @@ fn run_rust_op(
                 Ok(None) => Ok(*frac),
                 Err(e) => Err(e),
             };
-            t.and_then(|t| eu2::evaluate_binormal_step_off(&Kernel::default(), b, eu, t, *dist, &opts))
-                .map(|r| {
-                    let mut v = vec![0.0];
-                    v.extend([r.point.x, r.point.y, r.point.z]);
-                    v.extend([r.binormal.x, r.binormal.y, r.binormal.z]);
-                    v.extend([r.tangent.x, r.tangent.y, r.tangent.z]);
-                    v.extend([r.face_normal.x, r.face_normal.y, r.face_normal.z]);
-                    v.extend([r.uv.x, r.uv.y]);
-                    v
-                })
-                // a failing status is reported alone (the shim's outputs are only set
-                // by a successful call)
-                .or_else(|e| match e {
-                    SolidError::Upstream { code, .. } => Ok(vec![f64::from(code)]),
-                    e => Err(e),
-                })
+            // the out-params are compared whatever the status, like the shim's: the record
+            // starts at the shim's zeros and keeps what a failing call wrote
+            let mut out = eu2::BinormalEval {
+                point: solidcore::math::Vec3::ZERO,
+                binormal: solidcore::math::Vec3::ZERO,
+                tangent: solidcore::math::Vec3::ZERO,
+                face_normal: solidcore::math::Vec3::ZERO,
+                uv: solidcore::math::Point2::new(0.0, 0.0),
+            };
+            let status = t.and_then(|t| {
+                eu2::evaluate_binormal_step_off_into(
+                    &Kernel::default(),
+                    b,
+                    eu,
+                    t,
+                    *dist,
+                    &opts,
+                    &mut out,
+                )
+            });
+            let code = match status {
+                Ok(()) => Ok(0.0),
+                Err(SolidError::Upstream { code, .. }) => Ok(f64::from(code)),
+                Err(e) => Err(e),
+            };
+            code.map(|c| {
+                let mut v = vec![c];
+                for p in [out.point, out.binormal, out.tangent, out.face_normal] {
+                    v.extend([p.x, p.y, p.z]);
+                }
+                v.extend([out.uv.x, out.uv.y]);
+                v
+            })
         }
         OpIn::Rebuild { .. } => {
             let status = match eu2::rebuild_uv_trim_curve(&k, b, eu) {

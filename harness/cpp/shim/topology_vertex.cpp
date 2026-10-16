@@ -550,6 +550,26 @@ void put_curve(std::vector<double>& o, const SmCurve* c)
 
 void put_surface(std::vector<double>& o, const SmSurface* s)
 {
+    // An SmPlane derives from SmBSplineSurface: exported as the whole plane (frame, UV
+    // scale and analytic domain) like sc_edgeuse_graph.h, not as its B-spline part, so the
+    // Rust side sees the kind the C++ code branches on (`3 O X Y su sv umin vmin umax vmax`)
+    if (s != nullptr && s->GetType() == SmPlane_TYPE)
+    {
+        const SmPlane* pl = (const SmPlane*)s;
+        o.push_back(3.0);
+        put_vec(o, pl->GetPosition().GetOrigin());
+        put_vec(o, pl->GetPosition().GetXAxisRef());
+        put_vec(o, pl->GetPosition().GetYAxisRef());
+        SmVector2d sc = pl->GetUVScale();
+        SmExtent2d dom = pl->GetSTEPUVDomain();
+        o.push_back(sc.x);
+        o.push_back(sc.y);
+        o.push_back(dom.GetUMin());
+        o.push_back(dom.GetVMin());
+        o.push_back(dom.GetUMax());
+        o.push_back(dom.GetVMax());
+        return;
+    }
     if (s == nullptr || !s->IsKindOf(SmBSplineSurface_TYPE))
     {
         o.push_back(s == nullptr ? -1.0 : -2.0);
@@ -557,7 +577,15 @@ void put_surface(std::vector<double>& o, const SmSurface* s)
     }
     const SmBSplineSurface* b = (const SmBSplineSurface*)s;
     gw_SURFACE* sur = b->GetGwNurbPointer();
-    o.push_back(0.0);
+    // `4 type` marks a subclass (cone, sphere, torus, revolution, extrusion, ...) exported as
+    // its B-spline part only; the block follows as for kind 0
+    if (s->GetType() != SmBSplineSurface_TYPE)
+    {
+        o.push_back(4.0);
+        o.push_back((double)s->GetType());
+    }
+    else
+        o.push_back(0.0);
     o.push_back(flg(((SmBSplineSurface*)b)->GetOutOfBoundsEnabled()));
     o.push_back((double)b->GetBSplineSurfaceForm());
     o.push_back((double)sur->net->n);

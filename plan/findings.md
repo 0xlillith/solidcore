@@ -4375,9 +4375,8 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   `drop_point` stub must return `Some` for any written point, `None` only when the
   out-param is left unwritten. Unreachable today
   (`GetOrCreateUVTrimCurve` is `UNPORTED(topology.edgeuse_p3)`).
-- **Duplicate to merge.** `query::r#loop::uv_corner_boundaries` (co-ported on the borrowed
-  `FaceLoop` view) duplicates `topology::loopuse::uv_corner_boundaries`; merge them when
-  `query.loop` moves to the arena topology.
+- **Duplicate merged.** `query::r#loop::contains_uv_point` now walks the arena topology
+  (PR #117) and calls `topology::loopuse::uv_corner_boundaries`; the co-ported copy is gone.
 - **Not wired**, still `UNPORTED(topology.loopuse)`: `intersect::point_class`
   (`SmLoop::IsConnectedTo`, `SmLoopuse::IsConnectedTo`) and `surface::trim_srf_cache`
   (`GetEdgeuses`, `GetVertexuses`). Those callers hold opaque object handles without a
@@ -4902,7 +4901,7 @@ mutated scales and accepted/reduced step counts are compared.
 
 ## topology.edgeuse_p3 (`CreateUVTrimCurve`, `GetOrCreateUVTrimCurve`, `EvaluateBinormal`, `NormalizedEvaluate`; PR #117; partial)
 
-- **Upstream defect WR-96** (`plan/upstream-issues.md`): the two-singular-end-points recovery of
+- **Upstream defect WR-98** (`plan/upstream-issues.md`): the two-singular-end-points recovery of
   `CreateUVTrimCurve` adds its joined curve to the second half's temporary array, so it never yields
   a curve. The port reproduces it.
 - **`gen0007` (seed 15768384652651002757), fixed in the harness.** `GetOrCreateUVTrimCurve` of an
@@ -4915,22 +4914,34 @@ mutated scales and accepted/reduced step counts are compared.
 - **Gap export** carries only the init flags of the cached gaps, never their lengths, so any result
   that reads a cached edge/face gap length of an imported B-rep (`GetOrCreateUVTrimCurve` of an
   existing curve, the `ii == 2` tolerance of `CreateUVTrimCurve`) compares only where the gap is unset.
-- **`ComputeParamDirection` failure** leaves a partial vector in the C++; the fixtures use
-  `want_uv_vector = false`, so that path is not compared.
+- **`EvaluateBinormal`'s UV direction (`pOptUVVector`), review item 1: harness gap, not the
+  port.** `box_with_large_fillet.smb` edge use 11 (frac 1 / 1.5 / 1e300, `want_uv_vector`,
+  both `use_3d`) gave (1, 0) in the C++ and (0, -1) in Rust, 106 failures in `review.json`
+  (and a "partial vector" is not what `ComputeParamDirection` leaves:
+  `smgu_VecLinCombTwoVectors` writes nothing partial; on failure the out-param is the
+  `(0, 0)` it was initialised to, which both sides now compare). Cause: the graph export
+  (`sc_edgeuse_graph.h`) gave an `SmPlane` as origin and normal only, and the importer
+  rebuilt it with `Plane::from_normal`, whose X/Y axes, UV scale and domain differ from the
+  file's plane. Position, normal and the UV point agree (they do not depend on the axes),
+  but `ComputeParamDirection` projects the binormal onto `Du`/`Dv`, i.e. onto those axes.
+  The export now carries the whole plane (`3 O X Y su sv umin vmin umax vmax`, from
+  `GetPosition`, `GetUVScale`, `GetSTEPUVDomain`) and the importer builds `Plane::new`.
+  New fixtures `fixtures/topology.edgeuse_p3/review.json` ask for the UV vector on that
+  face (the maintainer's fracs, a sweep of 48 edge uses x 2 params x both modes, with and
+  without rebuild) and on the first 8 edge uses of every upstream file.
 - **`EvaluateBinormal`'s surface-cache side effect** (`smsurf_GetSurfaceCache` building the face's
   trimmed cache, which creates the UV trim curves of the face's edge uses) defers as
   `UNPORTED(topology.face_p3)` (`SmFace::CreateUVTrimCurves`) on the paths that reach the global point
   solve.
-- **`query.loop` (`FaceLoop`) not wired; stub kept, tagged `UNPORTED(topology.edgeuse_p3)`**
-  (the unit that owns `SmEdgeuse::GetOrCreateUVTrimCurve`, AGENTS.md section 4 step 5 item 9;
-  `prepush.sh stubs` fails on it by design). `GetOrCreateUVTrimCurve` needs the B-rep mutably, the
-  kernel and the edge use id; the `FaceLoop` view is a borrowed, B-rep-free copy whose trim
-  curves are `&Curve` borrowed from that B-rep. Creating all missing curves before the walk would
-  not be faithful (upstream makes them lazily in walk order and ends the walk at the first
-  failure), and a creator callback cannot hand out a `&Curve` while it holds `&mut Brep`.
-  `query.face_p2` builds the view from a B-rep, so a faithful fix is a B-rep-holding walk there
-  (a change of the `FaceLoop` API and of both difftest runners). The `query.loop` difftest never
-  reaches it (3040/3040, 0 deferred); `query.face_p2` defers 15 cases on it.
+- **`query.loop` wired (review item 3).** `query::r#loop::contains_uv_point` no longer reads a
+  borrowed `FaceLoop` view: it takes `&mut Brep` and the loop id and calls
+  `GetOrCreateUVTrimCurve` in walk order (a failing status or a missing curve gives
+  `SM_POC_UNKNOWN`, as upstream), reading the edge interval and tolerance after each creation.
+  `query::face::p2::point_classify` and `classify_param_on_faces` (and
+  `api_queries::face_classify_uv`) take `&mut Brep` for it; the difftest runners classify on a
+  clone. The `query.loop` runner builds the one-face B-rep of the shim's `SmBrepConstructor`
+  in Rust (face with surface owner and tolerance, loop, edges, edge uses with their trim curves).
+  No `UNPORTED(topology.edgeuse_p3)` stub is left in `crates/`.
 - **`heal.gap` wired**: `GetGapEndPoints` now creates a missing UV trim curve; the gap constructors,
   setters, `CacheGap` and `GetGapEndPoints` take `k` and `&mut Brep` (and so do
   `vertex_edge_gap`, `calc_vertex_edge_gap`, `edge_ccw_edge_gap`, `calc_edge_ccw_edge_gap`,

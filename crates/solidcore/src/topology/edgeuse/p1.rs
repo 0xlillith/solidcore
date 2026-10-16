@@ -1342,6 +1342,19 @@ pub fn faceuse_neighbors(
     Ok(out)
 }
 
+/// `pEU->EvaluateBinormal(param, TRUE, point, binormal, NULL, &normal)` with its status
+/// ignored: the face use normal, a zero vector where the evaluation failed (upstream
+/// zeroes the output before it can fail). [`SolidError::Unported`] propagates.
+fn binormal_face_normal(k: &Kernel, b: &mut Brep, eu: EdgeuseId, param: f64) -> Result<Vec3> {
+    let options = crate::topology::edgeuse::p3::BinormalOptions::default();
+    Ok(
+        crate::error::ignored(crate::topology::edgeuse::p3::evaluate_binormal(
+            k, b, eu, param, true, &options,
+        ))?
+        .map_or(Vec3::new(0.0, 0.0, 0.0), |r| r.face_normal),
+    )
+}
+
 /// `SmFaceuse::CollectAdjacentFaceuses`: appends to `faceuses` the face uses reached
 /// from this one across radial partners, not crossing lamina edges (and, with an
 /// angle threshold, not across edges whose face normals differ by more).
@@ -1379,25 +1392,18 @@ pub fn faceuse_collect_adjacent(
 
             if let Some(threshold) = angle_threshold {
                 // the face use normals at the start, middle and end of the edge must
-                // differ by no more than the threshold (the binormal statuses are
-                // ignored upstream; a failure leaves uninitialised normals there, so the
-                // port returns the error; `AngleBetween` keeps the previous angle)
+                // differ by no more than the threshold. The binormal statuses are
+                // ignored upstream: `EvaluateBinormal` zeroes `*pOptFaceuseNormal`
+                // before it can fail, so a failing evaluation leaves a zero normal, and
+                // `AngleBetween` of a zero vector fails with `rdAngRad == 0` (so the
+                // angle is 0 and the face use is kept). Only `Unported` propagates.
                 let ivl = b.edge(e)?.interval;
-                let mut angle = 0.0;
                 let mut too_far = false;
                 for param in [ivl.min(), ivl.mid(), ivl.max()] {
-                    let options = crate::topology::edgeuse::p3::BinormalOptions::default();
-                    let at_eu = crate::topology::edgeuse::p3::evaluate_binormal(
-                        k, b, eu, param, true, &options,
-                    )?;
-                    let at_rad = crate::topology::edgeuse::p3::evaluate_binormal(
-                        k, b, rad, param, true, &options,
-                    )?;
-                    if let Some(a) =
-                        crate::error::ignored(at_eu.face_normal.angle_between(at_rad.face_normal))?
-                    {
-                        angle = a;
-                    }
+                    let n_eu = binormal_face_normal(k, b, eu, param)?;
+                    let n_rad = binormal_face_normal(k, b, rad, param)?;
+                    // (status ignored; the angle is 0 on failure)
+                    let angle = crate::error::ignored(n_eu.angle_between(n_rad))?.unwrap_or(0.0);
                     if angle > threshold {
                         too_far = true;
                         break;
