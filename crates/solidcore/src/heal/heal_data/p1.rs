@@ -122,12 +122,12 @@ fn brep_find_and_set_infinite_region(_b: &mut Brep) -> Result<()> {
     ))
 }
 
-/// `pRegion->IsVoid()`.
+/// `pRegion->IsVoid()` as a C++ condition (`UNSURE` is non-zero, so true).
 fn region_is_void(b: &Brep, r: RegionId) -> Result<bool> {
     Ok(b.region(r)?.is_void() != 0)
 }
 
-/// `pRegion->SetIsVoid(bIsVoid)`.
+/// `pRegion->SetIsVoid(bIsVoid)` (`TRUE` = 1, `FALSE` = 0).
 fn set_region_is_void(b: &mut Brep, r: RegionId, is_void: bool) -> Result<()> {
     b.region_mut(r)?.set_is_void(i32::from(is_void));
     Ok(())
