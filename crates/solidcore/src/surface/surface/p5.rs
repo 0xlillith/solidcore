@@ -43,8 +43,8 @@
 //!   `SM_SP_NEITHER`; the port does the same ([`Singularity::singular`]).
 //! - **Debug-only work** (drawing, dumps, assertions) is not ported.
 //! - **Kernel.** `IsSingularity` (through `GetSingularities`' approximation tolerance),
-//!   `EvaluateNormalAtSingularity` and `CoverOtherCoincidentSurface` take the
-//!   [`Kernel`]. The `IdenticalSolutions` overrides and the image-space
+//!   `EvaluateNormalAtSingularity`, `CoverOtherCoincidentSurface`, `LocalPointSolve` and
+//!   `DropPoint` take the caller's [`Kernel`]. The `IdenticalSolutions` overrides and the image-space
 //!   `LocalSurfaceSurfaceIntersect` have no kernel threaded to them yet and use
 //!   `Kernel::default()` (upstream's global tolerances at their defaults).
 //! - **`CoverOtherCoincidentSurface`** takes both surfaces `&mut`: the covering surface
