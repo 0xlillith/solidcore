@@ -662,7 +662,7 @@ mod tests {
         };
         assert_eq!(
             unit(Shape::new(&[b], &[(b, FaceId::from_index(0))], &[], &[])),
-            "topology.brep_p1"
+            "query.brep"
         );
         assert_eq!(
             unit(Shape::new(&[], &[(b, FaceId::from_index(0))], &[], &[])),
