@@ -5381,3 +5381,40 @@ independent Apple libc++ database abort was not rerun.
 
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
+
+## intersect.curve_class_p9 (standalone claim; replaces PR #143)
+
+- **Scope.** Ports `IntersectEdges` and `IntersectTSBound` only, with borrowed
+  arena boundary views, a native shim, full-record differential runner and fixtures.
+  No implementation or commits from the open part-5 dependency stack are included.
+  Part-1 gains a single-interval constructor and its inline cross-hatch setter;
+  these initialize the boundary API without co-porting part 2's `ReSet`.
+- **Dependency boundaries.** Edge hits defer on `intersect.curve_class_p5` at
+  `InsertSolutions`. Vertex insertion retains the current part-3 topology/part-2/
+  part-7 deferrals. Non-B-spline surface lifting remains `curve.crv_on_surf`;
+  absent lazy cached trims remain `topology.edgeuse_p3`. Both part-9 query back-edges
+  are wired; the caller supplies boundary/cache adapters, whose default defers on
+  `query.face_p2` for nonempty lists. The query's earlier `ReSet` dependency still
+  prevents end-to-end curve classification on this base.
+- **Review and coverage.** Native topology uses real lines, planes, bilinear and
+  collapsed-side patches, wire edges, isolated vertex loops and rectangular faces.
+  Explicit one-node/two-leaf cache recipes certify traversal, not cache construction.
+  Comparisons include full interval/point records, object identity, gaps and zones.
+  Vertex/edge tolerances use `SetTolerance(value, FALSE)` to shrink defaults too.
+  Face tolerance is explicitly 1e-5 on both sides. Loop vertex UVs use the existing
+  `ComputeUVPoint` projection, rather than assuming the input UV survives unchanged;
+  native recomputes UV even when its stored value is present. The earlier stacked
+  experiment had three small gap mismatches with the assumed UVs; that experiment
+  does not certify this standalone revision.
+  Native `has_big_gaps` is required; only `bUVSpaceOkay` defaults true. Rust's options
+  convenience defaults the former false. The pointer-equality overlap shortcut,
+  strict gap-bump threshold, ignored-failure output initialization, cache visit order,
+  and cleanup order are preserved. Missing fallback trim is a null-pointer error.
+  Counts, lengths, finite values and single shared-curve ownership are checked at FFI.
+- **Limits.** Positive edge/face-gap tolerance changes have a focused Rust regression;
+  native wire edges do not own a face edgeuse. Mutable edge insertion, positive vertex
+  insertion behind current dependencies, generic surface lifting, automatic lazy trim
+  construction and the default query handle adapter are not certified. No absolute
+  floors or widened tolerances are used.
+- **Validation.** Pending checks on the standalone revision; earlier stacked results
+  are not submission evidence.
