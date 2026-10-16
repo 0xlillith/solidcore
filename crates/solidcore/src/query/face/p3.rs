@@ -105,6 +105,7 @@ use crate::surface::surface::p7::{approx_derivative_lengths, drop_vectors_at};
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::edgeuse::p2::BinormalEval;
+use crate::topology::topology_traverser::face_edges;
 use crate::topology::{edge as topo_edge, loopuse, vertexuse};
 use crate::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId};
 
@@ -427,26 +428,6 @@ fn eval_pos(eval: &mut SurfaceEval<'_>) -> Result<Point3> {
             .copied()
             .unwrap_or(Vec3::UNDEF)),
     }
-}
-
-/// `SmFace::GetEdges(rEdges)` with its default arguments (CO-PORTED from unit
-/// `topology.face_p4`, as `topology::topology_traverser` has it): the unique edges of
-/// each loop use of the upward face use, appended loop by loop.
-fn face_edges(b: &Brep, f: FaceId) -> Result<Vec<EdgeId>> {
-    let mut out = Vec::new();
-    if let Some(fu) = b.face(f)?.faceuse {
-        for lu in eu1::faceuse_loopuses(b, fu, false, None)? {
-            let mut local: Vec<EdgeId> = Vec::new();
-            for eu in eu1::loopuse_edgeuses(b, lu)? {
-                let e = eu_edge(b, eu, OP_TIGHT)?;
-                if !local.contains(&e) {
-                    local.push(e);
-                }
-            }
-            out.extend(local);
-        }
-    }
-    Ok(out)
 }
 
 // ---- classification curves ----------------------------------------------------------------
@@ -1827,6 +1808,231 @@ pub fn sector_classify_curve_on(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::curve::line::BoundedLineOptions;
+    use crate::surface::plane::Plane;
+    use crate::topology::{
+        Edge, Edgeuse, EdgeuseOwner, Face, Faceuse, FaceuseId, Loop, Loopuse, LoopuseId,
+        LoopuseStart, Vertex, VertexId, Vertexuse, VertexuseId, VertexuseOwner,
+    };
+
+    /// A unit-square planar face over `[0, 1]^2` (lifted to `z`) with UV trim lines.
+    fn square(b: &mut Brep, z: f64) -> FaceId {
+        let s = b.add_shell().unwrap();
+        let o = Point3::new(0.0, 0.0, z);
+        let dom = Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0);
+        let plane = Plane::new(o, Vec3::X, Vec3::Y, Vec2::new(1.0, 1.0), &dom);
+        let f = b
+            .add_face_record(Face {
+                surface: Some(Surface::from(plane)),
+                faceuse: Some(FaceuseId::from_index(0)),
+                uv_domain: dom,
+                tolerance: 1e-6,
+                ..Face::new(s)
+            })
+            .unwrap();
+        let corners = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)];
+        for &(x, y) in &corners {
+            b.add_vertex_record(Vertex {
+                point: Point3::new(x, y, z),
+                tolerance: 1e-6,
+                ..Vertex::default()
+            })
+            .unwrap();
+        }
+        b.add_faceuse_record(Faceuse {
+            shell: Some(s),
+            face: Some(f),
+            mate: None,
+            orientation: OrientType::Same,
+            loopuses: vec![LoopuseId::from_index(0)],
+        })
+        .unwrap();
+        b.add_loopuse_record(Loopuse {
+            faceuse: Some(FaceuseId::from_index(0)),
+            loop_: Some(LoopId::from_index(0)),
+            mate: None,
+            start: LoopuseStart::Edgeuse(Some(EdgeuseId::from_index(0))),
+            ..Loopuse::default()
+        })
+        .unwrap();
+        b.add_loop_record(Loop {
+            face: f,
+            edges: Vec::new(),
+            loopuse: Some(LoopuseId::from_index(0)),
+        })
+        .unwrap();
+        for i in 0..4u32 {
+            let (x0, y0) = corners[i as usize];
+            let (x1, y1) = corners[((i + 1) % 4) as usize];
+            let unit = Extent1d::from_min_max(0.0, 1.0);
+            let line = |a: Point3, c: Point3, dim: u64| {
+                Curve::from(Line::bounded(
+                    a,
+                    c - a,
+                    &unit,
+                    &BoundedLineOptions {
+                        dim,
+                        ..BoundedLineOptions::default()
+                    },
+                ))
+            };
+            b.add_edge_record(Edge {
+                vertices: [VertexId::from_index(i), VertexId::from_index((i + 1) % 4)],
+                edgeuses: vec![EdgeuseId::from_index(i)],
+                interval: Extent1d::from_min_max(0.0, 1.0),
+                tolerance: 1e-6,
+                curve: Some(line(Point3::new(x0, y0, z), Point3::new(x1, y1, z), 3)),
+            })
+            .unwrap();
+            b.add_edgeuse_record(Edgeuse {
+                edge: Some(EdgeId::from_index(i)),
+                owner: EdgeuseOwner::Loopuse(Some(LoopuseId::from_index(0))),
+                ccw: Some(EdgeuseId::from_index((i + 1) % 4)),
+                cw: Some(EdgeuseId::from_index((i + 3) % 4)),
+                vertexuse: Some(VertexuseId::from_index(i)),
+                orientation: OrientType::Same,
+                uv_trim_curve: Some(line(Point3::new(x0, y0, 0.0), Point3::new(x1, y1, 0.0), 2)),
+                ..Edgeuse::default()
+            })
+            .unwrap();
+            b.add_vertexuse_record(Vertexuse {
+                vertex: Some(VertexId::from_index(i)),
+                owner: VertexuseOwner::Edgeuse(Some(EdgeuseId::from_index(i))),
+                ..Vertexuse::default()
+            })
+            .unwrap();
+        }
+        f
+    }
+
+    #[test]
+    fn tight_box_of_a_plane_face_is_its_edges_box() {
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        let f = square(&mut b, 2.0);
+        let bx = calculate_tight_bounding_box(&k, &b, f).unwrap();
+        assert_eq!(bx.min(), Point3::new(0.0, 0.0, 2.0));
+        assert_eq!(bx.max(), Point3::new(1.0, 1.0, 2.0));
+    }
+
+    #[test]
+    fn sector_classification_needs_the_edge_use_binormal() {
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        let f = square(&mut b, 0.0);
+        let curve = Curve::from(Line::from_points(
+            Point3::new(0.5, 0.0, 0.0),
+            Point3::new(0.5, 0.5, 0.0),
+            3,
+        ));
+        let eu = |orientation| SectorEdgeuse {
+            edgeuse: EdgeuseId::from_index(0),
+            param: 0.5,
+            zone_tol_3d: 1e-6,
+            orientation,
+        };
+        let input = SectorClassifyInput {
+            eu1: eu(OrientType::Same),
+            eu2: eu(OrientType::Opposite),
+            curve: &curve,
+            curve_interval: curve.natural_interval(),
+            curve_orientation: OrientType::Same,
+            curve_zone_tol_3d: 1e-6,
+            on_singularity: false,
+            singularity_uv: Point2::new(0.0, 0.0),
+            uv_space_okay: true,
+        };
+        let r = sector_classify_curve_on(&k, &mut b, f, &input);
+        assert!(r.unwrap_err().is_unported());
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq)]
+    enum H {
+        Loop(LoopId),
+        Face(FaceId),
+        Curve(bool),
+    }
+
+    impl ClassObject for H {
+        fn class_kind(&self) -> crate::intersect::point_class::ClassObjectKind {
+            use crate::intersect::point_class::ClassObjectKind as K;
+            match self {
+                Self::Loop(_) => K::Loop,
+                Self::Face(_) => K::Face,
+                Self::Curve(_) => K::Curve,
+            }
+        }
+    }
+
+    impl LoopObject for H {
+        fn from_loop(l: LoopId) -> Self {
+            Self::Loop(l)
+        }
+        fn as_loop(&self) -> Option<LoopId> {
+            match self {
+                Self::Loop(l) => Some(*l),
+                _ => None,
+            }
+        }
+        fn as_vertex(&self) -> Option<VertexId> {
+            None
+        }
+        fn from_face(f: FaceId) -> Option<Self> {
+            Some(Self::Face(f))
+        }
+        fn from_classify_curve(uv: bool) -> Option<Self> {
+            Some(Self::Curve(uv))
+        }
+    }
+
+    #[test]
+    fn loop_object_curves_resolve_the_stored_curves() {
+        let mut objects: LoopObjectCurves<H> =
+            LoopObjectCurves::new(FaceId::from_index(0)).unwrap();
+        let line = |x: f64| {
+            Curve::from(Line::from_points(
+                Point3::new(0.0, 0.0, 0.0),
+                Point3::new(x, 1.0, 0.0),
+                2,
+            ))
+        };
+        let (h, hu) = objects
+            .set_classify_curves(line(1.0), Some(line(2.0)))
+            .unwrap();
+        assert_eq!((h, hu), (H::Curve(false), Some(H::Curve(true))));
+        assert!(objects.curve(h).is_some());
+        assert!(objects.curve(H::Curve(true)).is_some());
+        assert_eq!(objects.surface(FaceId::from_index(0)), None);
+        // a later call replaces both
+        let (h2, hu2) = objects.set_classify_curves(line(3.0), None).unwrap();
+        assert_eq!((h2, hu2), (H::Curve(false), None));
+        assert!(objects.classify_uv_curve().is_none());
+        // a handle type that cannot name curves cannot make them
+        assert!(LoopObjectCurves::<crate::error::EntityRef>::new(FaceId::from_index(0)).is_err());
+    }
+
+    #[test]
+    fn bisector_target_out_of_range_is_invalid() {
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        let f = square(&mut b, 0.0);
+        let props: FaceProps<H> = FaceProps::for_face(f, 0);
+        let mut objects: LoopObjectCurves<H> = LoopObjectCurves::new(f).unwrap();
+        let mut cc: CurveClassification<H> = CurveClassification::new(&k);
+        let r = find_and_classify_loop_bisector(
+            &k,
+            &b,
+            f,
+            3,
+            &[LoopId::from_index(0)],
+            &[],
+            &BTreeSet::new(),
+            &props,
+            &mut objects,
+            &mut cc,
+        );
+        assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
+    }
 
     #[test]
     fn masked_array_keeps_upstream_comparison() {
