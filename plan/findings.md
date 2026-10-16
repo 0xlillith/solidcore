@@ -5382,7 +5382,7 @@ independent Apple libc++ database abort was not rerun.
 Strict C++-feature workspace Clippy also passes in the same disposable checkout
 with the runner-only profile override. No platform prerequisites enter this PR.
 
-## intersect.curve_class_p9 (standalone claim; replaces PR #143)
+## intersect.curve_class_p9 (PR #151; standalone replacement for #143)
 
 - **Scope.** Ports `IntersectEdges` and `IntersectTSBound` only, with borrowed
   arena boundary views, a native shim, full-record differential runner and fixtures.
