@@ -11,16 +11,20 @@
 // pool of objects and two default-constructed classifications cc[0], cc[1] (the setup ops are
 // those of unit intersect.curve_class_p1; the layout is documented in
 // crates/solidcore-ffi/src/units/intersect_curve_class_p4.rs, which validates the static shape).
+// The pool's topology is a real one-face B-rep built with SmBrepConstructor (sc_one_face_brep.h,
+// as the heal.face_props shim: a plane or surface of revolution with a vertex loop or edge loops
+// of line edges); its face, loops, edges, vertices and edge uses follow the script's objects.
 // The run-time checks below reject (SC_ERR_ARG) the ops that are undefined behaviour upstream:
 // an empty classification for the squeeze (FindBestSqueezeEnd(0) reads m_pData[0]); for
 // GetIvlBound_EdgeuseObj an interval index past the intervals, an interval whose back pointer is
 // not its classification, a classification without face (UB-124: GetUpwardFaceuse / GetSurface
 // on NULL) and, when the end is on an edge of a face with a surface, a NULL classification or
-// edge curve (both are evaluated); for GetLoopCrossings any loop (the pool's loops are stand-ins,
-// not SmLoop objects: SmLoop::GetFace reads a non-loop). Objects live for the whole process (never
-// deleted: topology destructors notify owners).
+// edge curve (both are evaluated); for GetLoopCrossings over loops a classification without
+// curve (UB-124: GetNaturalInterval on NULL). Geometry objects live for the whole process (never
+// deleted); the B-rep is deleted at the end of the run.
 
 #include "sc_shim.h"
+#include "sc_one_face_brep.h"
 
 #include "StdAfx.h"
 #include <SmBSplineCurve.h>
@@ -121,6 +125,7 @@ enum : int64_t
     K_FACE = 6,
     K_LOOP = 7,
     K_OTHER = 8,
+    K_EDGEUSE = 9,
 };
 
 // Ops (keep in sync with crates/solidcore-ffi/src/units/intersect_curve_class_p3.rs).
@@ -226,21 +231,6 @@ void put_vec(std::vector<double>& o, const SmVector3d& v)
     o.push_back(v.z);
 }
 
-struct ScVertex : public SmVertex
-{
-    ScVertex() : SmVertex() {}
-};
-
-struct ScEdge : public SmEdge
-{
-    explicit ScEdge(SmCurve* c) : SmEdge() { m_pCurve = c; }
-};
-
-struct ScFace : public SmFace
-{
-    explicit ScFace(SmSurface* s) : SmFace() { m_pSurface = s; }
-};
-
 // SmObject stand-in of one class; answers GetType and IsKindOf like that class.
 class ScStandIn : public SmObject
 {
@@ -257,14 +247,6 @@ const SmContext& the_context()
 {
     static SmContext* p = new SmContext();
     return *p;
-}
-
-// An object carrying the context, for the topology `operator new(size_t, SmObject*)`.
-SmObject* anchor()
-{
-    static SmLine* p = new (&the_context())
-        SmLine(SmPoint3d(0.0, 0.0, 0.0), SmPoint3d(1.0, 0.0, 0.0), 3, &the_context());
-    return p;
 }
 
 gw_CURVE* read_nurb(Rd& rd)
@@ -497,6 +479,16 @@ int32_t run(Rd& rd, std::vector<double>& o)
     const SmContext& ctx = the_context();
     Pool pool;
 
+    // the one-face B-rep (deleted on every return; its objects join the pool after the
+    // script's objects)
+    SmBrep* brep = NULL;
+    sc_one_face::OneFace of;
+    bool has_face = rd.flag();
+    bool built = !has_face || sc_one_face::build(rd, ctx, brep, of);
+    SmObjDelete clean(brep);
+    if (rd.bad || !built)
+        return SC_ERR_ARG;
+
     int64_t n_obj = rd.idx();
     for (int64_t i = 0; i < n_obj && !rd.bad; i++)
     {
@@ -523,28 +515,6 @@ int32_t run(Rd& rd, std::vector<double>& o)
             break;
         }
         case K_POINT: p = new SmPoint3d(rd.vec()); break;
-        case K_VERTEX: p = new (anchor()) ScVertex(); break;
-        case K_EDGE:
-        {
-            int64_t c = rd.idx();
-            bool ok = true;
-            SmCurve* co = (SmCurve*)pool.get(c, {K_CURVE}, ok);
-            if (!ok)
-                return SC_ERR_ARG;
-            p = new (anchor()) ScEdge(co);
-            break;
-        }
-        case K_FACE:
-        {
-            int64_t s = rd.idx();
-            bool ok = true;
-            SmSurface* so = (SmSurface*)pool.get(s, {K_PLANE, K_BSURF}, ok);
-            if (!ok)
-                return SC_ERR_ARG;
-            p = new (anchor()) ScFace(so);
-            break;
-        }
-        case K_LOOP: p = new (&ctx) ScStandIn(SmLoop_TYPE); break;
         case K_OTHER: p = new (&ctx) ScStandIn(SmObject_TYPE + 7); break;
         default: return SC_ERR_ARG;
         }
@@ -556,6 +526,42 @@ int32_t run(Rd& rd, std::vector<double>& o)
     }
     if (rd.bad)
         return SC_ERR_ARG;
+    // the B-rep's topology: the face, then per loop the loop and its vertex (a vertex loop) or
+    // per edge use its edge, its vertex use's vertex and the edge use (an edge loop)
+    auto add = [&pool](void* q, int64_t kind) {
+        pool.ids[q] = (int64_t)pool.ptrs.size();
+        pool.kinds.push_back(kind);
+        pool.ptrs.push_back(q);
+        pool.bspline.push_back(false);
+        pool.dims.push_back(0);
+    };
+    if (has_face)
+    {
+        add(of.face, K_FACE);
+        for (size_t li = 0; li < of.loops.size(); li++)
+        {
+            add(of.loops[li], K_LOOP);
+            if (of.loop_vertex[li] != NULL)
+            {
+                add(of.loop_vertex[li], K_VERTEX);
+                continue;
+            }
+            for (SmEdgeuse* eu : of.loop_edgeuses[li])
+            {
+                SmEdge* e = eu->GetEdge();
+                SmVertexuse* vu = eu->GetVertexuse();
+                SmPoint3d start;
+                // the edge use's vertex is its edge's start vertex (the Rust B-rep is built so)
+                if (e == NULL || vu == NULL || vu->GetVertex() == NULL ||
+                    e->GetCurve()->EvaluatePoint(e->GetInterval().GetMin(), start) != SM_SUCCESS ||
+                    vu->GetVertex()->GetPoint().DistanceBetweenSquared(start) > 1e-18)
+                    return SC_ERR_ARG;
+                add(e, K_EDGE);
+                add(vu->GetVertex(), K_VERTEX);
+                add(eu, K_EDGEUSE);
+            }
+        }
+    }
 
     SmCurveClassification ccs[2];
     // the pool's curves are never deleted: clear the ownership flags before the
@@ -858,10 +864,22 @@ int32_t run(Rd& rd, std::vector<double>& o)
                 loops[(ULONG)i] = l;
             }
             bool with_props = rd.flag();
-            // the pool's loops are stand-ins: SmLoop::GetFace of one reads a non-loop
-            if (rd.bad || n > 0)
+            // the face props seeds (`field idx value`, as the heal.face_props shim), applied to
+            // the props passed: a preset at SM_PROPSTAGE_2a or later skips SetProps_Stage2
+            int64_t n_seeds = rd.idx();
+            if (rd.bad || n_seeds < 0 || n_seeds > 32)
                 return SC_ERR_ARG;
             SmFaceProps props(&ctx);
+            for (int64_t i = 0; i < n_seeds; i++)
+            {
+                int64_t field = rd.idx();
+                int64_t idx = rd.idx();
+                double v = rd.num();
+                sc_one_face::seed(props, of.face, field, idx, v);
+            }
+            // UB-124: the classification curve's GetNaturalInterval() before its NULL check
+            if (rd.bad || (n > 0 && cc.GetCurve() == NULL))
+                return SC_ERR_ARG;
             SmTArray<ULONG> counts;
             SmTArray<SmTouchData> raw, done;
             SmStatus s = cc.GetLoopCrossings(loops, with_props ? &props : NULL, &counts, &raw, &done);
@@ -871,6 +889,8 @@ int32_t run(Rd& rd, std::vector<double>& o)
                 o.push_back((double)counts[i]);
             put_touches(o, raw, pool);
             put_touches(o, done, pool);
+            if (with_props)
+                sc_one_face::snapshot(o, props, of.face);
             break;
         }
         case OP_CONSTRUCT:

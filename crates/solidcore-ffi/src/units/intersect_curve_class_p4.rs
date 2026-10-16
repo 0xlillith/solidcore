@@ -5,17 +5,24 @@
 //! `SmCurveClassification` constructor, `GetLoopCrossings`, `SmCurveInterval::GetIvlBound_EdgeuseObj`
 //! and the static `sm_SqueezeOutSmallestInterval`).
 //!
-//! A script is `n_obj obj*n_obj n_ops op*n_ops`. It builds a pool of objects, constructs two
-//! default classifications `cc[0]`, `cc[1]` (`SmCurveClassification()`), then runs the ops,
-//! each on a target `t` (`0` or `1`). The objects and the setup ops `0..=29` are those of unit
-//! `intersect.curve_class_p1` (see its module docs and `intersect_curve_class_p3`).
+//! A script is `has_face [face] n_obj obj*n_obj n_ops op*n_ops`. It builds a pool of objects
+//! (curves, planes, B-spline surfaces, points and "other" stand-ins; the objects of unit
+//! `intersect.curve_class_p1` without its topology stand-ins), then, with `has_face`, the
+//! one-face B-rep of the face block (the block of [`heal_face_props::encode_face`]: a plane or
+//! surface of revolution with a vertex loop or edge loops of line edges, built by
+//! `SmBrepConstructor`), whose topology joins the pool after the objects in the order of
+//! [`topology_count`]: the face, then per loop the loop and its vertex (a vertex loop) or, per
+//! edge use, its edge, its vertex and the edge use (an edge loop). It constructs two default
+//! classifications `cc[0]`, `cc[1]` (`SmCurveClassification()`), then runs the ops, each on a
+//! target `t` (`0` or `1`). The setup ops `0..=29` are those of unit `intersect.curve_class_p1`
+//! (see its module docs and `intersect_curve_class_p3`).
 //!
 //! | code | op (`op t ...`)                              | upstream                                   | outputs after the status |
 //! |------|----------------------------------------------|--------------------------------------------|--------------------------|
 //! | 0..=29 | as in `intersect.curve_class_p1`           | the setters of `SmCurveClassification`, `SmCurveInterval`, `SmPointClassification` | |
 //! | 30   |                                              | `sm_SqueezeOutSmallestInterval(cc)`        |                          |
 //! | 31   | `j do_min`                                   | `cc[j].GetIvlBound_EdgeuseObj(do_min, NULL)` | `edgeuse` (pool id, `-1` none) |
-//! | 32   | `n loop*n with_props`                        | `GetLoopCrossings(loops, with_props ? &SmFaceProps(ctx) : NULL, ..)` | `counts raw done` (each a length and its entries; a touch is `connected dir loop_index param pt_classify_index`) |
+//! | 32   | `n loop*n with_props n_seeds (field idx value)*n_seeds` | `GetLoopCrossings(loops, with_props ? &props : NULL, ..)`, `props` an `SmFaceProps(ctx)` with the seeds of the `heal.face_props` shim applied (a preset at `SM_PROPSTAGE_2a` or later skips `SetProps_Stage2`) | `counts raw done` (each a length and its entries; a touch is `connected dir loop_index param pt_classify_index`), then with `with_props` the props snapshot ([`heal_face_props::SNAP_LEN`] values) |
 //! | 33   | `curve a b uv tol data_size owned current s1 s2 uv2` | `cc = SmCurveClassification(curve, [a, b], uv, tol, data_size, NULL, owned, current, s1, s2, uv2, NULL)` | |
 //!
 //! Each op writes `op status outputs state`, the state of `cc[t]` being as in
@@ -27,9 +34,10 @@
 //! interval past the intervals, of an interval whose back pointer is not its classification, on a
 //! classification without face (UB-124: `GetUpwardFaceuse` / `GetSurface` on `NULL`), and of an
 //! edge end on a face with a surface when the classification or edge curve is `NULL` (both are
-//! evaluated); `GetLoopCrossings` over any loop (the pool's loops are stand-ins, and
-//! `SmLoop::GetFace` of one reads a non-loop).
+//! evaluated); `GetLoopCrossings` over loops for a classification without curve (UB-124:
+//! `GetNaturalInterval` on `NULL`).
 
+use crate::units::heal_face_props::{self, FaceSpec, Loops};
 use crate::{call_with_buffer, FfiError};
 
 /// Largest pool size.
@@ -49,6 +57,8 @@ pub const MAX_INDEX: usize = 64;
 pub const MAX_SURF_INDEX: usize = 16;
 /// Largest degree.
 pub const MAX_DEGREE: usize = 9;
+/// Largest number of face props seeds of a `GetLoopCrossings` op.
+pub const MAX_SEEDS: usize = 32;
 /// Largest loop count of `GetLoopCrossings`.
 pub const MAX_LOOPS: usize = 8;
 
@@ -67,6 +77,8 @@ pub mod kind {
     pub const FACE: usize = 6;
     pub const LOOP: usize = 7;
     pub const OTHER: usize = 8;
+    /// An edge use of the face (B-rep topology only).
+    pub const EDGEUSE: usize = 9;
 }
 
 /// Op codes.
@@ -384,15 +396,29 @@ fn surface_block(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     check_knots(rd.take(s + 1)?, q, "surface v")
 }
 
+/// The number of pool objects of the face's B-rep: the face, then per loop the loop and its
+/// vertex (a vertex loop) or three per edge use (its edge, vertex and the edge use).
+#[must_use]
+pub fn topology_count(face: Option<&FaceSpec>) -> usize {
+    match face.map(|f| &f.loops) {
+        None => 0,
+        Some(Loops::Vertex(_)) => 3,
+        Some(Loops::Edges(loops)) => 1 + loops.iter().map(|l| 1 + 3 * l.len()).sum::<usize>(),
+    }
+}
+
 /// Checks the static shape of a script (what [`run`] checks before calling the shim).
 ///
 /// # Errors
 ///
-/// [`FfiError::InvalidArgument`] for a malformed script.
-pub fn validate(input: &[f64]) -> Result<(), FfiError> {
+/// [`FfiError::InvalidArgument`] for a malformed script or face.
+pub fn validate(face: Option<&FaceSpec>, input: &[f64]) -> Result<(), FfiError> {
+    if let Some(f) = face {
+        heal_face_props::validate_face(f)?;
+    }
     let mut rd = Reader { input, at: 0 };
     let n_obj = rd.index(MAX_OBJECTS)?;
-    for i in 0..n_obj {
+    for _ in 0..n_obj {
         let k = rd.index(kind::OTHER)?;
         match k {
             kind::CURVE => curve_block(&mut rd)?,
@@ -404,17 +430,17 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
             kind::POINT => {
                 rd.vec3()?;
             }
-            kind::EDGE | kind::FACE => {
-                rd.object(i)?;
-            }
-            _ => {}
+            kind::OTHER => {}
+            // the topology is the face's B-rep
+            _ => return Err(bad("topology objects come from the face")),
         }
     }
+    let n_pool = n_obj + topology_count(face);
     let n_ops = rd.index(MAX_OPS)?;
     for _ in 0..n_ops {
         let code = rd.index(op::LAST)?;
         rd.index(1)?;
-        let obj = |rd: &mut Reader<'_>| rd.object(n_obj).map(|_| ());
+        let obj = |rd: &mut Reader<'_>| rd.object(n_pool).map(|_| ());
         match code {
             op::SET_SIZE | op::REMOVE_AT | op::IVL_RESET => {
                 rd.index(MAX_SIZE)?;
@@ -498,6 +524,15 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
                     obj(&mut rd)?;
                 }
                 rd.flag()?;
+                let n_seeds = rd.index(MAX_SEEDS)?;
+                for _ in 0..n_seeds {
+                    let field = rd.index(heal_face_props::SEED_FIELDS as usize - 1)?;
+                    rd.index(3)?;
+                    let v = rd.finite()?;
+                    if v.abs() > 1e9 || !heal_face_props::seed_ok(field as i64, v) {
+                        return Err(bad("face props seed out of range"));
+                    }
+                }
             }
             op::CONSTRUCT => {
                 obj(&mut rd)?;
@@ -528,8 +563,17 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
 ///
 /// [`FfiError::InvalidArgument`] for a malformed script; [`FfiError::Status`] with
 /// `SC_ERR_ARG` when the shim rejects an op at run time.
-pub fn run(input: &[f64]) -> Result<Vec<f64>, FfiError> {
-    validate(input)?;
+pub fn run(face: Option<&FaceSpec>, script: &[f64]) -> Result<Vec<f64>, FfiError> {
+    validate(face, script)?;
+    let mut input = Vec::new();
+    match face {
+        None => input.push(0.0),
+        Some(f) => {
+            input.push(1.0);
+            heal_face_props::encode_face(f, &mut input);
+        }
+    }
+    input.extend_from_slice(script);
     call_with_buffer(262144, |buf, len| {
         // SAFETY: input is valid for input.len() reads and is a validated script (every
         // count, code, object index, curve and surface block the shim reads); buf is valid
