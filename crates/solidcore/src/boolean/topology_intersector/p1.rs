@@ -88,10 +88,11 @@
 //!   `SmFace::FaceIntersect` / `SetTolerance` (`topology.face_p3`),
 //!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
 //!   `SmFace::CalculateBoundingBox` / `Point3DClassify` (`query.face_p1`),
-//!   `SmSurface::GlobalCurveIntersect` / `CoincidenceCheck` (`surface.surface_p8`),
-//!   the `SmCurveClassification` constructor (`intersect.curve_class_p4`),
-//!   `InsertTopologyIntersections` (`intersect.curve_class_p5`) and `Homogenize`
-//!   (`intersect.curve_class_p6`). The code after a stub is ported in full.
+//!   the `SmCurveClassification` constructor (`intersect.curve_class_p4`) and
+//!   `InsertTopologyIntersections` (`intersect.curve_class_p5`). The code after a
+//!   stub is ported in full. `SmSurface::GlobalCurveIntersect` / `CoincidenceCheck`
+//!   (`surface.surface_p8`) and `SmCurveClassification::Homogenize`
+//!   (`intersect.curve_class_p6`) are the ported calls.
 //! - **Undefined behaviour upstream** (a null object dereferenced, a solution without
 //!   objects, the maps of an intersector made with the context-only constructor) is
 //!   [`SolidError::InvalidInput`].
@@ -501,34 +502,45 @@ fn face_face_intersect_curves<O>(
     ))
 }
 
-/// `SmSurface::GlobalCurveIntersect(domain, curve, interval, tol, solutions)`.
-fn surface_global_curve_intersect<O>(
-    _surface: O,
-    _domain: &Extent2d,
-    _curve: O,
-    _interval: &Extent1d,
-    _tol: f64,
+/// `pSurf->GlobalCurveIntersect(domain, *pCurve, interval, tol, solutions)` of the
+/// surface and curve behind the handles (unit `surface.surface_p8`).
+fn surface_global_curve_intersect<O: ClassObject + SolutionObject>(
+    k: &Kernel,
+    geometry: &impl IntersectorBrep<O>,
+    surface: O,
+    domain: &Extent2d,
+    curve: O,
+    interval: &Extent1d,
+    tol: f64,
 ) -> Result<SolutionArray<O>> {
-    // UNPORTED(surface.surface_p8): SmSurface::GlobalCurveIntersect
-    Err(SolidError::unported(
-        "SmSurface::GlobalCurveIntersect",
-        "surface.surface_p8",
-    ))
+    let s = geometry
+        .surface(surface)
+        .ok_or(dangling("surface handle cannot be resolved"))?;
+    let c = geometry
+        .curve(curve)
+        .ok_or(dangling("curve handle cannot be resolved"))?;
+    s.global_curve_intersect(k, [curve, surface], domain, c, interval, tol)
 }
 
-/// `SmSurface::CoincidenceCheck(other, angTolRad, bAreCoincident, dMaxDist, FALSE,
-/// pSCover)`: whether the surfaces are coincident.
-fn surface_coincidence_check<O>(
-    _surface: O,
-    _other: O,
-    _tol_3d: f64,
-    _allow_extensions: bool,
-) -> Result<(bool, f64, Option<O>)> {
-    // UNPORTED(surface.surface_p8): SmSurface::CoincidenceCheck
-    Err(SolidError::unported(
-        "SmSurface::CoincidenceCheck",
-        "surface.surface_p8",
-    ))
+/// `pSurf1->CoincidenceCheck(*pSurf2, tol, bAreCoincident, dMaxDist, FALSE, pSCover)`
+/// of the surfaces behind the handles (unit `surface.surface_p8`): whether they are
+/// coincident and the largest distance seen (`pSCover` is `NotUsed` upstream).
+fn surface_coincidence_check<O: ClassObject + SolutionObject>(
+    k: &Kernel,
+    geometry: &impl IntersectorBrep<O>,
+    surface: O,
+    other: O,
+    tol_3d: f64,
+    allow_extensions: bool,
+) -> Result<(bool, f64)> {
+    let s = geometry
+        .surface(surface)
+        .ok_or(dangling("surface handle cannot be resolved"))?;
+    let o = geometry
+        .surface(other)
+        .ok_or(dangling("surface handle cannot be resolved"))?;
+    let c = s.coincidence_check(k, o, tol_3d, allow_extensions)?;
+    Ok((c.are_coincident, c.max_distance))
 }
 
 /// `SmCurveClassification(pCurve, interval, NULL, tol)`.
@@ -556,16 +568,14 @@ fn cc_insert_topology_intersections<O>(
     ))
 }
 
-/// `SmCurveClassification::Homogenize(other)`.
-fn cc_homogenize<O>(
-    _cc: &mut CurveClassification<O>,
-    _other: &mut CurveClassification<O>,
+/// `SmCurveClassification::Homogenize(other)` (unit `intersect.curve_class_p6`).
+fn cc_homogenize<O: ClassObject + SolutionObject>(
+    k: &Kernel,
+    geometry: &impl IntersectorBrep<O>,
+    cc: &mut CurveClassification<O>,
+    other: &mut CurveClassification<O>,
 ) -> Result<()> {
-    // UNPORTED(intersect.curve_class_p6): SmCurveClassification::Homogenize
-    Err(SolidError::unported(
-        "SmCurveClassification::Homogenize",
-        "intersect.curve_class_p6",
-    ))
+    cc.homogenize(k, geometry, other)
 }
 
 // ---- the intersection table ----------------------------------------------------------------
@@ -1817,6 +1827,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 }
 
                 let solutions = ignore_soft(surface_global_curve_intersect(
+                    k,
+                    brep,
                     surf,
                     &face_domain,
                     curve,
@@ -2211,10 +2223,15 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 if !common_edges.is_empty() {
                     // (upstream passes the angle tolerance as the 3D tolerance; the status is
                     // ignored, bAreCoincident stays FALSE)
-                    let (are_coincident, _max_dist, _cover) = ignore_soft(
-                        surface_coincidence_check(surf1, surf2, self.this_ang_tol_rad, false),
-                    )?
-                    .unwrap_or((false, 0.0, None));
+                    let (are_coincident, _max_dist) = ignore_soft(surface_coincidence_check(
+                        k,
+                        brep,
+                        surf1,
+                        surf2,
+                        self.this_ang_tol_rad,
+                        false,
+                    ))?
+                    .unwrap_or((false, 0.0));
                     if are_coincident {
                         jj += 1;
                         continue;
@@ -3109,7 +3126,7 @@ pub fn intersect_wire_lamina_edges<O: ClassObject + SolutionObject + Ord>(
         }
 
         // Syncronize the two curve classifications.
-        if ignore_soft(cc_homogenize(&mut crv_class1, &mut crv_class2))?.is_none() {
+        if ignore_soft(cc_homogenize(k, geometry, &mut crv_class1, &mut crv_class2))?.is_none() {
             return Err(SolidError::sm_err(OP));
         }
 

@@ -5699,6 +5699,10 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   `0.0`, `FALSE`, `(TRUE, TRUE)`); a vertex without B-rep in `VertexFaceIntersect` is
   `InvalidInput`; a null start vertex in `sm_IntersectWireLaminaEdges` continues as
   upstream (`GetOtherVertex(NULL)`).
+- **Back-edges wired after the merge of `main`.** `SmSurface::GlobalCurveIntersect` /
+  `CoincidenceCheck` (`surface.surface_p8`, now partial) and
+  `SmCurveClassification::Homogenize` (`intersect.curve_class_p6`, now partial) are
+  real calls; the deferrals they caused now come from their own unported callees.
 - **Back-edge wired.** `proto_topology::p3::glue_coincident_brep_vertices` takes the
   intersector's `GetOtherMate` as a closure (`ti_get_other_mate` stub removed); the
   intersector passes its mate map, the proto-topology runner passes "no mates" (its
