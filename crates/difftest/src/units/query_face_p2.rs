@@ -48,7 +48,7 @@ use solidcore::kernel::Kernel;
 use solidcore::query::face::p2 as qf;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::proto_topology::ProtoTopologyManager;
-use solidcore::topology::{Brep, EdgeuseId, FaceId, LoopId};
+use solidcore::topology::{Brep, EdgeuseId, FaceId, LoopId, VertexId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::query_face_p2::{self as ffi, Op};
 
@@ -519,7 +519,9 @@ struct Objects<'a> {
 }
 
 impl qf::CurveOnClassifyObjects<H> for Objects<'_> {
-    fn vertex(&self, v: VertexId) -> H { H::Vertex(v) }
+    fn vertex(&self, v: VertexId) -> H {
+        H::Vertex(v)
+    }
     fn face(&self, f: FaceId) -> H {
         H::Face(f)
     }
@@ -569,7 +571,6 @@ impl solidcore::intersect::point_class::ClassGeometry<H> for Objects<'_> {
         None
     }
 }
-
 
 /// A Rust error as the case outcome: deferred for [`SolidError::Unported`], else an
 /// error no C++ output has (a visible failure).

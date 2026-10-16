@@ -57,17 +57,12 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     let n = int(n, 32)?;
     let ns = int(ns, 32)?;
     let other_n = int(other_n, 32)?;
-    if input.len() != 18 + 4 * (n + other_n) + 7 * ns
-        || scale <= 0.0
-        || scale > 1e6
-        || tol < 0.0
-    {
+    if input.len() != 18 + 4 * (n + other_n) + 7 * ns || scale <= 0.0 || scale > 1e6 || tol < 0.0 {
         return Err(invalid());
     }
     for (start, count) in [(16, n), (17 + n, other_n)] {
         let bounds = input.get(start..start + count + 1).ok_or_else(invalid)?;
-        if bounds.windows(2).any(|w| matches!(w,[a,b] if a>=b))
-        {
+        if bounds.windows(2).any(|w| matches!(w,[a,b] if a>=b)) {
             return Err(invalid());
         }
     }
@@ -93,8 +88,11 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
         return Err(invalid());
     }
 
-    for &[typ, t0, t1, t2, t3, gap0, gap1] in
-        input.get(at + class_count..).ok_or_else(invalid)?.as_chunks::<7>().0
+    for &[typ, t0, t1, t2, t3, gap0, gap1] in input
+        .get(at + class_count..)
+        .ok_or_else(invalid)?
+        .as_chunks::<7>()
+        .0
     {
         int(typ, 4)?;
         let _ = (t0, t1, t2, t3); // Finite curve parameters may span any subdomain.

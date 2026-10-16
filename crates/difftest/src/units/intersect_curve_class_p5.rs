@@ -205,8 +205,12 @@ fn setup(k: &Kernel, pool: &Pool, i: &Input, other: bool) -> ScResult<CurveClass
     let mut cc = CurveClassification::new(k);
     cc.set_curve(Some(H(0, ClassObjectKind::Curve)), false);
     cc.set_interval(&Extent1d::from_min_max(
-        b.first().copied().ok_or_else(|| SolidError::sm_err("difftest::p5"))?,
-        b.last().copied().ok_or_else(|| SolidError::sm_err("difftest::p5"))?,
+        b.first()
+            .copied()
+            .ok_or_else(|| SolidError::sm_err("difftest::p5"))?,
+        b.last()
+            .copied()
+            .ok_or_else(|| SolidError::sm_err("difftest::p5"))?,
     ))?;
     // Match the native fixture's literal SetZoneTol3d, including zero.
     cc.set_src_zone_tol_3d(i.tol);
@@ -276,7 +280,8 @@ fn put_pc(out: &mut Vec<f64>, pc: &PointClassification<H>, target: H) {
     let sss = pc.sss_point();
     out.extend([
         f64::from(pc.point_class().code()),
-        pc.object().map_or(-1., |h| if h == target { 1. } else { -2. }),
+        pc.object()
+            .map_or(-1., |h| if h == target { 1. } else { -2. }),
         pc.deviation(),
         pc.t_param(),
         uv.x,
@@ -311,11 +316,15 @@ fn status(e: &SolidError) -> f64 {
 }
 
 fn stationary_curve(dim: u64, scale: f64, angle: f64) -> ScResult<Curve> {
-    let points = [0.75, 0.25, 0.75].map(|x| {
-        CPoint::new(x * scale * angle.cos(), x * scale * angle.sin(), 0., 1.)
-    });
+    let points = [0.75, 0.25, 0.75]
+        .map(|x| CPoint::new(x * scale * angle.cos(), x * scale * angle.sin(), 0., 1.));
     Ok(Curve::from(BSplineCurve::from_data(
-        dim, 2, 5, 2, &points, &[0., 0., 0., 1., 1., 1.],
+        dim,
+        2,
+        5,
+        2,
+        &points,
+        &[0., 0., 0., 1., 1., 1.],
     )?))
 }
 
@@ -352,16 +361,18 @@ fn rust(i: &Input) -> ScResult<Output> {
         source,
         target: if i.shape == 3 || i.shape == 4 {
             stationary_curve(if i.dim2 { 2 } else { 3 }, i.scale, i.angle)?
-        } else { Curve::from(Line::bounded(
-            Vec3::ZERO,
-            Vec3::new(i.angle.cos(), i.angle.sin(), 0.),
-            &Extent1d::from_min_max(0., 1.),
-            &BoundedLineOptions {
-                scale: i.scale,
-                dim: if i.dim2 { 2 } else { 3 },
-                ..BoundedLineOptions::default()
-            },
-        )) },
+        } else {
+            Curve::from(Line::bounded(
+                Vec3::ZERO,
+                Vec3::new(i.angle.cos(), i.angle.sin(), 0.),
+                &Extent1d::from_min_max(0., 1.),
+                &BoundedLineOptions {
+                    scale: i.scale,
+                    dim: if i.dim2 { 2 } else { 3 },
+                    ..BoundedLineOptions::default()
+                },
+            ))
+        },
         plane: Surface::from(Plane::from_normal(Vec3::ZERO, Vec3::new(0., 0., 1.))),
         vertex: Vec3::new(i.angle * i.scale, 0., 0.),
         uv1: Curve::from(Line::bounded(
