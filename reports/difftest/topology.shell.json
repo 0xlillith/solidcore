@@ -3035,8 +3035,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetSurface",
-        "unit": "topology.face_p2"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_147",
@@ -3047,8 +3047,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetSurface",
-        "unit": "topology.face_p2"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_148",
@@ -3059,8 +3059,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetSurface",
-        "unit": "topology.face_p2"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_149",
@@ -3071,8 +3071,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetSurface",
-        "unit": "topology.face_p2"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_150",
@@ -3083,8 +3083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetSurface",
-        "unit": "topology.face_p2"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_151",
@@ -3095,8 +3095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetSurface",
-        "unit": "topology.face_p2"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_152",
@@ -3107,8 +3107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetSurface",
-        "unit": "topology.face_p2"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_153",
@@ -3119,8 +3119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetSurface",
-        "unit": "topology.face_p2"
+        "symbol": "SmFace::CalculateBoundingBox",
+        "unit": "query.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_154",
@@ -4827,8 +4827,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTopologyTraverser::IsInnerShell",
-        "unit": "topology.topology_traverser"
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "region_order_gather_Mouse.smb_1",
@@ -4839,8 +4839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTopologyTraverser::IsInnerShell",
-        "unit": "topology.topology_traverser"
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "region_order_gather_Mouse.smb_2",
@@ -4867,8 +4867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTopologyTraverser::IsInnerShell",
-        "unit": "topology.topology_traverser"
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "region_order_gather_box_with_large_fillet.smb_1",
@@ -4879,8 +4879,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTopologyTraverser::IsInnerShell",
-        "unit": "topology.topology_traverser"
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
       },
       "max_rel_err": 0.0,
       "name": "region_order_gather_box_with_large_fillet.smb_2",
@@ -6361,9 +6361,8 @@
   "cases_total": 785,
   "deferred_by_unit": {
     "query.brep": 3,
-    "query.face_p1": 3,
-    "topology.face_p2": 8,
-    "topology.topology_traverser": 4
+    "query.face_p1": 11,
+    "topology.face_p1": 4
   },
   "max_rel_err": 0.0,
   "pass": true,
