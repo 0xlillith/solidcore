@@ -3273,10 +3273,10 @@ soft_depends_on = ["boolean.topology_intersector_p2", "boolean.topology_intersec
 est_lines = 993
 layer = 53
 tests = ["prog_test:my_test_surface_closest_point", "prog_test:my_test_drop_point", "prog_test:my_test_matrix", "prog_test:my_test_reversed_line_join", "SM_API_test:TestSmCreateRectangle", "SM_API_test:TestSmCreateRegularPolygon"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "CO-PORTED in boolean.api_brep (PR #81): SmMergeOptions (fields, ctor, defaults, copy ctor, getters/setters) -> solidcore::boolean::merge::p1::MergeOptions (crates/solidcore/src/boolean/merge/p1.rs; extend it, keep boolean/merge.rs as the split root); 24 fns; largest: SmMerge::BooleanPostProcess, SmMerge::FixFoundFaceCoincidence, sm_FindBrepRegionOfOtherFace, SmMerge::PropagateOtherSrcRegionAttribs; cycle back-edges (call into later units; stub or co-port): blend.fillet_executive_p1(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit"
+notes = "CO-PORTED in boolean.api_brep (PR #81): SmMergeOptions (fields, ctor, defaults, copy ctor, getters/setters) -> solidcore::boolean::merge::p1::MergeOptions (crates/solidcore/src/boolean/merge/p1.rs; extend it, keep boolean/merge.rs as the split root); 24 fns; largest: SmMerge::BooleanPostProcess, SmMerge::FixFoundFaceCoincidence, sm_FindBrepRegionOfOtherFace, SmMerge::PropagateOtherSrcRegionAttribs; cycle back-edges (call into later units; stub or co-port): blend.fillet_executive_p1(1); unit-SCC #22 (220 units); 317 upstream test entry points reach this unit; PR #163: merge control, face coincidence fast path, mapped vertex copy with topology/attribute notification, cleanup and region-attribute propagation; cross-B-rep radial classification keeps operand ids separate. Difftest 209 cases (113 fixtures + 96 generated), 159 passed, 50 deferred, 0 failed, max_rel_err=0, no absolute floors. Deferred: boolean.topology_intersector_p3(4), query.brep(14), topology.brep_p9(3), topology.face_p2(6), topology.shell(23). DeleteEdge/DeleteVertex/DeleteTopologicalVertex remain tagged back-edges; scoped translation waits for query.brep bounding boxes; intersector construction is supplied by its owner. No UNPORTED(boolean.merge_p1) callers on main."
 
 [[unit]]
 id = "primitive.primitive_creation_p3"

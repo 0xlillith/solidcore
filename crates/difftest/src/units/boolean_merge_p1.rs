@@ -14,7 +14,10 @@ use solidcore::geom::object::ObjectRef;
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
 use solidcore::topology::topology::Topology;
-use solidcore::topology::{ArenaId, Brep, EdgeId, FaceId, FaceuseId, RegionId, VertexId};
+use solidcore::topology::{
+    ArenaId, Brep, EdgeId, EdgeuseOwner, FaceId, FaceuseId, LoopuseStart, RegionId, VertexId,
+    VertexuseOwner,
+};
 use solidcore::SolidError;
 use solidcore_ffi::units::{boolean_merge_p1 as ffi, topology_vertexuse as fixture};
 use std::collections::BTreeMap;
@@ -97,6 +100,51 @@ fn graph(b: &Brep, record: Vec<f64>) -> Output {
         b.vertexuses().len() as i64,
         b.vertices().len() as i64,
     ];
+    for (_, r) in b.regions().iter() {
+        ints.push(i64::from(r.in_brep));
+    }
+    for (_, f) in b.faces().iter() {
+        ints.extend([
+            i64::from(f.shell.index()),
+            id(f.faceuse),
+            i64::from(f.rectangular_trim),
+            f.loops.len() as i64,
+        ]);
+        ints.extend(f.loops.iter().map(|v| i64::from(v.index())));
+    }
+    for (_, l) in b.loops().iter() {
+        ints.extend([
+            i64::from(l.face.index()),
+            id(l.loopuse),
+            l.edges.len() as i64,
+        ]);
+        for e in &l.edges {
+            ints.extend([i64::from(e.edge.index()), i64::from(e.forward)]);
+        }
+    }
+    for (_, l) in b.loopuses().iter() {
+        ints.extend(match l.start {
+            LoopuseStart::Unknown => [0, -1],
+            LoopuseStart::Edgeuse(e) => [1, id(e)],
+            LoopuseStart::Vertexuse(v) => [2, id(v)],
+        });
+    }
+    for (_, e) in b.edgeuses().iter() {
+        ints.extend(match e.owner {
+            EdgeuseOwner::Unknown => [0, -1],
+            EdgeuseOwner::Loopuse(l) => [1, id(l)],
+            EdgeuseOwner::Shell(sh) => [2, id(sh)],
+        });
+    }
+    for (_, v) in b.vertexuses().iter() {
+        ints.push(id(v.vertex));
+        ints.extend(match v.owner {
+            VertexuseOwner::Unknown => [0, -1],
+            VertexuseOwner::Edgeuse(e) => [1, id(e)],
+            VertexuseOwner::Loopuse(l) => [2, id(l)],
+            VertexuseOwner::Shell(sh) => [3, id(sh)],
+        });
+    }
     for (_, s) in b.shells().iter() {
         ints.push(id(s.region));
         ints.push(s.faces.len() as i64);
@@ -129,6 +177,9 @@ fn graph(b: &Brep, record: Vec<f64>) -> Output {
         ]);
     }
     let mut values = Vec::new();
+    for (_, v) in b.vertexuses().iter() {
+        values.extend([v.uv_point.x, v.uv_point.y]);
+    }
     for (_, v) in b.vertices().iter() {
         values.extend([v.point.x, v.point.y, v.point.z, v.tolerance]);
         ints.push(v.vertexuses.len() as i64);
@@ -162,7 +213,7 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                 r.edge_mates = b.edges().ids().zip(other.edges().ids()).collect();
                 r.vertex_mates = b.vertices().ids().zip(other.vertices().ids()).collect();
             }
-            if c == 2 {
+            if c == 2 && a == 0 {
                 r.edges.push(EdgeId::from_index(u32::MAX));
                 r.vertices.push(VertexId::from_index(u32::MAX));
             }
@@ -347,12 +398,13 @@ impl UnitDiff for Runner {
         } else {
             *[1, 2, 4, 5, 6, 7].get(rng.below(6) as usize)?
         };
-        let scale = *[1e-6, 1.0, 1e6].get(rng.below(3) as usize)?;
+        // Include both sides of the default 3D zone tolerance as well as tiny/huge geometry.
+        let scale = *[1e-6, 0.999999e-5, 1e-5, 1.000001e-5, 1.0, 1e6].get(rng.below(6) as usize)?;
         let p = rng.point3(-10.0 * scale, 10.0 * scale);
         let brep = if wire {
             json!({"kind":"wire","curve":{"dim":3,"cpts":[[p[0],p[1],p[2],1.0],[p[0]+scale,p[1]+scale,p[2],1.0]],"p":1,"u":[0,0,1,1]},"t0":0.125,"t1":0.875})
         } else {
-            json!({"kind":"face","surface":{"kind":"plane","o":p,"n":[0,0,1]},"dom":[-2,-1,3,4]})
+            json!({"kind":"face","surface":{"plane":{"o":p,"n":[0,0,1]}},"dom":[-2,-1,3,4]})
         };
         Some(json!({"op":op,"args":[rng.below(2),rng.below(3),rng.below(2)],"brep":brep}))
     }
