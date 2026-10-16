@@ -2,7 +2,7 @@
 // SmBrep p6 on actual SMLib objects. Raw fixtures share the existing topology
 // protocol; operation results are never used to construct the Rust input graph.
 #include "sc_topology_fixture.h"
-#include <memory>+
+#include <memory>
 SC_EXPORT int32_t sc_topology_brep_p6_eval(
     int32_t op, const char* path, const double* input, int64_t n,
     int64_t seed, const int64_t* indices, int64_t count, int32_t repeat,
