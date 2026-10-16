@@ -1000,7 +1000,7 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmCopyBrepMap& copy_map = *pcopy;
         SmCopyBrepMap& rev_map = *prev;
         // SmCopyBrepMap::SetAt dereferences a null copy and GetAt its (null) result on a
-        // miss (UB-136): the copy maps only see non-null copies and are only asked for
+        // miss (UB-98): the copy maps only see non-null copies and are only asked for
         // keys that were stored
         std::set<const void*> copy_keys, rev_keys;
         int64_t n_set = rd.idx();
