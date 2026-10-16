@@ -54,7 +54,7 @@
 //!   `do_boundary_testing`) and `sm_ExtractIsoCurve` (`LiftCurve`), both unit
 //!   `surface.surface_p8`.
 //! - **Upstream issues.** `IntersectSurfaceBoundaries` dereferences a `NULL` curve
-//!   array (UB-116; the port always returns the curves); `LocalSurfaceIntersect`'s
+//!   array (UB-120; the port always returns the curves); `LocalSurfaceIntersect`'s
 //!   boundary retries bind `!bFoundSolution` to the minimum test only (WR-97;
 //!   reproduced).
 //! - Debug-only work (`SM_ASSERT`, `SM_DEBUG_CODE` drawing) is not ported.
@@ -1078,8 +1078,10 @@ impl<'t, O: SolutionObject + 't> CsGlobalSolver<'t, '_, O> {
             surface_box: surface_node.bbox,
             curve_box: Some(curve_node.bbox),
         };
+        let k = self.kernel.ok_or(SolidError::null_pointer(OP_CS))?;
         // (SER: checked)
         let solutions: SolutionArray<O> = sc_local_solve(
+            k,
             &nodes,
             &uv_domain,
             u_conts,
@@ -1264,6 +1266,7 @@ impl<'t, O: SolutionObject + 't> SsGlobalSolver<'t, '_, O> {
                 };
                 // (SER: checked)
                 let sols: SolutionArray<O> = sc_local_solve(
+                    self.kernel,
                     &nodes,
                     &other_dom,
                     pu,
@@ -1708,7 +1711,7 @@ impl Surface {
 
                 // (SE: status ignored: a failed drop is no success; DropPoint is not
                 // virtual, its solves run with the caller's kernel)
-                let drop = ignored(self.drop_point_with_kernel::<BoundaryCurveHandle>(
+                let drop = ignored(self.drop_point::<BoundaryCurveHandle>(
                     k,
                     crv_pt,
                     uv_domain,
@@ -1900,8 +1903,9 @@ impl Surface {
             | SurfaceKind::Step(_) => {
                 // DISPATCH GAP: SmCrvOnSurf over a surface that is not a B-spline (the
                 // ported CrvOnSurf holds an SmBSplineSurface and would drop the kind's
-                // evaluation overrides). No UNPORTED marker: SmCrvOnSurf is ported; the
-                // error names its unit.
+                // evaluation overrides). SmCrvOnSurf is ported, so this is a dispatch gap
+                // rather than a missing unit; the marker keeps it greppable.
+                // UNPORTED(curve.crv_on_surf): SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)
                 return Err(SolidError::unported(
                     "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
                     "curve.crv_on_surf",

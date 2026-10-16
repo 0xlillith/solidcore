@@ -1137,6 +1137,7 @@ impl Surface {
         );
         gs.curve = Some(curve);
         gs.surface_cache = Some(&surface_cache);
+        gs.kernel = Some(k);
 
         let best = pair_solve_best_answer_sq(op, opt_target_distance, false)?;
         if op == SolverOperation::AtDistance {
