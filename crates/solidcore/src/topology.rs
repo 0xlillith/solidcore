@@ -6,7 +6,7 @@
 //!
 //! | Rust                        | Upstream                                              |
 //! |-----------------------------|-------------------------------------------------------|
-//! | [`Brep`]                    | `SmBrep` (face/edge/vertex lists `m_p*ListHead`, `m_bValidateOnly`) |
+//! | [`Brep`]                    | `SmBrep` (face/edge/vertex lists `m_p*ListHead`, `m_bValidateOnly`; its own members in [`brep::p1`]) |
 //! | [`Region`] / [`RegionId`]   | `SmRegion` (minimal: its list owner)                  |
 //! | [`Shell`] / [`ShellId`]     | `SmShell`                                             |
 //! | [`Faceuse`] / [`FaceuseId`] | `SmFaceuse` (unit `topology.edgeuse_p1`)              |
@@ -36,6 +36,7 @@
 //! friend writes of `SmBrepConstructor`: they link records without validation (a
 //! B-rep graph is cyclic, so a record may name ids added later).
 
+pub mod brep;
 pub mod brep_cache;
 pub mod brep_data;
 pub mod database_io;
@@ -59,7 +60,7 @@ use crate::geom::attribute::ObjectKey;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::solution_array::{ObjectKind, SolutionObject};
-use crate::geom::tol::ZONE_TOL_3D;
+use crate::geom::tol::{USE_DEFAULT, ZONE_TOL_3D};
 use crate::geom::vector2d::Point2;
 use crate::heal::gap::{EdgeEdgeGap, EdgeFaceGap, VertexEdgeGap, VertexFaceGap};
 use crate::math::{Point3, BIG_DOUBLE};
@@ -534,6 +535,23 @@ pub struct Brep {
     tolerance: f64,
     /// The identity the B-rep is attributed and notified under (`SmBrep*`).
     key: ObjectKey,
+    /// `m_pInfiniteRegion` (unit `topology.brep_p1`, [`brep::p1`]): the infinite (outer)
+    /// region.
+    infinite_region: Option<RegionId>,
+    /// `SmOwningTopology::m_pList` of the B-rep (unit `topology.brep_p1`): the head of
+    /// its circular region list, `None` for the first region record (the region arena
+    /// holds the list in traversal order; the head only rotates it).
+    region_list_head: Option<RegionId>,
+    /// `m_bEditingEnabled` (unit `topology.brep_p1`): the B-rep is being edited, so
+    /// trimmed-surface caches skip the trimmed face data.
+    editing_enabled: bool,
+    /// `m_dThisModelSizeEstimate` (unit `topology.brep_p1`).
+    model_size_estimate: f64,
+    /// `m_dThisLargeSmallSizeRatio` (unit `topology.brep_p1`).
+    large_small_size_ratio: f64,
+    /// `m_pDeletedSurfaces` (unit `topology.brep_p1`): surfaces removed from the B-rep
+    /// that are kept until the operation ends because they may still be referenced.
+    deleted_surfaces: Vec<Surface>,
 }
 
 impl Default for Brep {
@@ -552,6 +570,12 @@ impl Default for Brep {
             validate_only: false,
             tolerance: ZONE_TOL_3D,
             key: ObjectKey(0),
+            infinite_region: None,
+            region_list_head: None,
+            editing_enabled: false,
+            model_size_estimate: USE_DEFAULT,
+            large_small_size_ratio: USE_DEFAULT,
+            deleted_surfaces: Vec::new(),
         }
     }
 }
