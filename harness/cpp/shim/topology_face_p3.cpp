@@ -6,8 +6,9 @@
 // out_len). `in` is a B-rep block of sc_topology_fixture.h (validated by the FFI wrapper,
 // crates/solidcore-ffi/src/units/topology_face_p3.rs, which documents every layout);
 // `args` are the op's parameters, with indices into the export's traversal order. Op 0
-// exports the graph (export_graph); the other ops output `-1 status` when the B-rep
-// could not be built, else `0` and the op's results.
+// exports each face's surface type and each edge's curve type (the graph itself is the
+// `topology.vertexuse` export of the same block); the other ops output `-1 status` when
+// the B-rep could not be built, else `0` and the op's results.
 #include "sc_topology_fixture.h"
 
 #include <SmCompositeCurve.h>
@@ -16,7 +17,7 @@ namespace
 {
 enum P3Op : int32_t
 {
-    P3_EXPORT = 0,
+    P3_TYPES = 0,
     P3_LAMINA = 1,
     P3_SET_TOL = 2,
     P3_NOTIFY = 3,
@@ -27,6 +28,7 @@ enum P3Op : int32_t
     P3_INTERSECT = 8,
 };
 
+// Tolerances of every face, edge and vertex, in traversal order.
 void put_tols(std::vector<double>& o, Graph& g)
 {
     for (SmFace* p : g.faces)
@@ -37,13 +39,15 @@ void put_tols(std::vector<double>& o, Graph& g)
         o.push_back((double)p->GetTolerance());
 }
 
-// The edge use state Notify clears: UV trim curve present, cached gaps initialised.
+// The state Notify clears: per edge use, UV trim curve present and cached gaps
+// initialised; per vertex use, cached gaps initialised.
 void put_eu_state(std::vector<double>& o, Graph& g)
 {
     for (SmEdgeuse* p : g.edgeuses)
     {
         o.push_back(p->*EuPeek::uv() ? 1.0 : 0.0);
         o.push_back(flg((p->*EuPeek::face_gap()).IsInit()));
+        o.push_back(flg((p->*EuPeek::ccw_gap()).IsInit()));
     }
     for (SmVertexuse* p : g.vertexuses)
     {
@@ -52,20 +56,52 @@ void put_eu_state(std::vector<double>& o, Graph& g)
     }
 }
 
+// A curve's natural interval and its points at 0, 1/2 and 1 of it (status, point).
+void put_curve_samples(std::vector<double>& o, const SmCurve* c)
+{
+    SmExtent1d ivl = c->GetNaturalInterval();
+    o.push_back(ivl.GetMin());
+    o.push_back(ivl.GetMax());
+    for (int k = 0; k <= 2; k++)
+    {
+        SmPoint3d p(0.0, 0.0, 0.0);
+        SmStatus s = c->EvaluatePoint(ivl.Evaluate(k / 2.0), p);
+        o.push_back(st(s));
+        put_vec(o, p);
+    }
+}
+
 const SmNotifyOperation NOTIFY_OPS[] = {SM_NO_PRE_EDIT, SM_NO_POST_EDIT, SM_NO_CHANGE_GEOMETRY,
                                         SM_NO_ADD_TO_BREP, SM_NO_RM_FROM_BREP};
 
-void run(int32_t op, SmBrep* brep, Graph& g, const double* a, std::vector<double>& o)
+// Whether every face has a surface and every edge a curve: the geometric ops
+// dereference them without checks (GetSurface()->..., pEdge->GetCurve()->...).
+bool geometry_complete(Graph& g)
+{
+    for (SmFace* p : g.faces)
+        if (p->*FPeek::srf() == nullptr)
+            return false;
+    for (SmEdge* p : g.edges)
+        if (p->GetCurve() == nullptr)
+            return false;
+    return true;
+}
+
+void run(int32_t op, Graph& g, const double* a, std::vector<double>& o)
 {
     o.push_back(0.0);
+    if (op >= P3_LOOP_ORIENT && !geometry_complete(g))
+    {
+        o.push_back(-2.0);
+        return;
+    }
     switch (op)
     {
     case P3_LAMINA:
     {
         SmFace* f = g.faces.at((size_t)a[0]);
-        o.push_back(flg(f->IsLamina()));
-        o.push_back(flg(f->HasLaminaEdge()));
-        o.push_back(flg(f->HasConsecutiveLaminaEdges()));
+        int which = (int)a[1];
+        o.push_back(flg(which == 0 ? f->IsLamina() : which == 1 ? f->HasLaminaEdge() : f->HasConsecutiveLaminaEdges()));
         break;
     }
     case P3_SET_TOL:
@@ -100,6 +136,8 @@ void run(int32_t op, SmBrep* brep, Graph& g, const double* a, std::vector<double
             o.push_back(bounds.GetMax().x);
             o.push_back(bounds.GetMax().y);
         }
+        // the loop's edge uses' UV trim curves may have been created
+        put_eu_state(o, g);
         break;
     }
     case P3_DEGENERATE:
@@ -123,11 +161,15 @@ void run(int32_t op, SmBrep* brep, Graph& g, const double* a, std::vector<double
             SmExtent1d ivl = c->GetNaturalInterval();
             o.push_back(ivl.GetMin());
             o.push_back(ivl.GetMax());
-            for (int k = 0; k <= 4; k++)
+            o.push_back(flg(c->IsClosed(ivl)));
+            for (ULONG k = 0; k < c->GetNumSegments(); k++)
             {
-                SmPoint3d p;
-                o.push_back(st(c->EvaluatePoint(ivl.Evaluate(k / 4.0), p)));
-                put_vec(o, p);
+                const SmCompositeCurveSegment* seg = c->GetCurveSegment(k);
+                o.push_back((double)seg->m_eTransition);
+                o.push_back(flg(seg->m_bSameSense));
+                o.push_back(seg->m_dGapStart);
+                o.push_back(seg->m_dGapEnd);
+                put_curve_samples(o, seg->m_pParentCurve);
             }
             delete c;
         }
@@ -142,12 +184,14 @@ void run(int32_t op, SmBrep* brep, Graph& g, const double* a, std::vector<double
         for (double x : {g1, g2, g3, g4, g5, g6})
             o.push_back(x);
         put_tols(o, g);
+        put_eu_state(o, g);
         break;
     }
     case P3_INTERSECT:
     {
         SmFace* f = g.faces.at((size_t)a[0]);
         SmFace* h = g.faces.at((size_t)a[1]);
+        // a[4]: -1 = no coincidence flag (run CoincidenceCheck), 0 = FALSE, 1 = TRUE
         SmBoolean flag = a[4] > 0.5 ? TRUE : FALSE;
         SmTArray<SmCurve*> curves;
         SmTArray<SmPoint3d> points;
@@ -158,10 +202,7 @@ void run(int32_t op, SmBrep* brep, Graph& g, const double* a, std::vector<double
         o.push_back((double)curves.GetSize());
         for (ULONG i = 0; i < curves.GetSize(); i++)
         {
-            SmExtent1d ivl = curves[i]->GetNaturalInterval();
-            SmPoint3d p;
-            o.push_back(st(curves[i]->EvaluatePoint(ivl.Evaluate(0.5), p)));
-            put_vec(o, p);
+            put_curve_samples(o, curves[i]);
             delete curves[i];
         }
         o.push_back((double)points.GetSize());
@@ -179,7 +220,8 @@ SC_EXPORT int32_t sc_topology_face_p3_eval(int32_t op, const char* path, const d
                                            const double* args, int64_t n_args, double* out, int64_t cap,
                                            int64_t* out_len)
 {
-    if (!path || !in || n_in < 1 || !out_len || op < P3_EXPORT || op > P3_INTERSECT || (n_args > 0 && !args))
+    if (!path || !in || n_in < 1 || !out_len || op < P3_TYPES || op > P3_INTERSECT || n_args < 0 ||
+        (op != P3_TYPES && n_args < 6) || (n_args > 0 && !args))
         return SC_ERR_ARG;
     SC_TRY
     Rd rd{in, 0};
@@ -196,13 +238,22 @@ SC_EXPORT int32_t sc_topology_face_p3_eval(int32_t op, const char* path, const d
     {
         Graph g;
         walk(built.brep, g);
-        if (op == P3_EXPORT)
+        if (op == P3_TYPES)
         {
+            // `0 n_f type(surface)* n_e type(curve)*`, -1 for none
             o.push_back(0.0);
-            export_graph(built.brep, g, o);
+            o.push_back((double)g.faces.size());
+            for (SmFace* p : g.faces)
+            {
+                SmSurface* s = p->*FPeek::srf();
+                o.push_back(s ? (double)s->GetType() : -1.0);
+            }
+            o.push_back((double)g.edges.size());
+            for (SmEdge* p : g.edges)
+                o.push_back(p->GetCurve() ? (double)p->GetCurve()->GetType() : -1.0);
         }
         else
-            run(op, built.brep, g, args, o);
+            run(op, g, args, o);
     }
     return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);
     SC_CATCH

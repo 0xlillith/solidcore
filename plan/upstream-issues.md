@@ -1197,6 +1197,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** `Surface::intersect_surface_boundaries` always returns the curves.
 
+#### UB-130. `SmFace::ComputeLoopOrientation` reads an uninitialised first UV point
+- **Location:** `source/SMLib/src/SmFace.cpp:2032` `SmFace::ComputeLoopOrientation` (`sVeryFirstUV` in the last-to-first span of the 3D walk); also `:1851` (`sEUs.GetLast()` of an edge loop use without edge uses).
+- **What happens:** `SmPoint2d sVeryFirstUV` has a defaulted constructor (`SmVector2d() = default`, no initialiser) and is set only on a successful `DropPoint` made with a guess. When no sample point drops with a guess (every drop fails, or only the first succeeds without one), the closing span `sUV2.x * sVeryFirstUV.y - sUV2.y * sVeryFirstUV.x` reads uninitialised memory and the returned orientation depends on it. An edge loop use without edge uses reaches `GetLast()` of an empty array.
+- **Trigger:** a loop whose UV trim curves are missing, unconnected or give an unknown projected orientation (so the 3D walk runs) on a face whose surface the sampled edge points do not drop onto.
+- **How found:** read during porting (unit `topology.face_p3`).
+- **Confirmed:** no (the 3D walk needs `SmEdgeuse::NormalizedEvaluate`, unit `topology.edgeuse_p3`, so the difftest defers every case reaching it).
+- **Severity:** crash/UB (uninitialised read, wrong result).
+- **Rust port:** `SolidError::InvalidInput` when the first UV point was never set and for a loop use without edge uses.
+
+#### UB-131. `SmFace::FaceIntersect` returns deleted curves through `pOptCC3DCrvs`
+- **Location:** `source/SMLib/src/SmFace.cpp:11669` `SmFace::FaceIntersect` (`pOptCC3DCrvs->Append( s3DCurves )`, `pOptThisCCUVCrvs`, `pOptOtherCCUVCrvs`).
+- **What happens:** the surface/surface curves are owned by the cleaners `sClean1`..`sClean3`, which are cleared only when `pOptThisCrvClasses` or `pOptOtherCrvClasses` is given. With `pOptCC3DCrvs` (or the UV arrays) but neither classification array, the caller receives pointers the cleaners delete at return (use after free); with the classification arrays but without `pOptCC3DCrvs`, the curves the classifications reference leak. In the coincident branch a failing edge curve `Copy` makes the inner `sClean` delete the copies already in `s3DCurves`, which `GlobalSurfaceIntersect` then receives and `sClean1` deletes again.
+- **Trigger:** `FaceIntersect` with `pOptCC3DCrvs != NULL` and both classification arrays `NULL`; the second needs a failing `SmCurve::Copy`.
+- **How found:** read during porting (unit `topology.face_p3`).
+- **Confirmed:** no (the difftest shim passes neither array).
+- **Severity:** crash/UB (use after free).
+- **Rust port:** `FaceIntersection` owns all curves; a failing copy discards the partial curves (they are replaced by the intersection's).
+
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration

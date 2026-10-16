@@ -30,13 +30,16 @@
 //!   [`SolidError::Unported`] (`topology.face_p4`).
 //! - **Statuses.** `ComputeProjectedLoopOrientation`'s status is checked as upstream (a
 //!   failure falls through to the 3D walk); `sm_AreConnected` and `IsDegenerate` of a
-//!   curve return values; the `Trim` of a copied edge curve in `FaceIntersect` and the
-//!   `NormalizedEvaluate` / `Evaluate1stDerivatives` / `PointClassify` of the quick check
-//!   of `IsDegenerate` are ignored as upstream; [`SolidError::Unported`] always
-//!   propagates.
+//!   curve return values; ignored as upstream: the `Trim`, `EvaluatePoint` and
+//!   `Point3DClassify` calls of `FaceIntersect`, the `NormalizedEvaluate` /
+//!   `Evaluate1stDerivatives` / `PointClassify` of the quick check and the
+//!   `InsertTopologyIntersections` of `IsDegenerate`, the `SetUVTrimCurve` and
+//!   `sm_FixUVTrimCurves` of `CreateUVTrimCurves`; [`SolidError::Unported`] always
+//!   propagates. `CreateUVTrimCurves` reads the face domain, the surface poles and the
+//!   natural domain before clearing the surface owner, as upstream.
 //! - **`ComputeLoopOrientation`** walks with a copy of the face surface; its last-to-first
 //!   span reads `sVeryFirstUV`, which upstream leaves uninitialised when no sample point
-//!   dropped with a guess (`plan/upstream-issues.md`); the port returns
+//!   dropped with a guess (UB-130); the port returns
 //!   [`SolidError::InvalidInput`] there.
 //! - **`CreateUVTrimCurves`** takes the optional UV curves and their orientations as one
 //!   argument (upstream requires both or neither). The surface owner is cleared and
@@ -48,7 +51,9 @@
 //!   surface/surface intersection curves by index ([`IntersectObject::Curve`]); with
 //!   `want_cc_curves` those curves are returned. The coincidence solutions of
 //!   `IsDegenerate` name the curves by a handle carrying their natural interval; the
-//!   objects are then switched to the edges, as upstream.
+//!   objects are then switched to the edges, as upstream. All returned curves are owned
+//!   (upstream hands out deleted ones through `pOptCC3DCrvs` without classification
+//!   arrays, UB-131).
 //! - **`Notify`** takes the face surface's trimmed surface cache (if any) for
 //!   `SM_NO_PRE_EDIT` (`SmCacheMgr::GetObjectCache(SM_OC_TRIMSRF, ..)` has no counterpart:
 //!   B-rep surfaces carry no object cache) and the notification state of

@@ -1132,8 +1132,8 @@ fn set_face_brep_editing_enabled<O>(_face: O, _editing: bool) -> Result<()> {
 /// (`SmTrimSrfCache.cpp:209`).
 fn face_create_uv_trim_curves<O>(_face: O) -> Result<()> {
     // UNPORTED(topology.face_p3): SmFace::CreateUVTrimCurves(TRUE, NULL, NULL, ..) --
-    // justified: plan/findings.md "topology.face_p3: SmFace::Notify callers without
-    // notification state" (opaque face handle, no B-rep)
+    // justified: plan/findings.md "topology.face_p3", "Stubs left for this unit"
+    // (opaque face handle, no B-rep)
     Err(SolidError::unported(
         "SmFace::CreateUVTrimCurves",
         "topology.face_p3",
