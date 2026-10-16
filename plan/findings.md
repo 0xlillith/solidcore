@@ -5801,7 +5801,10 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   `Relate` over typed ids: conflicting-mate checks, the tolerance maximisation of both
   vertices, the map insertion); `merge_vertex` therefore takes the other B-rep mutably
   (`SM_USE_OLDTOL` raises the source vertex's tolerance too). Its runner already held the
-  other B-rep mutably, so no runner change; `boolean.merge_p1`'s difftest re-run: MERGE_P1_RESULT.
+  other B-rep mutably, so no runner change; `boolean.merge_p5` (merged from `main` after the
+  wiring) passes it on from `process_wires_and_shell_vertices`, whose `other` parameter and
+  its test/runner call sites therefore became `&mut Brep` in this PR (upstream mutates its
+  non-const `m_pOther` member). Difftest re-runs: `boolean.merge_p1` PARTIAL cases=248 passed=153 failed=0 deferred=95 (unchanged from #163); `boolean.merge_p5` PARTIAL cases=140 passed=108 failed=0 deferred=32 (unchanged from #161).
 - Coverage: a script cut at its first op compares nothing, so the runner reports it as
   an error on both sides and `cases_both_errored` counts it (the real-pass count of the
   PR body is passed minus both-errored); a few passes compare only a `-2` guard marker

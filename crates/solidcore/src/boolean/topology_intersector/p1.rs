@@ -2282,7 +2282,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 // In this loop we imprint each intersection as an edge (upstream indexes
                 // sjjCC by the size of siiCC: a shorter sjjCC is read out of bounds)
                 if fi.cc2.len() < fi.cc1.len() {
-                    return Err(dangling("second classification list shorter than the first"));
+                    return Err(dangling(
+                        "second classification list shorter than the first",
+                    ));
                 }
                 let num_cc = fi.cc1.len();
                 for kk in 0..num_cc {
@@ -3675,7 +3677,6 @@ pub fn test_and_imprint_face<O: ClassObject + SolutionObject + Ord>(
     Ok(out)
 }
 
-
 // ---- the typed-id mate storage of `boolean.merge_p1` -------------------------------------------
 
 /// The same mate relationship viewed in both operand directions.
@@ -3731,7 +3732,6 @@ pub struct Relations {
     pub vertices: MateMap<VertexId>,
 }
 
-
 /// `SmTopologyIntersector::Relate(pBrepVertex, pVertexInOther)` for two vertices held
 /// by typed ids (the form `boolean.merge_p1` needs: `MergeVertex`,
 /// `SmMerge.cpp`): the conflicting-mate checks (`SM_ERR` when either vertex already
@@ -3764,11 +3764,23 @@ pub fn relate_vertices(
     let tol2 = crate::topology::vertex::tolerance(other, other_vertex)?;
     if tol1 < tol2 {
         // (SetTolerance is void: its status is ignored)
-        ignore_soft(crate::topology::vertex::set_tolerance(brep, brep_vertex, tol2, true, true))?;
+        ignore_soft(crate::topology::vertex::set_tolerance(
+            brep,
+            brep_vertex,
+            tol2,
+            true,
+            true,
+        ))?;
     }
     let tol1 = crate::topology::vertex::tolerance(brep, brep_vertex)?;
     if tol2 < tol1 {
-        ignore_soft(crate::topology::vertex::set_tolerance(other, other_vertex, tol1, true, true))?;
+        ignore_soft(crate::topology::vertex::set_tolerance(
+            other,
+            other_vertex,
+            tol1,
+            true,
+            true,
+        ))?;
     }
 
     // add the pair to the Ptr to Ptr map

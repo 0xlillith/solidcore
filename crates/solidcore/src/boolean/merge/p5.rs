@@ -132,11 +132,13 @@ fn keep_other(operation: BooleanOperation, is_void: bool) -> bool {
 /// `keep_as_wires` is cleared even when the first subsequent operation fails.
 /// Missing callees return [`SolidError::Unported`] at the first call reached;
 /// malformed topology or missing mates return an error instead of dereferencing
-/// a null pointer. The mate maps must refer to the supplied operands.
+/// a null pointer. The mate maps must refer to the supplied operands. `other` is
+/// mutable because relating a kept vertex (`SmTopologyIntersector::Relate`) raises the
+/// smaller of the two vertex tolerances, in whichever operand holds it.
 pub fn process_wires_and_shell_vertices(
     k: &Kernel,
     brep: &mut Brep,
-    other: &Brep,
+    other: &mut Brep,
     brep_marks: &mut Marks,
     other_marks: &mut Marks,
     relations: &mut Relations,
@@ -382,7 +384,7 @@ mod tests {
         let result = process_wires_and_shell_vertices(
             &k,
             &mut a,
-            &b,
+            &mut b,
             &mut am,
             &mut bm,
             &mut relations,
@@ -436,7 +438,7 @@ mod tests {
                 assert!(process_wires_and_shell_vertices(
                     &k,
                     &mut a,
-                    &b,
+                    &mut b,
                     &mut am,
                     &mut bm,
                     &mut relations,
@@ -463,7 +465,7 @@ mod tests {
                 process_wires_and_shell_vertices(
                     &k,
                     &mut a,
-                    &b,
+                    &mut b,
                     &mut am,
                     &mut bm,
                     &mut relations,
