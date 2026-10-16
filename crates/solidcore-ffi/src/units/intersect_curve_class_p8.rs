@@ -9,8 +9,10 @@
 //! Output: native status (0 success), interval count, then `min max` and
 //! `class object t gap` for start/mid/end. Objects: -1 null, 1 surface, 2 volume,
 //! 3+ temporary objects in first-seen traversal order. Native guards exclude
-//! malformed geometry and intervals. The fixture model bounds finite magnitudes
-//! to 1e12 and UV spans to at least 1e-6; smaller UV domains are uncertified.
+//! malformed records, nonfinite values, invalid surface domains/scales, degenerate
+//! lines and exactly zero circle radii. Finite magnitudes, positive UV spans and
+//! intervals outside the curve's natural domain have no additional guard limits;
+//! differential coverage is limited to the committed fixtures and generated cases.
 
 use crate::{call_with_buffer, FfiError};
 mod sys {
@@ -28,7 +30,7 @@ mod sys {
 /// Validate the wire record without calling native code.
 pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     let bad = || FfiError::InvalidArgument("curve_class_p8 record".into());
-    if input.len() < 23 || input.iter().any(|x| !x.is_finite() || x.abs() > 1e12) {
+    if input.len() < 23 || input.iter().any(|x| !x.is_finite()) {
         return Err(bad());
     }
     let (header, ivls) = input.split_at_checked(23).ok_or_else(bad)?;
@@ -48,8 +50,8 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
         return Err(bad());
     }
     if input.len() != 23 + 3 * h[22] as usize
-        || h[12] - h[10] < 1e-6
-        || h[13] - h[11] < 1e-6
+        || h[12] <= h[10]
+        || h[13] <= h[11]
         || h[14] <= 0.0
         || h[15] <= 0.0
         || h[18] > h[19]
@@ -59,11 +61,7 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     if h[2] == 0.0 && h[6] == h[9] && h[7] == h[16] && h[8] == h[17] {
         return Err(bad());
     }
-    if h[2] == 1.0 && h[9] <= 1e-12 {
-        return Err(bad());
-    }
-    let max = if h[2] == 1.0 { 360.0 } else { 1.0 };
-    if h[18] < 0.0 || h[19] > max {
+    if h[2] == 1.0 && h[9] == 0.0 {
         return Err(bad());
     }
     let mut expected = h[18];
@@ -125,6 +123,49 @@ mod tests {
         assert!(validate(&v).is_err());
         let mut v = valid.clone();
         v.extend([0., 1., 100.]);
+        assert!(validate(&v).is_err());
+    }
+
+    #[test]
+    fn accepts_native_supported_extreme_records() {
+        let valid = vec![
+            0., 2., 0., 1., 2., 2., 0.2, 0.2, 0., 0.8, 0., 0., 1., 1., 1., 1., 0.8, 0., 0., 1.,
+            1e-7, 0., 1., 0., 1., 100.,
+        ];
+        for radius in [1e-300, 1e-13, 1e-12, 2e-12, -0.1] {
+            let mut v = valid.clone();
+            v[2] = 1.;
+            v[9] = radius;
+            assert!(validate(&v).is_ok(), "radius {radius}");
+        }
+        for magnitude in [1e13, 1e14] {
+            let mut v = valid.clone();
+            v[6] = magnitude;
+            assert!(validate(&v).is_ok(), "magnitude {magnitude}");
+        }
+        let mut v = valid.clone();
+        v[12] = 1e-8;
+        v[13] = 1e-8;
+        assert!(validate(&v).is_ok());
+        for kind in [0., 1., 2.] {
+            let mut v = valid.clone();
+            v[2] = kind;
+            v[18] = -0.5;
+            v[19] = 360.5;
+            v[23] = -0.5;
+            v[24] = 360.5;
+            assert!(validate(&v).is_ok());
+        }
+        for radius in [0., -0.] {
+            let mut v = valid.clone();
+            v[2] = 1.;
+            v[9] = radius;
+            assert!(validate(&v).is_err());
+        }
+        let mut v = valid;
+        v[9] = v[6];
+        v[16] = v[7];
+        v[17] = v[8];
         assert!(validate(&v).is_err());
     }
 }
