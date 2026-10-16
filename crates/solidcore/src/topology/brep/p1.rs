@@ -1342,6 +1342,7 @@ pub fn find_sector_of_face(
             // every point solution is kept without classifying it against the trims)
             let solutions = surface.global_point_solve::<NoObject>(
                 k,
+                Some(NoObject),
                 &face2::uv_domain(b, face)?,
                 SolverOperation::Minimize,
                 test_point,
