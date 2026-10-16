@@ -20,7 +20,7 @@
 //!   [`p1`](super::p1). What these functions read from vertices and edges, and the
 //!   store new curves go to, is [`ProtoBrepAccess`], which the owner of the B-reps
 //!   implements. `SmTol::GetZoneTol3d` of a vertex is
-//!   [`ProtoBrepAccess::topology_tolerance`]; `SmTol::GetXSectTol3d(v1, v2)` is the
+//!   [`ProtoBrepAccess::access_topology_tolerance`]; `SmTol::GetXSectTol3d(v1, v2)` is the
 //!   sum of the two.
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
 //!   each tagged `UNPORTED(<unit>)`: the proto-topology functions of
@@ -75,15 +75,20 @@ const OP_SPLIT_INT: &str = "topology::proto_topology::p3::split_intersecting_pro
 /// they read, and the store new curves go to. Every method answers for a live handle
 /// of the kind it names; `None` (or an error) is an unknown handle or one of another
 /// kind (a dereference of a bad pointer upstream).
+///
+/// The `access_*` methods overlap `ProtoBrep` of `topology.proto_topology_p2` (PR #114:
+/// `edge_interval`, `edge_curve`, `topology_tolerance`, `insert_curve`). They carry the
+/// prefix so a type implementing both traits has no ambiguous method call. Unify the two
+/// traits (this one becomes a supertrait-free subset of `ProtoBrep`) when #114 merges.
 pub trait ProtoBrepAccess<O>: ProtoGeometry<O> {
     /// `SmVertex::GetPoint`.
     fn vertex_point(&self, vertex: O) -> Option<Point3>;
     /// The stored zone tolerance of a vertex or edge (`SmTol::GetZoneTol3d`).
-    fn topology_tolerance(&self, topo: O) -> Option<f64>;
+    fn access_topology_tolerance(&self, topo: O) -> Option<f64>;
     /// `SmEdge::GetInterval`.
-    fn edge_interval(&self, edge: O) -> Option<Extent1d>;
+    fn access_edge_interval(&self, edge: O) -> Option<Extent1d>;
     /// `SmEdge::GetCurve`: the handle of the edge's curve (`Some(None)` for none).
-    fn edge_curve(&self, edge: O) -> Option<Option<O>>;
+    fn access_edge_curve(&self, edge: O) -> Option<Option<O>>;
     /// `SmEdge::GetFaces`.
     ///
     /// # Errors
@@ -104,7 +109,7 @@ pub trait ProtoBrepAccess<O>: ProtoGeometry<O> {
     fn edge_other_vertex(&self, edge: O, vertex: O) -> Result<Option<O>>;
     /// Stores a new curve (an `SmCurve::Copy`) and returns its handle; `None` when the
     /// store is full.
-    fn insert_curve(&mut self, curve: Curve) -> Option<O>;
+    fn access_insert_curve(&mut self, curve: Curve) -> Option<O>;
 }
 
 /// The handle the curve intersections name (only the solution values are used).
@@ -207,7 +212,14 @@ fn find_or_create_proto_vertex_at(_position: Point3) -> Result<(Option<ProtoVert
 
 /// `SmProtoTopologyManager::FindProtoEdge`: the found proto edge and whether it is
 /// identical.
-fn find_proto_edge() -> Result<(Option<ProtoEdgeId>, bool)> {
+fn find_proto_edge<O>(
+    _start_pv: ProtoVertexId,
+    _end_pv: ProtoVertexId,
+    _mid1: &PointClassification<O>,
+    _mid2: &PointClassification<O>,
+    _curve: Option<O>,
+    _interval: Extent1d,
+) -> Result<(Option<ProtoEdgeId>, bool)> {
     // UNPORTED(topology.proto_topology_p2): SmProtoTopologyManager::FindProtoEdge
     Err(SolidError::unported(
         "SmProtoTopologyManager::FindProtoEdge",
@@ -215,13 +227,22 @@ fn find_proto_edge() -> Result<(Option<ProtoEdgeId>, bool)> {
     ))
 }
 
-/// `SmProtoTopologyManager::CreateProtoEdge`.
-fn create_proto_edge() -> Result<Option<ProtoEdgeId>> {
+/// `SmProtoTopologyManager::CreateProtoEdge(pStartPV, pEndPV, rCI1, rCI2, rpNewPE)`:
+/// the status and the out-parameter (which can be set even when the status is an error).
+fn create_proto_edge<O>(
+    _start_pv: ProtoVertexId,
+    _end_pv: ProtoVertexId,
+    _ci1: &CurveInterval<O>,
+    _ci2: &CurveInterval<O>,
+) -> (Result<()>, Option<ProtoEdgeId>) {
     // UNPORTED(topology.proto_topology_p2): SmProtoTopologyManager::CreateProtoEdge
-    Err(SolidError::unported(
-        "SmProtoTopologyManager::CreateProtoEdge",
-        "topology.proto_topology_p2",
-    ))
+    (
+        Err(SolidError::unported(
+            "SmProtoTopologyManager::CreateProtoEdge",
+            "topology.proto_topology_p2",
+        )),
+        None,
+    )
 }
 
 /// `SmProtoEdge::AddEdgeDefinition(SmEdgeDefinition*)`.
@@ -234,7 +255,11 @@ fn add_edge_definition(_pe: ProtoEdgeId, _ed: EdgeDefId) -> Result<()> {
 }
 
 /// `SmProtoEdge::AddEdgeDefinition(const SmCurveInterval&, const SmCurveInterval&)`.
-fn add_edge_definition_from_intervals(_pe: ProtoEdgeId) -> Result<()> {
+fn add_edge_definition_from_intervals<O>(
+    _pe: ProtoEdgeId,
+    _ci1: &CurveInterval<O>,
+    _ci2: &CurveInterval<O>,
+) -> Result<()> {
     // UNPORTED(topology.proto_topology_p2): SmProtoEdge::AddEdgeDefinition
     Err(SolidError::unported(
         "SmProtoEdge::AddEdgeDefinition",
@@ -465,7 +490,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         }
 
         // Can't create a ProtoEdge without both PVs.
-        let (Some(_start_pv), Some(_end_pv)) = (start_pv, end_pv) else {
+        let (Some(start_pv), Some(end_pv)) = (start_pv, end_pv) else {
             return Ok((None, false));
         };
 
@@ -487,13 +512,17 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         }
 
         // See whether a ProtoEdge already exists in this location.
-        let (found, is_identical) = find_proto_edge()?;
+        let (found, is_identical) =
+            find_proto_edge(start_pv, end_pv, &ci1.mid, &ci2.mid, cc_curve, this_ivl)?;
         let mut was_created = false;
         let mut new_pe = found;
         if new_pe.is_none() {
             // create new Protoedge and EdgeDefinition
-            let created = create_proto_edge()?;
-            if let Some(pe) = created {
+            // The status is kept, not propagated: upstream returns SM_SUCCESS with the
+            // out-parameter whatever it was (`Unported` still propagates).
+            let (stat, created) = create_proto_edge(start_pv, end_pv, ci1, ci2);
+            let ok = ignore_soft(stat)?.is_some();
+            if let (true, Some(pe)) = (ok, created) {
                 was_created = true;
                 let mut ids = Vec::with_capacity(overlapping.len());
                 for o in &overlapping {
@@ -512,7 +541,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         } else if !is_identical {
             // Create new EdgeDef and add it to NewPE's EdgeDef list
             if let Some(pe) = new_pe {
-                add_edge_definition_from_intervals(pe)?;
+                // (status ignored upstream)
+                ignore_soft(add_edge_definition_from_intervals(pe, ci1, ci2))?;
             }
         }
         Ok((new_pe, was_created))
@@ -627,7 +657,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
             .xsect_curve_3d();
         let new_crv = curve_of(&*geometry, this_crv3d)?.copy(k)?;
         let new_handle = geometry
-            .insert_curve(new_crv)
+            .access_insert_curve(new_crv)
             .ok_or(SolidError::null_pointer(OP_ED_SPLIT))?;
         self.set_ed_curve_3d(new_ed, Some(new_handle))?;
         self.trim_ed_curve(k, geometry, ed, this_crv3d)?;
@@ -641,7 +671,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
             if uv.is_some() {
                 let copy = curve_of(&*geometry, uv)?.copy(k)?;
                 let handle = geometry
-                    .insert_curve(copy)
+                    .access_insert_curve(copy)
                     .ok_or(SolidError::null_pointer(OP_ED_SPLIT))?;
                 self.edge_def_mut(new_ed)
                     .ok_or(dangling("edge definition is deleted"))?
@@ -749,7 +779,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         };
 
         // set Split child ProtoEdge intervals (the upper one is set from this
-        // edge's interval after it was changed, as upstream)
+        // edge's interval after it was changed, as upstream; the upper child gets [dT, dT],
+        // plan/upstream-issues.md WR-99)
         let mut lower = self
             .proto_edge(pe)
             .ok_or(dangling("proto edge is deleted"))?
@@ -1167,10 +1198,11 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                         }
                     } else {
                         for &edge in edges {
-                            let curve_handle =
-                                brep.edge_curve(edge).ok_or(dangling("edge is unknown"))?;
+                            let curve_handle = brep
+                                .access_edge_curve(edge)
+                                .ok_or(dangling("edge is unknown"))?;
                             let ivl = brep
-                                .edge_interval(edge)
+                                .access_edge_interval(edge)
                                 .ok_or(dangling("edge is unknown"))?;
                             let len = curve_of(brep, curve_handle)?
                                 .approximate_length(&ivl, 5, false)?
@@ -1196,12 +1228,12 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                                     Ok(()) => {
                                         *flag = true;
                                         if let Some(m) = edge_mate {
-                                            ti_remove_relationship(edge, m)?;
+                                            ignore_soft(ti_remove_relationship(edge, m))?;
                                         }
                                         if let Some(m) = vertex_mate {
                                             // (upstream uses the Brep 2 vertex in both
                                             // B-reps)
-                                            ti_remove_relationship(b2v2, m)?;
+                                            ignore_soft(ti_remove_relationship(b2v2, m))?;
                                         }
                                         let found =
                                             self.find_edge_definition_from_edge(Some(edge), which)?;
@@ -1532,16 +1564,16 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                 let faces1 = geometry.edge_faces(edge1)?;
                 let faces2 = geometry.edge_faces(edge2)?;
                 let h1 = geometry
-                    .edge_curve(edge1)
+                    .access_edge_curve(edge1)
                     .ok_or(dangling("edge is unknown"))?;
                 let h2 = geometry
-                    .edge_curve(edge2)
+                    .access_edge_curve(edge2)
                     .ok_or(dangling("edge is unknown"))?;
                 let ivl1 = geometry
-                    .edge_interval(edge1)
+                    .access_edge_interval(edge1)
                     .ok_or(dangling("edge is unknown"))?;
                 let ivl2 = geometry
-                    .edge_interval(edge2)
+                    .access_edge_interval(edge2)
                     .ok_or(dangling("edge is unknown"))?;
 
                 // arbitrary - pick XSectFace as first Edge Face
@@ -1583,8 +1615,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                         extract_geometry(&cc1, &cc2)?;
 
                         // Make sure that a parameter is set in each PointClass object.
-                        ignore_soft(cc1.set_point_class_parameters(k, &*geometry, true))?;
-                        ignore_soft(cc2.set_point_class_parameters(k, &*geometry, true))?;
+                        ignore_soft(cc1.set_point_class_parameters(k, &*geometry, false))?;
+                        ignore_soft(cc2.set_point_class_parameters(k, &*geometry, false))?;
 
                         cc1s.push(cc1);
                         cc2s.push(cc2);
@@ -1594,11 +1626,11 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                 // SrcTopo Edge-Face branch: use the Edge->Curve
                 let edge = e1.or(e2).ok_or(dangling("edge is null"))?;
                 let handle = geometry
-                    .edge_curve(edge)
+                    .access_edge_curve(edge)
                     .ok_or(dangling("edge is unknown"))?
                     .ok_or(dangling("edge has no curve"))?;
                 let ivl = geometry
-                    .edge_interval(edge)
+                    .access_edge_interval(edge)
                     .ok_or(dangling("edge is unknown"))?;
                 let mut cc1 = new_curve_classification(handle, ivl, tol)?;
                 let mut cc2 = new_curve_classification(handle, ivl, tol)?;
@@ -1623,8 +1655,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                 ))?;
 
                 extract_geometry(&cc1, &cc2)?;
-                ignore_soft(cc1.set_point_class_parameters(k, &*geometry, true))?;
-                ignore_soft(cc2.set_point_class_parameters(k, &*geometry, true))?;
+                ignore_soft(cc1.set_point_class_parameters(k, &*geometry, false))?;
+                ignore_soft(cc2.set_point_class_parameters(k, &*geometry, false))?;
                 cc1s.push(cc1);
                 cc2s.push(cc2);
             }
@@ -1686,10 +1718,10 @@ fn vertex_distance<O: Copy>(brep: &impl ProtoBrepAccess<O>, v1: O, v2: O) -> Res
 /// `SmTol::GetXSectTol3d(pV1, pV2)`: the sum of the two zone tolerances.
 fn xsect_tol<O: Copy>(brep: &impl ProtoBrepAccess<O>, v1: O, v2: O) -> Result<f64> {
     let t1 = brep
-        .topology_tolerance(v1)
+        .access_topology_tolerance(v1)
         .ok_or(dangling("vertex is unknown"))?;
     let t2 = brep
-        .topology_tolerance(v2)
+        .access_topology_tolerance(v2)
         .ok_or(dangling("vertex is unknown"))?;
     Ok(t1 + t2)
 }

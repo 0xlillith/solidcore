@@ -2156,7 +2156,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result / hidden numerical failure.
 - **Rust port:** retained for parity; `Unported` still propagates.
 
-#### WR-95. `SmProtoEdge::Split` gives the upper child proto edge the empty interval `[dT, dT]`
+#### WR-99. `SmProtoEdge::Split` gives the upper child proto edge the empty interval `[dT, dT]`
 - **Location:** `source/SMLib/src/SmProtoTopology.cpp:3037`-`3038` (`SmProtoEdge::Split`).
 - **What happens:** After `this->m_pXSectInterval.SetMinMax(min, dT)` the next line sets the new upper proto edge to `SetMinMax(dT, m_pXSectInterval.GetMax())`, which reads the maximum of `this` that was just changed to `dT`. The upper child gets `[dT, dT]` instead of `[dT, oldMax]` (its edge definitions are split correctly, by `SmEdgeDefinition::Split`).
 - **Trigger:** Any interior split of a proto edge (from `SplitIntersectingProtoEdges`).

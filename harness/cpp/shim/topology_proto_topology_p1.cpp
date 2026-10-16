@@ -1324,11 +1324,18 @@ enum PoolKind : int64_t
     K_FACE = 5,
     K_REGION = 6,
     K_LOOP = 7,
+    K_VERTEX_AT = 8, // input only: a K_VERTEX with a point and a tolerance
 };
 
 struct ScVertex : public SmVertex
 {
-    ScVertex() : SmVertex() {}
+    bool pointed; // built with a point and a tolerance (a bare vertex has (0,0,0) and 0)
+    ScVertex() : SmVertex(), pointed(false) {}
+    ScVertex(double x, double y, double z, double tol) : SmVertex(), pointed(true)
+    {
+        m_vPoint = SmPoint3d(x, y, z);
+        m_sZoneTol3d = tol;
+    }
 };
 
 struct ScEdge : public SmEdge
@@ -2022,6 +2029,18 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
         case K_PLANE:
         case K_BSURF: p = read_surface(rd, ctx, kind); break;
         case K_VERTEX: p = new (anchor()) ScVertex(); break;
+        case K_VERTEX_AT:
+        {
+            double x = rd.num();
+            double y = rd.num();
+            double z = rd.num();
+            double tol = rd.num();
+            if (rd.bad)
+                return SC_ERR_ARG;
+            p = new (anchor()) ScVertex(x, y, z, tol);
+            kind = K_VERTEX;
+            break;
+        }
         case K_EDGE:
         {
             int64_t c = rd.idx();
@@ -3655,15 +3674,32 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
         {
             if (skip)
                 break;
-            // only the paths that do not glue run: the stand-in vertices have no points
+            // only the paths that do not glue run: a pair of final vertices must be one vertex or
+            // two vertices with points that are far apart (bare stand-ins have no usable point,
+            // and a glue needs a B-rep)
             for (ULONG i = 0; i < mgr->GetProtoVertices().GetSize() && !skip; i++)
             {
                 SmProtoVertex* v = mgr->GetProtoVertices()[i];
                 SmTArray<SmVertexDefinition*> vds = v->GetVertexDefinitions();
                 for (ULONG j = 1; j < vds.GetSize(); j++)
-                    if (vds[0]->GetFinalVertex(1) && vds[j]->GetFinalVertex(1) && vds[0]->GetFinalVertex(2) &&
-                        vds[j]->GetFinalVertex(2))
-                        skip = true;
+                {
+                    SmVertex* a1 = vds[0]->GetFinalVertex(1);
+                    SmVertex* b1 = vds[j]->GetFinalVertex(1);
+                    SmVertex* a2 = vds[0]->GetFinalVertex(2);
+                    SmVertex* b2 = vds[j]->GetFinalVertex(2);
+                    if (!(a1 && b1 && a2 && b2))
+                        continue;
+                    SmVertex* pairs[2][2] = {{a1, b1}, {a2, b2}};
+                    for (int s = 0; s < 2; s++)
+                    {
+                        ScVertex* x = static_cast<ScVertex*>(pairs[s][0]);
+                        ScVertex* y = static_cast<ScVertex*>(pairs[s][1]);
+                        if (!x->pointed || !y->pointed)
+                            skip = true;
+                        else if (x != y && x->GetPoint().DistanceBetween(y->GetPoint()) < 1.0e-3)
+                            skip = true;
+                    }
+                }
             }
             if (skip)
                 break;
@@ -3698,6 +3734,51 @@ int32_t run_proto(Rd& rd, std::vector<double>& o)
                 {
                     skip = true;
                     continue;
+                }
+                // upstream crashes (reads a deleted edge) unless every overlap relation is symmetric,
+                // no overlap list repeats an edge and each edge is in its own overlap group
+                {
+                    SmTArray<SmProtoEdge*> ov = e->GetOverlappingPEs();
+                    std::vector<SmProtoEdge*> group;
+                    for (ULONG a = 0; a < ov.GetSize(); a++)
+                    {
+                        SmProtoEdge* o = ov[a];
+                        for (ULONG b = a + 1; b < ov.GetSize(); b++)
+                            if (ov[b] == o)
+                                skip = true;
+                        if (!o || !r.pes.live_ptr(o))
+                        {
+                            skip = true;
+                            continue;
+                        }
+                        bool back = false;
+                        SmTArray<SmProtoEdge*> ob = o->GetOverlappingPEs();
+                        for (ULONG c = 0; c < ob.GetSize(); c++)
+                            if (ob[c] == e)
+                                back = true;
+                        if (!back)
+                            skip = true;
+                        group.push_back(o);
+                    }
+                    // GetOverlappingPEGroup: chase the overlaps until the group is complete
+                    for (size_t g = 0; g < group.size() && !skip; g++)
+                    {
+                        SmTArray<SmProtoEdge*> og = group[g]->GetOverlappingPEs();
+                        for (ULONG c = 0; c < og.GetSize(); c++)
+                        {
+                            if (!og[c] || !r.pes.live_ptr(og[c]))
+                            {
+                                skip = true;
+                                break;
+                            }
+                            if (std::find(group.begin(), group.end(), og[c]) == group.end())
+                                group.push_back(og[c]);
+                        }
+                    }
+                    if (!skip && std::find(group.begin(), group.end(), e) == group.end())
+                        skip = true;
+                    if (skip)
+                        continue;
                 }
                 // a vertex left without edges but with definitions is deleted (not tracked)
                 SmProtoVertex* ends[2] = {e->GetStartProtoVertex(), e->GetEndProtoVertex()};

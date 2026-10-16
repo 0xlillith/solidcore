@@ -4908,6 +4908,20 @@ mutated scales and accepted/reduced step counts are compared.
   manager holds opaque object handles (`ProtoBrepAccess`, no `Brep`). Wire it when the manager
   gets its `Brep` implementation (`topology.proto_topology_p2`'s `ProtoBrep`).
 - `UNPORTED(topology.proto_topology_p2)` (eight callees) are stubs for the open PR #114.
+- The `ProtoBrepAccess` trait overlaps `ProtoBrep` of PR #114 (`edge_interval`, `edge_curve`,
+  `topology_tolerance`, `insert_curve`). Its methods carry the prefix `access_` so a type
+  implementing both traits has no ambiguous call; unify the traits when #114 merges.
+- `ResolveOverlappingProtoEdges` crashes the C++ (exit 139) when an overlap relation is one-way
+  (an edge outside its own group is read after it was deleted) or an overlap list repeats an
+  edge (the group `[1,1]` processes a deleted edge again). `AddOverlappingPE` and
+  `AppendOverlappingPEs` do not de-duplicate. The shim and the Rust runner refuse RESOLVE unless
+  every overlap is symmetric, no list repeats an edge and each edge is in its own group; the two
+  crashing scripts are the cases `edge_proto_p3_rejected_*`.
+- Coverage: vertices with a point and a zone tolerance (pool kind 8) let
+  `GlueCoincidentBrepVertices` compare the paths where the final vertices are one vertex or far
+  apart (no glue). Near distinct vertices would glue (needs a B-rep) and are refused. Resolve is
+  still compared only for definition-less groups: a group with definitions reaches
+  `SmFace::CurveOnClassify` (`UNPORTED(query.face_p2)`) on bare faces.
 
 ## intersect.curve_class_p3 (`SmCurveClassification` part 3: `FindInterval`, `FindPointClass`, `IsCoincident`, `InsertPointClass`, `RemovePointClass`, `MergePointClass`, `CleanupAndValidate`, `sm_ChangeEdgePointClassToNearVertex`, `sm_FixProblemsBySqueezing`, 2026-10-16; partial, no disagreements)
 

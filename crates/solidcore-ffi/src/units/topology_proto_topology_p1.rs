@@ -16,7 +16,7 @@
 //! * **proto** (`1 n_obj obj*n_obj approx_tol capture override n_ops op*n_ops`): a pool of
 //!   objects (`0` a curve block as in unit `intersect.curve_class_p1`, `1 O[3] N[3]` an
 //!   `SmPlane`, `2` a B-spline surface block, `3` a vertex, `4 c` an edge on pool curve `c`,
-//!   `5 s` a face on pool surface `s`, `6` a region stand-in, `7` a loop stand-in), a
+//!   `5 s` a face on pool surface `s`, `6` a region stand-in, `7` a loop stand-in, `8 P[3] tol` a vertex with a point and a stored zone tolerance, otherwise a vertex of kind `3`), a
 //!   manager `SmProtoTopologyManager(brep1, brep2, ti, capture, override)` whose topology
 //!   intersector has approximation tolerance `approx_tol`, and the [`proto_op`] ops. Proto
 //!   objects are numbered per kind in creation order. A point classification `pc` is
@@ -141,6 +141,8 @@ pub mod pool {
     pub const FACE: i64 = 5;
     pub const REGION: i64 = 6;
     pub const LOOP: i64 = 7;
+    /// Input only: a vertex with a point and a zone tolerance (`8 P[3] tol`).
+    pub const VERTEX_AT: i64 = 8;
 }
 
 /// Proto-script ops (arguments after the code; `pv`, `pe`, `ed`, `vd`, `pf` are proto ids,
@@ -563,7 +565,7 @@ fn validate_proto(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     use proto_op as p;
     let n_obj = rd.int(0, MAX_OBJECTS)?;
     for _ in 0..n_obj {
-        match rd.int(0, pool::LOOP)? {
+        match rd.int(0, pool::VERTEX_AT)? {
             pool::CURVE => rd.curve()?,
             pool::PLANE => {
                 rd.vec3()?;
@@ -572,6 +574,10 @@ fn validate_proto(rd: &mut Reader<'_>) -> Result<(), FfiError> {
             pool::BSURF => rd.surface()?,
             pool::EDGE | pool::FACE => {
                 rd.id()?;
+            }
+            pool::VERTEX_AT => {
+                rd.vec3()?;
+                rd.finite()?;
             }
             _ => {}
         }

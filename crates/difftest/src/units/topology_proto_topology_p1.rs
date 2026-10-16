@@ -173,6 +173,8 @@ enum ObjIn {
     Plane { o: [f64; 3], n: [f64; 3] },
     Bsurf(SurfIn),
     Vertex,
+    /// A vertex with a point and a stored zone tolerance.
+    VertexAt { p: [f64; 3], tol: f64 },
     /// A bare edge on pool curve `c`.
     Edge(usize),
     /// A bare face on pool surface `s`.
@@ -327,6 +329,11 @@ fn cpp_input(s: &Script) -> Vec<f64> {
                         surface_block(&mut v, sf);
                     }
                     ObjIn::Vertex => v.push(pk::VERTEX as f64),
+                    ObjIn::VertexAt { p, tol } => {
+                        v.push(pk::VERTEX_AT as f64);
+                        v.extend_from_slice(p);
+                        v.push(*tol);
+                    }
                     ObjIn::Edge(c) => v.extend([pk::EDGE as f64, *c as f64]),
                     ObjIn::Face(sf) => v.extend([pk::FACE as f64, *sf as f64]),
                     ObjIn::Region => v.push(pk::REGION as f64),
@@ -1092,6 +1099,8 @@ impl ClassObject for H {
 enum PObj {
     Curve(Curve),
     Surface(Surface),
+    /// A vertex with a point and a stored zone tolerance.
+    Vertex(Point3, f64),
     Bare,
 }
 
@@ -1140,16 +1149,22 @@ impl ProtoGeometry<H> for Pool {
 /// The B-rep side of the p3 functions on the bare stand-ins: they have no points,
 /// tolerances, intervals or faces (the ops that would read them are refused).
 impl ProtoBrepAccess<H> for Pool {
-    fn vertex_point(&self, _vertex: H) -> Option<Point3> {
+    fn vertex_point(&self, vertex: H) -> Option<Point3> {
+        match self.objs.get(vertex.0) {
+            Some(PObj::Vertex(p, _)) if self.alive.get(vertex.0).copied().unwrap_or(false) => Some(*p),
+            _ => None,
+        }
+    }
+    fn access_topology_tolerance(&self, topo: H) -> Option<f64> {
+        match self.objs.get(topo.0) {
+            Some(PObj::Vertex(_, t)) if self.alive.get(topo.0).copied().unwrap_or(false) => Some(*t),
+            _ => None,
+        }
+    }
+    fn access_edge_interval(&self, _edge: H) -> Option<Extent1d> {
         None
     }
-    fn topology_tolerance(&self, _topo: H) -> Option<f64> {
-        None
-    }
-    fn edge_interval(&self, _edge: H) -> Option<Extent1d> {
-        None
-    }
-    fn edge_curve(&self, _edge: H) -> Option<Option<H>> {
+    fn access_edge_curve(&self, _edge: H) -> Option<Option<H>> {
         None
     }
     fn edge_faces(&self, _edge: H) -> solidcore::Result<Vec<H>> {
@@ -1158,7 +1173,11 @@ impl ProtoBrepAccess<H> for Pool {
             "stand-in edges have no faces",
         ))
     }
-    fn vertex_common_edges(&self, _v1: H, _v2: H) -> solidcore::Result<Vec<H>> {
+    fn vertex_common_edges(&self, v1: H, v2: H) -> solidcore::Result<Vec<H>> {
+        // vertices with points have no vertex uses: no edges
+        if self.vertex_point(v1).is_some() && self.vertex_point(v2).is_some() {
+            return Ok(Vec::new());
+        }
         Err(SolidError::invalid_input(
             "difftest::proto_p3::vertex_common_edges",
             "stand-in vertices have no edges",
@@ -1170,7 +1189,7 @@ impl ProtoBrepAccess<H> for Pool {
             "stand-in edges have no vertices",
         ))
     }
-    fn insert_curve(&mut self, curve: Curve) -> Option<H> {
+    fn access_insert_curve(&mut self, curve: Curve) -> Option<H> {
         self.objs.push(PObj::Curve(curve));
         self.kinds.push(pk::CURVE);
         self.alive.push(true);
@@ -1735,6 +1754,7 @@ fn run_proto(
             ),
             ObjIn::Bsurf(s) => (PObj::Surface(build_surface(s)?), pk::BSURF),
             ObjIn::Vertex => (PObj::Bare, pk::VERTEX),
+            ObjIn::VertexAt { p, tol } => (PObj::Vertex(v3(*p), *tol), pk::VERTEX),
             ObjIn::Edge(c) => {
                 if !pool.is_curve(*c as i64) {
                     return Err(harness("edge curve").into());
@@ -3485,12 +3505,22 @@ fn run_proto(
                             let first = vds.first().and_then(|&f| m.vertex_def(f));
                             let this = m.vertex_def(vd);
                             if let (Some(f), Some(t)) = (first, this) {
-                                if f.final_vertex(1).is_some()
-                                    && t.final_vertex(1).is_some()
-                                    && f.final_vertex(2).is_some()
-                                    && t.final_vertex(2).is_some()
+                                // only the paths that do not glue run: a pair of final vertices
+                                // must be one vertex or two vertices with points that are far
+                                // apart (a bare stand-in has no usable point; a glue needs a B-rep)
+                                if let (Some(a1), Some(b1), Some(a2), Some(b2)) =
+                                    (f.final_vertex(1), t.final_vertex(1), f.final_vertex(2), t.final_vertex(2))
                                 {
-                                    skip = true;
+                                    for (x, y) in [(a1, b1), (a2, b2)] {
+                                        match (r.pool.vertex_point(x), r.pool.vertex_point(y)) {
+                                            (Some(px), Some(py)) => {
+                                                if x != y && px.distance(py) < 1.0e-3 {
+                                                    skip = true;
+                                                }
+                                            }
+                                            _ => skip = true,
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -3528,6 +3558,39 @@ fn run_proto(
                         match m.proto_edge(e) {
                             Some(x) if live_pv(x.start_proto_vertex()) && live_pv(x.end_proto_vertex()) => {
                                 if !r.listed_with_ends(e) {
+                                    skip = true;
+                                    continue;
+                                }
+                                // upstream crashes (reads a deleted edge) unless every overlap relation is
+                                // symmetric, no overlap list repeats an edge and each edge is in its own group
+                                let ov = x.overlapping_pes();
+                                let mut group: Vec<ProtoEdgeId> = Vec::new();
+                                for (a, &o) in ov.iter().enumerate() {
+                                    if ov[a + 1..].contains(&o) {
+                                        skip = true;
+                                    }
+                                    match m.proto_edge(o) {
+                                        Some(oe) if oe.overlapping_pes().contains(&e) => group.push(o),
+                                        _ => skip = true,
+                                    }
+                                }
+                                let mut g = 0;
+                                while g < group.len() && !skip {
+                                    match m.proto_edge(group[g]) {
+                                        Some(og) => {
+                                            for &c in og.overlapping_pes() {
+                                                if m.proto_edge(c).is_none() {
+                                                    skip = true;
+                                                } else if !group.contains(&c) {
+                                                    group.push(c);
+                                                }
+                                            }
+                                        }
+                                        None => skip = true,
+                                    }
+                                    g += 1;
+                                }
+                                if skip || !group.contains(&e) {
                                     skip = true;
                                     continue;
                                 }
@@ -4107,9 +4170,31 @@ fn gen_proto(rng: &mut Rng, p3: bool) -> Script {
         g.surfs.push(objects.len() as i64);
         objects.push(ObjIn::Bsurf(gen_surface(rng, scale)));
     }
-    for _ in 0..2 {
+    for i in 0..2 {
         g.vertices.push(objects.len() as i64);
         objects.push(ObjIn::Vertex);
+        if p3 && rng.chance(0.7) {
+            // a vertex with a point (Glue compares the near / coincident paths), apart from the others
+            let q = g.point(rng);
+            if let Some(slot) = objects.last_mut() {
+                *slot = ObjIn::VertexAt {
+                    p: [q[0] + 5.0 * (i as f64 + 1.0) * g.scale.max(1.0), q[1], q[2]],
+                    tol: gen_tol(rng, g.scale),
+                };
+            }
+        }
+    }
+    if p3 {
+        // two more vertices with points, so a proto vertex can hold final vertices the glue compares
+        // (one vertex, or two vertices far apart; near distinct vertices would glue and are refused)
+        for _ in 0..2 {
+            g.vertices.push(objects.len() as i64);
+            let q = g.point(rng);
+            objects.push(ObjIn::VertexAt {
+                p: q,
+                tol: gen_tol(rng, g.scale),
+            });
+        }
     }
     // edges on their own curves (never edited or deleted by the ops)
     for _ in 0..2 {
@@ -5171,8 +5256,92 @@ pub fn edge_cases_p3() -> Vec<(String, Value)> {
                 }),
             ));
         }
+        // rejected inputs (the C++ crashes on them: a one-way overlap leaves an edge outside its
+        // own group, a repeated overlap processes a deleted edge): both sides must skip RESOLVE
+        for (name, overlaps) in [
+            ("one_way_overlap", vec![(0.0, 1.0)]),
+            ("repeated_overlap", vec![(0.0, 1.0), (0.0, 1.0), (1.0, 0.0)]),
+        ] {
+            let mut ops = vec![
+                opv(p::PV_NEW, &[0.0, 0.0, 0.0, t]),
+                opv(p::PV_NEW, &[1.0, 0.0, 0.0, t]),
+                opv(p::MGR_ADD_PV, &[0.0]),
+                opv(p::MGR_ADD_PV, &[1.0]),
+                opv(p::PE_NEW, &[0.0, 1.0, 0.0, 1.0]),
+                opv(p::PE_NEW, &[0.0, 1.0, 0.0, 1.0]),
+                opv(p::MGR_ADD_PE, &[0.0]),
+                opv(p::MGR_ADD_PE, &[1.0]),
+                opv(p::PV_ADD_PE, &[0.0, 0.0]),
+                opv(p::PV_ADD_PE, &[1.0, 0.0]),
+                opv(p::PV_ADD_PE, &[0.0, 1.0]),
+                opv(p::PV_ADD_PE, &[1.0, 1.0]),
+            ];
+            for (x, y) in overlaps {
+                ops.push(opv(p::PE_ADD_OVERLAP, &[x, y]));
+            }
+            ops.push(opv(p::RESOLVE, &[]));
+            ops.push(opv(p::MGR_ALL_EDS, &[]));
+            out.push((
+                format!("edge_proto_p3_rejected_{name}"),
+                json!(Script::Proto {
+                    objects: objects.clone(),
+                    approx_tol: 1e-5,
+                    capture: 1e-4,
+                    override_tol: -1.0,
+                    ops
+                }),
+            ));
+        }
         out.push((
             "edge_proto_p3".to_string(),
+            json!(Script::Proto {
+                objects,
+                approx_tol: 1e-5,
+                capture: 1e-4,
+                override_tol: -1.0,
+                ops
+            }),
+        ));
+    }
+    // GlueCoincidentBrepVertices on final vertices with points: the same vertex, vertices far
+    // apart (nothing is glued, the near distinct case is refused by the guard)
+    for (name, finals) in [
+        ("same_vertex", [0.0, 0.0, 0.0, 0.0]),
+        ("far_vertices", [0.0, 0.0, 1.0, 1.0]),
+        ("one_side_far", [0.0, 0.0, 0.0, 1.0]),
+        ("near_vertices", [1.0, 1.0, 2.0, 2.0]),
+    ] {
+        let t = 1e-5;
+        let objects = vec![
+            ObjIn::VertexAt {
+                p: [0.0, 0.0, 0.0],
+                tol: t,
+            },
+            ObjIn::VertexAt {
+                p: [5.0, 0.0, 0.0],
+                tol: t,
+            },
+            ObjIn::VertexAt {
+                p: [5.0, 0.0, 1e-6],
+                tol: t,
+            },
+        ];
+        let pc_u = pcv(100.0, -1.0, t, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let mut ops = vec![
+            opv(p::PV_NEW, &[0.0, 0.0, 0.0, t]),
+            opv(p::MGR_ADD_PV, &[0.0]),
+            opv(p::VD_NEW, &cat(&[&pc_u, &pc_u, &[0.0, 0.0, 0.0, t, 0.0, 0.0]])),
+            opv(p::VD_NEW, &cat(&[&pc_u, &pc_u, &[0.0, 0.0, 0.0, t, 0.0, 0.0]])),
+            opv(p::PV_ADD_VD, &[0.0, 0.0]),
+            opv(p::PV_ADD_VD, &[0.0, 1.0]),
+            opv(p::VD_SET_FINAL, &[0.0, 1.0, finals[0]]),
+            opv(p::VD_SET_FINAL, &[0.0, 2.0, finals[1]]),
+            opv(p::VD_SET_FINAL, &[1.0, 1.0, finals[2]]),
+            opv(p::VD_SET_FINAL, &[1.0, 2.0, finals[3]]),
+        ];
+        ops.push(opv(p::GLUE, &[]));
+        out.push((
+            format!("edge_proto_p3_glue_{name}"),
             json!(Script::Proto {
                 objects,
                 approx_tol: 1e-5,
