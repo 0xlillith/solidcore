@@ -84,6 +84,7 @@ enum : int64_t
     S_SET_ALLOW = 20,
     S_IS_PLANAR = 21,
     S_IS_KIND_OF = 22,
+    S_BASE_OFFSET = 23,
 };
 
 // Generator kinds and construction modes of a surface-of-revolution block.
@@ -196,6 +197,45 @@ bool delegates_to_plane(SmOffsetSurface* s, const SmPoint2d& uv, ULONG hu, ULONG
     // their own checked derivative layouts; only this direct delegation is UB-117.
     (void)simple;
     return SM_CAST_PTR(SmPlane, base) != NULL;
+}
+
+extern "C" __attribute__((weak)) int sc_offset_extension_guards() { return 0; }
+
+// UB-116: with bOnlyUpperHalf, EvaluatePlainOrSimple's non-zero path writes the mixed
+// derivatives at their full-layout indices, past a caller array sized (hu+1)(hv+1).
+// Mirror its checks in order: offset order above 3 and an offset nested twice fail
+// before anything is written, an exact 0.0 compound distance delegates to the base.
+// (A base evaluation or extension failing first would also write nothing; that cannot
+// be known in advance, so those inputs are refused too.)
+ULONG max_write_index(ULONG hu, ULONG hv, bool upper)
+{
+    ULONG hod = upper ? std::max(hu, hv) : hu + hv;
+    ULONG m = 0;
+    auto at = [&](ULONG i) { m = std::max(m, i); };
+    if (hu >= 1) at(hv + 1);
+    if (hv >= 1) at(1);
+    if (hu >= 2) at(2 * (hv + 1));
+    if ((upper && hod >= 2) || (!upper && hu >= 1 && hv >= 1)) at(hv + 2);
+    if (hv >= 2) at(2);
+    if (hu >= 3) at(3 * (hv + 1));
+    if ((upper && hod >= 3) || (!upper && hu >= 2 && hv >= 1)) at(2 * (hv + 1) + 1);
+    if ((upper && hod >= 3) || (!upper && hu >= 1 && hv >= 2)) at((hv + 1) + 2);
+    if (hv >= 3) at(3);
+    return m;
+}
+
+bool writes_past_array(SmOffsetSurface* s, ULONG hu, ULONG hv, bool upper)
+{
+    ULONG hod = upper ? std::max(hu, hv) : hu + hv;
+    if (hod > 3) return false;
+    double distance = s->GetOffsetDistance();
+    if (auto* nested = SM_CAST_PTR(SmOffsetSurface, s->GetBaseSurface()))
+    {
+        if (SM_CAST_PTR(SmOffsetSurface, nested->GetBaseSurface())) return false;
+        distance += nested->GetOffsetDistance();
+    }
+    if (distance == 0.0) return false;
+    return max_write_index(hu, hv, upper) >= (hu + 1) * (hv + 1);
 }
 
 // ---- surface-of-revolution block (as surface_surf_of_revolution_p1.cpp) ----------------
@@ -459,6 +499,7 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         SmBoolean vl = rd.bflag();
         SmBoolean upper = rd.bflag();
         if (upper && hu > hv && delegates_to_plane(s, uv, hu, hv, step == S_EVAL_SIMPLE)) throw ScOffsetUnsafeInput{};
+        if (writes_past_array(s, hu, hv, upper)) throw ScOffsetUnsafeInput{};
         std::vector<SmVector3d> a((hu + 1) * (hv + 1)); // SM_UNDEF_DOUBLE entries
         SmStatus stt;
         if (step == S_EVAL)
@@ -530,13 +571,17 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         bool w1 = rd.flag();
         bool w2 = rd.flag();
         SmBoolean expand = rd.bflag();
-        // Check the actual base after all preceding edits/evaluations, not a guessed
-        // domain in the Rust serializer. Outside-domain offset caches can recurse
-        // (UB-118) or subdivide without progress (HANG-14).
-        SmSurface* base = s->GetBaseSurface();
-        while (auto* nested = SM_CAST_PTR(SmOffsetSurface, base))
-            base = nested->GetBaseSurface();
-        if (!d.IsContainedBy(base->GetNaturalUVDomain(), SM_EFF_ZERO)) throw ScOffsetUnsafeInput{};
+        // Follow SmOffsetSurface::CalculateBoundingBox down the chain on the actual
+        // surfaces after the preceding ops: each level tests the domain against its own
+        // m_pSurface and passes the call on, or runs the SmSurface body on itself, whose
+        // offset surface cache can recurse (UB-118) or subdivide without progress
+        // (HANG-14). Refuse a box that reaches that body at any level.
+        for (SmOffsetSurface* level = s; level != NULL;
+             level = SM_CAST_PTR(SmOffsetSurface, level->GetBaseSurface()))
+        {
+            if (!d.IsContainedBy(level->GetBaseSurface()->GetNaturalUVDomain(), SM_EFF_ZERO))
+                throw ScOffsetUnsafeInput{};
+        }
         SmExtent3d nb;
         SmPseudoBox pb;
         SmPolarBox qb;
@@ -643,12 +688,16 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         }
         else if (step == S_EXTEND)
         {
+            // CreateExtendedSurface reaches UB-107 and the HANG-6/HANG-15 searches,
+            // guarded only by the worker's link wrappers (not on every platform).
+            if (!sc_offset_extensions_guarded()) throw ScOffsetUnsafeInput{};
             double dist = rd.num();
             SmContinuityType cont = (SmContinuityType)rd.idx();
             stt = s->CreateExtendedSurface(ctx, dist, cont, r);
         }
         else if (step == S_EXTEND_DIR)
         {
+            if (!sc_offset_extensions_guarded()) throw ScOffsetUnsafeInput{};
             SmSurfParamType param = (SmSurfParamType)rd.idx();
             double dist = rd.num();
             SmContinuityType cont = (SmContinuityType)rd.idx();
@@ -706,6 +755,19 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         o.push_back(0.0);
         o.push_back(flg(s->IsKindOf((SM_TYPE)rd.idx())));
         break;
+    case S_BASE_OFFSET:
+    {
+        // the virtual through SmSurface*: SmPlane, SmSurfOfRevolution and SmOffsetSurface
+        // override it; SmBSplineSurface's forwards to the SmSurface body
+        double d = rd.num();
+        double tol = rd.num();
+        SmSurface* r = NULL;
+        SmStatus stt = s->GetBaseSurface()->CreateOffsetSurface(ctx, d, tol, r);
+        std::unique_ptr<SmSurface> result(r);
+        o.push_back(st(stt));
+        if (stt == SM_SUCCESS && r) put_result(o, r);
+        break;
+    }
     default: o.push_back((double)SC_ERR_ARG); break;
     }
 }

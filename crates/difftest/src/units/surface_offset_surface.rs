@@ -225,6 +225,10 @@ enum StepIn {
     IsKindOf {
         t: i64,
     },
+    BaseOffset {
+        d: f64,
+        tol: f64,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -440,6 +444,7 @@ fn ffi_step(s: &StepIn) -> Result<ffi::Step, HarnessError> {
         StepIn::SetAllow { b } => F::SetAllow { b: *b },
         StepIn::IsPlanar { tol } => F::IsPlanar { tol: *tol },
         StepIn::IsKindOf { t } => F::IsKindOf { t: *t },
+        StepIn::BaseOffset { d, tol } => F::BaseOffset { d: *d, tol: *tol },
     })
 }
 
@@ -932,6 +937,11 @@ fn run_step(
             o.extend([0.0, flag(OffsetSurface::is_kind_of(*t))]);
             Ok(())
         }
+        StepIn::BaseOffset { d, tol } => push_res(
+            o,
+            s.base_surface().create_offset_surface(k, *d, *tol),
+            |o, r| put_result(o, &r),
+        ),
     }
 }
 
@@ -1179,8 +1189,29 @@ fn gen_scale(rng: &mut Rng) -> f64 {
         0 => 1e-3,
         1 => 1e3,
         2 => 10.0,
+        // extreme magnitudes (no coordinate cap on the C++ side)
+        3 => 1e-9,
+        4 => 1e9,
+        5 => 1e150,
         _ => 1.0,
     }
+}
+
+/// A surface of revolution whose line or circle generator is shrunk to `1e-9` .. `1e-12`
+/// of its size (no minimum size on the offset's C++ side).
+fn tiny_revolution(rng: &mut Rng) -> rev::SurfIn {
+    let mut s = rev::gen_surf(rng);
+    let f = *rng.choose(&[1e-9, 1e-12]).unwrap_or(&1e-9);
+    match &mut s.gen {
+        rev::GenIn::Circle { r, .. } => *r *= f,
+        rev::GenIn::Line { a, b } => {
+            for (bi, ai) in b.iter_mut().zip(a.iter()) {
+                *bi = *ai + (*bi - *ai) * f;
+            }
+        }
+        rev::GenIn::BSpline(_) => {}
+    }
+    s
 }
 
 fn gen_base(rng: &mut Rng, scale: f64, depth: usize) -> SrfIn {
@@ -1190,7 +1221,8 @@ fn gen_base(rng: &mut Rng, scale: f64, depth: usize) -> SrfIn {
             o: rng.point3(-2.0 * scale, 2.0 * scale),
             n: rev::unit_vec(rng),
         },
-        11..=14 => SrfIn::Revolution(rev::gen_surf(rng)),
+        11..=13 => SrfIn::Revolution(rev::gen_surf(rng)),
+        14 => SrfIn::Revolution(tiny_revolution(rng)),
         15 => SrfIn::Bounded {
             basis: Box::new(SrfIn::Bspline(gen_bss(rng, Shape::Smooth, scale))),
             implicit: rng.chance(0.5),
@@ -1281,8 +1313,12 @@ fn gen_subdomain(rng: &mut Rng, d: [f64; 4]) -> [f64; 4] {
 fn gen_orders(rng: &mut Rng) -> (usize, usize, bool) {
     let upper = rng.chance(0.35);
     if rng.chance(0.05) {
-        // more than MAX_DERIVS: SM_ERR
-        return (rng.below(3) as usize + 2, rng.below(3) as usize + 2, false);
+        // more than MAX_DERIVS: SM_ERR before anything is written (orders up to 8)
+        return (
+            rng.below(3) as usize * 3 + 2,
+            rng.below(3) as usize * 3 + 2,
+            false,
+        );
     }
     let pairs: &[(usize, usize)] = if upper {
         &[
@@ -1404,7 +1440,11 @@ fn gen_step(rng: &mut Rng, d: [f64; 4], scale: f64, size: f64, can_via: bool) ->
                         let s = rng.uniform(0.2, 3.0);
                         Some([s, s, s])
                     }
-                    2 => Some([1.0, 1.0, 1.0]),
+                    // unit, tiny, zero and negative uniform scales
+                    2 => {
+                        let s = *rng.choose(&[1.0, 1e-6, 0.0, -1e-3]).unwrap_or(&1.0);
+                        Some([s, s, s])
+                    }
                     _ => Some([
                         rng.uniform(0.2, 3.0),
                         rng.uniform(0.2, 3.0),
@@ -1466,6 +1506,14 @@ fn gen_step(rng: &mut Rng, d: [f64; 4], scale: f64, size: f64, can_via: bool) ->
         96..=97 => StepIn::IsPlanar {
             tol: *rng.choose(&[0.0, 1e-9, 1e-6, 1e-3, 0.1]).unwrap_or(&1e-6),
         },
+        98 => StepIn::BaseOffset {
+            d: if rng.chance(0.1) {
+                0.0
+            } else {
+                rng.uniform(-1.0, 1.0) * scale
+            },
+            tol: *rng.choose(&[0.0, 1e-6, 1e-3]).unwrap_or(&1e-3) * scale,
+        },
         _ => StepIn::IsKindOf {
             t: *rng
                 .choose(&[OFFSET_SURFACE_TYPE, 15000, 0, 15001, 15400, 15100])
@@ -1514,8 +1562,8 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
         });
     }
     let mut steps = gen_steps(rng, &off, d, scale, size);
-    if extends_degree_1(&k, &off) {
-        avoid_reflection_extensions(&mut steps);
+    if let Some(degree_1) = degree_1_directions(&k, &off) {
+        avoid_reflection_extensions(&mut steps, degree_1);
     }
     let fsteps = ffi_steps(&steps).ok()?;
     ffi::check(&foff, &fsteps).ok()?;
@@ -1543,41 +1591,59 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
     Some(Inputs::Script { off, steps })
 }
 
-/// Whether the B-spline NLib extends for this offset (its base, looking through nested
-/// offsets, curve-bounded and STEP wrappers) has a degree-1 direction.
-fn extends_degree_1(k: &Kernel, off: &OffIn) -> bool {
+/// Which directions (`[u, v]`) of the B-spline NLib extends for this offset (its base,
+/// looking through nested offsets, curve-bounded and STEP wrappers) have degree 1;
+/// `None` when neither does.
+fn degree_1_directions(k: &Kernel, off: &OffIn) -> Option<[bool; 2]> {
     let Ok(Ok(base)) = rust_srf(k, &off.base) else {
-        return false;
+        return None;
     };
     let mut s = &base;
     for _ in 0..=solidcore::surface::offset_surface::MAX_SURFACE_NESTING {
         s = match s.kind() {
             SurfaceKind::OffsetSurface(o) => o.base_surface(),
             SurfaceKind::CurveBounded(c) => c.basis(),
-            SurfaceKind::Step(st) => match st.surface() {
-                Some(b) => b,
-                None => return false,
-            },
+            SurfaceKind::Step(st) => st.surface()?,
             SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) => {
-                return s.degree(SurfParamType::U) == 1 || s.degree(SurfParamType::V) == 1;
+                let d = [s.degree(SurfParamType::U) == 1, s.degree(SurfParamType::V) == 1];
+                return (d[0] || d[1]).then_some(d);
             }
-            SurfaceKind::SrfInVolume(_) => return false,
+            SurfaceKind::SrfInVolume(_) => return None,
         };
     }
-    false
+    None
 }
 
 /// UB-32 (`plan/upstream-issues.md`): a reflection extension (`G1`, `G1G2`) in a
 /// degree-1 direction can make `ST_surxsdr`'s reflection-plane fallback read past its
 /// scratch row; the port reports `InvalidInput` there. As in `nlib.srf_adv_p1`, keep
-/// such extensions to C-max. (Applied after generation, so the random stream and the
-/// other cases are unchanged; the evaluation-triggered extension is ruled and safe.)
-fn avoid_reflection_extensions(steps: &mut [StepIn]) {
+/// such extensions to C-max, only for the extensions that reach a degree-1 direction
+/// (`degree_1` is `[u, v]` of the base; `SwapUV` exchanges them as the script runs).
+/// (Applied after generation, so the random stream and the other cases are unchanged;
+/// the evaluation-triggered extension is ruled and safe.)
+fn avoid_reflection_extensions(steps: &mut [StepIn], degree_1: [bool; 2]) {
+    use SurfParamType as P;
+    let [mut du, mut dv] = degree_1;
     for step in steps {
-        if let StepIn::Extend { cont, .. } | StepIn::ExtendDir { cont, .. } = step {
-            if matches!(*cont, 3 | 5) {
-                *cont = 13;
+        let (cont, reaches) = match step {
+            StepIn::Swap => {
+                core::mem::swap(&mut du, &mut dv);
+                continue;
             }
+            StepIn::Extend { cont, .. } => (cont, du || dv),
+            StepIn::ExtendDir { param, cont, .. } => {
+                let reaches = match param_of(*param) {
+                    Ok(P::U | P::UMin | P::UMax) => du,
+                    Ok(P::V | P::VMin | P::VMax) => dv,
+                    Ok(P::Neither) => false,
+                    _ => du || dv,
+                };
+                (cont, reaches)
+            }
+            _ => continue,
+        };
+        if reaches && matches!(*cont, 3 | 5) {
+            *cont = 13;
         }
     }
 }

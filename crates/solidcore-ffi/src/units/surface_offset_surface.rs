@@ -39,18 +39,26 @@
 //! | `Eq`           | `operator==` with another offset and itself | `eq self_eq`                     |
 //! | `IsPlanar`     | `IsPlanar` (`SmSurface` body, virtual box) | `planar P N dev`                  |
 //! | `IsKindOf`     | `IsKindOf`                            | `flag`                                 |
+//! | `BaseOffset`   | `GetBaseSurface()->CreateOffsetSurface` (virtual) | the result's state         |
 //!
 //! [`script`] accepts only what upstream handles without undefined behaviour or runaway
 //! work: well-formed clamped B-splines, planes with a non-zero normal, offsets nested at
-//! most [`MAX_NESTING`] deep, finite values below [`MAX_COORD`], parameters within
-//! [`MAX_REACH`] domain lengths of the base domain, derivative orders of at most 6 and
-//! never written past the caller's array (`bOnlyUpperHalf` with `hv > hu` writes
-//! `Duv` past it), no bounding boxes or planarity tests over a curve-bounded or STEP
+//! most [`MAX_NESTING`] deep, finite values (any magnitude), parameters within
+//! [`MAX_REACH`] domain lengths of the base domain, derivative orders of at most
+//! [`MAX_ORDER`] (a bound on the caller's array only), no bounding boxes or planarity tests over a curve-bounded or STEP
 //! base (their polar box recurses without bound upstream, UB-84), no box whose domain
 //! may lie outside the base domain (the base-class box of the offset asks the offset
 //! again for the outside part, without bound once an extension exists, and its surface
-//! cache subdivision runs away for small trimmed bases; the Rust side defers that path
-//! on `surface.surface_p6`), and no planarity test once an extension may exist.
+//! cache subdivision runs away for small trimmed bases), and no planarity test once an
+//! extension may exist. The isolated worker (`harness/cpp/offset_worker.cpp`) checks
+//! the state-dependent cases on the actual surfaces as the script runs: the non-zero
+//! offset writing past the caller's array for `bOnlyUpperHalf` orders (UB-116, only
+//! when the compound distance is not exactly `0.0`), zero-distance delegation to an
+//! `SmPlane` with more `u` than `v` orders (UB-117), a box reaching the `SmSurface` body
+//! at any level of the offset chain (UB-118, HANG-14), a read of a surface a failed
+//! in-place extension half-wrote (UB-107), and extension searches that cannot advance
+//! or crawl past a work bound (HANG-6, HANG-15). A surface of revolution base is checked
+//! with the revolution unit's `Limits::Isolated` limits (no minimum sizes).
 
 use super::surface_surf_of_revolution_p1 as rev;
 use crate::FfiError;
@@ -65,14 +73,15 @@ pub const REFERENCE_PROCESS_ERROR: i32 = crate::offset_reference::PROCESS_ERROR;
 pub const MAX_INDEX: usize = 24;
 /// Largest degree.
 pub const MAX_DEGREE: usize = 5;
-/// Largest coordinate magnitude.
-pub const MAX_COORD: f64 = 1.0e6;
 /// Deepest offset nesting in a block.
 pub const MAX_NESTING: usize = 3;
 /// Largest number of ops in a script.
 pub const MAX_OPS: usize = 16;
 /// How many domain lengths outside the base domain a parameter may be.
 pub const MAX_REACH: f64 = 3.0;
+/// Largest derivative order passed on (a bound on the caller's array only: upstream
+/// refuses offset orders above 3 before writing).
+pub const MAX_ORDER: usize = 64;
 /// Largest `WriteToDB` record [`read_db`] passes on.
 pub const MAX_DB_BYTES: usize = 1 << 20;
 
@@ -306,6 +315,14 @@ pub enum Step {
         /// Type code.
         t: i64,
     },
+    /// `GetBaseSurface()->CreateOffsetSurface(d, tol)`: the virtual through `SmSurface*`
+    /// (the plane, surface of revolution and offset overrides, else the base body).
+    BaseOffset {
+        /// Signed distance.
+        d: f64,
+        /// `sApproxTol3d`.
+        tol: f64,
+    },
 }
 
 impl Step {
@@ -334,6 +351,7 @@ impl Step {
             Step::SetAllow { .. } => 20,
             Step::IsPlanar { .. } => 21,
             Step::IsKindOf { .. } => 22,
+            Step::BaseOffset { .. } => 23,
         })
     }
 }
@@ -347,8 +365,8 @@ fn b(x: bool) -> f64 {
 }
 
 fn finite(v: &[f64], what: &str) -> Result<(), FfiError> {
-    if v.iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
-        return Err(bad(format!("{what}: non-finite or huge value")));
+    if v.iter().any(|c| !c.is_finite()) {
+        return Err(bad(format!("{what}: non-finite value")));
     }
     Ok(())
 }
@@ -525,7 +543,7 @@ fn push_srf(o: &mut Vec<f64>, s: &Srf, depth: usize) -> Result<BaseInfo, FfiErro
         }
         Srf::Revolution(r) => {
             o.push(4.0);
-            rev::push_surf(o, r)?;
+            rev::push_surf_with(o, r, rev::Limits::Isolated)?;
             BaseInfo {
                 dom: None,
                 unboxable: false,
@@ -550,51 +568,15 @@ fn push_off(o: &mut Vec<f64>, off: &Off, depth: usize) -> Result<BaseInfo, FfiEr
     push_srf(o, &off.base, depth)
 }
 
-/// The largest index `EvaluatePlainOrSimple` writes for a non-zero offset.
-fn max_write_index(hu: usize, hv: usize, upper: bool) -> usize {
-    let hod = if upper { hu.max(hv) } else { hu + hv };
-    let mut idx = vec![0];
-    if hu >= 1 {
-        idx.push(hv + 1);
+fn check_orders(hu: usize, hv: usize, _upper: bool) -> Result<(), FfiError> {
+    // (upstream refuses offset orders above 3 before writing anything; this only
+    // bounds the caller's array the shim allocates)
+    if hu > MAX_ORDER || hv > MAX_ORDER {
+        return Err(bad("eval: order above MAX_ORDER"));
     }
-    if hv >= 1 {
-        idx.push(1);
-    }
-    if hu >= 2 {
-        idx.push(2 * (hv + 1));
-    }
-    if (upper && hod >= 2) || (!upper && hu >= 1 && hv >= 1) {
-        idx.push(hv + 2);
-    }
-    if hv >= 2 {
-        idx.push(2);
-    }
-    if hu >= 3 {
-        idx.push(3 * (hv + 1));
-    }
-    if (upper && hod >= 3) || (!upper && hu >= 2 && hv >= 1) {
-        idx.push(2 * (hv + 1) + 1);
-    }
-    if (upper && hod >= 3) || (!upper && hu >= 1 && hv >= 2) {
-        idx.push((hv + 1) + 2);
-    }
-    if hv >= 3 {
-        idx.push(3);
-    }
-    idx.into_iter().max().unwrap_or(0)
-}
-
-fn check_orders(hu: usize, hv: usize, upper: bool) -> Result<(), FfiError> {
-    if hu > 6 || hv > 6 {
-        return Err(bad("eval: order above 6"));
-    }
-    // The shim checks zero-offset delegation to SmPlane against actual current
-    // distances (including nesting and preceding SetDist/Transform operations).
-    let hod = if upper { hu.max(hv) } else { hu + hv };
-    // (more than 3 fails before anything is written)
-    if hod <= 3 && max_write_index(hu, hv, upper) >= (hu + 1) * (hv + 1) {
-        return Err(bad("eval: upstream writes past the derivative array"));
-    }
+    // UB-116 (the non-zero path writing past the array) and UB-117 (zero-distance
+    // delegation to SmPlane) depend on the actual distance after the preceding ops:
+    // the shim checks both in the worker.
     Ok(())
 }
 
@@ -764,10 +746,8 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                     return Err(bad("transform: axes parallel"));
                 }
                 let sc = scale.unwrap_or([1.0, 1.0, 1.0]);
+                // (any finite scale: upstream handles zero and tiny ones without UB)
                 finite(&sc, "transform scale")?;
-                if sc.iter().any(|&v| v.abs() < 1e-3) {
-                    return Err(bad("transform: scale too small"));
-                }
                 o.extend_from_slice(origin);
                 o.extend_from_slice(x);
                 o.extend_from_slice(y);
@@ -811,14 +791,13 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 o.push(*d);
             }
             Step::Extend { dist, cont } => {
-                if !(dist.is_finite() && *dist > 0.0 && *dist <= 1.0e3) || *cont > 13 {
+                if !(dist.is_finite() && *dist > 0.0) || *cont > 13 {
                     return Err(bad("extend: distance or continuity"));
                 }
                 o.extend([*dist, f64::from(*cont)]);
             }
             Step::ExtendDir { param, dist, cont } => {
-                if *param > 8 || !(dist.is_finite() && *dist > 0.0 && *dist <= 1.0e3) || *cont > 13
-                {
+                if *param > 8 || !(dist.is_finite() && *dist > 0.0) || *cont > 13 {
                     return Err(bad("extend: direction, distance or continuity"));
                 }
                 o.extend([f64::from(*param), *dist, f64::from(*cont)]);
@@ -844,6 +823,13 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                     return Err(bad("type code"));
                 }
                 o.push(*t as f64);
+            }
+            Step::BaseOffset { d, tol } => {
+                finite(&[*d], "offset distance")?;
+                if !(tol.is_finite() && *tol >= 0.0) {
+                    return Err(bad("offset tolerance"));
+                }
+                o.extend([*d, *tol]);
             }
         }
     }
@@ -985,6 +971,100 @@ mod tests {
             script(&nested, &[upper()]),
             Err(FfiError::InvalidArgument(_))
         ));
+    }
+
+    fn bss(scale: f64) -> Srf {
+        let k = vec![0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0];
+        let net = (0..4)
+            .map(|i| {
+                (0..4)
+                    .map(|j| {
+                        let (x, y) = (f64::from(i) / 3.0, f64::from(j) / 3.0);
+                        [x * scale, y * scale, 0.3 * (3.0 * x).sin() * (2.0 * y).cos() * scale, NOW]
+                    })
+                    .collect()
+            })
+            .collect();
+        Srf::BSpline(Bss { oob: false, form: 0, net, p: 3, q: 3, u: k.clone(), v: k })
+    }
+
+    fn eval(hu: usize, hv: usize, upper: bool) -> Step {
+        Step::Eval { uv: [0.3, 0.6], hu, hv, ul: true, vl: true, upper, nzt: true }
+    }
+
+    fn refused(r: &Result<Vec<f64>, FfiError>) -> bool {
+        matches!(r, Err(FfiError::InvalidArgument(_)))
+    }
+
+    /// UB-116 depends on the actual distance: a zero offset delegates to its base
+    /// (accepted for a B-spline, which refuses unequal upper-half orders itself), a
+    /// non-zero one writes past the array (refused).
+    #[test]
+    fn upper_half_write_past_depends_on_actual_distance() {
+        let zero = Off { base: bss(1.0), ..plane(0.0) };
+        assert!(script(&zero, &[eval(0, 2, true)]).is_ok());
+        let one = Off { base: bss(1.0), ..plane(0.5) };
+        assert!(refused(&script(&one, &[eval(0, 2, true)])));
+        assert!(script(&one, &[Step::SetDist { d: 0.0 }, eval(0, 2, true)]).is_ok());
+        assert!(script(&one, &[eval(2, 0, true)]).is_ok());
+    }
+
+    /// Orders above upstream's 3 fail with a status, never writing.
+    #[test]
+    fn high_orders_return_a_status() {
+        for (hu, hv) in [(7, 7), (40, 64), (MAX_ORDER, MAX_ORDER)] {
+            let r = script(&Off { base: bss(1.0), ..plane(0.5) }, &[eval(hu, hv, false)]);
+            assert!(r.is_ok(), "{hu},{hv}");
+        }
+        assert!(refused(&script(&plane(0.5), &[eval(MAX_ORDER + 1, 0, false)])));
+    }
+
+    /// No coordinate cap, scale floor or revolution minimum size: upstream handles them.
+    #[test]
+    fn extreme_magnitudes_are_compared() {
+        for s in [1e12, 1e154, 1e300] {
+            let off = Off { base: bss(s), ..plane(0.25 * s) };
+            assert!(script(&off, &[Step::State, eval(1, 1, false)]).is_ok(), "{s:e}");
+        }
+        for sc in [1e-100, 0.0, -1e-6] {
+            let t = Step::Transform {
+                origin: [0.0; 3],
+                x: [1.0, 0.0, 0.0],
+                y: [0.0, 1.0, 0.0],
+                scale: Some([sc; 3]),
+            };
+            assert!(script(&plane(0.25), &[t, Step::State]).is_ok(), "{sc:e}");
+        }
+        let tiny = Off {
+            base: Srf::Revolution(rev::Surf {
+                gen: rev::Gen::Circle {
+                    c: [1.0, 0.0, 0.0],
+                    x: [1.0, 0.0, 0.0],
+                    y: [0.0, 0.0, 1.0],
+                    d: [0.0, 180.0],
+                    r: 1e-9,
+                },
+                build: rev::Build::Canonical { point: [0.0; 3], axis: [0.0, 0.0, 1.0] },
+                oob: false,
+                swap: false,
+            }),
+            ..plane(1e-10)
+        };
+        assert!(script(&tiny, &[Step::State, eval(1, 1, false)]).is_ok());
+    }
+
+    /// HANG-6: a G1/G2 extension tiny against its surface crawls through `ST_curxcdr`'s
+    /// arc-length search; the worker refuses it at its work bound instead of timing out.
+    #[test]
+    fn crawling_extension_search_is_refused_quickly() {
+        let off = Off { base: bss(1.0), ..plane(0.25) };
+        for (dist, cont) in [(1e-20, 3), (1e-100, 5), (1e-300, 3)] {
+            let t = std::time::Instant::now();
+            assert!(refused(&script(&off, &[Step::Extend { dist, cont }])), "{dist:e}");
+            assert!(t.elapsed() < crate::offset_reference::DEADLINE);
+        }
+        // a normal extension of the same surface is compared
+        assert!(script(&off, &[Step::Extend { dist: 0.1, cont: 5 }]).is_ok());
     }
 
     #[test]

@@ -1774,12 +1774,14 @@ fn read_body(k: &Kernel, db: &mut DatabaseReader, version: u64) -> Result<Offset
 /// The NURB of a B-spline kind surface (`GetOrCreateGwNurbPointer`, which calls the
 /// virtual `MakeNurb` when it is missing): the B-spline's (a plain B-spline cannot make
 /// one), the plane's (made on a copy when missing), the surface of revolution's.
-/// Deviation: a surface of revolution without a NURB is not given one here, because
-/// its `MakeNurb` needs the kernel, which evaluations do not take. Upstream makes it
-/// lazily; the port's own evaluation of such a surface already fails the same way
-/// (`SmBSplineSurface::Evaluate` without NURB), so this is the crate-wide gap of a
-/// revolution left without NURB by its bare constructor, not an offset one. When its
-/// build already failed, upstream's retry fails again and returns `NULL` as here.
+/// A surface of revolution is not given a missing NURB here (its `MakeNurb` needs the
+/// kernel's tolerances, which evaluations do not take, and a default kernel would
+/// substitute tolerances silently). No defined upstream run reaches that case: the
+/// offset's constructor and `ReadFromDB` first evaluate the base (`IsPeriodic`,
+/// `GetSingularities`), and `SmBSplineSurface::Evaluate` passes `m_pNurb` to NLib
+/// without creating it, which is undefined for a NURB-less base. Every Rust
+/// constructor path builds the NURB (`SurfOfRevolution::new` alone does not, as
+/// upstream's constructor; such a base fails here with `SM_ERR_NULL_POINTER`).
 fn nurb_of(surface: &Surface) -> Result<crate::nurbs::srf_basic::Surface> {
     let missing = || SolidError::null_pointer(OP_EXTEND);
     match surface.kind() {

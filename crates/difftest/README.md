@@ -79,21 +79,29 @@ and the unit can move from `partial` to `green`.
 
 `surface.offset_surface` runs its C++ calls, including generation-time database
 serialization, in a disposable `offset-reference` executable built by
-`solidcore-ffi/build.rs`. This currently uses the Linux/GNU linker (`--wrap`). The
-worker links the same unchanged SMLib archive and shim; its binary pipe protocol
-preserves every input/output double bit-for-bit.
+`solidcore-ffi/build.rs`. The worker links the same unchanged SMLib archive and
+shim; its binary pipe protocol preserves every input/output double bit-for-bit.
 
-The worker's two link wrappers forward `N_CrvExtendByDist` and `N_CrvArcLength`
-unchanged on finite, progressing paths. During extension only, they reject a
-successful nonfinite arc length or an initial G2 parameter step that cannot move
-its endpoint (HANG-6/HANG-15). They do not change numerical tolerances or turn the
-rejection into an SMLib status. The shim separately validates actual box domains
-and zero-offset plane derivative delegation after preceding edits.
+On Linux (where CI runs) the worker is linked with GNU ld `--wrap` around
+`N_CrvExtendByDist`, `N_CrvArcLength`, `N_SrfExtendByDist` and `N_SrfCopy`. The
+wrappers forward unchanged on finite, progressing paths. During an extension only,
+they reject a successful nonfinite arc length or an initial G2 step that cannot move
+its endpoint (HANG-6/HANG-15), an arc-length search past 20,000 calls (HANG-6's
+crawl for distances tiny against the curve; normal searches take at most 45), and a
+read of a surface a failed in-place extension half-wrote (UB-107). They do not change
+numerical tolerances or turn the rejection into an SMLib status. On other targets
+the worker is built without them (`SC_OFFSET_NO_LINK_WRAP`, with a build warning) and
+the shim refuses `CreateExtendedSurface` steps instead. The shim also validates, on
+the actual surfaces after preceding edits, box domains at every level of the offset
+chain (UB-118/HANG-14), writes past the caller's array for the actual compound
+distance (UB-116) and zero-offset plane delegation (UB-117).
 
 The generator preflights state-dependent guards. An explicit unsafe-input
 rejection excludes that candidate; it is not a pass or a deferred comparison.
-Unexpected worker errors, crashes and the five-second deadline remain **harness
-failures**, never silently discarded candidates. The caller kills/reaps only its
+Unexpected worker errors, crashes and deadlines remain **harness failures**, never
+silently discarded candidates. A call that runs past its five-second deadline is rerun
+once with sixty seconds (fresh process, same input, so deterministic), so a loaded
+machine slows a case down instead of failing it. The caller kills/reaps only its
 own child. The exact original `gen5909` input is retained as an FFI regression in
 `crates/solidcore-ffi/tests/data/offset-gen5909.txt`; it tests guard rejection,
 not numerical agreement on undefined/nonterminating upstream behavior.

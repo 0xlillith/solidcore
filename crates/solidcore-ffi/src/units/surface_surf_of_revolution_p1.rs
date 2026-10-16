@@ -31,7 +31,9 @@
 //! 360 long, finite rotation axes (`CreateCanonical` makes a zero one `(0, 0, 1)`),
 //! independent unit placement axes for the constructor (a longer Y axis leaves
 //! `IsOnPlane`'s output uninitialised), ordered domains, finite parameters and
-//! derivative orders up to 3.
+//! derivative orders up to 3. Lines shorter and circles smaller than `1e-6` are refused
+//! for this unit's in-process calls; `surface.offset_surface`, whose reference runs in an
+//! isolated worker with a deadline, passes any non-zero size (`Limits::Isolated`).
 
 use crate::{call_with_buffer, FfiError};
 
@@ -406,7 +408,23 @@ pub(crate) fn check_surface(s: &SurfaceData) -> Result<(), FfiError> {
     check_knots(&s.v, s.q, "surface v")
 }
 
-fn push_gen(o: &mut Vec<f64>, g: &Gen) -> Result<(), FfiError> {
+/// How strictly a block is checked: [`Limits::InProcess`] for this unit's in-process
+/// calls (degenerate sizes that may run away are refused), [`Limits::Isolated`] for a
+/// caller whose reference runs in an isolated worker with a deadline
+/// (`surface.offset_surface`), which only refuses undefined behaviour.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Limits {
+    /// In-process: the historic size limits.
+    InProcess,
+    /// Isolated worker: undefined behaviour only.
+    Isolated,
+}
+
+fn push_gen(o: &mut Vec<f64>, g: &Gen, limits: Limits) -> Result<(), FfiError> {
+    let min_size = match limits {
+        Limits::InProcess => 1e-6,
+        Limits::Isolated => 0.0,
+    };
     match g {
         Gen::BSpline(c) => {
             check_bspline(c)?;
@@ -423,7 +441,7 @@ fn push_gen(o: &mut Vec<f64>, g: &Gen) -> Result<(), FfiError> {
             finite(b, "line")?;
             let [ax, ay, az] = *a;
             let [bx, by, bz] = *b;
-            if len([bx - ax, by - ay, bz - az]) < 1e-6 {
+            if len([bx - ax, by - ay, bz - az]) <= min_size {
                 return Err(bad("line: degenerate"));
             }
             o.push(1.0);
@@ -435,7 +453,7 @@ fn push_gen(o: &mut Vec<f64>, g: &Gen) -> Result<(), FfiError> {
             axes(*x, *y, "circle")?;
             let [d0, d1] = *d;
             angular(d0, d1, "circle")?;
-            if !(r.is_finite() && *r > 1e-6) {
+            if !(r.is_finite() && *r > min_size) {
                 return Err(bad("circle: radius"));
             }
             o.push(2.0);
@@ -449,6 +467,11 @@ fn push_gen(o: &mut Vec<f64>, g: &Gen) -> Result<(), FfiError> {
 }
 
 pub(crate) fn push_surf(o: &mut Vec<f64>, s: &Surf) -> Result<(), FfiError> {
+    push_surf_with(o, s, Limits::InProcess)
+}
+
+/// [`push_surf`] with the given [`Limits`].
+pub(crate) fn push_surf_with(o: &mut Vec<f64>, s: &Surf, limits: Limits) -> Result<(), FfiError> {
     match &s.build {
         Build::Canonical { point, axis } => {
             finite(point, "axis point")?;
@@ -456,7 +479,7 @@ pub(crate) fn push_surf(o: &mut Vec<f64>, s: &Surf) -> Result<(), FfiError> {
             // zero one becomes (0, 0, 1)
             finite(axis, "axis")?;
             o.push(0.0);
-            push_gen(o, &s.gen)?;
+            push_gen(o, &s.gen, limits)?;
             o.extend([f64::from(u8::from(s.oob)), f64::from(u8::from(s.swap))]);
             o.extend_from_slice(point);
             o.extend_from_slice(axis);
@@ -479,7 +502,7 @@ pub(crate) fn push_surf(o: &mut Vec<f64>, s: &Surf) -> Result<(), FfiError> {
             let [u0, _, u1, _] = *d;
             angular(u0, u1, "surface domain")?;
             o.push(1.0);
-            push_gen(o, &s.gen)?;
+            push_gen(o, &s.gen, limits)?;
             o.extend([f64::from(u8::from(s.oob)), f64::from(u8::from(s.swap))]);
             o.extend_from_slice(origin);
             o.extend_from_slice(x);

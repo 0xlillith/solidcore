@@ -4311,9 +4311,35 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
 
 ## surface.offset_surface (`SmOffsetSurface`, PR #62, 2026-10-14)
 
-- **Status (2026-10-15, after merging main `51eb95fb`):** default difftest 3062 cases,
-  2849 passed, 0 failed, 213 deferred (all `surface.surface_point_solve_p3`); 6000-seed
-  run 6062 cases, 5611 passed, 0 failed, 451 deferred; compared values bit-identical.
+- **Status (2026-10-16, after merging main `8aea1944`):** default difftest 3066 cases,
+  2853 passed, 0 failed, 213 deferred (all `surface.surface_point_solve_p3`); 6000-seed
+  run 6066 cases, 5620 passed, 0 failed, 446 deferred; compared values bit-identical.
+- **Guards loosened to exactly what C++ needs (review nice-to-have):** probed every static
+  FFI limit against the isolated worker. Removed the `1e6` coordinate cap, the `1e-3`
+  transform-scale floor, the `1e-6` revolution generator minimum (offset callers only;
+  the revolution unit's in-process calls keep it), the order cap of 6 (now 64, a bound on
+  the caller's array: upstream refuses offset orders above 3 before writing) and the
+  `1e3` extension-distance cap. UB-116 (writes past the array) moved from a static
+  order table into the worker, checked on the actual compound distance (a zero offset
+  delegates and is compared). The box guard now follows `CalculateBoundingBox` level by
+  level and checks each offset's own `m_pSurface`, not only the innermost base. The
+  sweeps (coordinates to `1e300`, scales `0`/`-1e-6`/`1e-100`, revolution radii to
+  `5e-324`, orders to 64, extension distances `1e-300`..`1e300`) left no timeouts or
+  crashes: what remains refused is UB-107 and HANG-6, the latter now by a work bound
+  (20,000 `N_CrvArcLength` calls per extension; at most 45 in the 6000-seed run)
+  instead of the five-second deadline. Generated cases now include magnitudes `1e-9` to
+  `1e150`, tiny revolutions, zero/negative scales and orders up to 8 (484 of them pass
+  in the default run, comparing 41,252 values).
+- **Worker robustness:** a timeout is rerun once with 60 s before it counts as a harness
+  failure; without GNU ld `--wrap` (non-Linux) the worker is built without the NLib
+  wrappers and the shim refuses `CreateExtendedSurface` steps rather than run unguarded.
+- **Dispatch compared against C++:** a `BaseOffset` op calls
+  `GetBaseSurface()->CreateOffsetSurface(d, tol)` through `SmSurface*` (fixtures over
+  B-spline, plane, revolution and nested bases; 81 generated cases over every kind).
+- **`nurb_of`:** not given a lazy `MakeNurb`. Upstream's `SmBSplineSurface::Evaluate`
+  passes `m_pNurb` to NLib without creating it, and the offset's constructor and
+  `ReadFromDB` evaluate the base first, so a NURB-less revolution base is undefined
+  before `GetOrCreateGwNurbPointer` could run.
   (Before `surface.surface_p3`..`p5` landed: 3060 cases, 1582 passed, 1478 deferred.)
 - **Maintainer review fixes:** `Surface::create_offset_surface` dispatches as the virtual
   (plane: moved copy; surface of revolution: offset generator with the caller's

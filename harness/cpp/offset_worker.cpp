@@ -14,6 +14,7 @@
 extern "C" int32_t sc_surface_offset_surface_eval(int32_t, const double*, int64_t,
                                                    double*, int64_t, int64_t*);
 
+#ifndef SC_OFFSET_NO_LINK_WRAP
 // GNU link wrapping is confined to this disposable worker. All finite results are
 // returned verbatim by the original SMLib functions. Reject only an extension
 // search whose initial length is non-finite or whose first parameter step cannot
@@ -30,12 +31,20 @@ struct Extension {
     NL_CURVE* curve;
     NL_REAL distance;
     NL_FLAG relative, end, continuity;
+    unsigned long arc_lengths;
 };
+// ST_curxcdr's arc-length searches step a parameter by a fixed increment until the
+// measured length meets the target. For an extension tiny against its curve, the
+// segment never measures long enough and the search crawls ~(range / increment)
+// steps (HANG-6; seen for 1e-20 of a unit surface, never finishing). Normal searches
+// take a handful of calls (at most 45 over the 12,530 curve extensions of a
+// 6000-seed difftest); refuse a search past this work bound.
+constexpr unsigned long MAX_ARC_LENGTHS_PER_EXTENSION = 20000;
 // The worker is single-threaded. The scoped pointer also handles nested extensions.
-const Extension* active_extension = nullptr;
+Extension* active_extension = nullptr;
 struct ExtensionScope {
-    const Extension* previous;
-    explicit ExtensionScope(const Extension& current) : previous(active_extension) {
+    Extension* previous;
+    explicit ExtensionScope(Extension& current) : previous(active_extension) {
         active_extension = &current;
     }
     ~ExtensionScope() { active_extension = previous; }
@@ -45,7 +54,7 @@ extern "C" NL_FLAG __wrap_N_CrvExtendByDist(NL_CURVE* curve, NL_REAL distance,
     NL_FLAG relative, NL_FLAG end, NL_FLAG continuity, NL_CURVE* result,
     NL_STACKS* input_stack, NL_STACKS* output_stack)
 {
-    const Extension extension{curve, distance, relative, end, continuity};
+    Extension extension{curve, distance, relative, end, continuity, 0};
     ExtensionScope scope(extension);
     return __real_N_CrvExtendByDist(curve, distance, relative, end, continuity,
                                    result, input_stack, output_stack);
@@ -53,8 +62,9 @@ extern "C" NL_FLAG __wrap_N_CrvExtendByDist(NL_CURVE* curve, NL_REAL distance,
 extern "C" NL_FLAG __wrap_N_CrvArcLength(NL_CURVE* curve, NL_PARAMETER lo,
     NL_PARAMETER hi, NL_REAL tolerance, NL_FLAG flag, NL_REAL* length)
 {
+    Extension* ext = active_extension;
+    if (ext && ++ext->arc_lengths > MAX_ARC_LENGTHS_PER_EXTENSION) throw ScOffsetUnsafeInput{};
     const auto status = __real_N_CrvArcLength(curve, lo, hi, tolerance, flag, length);
-    const Extension* ext = active_extension;
     if (!ext || status != NL_NO) return status;
     if (!std::isfinite(*length)) throw ScOffsetUnsafeInput{};
     // ST_curxcdr's initial arc-length call and precisely its subsequent arithmetic
@@ -104,6 +114,9 @@ extern "C" NL_FLAG __wrap_N_SrfCopy(NL_SURFACE* source, NL_SURFACE* target,
     if (target == half_written_surface) half_written_surface = nullptr;
     return __real_N_SrfCopy(source, target, stack);
 }
+
+extern "C" int sc_offset_extension_guards() { return 1; }
+#endif // SC_OFFSET_NO_LINK_WRAP
 
 template <class T> bool read(T& value)
 {

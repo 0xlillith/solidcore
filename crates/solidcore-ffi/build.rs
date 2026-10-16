@@ -186,8 +186,20 @@ fn main() {
     let mut command = compiler.expect("shim compiler").to_command();
     command
         .arg(&worker_source)
-        .arg(out_dir.join("libsolidcore_shims.a"))
-        .arg("-Wl,--wrap=N_CrvExtendByDist,--wrap=N_CrvArcLength,--wrap=N_SrfExtendByDist,--wrap=N_SrfCopy");
+        .arg(out_dir.join("libsolidcore_shims.a"));
+    // The extension guards (UB-107, HANG-6, HANG-15) wrap NLib entry points with GNU
+    // ld's --wrap, available on Linux (where CI runs). Elsewhere the worker is built
+    // without them and the shim refuses the extension ops that would need them.
+    if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("linux") {
+        command.arg(
+            "-Wl,--wrap=N_CrvExtendByDist,--wrap=N_CrvArcLength,--wrap=N_SrfExtendByDist,--wrap=N_SrfCopy",
+        );
+    } else {
+        println!(
+            "cargo:warning=solidcore-ffi: no GNU ld --wrap on this target; surface.offset_surface's reference refuses CreateExtendedSurface cases"
+        );
+        command.arg("-DSC_OFFSET_NO_LINK_WRAP");
+    }
     for d in [
         root.join("upstream/source/SMLib/inc"),
         root.join("upstream/source/SM_API/inc"),

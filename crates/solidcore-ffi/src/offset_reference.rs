@@ -3,6 +3,12 @@
 //! Every call, including serialization during generation, starts a fresh executable.
 //! A timeout or crash is an oracle error, never a fabricated numerical result or an
 //! `Unported` result. Only the child created here is killed, and it is always reaped.
+//!
+//! Deadlines: a call gets [`DEADLINE`]; one that runs out is rerun once with
+//! [`RETRY_DEADLINE`], so a loaded machine does not turn a slow case into a failure,
+//! while a genuine hang (upstream's runaway loops never finish) still reports
+//! [`TIMEOUT`]. Every call is a fresh process on the same input, so the rerun is
+//! deterministic.
 
 use crate::{check, FfiError, SC_ERR_ARG};
 use std::io::{Read, Write};
@@ -13,7 +19,10 @@ use std::time::{Duration, Instant};
 pub const TIMEOUT: i32 = -1062;
 /// The reference child terminated abnormally or its transport failed.
 pub const PROCESS_ERROR: i32 = -1063;
-const DEADLINE: Duration = Duration::from_secs(5);
+/// First per-call deadline (cases take milliseconds).
+pub const DEADLINE: Duration = Duration::from_secs(5);
+/// Deadline of the single rerun after a timeout.
+pub const RETRY_DEADLINE: Duration = Duration::from_secs(60);
 const MAX_OUTPUT: u64 = 12 + 8 * 8_388_608;
 
 fn process_error(_: impl std::fmt::Debug) -> FfiError {
@@ -21,6 +30,13 @@ fn process_error(_: impl std::fmt::Debug) -> FfiError {
 }
 
 pub(crate) fn call(op: i32, input: &[f64]) -> Result<Vec<f64>, FfiError> {
+    match call_within(op, input, DEADLINE) {
+        Err(FfiError::Status(TIMEOUT)) => call_within(op, input, RETRY_DEADLINE),
+        r => r,
+    }
+}
+
+fn call_within(op: i32, input: &[f64], deadline: Duration) -> Result<Vec<f64>, FfiError> {
     if input.is_empty() || input.len() > 1_048_576 {
         return Err(FfiError::InvalidArgument("offset worker input size".into()));
     }
@@ -64,7 +80,7 @@ pub(crate) fn call(op: i32, input: &[f64]) -> Result<Vec<f64>, FfiError> {
         let status = loop {
             match child.try_wait() {
                 Ok(Some(status)) => break Ok(status),
-                Ok(None) if start.elapsed() < DEADLINE => {
+                Ok(None) if start.elapsed() < deadline => {
                     std::thread::sleep(Duration::from_millis(1));
                 }
                 Ok(None) => {

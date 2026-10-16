@@ -1217,6 +1217,10 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (timeout, the small-distance case).
 - **Severity:** hang.
 - **Rust port:** Fails with `NotConverged` when a step changes nothing.
+- **Harness:** `surface.offset_surface`'s worker rejects an initial step that cannot move
+  the endpoint and, for distances tiny against the curve (e.g. `1e-20` on a unit
+  surface, where each step moves but the search crawls), an extension past 20,000
+  `N_CrvArcLength` calls (normal searches in a 6000-seed run took at most 45).
 
 #### HANG-7. Periodic shifts in unbounded evaluation
 - **Location:** `NL_CrvAdv.cpp:4257` `N_CrvEvalUnboundedPtsAndDerivs`; `NL_SrfAdv.cpp:5446` `N_SrfEvalPtDerivsUnbounded`.
