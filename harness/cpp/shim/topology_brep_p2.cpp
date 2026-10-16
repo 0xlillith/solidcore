@@ -11,12 +11,15 @@
 // Outputs start with `0` (built) or `-1 status` (the build failed). Entities are named
 // by their index in the B-rep's face/edge/vertex lists, then in the fixture's walk (with
 // the vertex lists) of the B-rep before the op. Ops that may change the topology (Make,
-// Merge, Mate, Replace, RayFire, Notify) output only statuses and counts after the call;
+// Merge, Mate, Replace, RayFire, Notify) output only statuses and counts after the call
+// (Stale: whether each face's seeded trimmed-surface cache survived);
 // SetTol / Rebuild only read the entities they cannot delete (tolerances, UV curve
 // presence), so no pointer captured before a mutation is followed after it.
 #include "sc_topology_fixture.h"
 
+#include <SmCacheMgr.h>
 #include <SmPointClass.h>
+#include <SmSurfaceCache.h>
 
 namespace
 {
@@ -317,7 +320,33 @@ void run(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         o.push_back(0.0);
         break;
     }
-    case P2_STALE: o.push_back(st(brep->DeleteStaleCaches())); break;
+    case P2_STALE:
+    {
+        // seed SM_OC_TRIMSRF caches: face i gets one when bit (i % 8) of `create` is
+        // set, marked m_bFaceWasModified when that bit of `modified` is set
+        int64_t create = rd.idx(), modified = rd.idx();
+        // drop the caches reading or validating the B-rep built (the Rust B-rep has none)
+        for (SmFace* f : g.faces)
+            if (f->GetSurface() != nullptr)
+                SmCacheMgr::DeleteObjectsCache(SM_OC_TRIMSRF, f->GetSurface());
+        for (size_t i = 0; i < g.faces.size(); i++)
+        {
+            SmSurface* s = g.faces[i]->GetSurface();
+            if (s == nullptr || ((create >> (i % 8)) & 1) == 0)
+                continue;
+            SmSurfaceCache* c =
+                (SmSurfaceCache*)SmCacheMgr::GetOrCreateObjectCache(SM_OC_TRIMSRF, s);
+            if (c != nullptr)
+                c->m_bFaceWasModified = ((modified >> (i % 8)) & 1) ? TRUE : FALSE;
+        }
+        o.push_back(st(brep->DeleteStaleCaches()));
+        for (SmFace* f : g.faces)
+        {
+            SmSurface* s = f->GetSurface();
+            o.push_back(s != nullptr && SmCacheMgr::GetObjectCache(SM_OC_TRIMSRF, s) != nullptr);
+        }
+        break;
+    }
     case P2_SWAP: o.push_back(st(brep->SwapUV())); break;
     case P2_REPLACE:
     {

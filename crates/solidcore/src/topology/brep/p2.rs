@@ -18,6 +18,16 @@
 //! | [`notify`], [`NotifyArg`], [`brep_ref`] | `SmBrep::Notify`               |
 //! | `add_to_spatial_tree` (private) | `sm_AddToSpatialTree`                  |
 //! | `rm_from_spatial_tree` (private) | `sm_RmFromSpatialTree`                |
+//! | [`delete_stale_caches`]      | `SmBrep::DeleteStaleCaches`               |
+//! | [`point_from_solution`]      | `sm_GetPointFromSol` (file static)        |
+//! | [`local_curve_sector`]       | `SmBrep::LocalCurveSector`                |
+//! | [`ray_fire`], [`RayFireResult`] | `SmBrep::RayFire`                      |
+//! | [`replace_surface`], [`OldSurface`] | `SmBrep::ReplaceSurface`           |
+//! | [`make_shell_vertex_topology`] | `SmBrep::MakeShellVertexTopology`       |
+//! | [`make_edge_vertex_topology`] | `SmBrep::MakeEdgeVertexTopology`         |
+//! | [`make_edge_topology`]       | `SmBrep::MakeEdgeTopology`                |
+//! | [`merge_curves_on_surface`], [`MergeCurvesObjects`], [`MergeCurvesOptions`], [`MergedCurves`] | `SmBrep::MergeCurvesOnSurface` |
+//! | [`mate_lamina_edge_to_surface`] | `SmBrep::MateLaminaEdgeToSurface`      |
 //!
 //! Deviations: out-params become return values. `GetMinEdgeBBoxSize` returns the
 //! smallest edge as `Option` (upstream leaves `rpEdge` unassigned when no edge
@@ -31,6 +41,24 @@
 //! `MergeCurvesOnSurface`'s face queue only grows by the faces `MergeIntervals` creates
 //! (each split adds faces to the finite B-rep), `MateLaminaEdgeToSurface` samples 21
 //! points and scans the intersection curves once.
+//!
+//! Smaller deviations, none reachable as a difference today:
+//! - `LocalCurveSector`'s vertex vote: a found sector whose shell has no region is an
+//!   error ([`SolidError::InvalidInput`]); upstream votes for a `NULL` region and may
+//!   return it.
+//! - `MakeShellVertexTopology` / `MakeEdgeVertexTopology` / `MakeEdgeTopology` add their
+//!   records to the arenas before the shell calls (`topology.shell`), so a failure there
+//!   leaves those records in the B-rep; upstream's `SmObjDelete` guards delete them.
+//! - `MateLaminaEdgeToSurface` checks for the face's surface before the neighbour
+//!   (lamina / seam) checks; upstream binds the surface only for `IsSeam`, so a face
+//!   without surface there ends in the distance loop instead of
+//!   [`SolidError::null_pointer`]. Its intersection UV curve must be a plain
+//!   B-spline (`SM_CAST_PTR(SmBSplineCurve, ..)` also passes `SmLine` and the conics,
+//!   which the port treats as the null cast); the extended mating surface is always a
+//!   B-spline, so the intersector returns NURBS curves. A negative extension distance
+//!   (`dSurfaceExtensionFactor < 0`) is [`SolidError::InvalidInput`] before
+//!   `CreateExtendedSurface`, where upstream never returns
+//!   (`plan/upstream-issues.md` HANG-18).
 
 use std::collections::BTreeMap;
 
@@ -49,6 +77,7 @@ use crate::geom::solution_array::Solution;
 use crate::geom::tol::ZONE_TOL_3D;
 use crate::geom::tree::NodeGeomType;
 use crate::intersect::curve_class::p1::{CurveClassification, IntervalPosition};
+use crate::intersect::curve_class::p5::MergedTopology;
 use crate::intersect::point_class::{
     ClassGeometry, ClassObject, PointClassType, PointClassification,
 };
@@ -1849,11 +1878,13 @@ fn merge_curves_body<O: ClassObject + Copy>(
 
             // merge classified intersection curve segments into this Brep
             // Don't SER on failure for one curve. Merge the rest. [B674]
-            let new_faces = match merge_intervals(objects, &mut cc) {
-                Ok(v) => v,
-                Err(e) if e.is_unported() => return Err(e),
-                Err(_) => Vec::new(),
-            };
+            // (the new faces made before a failure are kept, as upstream's list)
+            let (new_faces, r) = merge_intervals(objects, &mut cc)?;
+            if let Err(e) = r {
+                if e.is_unported() {
+                    return Err(e);
+                }
+            }
 
             // save new faces and intersection segments that classify to edges in output
             // arrays
@@ -1928,13 +1959,15 @@ fn connect_intervals<O>(
 
 /// `MergeIntervals(&newFaces, NULL, NULL, pFace)` (unit `intersect.curve_class_p5`,
 /// `bVerticesOnly` default `FALSE`; the debug-only face argument is not passed): the new
-/// faces.
+/// faces, also those made before a failure (upstream's list is filled as faces are
+/// made), with its status.
 fn merge_intervals<O: ClassObject + Copy>(
     objects: &impl MergeCurvesObjects<O>,
     cc: &mut CurveClassification<O>,
-) -> Result<Vec<FaceId>> {
-    let merged = cc.merge_intervals(false)?;
-    merged
+) -> Result<(Vec<FaceId>, Result<()>)> {
+    let mut merged = MergedTopology::default();
+    let r = cc.merge_intervals_into(false, &mut merged);
+    let faces = merged
         .faces
         .into_iter()
         .map(|o| {
@@ -1942,7 +1975,8 @@ fn merge_intervals<O: ClassObject + Copy>(
                 .face_of(o)
                 .ok_or(null_deref("new face handle without face"))
         })
-        .collect()
+        .collect::<Result<_>>()?;
+    Ok((faces, r))
 }
 
 // ---- mating a lamina edge -----------------------------------------------------------------
@@ -2136,7 +2170,15 @@ pub fn mate_lamina_edge_to_surface(
             .as_ref()
             .ok_or(null_deref("face without surface"))?;
         orig_domain = surf.natural_uv_domain();
-        surf.create_extended_surface(max_dist * surface_extension_factor, ContinuityType::G1R)?
+        let ext_dist = max_dist * surface_extension_factor;
+        if ext_dist < 0.0 {
+            // upstream: N_SrfExtendByDist never returns for a negative distance (HANG-18)
+            return Err(SolidError::invalid_input(
+                OP,
+                "negative surface extension distance",
+            ));
+        }
+        surf.create_extended_surface(ext_dist, ContinuityType::G1R)?
     };
     let ext_domain = ext_surface.natural_uv_domain();
 

@@ -23,7 +23,7 @@
 //! Outputs: `failed` (`0` success, `1` a failing status, `-2` where upstream would
 //! dereference null; the shim does not call it, the port returns `InvalidInput`), then
 //! on success the op's values. The radial classifications are deferred
-//! (`SmEdgeuse::EvaluateBinormalStepOff`, unit `topology.edgeuse_p2`).
+//! (`SmEdgeuse::EvaluateBinormal`, unit `topology.edgeuse_p3`, under `EvaluateBinormalStepOff`).
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

@@ -654,6 +654,20 @@ impl<O: ClassObject> CurveClassification<O> {
     /// Unfinished topology merging defers when an interval requires graph mutation.
     pub fn merge_intervals(&mut self, vertices_only: bool) -> Result<MergedTopology<O>> {
         let mut out = MergedTopology::default();
+        self.merge_intervals_into(vertices_only, &mut out)?;
+        Ok(out)
+    }
+
+    /// [`Self::merge_intervals`] appending to `out` as upstream fills its output lists:
+    /// on failure `out` keeps the topology of the intervals merged before it.
+    ///
+    /// # Errors
+    /// As [`Self::merge_intervals`].
+    pub fn merge_intervals_into(
+        &mut self,
+        vertices_only: bool,
+        out: &mut MergedTopology<O>,
+    ) -> Result<()> {
         for pass in 0..if vertices_only { 1 } else { 2 } {
             for j in 0..self.size() {
                 let ivl = self.at(j)?;
@@ -666,7 +680,7 @@ impl<O: ClassObject> CurveClassification<O> {
                 out.vertices.extend(merged.vertices);
             }
         }
-        Ok(out)
+        Ok(())
     }
 }
 

@@ -23,16 +23,22 @@
 //! | `Merge`    | `face tol n curve*` | `status new_faces edges` (`MergeCurvesOnSurface`) |
 //! | `Mate`     | `edge surface ext_factor uv_factor` | `status` (`MateLaminaEdgeToSurface`) |
 //! | `Notify`   | `operation ref ref ref` | `0` |
-//! | `Stale`    |            | `status` (`DeleteStaleCaches`) |
+//! | `Stale`    | `create modified` (face `i` gets an `SM_OC_TRIMSRF` cache when bit `i % 8` of `create` is set, `m_bFaceWasModified` from that bit of `modified`) | `status`, per face whether its cache survived (`DeleteStaleCaches`) |
 //! | `Swap`     |            | `status` (`SwapUV`) |
 //! | `Replace`  | `face surface keep create` (`keep`: `0` delete, `1` deleted list, `2` keep) | `status modified` (`ReplaceSurface`) |
 //! | `RayFire`  | `P V tol has_limit limit` | `status region class` (`RayFire`) |
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: valid
 //! B-rep blocks, indices inside the B-rep (it exports the B-rep once more to count),
-//! object references whose type matches the point class (`Sector`), a null region only
-//! when the B-rep has an infinite region (`Make`), a start vertex for the edge makers,
-//! finite values. `Merge` and `Mate` with editing enabled run the whole upstream
+//! object references whose type matches the point class for the face, edge and vertex
+//! classes (`Sector`; any object for the other classes, which upstream rejects with
+//! `SM_ERR` untouched), a null region only when the B-rep has an infinite region
+//! (`Make`), a start vertex for the edge makers, finite values. Deliberate
+//! restrictions: a `Sector` interval must have `t0 < t1` (an empty one makes the step
+//! `0 / 0`, a NaN parameter for the curve evaluator); a `Mate` extension factor must not
+//! be negative (a negative extension distance hangs the C++ in `N_SrfExtendByDist`,
+//! `plan/upstream-issues.md` HANG-18); a reference `type -1` is not accepted (the null
+//! reference is `-1 -1`). `Merge` and `Mate` with editing enabled run the whole upstream
 //! algorithm: the callers keep their curves short of the tolerance (`Merge`) and pick
 //! lamina edges of upstream files (`Mate`).
 
@@ -142,7 +148,11 @@ fn entity(rd: &mut Reader<'_>, c: &[usize; 10]) -> Result<f64, FfiError> {
 fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Result<(), FfiError> {
     let [n_r, _, _, n_f, _, _, _, n_e, _, n_v] = *c;
     match op {
-        Op::Export | Op::Extras | Op::Rebuild | Op::Stale | Op::Swap => {}
+        Op::Export | Op::Extras | Op::Rebuild | Op::Swap => {}
+        Op::Stale => {
+            int(rd, 0, 255)?;
+            int(rd, 0, 255)?;
+        }
         Op::Query => {
             rd.index(5)?;
         }
@@ -167,20 +177,24 @@ fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Res
                 return Err(bad("sector curve must be 3D"));
             }
             rd.at -= 1;
-            let (a, b) = vu::curve(rd)?;
+            vu::curve(rd)?;
             let t0 = rd.finite()?;
             let t1 = rd.finite()?;
-            if !(a <= t0 && t0 < t1 && t1 <= b) {
-                return Err(bad("sector interval outside the curve's"));
+            if t0 >= t1 {
+                return Err(bad("empty sector interval"));
             }
-            let orient = rd.index(2)?;
-            if orient == 0 {
-                return Err(bad("unknown orientation"));
-            }
+            rd.index(2)?;
             let class = rd.num()?;
+            if class.fract() != 0.0 || !(100.0..=110.0).contains(&class) {
+                return Err(bad("bad point class"));
+            }
             let ty = entity(rd, c)?;
-            if !CLASS_TYPES.iter().any(|&(k, t)| k == class && t == ty) {
-                return Err(bad("point class and object type disagree"));
+            // only the face / edge / vertex arms cast the object; every other class is
+            // upstream's `default: SER(SM_ERR)` and never touches it
+            if let Some(&(_, want)) = CLASS_TYPES.iter().find(|&&(k, _)| k == class) {
+                if ty != want {
+                    return Err(bad("point class and object type disagree"));
+                }
             }
             rd.finites(3)?;
         }
@@ -199,7 +213,11 @@ fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Res
         Op::Mate => {
             rd.below(n_e)?;
             vu::surface(rd)?;
-            rd.finite()?;
+            // a negative factor is a negative extension distance for
+            // CreateExtendedSurface, which never returns (N_SrfExtendByDist; HANG-18)
+            if rd.finite()? < 0.0 {
+                return Err(bad("negative surface extension factor"));
+            }
             rd.finite()?;
         }
         Op::Notify => {
@@ -216,10 +234,8 @@ fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Res
         }
         Op::RayFire => {
             rd.vec3()?;
-            rd.nonzero3()?;
-            if rd.finite()? < 0.0 {
-                return Err(bad("negative ray tolerance"));
-            }
+            rd.finites(3)?;
+            rd.finite()?;
             rd.flag()?;
             rd.finite()?;
         }

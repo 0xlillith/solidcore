@@ -12,9 +12,10 @@
 //!
 //! Entity selectors are taken modulo the matching entity count (`-1` selects null);
 //! an op that needs an entity the B-rep lacks is skipped on both sides
-//! (`no target`). The B-rep cache and trimmed-surface caches do not exist on either
-//! side (fresh B-reps), so `Notify` and `DeleteStaleCaches` are compared without
-//! caches.
+//! (`no target`). The B-rep cache does not exist on either side (fresh B-reps), so
+//! `Notify` is compared without it. `DeleteStaleCaches` first seeds trimmed-surface
+//! caches by face-index masks on both sides (C++: `SmCacheMgr`; Rust: the caller-held
+//! map) and compares which survive.
 
 use std::collections::BTreeMap;
 
@@ -38,6 +39,9 @@ use solidcore::nurbs::math::CPoint;
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
+use solidcore::surface::surface_cache::p1::SurfaceCacheOptions;
+use solidcore::surface::trim_srf_cache::TrimSrfCache;
+use solidcore::topology::brep::p1 as bp1;
 use solidcore::topology::brep::p2 as bp2;
 use solidcore::topology::brep_cache::{BrepCache, BrepObjects, CacheObject};
 use solidcore::topology::edge::NotifyEnv;
@@ -83,8 +87,9 @@ enum OpIn {
     Rebuild,
     /// `0` `MakeShellVertexTopology`, `1` `MakeEdgeVertexTopology`, `2` `MakeEdgeTopology`.
     Make { which: u8, region: i64, v1: i64, v2: i64 },
-    /// `class`: `102` face, `103` edge, `104` vertex (the object's kind); `orient` `1`
-    /// same, `2` opposite.
+    /// `class`: an `SmPointClassificationType` code (`102` face, `103` edge, `104`
+    /// vertex: the object's kind; any other with a null (`object < 0`) or vertex
+    /// object); `orient` `1` same, anything else opposite (`0` is `SM_OT_UNKNOWN`).
     Sector {
         curve: CrvIn,
         t0: f64,
@@ -100,7 +105,14 @@ enum OpIn {
     /// `data`: `[type, selector]` per data object (`[-1, -1]` null, type `16011` the
     /// B-rep).
     Notify { operation: u8, data: [[i64; 2]; 3] },
-    Stale,
+    /// Face `i` gets a trimmed-surface cache when bit `i % 8` of `create` is set,
+    /// marked modified when that bit of `modified` is.
+    Stale {
+        #[serde(default)]
+        create: u8,
+        #[serde(default)]
+        modified: u8,
+    },
     Swap,
     /// `keep`: `0` delete, `1` deleted list, `2` keep.
     Replace { face: i64, surface: SrfIn, keep: u8, create: bool },
@@ -200,14 +212,19 @@ fn op_args(op: &OpIn, c: &[usize; 10]) -> Result<Option<(Op, Vec<f64>)>, Harness
             let (ty, n) = match class {
                 102 => (16002, n_f),
                 103 => (16016, n_e),
-                _ => (16021, n_v),
+                104 => (16021, n_v),
+                // another class: upstream never reads the object (null for `-1`, else
+                // a vertex)
+                _ => (if *object < 0 { -1 } else { 16021 }, n_v),
             };
-            let Some(o) = pick(*object, n) else {
-                return Ok(None);
+            let o = match pick(*object, n) {
+                Some(o) => o as f64,
+                None if ty == -1 => -1.0,
+                None => return Ok(None),
             };
             let mut v = Vec::new();
             push_curve(&mut v, curve)?;
-            v.extend([*t0, *t1, f64::from(*orient), *class as f64, f64::from(ty), o as f64]);
+            v.extend([*t0, *t1, f64::from(*orient), *class as f64, f64::from(ty), o]);
             v.extend([*t, uv[0], uv[1]]);
             (Op::Sector, v)
         }
@@ -250,7 +267,9 @@ fn op_args(op: &OpIn, c: &[usize; 10]) -> Result<Option<(Op, Vec<f64>)>, Harness
             }
             (Op::Notify, v)
         }
-        OpIn::Stale => (Op::Stale, vec![]),
+        OpIn::Stale { create, modified } => {
+            (Op::Stale, vec![f64::from(*create), f64::from(*modified)])
+        }
         OpIn::Swap => (Op::Swap, vec![]),
         OpIn::Replace {
             face,
@@ -529,11 +548,8 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
             } else {
                 OrientType::Opposite
             };
-            let class = match arg(at + 3)? as i64 {
-                102 => PointClassType::Face,
-                103 => PointClassType::Edge,
-                _ => PointClassType::Vertex,
-            };
+            let class = PointClassType::from_code(arg(at + 3)? as i32)
+                .ok_or_else(|| Fail::Harness(harness("bad point class")))?;
             let obj = entity(arg(at + 4)?, arg(at + 5)?);
             let mut pc = PointClassification::new(tol::zone_tol3d(k, tol::USE_DEFAULT));
             pc.set_class_object(class, obj);
@@ -593,9 +609,26 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
             out.push(0.0);
         }
         Op::Stale => {
+            let (create, modified) = (arg(0)? as u32, arg(1)? as u32);
+            let faces = must(bp1::faces(b, None))?;
             let mut caches = BTreeMap::new();
+            for (i, &f) in faces.iter().enumerate() {
+                let bit = (i % 8) as u32;
+                let Some(surface) = must(b.face(f))?.surface.clone() else {
+                    continue;
+                };
+                if (create >> bit) & 1 == 0 {
+                    continue;
+                }
+                let mut c = TrimSrfCache::<CacheObject>::new(surface, SurfaceCacheOptions::default());
+                c.base_mut().face_was_modified = (modified >> bit) & 1 == 1;
+                caches.insert(f, c);
+            }
             let (s, _) = status(bp2::delete_stale_caches::<CacheObject>(b, &mut caches))?;
             out.push(s);
+            for f in faces {
+                out.push(if caches.contains_key(&f) { 1.0 } else { 0.0 });
+            }
         }
         Op::Swap => {
             let mut marks = Marks::default();
@@ -871,15 +904,22 @@ fn gen_op(rng: &mut Rng) -> (OpIn, i64) {
                 curve.u.first().copied().unwrap_or(0.0),
                 curve.u.last().copied().unwrap_or(1.0),
             );
-            let class = *rng.choose(&[102i64, 103, 104]).unwrap_or(&103);
+            let class = *rng
+                .choose(&[102i64, 103, 104, 102, 103, 104, 100, 105])
+                .unwrap_or(&103);
+            let object = if class < 102 || class > 104 && rng.chance(0.5) {
+                -1
+            } else {
+                sel(rng)
+            };
             (
                 OpIn::Sector {
                     curve,
                     t0: a,
                     t1: b,
-                    orient: 1 + rng.below(2) as u8,
+                    orient: rng.below(3) as u8,
                     class,
-                    object: sel(rng),
+                    object,
                     t: rng.uniform(0.0, 1.0),
                     uv: [rng.uniform(0.0, 1.0), rng.uniform(0.0, 1.0)],
                 },
@@ -921,7 +961,13 @@ fn gen_op(rng: &mut Rng) -> (OpIn, i64) {
             }
             (OpIn::Notify { operation: op, data }, editing)
         }
-        11 => (OpIn::Stale, editing),
+        11 => (
+            OpIn::Stale {
+                create: rng.below(256) as u8,
+                modified: rng.below(256) as u8,
+            },
+            editing,
+        ),
         12 => (OpIn::Swap, editing),
         _ => (
             OpIn::RayFire {
@@ -988,5 +1034,33 @@ impl UnitDiff for Runner {
             op,
         })
         .ok()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A negative `MateLaminaEdgeToSurface` extension factor hangs the C++
+    /// (`N_SrfExtendByDist`, HANG-18): the FFI must reject it before calling in, and
+    /// still accept `0` and the upstream `1.5`.
+    #[test]
+    fn mate_rejects_a_negative_extension_factor() {
+        let case = |ext: f64| -> Inputs {
+            let v = serde_json::json!({
+                "brep": {"kind": "face", "surface": {"plane": {"o": [0, 0, 0], "n": [0, 0, 1]}},
+                         "dom": [0, 0, 10, 10]},
+                "editing": 1, "op": "mate", "edge": 0,
+                "surface": {"plane": {"o": [0, 0, 0.5], "n": [0, 0, 1]}},
+                "ext": ext, "uv_ext": 10.0
+            });
+            serde_json::from_value(v).unwrap()
+        };
+        let err = run_cpp(&case(-1.0)).unwrap_err().to_string();
+        assert!(err.contains("negative surface extension factor"), "{err}");
+        assert!(run_cpp(&case(-1e-300)).is_err());
+        for ext in [0.0, 1.5] {
+            assert!(run_cpp(&case(ext)).is_ok(), "ext {ext}");
+        }
     }
 }
