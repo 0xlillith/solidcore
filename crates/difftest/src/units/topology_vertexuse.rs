@@ -814,7 +814,7 @@ pub(crate) fn gen_surface(rng: &mut Rng) -> SrfIn {
     })
 }
 
-fn domain(s: &SrfIn) -> [f64; 4] {
+pub(crate) fn domain(s: &SrfIn) -> [f64; 4] {
     match s {
         SrfIn::Plane { .. } => [-1.0, -1.0, 1.0, 1.0],
         SrfIn::Bspline(b) => [
