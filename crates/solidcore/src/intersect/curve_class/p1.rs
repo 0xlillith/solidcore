@@ -524,6 +524,15 @@ impl<O: ClassObject> CurveClassification<O> {
         &self.data
     }
 
+    /// Set the classification domain (`SetInterval`, inline upstream).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Extent1d::set_min_max`].
+    pub fn set_interval(&mut self, interval: &Extent1d) -> Result<()> {
+        self.interval.set_min_max(interval.min(), interval.max())
+    }
+
     /// The face classified against (`GetFace`).
     #[must_use]
     pub const fn face(&self) -> Option<O> {
@@ -1031,7 +1040,10 @@ impl<O: ClassObject> CurveClassification<O> {
     }
 
     /// The curve geometry, or an error for no curve.
-    fn curve_geometry<'g>(&self, geometry: &'g impl ClassGeometry<O>) -> Result<&'g Curve> {
+    pub(crate) fn curve_geometry<'g>(
+        &self,
+        geometry: &'g impl ClassGeometry<O>,
+    ) -> Result<&'g Curve> {
         let c = self
             .curve
             .ok_or(SolidError::invalid_input(OP_CC, "no classification curve"))?;
