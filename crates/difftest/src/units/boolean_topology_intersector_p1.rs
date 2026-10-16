@@ -16,16 +16,22 @@
 //! compared as values.
 //!
 //! **Selectors.** Generated handles are selectors taken modulo the entity count of
-//! their kind (both sides resolve them the same way from the exports); an op that
-//! resolves to something the shim refuses (a null handle where upstream dereferences
-//! it, a manager op without a manager) makes both sides report the same
-//! `unresolvable` error. Parameters of generated classification intervals and points
-//! are relative to the edge's interval or evaluated on the face's surface at
-//! resolution.
+//! their kind (both sides resolve them the same way from the exports). A script runs
+//! up to its first unrunnable op (a handle naming nothing, a handle-taking op after a
+//! mutating one, a manager op without a manager, an op that dereferences the
+//! intersector's B-reps while one is null): both sides run that prefix and end the
+//! record with `-4 index` naming the op left out. Parameters of generated
+//! classification intervals and points are relative to the edge's interval or
+//! evaluated on the face's surface at resolution. The generator only draws handle
+//! kinds that exist (no faces on wire or network B-reps, no registered curve before a
+//! `register_ssi`).
 //!
 //! **Guards.** The shim refuses (`-2`) what upstream dereferences without checking:
 //! edges without a curve or vertices and faces without a surface in the geometry ops;
-//! the runner mirrors those guards explicitly, as the proto-topology runners do.
+//! the runner mirrors those guards explicitly, as the proto-topology runners do. The
+//! ops that edit topology (`sm_SetEdgeClass`, the splits, imprints and intersections)
+//! emit their outputs only on a success status on both sides: the port returns no
+//! partly filled outputs with an error.
 //!
 //! **Ordering.** `GetMappedBrepObjects` and `GetSubset` list objects in pointer-hash
 //! order upstream; both sides sort those lists by handle (plan hazard `ptr-hash`, see
@@ -65,7 +71,7 @@ use solidcore::intersect::point_class::{
 };
 use solidcore::intersect::topology_solver::p1::TopologyObjects;
 use solidcore::kernel::Kernel;
-use solidcore::math::{Point2, Point3, Vec3, BIG_DOUBLE};
+use solidcore::math::{Point2, Point3, Vec3};
 use solidcore::nurbs::b_spline_curve::p2::BoundingBoxRequest;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
@@ -867,6 +873,11 @@ impl IntersectorBrep<H> for Two {
             None => Ok(None),
         }
     }
+    fn edge_other_vertex_of(&self, edge: H, vertex: Option<H>) -> solidcore::Result<Option<H>> {
+        let b = self.brep_r(edge)?;
+        let v = vertex.filter(|v| v.b == edge.b && v.kind == K_VERTEX).map(vid);
+        Ok(ed::other_vertex(b, eid(edge), v)?.map(|v| hd(edge.b, K_VERTEX, v.index())))
+    }
     fn edge_bounding_box(&self, k: &Kernel, edge: H) -> solidcore::Result<Extent3d> {
         let b = self.brep_r(edge)?;
         let boxes = solidcore::query::edge::calculate_bounding_box(
@@ -1019,7 +1030,7 @@ fn new_classification(k: &Kernel, curve: H, ivl: Extent1d, tol: f64) -> Result<C
     let mut cc: CurveClassification<H> = CurveClassification::new(k);
     cc.set_curve(Some(curve), false);
     cc.set_src_zone_tol_3d(if tol > 0.0 { tol } else { UNINIT_TOL });
-    cc.set_interval(&ivl);
+    let _ = cc.set_interval(&ivl); // the status is ignored (inline SetInterval)
     cc.set_size(k, 1)?;
     let mut ci = CurveInterval::with_interval(k, &ivl, Some(&cc));
     ci.start.set_src_zone_tol_3d(tol);
@@ -1101,14 +1112,36 @@ struct ROp {
     op: OpIn,
 }
 
-/// Resolves every op of a case against the imported B-reps; `Err(name)` names the
-/// first op that cannot be run (both sides report it).
+/// Resolves the longest runnable prefix of a case's ops against the imported B-reps:
+/// the resolved ops and, when an op was left out, the index and name of the first
+/// unrunnable op.
+fn resolve_prefix(ops: &[OpIn], c: &Counts, two: &Two, ctor: u8) -> (Vec<ROp>, Option<(usize, String)>) {
+    let mut n = ops.len();
+    let mut cut: Option<(usize, String)> = None;
+    loop {
+        match resolve(ops.get(..n).unwrap_or(&[]), c, two, ctor) {
+            Ok(r) => return (r, cut),
+            Err(name) => {
+                if n == 0 {
+                    return (Vec::new(), Some((0, name)));
+                }
+                n -= 1;
+                cut = Some((n, name));
+            }
+        }
+    }
+}
+
+/// Resolves every op of `ops` against the imported B-reps; `Err(name)` names the
+/// first op that cannot be run.
 #[allow(clippy::too_many_lines)]
-fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
+fn resolve(ops: &[OpIn], c: &Counts, two: &Two, ctor: u8) -> Result<Vec<ROp>, String> {
     let mut out = Vec::new();
     let mut curves = 0usize;
     let mut has_mgr = false;
     let mut mutated = false;
+    // the intersector's B-reps (the FFI's `have_breps`)
+    let mut have_breps = [ctor == 0, ctor == 0 && c.breps[1].is_some()];
     for (idx, op) in ops.iter().enumerate() {
         let fail = |what: &str| format!("unresolvable_op{idx}_{what}");
         let h = |x: Hin| -> Result<Hin, String> {
@@ -1143,6 +1176,18 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
         if mutated && takes_handles {
             return Err(fail("after_mutation"));
         }
+        if matches!(
+            op,
+            OpIn::CommonEdges
+                | OpIn::CommonVertices
+                | OpIn::FaceFace { .. }
+                | OpIn::FaceFaceCoin { .. }
+                | OpIn::Resolve
+                | OpIn::Imprint
+        ) && (!have_breps[0] || !have_breps[1])
+        {
+            return Err(fail("null_brep"));
+        }
         let any = [K_VERTEX, K_EDGE, K_FACE, K_EDGE_CURVE, K_FACE_SURFACE, K_CURVE, K_BREP];
         let r = match op {
             OpIn::Relate { a, b } => OpIn::Relate { a: h(*a)?, b: h(*b)? },
@@ -1168,10 +1213,12 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
             },
             OpIn::Getters => OpIn::Getters,
             OpIn::SetTols { approx, ang } => OpIn::SetTols { approx: *approx, ang: *ang },
-            OpIn::SetBreps { a, b } => OpIn::SetBreps {
-                a: hk(*a, &[K_BREP], true)?,
-                b: hk(*b, &[K_BREP], true)?,
-            },
+            OpIn::SetBreps { a, b } => {
+                let ra = hk(*a, &[K_BREP], true)?;
+                let rb = hk(*b, &[K_BREP], true)?;
+                have_breps = [ra[1] != K_NULL, rb[1] != K_NULL];
+                OpIn::SetBreps { a: ra, b: rb }
+            }
             OpIn::RegisterSsi { s1, s2, curves: cs } => {
                 let r = OpIn::RegisterSsi {
                     s1: hk(*s1, &[K_FACE_SURFACE], true)?,
@@ -1201,9 +1248,7 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
                 } else {
                     (*t0, *t1)
                 };
-                if t0.partial_cmp(&t1) != Some(std::cmp::Ordering::Less) {
-                    return Err(fail("interval"));
-                }
+                // (an inverted or empty interval is accepted: SmExtent1d(t0, t1) swaps)
                 OpIn::SetEdgeClass { e, t0, t1, tol: *tol, relative: false }
             }
             OpIn::CheckInterior { e, t, tol, relative } => {
@@ -1485,6 +1530,16 @@ fn encode(i: &Inputs, ops: &[ROp]) -> Result<Vec<f64>, HarnessError> {
 struct Prepared {
     two: Two,
     ops: Vec<ROp>,
+    /// The first unrunnable op (index, name), when the script was cut there.
+    cut: Option<(usize, String)>,
+}
+
+/// The record's trailing marker of a cut script.
+fn put_cut(o: &mut Vec<f64>, cut: Option<&(usize, String)>) {
+    if let Some((idx, _)) = cut {
+        o.push(-4.0);
+        o.push(*idx as f64);
+    }
 }
 
 /// Exports and imports the B-reps and resolves the script; `Err(Ok(output))` is the
@@ -1505,11 +1560,8 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
         breps: [Some(count3(&brep_a)), brep_b.as_ref().map(count3)],
     };
     let two = Two::new(brep_a, brep_b);
-    let ops = match resolve(&i.ops, &counts, &two) {
-        Ok(ops) => ops,
-        Err(name) => return Err(Box::new(Ok(Output::err(name)))),
-    };
-    Ok(Prepared { two, ops })
+    let (ops, cut) = resolve_prefix(&i.ops, &counts, &two, i.ctor);
+    Ok(Prepared { two, ops, cut })
 }
 
 fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
@@ -1520,10 +1572,11 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let input = encode(i, &p.ops)?;
     let pa = path_of(Some(&i.brep_a))?;
     let pb = path_of(i.brep_b.as_ref())?;
-    let out = ffi::eval(Op::Run, [&pa, &pb], &input).map_err(|e| harness(format!("c++: {e}")))?;
+    let mut out = ffi::eval(Op::Run, [&pa, &pb], &input).map_err(|e| harness(format!("c++: {e}")))?;
     if out.first() != Some(&0.0) {
         return Ok(build_failure(&out));
     }
+    put_cut(&mut out, p.cut.as_ref());
     Ok(Output::new().values("state", out))
 }
 
@@ -1588,6 +1641,11 @@ fn put_pc_full(o: &mut Vec<f64>, pc: &PointClassification<H>) {
     o.push(flag(pc.are_parameters_set()));
 }
 
+/// The tolerance of a vertex, edge or face handle (`-1` for anything else).
+fn tol_of(two: &Two, h: Option<H>) -> f64 {
+    h.and_then(|h| ProtoBrep::topology_tolerance(two, h)).unwrap_or(-1.0)
+}
+
 fn put_hs(o: &mut Vec<f64>, hs: &[H]) {
     o.push(hs.len() as f64);
     for &h in hs {
@@ -1605,7 +1663,7 @@ fn reason_code(r: Reason) -> f64 {
 
 #[allow(clippy::too_many_lines)]
 fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
-    let Prepared { mut two, ops } = p;
+    let Prepared { mut two, ops, cut } = p;
     let mut k = Kernel::default();
     let hb = two.breps[1].as_ref().map(|_| brep_h(1));
     let mut ti: TopologyIntersector<H> = if i.ctor == 0 {
@@ -1630,6 +1688,8 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     continue;
                 }
                 status(ti.relate(&k, &mut two, a, b), &mut o)?;
+                o.push(tol_of(&two, a));
+                o.push(tol_of(&two, b));
             }
             OpIn::OtherMate { h } => {
                 o.push(2.0);
@@ -1822,8 +1882,9 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 let curve = two.edge_curve_h(eh).flatten().ok_or_else(|| harness("curve"))?;
                 let ivl = Extent1d::from_min_max(*t0, *t1);
                 let mut cc = new_classification(&k, curve, ivl, *tol)?;
-                let st = status(ti::set_edge_class(&k, &two, &mut cc, eh), &mut o)?;
-                let _ = st;
+                if status(ti::set_edge_class(&k, &two, &mut cc, eh), &mut o)?.is_none() {
+                    continue;
+                }
                 o.push(cc.size() as f64);
                 let ci = cc.at(0)?;
                 put_pc_full(&mut o, &ci.start);
@@ -1851,24 +1912,27 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     continue;
                 }
                 let (a, b) = (a.ok_or_else(|| harness("edge"))?, b.ok_or_else(|| harness("edge"))?);
-                match status(ti::test_and_split_two_edges(&k, &mut two, a, b, *tol), &mut o)? {
-                    Some(r) => o.extend([
+                if let Some(r) = status(ti::test_and_split_two_edges(&k, &mut two, a, b, *tol), &mut o)? {
+                    o.extend([
                         r.dist_to_edge,
                         r.min_unstitched,
                         r.new_verts.len() as f64,
                         r.new_edges1.len() as f64,
                         r.new_edges2.len() as f64,
-                    ]),
-                    None => o.extend([0.0, BIG_DOUBLE, 0.0, 0.0, 0.0]),
+                    ]);
                 }
             }
             OpIn::ImprintFace { f, p, tol, .. } => {
                 o.push(24.0);
-                let fh = triple_to_h(*f).ok_or_else(|| harness("face"))?;
+                let fh = triple_to_h(*f);
+                if !two.face_ok(fh) {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let fh = fh.ok_or_else(|| harness("face"))?;
                 let pt = Point3::new(p[0], p[1], p[2]);
-                match status(ti::test_and_imprint_face(&k, &mut two, fh, pt, *tol), &mut o)? {
-                    Some(r) => o.extend([reason_code(r.reason), r.dist_to_face, flag(r.new_vertex.is_some())]),
-                    None => o.extend([0.0, BIG_DOUBLE, 0.0]),
+                if let Some(r) = status(ti::test_and_imprint_face(&k, &mut two, fh, pt, *tol), &mut o)? {
+                    o.extend([reason_code(r.reason), r.dist_to_face, flag(r.new_vertex.is_some())]);
                 }
             }
             OpIn::VertexFace { verts, faces, manifold, ignore } => {
@@ -1916,8 +1980,8 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
             OpIn::FaceFace { verts, faces1, faces2, ignore, nesting } => {
                 o.push(27.0);
                 let vs: Vec<Option<H>> = verts.iter().map(|&h| triple_to_h(h)).collect();
-                let mut f1: Vec<H> = faces1.iter().filter_map(|&h| triple_to_h(h)).collect();
-                let mut f2: Vec<H> = faces2.iter().filter_map(|&h| triple_to_h(h)).collect();
+                let f1: Vec<H> = faces1.iter().filter_map(|&h| triple_to_h(h)).collect();
+                let f2: Vec<H> = faces2.iter().filter_map(|&h| triple_to_h(h)).collect();
                 if vs.iter().any(Option::is_none)
                     || f1.len() != faces1.len()
                     || f2.len() != faces2.len()
@@ -1927,7 +1991,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     continue;
                 }
                 let vs: Vec<H> = vs.into_iter().flatten().collect();
-                let r = ti.face_face_intersect(&k, &mut two, &vs, &mut f1, &mut f2, *ignore, *nesting);
+                let r = ti.face_face_intersect(&k, &mut two, &vs, &f1, &f2, *ignore, *nesting);
                 let Some(r) = status(r, &mut o)? else {
                     continue;
                 };
@@ -1991,6 +2055,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
             }
             OpIn::ShellVerts { first, swap } | OpIn::WireLamina { first, swap, .. } => {
                 let (b1, b2) = if *first == 0 { (brep_h(0), brep_h(1)) } else { (brep_h(1), brep_h(0)) };
+                let ti_tol = ti.this_approx_tol_3d();
                 let m = ti.proto_topology_manager_mut().ok_or_else(|| harness("no manager"))?;
                 let r = match &r.op {
                     OpIn::ShellVerts { .. } => {
@@ -1999,7 +2064,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     }
                     OpIn::WireLamina { lamina, .. } => {
                         o.push(32.0);
-                        ti::intersect_wire_lamina_edges(&k, &mut two, b1, b2, *lamina, *swap, m)
+                        ti::intersect_wire_lamina_edges(&k, &mut two, b1, b2, *lamina, *swap, ti_tol, m)
                     }
                     _ => unreachable!(),
                 };
@@ -2010,6 +2075,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
         }
     }
     let _ = registered;
+    put_cut(&mut o, cut.as_ref());
     Ok(o)
 }
 
@@ -2165,28 +2231,68 @@ fn gen_sel(rng: &mut Rng) -> i64 {
     rng.below(1 << 16) as i64
 }
 
-/// A random handle selector of one of `kinds` (null with probability `null`).
-fn gen_h(rng: &mut Rng, has_b: bool, kinds: &[u8], null: f64) -> Hin {
+/// What the generator may draw: the handle kinds each B-rep has (a wire or network
+/// B-rep has no faces) and whether registered curves exist yet.
+struct Gen {
+    kinds: [&'static [u8]; 2],
+    has_b: bool,
+    has_curves: bool,
+}
+
+const FACE_KINDS: &[u8] = &[K_VERTEX, K_EDGE, K_FACE, K_EDGE_CURVE, K_FACE_SURFACE];
+const WIRE_KINDS: &[u8] = &[K_VERTEX, K_EDGE, K_EDGE_CURVE];
+
+impl Gen {
+    fn new(a: &BrepIn, b: Option<&BrepIn>) -> Self {
+        let kinds_of = |x: &BrepIn| match x {
+            BrepIn::File { .. } | BrepIn::Face { .. } => FACE_KINDS,
+            BrepIn::Wire { .. } | BrepIn::Network => WIRE_KINDS,
+        };
+        Self {
+            kinds: [kinds_of(a), b.map_or(&[], kinds_of)],
+            has_b: b.is_some(),
+            has_curves: false,
+        }
+    }
+}
+
+/// A random handle selector of one of `kinds` that exists (null with probability
+/// `null`, or when no requested kind exists on the B-rep drawn).
+fn gen_h(rng: &mut Rng, g: &Gen, kinds: &[u8], null: f64) -> Hin {
     if rng.chance(null) {
         return [-1, K_NULL, -1];
     }
-    let b = i64::from(has_b && rng.chance(0.5));
-    let kind = *rng.choose(kinds).unwrap_or(&K_VERTEX);
+    let b = i64::from(g.has_b && rng.chance(0.5));
+    let ok: Vec<u8> = kinds
+        .iter()
+        .copied()
+        .filter(|&k| match k {
+            K_BREP => true,
+            K_CURVE => g.has_curves,
+            _ => g.kinds.get(b as usize).is_some_and(|ks| ks.contains(&k)),
+        })
+        .collect();
+    let Some(&kind) = rng.choose(&ok) else {
+        return [-1, K_NULL, -1];
+    };
     if kind == K_BREP {
         return [b, i64::from(K_BREP), b];
+    }
+    if kind == K_CURVE {
+        return [2, i64::from(K_CURVE), gen_sel(rng)];
     }
     [b, i64::from(kind), gen_sel(rng)]
 }
 
-fn gen_list(rng: &mut Rng, has_b: bool, kinds: &[u8], null: f64, max: u64) -> Vec<Hin> {
-    (0..rng.below(max + 1)).map(|_| gen_h(rng, has_b, kinds, null)).collect()
+fn gen_list(rng: &mut Rng, g: &Gen, kinds: &[u8], null: f64, max: u64) -> Vec<Hin> {
+    (0..rng.below(max + 1)).map(|_| gen_h(rng, g, kinds, null)).collect()
 }
 
 fn gen_tol(rng: &mut Rng) -> f64 {
     *rng.choose(&[1e-5, 1e-5, 1e-3, 1e-6, 1e-2, 0.1, 1.0]).unwrap_or(&1e-5)
 }
 
-fn gen_pc(rng: &mut Rng, has_b: bool) -> PcIn {
+fn gen_pc(rng: &mut Rng, g: &Gen) -> PcIn {
     let cls = *rng.choose(&[104, 104, 103, 103, 102, 100, 101]).unwrap_or(&104);
     let kinds: &[u8] = match cls {
         104 => &[K_VERTEX, K_VERTEX, K_EDGE],
@@ -2196,48 +2302,51 @@ fn gen_pc(rng: &mut Rng, has_b: bool) -> PcIn {
     };
     PcIn {
         cls,
-        h: gen_h(rng, has_b, kinds, 0.1),
+        h: gen_h(rng, g, kinds, 0.1),
     }
 }
 
 #[allow(clippy::too_many_lines)]
-fn gen_op(rng: &mut Rng, has_b: bool, has_mgr: &mut bool, last: bool) -> OpIn {
+fn gen_op(rng: &mut Rng, g: &mut Gen, has_mgr: &mut bool, last: bool) -> OpIn {
+    let has_b = g.has_b;
     let topo: [u8; 3] = [K_VERTEX, K_EDGE, K_FACE];
     let any: [u8; 7] = [K_VERTEX, K_EDGE, K_FACE, K_EDGE_CURVE, K_FACE_SURFACE, K_CURVE, K_BREP];
     let pick = rng.below(if last { 30 } else { 21 });
     match pick {
         0..=2 => OpIn::Relate {
-            a: gen_h(rng, false, &topo, 0.03),
-            b: gen_h(rng, has_b, &topo, 0.05),
+            a: gen_h(rng, g, &topo, 0.03),
+            b: gen_h(rng, g, &topo, 0.05),
         },
-        3 => OpIn::OtherMate { h: gen_h(rng, has_b, &any, 0.1) },
-        4 => OpIn::ThisMate { h: gen_h(rng, has_b, &any, 0.1) },
-        5 => OpIn::BrepMate { h: gen_h(rng, has_b, &any, 0.1) },
+        3 => OpIn::OtherMate { h: gen_h(rng, g, &any, 0.1) },
+        4 => OpIn::ThisMate { h: gen_h(rng, g, &any, 0.1) },
+        5 => OpIn::BrepMate { h: gen_h(rng, g, &any, 0.1) },
         6 => OpIn::IsMated {
-            a: gen_h(rng, false, &topo, 0.1),
-            b: gen_h(rng, has_b, &topo, 0.1),
+            a: gen_h(rng, g, &topo, 0.1),
+            b: gen_h(rng, g, &topo, 0.1),
         },
         7 => OpIn::MappedBrep {
             ty: *rng.choose(&[VERTEX_TYPE, EDGE_TYPE, FACE_TYPE, 16013]).unwrap_or(&EDGE_TYPE),
         },
-        8 => OpIn::SetSubset { list: gen_list(rng, has_b, &any, 0.1, 5) },
+        8 => OpIn::SetSubset { list: gen_list(rng, g, &any, 0.1, 5) },
         9 => OpIn::FixupEnd {
             dim: if rng.chance(0.5) { 3 } else { 2 },
             tol: gen_tol(rng),
-            pc_b: gen_pc(rng, false),
-            pc_o: gen_pc(rng, has_b),
+            pc_b: gen_pc(rng, g),
+            pc_o: gen_pc(rng, g),
         },
         10 => OpIn::FixupMid {
             dim: if rng.chance(0.5) { 3 } else { 2 },
             tol: gen_tol(rng),
-            pc_b: gen_pc(rng, false),
-            pc_o: gen_pc(rng, has_b),
+            pc_b: gen_pc(rng, g),
+            pc_o: gen_pc(rng, g),
         },
         11 => OpIn::Getters,
         12 => OpIn::SetTols { approx: gen_tol(rng), ang: rng.uniform(0.0, 0.5) },
-        13 => OpIn::RegisterSsi {
-            s1: gen_h(rng, false, &[K_FACE_SURFACE], 0.15),
-            s2: gen_h(rng, has_b, &[K_FACE_SURFACE], 0.3),
+        13 => {
+            g.has_curves = true;
+            OpIn::RegisterSsi {
+            s1: gen_h(rng, g, &[K_FACE_SURFACE], 0.15),
+            s2: gen_h(rng, g, &[K_FACE_SURFACE], 0.3),
             curves: (0..rng.below(3))
                 .map(|_| SsiCurve {
                     c3: gen_curve(rng, 3, 1.0),
@@ -2247,60 +2356,61 @@ fn gen_op(rng: &mut Rng, has_b: bool, has_mgr: &mut bool, last: bool) -> OpIn {
                     dev: rng.uniform(0.0, 1e-3),
                 })
                 .collect(),
-        },
+            }
+        }
         14 | 15 => OpIn::CheckSsi {
-            s1: gen_h(rng, false, &[K_FACE_SURFACE], 0.15),
-            s2: gen_h(rng, has_b, &[K_FACE_SURFACE], 0.3),
+            s1: gen_h(rng, g, &[K_FACE_SURFACE], 0.15),
+            s2: gen_h(rng, g, &[K_FACE_SURFACE], 0.3),
         },
         16 => OpIn::ClearSsi,
         17 => OpIn::CanImprint { ty: 100 + rng.below(11) as i64 },
-        18 => OpIn::Lowest { list: gen_list(rng, has_b, &[K_VERTEX, K_EDGE, K_FACE, K_EDGE_CURVE], 0.05, 5) },
+        18 => OpIn::Lowest { list: gen_list(rng, g, &[K_VERTEX, K_EDGE, K_FACE, K_EDGE_CURVE], 0.05, 5) },
         19 => OpIn::SetEdgeClass {
-            e: gen_h(rng, has_b, &[K_EDGE], 0.0),
+            e: gen_h(rng, g, &[K_EDGE], 0.0),
             t0: rng.uniform(-0.2, 0.6),
             t1: rng.uniform(0.6, 1.2),
             tol: gen_tol(rng),
             relative: true,
         },
         20 => OpIn::CheckInterior {
-            e: gen_h(rng, has_b, &[K_EDGE], 0.0),
+            e: gen_h(rng, g, &[K_EDGE], 0.0),
             t: rng.uniform(-0.2, 1.2),
             tol: gen_tol(rng),
             relative: true,
         },
         21 | 22 => OpIn::ImprintFace {
-            f: gen_h(rng, has_b, &[K_FACE], 0.0),
+            f: gen_h(rng, g, &[K_FACE], 0.0),
             p: [rng.uniform(-0.2, 1.2), rng.uniform(-0.2, 1.2), rng.uniform(-1.0, 1.0) * rng.uniform(0.0, 1.0)],
             tol: gen_tol(rng),
             on_surface: true,
         },
         23 => OpIn::SplitTwo {
-            e1: gen_h(rng, has_b, &[K_EDGE], 0.0),
-            e2: gen_h(rng, has_b, &[K_EDGE], 0.0),
+            e1: gen_h(rng, g, &[K_EDGE], 0.0),
+            e2: gen_h(rng, g, &[K_EDGE], 0.0),
             tol: gen_tol(rng),
         },
         24 | 25 => OpIn::VertexFace {
-            verts: gen_list(rng, has_b, &[K_VERTEX], 0.1, 4),
-            faces: gen_list(rng, has_b, &[K_FACE], 0.1, 4),
+            verts: gen_list(rng, g, &[K_VERTEX], 0.1, 4),
+            faces: gen_list(rng, g, &[K_FACE], 0.1, 4),
             manifold: rng.chance(0.5),
             ignore: rng.chance(0.5),
         },
         26 => OpIn::EdgeFace {
-            edges: gen_list(rng, has_b, &[K_EDGE], 0.1, 3),
-            faces: gen_list(rng, has_b, &[K_FACE], 0.1, 3),
+            edges: gen_list(rng, g, &[K_EDGE], 0.1, 3),
+            faces: gen_list(rng, g, &[K_FACE], 0.1, 3),
             manifold: rng.chance(0.5),
             ignore: rng.chance(0.5),
         },
         27 => OpIn::FaceFace {
-            verts: gen_list(rng, has_b, &[K_VERTEX], 0.0, 4),
-            faces1: gen_list(rng, has_b, &[K_FACE], 0.0, 3),
-            faces2: gen_list(rng, has_b, &[K_FACE], 0.0, 3),
+            verts: gen_list(rng, g, &[K_VERTEX], 0.0, 4),
+            faces1: gen_list(rng, g, &[K_FACE], 0.0, 3),
+            faces2: gen_list(rng, g, &[K_FACE], 0.0, 3),
             ignore: rng.chance(0.5),
             nesting: rng.chance(0.5),
         },
         28 => OpIn::FaceFaceCoin {
-            edges: gen_list(rng, has_b, &[K_EDGE], 0.1, 4),
-            faces: gen_list(rng, has_b, &[K_FACE], 0.0, 2),
+            edges: gen_list(rng, g, &[K_EDGE], 0.1, 4),
+            faces: gen_list(rng, g, &[K_FACE], 0.0, 2),
             ignore: rng.chance(0.5),
             nesting: rng.chance(0.5),
         },
@@ -2322,6 +2432,7 @@ fn generate(rng: &mut Rng) -> Option<Value> {
     let brep_a = gen_brep(rng);
     let has_b = rng.chance(0.7);
     let brep_b = has_b.then(|| gen_brep(rng));
+    let mut g = Gen::new(&brep_a, brep_b.as_ref());
     let ctor = u8::from(rng.chance(0.08));
     let approx = *rng.choose(&[1e-5, 1e-5, 1e-4, 1e-3, 1e-6, 0.0]).unwrap_or(&1e-5);
     let ang = *rng.choose(&[20.0_f64.to_radians(), 0.1, 0.0, 1e-3]).unwrap_or(&0.1);
@@ -2329,7 +2440,7 @@ fn generate(rng: &mut Rng) -> Option<Value> {
     let mut has_mgr = false;
     let mut ops = Vec::new();
     for j in 0..n {
-        ops.push(gen_op(rng, has_b, &mut has_mgr, j + 1 == n));
+        ops.push(gen_op(rng, &mut g, &mut has_mgr, j + 1 == n));
     }
     // a manager sequence after the handle ops, sometimes
     if has_b && rng.chance(0.25) {
@@ -2503,6 +2614,12 @@ fn edge_cases() -> Vec<(String, Value)> {
             OpIn::CheckInterior { e: e(0, 0), t: 0.5, tol: 10.0, relative: true },
             OpIn::CheckInterior { e: e(0, 0), t: 1.5, tol: 1e-5, relative: true },
             OpIn::SplitTwo { e1: e(0, 0), e2: e(0, 1), tol: 1e-5 },
+        ]),
+    );
+    add(
+        "network_split_other_brep",
+        base(vec![
+            OpIn::CheckInterior { e: e(1, 3), t: 0.5, tol: 1e-5, relative: true },
             OpIn::SplitTwo { e1: e(0, 0), e2: e(1, 3), tol: 1e-5 },
         ]),
     );
@@ -2608,6 +2725,18 @@ fn edge_cases() -> Vec<(String, Value)> {
             ang: 0.1,
             ops: vec![
                 OpIn::FaceFace { verts: vec![], faces1: vec![], faces2: vec![f(1, 0)], ignore: false, nesting: false },
+            ],
+        },
+    );
+    add(
+        "files_cone_torus_coincidence",
+        Inputs {
+            brep_a: file("cone.smb"),
+            brep_b: Some(file("torus.smb")),
+            ctor: 0,
+            approx: 1e-5,
+            ang: 0.1,
+            ops: vec![
                 OpIn::FaceFaceCoin { edges: vec![null], faces: vec![], ignore: true, nesting: false },
             ],
         },
@@ -2681,8 +2810,21 @@ fn edge_cases() -> Vec<(String, Value)> {
                     OpIn::CheckInterior { e: e(0, 0), t: 0.5, tol: 1e-5 * scale, relative: true },
                     OpIn::CheckInterior { e: e(0, 0), t: 0.001, tol: 1e-5 * scale, relative: true },
                     OpIn::ImprintFace { f: f(1, 0), p: [0.5, 0.5, 0.5], tol: 1e-5 * scale, on_surface: true },
-                    OpIn::ImprintFace { f: f(1, 0), p: [0.5, 0.5, 0.0], tol: 1e-5 * scale, on_surface: true },
                 ],
+            },
+        );
+        add(
+            &format!("{name}_on_face"),
+            Inputs {
+                brep_a: BrepIn::Face {
+                    surface: SrfIn::Plane { o: [0.0, 0.0, 0.0], n: [0.0, 0.0, 1.0] },
+                    dom: [-s, -s, s, s],
+                },
+                brep_b: None,
+                ctor: 0,
+                approx: 1e-5 * scale,
+                ang: 0.1,
+                ops: vec![OpIn::ImprintFace { f: f(0, 0), p: [0.5, 0.5, 0.0], tol: 1e-5 * scale, on_surface: true }],
             },
         );
     }

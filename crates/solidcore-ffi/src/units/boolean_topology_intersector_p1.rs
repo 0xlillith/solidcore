@@ -33,7 +33,7 @@
 //!
 //! | op | name | args | outputs |
 //! |----|------|------|---------|
-//! | 1  | `Relate`                   | `h h`                    | `status` |
+//! | 1  | `Relate`                   | `h h`                    | `status tol tol` (the tolerances of the two objects after the call; `-1` for a null or non-topology object) |
 //! | 2  | `GetOtherMate`             | `h`                      | `h` |
 //! | 3  | `GetThisMate`              | `h`                      | `h` |
 //! | 4  | `GetBrepMate`              | `h`                      | `h` |
@@ -66,12 +66,18 @@
 //! | 32 | `sm_IntersectWireLaminaEdges` | `first lamina swap`   | `status n_pv n_pe` |
 //! | 33 | new `SmProtoTopologyManager` | `capture override`     | `status` |
 //!
+//! Ops 21, 23 to 28 emit their outputs only on a success status (the port cannot
+//! report the partly filled outputs of a failed call).
+//!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: existing
 //! `.smb` files, well-formed clamped B-splines, handles inside the B-reps' exports (it
 //! builds the B-reps once more to count), the registered curves that exist, edges with a
-//! curve and vertices and faces with a surface where upstream dereferences them, and no
-//! handle-taking op after an op that may delete topology (23 to 28, 30); ops 29 to 33
-//! need the manager (33) and the second B-rep.
+//! curve and vertices and faces with a surface where upstream dereferences them, no
+//! handle-taking op after an op that may delete topology (23 to 28, 30), and ops 7, 8
+//! and 27 to 30 only while both of the intersector's B-reps are set (constructor 0, or
+//! `SetBreps` with two B-reps; they dereference them unchecked); ops 29 to 33 need the
+//! manager (33) and the second B-rep. Negative tolerances and inverted classification
+//! intervals are accepted, as upstream.
 
 use std::path::Path;
 
@@ -624,15 +630,15 @@ fn point_class(rd: &mut Reader<'_>, c: &Counts) -> Result<(), FfiError> {
 #[allow(clippy::too_many_lines)]
 fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
     use HandleKind::{Brep, Edge, Face, FaceSurface, Vertex};
-    rd.index(1)?; // ctor
-    let approx = rd.finite()?;
-    let ang = rd.finite()?;
-    if approx < 0.0 || ang < 0.0 {
-        return Err(bad("negative tolerance"));
-    }
+    let ctor = rd.index(1)?;
+    rd.finite()?; // approx (a negative value is accepted, as upstream)
+    rd.finite()?; // ang
     let n_ops = rd.index(MAX_OPS)?;
     let mut mutated = false;
     let mut has_mgr = false;
+    // the intersector's B-reps: both from the blocks with constructor 0, null with
+    // the context-only constructor, then whatever SetBreps sets
+    let mut have_breps = [ctor == 0, ctor == 0 && c.breps[1].is_some()];
     let any = [Vertex, Edge, Face, HandleKind::EdgeCurve, FaceSurface, HandleKind::Curve, Brep];
     for _ in 0..n_ops {
         let code = rd.int(1, 33)?;
@@ -654,6 +660,19 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
         if mutated && takes_handles {
             return Err(bad("handle-taking op after a mutating op"));
         }
+        // the ops that dereference the intersector's B-reps without checking
+        if matches!(
+            op,
+            ScriptOp::CommonEdges
+                | ScriptOp::CommonVertices
+                | ScriptOp::FaceFace
+                | ScriptOp::FaceFaceCoin
+                | ScriptOp::Resolve
+                | ScriptOp::Imprint
+        ) && (!have_breps[0] || !have_breps[1])
+        {
+            return Err(bad("op dereferences a null intersector B-rep"));
+        }
         match op {
             ScriptOp::Relate | ScriptOp::IsMated => {
                 c.handle_of(rd, &any, true)?;
@@ -672,20 +691,17 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
                 if dim < 2 {
                     return Err(bad("point dimension must be 2 or 3"));
                 }
-                if rd.finite()? < 0.0 {
-                    return Err(bad("negative tolerance"));
-                }
+                rd.finite()?; // tolerance (negative accepted, as upstream)
                 point_class(rd, &c)?;
                 point_class(rd, &c)?;
             }
             ScriptOp::SetTols => {
-                if rd.finite()? < 0.0 || rd.finite()? < 0.0 {
-                    return Err(bad("negative tolerance"));
-                }
+                rd.finite()?;
+                rd.finite()?;
             }
             ScriptOp::SetBreps => {
-                c.handle_of(rd, &[Brep], true)?;
-                c.handle_of(rd, &[Brep], true)?;
+                have_breps[0] = c.handle_of(rd, &[Brep], true)? != HandleKind::Null;
+                have_breps[1] = c.handle_of(rd, &[Brep], true)? != HandleKind::Null;
             }
             ScriptOp::RegisterSsi => {
                 c.handle_of(rd, &[FaceSurface], true)?;
@@ -712,36 +728,27 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
                 rd.int(100, 110)?;
             }
             ScriptOp::SetEdgeClass => {
+                // (an inverted interval and a negative tolerance are accepted, as
+                // upstream: SmExtent1d(t0, t1) swaps the ends)
                 c.handle_of(rd, &[Edge], false)?;
-                let t0 = rd.finite()?;
-                let t1 = rd.finite()?;
-                if t0 >= t1 {
-                    return Err(bad("classification interval not ordered"));
-                }
-                if rd.finite()? < 0.0 {
-                    return Err(bad("negative tolerance"));
-                }
+                rd.finite()?;
+                rd.finite()?;
+                rd.finite()?;
             }
             ScriptOp::CheckInterior => {
                 c.handle_of(rd, &[Edge], false)?;
                 rd.finite()?;
-                if rd.finite()? < 0.0 {
-                    return Err(bad("negative tolerance"));
-                }
+                rd.finite()?;
             }
             ScriptOp::SplitTwo => {
                 c.handle_of(rd, &[Edge], false)?;
                 c.handle_of(rd, &[Edge], false)?;
-                if rd.finite()? < 0.0 {
-                    return Err(bad("negative tolerance"));
-                }
+                rd.finite()?;
             }
             ScriptOp::ImprintFace => {
                 c.handle_of(rd, &[Face], false)?;
                 rd.vec3()?;
-                if rd.finite()? < 0.0 {
-                    return Err(bad("negative tolerance"));
-                }
+                rd.finite()?;
             }
             ScriptOp::VertexFace => {
                 c.list(rd, &[Vertex], true)?;
@@ -792,9 +799,7 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
                 if has_mgr || c.breps[1].is_none() {
                     return Err(bad("manager already made or no second B-rep"));
                 }
-                if rd.finite()? < 0.0 {
-                    return Err(bad("negative capture distance"));
-                }
+                rd.finite()?; // capture distance (negative accepted, as upstream)
                 rd.finite()?;
                 has_mgr = true;
             }

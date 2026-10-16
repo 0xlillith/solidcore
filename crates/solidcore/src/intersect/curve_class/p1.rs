@@ -524,6 +524,14 @@ impl<O: ClassObject> CurveClassification<O> {
         &self.data
     }
 
+    /// Sets the complete classification domain (inline `SetInterval`).
+    ///
+    /// # Errors
+    /// Returns the interval validation error instead of ignoring an invalid domain.
+    pub fn set_interval(&mut self, interval: &Extent1d) -> Result<()> {
+        self.interval.set_min_max(interval.min(), interval.max())
+    }
+
     /// The face classified against (`GetFace`).
     #[must_use]
     pub const fn face(&self) -> Option<O> {
@@ -756,13 +764,6 @@ impl<O: ClassObject> CurveClassification<O> {
         self.curve = curve;
         self.is_curve_owned = is_curve_owned;
         self.is_curve_current = true;
-    }
-
-    /// Sets the whole interval classified (`SetInterval`: `m_vInterval.SetMinMax`, which
-    /// swaps the ends when given in descending order).
-    pub fn set_interval(&mut self, interval: &Extent1d) {
-        let (a, b) = (interval.min(), interval.max());
-        self.interval = Extent1d::from_min_max(a.min(b), a.max(b));
     }
 
     /// Sets the surf/surf intersection data (`SetIntersectData`; upstream defaults

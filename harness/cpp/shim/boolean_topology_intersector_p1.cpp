@@ -873,6 +873,27 @@ struct Two
     SmBrep* brep[2] = {nullptr, nullptr};
     Graph g[2];
     std::vector<SmCurve*> curves; // free curves (registered intersection curves and their copies)
+    // the edge curves and face surfaces at build time, by address (never dereferenced:
+    // a mutating op may have freed them)
+    std::map<const void*, int64_t> curve_of_edge[2];
+    std::map<const void*, int64_t> surface_of_face[2];
+
+    void index_geometry()
+    {
+        for (int b = 0; b < 2; b++)
+        {
+            curve_of_edge[b].clear();
+            surface_of_face[b].clear();
+            if (brep[b] == nullptr)
+                continue;
+            for (size_t k = 0; k < g[b].edges.size(); k++)
+                if (g[b].edges[k]->GetCurve() != nullptr)
+                    curve_of_edge[b].emplace((const void*)g[b].edges[k]->GetCurve(), (int64_t)k);
+            for (size_t k = 0; k < g[b].faces.size(); k++)
+                if (g[b].faces[k]->GetSurface() != nullptr)
+                    surface_of_face[b].emplace((const void*)g[b].faces[k]->GetSurface(), (int64_t)k);
+        }
+    }
 
     SmObject* resolve(int64_t b, int64_t kind, int64_t i) const
     {
@@ -949,22 +970,22 @@ struct Two
                 o.push_back((double)i);
                 return;
             }
-            for (size_t k = 0; k < gr.edges.size(); k++)
-                if ((const SmObject*)gr.edges[k]->GetCurve() == p)
-                {
-                    o.push_back((double)b);
-                    o.push_back((double)H_EDGE_CURVE);
-                    o.push_back((double)k);
-                    return;
-                }
-            for (size_t k = 0; k < gr.faces.size(); k++)
-                if ((const SmObject*)gr.faces[k]->GetSurface() == p)
-                {
-                    o.push_back((double)b);
-                    o.push_back((double)H_FACE_SURFACE);
-                    o.push_back((double)k);
-                    return;
-                }
+            auto ce = curve_of_edge[b].find((const void*)p);
+            if (ce != curve_of_edge[b].end())
+            {
+                o.push_back((double)b);
+                o.push_back((double)H_EDGE_CURVE);
+                o.push_back((double)ce->second);
+                return;
+            }
+            auto fs = surface_of_face[b].find((const void*)p);
+            if (fs != surface_of_face[b].end())
+            {
+                o.push_back((double)b);
+                o.push_back((double)H_FACE_SURFACE);
+                o.push_back((double)fs->second);
+                return;
+            }
         }
         for (size_t k = 0; k < curves.size(); k++)
             if ((const SmObject*)curves[k] == p)
@@ -989,6 +1010,20 @@ struct Two
 };
 
 bool edge_ok(const SmEdge* e) { return e != nullptr && e->GetCurve() != nullptr && e->GetVertex() != nullptr; }
+
+// The tolerance of a vertex, edge or face (-1 for anything else).
+double tol_of(const SmObject* p)
+{
+    if (p == nullptr)
+        return -1.0;
+    if (p->IsKindOf(SmVertex_TYPE))
+        return (double)((const SmVertex*)p)->GetTolerance();
+    if (p->IsKindOf(SmEdge_TYPE))
+        return (double)((const SmEdge*)p)->GetTolerance();
+    if (p->IsKindOf(SmFace_TYPE))
+        return (double)((const SmFace*)p)->GetTolerance();
+    return -1.0;
+}
 bool face_ok(const SmFace* f) { return f != nullptr && f->GetSurface() != nullptr; }
 
 SmObject* rd_h(Rd& rd, const Two& t)
@@ -1075,6 +1110,7 @@ bool build_two(Rd& rd, const char* path, Two& t, std::vector<double>& o)
     walk(t.brep[0], t.g[0]);
     if (t.brep[1])
         walk(t.brep[1], t.g[1]);
+    t.index_geometry();
     return true;
 }
 
@@ -1108,19 +1144,17 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
         {
             SmObject* a = rd_h(rd, t);
             SmObject* b = rd_h(rd, t);
-            if (a == nullptr || ti->GetPrimaryBrep() == nullptr)
+            if (a == nullptr || ctor_kind != 0)
             {
-                // upstream dereferences null (IsKindOf of a null object / no maps)
-                o.push_back(ST_NULL_DEREF);
-                break;
-            }
-            if (ctor_kind != 0)
-            {
+                // upstream dereferences null (IsKindOf of a null object; the maps of the
+                // context-only constructor)
                 o.push_back(ST_NULL_DEREF);
                 break;
             }
             // Relate of a vertex/edge to a non-vertex/non-edge: NER returns SM_ERR_NULL_POINTER
             o.push_back(st(ti->Relate(a, b)));
+            o.push_back(tol_of(a));
+            o.push_back(tol_of(b));
             break;
         }
         case S_OTHER_MATE: t.put(o, ti->GetOtherMate(rd_h(rd, t))); break;
@@ -1326,6 +1360,8 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             SmCurveClassification cc(e->GetCurve(), SmExtent1d(t0, t1), nullptr, tol);
             SmStatus s = sm_SetEdgeClass(cc, e);
             o.push_back(st(s));
+            if (s != SM_SUCCESS)
+                break;
             o.push_back((double)cc.GetSize());
             put_pc_full(o, t, cc[0].m_vStart);
             put_pc_full(o, t, cc[0].m_vMid);
@@ -1362,6 +1398,8 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             SmTArray<SmEdge*> ne1, ne2;
             SmStatus s = sm_TestAndSplitTwoEdges(e1, e2, tol, dist, unst, nv, ne1, ne2);
             o.push_back(st(s));
+            if (s != SM_SUCCESS)
+                break;
             o.push_back(dist);
             o.push_back(unst);
             o.push_back((double)nv.GetSize());
@@ -1374,7 +1412,7 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             SmFace* f = (SmFace*)rd_h(rd, t);
             SmPoint3d p = rd.vec();
             double tol = rd.num();
-            if (f == nullptr)
+            if (!face_ok(f))
             {
                 o.push_back(ST_NULL_DEREF);
                 break;
@@ -1384,6 +1422,8 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             SmVertex* nv = nullptr;
             SmStatus s = sm_TestAndImprintFace(f, p, tol, reason, dist, nv);
             o.push_back(st(s));
+            if (s != SM_SUCCESS)
+                break;
             o.push_back((double)reason);
             o.push_back(dist);
             o.push_back(nv ? 1.0 : 0.0);
@@ -1401,11 +1441,22 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                 faces.Add((SmFace*)rd_h(rd, t));
             SmBoolean manifold = rd.bflag();
             SmBoolean ignore = rd.bflag();
+            bool ok = true;
+            for (ULONG i = 0; i < faces.GetSize(); i++)
+                if (faces[i] != nullptr && !face_ok(faces[i]))
+                    ok = false;
+            if (!ok)
+            {
+                o.push_back(ST_NULL_DEREF);
+                break;
+            }
             SmTArray<SmVertex*> pv;
             SmTArray<SmFace*> pf;
             double mx = 0.0, mn = 0.0;
             SmStatus s = ti->VertexFaceIntersect(verts, faces, pv, pf, mx, mn, manifold, ignore);
             o.push_back(st(s));
+            if (s != SM_SUCCESS)
+                break;
             put_list(o, t, as_objs(pv));
             put_list(o, t, as_objs(pf));
             o.push_back(mx);
@@ -1445,6 +1496,8 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             double mx = 0.0, mn = 0.0;
             SmStatus s = ti->EdgeFaceIntersect(edges, faces, nv, se, nwe, pf, mx, mn, manifold, ignore);
             o.push_back(st(s));
+            if (s != SM_SUCCESS)
+                break;
             o.push_back((double)nv.GetSize());
             put_list(o, t, as_objs(se));
             o.push_back((double)nwe.GetSize());
@@ -1489,6 +1542,8 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             double mx = 0.0, mn = 0.0;
             SmStatus s = ti->FaceFaceIntersect(verts, f1, f2, pf, nf, ne, mx, mn, ignore, nesting);
             o.push_back(st(s));
+            if (s != SM_SUCCESS)
+                break;
             put_list(o, t, as_objs(pf));
             o.push_back((double)nf.GetSize());
             o.push_back((double)ne.GetSize());
@@ -1528,6 +1583,8 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             double mx = 0.0, mn = 0.0;
             SmStatus s = ti->FaceFaceCoincidence(edges, del, pf, df, mx, mn, ignore, nesting);
             o.push_back(st(s));
+            if (s != SM_SUCCESS)
+                break;
             put_list(o, t, as_objs(pf));
             put_list(o, t, as_objs(df));
             o.push_back(mx);
