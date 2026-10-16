@@ -1794,500 +1794,178 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_bbox0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#0",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_tight0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#1",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_closest0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#2",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_closest_on0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#3",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#4",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_bbox_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#5",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_bbox1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#6",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_tight1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#7",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_closest1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#8",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_closest_on1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#9",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#10",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_bbox_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#11",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_bbox2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#12",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_tight2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#13",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_closest2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#14",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_closest_on2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#15",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#16",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_bbox_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#17",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "classify": 2,
-        "eu": 0,
-        "nparam": 0.5,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_radial",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#18",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "classify": 1,
-        "eu": 1,
-        "nparam": 0.25,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_radial_self",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#19",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "dir": [0, 0, 1],
-        "eu": 0,
-        "force": false,
-        "len": 1.0,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 1
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_radial_curve",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#20",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file"
-        },
-        "dir": [1, 1, 0],
-        "eu": 3,
-        "force": true,
-        "len": 0.1,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 2
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "Mouse_radial_curve_rev",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#21",
       "values_compared": 0
     },
@@ -2484,500 +2162,178 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_bbox0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#44",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_tight0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#45",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_closest0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#46",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_closest_on0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#47",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#48",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_bbox_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#49",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_bbox1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#50",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_tight1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#51",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_closest1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#52",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_closest_on1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#53",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#54",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_bbox_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#55",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_bbox2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#56",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_tight2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#57",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_closest2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#58",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_closest_on2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#59",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#60",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_bbox_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#61",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "classify": 2,
-        "eu": 0,
-        "nparam": 0.5,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_radial",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#62",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "classify": 1,
-        "eu": 1,
-        "nparam": 0.25,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_radial_self",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#63",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "dir": [0, 0, 1],
-        "eu": 0,
-        "force": false,
-        "len": 1.0,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 1
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_radial_curve",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#64",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file"
-        },
-        "dir": [1, 1, 0],
-        "eu": 3,
-        "force": true,
-        "len": 0.1,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 2
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "box_with_large_fillet_radial_curve_rev",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#65",
       "values_compared": 0
     },
@@ -3158,500 +2514,178 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_bbox0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#88",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_tight0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#89",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_closest0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#90",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_closest_on0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#91",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#92",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_bbox_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#93",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_bbox1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#94",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_tight1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#95",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_closest1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#96",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_closest_on1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#97",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#98",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_bbox_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#99",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_bbox2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#100",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_tight2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#101",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_closest2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#102",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_closest_on2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#103",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#104",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_bbox_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#105",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "classify": 2,
-        "eu": 0,
-        "nparam": 0.5,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_radial",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#106",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "classify": 1,
-        "eu": 1,
-        "nparam": 0.25,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_radial_self",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#107",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "dir": [0, 0, 1],
-        "eu": 0,
-        "force": false,
-        "len": 1.0,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 1
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_radial_curve",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#108",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "dir": [1, 1, 0],
-        "eu": 3,
-        "force": true,
-        "len": 0.1,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 2
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "disk_radial_curve_rev",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#109",
       "values_compared": 0
     },
@@ -3832,998 +2866,354 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_bbox0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#132",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_tight0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#133",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_closest0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#134",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_closest_on0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#135",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#136",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_bbox_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#137",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_bbox1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#138",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_tight1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#139",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_closest1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#140",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_closest_on1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#141",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#142",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_bbox_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#143",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_bbox2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#144",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_tight2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#145",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_closest2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#146",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_closest_on2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#147",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#148",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_bbox_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#149",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "classify": 2,
-        "eu": 0,
-        "nparam": 0.5,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_radial",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#150",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "classify": 1,
-        "eu": 1,
-        "nparam": 0.25,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_radial_self",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#151",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "dir": [0, 0, 1],
-        "eu": 0,
-        "force": false,
-        "len": 1.0,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 1
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_radial_curve",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#152",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "dir": [1, 1, 0],
-        "eu": 3,
-        "force": true,
-        "len": 0.1,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 2
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_circ_radial_curve_rev",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#153",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_bbox0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#154",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_tight0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#155",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_closest0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#156",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_closest_on0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#157",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#158",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 0,
-        "edits": {
-          "edge": 0,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_bbox_tight_inside0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#159",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_bbox1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#160",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_tight1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#161",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_closest1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#162",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_closest_on1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#163",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#164",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 1,
-        "edits": {
-          "edge": 1,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_bbox_tight_inside1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#165",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_bbox2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#166",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_tight2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#167",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.3,
-        "offset": [0.01, -0.02, 0.03],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_closest2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#168",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "nt": 0.7,
-        "offset": [0, 0, 0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_closest_on2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#169",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#170",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "edge": 2,
-        "edits": {
-          "edge": 2,
-          "p0": [-10000.0, -10000.0, -10000.0],
-          "p1": [10000.0, 10000.0, 10000.0]
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_bbox_tight_inside2",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#171",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "classify": 2,
-        "eu": 0,
-        "nparam": 0.5,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_radial",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#172",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "classify": 1,
-        "eu": 1,
-        "nparam": 0.25,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_radial_self",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#173",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "dir": [0, 0, 1],
-        "eu": 0,
-        "force": false,
-        "len": 1.0,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 1
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_radial_curve",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#174",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "dir": [1, 1, 0],
-        "eu": 3,
-        "force": true,
-        "len": 0.1,
-        "nt": 0.5,
-        "op": "radial_curve",
-        "orient": 2
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "plane_square_radial_curve_rev",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.edge/upstream_files.json#175",
       "values_compared": 0
     },
@@ -7856,31 +6246,12 @@
       "values_compared": 35
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 666245,
-        "edits": {
-          "drop": false,
-          "edge": 852335,
-          "p0": null,
-          "p1": [-67.63612635816185, 40.475350878487994, 48.143421555418485],
-          "tol": 1e-6
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0009",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447547",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7891,33 +6262,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 161421,
-        "edits": {
-          "drop": false,
-          "edge": 218503,
-          "p0": null,
-          "p1": null,
-          "tol": 0.1
-        },
-        "nt": 0.3913797102718396,
-        "offset": [6.307042119593995e-8, -1.8189785205365428e-8, 7.581562004936654e-8],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0011",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447549",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -8036,25 +6386,10 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "classify": 996262,
-        "edits": null,
-        "eu": 818438,
-        "nparam": 1.0,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0026",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447564",
       "values_compared": 0
     },
@@ -8331,25 +6666,10 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 378087,
-        "edits": null,
-        "eu": 315793,
-        "nparam": 0.8941492660948251,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0060",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447598",
       "values_compared": 0
     },
@@ -8390,31 +6710,10 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 182421,
-        "edits": {
-          "drop": false,
-          "edge": 548082,
-          "p0": null,
-          "p1": [0.7423309986936171, 0.2760079177305197, 0.7548824251075057],
-          "tol": 1e-9
-        },
-        "eu": 174842,
-        "nparam": 0.2565537544787042,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0065",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447603",
       "values_compared": 0
     },
@@ -8427,31 +6726,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 712446,
-        "edits": {
-          "drop": false,
-          "edge": 210237,
-          "p0": null,
-          "p1": null,
-          "tol": 0.0
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0067",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447605",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8510,25 +6790,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 501416,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0075",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447613",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8575,74 +6842,28 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "dir": [0.6433810468797279, 0.7042234859082088, -0.14947054536162607],
-        "edits": null,
-        "eu": 914334,
-        "force": true,
-        "len": 10.0,
-        "nt": 0.34277826525910304,
-        "op": "radial_curve",
-        "orient": 2
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0081",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447619",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 979339,
-        "edits": null,
-        "nt": 0.7778811356345183,
-        "offset": [5566.096313319426, -9201.854552033266, 9992.82412754767],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0082",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447620",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 350789,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0083",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447621",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8677,25 +6898,10 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 466408,
-        "edits": null,
-        "eu": 500261,
-        "nparam": 0.0,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0088",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447626",
       "values_compared": 0
     },
@@ -8720,25 +6926,10 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "classify": 192469,
-        "edits": null,
-        "eu": 328290,
-        "nparam": 0.41016510631606873,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0091",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447629",
       "values_compared": 0
     },
@@ -8927,65 +7118,20 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "dir": [-0.6457591172269492, -0.7318515312043028, 0.1904183448362473],
-        "edits": {
-          "drop": false,
-          "edge": 980596,
-          "p0": null,
-          "p1": [-0.0007902940155043295, 0.000503633491303861, 0.0008227518601382842],
-          "tol": 1e-9
-        },
-        "eu": 259426,
-        "force": true,
-        "len": 1.0,
-        "nt": 0.36401457324695297,
-        "op": "radial_curve",
-        "orient": 1
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0114",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447652",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 998247,
-        "edits": {
-          "drop": false,
-          "edge": 670341,
-          "p0": null,
-          "p1": null,
-          "tol": 1e-6
-        },
-        "nt": 0.5061334482188672,
-        "offset": [-0.0, -0.0, 0.0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0115",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447653",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -8996,25 +7142,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 108075,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0117",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447655",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9077,54 +7210,20 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 275712,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0125",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447663",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 1014639,
-        "edits": {
-          "drop": false,
-          "edge": 353889,
-          "p0": null,
-          "p1": null,
-          "tol": 0.0
-        },
-        "nt": 0.0,
-        "offset": [4.01242437146079e-8, -7.4801664095326e-8, 3.3263524726975754e-8],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0126",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447664",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -9299,29 +7398,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 686165,
-        "edits": null,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0148",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447686",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -9356,27 +7438,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 227454,
-        "edits": null,
-        "nt": 0.0,
-        "offset": [2.032278930549376e-8, -1.4113677893073917e-8, -8.475695091790497e-8],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0153",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447691",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -9407,31 +7474,12 @@
       "values_compared": 20
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 40474,
-        "edits": {
-          "drop": false,
-          "edge": 658579,
-          "p0": [2.441441495827508e-10, -2.512608881537235e-10, 6.787287228874979e-10],
-          "p1": null,
-          "tol": 1e-12
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0157",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447695",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9450,54 +7498,20 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 679610,
-        "edits": {
-          "drop": false,
-          "edge": 419788,
-          "p0": null,
-          "p1": [80.81219645908129, -63.66638341874528, 48.7927759641589],
-          "tol": 0.0
-        },
-        "eu": 2161,
-        "nparam": -1e-9,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0160",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447698",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 558754,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0161",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447699",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9516,25 +7530,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 70163,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0164",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447702",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9609,31 +7610,10 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 107304,
-        "edits": {
-          "drop": false,
-          "edge": 82682,
-          "p0": [7.425150053707513e-10, 6.172461317653326e-10, 4.2484099231385146e-10],
-          "p1": [-57.34672665645619, -30.408441330639512, -66.86669169896847],
-          "tol": 1e-9
-        },
-        "eu": 58519,
-        "nparam": 0.7283628649612736,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0173",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447711",
       "values_compared": 0
     },
@@ -9662,35 +7642,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 281431,
-        "edits": {
-          "drop": false,
-          "edge": 980613,
-          "p0": null,
-          "p1": [13.064244012595271, -82.06873666431116, -87.48774499441767],
-          "tol": 1e-9
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": false,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0177",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447715",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -9717,33 +7674,12 @@
       "values_compared": 21
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 218090,
-        "edits": {
-          "drop": false,
-          "edge": 255277,
-          "p0": null,
-          "p1": null,
-          "tol": 1e-6
-        },
-        "nt": 0.007465854159124707,
-        "offset": [-5.870175116301497e-8, -1.7748569726425822e-8, -2.1913261305797005e-8],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0181",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447719",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -9762,27 +7698,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 903120,
-        "edits": null,
-        "nt": 0.009409269090153716,
-        "offset": [-0.0, 0.0, 0.0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0184",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447722",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -9825,33 +7746,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 685737,
-        "edits": {
-          "drop": false,
-          "edge": 145171,
-          "p0": null,
-          "p1": [0.0, -0.0, -0.0],
-          "tol": 0.0
-        },
-        "nt": 1.0,
-        "offset": [-0.4275678125976581, -0.852534129492134, -0.44661252513196925],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0190",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447728",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -9870,25 +7770,12 @@
       "values_compared": 20
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 761662,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0193",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447731",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -9911,33 +7798,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 682467,
-        "edits": {
-          "drop": true,
-          "edge": 754734,
-          "p0": [-72.19308390089847, -41.88622932376709, -49.60681131287807],
-          "p1": [-0.0, 0.0, -0.0],
-          "tol": 0.0
-        },
-        "nt": 1.0,
-        "offset": [-8.296779578191265e-13, -4.300404574764587e-13, -8.093935374231256e-13],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0196",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447734",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -9976,29 +7842,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 660832,
-        "edits": null,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": false,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0201",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447739",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -10049,27 +7898,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 828628,
-        "edits": null,
-        "nt": -1e-9,
-        "offset": [1.9363789015597187e-13, -5.989372871559897e-13, 3.3586526984331886e-13],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0208",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447746",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -10160,27 +7994,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 944319,
-        "edits": null,
-        "nt": 0.6427446049029396,
-        "offset": [-0.07032073152599108, 0.02860111897032982, 0.0464250427195122],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0219",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447757",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -10231,25 +8050,10 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 94857,
-        "edits": null,
-        "eu": 709438,
-        "nparam": 1.000000001,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0226",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447764",
       "values_compared": 0
     },
@@ -10294,25 +8098,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 306682,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0232",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447770",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -10375,27 +8166,12 @@
       "values_compared": 29
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 477320,
-        "edits": null,
-        "nt": 0.9211625260171868,
-        "offset": [9.768745724008475e-13, 5.256263377755981e-13, -5.152488262453205e-13],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0240",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447778",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -10446,27 +8222,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 938959,
-        "edits": null,
-        "nt": 0.0,
-        "offset": [-0.7369113172853003, -1.2108138978206262, 0.026415181013386135],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0247",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447785",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -10485,27 +8246,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 1014048,
-        "edits": null,
-        "nt": 0.0,
-        "offset": [8.928780118114307e-8, -1.8997336454781078e-8, 1.6855421940481175e-8],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0250",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447788",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -10516,77 +8262,28 @@
       "values_compared": 15
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 40570,
-        "edits": null,
-        "nt": -1e-9,
-        "offset": [-0.005707701083432149, -0.08996656867171744, -0.09701406578428824],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0252",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447790",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 432242,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0253",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447791",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 947129,
-        "edits": {
-          "drop": false,
-          "edge": 66537,
-          "p0": null,
-          "p1": [0.7891228003885444, 0.05565006297527009, 0.3950499644063563],
-          "tol": 0.0
-        },
-        "nt": 0.5719872690085273,
-        "offset": [0.0, -0.0, -0.0],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0254",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447792",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -10641,31 +8338,10 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "classify": 540244,
-        "edits": {
-          "drop": false,
-          "edge": 666498,
-          "p0": [-0.6986747291506077, 0.2633774842087939, -0.5276132330602814],
-          "p1": null,
-          "tol": 0.1
-        },
-        "eu": 535761,
-        "nparam": -1e-9,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0261",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447799",
       "values_compared": 0
     },
@@ -10714,25 +8390,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 365750,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0267",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447805",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -10819,35 +8482,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 78572,
-        "edits": {
-          "drop": false,
-          "edge": 1008253,
-          "p0": null,
-          "p1": null,
-          "tol": 10.0
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": false,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0278",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447816",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -10922,57 +8562,18 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "dir": [-0.5077958630476722, 0.5351862163546606, 0.4405092399450119],
-        "edits": null,
-        "eu": 884182,
-        "force": true,
-        "len": 0.1,
-        "nt": 0.8753859112078566,
-        "op": "radial_curve",
-        "orient": 0
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0288",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447826",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 962043,
-        "edits": {
-          "drop": false,
-          "edge": 600478,
-          "p0": [-0.0003373871957453372, -0.0005589070153061393, -0.0009390118509941765],
-          "p1": null,
-          "tol": 0.0
-        },
-        "eu": 700706,
-        "nparam": 1.0,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0289",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447827",
       "values_compared": 0
     },
@@ -11009,25 +8610,10 @@
       "values_compared": 21
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 857360,
-        "edits": null,
-        "eu": 209080,
-        "nparam": 0.0,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0294",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447832",
       "values_compared": 0
     },
@@ -11064,25 +8650,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 46728,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0299",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447837",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11149,31 +8722,12 @@
       "values_compared": 15
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 959633,
-        "edits": {
-          "drop": false,
-          "edge": 640247,
-          "p0": null,
-          "p1": null,
-          "tol": 0.1
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0308",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447846",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11288,28 +8842,10 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "dir": [-0.04467761669875947, 0.18848743097872833, -0.3607318989300874],
-        "edits": null,
-        "eu": 1012513,
-        "force": false,
-        "len": 0.1,
-        "nt": 0.4157622427270983,
-        "op": "radial_curve",
-        "orient": 1
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0322",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447860",
       "values_compared": 0
     },
@@ -11322,27 +8858,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 1004729,
-        "edits": null,
-        "nt": 0.09926102130204473,
-        "offset": [9.682402174306514e-9, -8.428795961386879e-8, 6.72471062498072e-8],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0324",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447862",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -11401,29 +8922,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 277984,
-        "edits": null,
-        "normal": false,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0332",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447870",
-      "values_compared": 0
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -11466,33 +8970,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 183162,
-        "edits": {
-          "drop": false,
-          "edge": 238676,
-          "p0": [78.69470275097024, 80.95269456711233, -39.60589814518367],
-          "p1": null,
-          "tol": 0.1
-        },
-        "nt": 0.6401448171340721,
-        "offset": [-0.9359004813884364, 0.09604140479390333, 0.8160446690646026],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0338",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447876",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -11503,31 +8986,10 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "classify": 907771,
-        "edits": {
-          "drop": false,
-          "edge": 72,
-          "p0": null,
-          "p1": [0.0007107590173217195, -0.0005974552732664859, 0.00005098295652326268],
-          "tol": 10.0
-        },
-        "eu": 8848,
-        "nparam": 1e-12,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0340",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447878",
       "values_compared": 0
     },
@@ -11568,27 +9030,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 498418,
-        "edits": null,
-        "nt": 0.21381965948032566,
-        "offset": [7.232355755246971, 6.06975952109829, -4.812287763867316],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0345",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447883",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -11599,27 +9046,12 @@
       "values_compared": 35
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 614909,
-        "edits": null,
-        "nt": 1e-12,
-        "offset": [-0.036224620197420454, 0.03679418503374323, 0.0769947082089761],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0347",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447885",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -11670,25 +9102,12 @@
       "values_compared": 20
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 1008450,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0354",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447892",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11723,25 +9142,10 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "classify": 955783,
-        "edits": null,
-        "eu": 588587,
-        "nparam": 1.0,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0359",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447897",
       "values_compared": 0
     },
@@ -11894,54 +9298,18 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 340362,
-        "edits": null,
-        "eu": 923684,
-        "nparam": 0.8950811592483237,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0378",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447916",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 265622,
-        "edits": {
-          "drop": false,
-          "edge": 744991,
-          "p0": null,
-          "p1": null,
-          "tol": 10.0
-        },
-        "eu": 836281,
-        "nparam": 0.0,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0379",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447917",
       "values_compared": 0
     },
@@ -11970,58 +9338,20 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 721447,
-        "edits": {
-          "drop": false,
-          "edge": 756319,
-          "p0": null,
-          "p1": null,
-          "tol": 10.0
-        },
-        "normal": false,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": false,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0383",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447921",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 347544,
-        "edits": null,
-        "nt": 0.0,
-        "offset": [-2180.7101120443817, -7623.159646956062, -8.492964961046567],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0384",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447922",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -12068,54 +9398,20 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "classify": 823357,
-        "edits": {
-          "drop": false,
-          "edge": 762933,
-          "p0": null,
-          "p1": null,
-          "tol": 0.001
-        },
-        "eu": 553450,
-        "nparam": 0.12009792040763445,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0390",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447928",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 272319,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0391",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447929",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -12174,33 +9470,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 438479,
-        "edits": {
-          "drop": false,
-          "edge": 843902,
-          "p0": null,
-          "p1": [-9.483688160331772e-10, -8.624476491962929e-10, 1.069180562043277e-10],
-          "tol": -1.0
-        },
-        "nt": 0.7346212223720948,
-        "offset": [-7.995599332952809e-13, -6.879702035422377e-13, 1.2928587572086058e-13],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0398",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447936",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -12279,25 +9554,10 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 975061,
-        "edits": null,
-        "eu": 366397,
-        "nparam": 0.0,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0408",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447946",
       "values_compared": 0
     },
@@ -12326,25 +9586,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 105447,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0412",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447950",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -12443,27 +9690,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 980866,
-        "edits": null,
-        "nt": 0.898528163477137,
-        "offset": [4.3804675487312706e-13, -4.889910924844918e-13, 2.130599098189385e-13],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0425",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447963",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -12474,33 +9706,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 489413,
-        "edits": {
-          "drop": false,
-          "edge": 528196,
-          "p0": null,
-          "p1": null,
-          "tol": 0.1
-        },
-        "nt": 0.6675253846952982,
-        "offset": [3.507057706922105e-8, -2.3068151216644426e-8, 6.586880749402579e-8],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0427",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447965",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "deferred": {
@@ -12607,25 +9818,10 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "classify": 2830,
-        "edits": null,
-        "eu": 468682,
-        "nparam": 0.0,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0440",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447978",
       "values_compared": 0
     },
@@ -12638,33 +9834,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 348711,
-        "edits": {
-          "drop": false,
-          "edge": 6467,
-          "p0": [-18.71792837564117, 20.02420810364045, -52.15131619166089],
-          "p1": null,
-          "tol": 1e-9
-        },
-        "nt": 0.17709519322185907,
-        "offset": [-2.211019222066204e-13, -3.1962814440119704e-13, -5.159753642893179e-13],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0442",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447980",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -12683,25 +9858,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 1045979,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0445",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447983",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -12716,25 +9878,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 690317,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0447",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502447985",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -12853,28 +10002,10 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "dir": [-0.6754651857354466, -0.8864803246103989, 0.7832955849057421],
-        "edits": null,
-        "eu": 949538,
-        "force": false,
-        "len": 0.1,
-        "nt": 0.7342725448739524,
-        "op": "radial_curve",
-        "orient": 1
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0462",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448000",
       "values_compared": 0
     },
@@ -12979,35 +10110,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 246920,
-        "edits": {
-          "drop": false,
-          "edge": 854264,
-          "p0": [0.0009749722441359288, -0.0003142076714705455, -0.0007250949536158486],
-          "p1": [0.49441881516415687, 0.4110315079303202, -0.011281562169182191],
-          "tol": 10.0
-        },
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0475",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448013",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -13034,27 +10142,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 646677,
-        "edits": null,
-        "nt": 0.7369779704633302,
-        "offset": [9.685416882296697e-8, 6.255363224446866e-8, 5.866576539921515e-8],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0479",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448017",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "deferred": {
@@ -13121,29 +10214,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 416203,
-        "edits": null,
-        "normal": false,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0487",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448025",
-      "values_compared": 0
+      "values_compared": 29
     },
     {
       "deferred": {
@@ -13230,25 +10306,10 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "classify": 189897,
-        "edits": null,
-        "eu": 868402,
-        "nparam": 1.000000001,
-        "op": "radial"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0498",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448036",
       "values_compared": 0
     },
@@ -13305,33 +10366,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 653754,
-        "edits": {
-          "drop": false,
-          "edge": 422045,
-          "p0": null,
-          "p1": null,
-          "tol": 1e-9
-        },
-        "nt": 1.0,
-        "offset": [-4498.418982260202, 4247.978887163824, -3232.699984491616],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0505",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448043",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -13398,25 +10438,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 73849,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0514",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448052",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -13607,31 +10634,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 761917,
-        "edits": {
-          "drop": false,
-          "edge": 94470,
-          "p0": [-0.0, 0.0, 0.0],
-          "p1": null,
-          "tol": 0.001
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0537",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448075",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -13674,29 +10682,12 @@
       "values_compared": 21
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 933826,
-        "edits": null,
-        "normal": false,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0543",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448081",
-      "values_compared": 0
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -13803,27 +10794,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 518037,
-        "edits": null,
-        "nt": 0.41873984506117445,
-        "offset": [4.843960887585317e-8, -3.754963977168384e-8, 1.5690903015704838e-8],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0556",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448094",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -13862,31 +10838,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 956832,
-        "edits": {
-          "drop": false,
-          "edge": 41107,
-          "p0": null,
-          "p1": null,
-          "tol": 0.001
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0561",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448099",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -13977,27 +10934,10 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 835251,
-        "edits": null,
-        "normal": false,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": false,
-        "tight": false
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0572",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448110",
       "values_compared": 0
     },
@@ -14014,29 +10954,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 72578,
-        "edits": null,
-        "normal": true,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": false,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0574",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448112",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -14055,69 +10978,28 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 338858,
-        "edits": null,
-        "nt": 1.0,
-        "offset": [-8854.105534350312, -724.7239480421097, 1589.708979348734],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0577",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448115",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 759943,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0578",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448116",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 350574,
-        "edits": null,
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0579",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448117",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -14136,31 +11018,12 @@
       "values_compared": 21
     },
     {
-      "harness_error": "cpp: export: a surface is neither a plane nor a B-spline; rust: export: a surface is neither a plane nor a B-spline",
-      "inputs": {
-        "brep": {
-          "file": "box_with_large_fillet.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 392022,
-        "edits": {
-          "drop": true,
-          "edge": 913690,
-          "p0": null,
-          "p1": [-6.801037730630233e-12, -5.926589254857769e-10, 9.61257053362754e-10],
-          "tol": 1e-6
-        },
-        "op": "tight"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0582",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448120",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -14171,35 +11034,12 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 424775,
-        "edits": {
-          "drop": true,
-          "edge": 551055,
-          "p0": [9.178013135055388e-10, 8.613659937425038e-10, 6.422992633970808e-10],
-          "p1": [-0.0008140290081980381, 0.0005877954073190366, -0.00029442208038849894],
-          "tol": 1e-9
-        },
-        "normal": false,
-        "op": "bbox",
-        "polar": false,
-        "pseudo": true,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0584",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448122",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -14210,29 +11050,12 @@
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 644763,
-        "edits": null,
-        "normal": true,
-        "op": "bbox",
-        "polar": true,
-        "pseudo": false,
-        "tight": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0586",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448124",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -14279,65 +11102,20 @@
       "values_compared": 6
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "dir": [0.08334571398555868, 0.43432364613433005, -0.9558748897191662],
-        "edits": {
-          "drop": false,
-          "edge": 140088,
-          "p0": null,
-          "p1": null,
-          "tol": 0.1
-        },
-        "eu": 665614,
-        "force": false,
-        "len": 0.1,
-        "nt": 0.14718817832669873,
-        "op": "radial_curve",
-        "orient": 0
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0592",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448130",
       "values_compared": 0
     },
     {
-      "harness_error": "cpp: bad orientation 16004; rust: bad orientation 16004",
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": false
-        },
-        "edge": 153002,
-        "edits": {
-          "drop": false,
-          "edge": 855097,
-          "p0": null,
-          "p1": [7.930416017164812e-10, 2.42393291810423e-10, -2.7426820140970847e-10],
-          "tol": 0.1
-        },
-        "nt": 0.878381564288792,
-        "offset": [4160.204461123911, -1813.371051728816, -8306.470272929786],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0593",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448131",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -14356,27 +11134,12 @@
       "values_compared": 2
     },
     {
-      "harness_error": "cpp: bad orientation 7; rust: bad orientation 7",
-      "inputs": {
-        "brep": {
-          "file": "Mouse.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "edge": 1045093,
-        "edits": null,
-        "nt": 0.0,
-        "offset": [-1.813950237265165, -4.4797342801813915, 5.770968604863347],
-        "op": "closest"
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 0,
-      "mismatches": [],
       "name": "gen0596",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2056831836502448134",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "deferred": {
@@ -14409,17 +11172,17 @@
   ],
   "cases_both_errored": 0,
   "cases_deferred": 56,
-  "cases_failed": 205,
-  "cases_passed": 1107,
+  "cases_failed": 0,
+  "cases_passed": 1312,
   "cases_total": 1368,
   "deferred_by_unit": {
     "intersect.surface_drop_lib_p3": 52,
     "surface.surface_p8": 4
   },
   "max_rel_err": 0.0,
-  "pass": false,
+  "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "fail",
+  "status": "partial",
   "unit": "query.edge"
 }
