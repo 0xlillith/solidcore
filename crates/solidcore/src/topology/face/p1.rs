@@ -69,11 +69,11 @@
 //!   an empty pairing (upstream's unsigned `GetSize() - 1`). `SplitAt` / `JoinSurface`
 //!   halves that are not plain B-spline surfaces (an assert upstream, then a C cast)
 //!   are [`SolidError::InvalidInput`]. A failed `JoinSurface` (unchecked upstream,
-//!   which then uses a null or stale joined surface: `plan/upstream-issues.md` UB-134)
+//!   which then uses a null or stale joined surface: `plan/upstream-issues.md` UB-135)
 //!   returns its error. The `ShellSort` of the vertex parameters is a sort by value
 //!   (equal doubles are indistinguishable). `SplitAtSeam`'s V pass after a U merge
 //!   recurses on this face with the classifications of each new face, as upstream
-//!   (UB-133).
+//!   (UB-134).
 //! - **`bUseJGU`** (`static constexpr FALSE` in `SplitAtSeam`) branches are dead code
 //!   upstream and are not ported. The `SmTemporaryChangeValue`s of `SplitAtSeam`
 //!   (`m_bEditingEnabled`, `GetDoingBooleanRef`) guard calls that are all unported.
@@ -529,12 +529,11 @@ pub fn create_oriented_trim_boundary(
     };
 
     // get face's loop-use array
-    let loopuses = match loop_to_use {
-        Some(l) => vec![lu1::loop_loopuses(b, l)?.0],
-        None => {
-            let fu = fp2::upward_faceuse(b, f)?.ok_or_else(|| null("face without face use"))?;
-            eu1::faceuse_loopuses(b, fu, false, None)?
-        }
+    let loopuses = if let Some(l) = loop_to_use {
+        vec![lu1::loop_loopuses(b, l)?.0]
+    } else {
+        let fu = fp2::upward_faceuse(b, f)?.ok_or_else(|| null("face without face use"))?;
+        eu1::faceuse_loopuses(b, fu, false, None)?
     };
 
     // for every loop
@@ -1320,7 +1319,7 @@ pub fn move_seam<O: LoopObject>(
                     }
                     let orient = eu1::orientation(b, eu)?;
                     let e = edge_deref(b, eu)?;
-                    let start = if j0 + j1 == 0 { 1 } else { 0 };
+                    let start = usize::from(j0 + j1 == 0);
                     for kk in start..=lsmp_cnt {
                         let norm = if orient == OrientType::Same {
                             if kk == lsmp_cnt {

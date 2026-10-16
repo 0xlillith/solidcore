@@ -395,13 +395,15 @@ fn ivl_bound_edgeuse_obj<O>(_interval: &CurveInterval<O>, _min_end: bool) -> Res
     ))
 }
 
-/// `SmFace::CalculateUVDomainFromUVTrimCurves(rTrimUVDomain)`.
-fn calculate_uv_domain_from_uv_trim_curves(_b: &Brep, _f: FaceId) -> Result<Extent2d> {
-    // UNPORTED(topology.face_p1): SmFace::CalculateUVDomainFromUVTrimCurves
-    Err(SolidError::unported(
-        "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "topology.face_p1",
-    ))
+/// `SmFace::CalculateUVDomainFromUVTrimCurves(rTrimUVDomain)` (unit `topology.face_p1`),
+/// on a copy of the B-rep: the caller holds it shared, so the UV trim curves the call
+/// makes (a cache upstream fills through a `const` method) are not kept.
+fn calculate_uv_domain_from_uv_trim_curves(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent2d> {
+    let mut copy = b.clone();
+    crate::topology::face::p1::calculate_uv_domain_from_uv_trim_curves(
+        k, &mut copy, f, true, false, false,
+    )
+    .map(|r| r.domain)
 }
 
 /// `pEU->NormalizedEvaluate(dT, TRUE, rUV)` (UV evaluation).
@@ -894,7 +896,7 @@ pub fn points_in_face(
         let u_inc = 1.0 / ((trim_curve_cnt + 1) as f64);
 
         // set search range to face boundary domain
-        let trim_uv_domain = calculate_uv_domain_from_uv_trim_curves(b, f)?;
+        let trim_uv_domain = calculate_uv_domain_from_uv_trim_curves(k, b, f)?;
         let srf_dom = surf.natural_uv_domain();
         // (SmExtent2d::Intersect leaves the output unchanged when disjoint)
         let uv_dom = srf_dom

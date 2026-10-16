@@ -265,7 +265,11 @@ fn export_of(brep: &BrepIn) -> Result<Rc<Vec<f64>>, HarnessError> {
 
 /// The inputs with the face and loop selectors resolved; `Err(output)` when the case
 /// ends before the op (the B-rep did not build, or it has no face).
-fn resolve(i: &Inputs) -> Result<Result<(Inputs, Rc<Vec<f64>>), Output>, HarnessError> {
+/// A resolved case (inputs and the B-rep export), or the output of a case that ends
+/// before the op.
+type Resolved = Result<(Inputs, Rc<Vec<f64>>), Output>;
+
+fn resolve(i: &Inputs) -> Result<Resolved, HarnessError> {
     let ex = export_of(&i.brep)?;
     let Some(c) = fixture::counts(&ex) else {
         return Ok(Err(Output::new().values("out", ex.to_vec())));
@@ -521,7 +525,7 @@ fn seam_guard(
     b: &Brep,
     f: FaceId,
     props: Option<PropsIn>,
-    problem: &fp1::SeamProblem,
+    problem: fp1::SeamProblem,
     cu: &CurveClassification<H>,
     cv: &CurveClassification<H>,
     split_op: bool,
@@ -553,16 +557,15 @@ fn seam_guard(
     if !split {
         return Ok(false);
     }
-    let quiet = match props {
-        Some(p) => quiet_dir(p.crossed) && quiet_dir(p.missing),
-        None => {
-            let q = |c: &CurveClassification<H>| match c.intervals() {
-                [] => true,
-                [one] => one.mid.point_class() != PointClassType::Face,
-                _ => false,
-            };
-            q(cu) && q(cv)
-        }
+    let quiet = if let Some(p) = props {
+        quiet_dir(p.crossed) && quiet_dir(p.missing)
+    } else {
+        let q = |c: &CurveClassification<H>| match c.intervals() {
+            [] => true,
+            [one] => one.mid.point_class() != PointClassType::Face,
+            _ => false,
+        };
+        q(cu) && q(cv)
     };
     Ok(!quiet && per_u && per_v)
 }
@@ -624,17 +627,14 @@ fn rust_record(i: &Inputs, ex: &[f64]) -> Result<Vec<f64>, Fail> {
                 &k, &mut b, f, *limit, *want_max, *want_2nd,
             );
             o.push(status(&r)?);
-            match r {
-                Ok(d) => {
-                    put_domain(&mut o, &d.domain);
-                    o.extend([d.max_uv_loop_gap, d.second_max_uv_loop_gap]);
-                }
+            if let Ok(d) = r {
+                put_domain(&mut o, &d.domain);
+                o.extend([d.max_uv_loop_gap, d.second_max_uv_loop_gap]);
+            } else {
                 // upstream leaves the face domain in the output (the gaps are not
                 // reported for a failed call)
-                Err(_) => {
-                    put_domain(&mut o, &b.face(f).map_err(e)?.uv_domain);
-                    o.extend([0.0, 0.0]);
-                }
+                put_domain(&mut o, &b.face(f).map_err(e)?.uv_domain);
+                o.extend([0.0, 0.0]);
             }
         }
         OpIn::Oriented { param, fill, loop_ } => {
@@ -749,7 +749,7 @@ fn rust_record(i: &Inputs, ex: &[f64]) -> Result<Vec<f64>, Fail> {
             let Some((mut problem, mut cu, mut cv)) = probe(&k, i)? else {
                 return Err(Fail::Harness(harness("probe refused a face with surface")));
             };
-            if seam_guard(&b, f, *props, &problem, &cu, &cv, false, *split)? {
+            if seam_guard(&b, f, *props, problem, &cu, &cv, false, *split)? {
                 return Err(merge_deferred());
             }
             let fp = face_props(*props)?;
@@ -788,7 +788,7 @@ fn rust_record(i: &Inputs, ex: &[f64]) -> Result<Vec<f64>, Fail> {
             let Some((problem, mut cu, mut cv)) = probe(&k, i)? else {
                 return Err(Fail::Harness(harness("probe refused a face with surface")));
             };
-            if seam_guard(&b, f, *props, &problem, &cu, &cv, true, false)? {
+            if seam_guard(&b, f, *props, problem, &cu, &cv, true, false)? {
                 return Err(merge_deferred());
             }
             let fp = face_props(*props)?;
@@ -820,7 +820,10 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
 // ---- cases ------------------------------------------------------------------------------
 
 /// The seam-op face properties tried: none, then crossed/missing verdicts and closed flags.
-const PROPS: [Option<(u8, u8, u8, u8, u8)>; 7] = [
+/// `(crossed, missing, near_miss, closed_u, closed_v)`.
+type PropsTuple = (u8, u8, u8, u8, u8);
+
+const PROPS: [Option<PropsTuple>; 7] = [
     None,
     Some((4, 4, 4, 1, 1)),
     Some((2, 2, 2, 2, 2)),
@@ -830,7 +833,7 @@ const PROPS: [Option<(u8, u8, u8, u8, u8)>; 7] = [
     Some((4, 0, 4, 0, 2)),
 ];
 
-fn props_of(p: Option<(u8, u8, u8, u8, u8)>) -> Option<PropsIn> {
+fn props_of(p: Option<PropsTuple>) -> Option<PropsIn> {
     p.map(|(crossed, missing, near_miss, closed_u, closed_v)| PropsIn {
         crossed,
         missing,

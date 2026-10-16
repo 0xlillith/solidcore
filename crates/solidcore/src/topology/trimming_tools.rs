@@ -292,12 +292,8 @@ fn face_compute_loop_orientation(
 }
 
 /// `SmFace::FlipFaceOrientation` (unit `topology.face_p1`).
-fn face_flip_face_orientation(_b: &mut Brep, _f: FaceId) -> Result<()> {
-    // UNPORTED(topology.face_p1): SmFace::FlipFaceOrientation
-    Err(SolidError::unported(
-        "SmFace::FlipFaceOrientation",
-        "topology.face_p1",
-    ))
+fn face_flip_face_orientation(b: &mut Brep, f: FaceId) -> Result<()> {
+    crate::topology::face::p1::flip_face_orientation(b, f)
 }
 
 /// `SmFace::GetEdges` (unit `topology.face_p4`).
@@ -306,15 +302,62 @@ fn face_edges(_b: &Brep, _f: FaceId) -> Result<Vec<EdgeId>> {
     Err(SolidError::unported("SmFace::GetEdges", "topology.face_p4"))
 }
 
-/// `SmFace::HasSeamProblem` (unit `topology.face_p4`) and, when it reports one,
-/// `SmFace::SplitAtSeam` (unit `topology.face_p1`) appending the new faces.
-fn face_split_at_seam_problem(_k: &Kernel, _b: &mut Brep, _f: FaceId) -> Result<Vec<FaceId>> {
+/// The classification object of the seam classifications `SplitAtSeams` passes on.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct SeamObject(LoopId);
+
+impl crate::intersect::point_class::ClassObject for SeamObject {
+    fn class_kind(&self) -> crate::intersect::point_class::ClassObjectKind {
+        crate::intersect::point_class::ClassObjectKind::Loop
+    }
+}
+
+impl crate::heal::face_props::LoopObject for SeamObject {
+    fn from_loop(l: LoopId) -> Self {
+        Self(l)
+    }
+}
+
+/// `SmFace::HasSeamProblem(rCrvClassU, rCrvClassV, eCrossed, eMissing, eNearMiss)` (unit
+/// `topology.face_p4`).
+fn face_has_seam_problem(
+    _k: &Kernel,
+    _b: &mut Brep,
+    _f: FaceId,
+) -> Result<(
+    bool,
+    crate::intersect::curve_class::p1::CurveClassification<SeamObject>,
+    crate::intersect::curve_class::p1::CurveClassification<SeamObject>,
+    crate::topology::face::p1::SeamProblem,
+)> {
     // UNPORTED(topology.face_p4): SmFace::HasSeamProblem
-    // UNPORTED(topology.face_p1): SmFace::SplitAtSeam
     Err(SolidError::unported(
         "SmFace::HasSeamProblem",
         "topology.face_p4",
     ))
+}
+
+/// `SmFace::HasSeamProblem` and, when it reports one, `SmFace::SplitAtSeam` (unit
+/// `topology.face_p1`) appending the new faces.
+fn face_split_at_seam_problem(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<Vec<FaceId>> {
+    let (has, mut cu, mut cv, problem) = face_has_seam_problem(k, b, f)?;
+    if !has {
+        return Ok(Vec::new());
+    }
+    let split = crate::topology::face::p1::split_at_seam(
+        k,
+        b,
+        f,
+        &mut cu,
+        &mut cv,
+        problem,
+        None,
+        &|o: SeamObject| {
+            let _ = o;
+            None
+        },
+    )?;
+    Ok(split.faces)
 }
 
 // ---- trimming a surface -----------------------------------------------------------------
