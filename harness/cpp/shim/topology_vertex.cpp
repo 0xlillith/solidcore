@@ -655,6 +655,13 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
     for (SmFace* p : g.faces)
     {
         put_surface(o, p->GetSurface());
+        // the face's UV domain and tolerance (the vertex/face gaps solve against them)
+        SmExtent2d d = p->GetUVDomain();
+        o.push_back(d.GetMin().x);
+        o.push_back(d.GetMin().y);
+        o.push_back(d.GetMax().x);
+        o.push_back(d.GetMax().y);
+        o.push_back((double)p->GetTolerance());
         o.push_back((double)g.find(2, p->GetUpwardFaceuse()));
     }
     for (SmLoopuse* p : g.loopuses)

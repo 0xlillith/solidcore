@@ -522,9 +522,12 @@ fn import(ex: &[f64]) -> Result<(Brep, Option<i64>), HarnessError> {
     let mut surfaces = Vec::new();
     for _ in 0..n_f {
         let surface = read_surface(&mut rd)?;
+        // `GetUVDomain` and `GetTolerance`
+        let (u0, v0, u1, v1) = (rd.num()?, rd.num()?, rd.num()?, rd.num()?);
+        let tolerance = rd.num()?;
         // `GetUpwardFaceuse` (`m_pFU`)
         let faceuse = opt(rd.idx()?, FaceuseId::from_index)?;
-        surfaces.push((surface, faceuse));
+        surfaces.push((surface, faceuse, solidcore::geom::extent2d::Extent2d::from_bounds(u0, v0, u1, v1), tolerance));
     }
     let mut loopuses = Vec::new();
     for _ in 0..n_lu {
@@ -694,14 +697,15 @@ fn import(ex: &[f64]) -> Result<(Brep, Option<i64>), HarnessError> {
             .collect();
         b.add_shell_record(s).map_err(|e| harness(e.to_string()))?;
     }
-    for (f, (surface, faceuse)) in surfaces.into_iter().enumerate() {
+    for (f, (surface, faceuse, uv_domain, tolerance)) in surfaces.into_iter().enumerate() {
         let shell = face_shells.get(f).copied().unwrap_or(ShellId::from_index(0));
-        // The domain, rectangular-trim flag and tolerance are not exported by this shim:
-        // `SmFace()` defaults (`RefreshTolerance` reads the tolerance only to defer at the
-        // unported `SmFace::SetTolerance`).
+        // The rectangular-trim flag is not exported (`SmFace()` default); the UV domain and
+        // tolerance are (the vertex/face gaps solve against them).
         b.add_face_record(Face {
             surface,
             faceuse,
+            uv_domain,
+            tolerance,
             ..Face::new(shell)
         })
         .map_err(|e| harness(e.to_string()))?;

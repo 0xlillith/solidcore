@@ -4465,6 +4465,15 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   `Brep::add_vertexuse_record` does not append to `Vertex::vertexuses`; a linking helper
   or a debug consistency check would stop silent drift once library builders create
   vertex uses.
+- **Harness fixes (PR #117, after `GetOrCreateUVTrimCurve` was wired).** The gap, topological
+  and pole cases of this unit used to defer on `UNPORTED(topology.edgeuse_p3)` (448 cases), so
+  the importer's gaps went unnoticed; once they ran, 343 cases failed because (1) the shim
+  exported no face UV domain or tolerance (the Rust faces had an empty domain and tolerance 0,
+  so `ComputeUVPoint`'s global point solve found nothing): both are exported and imported now;
+  (2) an `SmPlane` was exported as its B-spline part (now the whole plane, as
+  `sc_edgeuse_graph.h`); (3) a cone, sphere, torus, revolution or extrusion held as its B-spline
+  part is a stand-in whose solves differ: those cases defer (`surface.cone_p1`,
+  `surface.sphere`, `surface.surf_of_extrusion_p2`, `topology.brep_p7`).
 - **Not wired**, still `UNPORTED(topology.vertex)`: the generic-handle callers in
   `intersect::point_class` (`GetBrep`, `IsConnectedTo`, `GetPoint`, `SetPoint`,
   `GetTolerance`, `SetTolerance`, `SetExact`, `GetScaledZero`), `geom::solution_array`

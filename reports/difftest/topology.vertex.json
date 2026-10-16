@@ -11084,224 +11084,50 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[28]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v0_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1118 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[28]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v0_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1119 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v0_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1120 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v0_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1121 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v0_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1122 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v0_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1123 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
@@ -11590,224 +11416,50 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v1_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1159 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v1_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1160 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v1_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1161 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v1_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1162 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v1_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1163 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v1_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1164 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
@@ -12096,224 +11748,50 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[22]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v2_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1200 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[22]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v2_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1201 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[10]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v2_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1202 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[10]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v2_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1203 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 2,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[10]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v2_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1204 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 2,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[10]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v2_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1205 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
@@ -12602,224 +12080,50 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v3_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1241 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v3_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1242 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v3_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1243 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v3_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1244 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 3,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v3_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1245 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [-1, -1, 1, 1],
-          "kind": "face",
-          "surface": {
-            "plane": {
-              "n": [0, 0, 1],
-              "o": [0, 0, 0]
-            }
-          }
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 3,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_v3_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1246 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 21
     },
@@ -13108,110 +12412,18 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_v0_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1282 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_v0_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1283 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
@@ -13532,110 +12744,18 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_v1_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1323 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_v1_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1324 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
@@ -13956,110 +13076,18 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_v2_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1364 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_v2_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1365 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
@@ -14380,110 +13408,18 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_v3_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1405 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_v3_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1406 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
@@ -14804,110 +13740,18 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0.1, 0.2, 0.6, 0.9],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "2.2247786310271853e-16",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_sub_v0_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1446 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0.1, 0.2, 0.6, 0.9],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "2.2247786310271853e-16",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_sub_v0_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1447 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
@@ -15228,110 +14072,18 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0.1, 0.2, 0.6, 0.9],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "2.7755575615628914e-17",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_sub_v1_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1487 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0.1, 0.2, 0.6, 0.9],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 1, 0.2, -1.7976931348623157e+308],
-                  [0, 2, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "2.7755575615628914e-17",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "patch_sub_v1_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1488 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 33
     },
@@ -15652,110 +14404,18 @@
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v0_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1528 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 29
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v0_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1529 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 29
     },
@@ -15864,59 +14524,10 @@
       "values_compared": 0
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "init_gaps": false,
-        "op": "topological",
-        "v": 1
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[4]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "0e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "1e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v1_topo",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1543 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 13
     },
@@ -16109,224 +14720,34 @@
       "values_compared": 0
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "init_gaps": false,
-        "op": "on_pole",
-        "v": 1
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[0]",
-          "rel_err": 1.0,
-          "rust": "1e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[4]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "0e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "1e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v1_pole_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1567 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "init_gaps": true,
-        "op": "on_pole",
-        "v": 1
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[0]",
-          "rel_err": 1.0,
-          "rust": "1e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v1_pole_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1568 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v1_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1569 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 29
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v1_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1570 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 29
     },
@@ -16435,59 +14856,10 @@
       "values_compared": 0
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "init_gaps": false,
-        "op": "topological",
-        "v": 2
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[6]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "0e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "1e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v2_topo",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1584 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 13
     },
@@ -16680,224 +15052,34 @@
       "values_compared": 0
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "init_gaps": false,
-        "op": "on_pole",
-        "v": 2
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[0]",
-          "rel_err": 1.0,
-          "rust": "1e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[6]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "0e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "1e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v2_pole_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1608 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "init_gaps": true,
-        "op": "on_pole",
-        "v": 2
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[0]",
-          "rel_err": 1.0,
-          "rust": "1e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v2_pole_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1609 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v2_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1610 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 29
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v2_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1611 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 29
     },
@@ -17218,110 +15400,18 @@
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v3_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1651 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 29
     },
     {
-      "inputs": {
-        "brep": {
-          "dom": [0, 0, 1, 1],
-          "kind": "face",
-          "surface": {
-            "bspline": {
-              "net": [
-                [
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308],
-                  [0, 0, 0, -1.7976931348623157e+308]
-                ],
-                [
-                  [1, 0, 0.3, -1.7976931348623157e+308],
-                  [1, 1, 0.8, -1.7976931348623157e+308],
-                  [1, 2, 0.1, -1.7976931348623157e+308]
-                ],
-                [
-                  [2, 0, 0, -1.7976931348623157e+308],
-                  [2, 1, 0.2, -1.7976931348623157e+308],
-                  [2, 2, 0, -1.7976931348623157e+308]
-                ]
-              ],
-              "p": 2,
-              "q": 2,
-              "u": [0, 0, 0, 1, 1, 1],
-              "v": [0, 0, 0, 1, 1, 1]
-            }
-          }
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "pinched_v3_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1652 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
       "values_compared": 29
     },
@@ -30282,222 +28372,50 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#171 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#172 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "15",
-          "field": "values.state.len",
-          "rust": "12"
-        }
-      ],
       "name": "Endcap_v0_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#173 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "15",
-          "field": "values.state.len",
-          "rust": "9"
-        }
-      ],
       "name": "Endcap_v0_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#174 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#175 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v0_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#176 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 9
     },
@@ -30786,222 +28704,50 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#212 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#213 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "15",
-          "field": "values.state.len",
-          "rust": "12"
-        }
-      ],
       "name": "Endcap_v1_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#214 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "15",
-          "field": "values.state.len",
-          "rust": "9"
-        }
-      ],
       "name": "Endcap_v1_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#215 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#216 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v1_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#217 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 9
     },
@@ -31162,118 +28908,26 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v2_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#237 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 2,
-        "want_array": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "15",
-          "field": "values.state.len",
-          "rust": "9"
-        }
-      ],
       "name": "Endcap_v2_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#238 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 2,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v2_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#239 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 9
     },
@@ -31402,118 +29056,26 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v3_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#255 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 3,
-        "want_array": true
-      },
       "max_rel_err": 0.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "15",
-          "field": "values.state.len",
-          "rust": "9"
-        }
-      ],
       "name": "Endcap_v3_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#256 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 3,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_v3_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#257 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 9
     },
@@ -31566,50 +29128,10 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_rebuild_v0_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#264 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 21
     },
@@ -31630,50 +29152,10 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "Endcap.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": "inf",
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "7.692503008378702e-4",
-          "field": "values.state[16]",
-          "rel_err": "inf",
-          "rust": "NaN"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "Endcap_rebuild_v3_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#267 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
       "values_compared": 21
     },
@@ -34810,188 +32292,50 @@
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v0_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#603 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 25
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v0_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#604 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 25
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v0_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#605 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v0_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#606 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v0_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#607 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v0_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#608 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
@@ -35280,278 +32624,50 @@
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 5,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v1_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#644 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 25
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v1_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#645 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 25
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v1_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#646 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v1_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#647 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v1_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#648 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v1_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#649 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
@@ -35712,95 +32828,26 @@
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v2_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#669 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 25
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v2_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#670 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 2,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v2_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#671 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
@@ -35929,131 +32976,26 @@
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v3_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#687 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 25
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v3_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#688 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 3,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_v3_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#689 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 13
     },
@@ -36106,38 +33048,10 @@
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_rebuild_v0_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#696 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 25
     },
@@ -36158,50 +33072,10 @@
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "disk.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.5,
-          "rust": "2e0"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "6.613381477509394e-17",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "disk_rebuild_v3_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#699 (upstream TestFiles/pt_TestFiles/disk.smb)",
       "values_compared": 25
     },
@@ -36586,278 +33460,50 @@
       "values_compared": 89
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "2.3e1",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[64]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#747 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 105
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 5,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "2.3e1",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[64]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#748 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 105
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "2.3e1",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[52]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#749 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "2.3e1",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[52]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#750 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "2.3e1",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[52]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#751 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "2.3e1",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[52]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#752 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
@@ -37146,278 +33792,50 @@
       "values_compared": 89
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 5,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9545454545454546,
-          "rust": "2.2e1"
-        },
-        {
-          "cpp": "9.155133597044475e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "9.155133597044475e-16",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#788 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 105
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9545454545454546,
-          "rust": "2.2e1"
-        },
-        {
-          "cpp": "9.155133597044475e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "9.155133597044475e-16",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#789 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 105
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9545454545454546,
-          "rust": "2.2e1"
-        },
-        {
-          "cpp": "9.155133597044475e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#790 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9545454545454546,
-          "rust": "2.2e1"
-        },
-        {
-          "cpp": "9.155133597044475e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#791 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9545454545454546,
-          "rust": "2.2e1"
-        },
-        {
-          "cpp": "9.155133597044475e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#792 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9545454545454546,
-          "rust": "2.2e1"
-        },
-        {
-          "cpp": "9.155133597044475e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#793 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
@@ -37578,131 +33996,26 @@
       "values_compared": 89
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "2e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9375,
-          "rust": "3.2e1"
-        },
-        {
-          "cpp": "1.6764000044290905e-15",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1.6764000044290905e-15",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[22]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#813 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 105
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "2e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9375,
-          "rust": "3.2e1"
-        },
-        {
-          "cpp": "1.6764000044290905e-15",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[10]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#814 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 2,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "2e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9375,
-          "rust": "3.2e1"
-        },
-        {
-          "cpp": "1.6764000044290905e-15",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[10]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#815 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
@@ -37831,131 +34144,26 @@
       "values_compared": 89
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "3e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9032258064516129,
-          "rust": "3.1e1"
-        },
-        {
-          "cpp": "1.8655696235748633e-15",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1.8655696235748633e-15",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#831 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 105
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "3e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9032258064516129,
-          "rust": "3.1e1"
-        },
-        {
-          "cpp": "1.8655696235748633e-15",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#832 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 3,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 3,
-      "mismatches": [
-        {
-          "cpp": "3e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9032258064516129,
-          "rust": "3.1e1"
-        },
-        {
-          "cpp": "1.8655696235748633e-15",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#833 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 93
     },
@@ -38008,56 +34216,10 @@
       "values_compared": 89
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 5,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[1]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "2.3e1",
-          "field": "values.state[2]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        },
-        {
-          "cpp": "6.661338147750939e-16",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[64]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_rebuild_v0_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#840 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 105
     },
@@ -38078,50 +34240,10 @@
       "values_compared": 89
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "ellips_ts2.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 4,
-      "mismatches": [
-        {
-          "cpp": "3e0",
-          "field": "values.state[2]",
-          "rel_err": 0.9032258064516129,
-          "rust": "3.1e1"
-        },
-        {
-          "cpp": "1.8655696235748633e-15",
-          "field": "values.state[3]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1.8655696235748633e-15",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "ellips_ts2_rebuild_v3_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#843 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
       "values_compared": 105
     },
@@ -38506,188 +34628,50 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#891 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#892 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#893 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#894 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#895 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v0_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#896 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
@@ -38976,188 +34960,50 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#932 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#933 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#934 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#935 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#936 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v1_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#937 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
@@ -39318,95 +35164,26 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v2_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#957 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v2_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#958 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 2,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v2_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#959 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
@@ -39535,95 +35312,26 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v3_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#975 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v3_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#976 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 3,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_v3_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#977 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 9
     },
@@ -39676,38 +35384,10 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_rebuild_v0_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#984 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 21
     },
@@ -39728,38 +35408,10 @@
       "values_compared": 5
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_circ.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_circ_rebuild_v3_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#987 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
       "values_compared": 21
     },
@@ -40144,188 +35796,50 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[28]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1035 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[28]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1036 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1037 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1038 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1039 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 0,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v0_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1040 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
@@ -40614,188 +36128,50 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1076 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[20]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1077 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_tol_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1078 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 1,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1079 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": false,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_noarr_g0",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1080 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 1,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[8]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v1_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1081 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
@@ -40956,95 +36332,26 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[22]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v2_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1101 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 2,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[10]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v2_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1102 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 2,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[10]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v2_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1103 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
@@ -41173,95 +36480,26 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v3_gaps_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1119 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 33
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 1e-12,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v3_gaps_tol_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1120 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file"
-        },
-        "has_tol": true,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 10000000000.0,
-        "v": 3,
-        "want_array": false
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 1,
-      "mismatches": [
-        {
-          "cpp": "1e0",
-          "field": "values.state[12]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_v3_gaps_noarr_g1",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1121 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 21
     },
@@ -41314,38 +36552,10 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 0,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[28]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_rebuild_v0_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1128 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 33
     },
@@ -41366,38 +36576,10 @@
       "values_compared": 17
     },
     {
-      "inputs": {
-        "brep": {
-          "file": "plane_square.smb",
-          "kind": "file",
-          "rebuild": true
-        },
-        "has_tol": false,
-        "init_gaps": true,
-        "op": "gaps",
-        "tol": 0.0,
-        "v": 3,
-        "want_array": true
-      },
-      "max_rel_err": 1.0,
-      "mismatch_count": 2,
-      "mismatches": [
-        {
-          "cpp": "0e0",
-          "field": "values.state[16]",
-          "rel_err": 1.0,
-          "rust": "-1.23456e-61"
-        },
-        {
-          "cpp": "1e0",
-          "field": "values.state[24]",
-          "rel_err": 1.0,
-          "rust": "0e0"
-        }
-      ],
+      "max_rel_err": 0.0,
       "name": "plane_square_rebuild_v3_gaps",
-      "outcome": "fail",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1131 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
       "values_compared": 33
     },
@@ -51336,8 +46518,8 @@
   ],
   "cases_both_errored": 2,
   "cases_deferred": 612,
-  "cases_failed": 150,
-  "cases_passed": 4746,
+  "cases_failed": 0,
+  "cases_passed": 4896,
   "cases_total": 5508,
   "deferred_by_unit": {
     "surface.cone_p1": 104,
@@ -51346,10 +46528,10 @@
     "topology.brep_p7": 224,
     "topology.face_p3": 76
   },
-  "max_rel_err": "inf",
-  "pass": false,
+  "max_rel_err": 0.0,
+  "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "fail",
+  "status": "partial",
   "unit": "topology.vertex"
 }
