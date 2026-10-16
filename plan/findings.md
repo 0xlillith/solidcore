@@ -5621,24 +5621,27 @@ compared nothing, 140 deferred.)
   The intersector reaches it through `IntersectorBrep::update_object_tolerance`. Its
   "nothing to do" status `SM_ERR_INVALID_INPUT` is `SolidError::Upstream { code: 1007 }`
   (added as `error::SM_ERR_INVALID_INPUT`); callers ignore it, as upstream.
-- **`SmCurveClassification::SetInterval`** (an inline header setter; the only way to set
-  `m_vInterval` outside `ReSet`, unit `intersect.curve_class_p2`) is added to
-  `intersect::curve_class::p1`. The runner builds `SmCurveClassification(curve, ivl, NULL,
-  tol)` from the port's setters as `ReSet` does (curve, interval, source zone tolerance
-  `SM_UNINIT_TOL` when not positive, one interval over the range with the tolerance on its
-  three classifications).
-- **Deferred (140).** `SmFace::GetTolerance` (67, `topology.face_p2`): `SmSurface::DropPoint`
-  of a face-owned surface takes `SmTol::GetZoneTol3d(surface)`, stubbed in
-  `surface.surface_p5`; so every `sm_TestAndImprintFace` / `VertexFaceIntersect` /
-  `FaceFaceCoincidence` drop on a face defers (a `Surface` cannot reach its face's tolerance
-  without the B-rep). `SmBrep::GetVertices` / `GetEdges` / `GetTolerance` (51,
+- **`SmCurveClassification::SetInterval`** (`SmCurveClass.h:593`, `m_vInterval.SetMinMax`;
+  the only way to set `m_vInterval` outside `ReSet`, unit `intersect.curve_class_p2`) is
+  added to `intersect::curve_class::p1` as `CurveClassification::set_interval`
+  (`p1.rs:531`, the form of PRs #150/#152: `self.interval.set_min_max(..)`, status ignored
+  by the only caller, the runner). It is distinct from `CurveInterval::set_interval`
+  (`p1.rs:383`, #150's port of `SmCurveInterval::SetInterval`, `SmCurveClass.h:192`, which
+  is a plain assignment upstream too, so no discrepancy there). The runner builds
+  `SmCurveClassification(curve, ivl, NULL, tol)` from the port's setters as `ReSet` does
+  (curve, interval, source zone tolerance `SM_UNINIT_TOL` when not positive, one interval
+  over the range with the tolerance on its three classifications).
+- **Deferred (185, after the review).** `SmFace::GetTolerance` (89, `topology.face_p2`):
+  `SmSurface::DropPoint` of a face-owned surface takes `SmTol::GetZoneTol3d(surface)`,
+  stubbed in `surface.surface_p5`; so every `sm_TestAndImprintFace` / `VertexFaceIntersect`
+  / `FaceFaceCoincidence` drop on a face defers (a `Surface` cannot reach its face's
+  tolerance without the B-rep). `SmBrep::GetVertices` / `GetEdges` / `GetTolerance` (79,
   `topology.brep_p1`, open PR #145): the common edge/vertex lists, the shell-vertex and
-  wire/lamina intersections, and a manager made with a zero approximation tolerance.
-  `SmFace::GetVertices` / `GetEdges` (19, `topology.face_p4`, open PR #134):
-  `FaceFaceIntersect` and `FaceFaceCoincidence` with two faces on an edge.
-  `SmFace::CalculateBoundingBox` (2, `query.face_p1`): `EdgeFaceIntersect` with an
-  unconnected face. `SmBrep::MakeVertexSplitEdge` (1, `topology.brep_p9`): a
-  `sm_TestAndSplitTwoEdges` with an interior intersection.
+  wire/lamina intersections (no passing case for those two), and a manager made with a
+  zero approximation tolerance. `SmFace::GetVertices` / `GetEdges` (12,
+  `topology.face_p4`, open PR #134): `FaceFaceIntersect` and `FaceFaceCoincidence` with two
+  faces on an edge. `SmFace::CalculateBoundingBox` (5, `query.face_p1`): `EdgeFaceIntersect`
+  with an unconnected face.
 - **Compared green paths:** the mate maps (`Relate` with its tolerance maximisation and
   error statuses, `GetOtherMate` / `GetThisMate` / `GetBrepMate` / `IsMatedPair`,
   `GetMappedBrepObjects`), `SetSubset` / `GetSubset`, both `Fixup*PointClassMates`, the
@@ -5658,9 +5661,9 @@ compared nothing, 140 deferred.)
   `with_context`), `GetMappedOtherObjects`, `CoincidenceNotify`, `AreIntersectionLoopsClosed`,
   `RemoveRelationship`, the `Draw` / `Dump` utilities.
 - **Back-edges.** `SmTopologyIntersector::GetOtherMate` in `topology::proto_topology::p3`
-  (`ti_get_other_mate`, PR #121) needs the intersector object the manager was made for; the
-  manager holds only its handle (`m_pTI`), so the stub stays until the manager can reach an
-  intersector (noted for `_p2`, whose `IntersectInsertRelate` owns both).
+  (`ti_get_other_mate`, PR #121) is wired: `glue_coincident_brep_vertices` takes the
+  lookup as a closure and the intersector passes its mate map (see the follow-up below;
+  `RemoveRelationship`, `_p2`, will need a mutable mates trait instead of the closure).
 
 ### PR #146 maintainer review follow-up
 
@@ -5709,18 +5712,59 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   real calls; the deferrals they caused now come from their own unported callees.
 - **`intersect.curve_class_p5` (#150, merged).** `InsertTopologyIntersections` is a
   real call now. The `UNPORTED(boolean.topology_intersector_p1)` marker #150 left in
-  `SetPointClassParameters` is not a mate lookup this unit can supply: it guards part
+  `IntersectVertices` is not a mate lookup this unit can supply: it guards part
   5's own unported SSS block (`SmCurveClass.cpp:14826-15095`, knot snapping, surface
-  solves, through-point edits), whose mate lookups come last; it is relabelled as part
-  5's own deferral (`intersect.curve_class_p5`, the unit that owns the missing code) so
-  the counts stay truthful. Porting that block needs mutable curve / B-rep access in
-  `set_point_class_parameters` (an API change to part 5) plus a mate-lookup closure;
-  this unit's `other_mate` / `brep_mate` can be passed as that closure whenever part 5's
-  owner ports the block.
+  solves, through-point edits), whose mate lookups come last; it is labelled as part 5's
+  own deferral (`intersect.curve_class_p5`, the unit that owns the missing code). The block
+  is the `GWC:CHANGED_SSS` branch of `SmCurveClassification::IntersectVertices`
+  (`SmCurveClass.cpp:14643`, owned by `intersect.curve_class_p5` in `units.json`), not of
+  `SetPointClassParameters` (`:5706`, part 1, ported). No difftest case of this unit or of
+  part 5 reaches the block (neither `blocked_by` lists it), so no count changes. Porting
+  it needs mutable curve / B-rep access in `IntersectVertices` (an API change to part 5)
+  plus a mate-lookup closure; this unit's `other_mate` / `brep_mate` can be passed as that
+  closure whenever part 5's owner ports the block.
 - **Back-edge wired.** `proto_topology::p3::glue_coincident_brep_vertices` takes the
   intersector's `GetOtherMate` as a closure (`ti_get_other_mate` stub removed); the
   intersector passes its mate map, the proto-topology runner passes "no mates" (its
   shim's intersector relates nothing).
+
+### PR #146 pre-review follow-up (swarm reviewer, 49b32145)
+
+- `make_edge_for_interval`: an interval end that is not a vertex after the refresh no
+  longer aborts; `MakeEdgeInFace` fails its `NER(cpVertex)` upstream with the status
+  ignored and null outputs, so the port returns null edge and face after the curve copy
+  (leaked upstream, kept in the store here). `imprint_interval_end`: `FindObjPoint3d`'s
+  status is ignored (the point stays `UNDEF`); one null vertex out of two is now
+  `InvalidInput` (`GlueVertices(NULL, v)` dereferences it). `edge_face_intersect`: the
+  face-point evaluation goes through `ignore_soft` (the last swallowed-status site).
+- `CheckIfHaveExistingSSI` keeps its partly filled outputs with the `SM_ERR` of a
+  non-B-spline 3D curve (`ExistingSsi::status`), as upstream's only caller
+  (`IntersectTopology`, `_p2`) reads `rbHaveExistingSSI` and ignores the status.
+- `FaceIntersect`'s `pbOptCoincidenceFlag` is an input (skips its own
+  `CoincidenceCheck`): the stub takes `Option<bool>`, fed from the coincidence block.
+- `VertexFaceIntersect` with `bIgnoreProblems` skips a vertex without B-rep instead of
+  failing. `GetOtherVertex(NULL)` is documented as null with `SE(SM_ERR)`.
+- Minor: the edge curve of `EdgeFaceIntersect` and the classification curve of the
+  split update are dereferenced where upstream does (after the filters, inside the
+  loop); a null B-rep of the second edge in `sm_TestAndSplitTwoEdges` is `InvalidInput`;
+  classification lists of different sizes are `InvalidInput` (upstream indexes out of
+  bounds); the constructor stub carries `cpUVCurve = NULL`; the duplicated
+  `sm_CheckInteriorEdge` call is gone; `geom::tol` applies the `SmZoneTol3d(double)`
+  conversion (`SM_USE_DEFAULT` to the system tolerance) at its setters.
+- Not changed, recorded: the shim does not re-walk the graph after a mutating op (a new
+  entity reusing a freed address would be reported under the dead index on the C++ side
+  only, a spurious fail, never a pass; re-walking would renumber survivors differently
+  from the Rust arenas); `imprint_intersections` returns the deleted curve handles only
+  with success (on failure the handles stay unreferenced in the owner's store, so nothing
+  dangles); `RemoveRelationship` through the mate closure is `_p2`'s API change (noted in
+  its plan notes); #144 (`topology.proto_topology_p1`) changes
+  `ProtoBrep::edge_other_vertex` to take `Option<O>`, which also covers this unit's
+  `edge_other_vertex_of`; whichever of #144 and #146 lands second adapts the signature.
+- Coverage: of the 642 passes, 4 run zero ops (a script cut at op 0, the record is the
+  `-4` marker alone) and 3 compare only a `-2` guard marker; `cases_both_errored` does
+  not count them. `SetBreps` is generated now (4% of ops), so the null-B-rep guard is
+  exercised by the difftest.
+
 ## intersect.curve_class_p5: independent port
 
 Part 5 remains independent of the open p2/p7 PRs. Part 6 landed independently

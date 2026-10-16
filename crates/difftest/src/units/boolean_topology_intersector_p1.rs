@@ -1048,7 +1048,7 @@ fn new_classification(k: &Kernel, curve: H, ivl: Extent1d, tol: f64) -> Result<C
     let mut cc: CurveClassification<H> = CurveClassification::new(k);
     cc.set_curve(Some(curve), false);
     cc.set_src_zone_tol_3d(if tol > 0.0 { tol } else { UNINIT_TOL });
-    let _ = cc.set_interval(&ivl); // the status is ignored (inline SetInterval)
+    let _ = cc.set_interval(&ivl); // SetMinMax's status is ignored (inline SetInterval is void)
     cc.set_size(k, 1)?;
     let mut ci = CurveInterval::with_interval(k, &ivl, Some(&cc));
     ci.start.set_src_zone_tol_3d(tol);
@@ -1841,11 +1841,16 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 o.push(17.0);
                 let r = ti.check_if_have_existing_ssi(&mut two, triple_to_h(*s1), triple_to_h(*s2));
                 let Some(r) = status(r, &mut o)? else {
-                    // the arrays are reset before the failure; `have` stays FALSE
-                    o.push(0.0);
-                    o.push(0.0);
                     continue;
                 };
+                // (SM_ERR after a non-B-spline 3D curve comes with the outputs filled so far)
+                if let Some(e) = &r.status {
+                    o.pop();
+                    o.push(match e {
+                        SolidError::Upstream { code, .. } => f64::from(*code),
+                        _ => NULL_DEREF,
+                    });
+                }
                 o.push(flag(r.have_existing_ssi));
                 o.push(r.curves_3d.len() as f64);
                 for j in 0..r.curves_3d.len() {
@@ -2329,6 +2334,13 @@ fn gen_op(rng: &mut Rng, g: &mut Gen, has_mgr: &mut bool, last: bool) -> OpIn {
     let has_b = g.has_b;
     let topo: [u8; 3] = [K_VERTEX, K_EDGE, K_FACE];
     let any: [u8; 7] = [K_VERTEX, K_EDGE, K_FACE, K_EDGE_CURVE, K_FACE_SURFACE, K_CURVE, K_BREP];
+    // SetBreps anywhere (it is not a mutating op): exercises the null-B-rep guard
+    if rng.chance(0.04) {
+        return OpIn::SetBreps {
+            a: gen_h(rng, g, &[K_BREP], 0.25),
+            b: gen_h(rng, g, &[K_BREP], 0.25),
+        };
+    }
     let pick = rng.below(if last { 30 } else { 21 });
     match pick {
         0..=2 => OpIn::Relate {

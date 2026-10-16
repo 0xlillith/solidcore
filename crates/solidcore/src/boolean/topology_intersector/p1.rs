@@ -295,8 +295,8 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
     ///
     /// Those of the computation.
     fn edge_bounding_box(&self, k: &Kernel, edge: O) -> Result<Extent3d>;
-    /// `SmEdge::GetOtherVertex(vertex)` with a possibly null vertex (the first
-    /// vertex found when null).
+    /// `SmEdge::GetOtherVertex(vertex)` with a possibly null vertex (null, with
+    /// `SE(SM_ERR)`, when the vertex is null: `SmEdge.cpp:4558-4561`).
     fn edge_other_vertex_of(&self, edge: O, vertex: Option<O>) -> Result<Option<O>>;
     /// `SmFace::PointClassify(uv, tol, FALSE, TRUE, pc)` with upstream's other
     /// arguments at their defaults (`query::face::p2::point_classify`).
@@ -480,12 +480,12 @@ struct FaceIntersection<O> {
     cc2: Vec<CurveClassification<O>>,
     /// `sCC3DCrvs`, `sCCUVCrvs1`, `sCCUVCrvs2`.
     cc_curves: [Vec<O>; 3],
-    /// `bAreCoincident`.
-    are_coincident: bool,
 }
 
 /// `SmFace::FaceIntersect(ctx, pFace2, tol, angTolDeg, 3DCurves, NULL, NULL, NULL,
-/// &CC1, &CC2, &CC3D, &CCUV1, &CCUV2, &bAreCoincident)`.
+/// &CC1, &CC2, &CC3D, &CCUV1, &CCUV2, &bAreCoincident)`; `opt_coincidence_flag` is
+/// `pbOptCoincidenceFlag`, an input ("known coincident or not") that makes
+/// `FaceIntersect` skip its own `CoincidenceCheck`.
 fn face_face_intersect_curves<O>(
     _face1: O,
     _face2: O,
@@ -494,6 +494,7 @@ fn face_face_intersect_curves<O>(
     _opt_this_uv_curves: Option<&mut Vec<O>>,
     _opt_other_uv_curves: Option<&mut Vec<O>>,
     _opt_3d_points: Option<&mut Vec<Point3>>,
+    _opt_coincidence_flag: Option<bool>,
 ) -> Result<FaceIntersection<O>> {
     // UNPORTED(topology.face_p3): SmFace::FaceIntersect
     Err(SolidError::unported(
@@ -543,10 +544,11 @@ fn surface_coincidence_check<O: ClassObject + SolutionObject>(
     Ok((c.are_coincident, c.max_distance))
 }
 
-/// `SmCurveClassification(pCurve, interval, NULL, tol)`.
+/// `SmCurveClassification(pCurve, interval, NULL, tol)` (`cpUVCurve = NULL`).
 fn new_curve_classification<O>(
     _curve: O,
     _interval: &Extent1d,
+    _uv_curve: Option<O>,
     _tol: f64,
 ) -> Result<CurveClassification<O>> {
     // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
@@ -673,6 +675,10 @@ impl<O: Copy> IntersectionTable<O> {
 /// What [`TopologyIntersector::check_if_have_existing_ssi`] returns.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExistingSsi<O> {
+    /// The status when the function failed after filling the outputs so far (`SER(SM_ERR)`
+    /// for a registered 3D curve that is not a B-spline curve; the caller upstream
+    /// ignores the status and reads `rbHaveExistingSSI`); `None` on success.
+    pub status: Option<SolidError>,
     /// `rbHaveExistingSSI`.
     pub have_existing_ssi: bool,
     /// `r3DCurves`: copies of the registered 3D curves.
@@ -690,6 +696,7 @@ pub struct ExistingSsi<O> {
 
 impl<O> Default for ExistingSsi<O> {
     fn default() -> Self {
+            status: None,
         Self {
             have_existing_ssi: false,
             curves_3d: Vec::new(),
@@ -950,7 +957,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     ///
     /// # Errors
     ///
-    /// `SM_ERR` when a registered 3D curve is not a B-spline curve;
+    /// (`SM_ERR` for a registered 3D curve that is not a B-spline curve is reported in
+    /// [`ExistingSsi::status`] with the outputs filled so far, as upstream leaves them);
     /// [`SolidError::InvalidInput`] when a handle cannot be resolved or a store is
     /// full.
     pub fn check_if_have_existing_ssi(
@@ -993,7 +1001,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                                 *slot = Some(h);
                             }
                         }
-                        None => return Err(SolidError::sm_err(OP_CHECK_SSI)),
+                        None => {
+                            out.status = Some(SolidError::sm_err(OP_CHECK_SSI));
+                            return Ok(out);
+                        }
                     }
                     if let Some(h) =
                         Self::b_spline_copy(geometry, out.uv_curves1.get(jj).copied().flatten())?
@@ -1667,9 +1678,14 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 // when imprint created a new vertex
                 if let Some(new_vertex) = imprint.new_vertex {
                     // Glue the new vertex to pV, and switch lists.
-                    let v_brep = brep
-                        .vertex_brep(v)?
-                        .ok_or(dangling("vertex without B-rep"))?;
+                    // (a vertex without B-rep: skipped with bIgnoreProblems, dereferenced
+                    // otherwise)
+                    let Some(v_brep) = brep.vertex_brep(v)? else {
+                        if ignore_problems {
+                            continue;
+                        }
+                        return Err(dangling("vertex without B-rep"));
+                    };
 
                     // First set the position of the surviving vertex to be
                     // the midpoint of the two ... this should help to keep tolerances
@@ -1775,10 +1791,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             let edge_zone_tol_3d = brep
                 .topology_tolerance(edge)
                 .ok_or(dangling("edge handle is unknown"))?;
-            let curve = brep
+            let edge_curve = brep
                 .edge_curve(edge)
-                .ok_or(dangling("edge handle is unknown"))?
-                .ok_or(dangling("edge without curve"))?;
+                .ok_or(dangling("edge handle is unknown"))?;
             let edge_domain = brep
                 .edge_interval(edge)
                 .ok_or(dangling("edge handle is unknown"))?;
@@ -1825,6 +1840,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     face_domain = d;
                 }
 
+                // (the edge's curve is dereferenced here, after the connected-face and box
+                // filters)
+                let curve = edge_curve.ok_or(dangling("edge without curve"))?;
                 let solutions = ignore_soft(surface_global_curve_intersect(
                     k,
                     brep,
@@ -1855,11 +1873,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
                     let t = sol.start.param(0)?;
 
-                    // Check interior of Edge
-                    interior = ignore_soft(check_interior_edge(brep, edge, t, this_tol))?
-                        .unwrap_or(false)
-                        && interior;
-                    let _ = interior; // the status is not checked upstream
+                    // Check interior of Edge (the status is not checked upstream)
+                    let _ = interior;
                     let mut interior =
                         ignore_soft(check_interior_edge(brep, edge, t, this_tol))?.unwrap_or(false);
 
@@ -1935,11 +1950,13 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
             // Find the point -- make sure they're the same. Can err if pEdge was edited by prior loop iteration
             let mut edge_pt = eval_curve_point(brep, curve, param)?;
-            let face_pt = brep
-                .surface(surf)
-                .ok_or(dangling("surface handle cannot be resolved"))?
-                .evaluate_point(uv)
-                .unwrap_or(Point3::UNDEF);
+            // (the status is ignored upstream: UNDEF on failure)
+            let face_pt = ignore_soft(
+                brep.surface(surf)
+                    .ok_or(dangling("surface handle cannot be resolved"))?
+                    .evaluate_point(uv),
+            )?
+            .unwrap_or(Point3::UNDEF);
 
             let face_tol = brep
                 .topology_tolerance(face)
@@ -2219,10 +2236,11 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 let common_edges = find_common_elements(&face1_edges, &face2_edges);
 
                 // In the SmMerge::MergeAddedTopology routine, by now all coincident edges should have common edges
+                let mut are_coincident = false;
                 if !common_edges.is_empty() {
                     // (upstream passes the angle tolerance as the 3D tolerance; the status is
                     // ignored, bAreCoincident stays FALSE)
-                    let (are_coincident, _max_dist) = ignore_soft(surface_coincidence_check(
+                    let (coincident, _max_dist) = ignore_soft(surface_coincidence_check(
                         k,
                         brep,
                         surf1,
@@ -2231,6 +2249,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                         false,
                     ))?
                     .unwrap_or((false, 0.0));
+                    are_coincident = coincident;
                     if are_coincident {
                         jj += 1;
                         continue;
@@ -2248,18 +2267,22 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     None,
                     None,
                     None,
+                    Some(are_coincident),
                 ))?
                 .unwrap_or_else(|| FaceIntersection {
                     curves_3d: Vec::new(),
                     cc1: Vec::new(),
                     cc2: Vec::new(),
                     cc_curves: [Vec::new(), Vec::new(), Vec::new()],
-                    are_coincident: false,
                 });
-                let _ = (&fi.curves_3d, &fi.cc_curves, fi.are_coincident); // deleted by SmObjsDelete
+                let _ = (&fi.curves_3d, &fi.cc_curves); // deleted by SmObjsDelete
 
-                // In this loop we imprint each intersection as an edge
-                let num_cc = fi.cc1.len().min(fi.cc2.len());
+                // In this loop we imprint each intersection as an edge (upstream indexes
+                // sjjCC by the size of siiCC: lists of different sizes are undefined)
+                if fi.cc1.len() != fi.cc2.len() {
+                    return Err(dangling("classification lists differ"));
+                }
+                let num_cc = fi.cc1.len();
                 for kk in 0..num_cc {
                     {
                         let cc1 = fi
@@ -2491,7 +2514,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         let mut f2 = pc2
             .face_object()
             .ok_or(dangling("classification without face"))?;
-        let mut pt = pc1.find_obj_point_3d(brep)?;
+        // (FindObjPoint3d's status is ignored: the point stays UNDEF on failure)
+        let mut pt = ignore_soft(pc1.find_obj_point_3d(brep))?.unwrap_or(Point3::UNDEF);
 
         // This classification may be outdated. Check and update. Will either be face or vertex
         let mut uv1 = pc1.uv_param();
@@ -2519,13 +2543,16 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         if pc1.point_class() == PointClassType::Face {
             let v1 = ignore_soft(brep_make_vertex_loop(this_brep, f1, pt))?.map(|(_loop1, v)| v);
 
-            pt = pc2.find_obj_point_3d(brep)?;
+            pt = ignore_soft(pc2.find_obj_point_3d(brep))?.unwrap_or(Point3::UNDEF);
             let v2 = ignore_soft(brep_make_vertex_loop(this_brep, f2, pt))?.map(|(_loop2, v)| v);
 
-            // (a null vertex from a failed MakeVertexLoop is NER upstream, ignored)
-            if let (Some(v1), Some(v2)) = (v1, v2) {
-                ignore_soft(brep_glue_vertices(this_brep, v1, v2))?;
-            }
+            // (two null vertices from failed MakeVertexLoops are NER upstream, ignored; one
+            // null vertex is dereferenced by GlueVertices)
+            match (v1, v2) {
+                (Some(v1), Some(v2)) => ignore_soft(brep_glue_vertices(this_brep, v1, v2))?.map(|()| ()),
+                (None, None) => None,
+                _ => return Err(dangling("GlueVertices of one null vertex")),
+            };
 
             // Update classifications
             let mut uv1 = pc1.uv_param();
@@ -2563,8 +2590,12 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             .mid
             .face_object()
             .ok_or(dangling("classification without face"))?;
-        let v1 = v1.ok_or(dangling("interval start without vertex"))?;
-        let v2 = v2.ok_or(dangling("interval end without vertex"))?;
+        // (an interval end that is not a vertex after the refresh: MakeEdgeInFace fails
+        // its NER(cpVertex) in FindVertexSector, status ignored, outputs null; the curve
+        // copy stays in the store as upstream leaks it)
+        let (Some(v1), Some(v2)) = (v1, v2) else {
+            return Ok((None, None));
+        };
 
         // (the status is ignored: a failed MakeEdgeInFace leaves the edge and face null)
         let made = ignore_soft(brep_make_edge_in_face(
@@ -2598,10 +2629,11 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     ) -> Result<()> {
         let _ = k;
         for cc in ccs.iter_mut().skip(from) {
-            let this_curve = cc.curve().ok_or(dangling("classification without curve"))?;
+            let this_curve = cc.curve();
             for nn in 0..cc.size() {
                 let ci = cc.at_mut(nn)?;
                 let this_face = ci.mid.face_object();
+                let this_curve = this_curve.ok_or(dangling("classification without curve"))?;
                 let pt = eval_curve_point(brep, this_curve, ci.interval.mid())?;
 
                 if let Some(this_face) = this_face {
@@ -3096,7 +3128,7 @@ pub fn intersect_wire_lamina_edges<O: ClassObject + SolutionObject + Ord>(
         }
 
         // Construct first CurveClassification for all of pEdge.
-        let mut crv_class1 = new_curve_classification(curve, &interval, tolerance)?;
+        let mut crv_class1 = new_curve_classification(curve, &interval, None, tolerance)?;
 
         let vertex = geometry.edge_start_vertex(edge)?;
         {
@@ -3104,7 +3136,7 @@ pub fn intersect_wire_lamina_edges<O: ClassObject + SolutionObject + Ord>(
             ci.start.set_class_object(PointClassType::Vertex, vertex);
             ci.mid.set_class_object(PointClassType::Edge, Some(edge));
         }
-        // (GetOtherVertex of a null vertex is the first vertex found)
+        // (GetOtherVertex of a null vertex is null, with SE(SM_ERR))
         let vertex = geometry.edge_other_vertex_of(edge, vertex)?;
         crv_class1
             .at_mut(0)?
@@ -3112,7 +3144,7 @@ pub fn intersect_wire_lamina_edges<O: ClassObject + SolutionObject + Ord>(
             .set_class_object(PointClassType::Vertex, vertex);
 
         // Construct second CurveClassification for pBrep2 intersections.
-        let mut crv_class2 = new_curve_classification(curve, &interval, tolerance)?;
+        let mut crv_class2 = new_curve_classification(curve, &interval, None, tolerance)?;
 
         // Add curve/Brep intersections to CrvClass2.
         if ignore_soft(cc_insert_topology_intersections(
@@ -3514,7 +3546,7 @@ pub fn test_and_split_two_edges<O: ClassObject + SolutionObject + Ord>(
 
         let brep = geometry
             .edge_brep(edge2)?
-            .ok_or(SolidError::null_pointer(OP_SPLIT_TWO))?; // Presumably the same...
+            .ok_or(dangling("edge without B-rep"))?; // Presumably the same... (dereferenced upstream)
         let (e1, e2, new_v2) = match brep_make_vertex_split_edge(brep, edge2, t2) {
             Ok(r) => r,
             Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
