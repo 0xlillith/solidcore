@@ -5537,13 +5537,20 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   source changes. Its 1,135 source/config/fixture files match the VM snapshot
   SHA-256 `9efdfd34ef06c220f52beeff24009b0be72a9c9a2f00773a1c904996bb94166a`.
   On that base, formatting, strict plain workspace Clippy, 1,210 kernel tests,
-  wasm32 checking and 34 native FFI tests pass. C++-feature Clippy passed at the
-  prior checkpoint with identical part-9 Rust files. The latest-base native
-  integration gate is pending on the shared VM and in CI: concurrent metadata
-  builds exhausted VM memory before comparisons, so its retry waits for idle
-  capacity. A duplicate native workspace lint rerun was canceled to reduce load.
+  wasm32 checking and 34 native FFI tests pass. All eight CI checks passed on
+  `4f8e8a80`, including C++-feature Clippy and the full native regression:
+  `difftest: 187 unit(s), 99 passed, 88 partial, 0 failed`. The three affected
+  unit summaries above are unchanged in that run. Native CI ran on hosted
+  Ubuntu 24.04.5 with the repository's unmodified profile and pinned upstream;
+  see https://github.com/bherbruck/solidcore/actions/runs/38902802833.
+  Concurrent VM builds had exhausted memory before its latest-base native
+  comparisons; the queued duplicate was canceled after CI supplied that gate.
   Validation uses Ubuntu 26.04.1 x86_64 / Rust 1.98.0 / GCC 15.2.0 on the VM,
   pinned upstream `c9c5979`, the default optimized `difftest` profile (opt-level 1,
   overflow checks/debug assertions), C++ `-O2 -ffp-contract=off -fno-fast-math`,
-  and one Cargo job under nice. Temporary pinned memory/swap remain until checks
-  finish. No full latest-base regression pass is claimed yet.
+  and one Cargo job under nice. Temporary swap was removed and the original VM
+  balloon minimum restored after checking that no shared builds were running.
+  Official main subsequently advanced to `346fef3d` (the separately landed
+  `heal.face_props` PR); it is merged without changing part-9 code or fixtures.
+  The PR checks record validation of that final integration; the completed
+  `4f8e8a80` run above certifies the earlier base only.

@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-16, `surface.surface_p11` partial (PR #120: 176 ported units, 98 green and 78 partial; `intersect.surface_silhouette` promoted to green); before: `mass.integrator` partial and `curve.curve_p3` green (PR #119); PR #115 (`topology.brep_cache` partial). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml` and evidence in `reports/difftest/`.
 
-Latest unit: `intersect.curve_class_p9` ([PR #151](https://github.com/bherbruck/solidcore/pull/151)) is partial on a standalone official-main base: 411 differential cases, 173 compared passes, 238 dependency deferrals, zero failures and zero maximum relative error. It ports edge and trim-boundary intersections, with both query back-edges wired through borrowed boundary adapters. Positive insertion awaits existing dependencies; no other open PR is bundled. This brings the manifest to 187 ported units (99 green, 88 partial).
+Latest unit: `intersect.curve_class_p9` ([PR #151](https://github.com/bherbruck/solidcore/pull/151)) is partial on a standalone official-main base: 411 differential cases, 173 compared passes, 238 dependency deferrals, zero failures and zero maximum relative error. It ports edge and trim-boundary intersections, with both query back-edges wired through borrowed boundary adapters. Positive insertion awaits existing dependencies; no other open PR is bundled. This brings the manifest to 187 ported units (99 green, 88 partial). All eight checks and the full 187-unit native regression pass on `4f8e8a80`; the subsequent official-main merge (`346fef3d`) preserves the part-9 code and fixtures.
 
 
 ## Integration update (2026-10-15, PR #119)
