@@ -5651,3 +5651,21 @@ report now point to UB-134. The maintainer has assigned UB-134 to this PR and wi
 renumber the parallel claim in #148. No bundled numerical results certify this
 independent tree. The maintainer confirmed all review items resolved before the
 independent p6 integration.
+
+## boolean.merge_p5
+
+- The wire/shell-vertex stage is tested directly through the real protected
+  `SmMerge::ProcessWiresAndShellVertices`, without running the surrounding boolean
+  engine. Raw fixture topology is exported before the stage; ids follow native
+  B-rep edge/vertex owning-list order. The intersector's `Relate` call is fixture
+  setup, including its tolerance propagation, on both sides.
+- `SmallBox.smb` is a part container, not a B-rep stream. Feeding it to the shared
+  `ReadFromFile` builder reconfirmed UB-1 (`SmTopologyData::ReadFromDB`, GDB).
+  The new FFI wrapper rejects that header before C++; the solid operands use
+  `box_with_large_fillet.smb`. This is a fixture-format exclusion, not a parity
+  pass or a deferred kernel operation.
+- Classification-dependent paths stop at `query.brep::SmBrep::Point3DClassify`.
+  Their downstream topology deletion and copy paths remain uncertified, with
+  explicit `topology.brep_p4` and `boolean.merge_p1` / `_p2` adapters. Arena B-reps
+  do not yet carry an attached B-rep cache; optional cache-resizing integration
+  remains for the merge engine's eventual cache binding.

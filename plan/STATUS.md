@@ -985,3 +985,17 @@ point-classification state and created-entity outputs, and compares actual curve
 evaluations. Native FFI regressions include 27440 isolated combinations of
 operations, geometric kinds, flags and classifications, plus 96 partition/SSS/boundary
 probes and 660 mismatched fillet-partner probes. They run locally with the project CI workflow unchanged. The unit remains partial.
+
+## Boolean wire/shell-vertex stage (2026-10-16, PR #161)
+
+`boolean.merge_p5` is partial: 122 cases, 92 bit-identical comparisons, zero
+failures, and 30 explicit deferrals on `query.brep::SmBrep::Point3DClassify`.
+No absolute floors. The real `SmMerge::ProcessWiresAndShellVertices` oracle checks
+native topology order, mate retention, complete arena connectivity, established
+marks, geometry and output resetting across all 11 operations. Classification,
+deletion and copying retain explicit dependency boundaries; their mutation paths
+are not certified. No incoming back-edges or new dependency types were co-ported.
+
+The FFI guard rejects part-container headers before the B-rep reader (UB-1,
+reconfirmed with GDB); actual B-rep files supply the solid fixtures. Both shared
+mark types and marked non-wire edges without mates remain valid and covered.
