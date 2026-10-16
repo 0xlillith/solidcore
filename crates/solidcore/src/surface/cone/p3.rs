@@ -950,7 +950,7 @@ mod tests {
     }
 
     #[test]
-    fn boundary_dedup_rejects_misaligned_parallel_arrays() {
+    fn boundary_dedup_validates_parallel_arrays() {
         let k = Kernel::default();
         let mut valid = SurfaceIntersection::default();
         add(
@@ -993,5 +993,14 @@ mod tests {
                 }
             }
         }
+        // Different curve counts between bundles are valid; each bundle only
+        // needs its own parallel arrays to agree.
+        let mut out = valid;
+        append_boundary_intersections(&k, &mut out, SurfaceIntersection::default(), 1e-7).unwrap();
+        assert_eq!(out.curves_3d.len(), 1);
+        assert_eq!(out.surface1_uv_curves.len(), 1);
+        assert_eq!(out.surface2_uv_curves.len(), 1);
+        assert_eq!(out.curve_types.len(), 1);
+        assert_eq!(out.deviations.len(), 1);
     }
 }

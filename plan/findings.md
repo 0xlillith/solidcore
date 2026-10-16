@@ -5202,8 +5202,8 @@ revision, not certification of later edits or the latest CI run.
    behaviour, with standard How found / Confirmed fields. It remains source-found
    and unconfirmed by execution of undefined behaviour.
 3. The SSI corpus builder's missing cone/cylinder variants now name
-   `surface.surface_p2`, matching the adjacent torus dispatch gap. A focused
-   regression checks both owners without counting them as numerical passes.
+   `surface.surface_p2`, matching the adjacent torus dispatch gap. A source check confirms no
+   `UNPORTED(surface.cone_p3)` markers remain in `crates/`.
 4. Coincident-boundary deduplication checks both result bundles' UV, type and
    deviation vector lengths against their 3D curves before removing anything.
    The regression covers each vector being shorter/longer in either bundle
@@ -5220,3 +5220,14 @@ After merging official main `7962b462`, all 1192 kernel tests pass, including th
 new malformed-boundary regression. Formatting, strict plain workspace Clippy
 and the wasm32 check also pass. Native revalidation uses the separate disposable
 checkout and platform prerequisites described above; they are not submitted.
+
+Fresh native merged-tree comparison passes: cone_p3 1308 / 1187 / 0 / 121,
+surface_p2 869 / 858 / 0 / 11, and trimming_tools 3263 / 2842 / 0 / 421
+(total / pass / fail / defer). All three reports reproduce byte for byte.
+Sensitivity detects 1187/1187, and the 10108-case cone stress run has 9048 exact
+passes, 1060 dependency deferrals and zero failures. The focused three cone tests
+pass after adding a well-formed, unequal-curve-count bundle pair to the boundary
+contract regression. The simple SSI ownership retag is checked directly rather
+than adding a test that only repeats its static labels.
+Strict C++-feature workspace Clippy also passes in the disposable validation
+checkout. The platform prerequisites remain excluded from the submitted branch.

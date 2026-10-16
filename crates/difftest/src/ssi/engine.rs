@@ -500,34 +500,3 @@ pub fn run_rust(case: &SsiCase, tol: Option<f64>) -> Result<RawOutput, EngineFai
     }
     Ok(out)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn cone_and_cylinder_defer_to_surface_kind_integration() {
-        let specs = [
-            SurfaceSpec::Cylinder {
-                origin: [0.0; 3],
-                xaxis: [1.0, 0.0, 0.0],
-                yaxis: [0.0, 1.0, 0.0],
-                radius: 1.0,
-                angle: [0.0, 360.0],
-                height: [0.0, 3.0],
-            },
-            SurfaceSpec::Cone {
-                apex: [0.0; 3],
-                xaxis: [1.0, 0.0, 0.0],
-                yaxis: [0.0, 1.0, 0.0],
-                half_angle_deg: 30.0,
-                height: [0.0, 3.0],
-            },
-        ];
-        for spec in specs {
-            let deferred = rust_surface(&spec).unwrap().unwrap_err();
-            assert_eq!(deferred.unit, "surface.surface_p2");
-            assert!(deferred.symbol.starts_with("SurfaceKind::"));
-        }
-    }
-}
