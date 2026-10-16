@@ -15,7 +15,9 @@
 //! existing UV trim curves, the 3D evaluation, the null dereferences and the wire edge
 //! uses are compared. The state compared after an op is that of
 //! `topology.edgeuse_p2`'s `put_eu_state` for the edge use and its mate and the edge's
-//! interval and tolerance.
+//! interval and tolerance. The graph export carries only whether an edge use's maximum
+//! edge/face gap is set, not its length (a B-rep read with `rebuild` has it set), so the
+//! distance `GetOrCreateUVTrimCurve` reports for an existing curve is not compared then.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -287,6 +289,11 @@ fn run_rust_op(
             want_dev,
             ..
         } => {
+            // an existing curve reports the cached maximum edge/face gap, whose length the
+            // graph export does not carry (only whether it is set): not compared
+            let gap_hidden = *want_dist
+                && eu1::uv_trim_curve(b, eu)?.0.is_some()
+                && eu1::is_max_edge_face_gap_init(b, eu)?;
             let r = eu3::get_or_create_uv_trim_curve(&k, b, eu, *want_dist, *want_dev, *ok_make)?;
             let status = match &r.status {
                 Ok(()) => 0.0,
@@ -297,7 +304,7 @@ fn run_rust_op(
                 b,
                 vec![
                     status,
-                    if *want_dist { r.dist_to_surf } else { -2.0 },
+                    if *want_dist && !gap_hidden { r.dist_to_surf } else { -2.0 },
                     if *want_dev { r.deviation } else { -2.0 },
                     flag(has_curve),
                 ],

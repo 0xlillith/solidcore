@@ -158,9 +158,12 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmEdgeuse* mate = p->GetMate();
         SmCurve* uv = nullptr;
         double dist = 0.0, dev = 0.0;
+        // An existing curve reports the cached maximum edge/face gap, whose length the graph
+        // export does not carry (only whether it is set): not compared (plan/findings.md).
+        bool gap_hidden = want_dist && p->GetUVTrimCurve() != nullptr && p->IsMaxEdgeFaceGapInit();
         SmStatus s = p->GetOrCreateUVTrimCurve(uv, want_dist ? &dist : NULL, want_dev ? &dev : NULL, ok_make);
         o.push_back(st(s));
-        o.push_back(want_dist ? dist : -2.0);
+        o.push_back(want_dist && !gap_hidden ? dist : -2.0);
         o.push_back(want_dev ? dev : -2.0);
         o.push_back(uv ? 1.0 : 0.0);
         put_eu_state(o, g, p);

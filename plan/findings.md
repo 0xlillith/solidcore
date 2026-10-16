@@ -4714,3 +4714,52 @@ mutated scales and accepted/reduced step counts are compared.
   `surface::surface::p4` (`GlobalPointSolve` on a face-owned surface), `intersect::ray_tracer` and `intersect::topology_solver::p1` call `PointClassify` on opaque
   face handles without a `Brep`; `topology::face::p2` and `intersect::topology_solver::p2`
   reach `CurveOnClassify` only after `UNPORTED(intersect.curve_class_p4)`.
+
+## topology.edgeuse_p3 (`CreateUVTrimCurve`, `GetOrCreateUVTrimCurve`, `EvaluateBinormal`, `NormalizedEvaluate`; PR #117; partial)
+
+- **Upstream defect WR-96** (`plan/upstream-issues.md`): the two-singular-end-points recovery of
+  `CreateUVTrimCurve` adds its joined curve to the second half's temporary array, so it never yields
+  a curve. The port reproduces it.
+- **`gen0007` (seed 15768384652651002757), fixed in the harness.** `GetOrCreateUVTrimCurve` of an
+  edge use that already has a curve reports the cached maximum edge/face gap's length. A B-rep read
+  with `rebuild` has that gap set in the C++ (`1.08e-16`); the graph export carries only whether the
+  gap is set, so the Rust record has the unset length (`-SM_UNDEF_DOUBLE`). Not a missing write in
+  the port: the length is not exported. Both sides now report `-2` (not compared) for that distance
+  when the edge use has a curve and a set gap (also done for `init_gaps` before). The paths that
+  compute a new distance are compared.
+- **Gap export** carries only the init flags of the cached gaps, never their lengths, so any result
+  that reads a cached edge/face gap length of an imported B-rep (`GetOrCreateUVTrimCurve` of an
+  existing curve, the `ii == 2` tolerance of `CreateUVTrimCurve`) compares only where the gap is unset.
+- **`ComputeParamDirection` failure** leaves a partial vector in the C++; the fixtures use
+  `want_uv_vector = false`, so that path is not compared.
+- **`EvaluateBinormal`'s surface-cache side effect** (`smsurf_GetSurfaceCache` building the face's
+  trimmed cache, which creates the UV trim curves of the face's edge uses) defers as
+  `UNPORTED(topology.face_p3)` (`SmFace::CreateUVTrimCurves`) on the paths that reach the global point
+  solve.
+- **`query.loop` (`FaceLoop`) not wired** (`UNPORTED(query.loop)`, retagged from
+  `topology.edgeuse_p3`): `GetOrCreateUVTrimCurve` needs the B-rep mutably, the kernel and the edge
+  use id; the `FaceLoop` view is a borrowed, B-rep-free copy. Creating all missing curves before the
+  walk would not be faithful (upstream makes them lazily in walk order and ends the walk at the first
+  failure). `query.face_p2` builds the view from a B-rep, so a faithful fix is a creator callback or a
+  B-rep-holding view there.
+- **`heal.gap` wired**: `GetGapEndPoints` now creates a missing UV trim curve; the gap constructors,
+  setters, `CacheGap` and `GetGapEndPoints` take `k` and `&mut Brep` (and so do
+  `vertex_edge_gap`, `calc_vertex_edge_gap`, `edge_ccw_edge_gap`, `calc_edge_ccw_edge_gap`,
+  `max_down_dim_gap_3d`).
+- **OPEN DISAGREEMENT, `query.edge` (`SmEdgeuse::EvaluateBinormalStepOff` not wired there).** With
+  `evaluate_binormal_step_off_into` called from `radial_sector_classify`, two generated cases of
+  `query.edge` disagree with the C++: `gen0091` (seed 2056831836502447629; `box_with_large_fillet.smb`
+  read with `rebuild`, eu 328290, classify 192469, nparam 0.41016510631606873: cpp result 4, rust 1) and
+  `gen0261` (seed 2056831836502447799; same file, edits `p0`, nparam -1e-9: cpp 4, rust 1). Cause not
+  found (both files have rebuilt UV trim curves; suspects: the `EvaluateBinormal` surface-cache side
+  effect, partial out-param contents of a failing step-off). The stub stays
+  (`UNPORTED(query.edge)`); the other classification cases (1299) pass with it wired. A zero-length
+  `Unitize`/`AngleBetween` in those functions is now an `SM_ERR` status, as `SER` returns it, not a null
+  dereference (6 more cases agreed after that fix).
+- **Harness.** The `topology.edgeuse_p2` shim called nothing on edge uses outside a loop (it reported a
+  null dereference); `EvaluateBinormal` returns `SM_ERR_INVALID_INPUT` for them without dereferencing,
+  so the shim now calls the C++ there (40 cases). The `topology.loopuse` shim runs
+  `GetUVCornerBoundaries` of edge loops now (300 cases).
+- `IsTangentSector` and `SmEdge::GetBlendEdgeuse` ignore a failing `EvaluateBinormal` (`SE`) and read
+  the default-constructed `SM_UNDEF_DOUBLE` locals; the port does the same (the partial writes of a
+  failure midway are not modelled).

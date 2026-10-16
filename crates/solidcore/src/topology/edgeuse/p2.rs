@@ -38,7 +38,8 @@
 //!   `EvaluateBinormal` and `Unitize`. A failed `Unitize` stores `(0, 0, 1)`
 //!   ([`Vec3::unitize_or_z`]), as upstream. A failed `EvaluateBinormal` leaves its
 //!   outputs unset, which upstream reads as uninitialised locals
-//!   (`SmVector3d() = default`); the port returns that error instead.
+//!   (`SmVector3d() = default`); the port uses the `SM_UNDEF_DOUBLE` defaults
+//!   (`binormal_ignoring_status`).
 //!   `IsConvexRadialSector` likewise ignores its `Unitize` statuses, and returns a
 //!   failing `EvaluateBinormalStepOff` status through `SER` from an `SmBoolean`
 //!   function, i.e. as `TRUE` (`plan/upstream-issues.md` WR-84); the port returns
@@ -148,6 +149,42 @@ fn ser_as_true(e: &SolidError) -> bool {
 
 // ---- sector tests -------------------------------------------------------------------------
 
+/// `SE(EvaluateBinormal(...))` into locals: a failing status is ignored and the outputs
+/// stay at their constructed `SM_UNDEF_DOUBLE` values (upstream's vectors and points
+/// default-construct to them; a failure partway through `EvaluateBinormal`, which
+/// has written some outputs already, is not modelled). [`SolidError::Unported`], null
+/// dereferences and dangling ids propagate.
+pub(crate) fn binormal_ignoring_status(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    parameter: f64,
+    use_3d_only: bool,
+) -> Result<BinormalEval> {
+    match evaluate_binormal(
+        k,
+        b,
+        eu,
+        parameter,
+        use_3d_only,
+        &BinormalOptions::default(),
+    ) {
+        Err(
+            e @ (SolidError::Unported { .. }
+            | SolidError::InvalidInput { .. }
+            | SolidError::NotFound { .. }),
+        ) => Err(e),
+        Err(_) => Ok(BinormalEval {
+            point: Point3::UNDEF,
+            binormal: Vec3::UNDEF,
+            tangent: Vec3::UNDEF,
+            face_normal: Vec3::UNDEF,
+            uv: Point2::UNDEF,
+        }),
+        Ok(r) => Ok(r),
+    }
+}
+
 /// `IsTangentSector`: true when, at the five edge samples `0.34, 0.78, 0.55, 0.12,
 /// 0.93` of the edge interval, the binormals of this edge use and its radial partner
 /// point against each other (with `coincidence_test`: the same way) and each is
@@ -159,7 +196,8 @@ fn ser_as_true(e: &SolidError) -> bool {
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] where
 /// upstream dereferences null (no primary edge use, no radial partner);
-/// [`SolidError::Unported`] (and any other error) from `EvaluateBinormal`.
+/// [`SolidError::Unported`] from `EvaluateBinormal`; its other failures are ignored
+/// (`SE`).
 pub fn is_tangent_sector(
     k: &Kernel,
     b: &mut Brep,
@@ -194,25 +232,11 @@ pub fn is_tangent_sector(
         let use_3d_only = !ok_to_make_uv_trim_curve && !has_uv_trim_curve;
 
         // evaluate this edgeuses binormal vector pointing into sector's 1st face
-        let r0 = evaluate_binormal(
-            k,
-            b,
-            eu0,
-            test_param,
-            use_3d_only,
-            &BinormalOptions::default(),
-        )?;
+        let r0 = binormal_ignoring_status(k, b, eu0, test_param, use_3d_only)?;
 
         // evaluate sector's other edgeuse's binormal vector pointing into sector's 2nd face
         let eu1 = eu1.ok_or_else(|| null("IsTangentSector: edge use without radial"))?;
-        let r1 = evaluate_binormal(
-            k,
-            b,
-            eu1,
-            test_param,
-            use_3d_only,
-            &BinormalOptions::default(),
-        )?;
+        let r1 = binormal_ignoring_status(k, b, eu1, test_param, use_3d_only)?;
 
         // normalize the sample vectors
         let faceuse_normal = r0.face_normal.unitize_or_z();

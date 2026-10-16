@@ -53,7 +53,7 @@
 //!   still propagates.
 //! - **Upstream defects.** The two-singular-end-points recovery builds the joined UV
 //!   curve into the temporary second-half array, which is destroyed unused, so it never
-//!   produces a curve (`plan/upstream-issues.md` WR-95); the port builds and discards
+//!   produces a curve (`plan/upstream-issues.md` WR-96); the port builds and discards
 //!   it as upstream does. `NormalizedEvaluate` returns `SM_SUCCESS` for a point it
 //!   dropped to the surface even where upstream's trim curve was missing.
 //! - **Unported callees.** `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`),
@@ -1026,7 +1026,7 @@ fn trim_other_uv_curves(
 /// The recovery for a curve whose both ends drop to singularities: drops the two halves
 /// separately and joins them. Upstream leaves the joined curve in the array of the
 /// second half, which is destroyed unused (module docs; `plan/upstream-issues.md`
-/// WR-95): the result is always "no curves", with `lResult` success when the join worked. Returns `lResult`.
+/// WR-96): the result is always "no curves", with `lResult` success when the join worked. Returns `lResult`.
 #[allow(clippy::too_many_arguments)]
 fn two_singular_end_points(
     k: &Kernel,
@@ -1134,7 +1134,7 @@ fn two_singular_end_points(
                     ))?;
 
                     // when stitching worked (the joined curve is dropped with the
-                    // second half's array: upstream defect WR-95, module docs)
+                    // second half's array: upstream defect WR-96, module docs)
                     if joined.is_some() {
                         l_result = true;
                         fail.create_path_type =
@@ -1546,6 +1546,34 @@ pub fn get_or_create_uv_trim_curve(
 
 // ---- EvaluateBinormal -------------------------------------------------------------------
 
+/// Two solutions that both lie on a seam: the first one's parameters (`sols.len() == 2 &&
+/// IsOnSeam(first) && IsOnSeam(second)`); `None` otherwise.
+fn seam_pair_uv(
+    k: &Kernel,
+    surface: &Surface,
+    sols: &[crate::geom::solution_array::Solution<NoObject>],
+) -> Result<Option<Point2>> {
+    let [first, second] = sols else {
+        return Ok(None);
+    };
+    let uv0 = Point2::new(first.start.param(0)?, first.start.param(1)?);
+    if !surface.is_on_seam(k, uv0, None)?.on_seam {
+        return Ok(None);
+    }
+    let uv1 = Point2::new(second.start.param(0)?, second.start.param(1)?);
+    if !surface.is_on_seam(k, uv1, None)?.on_seam {
+        return Ok(None);
+    }
+    Ok(Some(uv0))
+}
+
+/// The position and the first two derivatives of a curve evaluation (zero-filled where
+/// the evaluation returned fewer).
+fn pv3(v: &[Vec3]) -> [Vec3; 3] {
+    let at = |i: usize| v.get(i).copied().unwrap_or(Vec3::new(0.0, 0.0, 0.0));
+    [at(0), at(1), at(2)]
+}
+
 /// The optional outputs of [`evaluate_binormal`].
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct BinormalOptions {
@@ -1638,8 +1666,7 @@ pub fn evaluate_binormal_uv(
     let eu_orientation = orientation(b, eu)?;
 
     // evaluate the unoriented curve position and tangent values
-    let mut curve_pv = curve_3d.evaluate(parameter, 1, true, true)?;
-    curve_pv.resize(3, Vec3::new(0.0, 0.0, 0.0));
+    let mut curve_pv = pv3(&curve_3d.evaluate(parameter, 1, true, true)?);
 
     // while tangent length is zero - step along curve looking for a nonDegenerate
     // tangent direction
@@ -1659,9 +1686,7 @@ pub fn evaluate_binormal_uv(
         // [bd, 13 Sep 05]
 
         // Try eval from right
-        let mut pv = curve_3d.evaluate(parameter, 2, true, true)?;
-        pv.resize(3, Vec3::new(0.0, 0.0, 0.0));
-        curve_pv = pv;
+        curve_pv = pv3(&curve_3d.evaluate(parameter, 2, true, true)?);
         if curve_pv[2].length_squared() >= EFF_ZERO_SQ {
             // assume 2nd deriv points pos at edge beg where parameterization is
             // expected to be increasing and neg at edge ends where parameterization is
@@ -1675,9 +1700,7 @@ pub fn evaluate_binormal_uv(
         }
 
         // Else try eval from left
-        let mut pv = curve_3d.evaluate(parameter, 2, false, true)?;
-        pv.resize(3, Vec3::new(0.0, 0.0, 0.0));
-        curve_pv = pv;
+        curve_pv = pv3(&curve_3d.evaluate(parameter, 2, false, true)?);
         if curve_pv[2].length_squared() >= EFF_ZERO_SQ {
             curve_pv[1] = if edge_ivl.mid() > parameter {
                 curve_pv[2]
@@ -1879,30 +1902,14 @@ pub fn evaluate_binormal_uv(
             parameter = trim.natural_interval().clamp_value(parameter);
             let pnt = trim.evaluate_point(parameter)?;
             uv = domain.clamp_point(Point2::new(pnt.x, pnt.y));
-        } else if sols.len() == 1 {
+        } else if let [sol] = sols {
             // the solution is the sUV point
-            let sol = &sols[0];
             uv = Point2::new(sol.start.param(0)?, sol.start.param(1)?);
-        } else if sols.len() == 2
-            && surface
-                .is_on_seam(
-                    k,
-                    Point2::new(sols[0].start.param(0)?, sols[0].start.param(1)?),
-                    None,
-                )?
-                .on_seam
-            && surface
-                .is_on_seam(
-                    k,
-                    Point2::new(sols[1].start.param(0)?, sols[1].start.param(1)?),
-                    None,
-                )?
-                .on_seam
-        {
+        } else if let Some(seam_uv) = seam_pair_uv(k, &surface, sols)? {
             // If on a seam, doesn't matter which we use, the normal vector will be the
             // same. either solution can be the sUVPoint and we have no way of telling
             // which to choose
-            uv = Point2::new(sols[0].start.param(0)?, sols[0].start.param(1)?);
+            uv = seam_uv;
         } else {
             // Multiple solutions or not seam: let sUV be the solution closest to the
             // EdgePoint
@@ -2121,12 +2128,12 @@ pub fn normalized_evaluate(
         // suspicious-result debug check)
         let _ = get_or_create_uv_trim_curve(k, b, eu, true, true, ok_to_make_uv_trim_curve)?;
 
-        match uv_trim_curve(b, eu)?.0 {
-            Some(trim) => {
-                let ivl = trim.natural_interval();
-                return eval_on_curve(trim, &ivl, orient, normalized_parameter, want_first_deriv);
-            }
-            None => {
+        if let Some(trim) = uv_trim_curve(b, eu)?.0 {
+            let ivl = trim.natural_interval();
+            return eval_on_curve(trim, &ivl, orient, normalized_parameter, want_first_deriv);
+        }
+        {
+            {
                 // Could do: If a uv trim curve cannot be created, then evalute in 3d
                 // and drop to the surface. And don't forget pOptFirstDeriv.
 

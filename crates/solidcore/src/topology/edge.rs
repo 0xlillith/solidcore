@@ -196,24 +196,6 @@ fn normalized_evaluate_uv(k: &Kernel, b: &mut Brep, eu: EdgeuseId, t: f64) -> Re
     Ok(eu3::normalized_evaluate(k, b, eu, t, true, false, true)?.point)
 }
 
-/// `SmEdgeuse::EvaluateBinormal(t, bUse3DOnly, ..)`.
-fn evaluate_binormal(
-    k: &Kernel,
-    b: &mut Brep,
-    eu: EdgeuseId,
-    parameter: f64,
-    use_3d_only: bool,
-) -> Result<eu2::BinormalEval> {
-    eu3::evaluate_binormal(
-        k,
-        b,
-        eu,
-        parameter,
-        use_3d_only,
-        &eu3::BinormalOptions::default(),
-    )
-}
-
 /// `SmEdgeuse::GetOrCreateUVTrimCurve(pRet)`; the status is signalled but not returned
 /// by the caller (`SE`), so only [`SolidError::Unported`] (and the null dereferences)
 /// escape.
@@ -2400,14 +2382,16 @@ pub fn blend_edgeuse(k: &Kernel, b: &mut Brep, e: EdgeId) -> Result<Option<Edgeu
     let test_param = b.edge(e)?.interval.evaluate(0.34);
 
     // get normalized normal and binormals from the two edgeuses at a common point
-    // (statuses ignored upstream; a failure leaves uninitialised vectors, so the port
-    // returns the error)
-    let at0 = evaluate_binormal(k, b, cur0, test_param, false)?;
-    let at1 = evaluate_binormal(k, b, cur1, test_param, false)?;
-    let fu_normal = at0.face_normal.unitize_or_z();
-    let fu_normal2 = at1.face_normal.unitize_or_z();
-    let bin_vec = at0.binormal.unitize_or_z();
-    let bin_vec2 = at1.binormal.unitize_or_z();
+    // (statuses ignored upstream, `SE`: a failure leaves the constructed
+    // `SM_UNDEF_DOUBLE` locals)
+    let mut ev0 = eu2::binormal_ignoring_status(k, b, cur0, test_param, false)?;
+    let mut ev1 = eu2::binormal_ignoring_status(k, b, cur1, test_param, false)?;
+    ev0.face_normal = ev0.face_normal.unitize_or_z();
+    ev1.face_normal = ev1.face_normal.unitize_or_z();
+    ev0.binormal = ev0.binormal.unitize_or_z();
+    ev1.binormal = ev1.binormal.unitize_or_z();
+    let (fu_normal, fu_normal2) = (ev0.face_normal, ev1.face_normal);
+    let (bin_vec, bin_vec2) = (ev0.binormal, ev1.binormal);
 
     // set max nonTangent angle to 88 degrees
     let max_dot = (88.0 * PI / 180.0).cos();
@@ -2426,10 +2410,23 @@ pub fn blend_edgeuse(k: &Kernel, b: &mut Brep, e: EdgeId) -> Result<Option<Edgeu
     if shell_filleting {
         let step_off = 0.001;
         let opts = eu2::StepOffOptions::default();
-        let s0 = eu2::evaluate_binormal_step_off(k, b, cur0, test_param, step_off, &opts)?;
-        let s1 = eu2::evaluate_binormal_step_off(k, b, cur1, test_param, step_off, &opts)?;
-        let (pnt, fu_normal) = (s0.point, s0.face_normal);
-        let (pnt2, fu_normal2) = (s1.point, s1.face_normal);
+        // `SE`: a failing step-off keeps what it wrote into the same locals
+        for (eu, ev) in [(cur0, &mut ev0), (cur1, &mut ev1)] {
+            if let Err(err) =
+                eu2::evaluate_binormal_step_off_into(k, b, eu, test_param, step_off, &opts, ev)
+            {
+                if matches!(
+                    err,
+                    SolidError::Unported { .. }
+                        | SolidError::InvalidInput { .. }
+                        | SolidError::NotFound { .. }
+                ) {
+                    return Err(err);
+                }
+            }
+        }
+        let (pnt, fu_normal) = (ev0.point, ev0.face_normal);
+        let (pnt2, fu_normal2) = (ev1.point, ev1.face_normal);
         let vec = (pnt2 - pnt).unitize_or_z();
         let fu_normal = fu_normal.unitize_or_z();
         let dot1 = vec.dot(fu_normal);
