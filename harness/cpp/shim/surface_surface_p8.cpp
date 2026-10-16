@@ -420,7 +420,7 @@ void run(int32_t op, Rd& rd, std::vector<double>& o)
         }
         // Upstream ignores the status of both GetSampleValues calls and goes on with the partly
         // filled sample arrays (uninitialised parameters, zero vectors), which corrupts the heap in
-        // the skinning that follows (UB-156, plan/upstream-issues.md). Probe the same two calls with
+        // the skinning that follows (UB-157, plan/upstream-issues.md). Probe the same two calls with
         // CreateBlendSurface's default definition and report SM_ERR, as the port does at the first
         // failing sample, instead of running the undefined part.
         {
