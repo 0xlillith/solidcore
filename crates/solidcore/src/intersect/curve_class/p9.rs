@@ -473,9 +473,6 @@ impl<O: ClassObject> CurveClassification<O> {
                 tol3d,
                 &mut solutions,
             )?;
-            if solutions.is_empty() {
-                return Ok(());
-            }
             let mut named_solutions: Vec<_> = solutions
                 .as_slice()
                 .iter()
@@ -503,9 +500,9 @@ fn insert_solutions<O: ClassObject>(
     _object: O,
     _tolerance: Option<f64>,
 ) -> Result<()> {
-    // UNPORTED(intersect.curve_class_p5): SmCurveClassification::InsertSolutions
+    // UNPORTED(intersect.curve_class_p5): sm_InsertSolutions
     Err(SolidError::unported(
-        "SmCurveClassification::InsertSolutions",
+        "sm_InsertSolutions",
         "intersect.curve_class_p5",
     ))
 }
