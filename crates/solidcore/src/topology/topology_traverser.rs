@@ -571,6 +571,52 @@ mod tests {
     use crate::topology::{Edgeuse, EdgeuseOwner, Vertexuse, VertexuseOwner};
 
     #[test]
+    fn face_edges_deduplicates_within_each_loop_but_retains_cross_loop_repeats() {
+        use crate::topology::{Faceuse, Loopuse, LoopuseStart};
+        let mut b = Brep::new();
+        let shell = b.add_shell().unwrap();
+        let face = b.add_face(shell).unwrap();
+        let fu = b
+            .add_faceuse_record(Faceuse {
+                face: Some(face),
+                ..Faceuse::default()
+            })
+            .unwrap();
+        b.face_mut(face).unwrap().faceuse = Some(fu);
+        let v = b.add_vertex(Vec3::ZERO).unwrap();
+        let edge = b.add_edge(v, v).unwrap();
+        for _ in 0..2 {
+            let lu = b
+                .add_loopuse_record(Loopuse {
+                    faceuse: Some(fu),
+                    ..Loopuse::default()
+                })
+                .unwrap();
+            let a = b
+                .add_edgeuse_record(Edgeuse {
+                    edge: Some(edge),
+                    owner: EdgeuseOwner::Loopuse(Some(lu)),
+                    ..Edgeuse::default()
+                })
+                .unwrap();
+            let z = b
+                .add_edgeuse_record(Edgeuse {
+                    edge: Some(edge),
+                    owner: EdgeuseOwner::Loopuse(Some(lu)),
+                    ccw: Some(a),
+                    cw: Some(a),
+                    ..Edgeuse::default()
+                })
+                .unwrap();
+            b.edgeuse_mut(a).unwrap().ccw = Some(z);
+            b.edgeuse_mut(a).unwrap().cw = Some(z);
+            b.loopuse_mut(lu).unwrap().start = LoopuseStart::Edgeuse(Some(a));
+            b.faceuse_mut(fu).unwrap().loopuses.push(lu);
+        }
+        assert_eq!(face_edges(&b, face).unwrap(), [edge, edge]);
+    }
+
+    #[test]
     fn long_wire_chain_uses_no_recursion_and_keeps_depth_first_order() {
         let mut b = Brep::new();
         let shell = b.add_shell().unwrap();
