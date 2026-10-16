@@ -337,7 +337,7 @@ fn validate_geometry(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             closure(rd)?;
             rd.finites(2)?;
         }
-        Op::SurfaceClosure => {
+        Op::SurfaceClosure | Op::SurfaceDropPoint => {
             surface(rd)?;
             rd.finites(4)?;
         }
@@ -357,10 +357,6 @@ fn validate_geometry(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
         Op::Interpolate => {
             rd.finites(12)?;
             rd.index(16)?;
-        }
-        Op::SurfaceDropPoint => {
-            surface(rd)?;
-            rd.finites(4)?;
         }
         Op::TwoPnts => {
             surface(rd)?;

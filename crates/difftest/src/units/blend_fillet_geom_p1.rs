@@ -563,7 +563,6 @@ fn push_model(o: &mut Vec<f64>, m: &Model) -> Result<(), HarnessError> {
 fn push_query(o: &mut Vec<f64>, q: &Query) -> Result<(), HarnessError> {
     match q {
         Query::Export => {}
-        Query::VertexGeoms { v } => o.push(*v as f64),
         Query::VuAtRailEnd {
             v,
             geom,
@@ -595,7 +594,9 @@ fn push_query(o: &mut Vec<f64>, q: &Query) -> Result<(), HarnessError> {
             o.push(*g as f64);
             o.extend_from_slice(interval);
         }
-        Query::DeleteVertex { v } | Query::VertOnVert { v } => o.push(*v as f64),
+        Query::VertexGeoms { v } | Query::DeleteVertex { v } | Query::VertOnVert { v } => {
+            o.push(*v as f64);
+        }
         Query::DeleteEdge { e } => o.push(*e as f64),
         Query::Cliff { v, surface, tol } => {
             o.push(*v as f64);
@@ -896,14 +897,13 @@ fn to_output(i: &Inputs, flat: &[f64]) -> Result<Output, HarnessError> {
     let status = s.take(1)?;
     s.put("status", status);
     match i {
-        Inputs::CleanupNoise { .. } => s.vals("uv", 2)?,
         Inputs::CheckSeamOut { .. } | Inputs::CheckSeamOn { .. } => {
             s.vals("ret", 1)?;
             s.vals("uv", 2)?;
         }
         Inputs::SurfaceClosure { .. } => s.vals("closure", 1)?,
         Inputs::IsOrderCorrect { .. } => s.vals("ret", 1)?,
-        Inputs::AdjustUvOnSeam { .. } => s.vals("uv", 2)?,
+        Inputs::CleanupNoise { .. } | Inputs::AdjustUvOnSeam { .. } => s.vals("uv", 2)?,
         Inputs::Interpolate { .. } => {
             s.vals("svec", 3)?;
             s.vals("evec", 3)?;
@@ -1592,6 +1592,20 @@ impl RustModel {
     }
 }
 
+/// The names `SmFilletEdge::GetName` writes, in the shim's code order.
+const EDGE_NAMES: [&str; 10] = [
+    "SM_FE_CROSS_SECTION",
+    "SM_FE_FILLET_X_FILLET",
+    "SM_FE_FILLET_X_SIDE_FACE",
+    "SM_FE_RAIL_RAIL_INTERPOLATION",
+    "SM_FE_ON_EDGE",
+    "SM_FE_ON_EXTEND_EDGE",
+    "SM_FE_FILLET_END",
+    "SM_FE_SETBACK_RAIL",
+    "SM_FE_RAIL_EXTENSION",
+    "SM_FE_RAIL",
+];
+
 /// A Rust-side result: the flat record, or a deferral.
 enum Rec {
     Flat(Vec<f64>),
@@ -1881,20 +1895,8 @@ fn rust_pseudo(model: &Model, q: &Query) -> Result<Rec, HarnessError> {
         Query::EdgeName { e } => {
             let e = m.edge(*e)?;
             let name = m.fb.fillet_edge(e).map_err(h)?.name();
-            const NAMES: [&str; 10] = [
-                "SM_FE_CROSS_SECTION",
-                "SM_FE_FILLET_X_FILLET",
-                "SM_FE_FILLET_X_SIDE_FACE",
-                "SM_FE_RAIL_RAIL_INTERPOLATION",
-                "SM_FE_ON_EDGE",
-                "SM_FE_ON_EXTEND_EDGE",
-                "SM_FE_FILLET_END",
-                "SM_FE_SETBACK_RAIL",
-                "SM_FE_RAIL_EXTENSION",
-                "SM_FE_RAIL",
-            ];
             let code = name
-                .and_then(|n| NAMES.iter().position(|&x| x == n))
+                .and_then(|n| EDGE_NAMES.iter().position(|&x| x == n))
                 .map_or(-1.0, |i| i as f64);
             o.extend([0.0, code]);
         }
@@ -2238,7 +2240,11 @@ fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
             };
             let mut p = [pick(rng, du), pick(rng, dv)];
             if rng.chance(0.05) {
-                p[rng.below(2) as usize] = -1.0e20;
+                if rng.chance(0.5) {
+                    p[0] = -1.0e20;
+                } else {
+                    p[1] = -1.0e20;
+                }
             }
             if kind == 1 {
                 Inputs::CheckSeamOut {
