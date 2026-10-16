@@ -64,7 +64,7 @@
 use crate::curve::composite_curve::CompositeCurve;
 use crate::curve::curve::p2::CRV_ON_SURF_TYPE;
 use crate::curve::curve::Curve;
-use crate::error::{ignored, EntityRef, Result, SolidError};
+use crate::error::{ignore_status, ignored, EntityRef, Result, SolidError};
 use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent2d::{Extent2d, SS_UMAX, SS_UMIN, SS_VMAX, SS_VMIN};
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
@@ -245,8 +245,15 @@ fn coincidence_check(
     ))
 }
 
-/// `pFace->Point3DClassify(sPoint, tol, TRUE, sPC)`: the point's class.
-fn point_3d_classify(_k: &Kernel, _b: &Brep, _f: FaceId, _point: Point3, _tol: f64) -> Result<PointClassType> {
+/// `pFace->Point3DClassify(sPoint, tol, TRUE, sPC)`: classifies the point into `pc`.
+fn point_3d_classify(
+    _k: &Kernel,
+    _b: &Brep,
+    _f: FaceId,
+    _point: Point3,
+    _tol: f64,
+    _pc: &mut PointClassification<IntersectObject>,
+) -> Result<()> {
     // UNPORTED(query.face_p1): SmFace::Point3DClassify
     Err(SolidError::unported(
         "SmFace::Point3DClassify",
@@ -788,17 +795,31 @@ pub fn create_uv_trim_curves(
     adjust_tolerances: bool,
     opt_uv_curves: Option<(&mut [Option<Curve>], &[OrientType])>,
 ) -> Result<UvTrimCurveGaps> {
+    // queried before the surface owner is cleared, as upstream
+    let pre = PreRescue {
+        uv_domain: face2::uv_domain(b, f)?,
+        srf_poles: surface_of(b, f)?.get_singularities(k, false, false)?.singular,
+        srf_uv_domain: surface_of(b, f)?.natural_uv_domain(),
+    };
     let surface = surface_of(b, f)?;
     let rescue = face2::RescueSurfaceOwner::new(surface);
     if let Some(s) = b.face_mut(f)?.surface.as_mut() {
         s.set_owner(None);
     }
-    let result = create_uv_trim_curves_body(k, b, f, adjust_tolerances, opt_uv_curves);
+    let result = create_uv_trim_curves_body(k, b, f, adjust_tolerances, opt_uv_curves, &pre);
     // SmRescueSurfaceOwner's destructor restores the owner on every return
     if let Some(s) = b.face_mut(f)?.surface.as_mut() {
         rescue.restore(s);
     }
     result
+}
+
+/// The face and surface values `CreateUVTrimCurves` reads before it clears the surface
+/// owner.
+struct PreRescue {
+    uv_domain: Extent2d,
+    srf_poles: u32,
+    srf_uv_domain: Extent2d,
 }
 
 #[allow(clippy::too_many_lines)] // one upstream routine
@@ -808,6 +829,7 @@ fn create_uv_trim_curves_body(
     f: FaceId,
     adjust_tolerances: bool,
     mut opt_uv_curves: Option<(&mut [Option<Curve>], &[OrientType])>,
+    pre: &PreRescue,
 ) -> Result<UvTrimCurveGaps> {
     let mut mean_cs_gap = 0.0;
     let mut max_cs_gap = 0.0_f64;
@@ -817,9 +839,11 @@ fn create_uv_trim_curves_body(
     let mut max_3d_gap = 0.0_f64;
     let mut total_dropped: u64 = 0;
 
-    let uv_domain = face2::uv_domain(b, f)?;
-    let srf_poles = surface_of(b, f)?.get_singularities(k, false, false)?.singular;
-    let srf_uv_domain = surface_of(b, f)?.natural_uv_domain();
+    let PreRescue {
+        uv_domain,
+        srf_poles,
+        srf_uv_domain,
+    } = *pre;
 
     let loopuses = upward_loopuses(b, f)?;
     for lu in loopuses {
@@ -841,15 +865,15 @@ fn create_uv_trim_curves_body(
 
                 if let Some(uv_curve) = found.take() {
                     if !adjust_tolerances || edge_curve(b, e)?.is_kind_of(CRV_ON_SURF_TYPE) {
-                        // TRUE = delete existing UVTrimCurve
-                        eu1::set_uv_trim_curve(
+                        // TRUE = delete existing UVTrimCurve (status ignored upstream)
+                        ignore_status(eu1::set_uv_trim_curve(
                             b,
                             eu,
                             eu1::UvTrimCurveArg::New(Box::new(uv_curve)),
                             0.0,
                             true,
                             None,
-                        )?;
+                        ))?;
                         continue;
                     }
 
@@ -874,8 +898,15 @@ fn create_uv_trim_curves_body(
             }
 
             if found.is_some() {
-                // TRUE = delete existing UVTrimCurve
-                eu1::set_uv_trim_curve(b, eu, eu1::UvTrimCurveArg::Null, 0.0, true, None)?;
+                // TRUE = delete existing UVTrimCurve (status ignored upstream)
+                ignore_status(eu1::set_uv_trim_curve(
+                    b,
+                    eu,
+                    eu1::UvTrimCurveArg::Null,
+                    0.0,
+                    true,
+                    None,
+                ))?;
             }
 
             let (status, max_dist_to_surf) = get_or_create_uv_trim_curve(k, b, eu)?;
@@ -1224,8 +1255,9 @@ pub fn is_degenerate(
                     .first_mut()
                     .and_then(Option::as_mut)
                     .ok_or_else(|| null("IsDegenerate: classification"))?;
-                insert_topology_intersections(cc1, &solutions, 0)?;
-                insert_topology_intersections(cc2, &solutions, 1)?;
+                // statuses ignored upstream
+                ignore_status(insert_topology_intersections(cc1, &solutions, 0))?;
+                ignore_status(insert_topology_intersections(cc2, &solutions, 1))?;
 
                 // done with this edge once it is completely coincident
                 if cc1.is_coincident(k, &geometry, &ivl1, zone_tol1)? {
@@ -1413,15 +1445,12 @@ pub fn face_intersect(
     let mut uv_curves2: Vec<Option<Curve>> = Vec::new();
     let mut curve_types: Vec<TsectCurveType> = Vec::new();
 
-    let mut are_coincident = false;
-    let mut coinc_dist = 0.0;
-    if let Some(c) = options.coincidence {
-        are_coincident = c;
+    let (are_coincident, coinc_dist) = if let Some(c) = options.coincidence {
+        (c, 0.0)
     } else {
         // run the Coincidence checker
-        (are_coincident, coinc_dist) =
-            coincidence_check(k, surface_of(b, f)?, surface_of(b, other)?, approx_tol_3d)?;
-    }
+        coincidence_check(k, surface_of(b, f)?, surface_of(b, other)?, approx_tol_3d)?
+    };
 
     let mut have_curves = false;
     if are_coincident && coinc_dist < approx_tol_3d {
@@ -1478,8 +1507,12 @@ pub fn face_intersect(
             };
             // status ignored upstream
             let point = ignored(curve.evaluate_point(0.5))?.unwrap_or(Vec3::UNDEF);
-            let pct1 = point_3d_classify(k, b, f, point, this_zone_tol)?;
-            let pct2 = point_3d_classify(k, b, other, point, other_zone_tol)?;
+            let mut pc1 = PointClassification::<IntersectObject>::new(this_zone_tol);
+            let mut pc2 = PointClassification::<IntersectObject>::new(other_zone_tol);
+            // statuses ignored upstream
+            ignore_status(point_3d_classify(k, b, f, point, this_zone_tol, &mut pc1))?;
+            ignore_status(point_3d_classify(k, b, other, point, other_zone_tol, &mut pc2))?;
+            let (pct1, pct2) = (pc1.point_class(), pc2.point_class());
             let on = |t: PointClassType| {
                 matches!(t, PointClassType::Face | PointClassType::Edge | PointClassType::Vertex)
             };
