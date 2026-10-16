@@ -1193,6 +1193,17 @@ impl ProtoGeometry<H> for Pool {
     }
 }
 
+impl Pool {
+    /// The point of a live vertex made with one (`VertexAt`, the p3 ops); the p3 guards
+    /// only run paths whose vertices have one (the others are refused).
+    fn point_of(&self, vertex: H) -> Option<Point3> {
+        match self.objs.get(vertex.0) {
+            Some(PObj::VertexPt(p, _)) if self.live_h(vertex) => Some(*p),
+            _ => None,
+        }
+    }
+}
+
 /// The bare stand-ins' topology: no vertex or edge uses, no B-rep (upstream walks the
 /// empty use lists; `SmEdge::GetBrep` reports `SE(SM_ERR)` and returns `NULL`); a bare
 /// vertex sits at the origin (`SmVertex()` sets `m_vPoint(0,0,0)`). An edge's start vertex
@@ -1210,8 +1221,9 @@ impl ProtoTopology<H> for Pool {
     fn edge_other_vertex(&self, _edge: H, _vertex: Option<H>) -> solidcore::Result<Option<H>> {
         Ok(None)
     }
-    fn vertex_point(&self, _vertex: H) -> solidcore::Result<Vec3> {
-        Ok(Vec3::new(0.0, 0.0, 0.0))
+    // A vertex made with a point (`VertexAt`, the p3 ops) sits there.
+    fn vertex_point(&self, vertex: H) -> solidcore::Result<Vec3> {
+        Ok(self.point_of(vertex).unwrap_or(Vec3::new(0.0, 0.0, 0.0)))
     }
     fn edge_brep(&self, _edge: H) -> solidcore::Result<Option<ObjectKey>> {
         Ok(None)
@@ -1270,33 +1282,14 @@ impl ProtoBrep<H> for Pool {
         self.alive.push(true);
         Some(H(self.objs.len() - 1, ClassObjectKind::Curve))
     }
-    // Only the vertices made with a point have one the p3 ops read (the others are refused).
-    fn vertex_point(&self, vertex: H) -> Option<Point3> {
-        match self.objs.get(vertex.0) {
-            Some(PObj::VertexPt(p, _)) if self.live_h(vertex) => Some(*p),
-            _ => None,
-        }
-    }
-    fn edge_faces(&self, _edge: H) -> solidcore::Result<Vec<H>> {
-        Err(SolidError::invalid_input(
-            "difftest::proto_p3::edge_faces",
-            "stand-in edges have no faces",
-        ))
-    }
     fn vertex_common_edges(&self, v1: H, v2: H) -> solidcore::Result<Vec<H>> {
         // vertices with points have no vertex uses: no edges
-        if self.vertex_point(v1).is_some() && self.vertex_point(v2).is_some() {
+        if self.point_of(v1).is_some() && self.point_of(v2).is_some() {
             return Ok(Vec::new());
         }
         Err(SolidError::invalid_input(
             "difftest::proto_p3::vertex_common_edges",
             "stand-in vertices have no edges",
-        ))
-    }
-    fn edge_other_vertex(&self, _edge: H, _vertex: H) -> solidcore::Result<Option<H>> {
-        Err(SolidError::invalid_input(
-            "difftest::proto_p3::edge_other_vertex",
-            "stand-in edges have no vertices",
         ))
     }
     // The stand-ins have no B-rep faces to run `query::face::p2::curve_on_classify` on,
@@ -3684,7 +3677,7 @@ fn run_proto(
                                     (f.final_vertex(1), t.final_vertex(1), f.final_vertex(2), t.final_vertex(2))
                                 {
                                     for (x, y) in [(a1, b1), (a2, b2)] {
-                                        match (r.pool.vertex_point(x), r.pool.vertex_point(y)) {
+                                        match (r.pool.point_of(x), r.pool.point_of(y)) {
                                             (Some(px), Some(py)) => {
                                                 // `dist > xs` is the no-glue test of the port
                                                 let xs = match (

@@ -110,16 +110,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "api_translate_poly_brep",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.proto_topology_p1/upstream_api_transforms.json#13 (upstream tests/SM_API_test/src/TestSmGeneral.cpp:638)",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -211,8 +207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
+        "symbol": "SmFace::GetSurface",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0011",
@@ -551,7 +547,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558531941",
-      "values_compared": 1
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -1659,7 +1655,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532075",
-      "values_compared": 1
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -1955,7 +1951,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532111",
-      "values_compared": 1
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -3443,7 +3439,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532290",
-      "values_compared": 1
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -4106,16 +4102,12 @@
       "values_compared": 39
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0481",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532371",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -4318,16 +4310,12 @@
       "values_compared": 100
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0507",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532397",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -4874,16 +4862,12 @@
       "values_compared": 142
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "gen0575",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532465",
-      "values_compared": 0
+      "values_compared": 108
     },
     {
       "max_rel_err": 0.0,
@@ -5095,7 +5079,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
+        "symbol": "SmEdge::GetCurve",
         "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
@@ -5406,16 +5390,12 @@
       "values_compared": 41
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0639",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532529",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -5455,7 +5435,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532534",
-      "values_compared": 1
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -5466,16 +5446,12 @@
       "values_compared": 92
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0646",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532536",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -5866,16 +5842,12 @@
       "values_compared": 41
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen0695",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532585",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -7306,16 +7278,12 @@
       "values_compared": 485
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::GetVertexuses",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "gen0869",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532759",
-      "values_compared": 0
+      "values_compared": 561
     },
     {
       "max_rel_err": 0.0,
@@ -7394,16 +7362,12 @@
       "values_compared": 58
     },
     {
-      "deferred": {
-        "symbol": "SmVertex::GetPoint",
-        "unit": "topology.vertex"
-      },
       "max_rel_err": 0.0,
       "name": "gen0879",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532769",
-      "values_compared": 0
+      "values_compared": 506
     },
     {
       "max_rel_err": 0.0,
@@ -7522,16 +7486,12 @@
       "values_compared": 106
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "gen0894",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532784",
-      "values_compared": 0
+      "values_compared": 133
     },
     {
       "max_rel_err": 0.0,
@@ -7566,16 +7526,12 @@
       "values_compared": 542
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "gen0899",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532789",
-      "values_compared": 0
+      "values_compared": 600
     },
     {
       "max_rel_err": 0.0,
@@ -8139,7 +8095,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532857",
-      "values_compared": 1
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -8414,16 +8370,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen1001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532891",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -8591,7 +8543,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558532912",
-      "values_compared": 1
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -9146,16 +9098,12 @@
       "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen1090",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558532980",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "deferred": {
@@ -9450,16 +9398,12 @@
       "values_compared": 79
     },
     {
-      "deferred": {
-        "symbol": "SmEdge::GetEdgeuses",
-        "unit": "topology.edge"
-      },
       "max_rel_err": 0.0,
       "name": "gen1127",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533017",
-      "values_compared": 0
+      "values_compared": 161
     },
     {
       "max_rel_err": 0.0,
@@ -11166,16 +11110,12 @@
       "values_compared": 579
     },
     {
-      "deferred": {
-        "symbol": "SmPolyBrep::Transform",
-        "unit": "query.poly"
-      },
       "max_rel_err": 0.0,
       "name": "gen1333",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501320667558533223",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -12267,7 +12207,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=11501320667558533355",
-      "values_compared": 1
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -13095,6 +13035,294 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_transform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_uniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_nonuniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_scale_by_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_translate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_rotate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_empty_rotate_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_transform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_uniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_nonuniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_scale_by_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_translate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_rotate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_rotate_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 15
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_transform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_uniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_nonuniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_scale_by_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_translate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_rotate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_huge_rotate_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_transform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_uniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_nonuniform",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_negative",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_scale_by_pt",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_translate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_rotate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "edge_transform_poly_tiny_rotate_zero_axis",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "edge_transform_composite_transform",
       "outcome": "pass",
       "pass": true,
@@ -13239,16 +13467,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 107,
+  "cases_deferred": 92,
   "cases_failed": 0,
-  "cases_passed": 1494,
-  "cases_total": 1601,
+  "cases_passed": 1545,
+  "cases_total": 1637,
   "deferred_by_unit": {
-    "query.poly": 9,
     "topology.brep_p5": 10,
-    "topology.edge": 33,
-    "topology.face_p2": 28,
-    "topology.vertex": 27
+    "topology.edge": 28,
+    "topology.face_p2": 29,
+    "topology.vertex": 25
   },
   "max_rel_err": 0.0,
   "pass": true,
