@@ -163,9 +163,12 @@ pub fn mutate_once(v: &mut Value, rng: &mut Rng, non_finite: bool) -> Option<Str
             if non_finite {
                 opts.extend(NON_FINITE.iter().map(|&s| json!(s)));
             }
-            // Text comparison keeps `-0` distinct from `0`.
-            let old = site.to_string();
-            opts.retain(|o| o.to_string() != old);
+            // Skip the current value; bit comparison keeps `-0` distinct from `0`.
+            let old_bits = site.as_f64().map(f64::to_bits);
+            opts.retain(|o| match (o.as_f64(), old_bits) {
+                (Some(a), Some(b)) => a.to_bits() != b,
+                _ => o != &*site,
+            });
             let new = rng.choose(&opts)?.clone();
             let what = format!("= {new}");
             *site = new;
@@ -794,19 +797,13 @@ fn run_all(
             Some((v, _)) => *v,
             None => verdict,
         });
-        match solo {
-            Some((v, d)) => record(
-                res,
-                dir,
-                f(v, d, &solo_err),
-                std::slice::from_ref(culprit),
-                &solo_err,
-            )?,
-            None => {
-                let d = format!("{detail} (only after the {} preceding cases)", b.done.len());
-                let repro = cases.get(start..=k).unwrap_or_default();
-                record(res, dir, f(verdict, d, &b.stderr), repro, &b.stderr)?;
-            }
+        if let Some((v, d)) = solo {
+            let only = std::slice::from_ref(culprit);
+            record(res, dir, f(v, d, &solo_err), only, &solo_err)?;
+        } else {
+            let d = format!("{detail} (only after the {} preceding cases)", b.done.len());
+            let repro = cases.get(start..=k).unwrap_or_default();
+            record(res, dir, f(verdict, d, &b.stderr), repro, &b.stderr)?;
         }
         start = k + 1;
     }
