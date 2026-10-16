@@ -976,12 +976,15 @@ impl<O: ClassObject> CurveClassification<O> {
         let is_end = |t: ExtentPointType| t == ExtentPointType::Start || t == ExtentPointType::End;
         if is_end(touch_1st_type) || is_end(touch_last_type) {
             let touch_1st_on_no_vertex_pole = u64::from(touch_1st_on_pole) & props.no_vertex_poles;
-            let touch_last_on_no_vertex_pole = u64::from(touch_last_on_pole) & props.no_vertex_poles;
+            let touch_last_on_no_vertex_pole =
+                u64::from(touch_last_on_pole) & props.no_vertex_poles;
             let mut touch_1st_on_seam = (false, false);
             let mut touch_last_on_seam = (false, false);
 
             // when Surface has Seams and ClassifyCrv Closed3d (unset tri-states end FALSE)
-            if classify_crv_closed_3d && (props.closed_u != Tri::False || props.closed_v != Tri::False) {
+            if classify_crv_closed_3d
+                && (props.closed_u != Tri::False || props.closed_v != Tri::False)
+            {
                 touch_1st_on_seam = end_on_seams(
                     k,
                     surface,

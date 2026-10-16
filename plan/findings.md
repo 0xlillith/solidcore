@@ -5136,10 +5136,14 @@ mutated scales and accepted/reduced step counts are compared.
   not on the units' ports. `GetIvlBound_EdgeuseObj` calls `GetUpwardFaceuse` first and `GetLoopCrossings`
   calls `SmLoop::GetFace` first, so every call that is defined upstream defers in Rust; only
   `GetLoopCrossings` over an empty loop list is compared.
-- **Other stubs** are the maintainer's open PRs and an unported unit: `intersect.curve_class_p2` (PR #85:
-  `ReSet`, so the whole constructor; `ConnectIntervals`, so every squeeze; `GetMinUV` / `GetMaxUV`),
-  `intersect.curve_class_p7` (PR #65: `GetPointClassifiesConnectedTo`) and `heal.face_props`
-  (`SetProps_Stage2`; the members `GetLoopCrossings` reads are co-ported as `LoopCrossingFaceProps`).
+- **`SmFaceProps::SetProps_Stage2`** (`heal.face_props`, now ported) needs a `Brep` and a face id, which the
+  handle of `loops[0]` does not carry (`justified:` like the topology stubs above). `GetLoopCrossings` takes
+  the real `heal::face_props::FaceProps<O>` (an `UNSURE` `m_bClosedU` reads as true, as `if(m_bClosedU)`
+  does; `m_lNoVertexPoles` / `m_lPoles` are the full `u64` values, `SM_UNDEF_ULONG` included); a caller that
+  passes stage-2 properties is not blocked by it.
+- **Other stubs** are the maintainer's open PRs: `intersect.curve_class_p2` (PR #85: `ReSet`, so the whole
+  constructor; `ConnectIntervals`, so every squeeze; `GetMinUV` / `GetMaxUV`) and `intersect.curve_class_p7`
+  (PR #65: `GetPointClassifiesConnectedTo`). Both were still open when this unit was last pushed.
 - **Harness limits.** The pool's loops are stand-ins (not `SmLoop`), so the shim refuses
   `GetLoopCrossings` over any loop (upstream reads a non-loop in `SmLoop::GetFace`); a real-B-rep pool
   (e.g. `CreateFaceFromSurface`) would let the C++ side run those calls, which Rust would still defer.
@@ -5147,9 +5151,14 @@ mutated scales and accepted/reduced step counts are compared.
   port addresses intervals in their classification and has no back pointer).
 - **Wiring.** `topology::face::p2` (`classify_curve_on_face` with each upstream site's constructor
   arguments; `review_start_and_stop_on_seam_crv_classifies` now takes a `ClassGeometry` for
-  `ivl_bound_edgeuse_obj`) and `intersect::topology_solver::p2` (`classified_curve_intervals`) call the
-  port; their cases now defer on `ReSet` (`intersect.curve_class_p2`) or the face member of an opaque
-  handle instead. **Not wired** (`justified:`): the constructor sites in `curve::crv_in_volume`
+  `ivl_bound_edgeuse_obj`) and `intersect::topology_solver::p2` (`classified_curve_intervals`; `CurveOnClassify` stays a
+  `justified:` stub there: the face is an opaque handle) call the port, as do
+  `intersect::curve_class::p6` (`sm_SqueezeOutSmallestInterval`) and `topology::proto_topology::p3`
+  (the `SmCurveClassification(curve, interval, NULL, tol)` constructor); their cases now defer on `ReSet`
+  (`intersect.curve_class_p2`) or the face member of an opaque handle instead.
+  `topology::face::p2` also calls `query::face::p2::curve_on_classify` (real `Brep` handles) after the
+  constructor, and `CurveClassification::set_doing_cross_hatch` (`SetDoingCrossHatch`, part 1) was added;
+  the `GetPointsInFace` site now passes the upstream arguments (`dTol`, no borrowed data, no cross hatch). **Not wired** (`justified:`): the constructor sites in `curve::crv_in_volume`
   (`compute_breaks`) and `curve::crv_on_surf` (`classify_against_surface`, under `Curve::knots`) have no
   `Kernel` in scope, and `CurveClassification::new` needs one for its default tolerances; threading a
   kernel through the `Curve::knots` virtual is out of this unit's scope. Both would defer on `ReSet`

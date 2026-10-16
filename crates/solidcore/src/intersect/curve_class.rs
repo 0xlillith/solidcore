@@ -28,6 +28,4 @@ pub use p3::{
     FoundInterval, NO_INTERVAL,
 };
 
-pub use p4::{
-    squeeze_out_smallest_interval, ClassificationInit, LoopCrossings,
-};
+pub use p4::{squeeze_out_smallest_interval, ClassificationInit, LoopCrossings};

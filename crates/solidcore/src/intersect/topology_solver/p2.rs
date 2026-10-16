@@ -231,8 +231,9 @@ fn classified_curve_intervals<O>(
         ti: None,
     };
     let _classification = CurveClassification::with_curve(kernel, &init)?;
-    // UNPORTED(query.face_p2): SmFace::CurveOnClassify -- the face is an opaque handle `O` with no
-    // Brep (as for PointClassify in topology_solver::p1, plan/findings.md query.face_p2)
+    // UNPORTED(query.face_p2): SmFace::CurveOnClassify -- justified: plan/findings.md
+    // "intersect.curve_class_p4" (the face is an opaque handle `O` that reaches no Brep, as for
+    // PointClassify in topology_solver::p1; the constructor above defers on ReSet first)
     Err(SolidError::unported(
         "SmFace::CurveOnClassify",
         "query.face_p2",
