@@ -530,7 +530,7 @@ fn set_touch<O>(list: &mut [TouchData<O>], index: usize, value: TouchData<O>) ->
     Ok(())
 }
 
-/// Where a ClassifyCrv end lies relative to the seams of a closed surface: the
+/// Where a `ClassifyCrv` end lies relative to the seams of a closed surface: the
 /// `ebTouch_*OnSeamU` / `ebTouch_*OnSeamV` pair for one end of the classification curve.
 #[allow(clippy::too_many_arguments)]
 fn end_on_seams(
@@ -935,15 +935,15 @@ impl<O: ClassObject> CurveClassification<O> {
                 srf_max_uv
             }
         };
-        let first_guess = if touch_1st_on_pole != SS_NONE {
+        let first_guess = if touch_1st_on_pole == SS_NONE {
+            srf_domain.mid()
+        } else {
             pole_guess(touch_1st_on_pole)
-        } else {
-            srf_domain.mid()
         };
-        let last_guess = if touch_last_on_pole != SS_NONE {
-            pole_guess(touch_last_on_pole)
-        } else {
+        let last_guess = if touch_last_on_pole == SS_NONE {
             srf_domain.mid()
+        } else {
+            pole_guess(touch_last_on_pole)
         };
         let touch_1st_uv0 = drop_uv(
             k,
@@ -968,15 +968,16 @@ impl<O: ClassObject> CurveClassification<O> {
         let touch_last_uv1 = drop_vector(surface, touch_last_uv0, touch_last_pn[1])?;
 
         // 2d Tols at RawTouchDirList Start/Stop
-        let first_zone_tol_2d = if touch_1st_on_pole != SS_NONE {
-            map_to_2d(props.zone_tol_3d, touch_1st_uv0, surface)?
-        } else {
+        // (on a pole: Min(TolU, TolV); off a pole: the directional tolerance)
+        let first_zone_tol_2d = if touch_1st_on_pole == SS_NONE {
             map_to_2d_dir(props.zone_tol_3d, touch_1st_uv0, touch_1st_uv1, surface)?
-        };
-        let last_zone_tol_2d = if touch_last_on_pole != SS_NONE {
-            map_to_2d(props.zone_tol_3d, touch_last_uv0, surface)?
         } else {
+            map_to_2d(props.zone_tol_3d, touch_1st_uv0, surface)?
+        };
+        let last_zone_tol_2d = if touch_last_on_pole == SS_NONE {
             map_to_2d_dir(props.zone_tol_3d, touch_last_uv0, touch_last_uv1, surface)?
+        } else {
+            map_to_2d(props.zone_tol_3d, touch_last_uv0, surface)?
         };
 
         // remember when first/last touch is on ClassifyCrv Start/Stop
@@ -1130,16 +1131,16 @@ impl<O: ClassObject> CurveClassification<O> {
         }
 
         // raw Start/End entries on a Seam map to 1 done entry
-        if touch_at(&done, 0)?.loop_dir == CrvDirOnFaceType::Seam
-            || touch_at(&done, done_cnt - 1)?.loop_dir == CrvDirOnFaceType::Seam
+        // (an open ClassifyCrv starting or ending on a Seam only warns upstream)
+        if (touch_at(&done, 0)?.loop_dir == CrvDirOnFaceType::Seam
+            || touch_at(&done, done_cnt - 1)?.loop_dir == CrvDirOnFaceType::Seam)
+            && classify_crv_closed_3d
         {
-            if classify_crv_closed_3d {
-                let t = touch_at(&done, done_cnt.wrapping_sub(2))?;
-                set_touch(&mut done, 0, t)?;
-                done_cnt -= 2;
-                done.truncate(done_cnt);
-                seam_cyclic = true;
-            }
+            let t = touch_at(&done, done_cnt.wrapping_sub(2))?;
+            set_touch(&mut done, 0, t)?;
+            done_cnt -= 2;
+            done.truncate(done_cnt);
+            seam_cyclic = true;
         }
 
         if done_cnt == 0 {
