@@ -1300,7 +1300,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "mass.integrator"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_4",
@@ -1324,7 +1324,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::GetFaces",
-        "unit": "topology.brep_p1"
+        "unit": "mass.integrator"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_6",
@@ -12264,10 +12264,10 @@
   "cases_passed": 1520,
   "cases_total": 1528,
   "deferred_by_unit": {
+    "mass.integrator": 2,
     "query.brep": 3,
     "query.face_p1": 2,
-    "surface.offset_surface": 1,
-    "topology.brep_p1": 2
+    "surface.offset_surface": 1
   },
   "max_rel_err": 4.979280456316938e-14,
   "pass": true,

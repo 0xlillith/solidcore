@@ -1043,8 +1043,8 @@ pub fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<()> {
     // Trim curve should start and end right at Edge ends. (GetEnds and the point
     // evaluations below are not status-checked upstream: a failure leaves the points
     // unset; the port uses undefined coordinates there.)
-    let (start_uv, end_uv) = ignored(trim_crv.ends())?
-        .map_or((Point3::UNDEF, Point3::UNDEF), |e| (e.start, e.end));
+    let (start_uv, end_uv) =
+        ignored(trim_crv.ends())?.map_or((Point3::UNDEF, Point3::UNDEF), |e| (e.start, e.end));
 
     let e = eu1::edge(b, eu)?.ok_or_else(|| null("sm_CheckUVTrimCurve: edge use without edge"))?;
     let edge_ivl = edge::interval(b, e)?;
@@ -1073,8 +1073,8 @@ pub fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<()> {
         eu1::face(b, eu)?.ok_or_else(|| null("sm_CheckUVTrimCurve: edge use without face"))?;
     let surf = face2::surface(b, face)?
         .ok_or_else(|| null("sm_CheckUVTrimCurve: face without surface"))?;
-    let face_3d_start = ignored(surf.evaluate_point(Point2::new(start_uv.x, start_uv.y)))?
-        .unwrap_or(Point3::UNDEF);
+    let face_3d_start =
+        ignored(surf.evaluate_point(Point2::new(start_uv.x, start_uv.y)))?.unwrap_or(Point3::UNDEF);
 
     let face_tol = face2::tolerance(b, face)?;
     let edge_tol = edge::tolerance(b, e)?;
@@ -1098,8 +1098,8 @@ pub fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<()> {
         mate_vertex(b)?
     };
     let vrtx_3d_end = vertex::point(b, end_vtx)?;
-    let face_3d_end = ignored(surf.evaluate_point(Point2::new(end_uv.x, end_uv.y)))?
-        .unwrap_or(Point3::UNDEF);
+    let face_3d_end =
+        ignored(surf.evaluate_point(Point2::new(end_uv.x, end_uv.y)))?.unwrap_or(Point3::UNDEF);
     vrtx_tol = vertex::tolerance(b, end_vtx)?; // have to update this to End vtx.
 
     let dist_face_vrtx_end = face_3d_end.distance(vrtx_3d_end);
@@ -1633,7 +1633,14 @@ pub fn make_vertex_split_uv_trim_curve(
         || edge_split_parameter > ivl1.max() - scaled_zero
     {
         // (SetUVTrimCurve statuses are not checked upstream)
-        ignored(eu1::set_uv_trim_curve(b, eu_orig, eu1::UvTrimCurveArg::Null, 0.0, true, None))?;
+        ignored(eu1::set_uv_trim_curve(
+            b,
+            eu_orig,
+            eu1::UvTrimCurveArg::Null,
+            0.0,
+            true,
+            None,
+        ))?;
         return Ok(());
     }
     // split param is far from UVTrimCurve->Ends
@@ -1701,7 +1708,14 @@ pub fn make_vertex_split_uv_trim_curve(
         }
 
         if !reuse_trim_curve {
-            ignored(eu1::set_uv_trim_curve(b, eu_orig, eu1::UvTrimCurveArg::Null, 0.0, true, None))?;
+            ignored(eu1::set_uv_trim_curve(
+                b,
+                eu_orig,
+                eu1::UvTrimCurveArg::Null,
+                0.0,
+                true,
+                None,
+            ))?;
             return Ok(());
         }
     }
@@ -2123,8 +2137,12 @@ pub fn create_edge_edge_blend(
                 // (evaluation statuses are not checked upstream: a failure leaves the
                 // sample unset; undefined coordinates here)
                 let t = ii as f64 / (num_loc - 1) as f64;
-                rail1_pos.push(ignored(rail1.evaluate_point(ivl1.evaluate(t)))?.unwrap_or(Point3::UNDEF));
-                rail2_pos.push(ignored(rail2.evaluate_point(ivl2.evaluate(t)))?.unwrap_or(Point3::UNDEF));
+                rail1_pos.push(
+                    ignored(rail1.evaluate_point(ivl1.evaluate(t)))?.unwrap_or(Point3::UNDEF),
+                );
+                rail2_pos.push(
+                    ignored(rail2.evaluate_point(ivl2.evaluate(t)))?.unwrap_or(Point3::UNDEF),
+                );
             }
 
             // Check under which orientation the distance between rail curves is less

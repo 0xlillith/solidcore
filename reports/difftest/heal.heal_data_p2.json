@@ -5440,7 +5440,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::SetThisModelSizeEstimate",
-        "unit": "topology.brep_p1"
+        "unit": "heal.heal_data_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0397",
@@ -5608,7 +5608,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::SetThisModelSizeEstimate",
-        "unit": "topology.brep_p1"
+        "unit": "heal.heal_data_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0414",
@@ -5892,7 +5892,7 @@
     {
       "deferred": {
         "symbol": "SmBrep::SetThisModelSizeEstimate",
-        "unit": "topology.brep_p1"
+        "unit": "heal.heal_data_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0443",
@@ -7476,7 +7476,7 @@
   "cases_passed": 347,
   "cases_total": 738,
   "deferred_by_unit": {
-    "topology.brep_p1": 3,
+    "heal.heal_data_p2": 3,
     "topology.brep_p2": 16,
     "topology.edgeuse_p3": 263,
     "topology.face_p2": 100,

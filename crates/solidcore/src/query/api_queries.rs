@@ -496,13 +496,19 @@ fn brep_edges(_brep: &Brep) -> Result<Vec<EdgeId>> {
     // UNPORTED(query.api_queries): SmBrep::GetEdges (ported: topology::brep::p1::edges; not wired here because this unit's difftest
     // compares the B-rep's native list order, which its import does not carry; see
     // plan/findings.md, topology.brep_p1)
-    Err(SolidError::unported("SmBrep::GetEdges", "query.api_queries"))
+    Err(SolidError::unported(
+        "SmBrep::GetEdges",
+        "query.api_queries",
+    ))
 }
 fn brep_faces(_brep: &Brep) -> Result<Vec<FaceId>> {
     // UNPORTED(query.api_queries): SmBrep::GetFaces (ported: topology::brep::p1::faces; not wired here because this unit's difftest
     // compares the B-rep's native list order, which its import does not carry; see
     // plan/findings.md, topology.brep_p1)
-    Err(SolidError::unported("SmBrep::GetFaces", "query.api_queries"))
+    Err(SolidError::unported(
+        "SmBrep::GetFaces",
+        "query.api_queries",
+    ))
 }
 
 /// Exact B-rep edge list (`SmApiGetEdges`). Empty lists return `SM_ERR`.
