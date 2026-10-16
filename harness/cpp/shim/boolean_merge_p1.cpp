@@ -1,0 +1,140 @@
+// SPDX-License-Identifier: Apache-2.0
+// Compile renamed upstream classes to expose the file-local helpers as well as
+// real SmMerge members. No algorithm is reimplemented in this shim.
+#include "sc_topology_fixture.h"
+#include <SmBrepData.h>
+#include <SmBrepCache.h>
+#include <SmCacheMgrBrep.h>
+#include <SmRelation.h>
+#include <SmAttribute.h>
+#include <SmPrimitiveCreation.h>
+#include <SmTrimmingTools.h>
+#include <SmTopologyTraverser.h>
+#include <SmTree.h>
+#include <SmAssertArray.h>
+#define SmMerge sc_mp1_Merge
+#define SmMergeOptions sc_mp1_Options
+#define SmTemporaryBrepTransform sc_mp1_Transform
+#include "../../../upstream/source/SMLib/src/SmMerge.cpp"
+#undef SmMerge
+#undef SmMergeOptions
+#undef SmTemporaryBrepTransform
+
+namespace {
+struct Probe : sc_mp1_Merge {
+    Probe() : sc_mp1_Merge(the_context()) {}
+    void operands(SmBrep* a, SmBrep* b) { m_vTI.SetPrimaryBrep(a); m_vTI.SetOtherBrep(b); }
+    void flags(std::vector<double>& v) {
+        v.insert(v.end(), {flg(m_bCookieCutter),flg(m_bImprinting),flg(m_bBooleanPostProcess),
+                          flg(m_bImprintAndClassifyFaces),flg(m_bKeepOtherBrep),(double)m_lTagID});
+    }
+    void lists(Graph& g, int mode, bool check_all) {
+        if (mode == 0) return;
+        for (SmEdge* e : g.edges) m_sIntersectionEdges.Add(e);
+        for (SmVertex* v : g.vertices) m_sIntersectionVertices.Add(v);
+        if (mode == 2 && !check_all) {
+            // Stale entries: ignored without dereference if no live mate exists.
+            m_sIntersectionEdges.Add((SmEdge*)nullptr);
+            m_sIntersectionVertices.Add((SmVertex*)nullptr);
+        }
+    }
+};
+void options(std::vector<double>& v, sc_mp1_Options& o) {
+    v.insert(v.end(), {flg(o.GetCookieCutter()),flg(o.GetImprinting()),flg(o.GetBooleanPostProcess()),
+                      flg(o.GetImprintAndClassifyFaces()),flg(o.GetKeepOtherBrep())});
+}
+}
+
+// op: 0 control, 1 cleanup, 2 face coincidence, 3 vertex copy, 4 region attrs,
+// 5 face-region lookup, 6 solid-border lookup, 7 scoped translation.
+// a/b/c are operation selectors; fixture bytes are validated by the safe wrapper.
+SC_EXPORT int32_t sc_boolean_merge_p1_eval(int32_t op, int32_t a, int32_t b, int32_t c,
+    const char* path, const double* in, int64_t n, double* out, int64_t cap, int64_t* len) {
+    if (op < 0 || op > 7 || a < 0 || a > 31 || b < 0 || b > 31 || c < 0 || c > 31) return SC_ERR_ARG;
+    SC_TRY
+    std::vector<double> record;
+    Probe merge;
+    if (op == 0) {
+        merge.flags(record);
+        sc_mp1_Options o(a&1,a&2,a&4,a&8,a&16);
+        sc_mp1_Options copy(o);
+        options(record, copy);
+        merge.SetMergeOptions(b ? &o : nullptr);
+        merge.flags(record);
+        merge.SetCookieCutter(c&1); merge.SetImprinting(c&2); merge.SetBooleanPostProcess(c&4);
+        merge.SetClassifyFaces(c&8); merge.SetKeepOtherBrep(c&16);
+        merge.flags(record);
+        return sc_copy_out(record.data(),record.size(),out,cap,len);
+    }
+    if (in == nullptr || n == 0) return SC_ERR_ARG;
+    Rd rd{in,0}, rd2{in,0};
+    Built primary, other;
+    SmStatus build_status;
+    primary.brep = build(rd,path,build_status);
+    if (!primary.brep) return SC_ERR_ARG;
+    other.brep = build(rd2,path,build_status);
+    if (!other.brep) return SC_ERR_ARG;
+    if (rd.at != n || rd2.at != n) return SC_ERR_ARG;
+    Graph g,h; walk(primary.brep,g); walk(other.brep,h);
+    merge.operands(primary.brep,other.brep);
+    SmStatus status = SM_SUCCESS;
+    if (op == 1) {
+        merge.lists(g,b,a!=0);
+        if (b == 1) {
+            for (size_t i=0; i<g.edges.size() && i<h.edges.size(); ++i) merge.GetTopologyIntersector().Relate(g.edges[i],h.edges[i]);
+            for (size_t i=0; i<g.vertices.size() && i<h.vertices.size(); ++i) merge.GetTopologyIntersector().Relate(g.vertices[i],h.vertices[i]);
+        }
+        status = merge.BooleanPostProcess(a ? TRUE : FALSE);
+    } else if (op == 2) {
+        if (g.faces.empty() || h.faces.empty()) return SC_ERR_ARG;
+        if (b) for (size_t i=0; i<g.edges.size() && i<h.edges.size(); ++i)
+            if (b != 2 || i != 0) merge.GetTopologyIntersector().Relate(g.edges[i],h.edges[i]);
+        SmTArray<SmFace*> aa,bb; SmBoolean changed = TRUE;
+        status = merge.FixFoundFaceCoincidence(g.faces[a%g.faces.size()],h.faces[c%h.faces.size()],aa,bb,changed);
+        record.push_back(flg(changed)); record.push_back(aa.GetSize());
+        for (ULONG i=0;i<aa.GetSize();++i) record.push_back(g.find(3,aa[i]));
+        record.push_back(bb.GetSize()); for (ULONG i=0;i<bb.GetSize();++i) record.push_back(h.find(3,bb[i]));
+    } else if (op == 3) {
+        if (g.vertices.empty() || h.vertices.empty() || g.regions.empty()) return SC_ERR_ARG;
+        SmVertex* src = a == 0 ? nullptr : h.vertices[c%h.vertices.size()];
+        SmVertex* dst = g.vertices[c%g.vertices.size()];
+        if (src) {
+            src->SetAllFlags(16); dst->SetAllFlags(1);
+            src->AddAttribute(new (the_context()) SmLongAttribute(555,29));
+            if (b) merge.GetTopologyIntersector().Relate(dst,src);
+        }
+        SmVertex* result = nullptr;
+        status = merge.MergeVertex(src,g.regions[0],result);
+        Graph fresh; walk(primary.brep,fresh);
+        record.push_back(fresh.find(9,result));
+        if (result) {
+            record.push_back(result->GetAllFlags());
+            SmLongAttribute* at = (SmLongAttribute*)result->FindAttribute(555);
+            record.push_back(at ? at->GetValue() : -1);
+        }
+    } else if (op == 4) {
+        if (g.regions.empty() || h.regions.empty()) return SC_ERR_ARG;
+        SmRegion* r=g.regions[0]; r->SetIsVoid(a ? TRUE : FALSE);
+        r->AddAttribute(new (the_context()) SmLongAttribute(555,29));
+        if (b) r->AddAttribute(new (the_context()) SmColorAttribute(SM_AI_COLOR,SmVector3d(0.2,0.4,0.6)));
+        if (c) r->AddAttribute(new (the_context()) SmMergeRegionAttribute(r,0,h.regions[0],1));
+        status = merge.PropagateOtherSrcRegionAttribs(SM_BO_UNION);
+        record.push_back(r->FindAttribute(555) ? 1 : 0);
+        record.push_back(r->FindAttribute(SM_AI_COLOR) ? 1 : 0);
+        record.push_back(r->FindAttribute(SM_AI_OTHER_REGION_ID) ? 1 : 0);
+    } else if (op == 5) {
+        if (h.faceuses.empty()) return SC_ERR_ARG;
+        SmRegion* result=sm_FindBrepRegionOfOtherFace(h.faceuses[a%h.faceuses.size()],merge.GetTopologyIntersector());
+        record.push_back(g.find(0,result));
+    } else if (op == 6) {
+        if (g.edges.empty()) return SC_ERR_ARG;
+        record.push_back(g.find(1,sm_EdgeBordersSolid(g.edges[a%g.edges.size()])));
+    } else {
+        { sc_mp1_Transform shift(&merge.GetTopologyIntersector()); }
+    }
+    std::vector<double> result{st(status),(double)record.size()};
+    result.insert(result.end(),record.begin(),record.end());
+    Graph after; walk(primary.brep,after); result.push_back(0.0); export_graph(primary.brep,after,result);
+    return sc_copy_out(result.data(),result.size(),out,cap,len);
+    SC_CATCH
+}
