@@ -608,8 +608,8 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         _ => OpIn::Intersect {
             face,
             other: rng.below(1 << 20) as i64,
-            approx_tol: [1e-6, 1e-4, 1e-3, 1e-2][rng.below(4) as usize],
-            ang_tol_deg: [0.5, 5.0, 30.0][rng.below(3) as usize],
+            approx_tol: *rng.choose(&[1e-6, 1e-4, 1e-3, 1e-2]).unwrap_or(&1e-4),
+            ang_tol_deg: *rng.choose(&[0.5, 5.0, 30.0]).unwrap_or(&5.0),
             coincidence: match rng.below(3) {
                 0 => None,
                 1 => Some(false),
