@@ -54,6 +54,8 @@ use super::topology_vertexuse::{
     gen_brep, gen_curve, gen_surface, import, path_of, push_curve, push_surface, BrepIn, CrvIn,
     SrfIn,
 };
+use crate::case::CaseContext;
+use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// The difftest runner.
@@ -823,7 +825,7 @@ fn gen_op(rng: &mut Rng) -> (OpIn, i64) {
                 tol: match rng.below(4) {
                     0 => 0.0,
                     1 => -1e-4,
-                    2 => 10f64.powf(rng.uniform(-9.0, -1.0)),
+                    2 => 10f64.powf(rng.uniform(-12.0, 3.0)),
                     _ => 1e-5,
                 },
                 only_larger: rng.chance(0.7),
@@ -842,7 +844,8 @@ fn gen_op(rng: &mut Rng) -> (OpIn, i64) {
             editing,
         ),
         6 | 7 => {
-            let curve = gen_curve(rng, 3, 1.0);
+            let scale = *rng.choose(&[1.0, 1.0, 1e-6, 1e6]).unwrap_or(&1.0);
+            let curve = gen_curve(rng, 3, scale);
             let (a, b) = (
                 curve.u.first().copied().unwrap_or(0.0),
                 curve.u.last().copied().unwrap_or(1.0),
@@ -917,9 +920,20 @@ fn gen_op(rng: &mut Rng) -> (OpIn, i64) {
     }
 }
 
+/// Generated cases per run, whatever `--seeds` says (it can only raise this).
+pub const MIN_GENERATED: usize = 400;
+
 impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "topology.brep_p2"
+    }
+
+    fn cases(&self, ctx: &CaseContext) -> Result<Vec<Case>, HarnessError> {
+        let ctx = CaseContext {
+            seeds: ctx.seeds.max(MIN_GENERATED),
+            ..ctx.clone()
+        };
+        default_cases(self, &ctx)
     }
 
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
