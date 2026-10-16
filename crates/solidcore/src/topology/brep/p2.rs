@@ -2096,8 +2096,10 @@ pub fn mate_lamina_edge_to_surface(
             .ok_or(null_deref("edge without curve"))?;
         for j in 0..=20u32 {
             let edge_pnt = e_curve.evaluate_point(ivl.evaluate(f64::from(j) / 20.0))?;
+            // (only the distance is read: no handle for the surface)
             let sols = ext_mating.global_point_solve::<ObjectHandle>(
                 k,
+                None,
                 &mating_domain,
                 SolverOperation::Minimize,
                 edge_pnt,
