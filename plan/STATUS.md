@@ -1,6 +1,8 @@
 # solidcore status
 
-Last updated: 2026-10-16, `surface.surface_p11` partial (PR #120: 176 ported units, 98 green and 78 partial; `intersect.surface_silhouette` promoted to green); before: `mass.integrator` partial and `curve.curve_p3` green (PR #119); PR #115 (`topology.brep_cache` partial). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml` and evidence in `reports/difftest/`.
+Last updated: 2026-10-16, PR #127 (`sweep.trans_sweep_geometry` partial: 719 bit-identical passes, 50 deferred on `surface.cone_p2`, 19 rejected native fixtures). Per-unit state and evidence are in `plan/modules.toml` and `reports/difftest/`.
+
+Latest main integration: `surface.surface_p11` partial (PR #120: 176 ported units, 98 green and 78 partial; `intersect.surface_silhouette` promoted to green).
 
 
 ## Integration update (2026-10-15, PR #119)
@@ -954,3 +956,32 @@ suite passes 173 units
 (97 green, 76 partial), with zero failures; the final API rerun and touched-unit
 perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 cases:
 422,654 compared, 12,618 deferred, zero failed.
+
+## Independent curve-classification part 5
+
+The p5 implementation and oracle remain independent of the open p2/p7 PRs.
+Part 6 landed independently through PR #138 and is inherited from main; all four
+p6 call sites are wired. Fresh validation on 9e495b12 compares 275/1,081 cases
+exactly, with zero failures and 806 explicit deferrals (p2 493, p7 312,
+curve.crv_on_surf 1). Perturbation detects all 275 compared cases. All nine affected
+native runners, plain/native Clippy, 1,215 kernel tests, WASM and the focused FFI
+regression pass. The eight other reports are unchanged.
+The edge-target insertion and SSS blocks remain unported; nonempty large-gap
+projection and tangent-flag behavior remain uncertified. Shared interfaces are
+recorded as CO-PORTED. The proto-topology p3 extraction back-edge is wired and the
+lazy-UV issue remains UB-134.
+
+## Curve-classification interval integration (2026-10-16, PR #138)
+
+`intersect.curve_class_p6` is partial: 4438 cases: 3927 bit-identical kernel comparisons,
+6 expected FFI rejection checks, zero failures and 505 explicit deferrals, without absolute floors. Insertion,
+homogenization and endpoint repair follow the upstream control flow, retaining
+explicit dependency boundaries. `MergeInterval` implements its early exits;
+its topology mutation remains deferred at the p2 boundary-tolerance lookup.
+Nonempty homogenization/repair and 2D classification are not certified.
+
+The oracle uses concrete native geometric types and real box topology, records
+point-classification state and created-entity outputs, and compares actual curve
+evaluations. Native FFI regressions include 27440 isolated combinations of
+operations, geometric kinds, flags and classifications, plus 96 partition/SSS/boundary
+probes and 660 mismatched fillet-partner probes. They run locally with the project CI workflow unchanged. The unit remains partial.
