@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**192 / 261 units ported** (108 green, 84 partial), **263,003 / 387,903 upstream lines (67.8%)**. 30 claimed, 0 blocked, 39 todo.
+**193 / 261 units ported** (108 green, 85 partial), **265,251 / 387,903 upstream lines (68.4%)**. 29 claimed, 0 blocked, 39 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -59,7 +59,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `surface.cone_p2` (1656 lines) — in progress: #153 @bherbruck (ready for review)
 - [ ] 🔨 `surface.sphere` (2861 lines) — in progress: #100 @froglemonade2 (ready for review)
 - [ ] 🔨 `surface.offset_surface` (1787 lines) — in progress: #62 @Pluto-XI (ready for review)
-- [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.curve_class_p2` (1928 lines) — in progress: #85 @bherbruck (ready for review)
 - [ ] 🔨 `intersect.surface_drop_lib_p3` (2062 lines) — in progress: #136 @froglemonade2 (draft)
 - [ ] 🔨 `intersect.curve_class_p4` (2022 lines) — in progress: #137 @froglemonade2 (draft)
@@ -81,9 +80,9 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `blend.fillet_geom_p1` (2113 lines) — in progress: #147 @bluecmd (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
-- [ ] 🔨 `heal.heal_data_p3` (1967 lines) — in progress: #164 @damgru (draft)
+- [ ] 🔨 `heal.heal_data_p3` (1967 lines) — in progress: #164 @damgru (ready for review)
 - [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (draft)
-- [ ] 🔨 `boolean.merge_p1` (993 lines) — in progress: #163 @damgru (draft)
+- [ ] 🔨 `boolean.merge_p1` (993 lines) — in progress: #163 @damgru (ready for review)
 - [ ] 🔨 `boolean.merge_p5` (475 lines) — in progress: #161 @damgru (ready for review)
 - [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (ready for review)
 
@@ -277,14 +276,14 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `topology.proto_topology_p2` (2091 lines) — partial, 1533 cases
 - [ ] 🟡 `topology.proto_topology_p3` (1577 lines) — partial, 3013 cases
 
-### intersect (19/25)
+### intersect (20/25)
 
 - [ ] 🟡 `intersect.surface_tracer` (1900 lines) — partial, 427 cases
 - [ ] 🟡 `intersect.point_class` (909 lines) — partial, 2511 cases
 - [ ] 🟡 `intersect.curve_class_p1` (2087 lines) — partial, 2125 cases
 - [ ] 🟡 `intersect.surface_drop_lib_p1` (1478 lines) — partial, 1862 cases
 - [x] ✅ `intersect.surface_silhouette` (979 lines) — green, 709 cases
-- [ ] 🔨 `intersect.curve_class_p7` (2248 lines) — in progress: #65 @bherbruck (ready for review)
+- [ ] 🟡 `intersect.curve_class_p7` (2248 lines) — partial, 1516 cases
 - [ ] 🟡 `intersect.ray_tracer` (1246 lines) — partial, 421 cases
 - [ ] 🟡 `intersect.surface_drop_curve` (2014 lines) — partial, 547 cases
 - [ ] 🟡 `intersect.surface_drop_lib_p2` (1080 lines) — partial, 1531 cases
@@ -345,7 +344,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `heal.heal_data_p2` (2160 lines) — partial, 738 cases
 - [ ] 🟡 `heal.heal_data_p1` (922 lines) — partial, 493 cases
 - [ ] ⏳ `heal.stitch_p1` (2037 lines) — waiting
-- [ ] 🔨 `heal.heal_data_p3` (1967 lines) — in progress: #164 @damgru (draft)
+- [ ] 🔨 `heal.heal_data_p3` (1967 lines) — in progress: #164 @damgru (ready for review)
 - [ ] ⏳ `heal.stitch_p2` (1906 lines) — waiting
 
 ### offset (0/3)
@@ -359,7 +358,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
 - [ ] ⏳ `boolean.topology_intersector_p2` (2195 lines) — waiting
 - [ ] ⏳ `boolean.topology_intersector_p3` (1849 lines) — waiting
-- [ ] 🔨 `boolean.merge_p1` (993 lines) — in progress: #163 @damgru (draft)
+- [ ] 🔨 `boolean.merge_p1` (993 lines) — in progress: #163 @damgru (ready for review)
 - [ ] ⏳ `boolean.merge_p2` (1967 lines) — waiting
 - [ ] 🔨 `boolean.merge_p5` (475 lines) — in progress: #161 @damgru (ready for review)
 - [ ] ⏳ `boolean.merge_p4` (2590 lines) — waiting
