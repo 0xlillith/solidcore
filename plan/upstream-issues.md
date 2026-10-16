@@ -406,6 +406,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (heap use after free).
 - **Rust port:** Retries with the derivative surfaces as the first attempt left them; it reads no freed storage. The FFI guard cannot predict a failed first skinning attempt without running it, so it does not reject such inputs (see `plan/findings.md`, `blend.fillet_custom_solver`).
 
+#### UB-107. `CreateExtendedSurface` retries an in-place extension on half-written arrays
+- **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:4568`, `:4630`, `:4697`, `:4759` (`SmBSplineSurface::CreateExtendedSurface`: `while(0 != N_SrfExtendByDist(&esur, dExtDist, ..., &esur, ...))` halves the distance and retries on the same `esur`); `NL_SrfAdv.cpp:6137`-`6141` (`N_SrfExtendByParamDist`, in place: `N_AllocSrfArrays( surP, ... )` gives `surP` fresh arrays, the old ones stay in the local `surA`), `:7035`, `:7104` (`NL_ERROR( NL_WEI_ERR )` in the `NL_CMAX` branch exits before every new control point is written; `surA` is freed only on success, `:7207`).
+- **What happens:** When an in-place extension fails part way (for example an `NL_CMAX` extension that would create a weight outside the allowed range), `esur` is left on the newly allocated, partly written arrays. The retry at half the distance reads them, including the entries never written. Its result depends on what earlier calls left in that memory.
+- **Trigger:** `CreateExtendedSurface(dist = 0.28814945128446756, SM_CT_CINFINITY)` (both directions) on the rational bilinear-by-linear B-spline of `surface.surface_p2` generated case `gen0016` (seed `9548444236539953400`; form 11, 2x3 net, v knots `[0, 0, 0.8105925733594667, 1, 1]`): the V-max extension at the full distance fails with `NL_WEI_ERR` and is retried.
+- **How found:** generated difftest case (`surface.surface_p2`, once `IsSingularity` stopped deferring it).
+- **Confirmed:** yes. In a fresh process the call returns `SM_ERR` every time; after a few other extensions in the same process the same call returns `SM_SUCCESS`. The separate, non-in-place `N_SrfExtendByDist` calls of that sequence (`nlib.srf_adv_p1` shim, error state cleared) agree with the Rust port at every step.
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** `N_SrfExtendByDist` returns a new surface, so a failed attempt leaves the surface unchanged and the retry extends the original (the documented in-place deviation of `nurbs::srf_adv::p3`). The `surface.surface_p2` generator leaves out extension cases whose first attempt at some side fails (see `plan/findings.md`).
+
 ### Spatial structures and small geometry
 
 #### UB-34. `SmObjsInVoxels::IncMaxItemCount` re-points buckets into the array it is about to free
@@ -1056,6 +1065,49 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** `SolidError::InvalidInput`.
 
+#### UB-111. `SmApiCreateDraftSweep` with no curves crashes
+- **Location:** `source/SM_API/src/SmApiBrep.cpp:1310` `SmApiCreateDraftSweep` -> `source/SMLib/src/SmPrimitiveCreation.cpp:3604` `SmPrimitiveCreation::CreateTaperExtrude`.
+- **What happens:** Unlike `SmApiCreateTaperExtrude` (`:1640`), the draft-sweep wrapper does not reject an empty curve array; `CreateTaperExtrude` has no check for it either and segfaults.
+- **Trigger:** `SmApiCreateDraftSweep` with an empty `rCurvesToSweep` (height `1`, angle `5`, caps `3`, either corner type).
+- **How found:** adversarial / edge-case fixture (`sweep.api_brep` probe case).
+- **Confirmed:** yes.
+- **Severity:** crash.
+- **Rust port:** `create_draft_sweep` copies the (empty) list as upstream and is a stub until `primitive.primitive_creation_p2` lands. The FFI rejects an empty draft-sweep profile.
+
+#### UB-112. `SmPrimitiveCreation::CreateTaperExtrude` crashes on a profile curve below about twice the zone tolerance
+- **Location:** `source/SMLib/src/SmPrimitiveCreation.cpp:3604` `SmPrimitiveCreation::CreateTaperExtrude` (chains the curves with `SmCurve::FixChainCurvesList(.., 2*dZoneTol, TRUE)` at `:3672`, then uses them unchecked); reached from `SmApiCreateDraftSweep` and `SmApiCreateTaperExtrude`.
+- **What happens:** A profile made of a short curve segfaults. Which dereference fails was not located (the chaining step may drop the short curve and leave `NULL` entries that later code dereferences).
+- **Trigger:** `SmApiCreateDraftSweep` / `SmApiCreateTaperExtrude` (height `1`, angle `7.04`, caps `3`) with one `SmLine` of length `1e-5` or `1.2e-5` (length `2e-5` works), a four-line square of side `1e-6`, or an `SmApiCreateCircle` circle of radius `1.72e-6` with height `7.05e-6` (radius `2e-6` with height `1` works).
+- **How found:** generated difftest case (`sweep.api_brep`), then adversarial probes.
+- **Confirmed:** yes.
+- **Severity:** crash.
+- **Rust port:** The wrappers are stubs until `primitive.primitive_creation_p2` lands. The FFI rejects draft / taper profiles with a curve extent below `2e-5`; the generator keeps those profiles at scale `>= 1e-3`.
+
+#### UB-113. `SmPrimitiveCreation::CreateSweepAlongPlanarPath` crashes on a curve that is not an `SmBSplineCurve`
+- **Location:** `source/SMLib/src/SmPrimitiveCreation.cpp:5698` `SmPrimitiveCreation::CreateSweepAlongPlanarPath` (static `PositionProfileCurves` uses the result of `rProfileCurves[ii]->Copy(..)` without checking its status; the path curves are C-cast to `SmBSplineCurve*`); reached from `SmApiCreateSweepAlongPlanarPath` (`source/SM_API/src/SmApiBrep.cpp:1420`), which only checks the list sizes and the cap selector.
+- **What happens:** A profile curve without `Copy` (base `SmCurve::Copy` returns `SM_ERR` and a `NULL` copy) is dereferenced; a path curve of another kind is used as an `SmBSplineCurve`. Both segfault.
+- **Trigger:** `SmApiCreateSweepAlongPlanarPath` with profile `[SmHermiteCurve((0,0,0),(1,0,0),(1,1,0),(1,0,0))]` and path `[SmApiCreateLineSegment((0,0,0),(0,0,10))]` (move `TRUE`, caps `3`); or profile `[SmApiCreateCircle((0,0,0), 5)]` with that Hermite curve as the path.
+- **How found:** adversarial review of `sweep.api_brep` (PR #110).
+- **Confirmed:** yes (segfault in `CreateSweepAlongPlanarPath` / `SmBSplineCurve` copy constructor under gdb).
+- **Severity:** crash.
+- **Rust port:** `create_sweep_along_planar_path` is a stub until `primitive.primitive_creation_p2` lands, whose porter must return an error instead. The FFI rejects a Hermite curve in either `PlanarPath` list.
+
+#### UB-114. `SmPrimitiveCreation::CreateCurveSweep` crashes on a profile without a B-spline curve
+- **Location:** `source/SMLib/src/SmPrimitiveCreation.cpp:4882` `SmPrimitiveCreation::CreateCurveSweep`: profile entries that are not `SmBSplineCurve` (including `NULL`) are skipped, then `sNurbs[0]` is read at `:5054` (profile reference point when `bMoveProfileCenterToPath` is false) without checking that `sNurbs` is non-empty; reached from `SmApiCreateCurveSweep` (`source/SM_API/src/SmApiBrep.cpp:1475`), which only checks that the profile list is non-empty.
+- **What happens:** Segfault.
+- **Trigger:** `SmApiCreateCurveSweep` with profile `[NULL]` or `[SmHermiteCurve(..)]`, path `SmApiCreateCurve((0,0,0),(0,0,3),(0,0,7),(0,0,10))`, no scale curves and `NULL` options (or options with `bMoveProfileCenterToPath = FALSE`). With `bMoveProfileCenterToPath = TRUE` the same profiles return without crashing (all 32 combinations of the other flags and scaling probed).
+- **How found:** adversarial review of `sweep.api_brep` (PR #110).
+- **Confirmed:** yes (segfault in `CreateCurveSweep` under gdb).
+- **Severity:** crash.
+- **Rust port:** `create_curve_sweep` is a stub until `primitive.primitive_creation_p3` lands, whose porter must return an error instead. The FFI rejects a curve-sweep profile without a B-spline curve unless the options move the profile center to the path.
+
+#### UB-108. Public topology queries dereference edges whose curve was removed
+- **Location:** `source/SM_API/src/SmApiQueries.cpp` (`SmApiGetClosestPoint`, `SmApiBrepClosestPoint`, `SmApiBrepClosestPointAll`, `SmApiBrepRelationship`, `SmApiBrepDistance`, `SmApiFindEdge`, `SmApiFindFaces`, `SmApiEdgeClosestPoint`, `SmApiFaceInternalPoint`, `SmApiFaceClassifyUV`, `SmApiFaceClosestPoint`, `SmApiBrepBoundingBox`, `SmApiFaceBoundingBox`) and their topology-query callees.
+- **Trigger:** Construct a line/B-spline wire or a face-bearing B-rep, then clear an edge's geometry with `SetCurve(nullptr, TRUE, FALSE, FALSE)`. Solver/picker paths dereference the missing curve. Face closest point crashes on a box; interior-point/classification paths crash on vertex-loop/holed faces when they reach that boundary. Tight B-rep/face boxes also crash on a curved quadratic patch with a missing boundary curve.
+- **How found:** PR #125 review, followed by 220 isolated subprocess probes of line/B-spline wires, boxes, vertex-loop and holed faces with both box modes, extended to 308 inputs to include planar and curved patches.
+- **Confirmed:** yes; affected native processes terminated with SIGSEGV. After the FFI guards were expanded, 396 isolated probes completed without a crash or timeout (192 guarded, 204 native calls completed). Regression tests preserve defined missing-curve edge queries and null top-level inputs.
+- **Severity:** crash.
+
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration
@@ -1165,6 +1217,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (the C++ reference run did not finish).
 - **Severity:** hang.
 - **Rust port:** Same loop (the Rust run of the same script did not finish either; the loop belongs to the curve point-solve units). The shim refuses a zero-length `Reparameterize` domain.
+
+#### HANG-13. `SmApiCreateLinearSweep` of a full circle over a negative distance never returns
+- **Location:** `source/SM_API/src/SmApiBrep.cpp:1196` `SmApiCreateLinearSweep` (and `SmApiCreateLinearSweepWithRepetitions`, `:1685`) -> `source/SMLib/src/SmPrimitiveCreation.cpp:1795` `SmPrimitiveCreation::CreateLinearSweep` -> (one repetition) `:1150` `CreateLinearSweep`, which builds the analytic domain `SmExtent2d(0, 0, 1, dSweepDist)` without ordering it.
+- **What happens:** The C++ reference run did not finish within 5 minutes. Which loop spins was not located. The same sweep with a positive distance, or with the direction reversed instead of the distance, finishes at once; arcs short of 360 degrees, lines and line rectangles with a negative distance also finish.
+- **Trigger:** `SmApiCreateLinearSweep` of one `SmApiCreateCircle` circle (B-spline or `SmCircle`, e.g. radius `5` at the origin) along `(0, 0, 1)` over distance `-10`, capped or not; `SmApiCreateLinearSweepWithRepetitions` with one repetition likewise.
+- **How found:** generated difftest case (`sweep.api_brep`), then adversarial probes.
+- **Confirmed:** yes (the C++ reference run did not finish).
+- **Severity:** hang.
+- **Rust port:** The wrappers are stubs until `primitive.primitive_creation_p3` lands. The FFI rejects a negative distance with a full circle (B-spline, analytic, or an arc spanning 360 degrees); the generator sweeps circles over positive distances.
 
 ## Nondeterminism
 
@@ -2023,6 +2084,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result (latent).
 - **Rust port:** Reproduces it (`topology::face::p2::check_seam_crossing` returns `true`).
 
+#### WR-93. `SmLoopuse::IsClosed3d` never reports a loop open
+- **Location:** `SmLoopuse.cpp:873`-`885` (`SmLoopuse::IsClosed3d`; also reached through `SmLoop::IsClosed3d`, `SmLoop.cpp:248`).
+- **What happens:** For a gap over its cross-section tolerance it computes `dOverTol = sXSectTol3d - sqrt(dGap3dSq)`, which is negative there, and keeps it only when `dOverTol > dMaxOverTol` (initially `0.0`). No gap ever qualifies, so `pMaxOverTolEdgeuse` stays `NULL` and the loop is always reported closed, with the largest gap and its tolerance as outputs. `bCheckAllGaps == FALSE` still stops the scan at the first gap over tolerance, so the reported "largest" gap is then only the largest seen so far.
+- **Trigger:** Any edge loop with an end-to-end gap larger than the sum of the two edge uses' tolerances.
+- **How found:** read during porting; the difftest compares it (unit `topology.loopuse`, `closed3d` cases).
+- **Confirmed:** yes: the `closed3d` cases of `fixtures/topology.loopuse/tolerance_limit.json` set every edge tolerance to 0, 1e-15 or -1e-12 so that real end gaps exceed `XSectTol3d`; both sides still report those loops closed (with the largest gap seen, also when `bCheckAllGaps == FALSE` stops early).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it (`topology::loopuse::is_closed_3d`).
+
 ### Healing
 
 #### WR-88. `BuildSampleSet` spaces the `v` samples of non-B-spline surfaces by array index
@@ -2051,6 +2121,22 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes.
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (`heal::gap::GapArray::append`).
+
+### Numerical integration
+
+#### WR-94. `SmIntegrator::IntegrateIt` hides integration/evaluator failure as zero
+- **Location:** `SmIntegrator.cpp:108-122`, `SmIntegrator::IntegrateIt`.
+- **What happens:** If `RungeKuttaODEIntegrate` fails, the scalar wrapper sets its
+  result to `0.0` and returns `SM_SUCCESS`. A failed numerical integral is therefore
+  indistinguishable from a valid zero, including for callers computing curve length.
+- **Trigger:** Integrate the constant function `1` over `[0,1]` at accuracy `0`,
+  or an evaluator that returns `SM_ERR` partway through the interval.
+- **How found:** port source review and differential fixtures `zero_accuracy_0`
+  and `evaluator_error_0` in `fixtures/mass.integrator/integrator.json`.
+- **Confirmed:** yes, the actual C++ scalar wrapper reports success with zero;
+  the direct ODE wrapper reports failure for the same zero-accuracy integral.
+- **Severity:** wrong result / hidden numerical failure.
+- **Rust port:** retained for parity; `Unported` still propagates.
 
 ## Docs
 

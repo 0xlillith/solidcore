@@ -55,8 +55,6 @@
 //! - **Ignored statuses** stay ignored (`CalculateBoundingBox` of the u split halves,
 //!   `ImplantPolyEdge`, `ImplantEdgeuse`, `sm_ComputeBezierApproximation`), except
 //!   [`SolidError::Unported`], which is always propagated.
-//! - **Unported calls.** `SmSurface::GetSingularities` (`surface.surface_p3`, pole search)
-//!   returns [`SolidError::Unported`].
 //! - **Virtual calls.** `SubdivideToTolerances` calls the virtual
 //!   `TestAgainstTolerances`: the `_with` variants
 //!   ([`SurfaceCache::subdivide_to_tolerances_with`], [`SurfaceCache::build_tree_with`],
@@ -195,9 +193,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// # Errors
     ///
-    /// As [`SurfaceCache::get_tree`]; [`SolidError::Unported`] for
-    /// `SmSurface::GetSingularities` when `uv_domain` reaches a side of the surface's
-    /// natural domain and poles are checked.
+    /// As [`SurfaceCache::get_tree`] and `Surface::get_singularities`.
     pub fn find_uv_nodes(
         &mut self,
         k: &Kernel,
@@ -206,7 +202,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ) -> Result<Vec<NodeId>> {
         // locals
         self.get_tree(k)?;
-        self.find_uv_nodes_built(uv_domain, check_for_poles)
+        self.find_uv_nodes_built(k, uv_domain, check_for_poles)
     }
 
     /// [`SurfaceCache::find_uv_nodes`] once `GetTree` has run: searches the stored
@@ -219,6 +215,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     /// [`SurfaceCache::find_uv_nodes`].
     pub fn find_uv_nodes_built(
         &self,
+        k: &Kernel,
         uv_domain: &Extent2d,
         check_for_poles: bool,
     ) -> Result<Vec<NodeId>> {
@@ -253,11 +250,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
 
             // eliminate boundaries which are not poles
             if poles != 0 {
-                // UNPORTED(surface.surface_p3): SmSurface::GetSingularities
-                return Err(SolidError::unported(
-                    "SmSurface::GetSingularities",
-                    "surface.surface_p3",
-                ));
+                poles &= self.surface().get_singularities(k, false, false)?.singular;
             }
         }
 
