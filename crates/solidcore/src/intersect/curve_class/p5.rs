@@ -19,8 +19,10 @@
 //! and vertex/face gaps. Opaque handles still defer. The SSS refinement block
 //! (upstream lines 14826–15095) needs mutable curve/topology ownership and defers
 //! before editing geometry; this block and the edge branch of `insert_solutions`
-//! remain unported. The SSS block's missing callees are the boolean mate lookups;
-//! its preceding mutations are not implemented. Ordinary vertex projections are
+//! remain unported. That block of `IntersectVertices` (SmCurveClass.cpp
+//! 14826-15095) is this unit's own unported code (`UNPORTED(intersect.curve_class_p5)`);
+//! the mate lookups it ends with are ported in `boolean.topology_intersector_p1`.
+//! Ordinary vertex projections are
 //! compared; large-gap projections remain uncertified because the oracle vertices
 //! have no vertexuse and its Rust adapter supplies no vertex/face gap.
 //! Part 2 remains an explicit dependency; parts 6/7 are wired from main. The fixup

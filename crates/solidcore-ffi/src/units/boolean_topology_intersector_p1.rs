@@ -73,9 +73,10 @@
 //! `.smb` files, well-formed clamped B-splines, handles inside the B-reps' exports (it
 //! builds the B-reps once more to count), the registered curves that exist, edges with a
 //! curve and vertices and faces with a surface where upstream dereferences them, no
-//! handle-taking op after an op that may delete topology (23 to 28, 30), and ops 7, 8
-//! and 27 to 30 only while both of the intersector's B-reps are set (constructor 0, or
-//! `SetBreps` with two B-reps; they dereference them unchecked); ops 29 to 33 need the
+//! handle-taking op after an op that may delete topology (23 to 28, 30), ops 7 and 8
+//! only while the intersector's primary B-rep is set and 27 to 30 only while both are
+//! (either constructor sets both from the blocks, then `SetBreps` may change them; they
+//! dereference them unchecked); ops 29 to 33 need the
 //! manager (33) and the second B-rep. Negative tolerances and inverted classification
 //! intervals are accepted, as upstream.
 
@@ -630,15 +631,15 @@ fn point_class(rd: &mut Reader<'_>, c: &Counts) -> Result<(), FfiError> {
 #[allow(clippy::too_many_lines)]
 fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
     use HandleKind::{Brep, Edge, Face, FaceSurface, Vertex};
-    let ctor = rd.index(1)?;
+    rd.index(1)?; // ctor: both constructors set both B-reps (1 through SetPrimaryBrep / SetOtherBrep)
     rd.finite()?; // approx (a negative value is accepted, as upstream)
     rd.finite()?; // ang
     let n_ops = rd.index(MAX_OPS)?;
     let mut mutated = false;
     let mut has_mgr = false;
-    // the intersector's B-reps: both from the blocks with constructor 0, null with
-    // the context-only constructor, then whatever SetBreps sets
-    let mut have_breps = [ctor == 0, ctor == 0 && c.breps[1].is_some()];
+    // the intersector's B-reps: both from the blocks with either constructor (1 sets
+    // them with SetPrimaryBrep / SetOtherBrep), then whatever SetBreps sets
+    let mut have_breps = [true, c.breps[1].is_some()];
     let any = [Vertex, Edge, Face, HandleKind::EdgeCurve, FaceSurface, HandleKind::Curve, Brep];
     for _ in 0..n_ops {
         let code = rd.int(1, 33)?;
@@ -661,11 +662,13 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
             return Err(bad("handle-taking op after a mutating op"));
         }
         // the ops that dereference the intersector's B-reps without checking
+        // GetCommonEdges / GetCommonVertices read only m_pBrep
+        if matches!(op, ScriptOp::CommonEdges | ScriptOp::CommonVertices) && !have_breps[0] {
+            return Err(bad("op dereferences a null intersector B-rep"));
+        }
         if matches!(
             op,
-            ScriptOp::CommonEdges
-                | ScriptOp::CommonVertices
-                | ScriptOp::FaceFace
+            ScriptOp::FaceFace
                 | ScriptOp::FaceFaceCoin
                 | ScriptOp::Resolve
                 | ScriptOp::Imprint

@@ -5,9 +5,9 @@
 //! Upstream: `source/SMLib/src/SmTopologyIntersector.cpp`,
 //! `source/SMLib/inc/SmTopologyIntersector.h`. The file is split over several plan
 //! units (`boolean.topology_intersector_p1`, `_p2`, `_p3`); each lives in its own
-//! submodule and adds methods to the types of [`p1`]. The minimal bidirectional mate
-//! storage over typed ids ([`MateMap`], [`Relations`]) was co-ported by
-//! `boolean.merge_p1` and lives in [`p1`] too.
+//! submodule and adds methods to the types of [`p1`].
+//! [`p1`] also holds the edge/vertex mate storage of the merge stages
+//! ([`p1::Relations`], co-ported by `boolean.merge_p1`).
 
 pub mod p1;
 

@@ -17,8 +17,9 @@
 //! absent. The deletion retry loop is iterative; wire collection uses the bounded
 //! explicit stack of `topology_traverser`. No input-dependent recursion is added.
 //! Relations are shared mutably with `merge_p1`; notifications use its caller-owned
-//! records and attribute store. Newly created vertex relationships still wait on
-//! the full intersector `Relate` implementation.
+//! records and attribute store. Newly created vertex relationships go through
+//! `Relate` ([`Relations::relate_vertices`]), which may raise the other operand's
+//! vertex tolerance, so `other` is mutable.
 //! Missing/dangling mates are rejected only when added to the keep list:
 //! typed ids cannot represent the null pointer upstream can append there.
 

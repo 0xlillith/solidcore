@@ -11,9 +11,6 @@
 //! | [`IntersectionResults`]                                | `SmIntersectionResults`, `SmIntersectionResults()`   |
 //! | [`IntersectionTable`]                                  | `SmIntersectionTable`, `SmIntersectionTable()`       |
 //! | [`IntersectionTable::destroy`]                         | `~SmIntersectionTable`                               |
-//! | [`MateMap`], [`Relations`] | `m_pBToO`, `m_pOToB` over typed ids (CO-PORTED by `boolean.merge_p1`) |
-//! | [`MateMap::other`], [`MateMap::primary`] | `GetOtherMate`, `GetBrepMate` |
-//! | [`relate_vertices`] | `Relate` (the vertex case, over typed ids, for `boolean.merge_p1`) |
 //! | [`TopologyIntersector`]                                | `SmTopologyIntersector`                              |
 //! | [`TopologyIntersector::destroy`]                       | `~SmTopologyIntersector`                             |
 //! | [`TopologyIntersector::clear_existing_ssi`]            | `ClearExistingSSI`                                   |
@@ -53,6 +50,9 @@
 //! | [`TopologyIntersector::subset`]                        | `GetSubset`                                          |
 //! | [`TopologyIntersector::this_ang_tol_rad`], [`TopologyIntersector::set_this_ang_tol_rad`] | `GetThisAngTolRad`, `SetThisAngTolRad` |
 //! | [`IntersectorBrep`]                                    | what the intersector reads from and writes to its two `SmBrep`s |
+//! | [`MateMap`], [`Relations`]                             | `m_pBToO`, `m_pOToB` (edge/vertex subset over [`Brep`] ids; CO-PORTED by `boolean.merge_p1`) |
+//! | [`MateMap::other`], [`MateMap::primary`]               | `GetOtherMate`, `GetBrepMate` over [`Brep`] ids       |
+//! | [`Relations::relate_vertices`]                         | `Relate` of two vertices over [`Brep`] ids            |
 //!
 //! Deviations:
 //! - **Object handles.** Every `SmObject*` (vertices, edges, faces, curves, surfaces,
@@ -112,14 +112,16 @@
 //!   (`m_pTI->GetThisApproxTol3d()` in `FindOrCreateProtoEdge`) as a parameter.
 //! - The `SM_DEBUG_CODE` / `CBI_CACHE` / `SM_VALIDATE_TOPOLOGY` blocks are compiled out
 //!   upstream and not ported; `SM_ASSERT` / `SM_ASSERT_TOL` only report.
-//! - **Typed-id mate storage.** [`MateMap`] / [`Relations`] (co-ported by
-//!   `boolean.merge_p1`, which relates typed `EdgeId` / `VertexId`s) live beside the
-//!   handle-generic intersector; [`relate_vertices`] is `Relate`'s vertex case over them.
+//! - **Merge-stage mates.** The merge stages (`boolean.merge_p1`, `_p5`) work on
+//!   concrete [`Brep`] arenas, not handles `O`, and share their edge and vertex mates
+//!   as [`Relations`] (co-ported by `boolean.merge_p1`, PR #163). Its
+//!   [`Relations::relate_vertices`] is `Relate`'s vertex branch on those ids;
+//!   [`MateMap::record`] stores an already-established pair after the same conflict
+//!   checks.
 //! - **Recursion.** None.
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::topology::{Brep, EdgeId, VertexId};
 
 /// Most faces the working lists of [`TopologyIntersector::face_face_intersect`] may
 /// hold (the inputs plus the faces split off); a bound of the port.
@@ -147,6 +149,7 @@ use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::p2::TsectCurveType;
 use crate::surface::surface::p5::{DropPoint, DropPointOptions};
 use crate::topology::proto_topology::{ProtoBrep, ProtoTopologyManager};
+use crate::topology::{vertex, Brep, EdgeId, VertexId};
 
 const OP: &str = "boolean::topology_intersector::p1";
 const OP_CHECK_SSI: &str = "boolean::topology_intersector::p1::check_if_have_existing_ssi";
@@ -3642,9 +3645,11 @@ pub fn test_and_imprint_face<O: ClassObject + SolutionObject + Ord>(
     Ok(out)
 }
 
-// ---- the typed-id mate storage of `boolean.merge_p1` -------------------------------------------
+// ---- mate storage of the merge stages (co-ported by boolean.merge_p1, PR #163) -----------
 
-/// The same mate relationship viewed in both operand directions.
+/// The same mate relationship viewed in both operand directions: the `m_pBToO` /
+/// `m_pOToB` pair over one kind of operand-local [`Brep`] arena id, as the merge
+/// stages hold it.
 #[derive(Debug, Clone)]
 pub struct MateMap<I> {
     to_other: BTreeMap<I, I>,
@@ -3672,8 +3677,12 @@ impl<I: Ord + Copy> MateMap<I> {
     }
 
     /// Record an established pair. Conflicting pairs fail before either map changes.
-    /// Call the owning intersector's `Relate` for new geometry, including its
-    /// tolerance updates, before recording that relationship here.
+    /// New geometry is related with [`Relations::relate_vertices`] (`Relate`, with its
+    /// tolerance updates) instead.
+    ///
+    /// # Errors
+    ///
+    /// `SM_ERR` when either id already has a different mate.
     pub fn record(&mut self, primary: I, other: I) -> Result<()> {
         if self.other(primary).is_some_and(|v| v != other)
             || self.primary(other).is_some_and(|v| v != primary)
@@ -3697,59 +3706,49 @@ pub struct Relations {
     pub vertices: MateMap<VertexId>,
 }
 
-/// `SmTopologyIntersector::Relate(pBrepVertex, pVertexInOther)` for two vertices held
-/// by typed ids (the form `boolean.merge_p1` needs: `MergeVertex`,
-/// `SmMerge.cpp`): the conflicting-mate checks (`SM_ERR` when either vertex already
-/// has a different mate), the tolerance maximisation of both vertices
-/// (`SM_USE_OLDTOL`: each takes the larger of the two tolerances, `SetTolerance` with
-/// its defaults) and the insertion into the maps.
-///
-/// # Errors
-///
-/// `SM_ERR` for a conflicting existing mate; those of the vertex lookups.
-pub fn relate_vertices(
-    brep: &mut Brep,
-    other: &mut Brep,
-    brep_vertex: VertexId,
-    other_vertex: VertexId,
-    relations: &mut Relations,
-) -> Result<()> {
-    // check for conflicting existing mate relationships
-    let oth = relations.vertices.other(brep_vertex);
-    let brp = relations.vertices.primary(other_vertex);
-    if oth.is_some_and(|o| o != other_vertex) {
-        return Err(SolidError::sm_err(OP_RELATE));
-    }
-    if brp.is_some_and(|b| b != brep_vertex) {
-        return Err(SolidError::sm_err(OP_RELATE));
-    }
+impl Relations {
+    /// `Relate(pBrepTopo, pOtherTopo)` for two vertices of the concrete [`Brep`]
+    /// operands of the merge stages: [`TopologyIntersector::relate`]'s vertex branch
+    /// on arena ids. The conflict checks come first; then (`SM_USE_OLDTOL`) each vertex
+    /// gets the other's tolerance when that is larger (`SetTolerance` with its
+    /// defaults `bUpdateOnlyIfLarger = TRUE`, `bCascadeToBndries = TRUE`); then the
+    /// pair is stored in both directions.
+    ///
+    /// # Errors
+    ///
+    /// `SM_ERR` when either vertex already has a different mate (nothing changes);
+    /// [`SolidError::NotFound`] for a dangling id (upstream's `NER` of a null vertex).
+    pub fn relate_vertices(
+        &mut self,
+        brep: &mut Brep,
+        brep_vertex: VertexId,
+        other: &mut Brep,
+        other_vertex: VertexId,
+    ) -> Result<()> {
+        // check for conflicting existing mate relationships
+        let oth = self.vertices.other(brep_vertex);
+        let brp = self.vertices.primary(other_vertex);
+        if oth.is_some_and(|v| v != other_vertex) {
+            return Err(SolidError::sm_err(OP_RELATE));
+        }
+        if brp.is_some_and(|v| v != brep_vertex) {
+            return Err(SolidError::sm_err(OP_RELATE));
+        }
 
-    // when objects are vertices - set object tolerances to max(object1 tol, object2 tol)
-    let tol1 = crate::topology::vertex::tolerance(brep, brep_vertex)?;
-    let tol2 = crate::topology::vertex::tolerance(other, other_vertex)?;
-    if tol1 < tol2 {
-        // (SetTolerance is void: its status is ignored)
-        ignore_soft(crate::topology::vertex::set_tolerance(
-            brep,
-            brep_vertex,
-            tol2,
-            true,
-            true,
-        ))?;
-    }
-    let tol1 = crate::topology::vertex::tolerance(brep, brep_vertex)?;
-    if tol2 < tol1 {
-        ignore_soft(crate::topology::vertex::set_tolerance(
-            other,
-            other_vertex,
-            tol1,
-            true,
-            true,
-        ))?;
-    }
+        // when objects are vertices - set object tolerances to max(object1 tol, object2 tol)
+        let tol1 = vertex::tolerance(brep, brep_vertex)?;
+        let tol2 = vertex::tolerance(other, other_vertex)?;
+        if tol1 < tol2 {
+            vertex::set_tolerance(brep, brep_vertex, tol2, true, true)?;
+        }
+        let tol1 = vertex::tolerance(brep, brep_vertex)?;
+        if tol2 < tol1 {
+            vertex::set_tolerance(other, other_vertex, tol1, true, true)?;
+        }
 
-    // add the pair to the Ptr to Ptr map
-    relations.vertices.record(brep_vertex, other_vertex)
+        // add the pair to the Ptr to Ptr map
+        self.vertices.record(brep_vertex, other_vertex)
+    }
 }
 
 #[cfg(test)]

@@ -289,7 +289,8 @@ pub struct VertexCopy<'a> {
 /// `region = None` forwards the infinite-region default of `MakeShellVertex`.
 /// `SM_NO_GET_BREP` expands to null in the pinned source, so both B-rep
 /// notification arguments remain `None`. The reference enables `SM_USE_OLDTOL`:
-/// a larger source tolerance is copied before notification.
+/// a larger source tolerance is copied before notification. `other` is mutable
+/// because `Relate` of a new vertex may raise the source vertex's tolerance.
 pub fn merge_vertex(
     brep: &mut Brep,
     other: &mut Brep,
@@ -307,7 +308,7 @@ pub fn merge_vertex(
         dest
     } else {
         let dest = make_shell_vertex(brep, other, source, region)?;
-        relate_new_vertex(brep, other, dest, source, relations)?;
+        relations.relate_vertices(brep, dest, other, source)?;
         dest
     };
     brep.vertex(dest)?;
@@ -340,19 +341,6 @@ fn make_shell_vertex(
     other.vertex(source)?;
     // UNPORTED(topology.brep_p9): SmBrep::MakeShellVertex
     unavailable("SmBrep::MakeShellVertex", "topology.brep_p9")
-}
-
-/// `m_vTI.Relate(pBrepVertex, pVertexInOther)` (`boolean.topology_intersector_p1`,
-/// the vertex case over typed ids: conflicting-mate checks, the tolerance
-/// maximisation of both vertices and the map insertion).
-fn relate_new_vertex(
-    brep: &mut Brep,
-    other: &mut Brep,
-    dest: VertexId,
-    source: VertexId,
-    relations: &mut Relations,
-) -> Result<()> {
-    crate::boolean::topology_intersector::p1::relate_vertices(brep, other, dest, source, relations)
 }
 
 /// The intersection lists and live primary-to-other mate lookups used by cleanup.

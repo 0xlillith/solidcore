@@ -5780,14 +5780,8 @@ sides reject the script (cut at op 0); `--perturb` SENSITIVE 653/653. (Before th
   The intersector reaches it through `IntersectorBrep::update_object_tolerance`. Its
   "nothing to do" status `SM_ERR_INVALID_INPUT` is `SolidError::Upstream { code: 1007 }`
   (added as `error::SM_ERR_INVALID_INPUT`); callers ignore it, as upstream.
-- **`SmCurveClassification::SetInterval`** (`SmCurveClass.h:593`, `m_vInterval.SetMinMax`;
-  the only way to set `m_vInterval` outside `ReSet`, unit `intersect.curve_class_p2`): this
-  unit uses #150's `CurveClassification::set_interval` (`intersect/curve_class/p1.rs:531`,
-  commit 91aff827, `self.interval.set_min_max(..)`; the runner ignores its status, as the
-  inline setter is void). It is distinct from `CurveInterval::set_interval` (`p1.rs:383`,
-  also #150's, a plain assignment like upstream `SmCurveInterval::SetInterval`,
-  `SmCurveClass.h:192`; no discrepancy either). The runner builds
-  `SmCurveClassification(curve, ivl, NULL, tol)` from the port's setters as `ReSet` does
+- The runner builds `SmCurveClassification(curve, ivl, NULL, tol)` from the port's setters
+  (including #150's `CurveClassification::set_interval`) as `ReSet` does
   (curve, interval, source zone tolerance `SM_UNINIT_TOL` when not positive, one interval
   over the range with the tolerance on its three classifications).
 - **Deferred (174, after the reviews).** `SmFace::GetTolerance` (82, `topology.face_p2`):
@@ -6159,3 +6153,7 @@ independent p6 integration.
   `MergeEdge` / `MergeVertex`'s `Relate` updates. When those adapters are wired,
   relation state must become mutable and preserve updates for later iterations;
   this integration requirement is also recorded in the module's Deviations.
+  (PR #146: `MergeVertex`'s `Relate` is now wired to
+  `Relations::relate_vertices`, and `merge_vertex` / `process_wires_and_shell_vertices`
+  take the other operand mutably; it stays unreached behind `MakeShellVertex`,
+  `topology.brep_p9`.)

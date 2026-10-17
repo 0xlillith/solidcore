@@ -1616,7 +1616,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894394785303245227",
-      "values_compared": 27
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -1740,7 +1740,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894394785303245241",
-      "values_compared": 15
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -2104,7 +2104,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894394785303245282",
-      "values_compared": 15
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -4524,7 +4524,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894394785303245560",
-      "values_compared": 11
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
