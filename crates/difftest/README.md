@@ -96,15 +96,15 @@ On Linux (where CI runs) the worker is linked with GNU ld `--wrap` around
 `N_CrvExtendByDist`, `N_CrvArcLength`, `N_SrfExtendByDist` and `N_SrfCopy`. The
 wrappers forward unchanged on finite, progressing paths. During an extension only,
 they reject a successful nonfinite arc length or an initial G2 step that cannot move
-its endpoint (HANG-6/HANG-18), an arc-length search past 20,000 calls (HANG-6's
+its endpoint (HANG-6/HANG-20), an arc-length search past 20,000 calls (HANG-6's
 crawl for distances tiny against the curve; normal searches take at most 45), and a
 read of a surface a failed in-place extension half-wrote (UB-107). They do not change
 numerical tolerances or turn the rejection into an SMLib status. On other targets
 the worker is built without them (`SC_OFFSET_NO_LINK_WRAP`, with a build warning) and
 the shim refuses `CreateExtendedSurface` steps instead. The shim also validates, on
 the actual surfaces after preceding edits, box domains at every level of the offset
-chain (UB-164/HANG-17), writes past the caller's array for the actual compound
-distance (UB-162) and zero-offset plane delegation (UB-163).
+chain (UB-167/HANG-19), writes past the caller's array for the actual compound
+distance (UB-165) and zero-offset plane delegation (UB-166).
 
 The generator preflights state-dependent guards. An explicit unsafe-input
 rejection excludes that candidate; it is not a pass or a deferred comparison.

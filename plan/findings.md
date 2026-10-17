@@ -4360,7 +4360,7 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   transform-scale floor, the `1e-6` revolution generator minimum (offset callers only;
   the revolution unit's in-process calls keep it), the order cap of 6 (now 64, a bound on
   the caller's array: upstream refuses offset orders above 3 before writing) and the
-  `1e3` extension-distance cap. UB-162 (writes past the array) moved from a static
+  `1e3` extension-distance cap. UB-165 (writes past the array) moved from a static
   order table into the worker, checked on the actual compound distance (a zero offset
   delegates and is compared). The box guard now follows `CalculateBoundingBox` level by
   level and checks each offset's own `m_pSurface`, not only the innermost base. The
@@ -4403,7 +4403,7 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   generated cases each disagreed (C++ succeeding on undefined data).
 - **Exact replay:** `serde_json/float_roundtrip` preserves the eight doubles that
   previously changed by one ULP on fixture reload. A regression checks input bits.
-- **Reference safety:** `gen5909` is HANG-18, a successful NaN arc length entering
+- **Reference safety:** `gen5909` is HANG-20, a successful NaN arc length entering
   a nonterminating extension search, reproduced without earlier cases or a shared
   context. The isolated worker forwards unmodified upstream numerics and rejects
   this invalid state and HANG-6's exact nonprogressing initial step. The original
@@ -4448,17 +4448,17 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   offset's base surface's, as upstream.
 - **Upstream bugs kept:** WR-159 (`Cuuv` / `Cuvv` coefficients), WR-160 (`Duvv` / `Dvvv` add
   `Buuv`), WR-161 (`Duv` over `Duu`), WR-162 (`SplitAt` extension), WR-163 (`SwapUV` double
-  negation), WR-164 (`STEPInversion` retry tolerance). UB-162 to UB-165, HANG-17 and HANG-6
+  negation), WR-164 (`STEPInversion` retry tolerance). UB-165 to UB-168, HANG-19 and HANG-6
   (small distances) are kept away from the C++ side by the harness.
 - **Harness.** The shim and runner compare, for `bOnlyUpperHalf`, only the entries upstream
   writes (`i + j` up to the larger order); untouched entries are caller memory upstream and
   zero or `UNDEF` in the Rust kinds. Fixture placeholders (`"NAT"`, `"SUB"`, `"MID"`,
   `"VMIN"`, `"VMAX"`, `"ON"`) are filled from the base built on the Rust side. Generated
   extension distances are a fraction of the base's size (HANG-6). The FFI rejects the
-  orders of UB-162, a split once the base domain is unknown, and boxes outside a base domain
+  orders of UB-165, a split once the base domain is unknown, and boxes outside a base domain
   it can still track; the shim, in the worker, re-checks every box against the actual base
-  domain after the preceding steps (UB-164, HANG-17) and zero-distance delegation to a
-  plane's evaluator (UB-163).
+  domain after the preceding steps (UB-167, HANG-19) and zero-distance delegation to a
+  plane's evaluator (UB-166).
 - **Deferred:** only `SmSurface::LocalPointSolve_1` (`surface.surface_point_solve_p3`),
   reached through the `SmSurface` solver bodies run on an offset. `GetSingularities` runs
   the `SmSurface` body for every base, an offset base too: the constructor calls it
@@ -4489,9 +4489,10 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   which `SmOffsetSurface` does not override; its 120 offset deferrals pass (1531 cases,
   1223 pass, 308 deferred on `surface.surface_p5` / `surface.surface_p3` stubs of that
   unit).
-- **Issue numbers:** renumbered past main (`5b1b5498`) and every open PR (2026-10-16):
-  UB-162..165 (first UB-99..102, then UB-116..119), WR-159..165 (first WR-81..87, then
-  WR-97..103), HANG-17 and HANG-18 (first HANG-13/14, then HANG-14/15).
+- **Issue numbers:** renumbered past main (`2bdd9f66`) and every open PR (2026-10-16):
+  UB-165..168 (first UB-99..102, then UB-116..119, then UB-162..165), WR-159..165 (first
+  WR-81..87, then WR-97..103), HANG-19 and HANG-20 (first HANG-13/14, then HANG-14/15,
+  then HANG-17/18).
 
 ## topology.vertexuse (`SmVertexuse`, 2026-10-14; partial, no disagreements)
 

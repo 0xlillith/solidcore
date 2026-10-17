@@ -187,7 +187,7 @@ fn main() {
     command
         .arg(&worker_source)
         .arg(out_dir.join("libsolidcore_shims.a"));
-    // The extension guards (UB-107, HANG-6, HANG-18) wrap NLib entry points with GNU
+    // The extension guards (UB-107, HANG-6, HANG-20) wrap NLib entry points with GNU
     // ld's --wrap, available on Linux (where CI runs). Elsewhere the worker is built
     // without them and the shim refuses the extension ops that would need them.
     if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("linux") {

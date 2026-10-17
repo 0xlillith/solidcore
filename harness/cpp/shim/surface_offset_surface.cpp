@@ -197,12 +197,12 @@ bool delegates_to_plane(SmOffsetSurface* s, const SmPoint2d& uv, ULONG hu, ULONG
     if (!base->GetNaturalUVDomain().ContainsPoint2d(uv) && s->GetExtendedBaseSurface())
         base = s->GetExtendedBaseSurface();
     // SmPlane::EvaluateSimple inherits the same evaluator. Other base kinds have
-    // their own checked derivative layouts; only this direct delegation is UB-163.
+    // their own checked derivative layouts; only this direct delegation is UB-166.
     (void)simple;
     return SM_CAST_PTR(SmPlane, base) != NULL;
 }
 
-// UB-162: with bOnlyUpperHalf, EvaluatePlainOrSimple's non-zero path writes the mixed
+// UB-165: with bOnlyUpperHalf, EvaluatePlainOrSimple's non-zero path writes the mixed
 // derivatives at their full-layout indices, past a caller array sized (hu+1)(hv+1).
 // Mirror its checks in order: offset order above 3 and an offset nested twice fail
 // before anything is written, an exact 0.0 compound distance delegates to the base.
@@ -575,8 +575,8 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         // Follow SmOffsetSurface::CalculateBoundingBox down the chain on the actual
         // surfaces after the preceding ops: each level tests the domain against its own
         // m_pSurface and passes the call on, or runs the SmSurface body on itself, whose
-        // offset surface cache can recurse (UB-164) or subdivide without progress
-        // (HANG-17). Refuse a box that reaches that body at any level.
+        // offset surface cache can recurse (UB-167) or subdivide without progress
+        // (HANG-19). Refuse a box that reaches that body at any level.
         for (SmOffsetSurface* level = s; level != NULL;
              level = SM_CAST_PTR(SmOffsetSurface, level->GetBaseSurface()))
         {
@@ -689,7 +689,7 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         }
         else if (step == S_EXTEND)
         {
-            // CreateExtendedSurface reaches UB-107 and the HANG-6/HANG-18 searches,
+            // CreateExtendedSurface reaches UB-107 and the HANG-6/HANG-20 searches,
             // guarded only by the worker's link wrappers (not on every platform).
             if (!sc_offset_extensions_guarded()) throw ScOffsetUnsafeInput{};
             double dist = rd.num();

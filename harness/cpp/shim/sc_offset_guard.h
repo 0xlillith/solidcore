@@ -6,7 +6,7 @@
 struct ScOffsetUnsafeInput {};
 
 // Set to 1 by the offset worker's main() when it is linked with its NLib wrappers (GNU
-// ld --wrap): the guards for UB-107 and the HANG-6/HANG-18 extension searches. Defined
+// ld --wrap): the guards for UB-107 and the HANG-6/HANG-20 extension searches. Defined
 // as 0 in the shim (a plain variable, no weak symbols: the shim builds everywhere).
 extern "C" int sc_offset_extension_guards_enabled;
 inline bool sc_offset_extensions_guarded() { return sc_offset_extension_guards_enabled != 0; }

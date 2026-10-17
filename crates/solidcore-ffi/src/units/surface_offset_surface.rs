@@ -52,12 +52,12 @@
 //! cache subdivision runs away for small trimmed bases), and no planarity test once an
 //! extension may exist. The isolated worker (`harness/cpp/offset_worker.cpp`) checks
 //! the state-dependent cases on the actual surfaces as the script runs: the non-zero
-//! offset writing past the caller's array for `bOnlyUpperHalf` orders (UB-162, only
+//! offset writing past the caller's array for `bOnlyUpperHalf` orders (UB-165, only
 //! when the compound distance is not exactly `0.0`), zero-distance delegation to an
-//! `SmPlane` with more `u` than `v` orders (UB-163), a box reaching the `SmSurface` body
-//! at any level of the offset chain (UB-164, HANG-17), a read of a surface a failed
+//! `SmPlane` with more `u` than `v` orders (UB-166), a box reaching the `SmSurface` body
+//! at any level of the offset chain (UB-167, HANG-19), a read of a surface a failed
 //! in-place extension half-wrote (UB-107), and extension searches that cannot advance
-//! or crawl past a work bound (HANG-6, HANG-18). A surface of revolution base is checked
+//! or crawl past a work bound (HANG-6, HANG-20). A surface of revolution base is checked
 //! with the revolution unit's `Limits::Isolated` limits (no minimum sizes).
 
 use super::surface_surf_of_revolution_p1 as rev;
@@ -574,7 +574,7 @@ fn check_orders(hu: usize, hv: usize, _upper: bool) -> Result<(), FfiError> {
     if hu > MAX_ORDER || hv > MAX_ORDER {
         return Err(bad("eval: order above MAX_ORDER"));
     }
-    // UB-162 (the non-zero path writing past the array) and UB-163 (zero-distance
+    // UB-165 (the non-zero path writing past the array) and UB-166 (zero-distance
     // delegation to SmPlane) depend on the actual distance after the preceding ops:
     // the shim checks both in the worker.
     Ok(())
@@ -693,7 +693,7 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                     return Err(bad("box: curve-bounded or STEP base (UB-84)"));
                 }
                 // Unknown/edited domains are checked against the actual base by the
-                // isolated shim. Unknown is not evidence of containment (UB-164).
+                // isolated shim. Unknown is not evidence of containment (UB-167).
                 if dom.is_some() && !contained(*d, dom) {
                     return Err(bad("box: domain may lie outside the base domain"));
                 }
@@ -996,7 +996,7 @@ mod tests {
         matches!(r, Err(FfiError::InvalidArgument(_)))
     }
 
-    /// UB-162 depends on the actual distance: a zero offset delegates to its base
+    /// UB-165 depends on the actual distance: a zero offset delegates to its base
     /// (accepted for a B-spline, which refuses unequal upper-half orders itself), a
     /// non-zero one writes past the array (refused).
     #[test]
