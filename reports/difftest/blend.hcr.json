@@ -3,6 +3,334 @@
   "cases": [
     {
       "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_start_hint_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#0 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_start_hint_minus1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#1 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_start_hint_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#2 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_start_hint_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#3 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_end_hint_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#4 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_end_hint_minus1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#5 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_end_hint_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#6 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_end_hint_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#7 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_start_hint_big",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#8 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_end_hint_big",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#9 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_start_hint_1_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#10 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetSurfaces",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_start_hint_0_5_is_none",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#11 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_start_hint_3_end_hint_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#12 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_start_hint_1_end_hint_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#13 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "intersect_fa_gt_fb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#14 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_gt_fb_start_hint_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#15 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_gt_fb_end_hint_minus1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#16 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_gt_fb_hint_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#17 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "intersect_fa_gt_fb_full",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#18 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_gt_fb_full_start_hint_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#19 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_gt_fb_full_end_hint_minus1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#20 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_gt_fb_full_hint_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#21 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "intersect_fa_eq_fb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#22 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_eq_fb_start_hint_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#23 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_eq_fb_end_hint_minus1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#24 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_eq_fb_hint_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#25 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "intersect_fa_eq_fb_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#26 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_eq_fb_zero_start_hint_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#27 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_eq_fb_zero_end_hint_minus1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#28 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_eq_fb_zero_hint_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#29 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "intersect_fa_eq_fb_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#30 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_eq_fb_one_start_hint_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#31 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_eq_fb_one_end_hint_minus1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#32 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "curve_visibility_fa_eq_fb_one_hint_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.hcr/hints_and_fractions.json#33 (upstream source/SMLib/src/SmHCR.cpp:332-417)",
+      "values_compared": 19
+    },
+    {
+      "deferred": {
         "symbol": "SmEdge::GetVertex",
         "unit": "topology.edge"
       },
@@ -3689,13 +4017,13 @@
     }
   ],
   "cases_both_errored": 50,
-  "cases_deferred": 109,
+  "cases_deferred": 123,
   "cases_failed": 0,
-  "cases_passed": 291,
-  "cases_total": 400,
+  "cases_passed": 311,
+  "cases_total": 434,
   "deferred_by_unit": {
     "intersect.curve_class_p2": 35,
-    "topology.brep_p1": 52,
+    "topology.brep_p1": 66,
     "topology.edge": 18,
     "topology.edgeuse_p3": 3,
     "topology.vertex": 1
