@@ -16,8 +16,9 @@
 // member reached through a derived class, filled with the pairs given) come from the
 // input, locks a mark, and runs a script: fixture edits (store curves/surfaces, replace an
 // edge's curve, set an edge use's UV trim curve, mark an edge use) and the unit's
-// functions. Each op emits its code, a status (0 success, the SmStatus code, or -2 when
-// the shim refused the op because upstream would dereference null) and its outputs; the
+// functions. Each op emits its code, a status (0 success, the SmStatus code, -2 when
+// the shim refused the op because upstream would dereference null, or -6 when the script
+// stops at an op the Rust side defers at, see ST_NOT_RUN) and its outputs; the
 // objects the unit makes are emitted as geometry (`put_curve` of the fixture header,
 // surfaces as their type, UV domain, a 3x3 point sample and, for a plain B-spline surface
 // or a surface of revolution, their NURB), the B-rep edits as edge / edge-use state blocks.
@@ -151,6 +152,16 @@ struct Two
 };
 
 const double ST_OK = 0.0;
+// The op the Rust side defers at without running anything comparable, so the script
+// stops here (the runner mirrors each predicate): a non-local FaceuseOffset of a face
+// whose surface the export brings in as its B-spline part (an SmSurfOfRevolution's
+// offset self-intersection takes 20 s to minutes, HANG-21), and an EdgeuseOffset with
+// |offset distance| above MAX_EDGEUSE_OFFSET_DISTANCE (HANG-22).
+const double ST_NOT_RUN = -6.0;
+// HANG-22: SmCrvOnSurf::ApproximateCurve of an EdgeuseOffset rail grows with the
+// offset distance (Mouse.smb: 1 s at 1e4, 10 s at 1e6, 28 s at 1e8, no return within
+// 90 s at 1e250 and 1e300); the bound keeps every script under the fuzz's 20 s.
+const double MAX_EDGEUSE_OFFSET_DISTANCE = 1.0e6;
 bool eu_ok(SmEdgeuse* eu)
 {
     if (eu == nullptr || eu->GetEdge() == nullptr || eu->GetEdge()->GetCurve() == nullptr)
@@ -540,6 +551,15 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                 o.push_back(ST_NULL_DEREF);
                 break;
             }
+            if (op == S_FACEUSE_OFFSET)
+            {
+                long ty = fu->GetFace()->GetSurface()->GetType();
+                if (ty != SmPlane_TYPE && ty != SmBSplineSurface_TYPE)
+                {
+                    o.push_back(ST_NOT_RUN); // the Rust defers here (analytic export)
+                    return;
+                }
+            }
             ULONG lidx = 0;
             bool lfound = false;
             if (op == S_LOCAL_FACEUSE_OFFSET)
@@ -797,6 +817,11 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             {
                 o.push_back(ST_NULL_DEREF);
                 break;
+            }
+            if (fabs(dist) > MAX_EDGEUSE_OFFSET_DISTANCE)
+            {
+                o.push_back(ST_NOT_RUN); // HANG-22: the Rust defers here
+                return;
             }
             if (exec.GetExtendConvexEdges())
             {

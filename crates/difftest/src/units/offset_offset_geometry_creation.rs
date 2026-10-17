@@ -32,6 +32,15 @@
 //! a 3D curve and no UV curve is refused only when the curves run opposite (the shape
 //! test is replicated). The runner mirrors every guard on the imported B-reps.
 //!
+//! **Hang guards (`-6`, the script stops; the case defers).** The shim does not run two
+//! ops the Rust side defers at anyway, as they can take minutes or not return (the
+//! fuzz allows 20 s a side): a non-local `FaceuseOffset` of a face imported as its
+//! B-spline part (deferred under `harness:analytic-geometry-export`; HANG-21, the offset
+//! self-intersection of an `SmSurfOfRevolution`), and an `EdgeuseOffset` with
+//! `|offset distance| > 1e6` (deferred under `upstream:HANG-22`, the rail's
+//! `SmCrvOnSurf::ApproximateCurve`). The generator's distances (0.001 to 100) never
+//! reach the second bound; the first stops no compared case (the Rust defers there).
+//!
 //! **Deferred.** `SmOffsetGeometryCreation::FaceuseOffset` (`SmSurface::CreateOffsetSurface`,
 //! `surface.offset_surface`), `UpdateFaceSurfaceDomain`
 //! (`SmFace::CreateUVTrimCurves` inside `CalculateUVDomainFromUVTrimCurves`,
@@ -108,6 +117,12 @@ const NULL_DEREF: f64 = -2.0;
 /// `SmBSplineSurface` subclass other than `SmPlane`): no plan unit's port would
 /// unblock it, an exact import would.
 const ANALYTIC_EXPORT: &str = "harness:analytic-geometry-export";
+/// The deferral label of an `EdgeuseOffset` whose offset distance is beyond the
+/// shim's HANG-22 bound (`plan/upstream-issues.md`): upstream's rail approximation does
+/// not return in time there, so neither side runs the op.
+const HANG_22: &str = "upstream:HANG-22";
+/// The shim's `MAX_EDGEUSE_OFFSET_DISTANCE` (HANG-22).
+const MAX_EDGEUSE_OFFSET_DISTANCE: f64 = 1.0e6;
 /// Upstream's `SM_ERR_INVALID_INPUT` status (`SmMessages.h`), the status a library
 /// `SolidError::InvalidInput` stands for.
 const SM_ERR_INVALID_INPUT: f64 = 1007.0;
@@ -301,8 +316,15 @@ fn flag(b: bool) -> f64 {
 }
 
 fn push_curve(v: &mut Vec<f64>, c: &CrvIn) -> Result<(), HarnessError> {
-    let n = c.cpts.len().checked_sub(1).ok_or_else(|| harness("curve without points"))?;
-    let m = c.u.len().checked_sub(1).ok_or_else(|| harness("curve without knots"))?;
+    let n = c
+        .cpts
+        .len()
+        .checked_sub(1)
+        .ok_or_else(|| harness("curve without points"))?;
+    let m =
+        c.u.len()
+            .checked_sub(1)
+            .ok_or_else(|| harness("curve without knots"))?;
     v.extend([c.dim as f64, n as f64, c.p as f64, m as f64]);
     for p in &c.cpts {
         v.extend(p);
@@ -319,7 +341,11 @@ fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
             v.extend(n);
         }
         SrfIn::Bspline(b) => {
-            let n = b.net.len().checked_sub(1).ok_or_else(|| harness("empty net"))?;
+            let n = b
+                .net
+                .len()
+                .checked_sub(1)
+                .ok_or_else(|| harness("empty net"))?;
             let m = b
                 .net
                 .first()
@@ -328,6 +354,14 @@ fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
             if b.net.iter().any(|r| r.len() != m + 1) {
                 return Err(harness("ragged net"));
             }
+            let ku =
+                b.u.len()
+                    .checked_sub(1)
+                    .ok_or_else(|| harness("surface without u knots"))?;
+            let kv =
+                b.v.len()
+                    .checked_sub(1)
+                    .ok_or_else(|| harness("surface without v knots"))?;
             v.extend([
                 0.0,
                 flag(b.oob),
@@ -336,8 +370,8 @@ fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
                 m as f64,
                 b.p as f64,
                 b.q as f64,
-                (b.u.len() - 1) as f64,
-                (b.v.len() - 1) as f64,
+                ku as f64,
+                kv as f64,
             ]);
             for row in &b.net {
                 for p in row {
@@ -410,7 +444,11 @@ fn export(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
 fn build_failure(export: &[f64]) -> Output {
     Output::err(format!(
         "brep_build_{}_status_{}",
-        if export.first() == Some(&-3.0) { "b" } else { "a" },
+        if export.first() == Some(&-3.0) {
+            "b"
+        } else {
+            "a"
+        },
         export.get(1).copied().unwrap_or(0.0)
     ))
 }
@@ -464,13 +502,23 @@ impl Ord for H {
 }
 
 const fn hd(b: i8, kind: u8, i: u32) -> H {
-    H { b, kind, i, ivl: [f64::NAN, f64::NAN] }
+    H {
+        b,
+        kind,
+        i,
+        ivl: [f64::NAN, f64::NAN],
+    }
 }
 
 /// A curve handle carrying the curve's natural interval.
 fn curve_h(b: i8, kind: u8, i: u32, c: &SmCurve) -> H {
     let ivl = c.natural_interval();
-    H { b, kind, i, ivl: [ivl.min(), ivl.max()] }
+    H {
+        b,
+        kind,
+        i,
+        ivl: [ivl.min(), ivl.max()],
+    }
 }
 
 impl ClassObject for H {
@@ -666,11 +714,13 @@ impl Two {
     }
 
     fn brep_r(&self, h: H) -> solidcore::Result<&Brep> {
-        self.brep(h).ok_or_else(|| invalid("handle names an absent B-rep"))
+        self.brep(h)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))
     }
 
     fn brep_m(&mut self, h: H) -> solidcore::Result<&mut Brep> {
-        self.brep_mut(h).ok_or_else(|| invalid("handle names an absent B-rep"))
+        self.brep_mut(h)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))
     }
 
     fn eu_h(b: i8, eu: Option<EdgeuseId>) -> Option<H> {
@@ -680,7 +730,10 @@ impl Two {
     /// The edge's curve handle.
     fn edge_curve_h(&self, e: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(e)?;
-        Ok(b.edge(eid(e))?.curve.as_ref().map(|c| curve_h(e.b, K_EDGE_CURVE, e.i, c)))
+        Ok(b.edge(eid(e))?
+            .curve
+            .as_ref()
+            .map(|c| curve_h(e.b, K_EDGE_CURVE, e.i, c)))
     }
 
     /// The UV trim curve handle of an edge use (stored on it or its mate).
@@ -774,7 +827,12 @@ impl Two {
         Ok(())
     }
 
-    fn set_eu_uv_from(&mut self, eu: H, curve: Option<SmCurve>, max_dist: f64) -> solidcore::Result<()> {
+    fn set_eu_uv_from(
+        &mut self,
+        eu: H,
+        curve: Option<SmCurve>,
+        max_dist: f64,
+    ) -> solidcore::Result<()> {
         let b = self.brep_m(eu)?;
         let arg = match curve {
             Some(c) => eu1::UvTrimCurveArg::New(Box::new(c)),
@@ -845,7 +903,12 @@ impl ProtoGeometry<H> for Two {
     fn curve_mut(&mut self, o: H) -> Option<&mut SmCurve> {
         match o.kind {
             K_EDGE_CURVE => self.brep_mut(o)?.edge_mut(eid(o)).ok()?.curve.as_mut(),
-            K_EU_UV => self.brep_mut(o)?.edgeuse_mut(euid(o)).ok()?.uv_trim_curve.as_mut(),
+            K_EU_UV => self
+                .brep_mut(o)?
+                .edgeuse_mut(euid(o))
+                .ok()?
+                .uv_trim_curve
+                .as_mut(),
             K_CURVE => self.curves.get_mut(o.i as usize),
             K_EXTRA => self.extra.get_mut(o.i as usize),
             _ => None,
@@ -884,7 +947,10 @@ impl OffsetBrep<H> for Two {
     }
     fn face_surface(&self, face: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(face)?;
-        Ok(b.face(fid(face))?.surface.as_ref().map(|_| hd(face.b, K_FACE_SURFACE, face.i)))
+        Ok(b.face(fid(face))?
+            .surface
+            .as_ref()
+            .map(|_| hd(face.b, K_FACE_SURFACE, face.i)))
     }
     fn face_uv_domain(&self, face: H) -> solidcore::Result<Extent2d> {
         fp2::uv_domain(self.brep_r(face)?, fid(face))
@@ -892,9 +958,16 @@ impl OffsetBrep<H> for Two {
     fn set_face_uv_domain(&mut self, face: H, domain: Extent2d) -> solidcore::Result<()> {
         fp2::set_uv_domain(self.brep_m(face)?, fid(face), &domain)
     }
-    fn face_uv_domain_from_uv_trim_curves(&mut self, k: &Kernel, face: H) -> solidcore::Result<Extent2d> {
+    fn face_uv_domain_from_uv_trim_curves(
+        &mut self,
+        k: &Kernel,
+        face: H,
+    ) -> solidcore::Result<Extent2d> {
         let b = self.brep_m(face)?;
-        Ok(fp1::calculate_uv_domain_from_uv_trim_curves(k, b, fid(face), true, false, false)?.domain)
+        Ok(
+            fp1::calculate_uv_domain_from_uv_trim_curves(k, b, fid(face), true, false, false)?
+                .domain,
+        )
     }
     fn edge_curve(&self, edge: H) -> solidcore::Result<Option<H>> {
         self.edge_curve_h(edge)
@@ -908,7 +981,12 @@ impl OffsetBrep<H> for Two {
     fn edge_tolerance(&self, edge: H) -> solidcore::Result<f64> {
         ed::tolerance(self.brep_r(edge)?, eid(edge))
     }
-    fn set_edge_tolerance(&mut self, _k: &Kernel, edge: H, tolerance: f64) -> solidcore::Result<()> {
+    fn set_edge_tolerance(
+        &mut self,
+        _k: &Kernel,
+        edge: H,
+        tolerance: f64,
+    ) -> solidcore::Result<()> {
         ed::set_tolerance(self.brep_m(edge)?, eid(edge), tolerance, true, true)
     }
     fn edge_set_curve(&mut self, _k: &Kernel, edge: H, curve: H) -> solidcore::Result<()> {
@@ -956,13 +1034,25 @@ impl OffsetBrep<H> for Two {
         let v = (vertex.b == edge.b && vertex.kind == K_VERTEX).then(|| vid(vertex));
         Ok(ed::other_vertex(b, eid(edge), v)?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
-    fn edge_closest_point(&self, k: &Kernel, edge: H, point: Point3) -> solidcore::Result<Option<ClosestPoint>> {
+    fn edge_closest_point(
+        &self,
+        k: &Kernel,
+        edge: H,
+        point: Point3,
+    ) -> solidcore::Result<Option<ClosestPoint>> {
         solidcore::query::edge::closest_point(k, self.brep_r(edge)?, eid(edge), point)
     }
-    fn edge_create_trimmed_nurbs_curve(&mut self, k: &Kernel, edge: H) -> solidcore::Result<Option<H>> {
+    fn edge_create_trimmed_nurbs_curve(
+        &mut self,
+        k: &Kernel,
+        edge: H,
+    ) -> solidcore::Result<Option<H>> {
         let c = ed::create_trimmed_nurbs_curve(k, self.brep_r(edge)?, eid(edge))?;
         Ok(match c {
-            Some(c) => Some(self.insert_curve(c).ok_or_else(|| invalid("curve store is full"))?),
+            Some(c) => Some(
+                self.insert_curve(c)
+                    .ok_or_else(|| invalid("curve store is full"))?,
+            ),
             None => None,
         })
     }
@@ -991,11 +1081,23 @@ impl OffsetBrep<H> for Two {
     fn vertex_is_lamina(&self, vertex: H) -> solidcore::Result<bool> {
         vx::is_lamina_vertex(self.brep_r(vertex)?, vid(vertex))
     }
-    fn vertex_are_edges_tangent(&self, vertex: H, e1: H, e2: H, ang_tol_deg: f64) -> solidcore::Result<bool> {
+    fn vertex_are_edges_tangent(
+        &self,
+        vertex: H,
+        e1: H,
+        e2: H,
+        ang_tol_deg: f64,
+    ) -> solidcore::Result<bool> {
         if e1.b != vertex.b || e2.b != vertex.b {
             return Err(invalid("edges of another B-rep"));
         }
-        vx::are_edges_tangent(self.brep_r(vertex)?, vid(vertex), eid(e1), eid(e2), ang_tol_deg)
+        vx::are_edges_tangent(
+            self.brep_r(vertex)?,
+            vid(vertex),
+            eid(e1),
+            eid(e2),
+            ang_tol_deg,
+        )
     }
     fn edgeuse_edge(&self, eu: H) -> solidcore::Result<Option<H>> {
         Ok(eu1::edge(self.brep_r(eu)?, euid(eu))?.map(|e| hd(eu.b, K_EDGE, e.index())))
@@ -1007,17 +1109,25 @@ impl OffsetBrep<H> for Two {
         Ok(Self::eu_h(eu.b, eu1::radial(self.brep_r(eu)?, euid(eu))?))
     }
     fn edgeuse_cw(&self, eu: H) -> solidcore::Result<Option<H>> {
-        Ok(Self::eu_h(eu.b, eu1::cw_edgeuse(self.brep_r(eu)?, euid(eu))?))
+        Ok(Self::eu_h(
+            eu.b,
+            eu1::cw_edgeuse(self.brep_r(eu)?, euid(eu))?,
+        ))
     }
     fn edgeuse_ccw(&self, eu: H) -> solidcore::Result<Option<H>> {
-        Ok(Self::eu_h(eu.b, eu1::ccw_edgeuse(self.brep_r(eu)?, euid(eu))?))
+        Ok(Self::eu_h(
+            eu.b,
+            eu1::ccw_edgeuse(self.brep_r(eu)?, euid(eu))?,
+        ))
     }
     fn edgeuse_vertex(&self, eu: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(eu)?;
         let Some(vu) = eu1::vertexuse(b, euid(eu))? else {
             return Ok(None);
         };
-        Ok(b.vertexuse(vu)?.vertex.map(|v| hd(eu.b, K_VERTEX, v.index())))
+        Ok(b.vertexuse(vu)?
+            .vertex
+            .map(|v| hd(eu.b, K_VERTEX, v.index())))
     }
     fn edgeuse_face(&self, eu: H) -> solidcore::Result<Option<H>> {
         Ok(eu1::face(self.brep_r(eu)?, euid(eu))?.map(|f| hd(eu.b, K_FACE, f.index())))
@@ -1045,10 +1155,20 @@ impl OffsetBrep<H> for Two {
         };
         self.set_eu_uv_from(eu, c, max_dist)
     }
-    fn edgeuse_is_tangent_sector(&self, _k: &Kernel, eu: H, tol_deg: f64) -> solidcore::Result<bool> {
+    fn edgeuse_is_tangent_sector(
+        &self,
+        _k: &Kernel,
+        eu: H,
+        tol_deg: f64,
+    ) -> solidcore::Result<bool> {
         eu2::is_tangent_sector(self.brep_r(eu)?, euid(eu), tol_deg, false, true)
     }
-    fn edgeuse_is_convex_radial_sector(&self, k: &Kernel, eu: H, num_samples: u64) -> solidcore::Result<bool> {
+    fn edgeuse_is_convex_radial_sector(
+        &self,
+        k: &Kernel,
+        eu: H,
+        num_samples: u64,
+    ) -> solidcore::Result<bool> {
         eu2::is_convex_radial_sector(k, self.brep_r(eu)?, euid(eu), num_samples, false, 0.0)
     }
     fn edgeuse_is_marked(&self, _k: &Kernel, eu: H, _mark: MarkType) -> solidcore::Result<bool> {
@@ -1112,7 +1232,9 @@ fn put_curve(out: &mut Vec<f64>, c: Option<&SmCurve>) -> Result<(), HarnessError
         CurveKind::Line(l) => (LINE_TYPE, l.base()),
         _ => {
             if c.is_kind_of(BSPLINE_CURVE_TYPE) {
-                return Err(harness("put_curve: a B-spline kind this runner does not export"));
+                return Err(harness(
+                    "put_curve: a B-spline kind this runner does not export",
+                ));
             }
             out.push(-2.0);
             return Ok(());
@@ -1135,7 +1257,17 @@ fn put_curve(out: &mut Vec<f64>, c: Option<&SmCurve>) -> Result<(), HarnessError
         let p = l.line_point();
         let v = l.line_vector();
         let d = l.step_interval();
-        out.extend([p.x, p.y, p.z, v.x, v.y, v.z, d.min(), d.max(), l.line_scale()]);
+        out.extend([
+            p.x,
+            p.y,
+            p.z,
+            v.x,
+            v.y,
+            v.z,
+            d.min(),
+            d.max(),
+            l.line_scale(),
+        ]);
         out.push(flag(l.inside_out()));
     }
     Ok(())
@@ -1302,7 +1434,8 @@ impl Counts {
                 }
                 Ok(Some(hd(2, K_SURFACE, (sel % self.surfaces as u64) as u32)))
             }
-            K_VERTEX | K_EDGE | K_FACE | K_EDGE_CURVE | K_FACE_SURFACE | K_EDGEUSE | K_FACEUSE | K_EU_UV => {
+            K_VERTEX | K_EDGE | K_FACE | K_EDGE_CURVE | K_FACE_SURFACE | K_EDGEUSE | K_FACEUSE
+            | K_EU_UV => {
                 let slot = usize::try_from(b).map_err(|_| ())?;
                 let n = Self::of(self.breps.get(slot).copied().flatten().ok_or(())?, kind);
                 if n == 0 {
@@ -1334,8 +1467,16 @@ struct RHeader {
 /// names the first thing that cannot be resolved (both sides report it).
 #[allow(clippy::too_many_lines)]
 fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>), String> {
-    let hk = |c: &Counts, x: Hin, kinds: &[u8], allow_null: bool, dim: usize, what: &str| -> Result<Hin, String> {
-        let r = c.resolve(x, dim).map_err(|()| format!("unresolvable_{what}_handle"))?;
+    let hk = |c: &Counts,
+              x: Hin,
+              kinds: &[u8],
+              allow_null: bool,
+              dim: usize,
+              what: &str|
+     -> Result<Hin, String> {
+        let r = c
+            .resolve(x, dim)
+            .map_err(|()| format!("unresolvable_{what}_handle"))?;
         match r {
             None if allow_null => Ok(h_to_triple(None)),
             None => Err(format!("unresolvable_{what}_null")),
@@ -1362,8 +1503,11 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
     let mut out = Vec::new();
     for (idx, op) in i.ops.iter().enumerate() {
         let what = format!("op{idx}");
-        let h = |c: &Counts, x: Hin, kinds: &[u8], allow_null: bool, dim: usize| hk(c, x, kinds, allow_null, dim, &what);
-        let eu = |c: &Counts, x: Hin, allow_null: bool| hk(c, x, &[K_EDGEUSE], allow_null, 3, &what);
+        let h = |c: &Counts, x: Hin, kinds: &[u8], allow_null: bool, dim: usize| {
+            hk(c, x, kinds, allow_null, dim, &what)
+        };
+        let eu =
+            |c: &Counts, x: Hin, allow_null: bool| hk(c, x, &[K_EDGEUSE], allow_null, 3, &what);
         let rop = match op {
             OpIn::AddCurve { curve } => {
                 let dim = usize::from(curve.dim == 2);
@@ -1371,7 +1515,9 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
                 if let Some(list) = c.curves.get_mut(dim) {
                     list.push(n);
                 }
-                OpIn::AddCurve { curve: curve.clone() }
+                OpIn::AddCurve {
+                    curve: curve.clone(),
+                }
             }
             OpIn::AddCurveFrom { src, d, scale } => {
                 // a null source, or one without a (B-spline) curve, has nothing to copy:
@@ -1398,18 +1544,26 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
             }
             OpIn::AddSurface { surface } => {
                 c.surfaces += 1;
-                OpIn::AddSurface { surface: surface.clone() }
+                OpIn::AddSurface {
+                    surface: surface.clone(),
+                }
             }
             OpIn::SetEdgeCurve { e, c: cc } => OpIn::SetEdgeCurve {
                 e: h(c, *e, &[K_EDGE], true, 3)?,
                 c: h(c, *cc, &[K_CURVE], true, 3)?,
             },
-            OpIn::SetEuUv { eu: e, c: cc, max_dist } => OpIn::SetEuUv {
+            OpIn::SetEuUv {
+                eu: e,
+                c: cc,
+                max_dist,
+            } => OpIn::SetEuUv {
                 eu: eu(c, *e, true)?,
                 c: h(c, *cc, &[K_CURVE], true, 2)?,
                 max_dist: *max_dist,
             },
-            OpIn::Mark { eu: e } => OpIn::Mark { eu: eu(c, *e, true)? },
+            OpIn::Mark { eu: e } => OpIn::Mark {
+                eu: eu(c, *e, true)?,
+            },
             OpIn::Getters => OpIn::Getters,
             OpIn::FaceuseOffset { fu, skip } => OpIn::FaceuseOffset {
                 fu: h(c, *fu, &[K_FACEUSE], true, 3)?,
@@ -1430,7 +1584,12 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
                 f: h(c, *f, &[K_FACE], true, 3)?,
                 s: h(c, *s, &[K_SURFACE, K_FACE_SURFACE], true, 3)?,
             },
-            OpIn::ReplaceEdgeCurves { eu: e, c3, uv, orig } => OpIn::ReplaceEdgeCurves {
+            OpIn::ReplaceEdgeCurves {
+                eu: e,
+                c3,
+                uv,
+                orig,
+            } => OpIn::ReplaceEdgeCurves {
                 eu: eu(c, *e, true)?,
                 c3: h(c, *c3, &[K_CURVE], true, 3)?,
                 uv: h(c, *uv, &[K_CURVE], true, 2)?,
@@ -1453,13 +1612,23 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
                 uv_base: h(c, *uv_base, &[K_CURVE], true, 2)?,
                 uv_other: h(c, *uv_other, &[K_CURVE], true, 2)?,
             },
-            OpIn::ExtendTrimEdges { eu: e, other, off, other_off } => OpIn::ExtendTrimEdges {
+            OpIn::ExtendTrimEdges {
+                eu: e,
+                other,
+                off,
+                other_off,
+            } => OpIn::ExtendTrimEdges {
                 eu: eu(c, *e, true)?,
                 other: eu(c, *other, true)?,
                 off: eu(c, *off, true)?,
                 other_off: eu(c, *other_off, true)?,
             },
-            OpIn::MateEdges { eu: e, other, off, other_off } => OpIn::MateEdges {
+            OpIn::MateEdges {
+                eu: e,
+                other,
+                off,
+                other_off,
+            } => OpIn::MateEdges {
                 eu: eu(c, *e, true)?,
                 other: eu(c, *other, true)?,
                 off: eu(c, *off, true)?,
@@ -1470,13 +1639,20 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
                 off: eu(c, *off, true)?,
                 other_off: eu(c, *other_off, true)?,
             },
-            OpIn::EdgeuseOffset { orig, other_orig, off, other_off } => OpIn::EdgeuseOffset {
+            OpIn::EdgeuseOffset {
+                orig,
+                other_orig,
+                off,
+                other_off,
+            } => OpIn::EdgeuseOffset {
                 orig: eu(c, *orig, true)?,
                 other_orig: eu(c, *other_orig, true)?,
                 off: eu(c, *off, true)?,
                 other_off: eu(c, *other_off, true)?,
             },
-            OpIn::EdgeState { e } => OpIn::EdgeState { e: h(c, *e, &[K_EDGE], true, 3)? },
+            OpIn::EdgeState { e } => OpIn::EdgeState {
+                e: h(c, *e, &[K_EDGE], true, 3)?,
+            },
             OpIn::SetEdgeTol { e, tol } => OpIn::SetEdgeTol {
                 e: h(c, *e, &[K_EDGE], true, 3)?,
                 tol: tol.abs(),
@@ -1492,7 +1668,14 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
             hk(c, *s, &[K_SURFACE], true, 3, &what)?, // a face's own surface is refused (the FFI's contract)
         ]);
     }
-    Ok((RHeader { local, shell, pairs }, out))
+    Ok((
+        RHeader {
+            local,
+            shell,
+            pairs,
+        },
+        out,
+    ))
 }
 
 fn push_h(v: &mut Vec<f64>, h: Hin) {
@@ -1584,13 +1767,23 @@ fn encode(i: &Inputs, hdr: &RHeader, ops: &[ROp]) -> Result<Vec<f64>, HarnessErr
                     push_h(&mut v, *h);
                 }
             }
-            OpIn::ExtendTrimEdges { eu, other, off, other_off } => {
+            OpIn::ExtendTrimEdges {
+                eu,
+                other,
+                off,
+                other_off,
+            } => {
                 v.push(12.0);
                 for h in [eu, other, off, other_off] {
                     push_h(&mut v, *h);
                 }
             }
-            OpIn::MateEdges { eu, other, off, other_off } => {
+            OpIn::MateEdges {
+                eu,
+                other,
+                off,
+                other_off,
+            } => {
                 v.push(13.0);
                 for h in [eu, other, off, other_off] {
                     push_h(&mut v, *h);
@@ -1602,7 +1795,12 @@ fn encode(i: &Inputs, hdr: &RHeader, ops: &[ROp]) -> Result<Vec<f64>, HarnessErr
                 push_h(&mut v, *off);
                 push_h(&mut v, *other_off);
             }
-            OpIn::EdgeuseOffset { orig, other_orig, off, other_off } => {
+            OpIn::EdgeuseOffset {
+                orig,
+                other_orig,
+                off,
+                other_off,
+            } => {
                 v.push(15.0);
                 for h in [orig, other_orig, off, other_off] {
                     push_h(&mut v, *h);
@@ -1759,8 +1957,22 @@ fn put_ssi(o: &mut Vec<f64>, two: &Two, s: &SsiData<H>) -> Result<(), HarnessErr
     o.push(s.curves_3d.len() as f64);
     for (j, &c) in s.curves_3d.iter().enumerate() {
         put_curve(o, ClassGeometry::curve(two, c))?;
-        put_curve(o, s.uv_curves1.get(j).copied().flatten().and_then(|h| ClassGeometry::curve(two, h)))?;
-        put_curve(o, s.uv_curves2.get(j).copied().flatten().and_then(|h| ClassGeometry::curve(two, h)))?;
+        put_curve(
+            o,
+            s.uv_curves1
+                .get(j)
+                .copied()
+                .flatten()
+                .and_then(|h| ClassGeometry::curve(two, h)),
+        )?;
+        put_curve(
+            o,
+            s.uv_curves2
+                .get(j)
+                .copied()
+                .flatten()
+                .and_then(|h| ClassGeometry::curve(two, h)),
+        )?;
         o.push(s.curve_types.get(j).map_or(-1.0, |t| tsect_code(*t)));
         o.push(s.deviations.get(j).copied().unwrap_or(-1.0));
     }
@@ -1770,8 +1982,12 @@ fn put_ssi(o: &mut Vec<f64>, two: &Two, s: &SsiData<H>) -> Result<(), HarnessErr
 /// Whether `ReplaceEdgeCurves(eu, c3, NULL, orig)` would reverse the curves (the shim's
 /// replica of the function's shape test).
 fn would_reverse(two: &Two, eu: H, c3: H, orig: Option<H>) -> Result<bool, Fail> {
-    let edge = two.edgeuse_edge(eu)?.ok_or_else(|| invalid("edge use without edge"))?;
-    let euc = two.edge_curve(edge)?.ok_or_else(|| invalid("edge without curve"))?;
+    let edge = two
+        .edgeuse_edge(eu)?
+        .ok_or_else(|| invalid("edge use without edge"))?;
+    let euc = two
+        .edge_curve(edge)?
+        .ok_or_else(|| invalid("edge without curve"))?;
     let ivl = two.edge_interval(edge)?;
     let tol = two.edge_tolerance(edge)?;
     let cv = |h: H| ClassGeometry::curve(two, h).ok_or_else(|| invalid("curve"));
@@ -1789,8 +2005,12 @@ fn would_reverse(two: &Two, eu: H, c3: H, orig: Option<H>) -> Result<bool, Fail>
     let pv = match orig {
         None => cv(euc)?.evaluate(ivl.evaluate(0.5), 1, true, true)?,
         Some(orig) => {
-            let oe = two.edgeuse_edge(orig)?.ok_or_else(|| invalid("edge use without edge"))?;
-            let oc = two.edge_curve(oe)?.ok_or_else(|| invalid("edge without curve"))?;
+            let oe = two
+                .edgeuse_edge(orig)?
+                .ok_or_else(|| invalid("edge use without edge"))?;
+            let oc = two
+                .edge_curve(oe)?
+                .ok_or_else(|| invalid("edge without curve"))?;
             let oivl = two.edge_interval(oe)?;
             cv(oc)?.evaluate(oivl.evaluate(0.5), 1, true, true)?
         }
@@ -1824,7 +2044,9 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
         let mut lf = Vec::new();
         let mut ls = Vec::new();
         for [f, sh] in &hdr.local {
-            let (Some(f), Some(sh)) = (triple_to_h(*f), triple_to_h(*sh)) else { continue };
+            let (Some(f), Some(sh)) = (triple_to_h(*f), triple_to_h(*sh)) else {
+                continue;
+            };
             if ClassGeometry::surface(two, sh).is_none() {
                 continue;
             }
@@ -1840,15 +2062,18 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
         inset: i.inset,
         extend: i.extend,
         shell: hdr.shell.iter().filter_map(|h| triple_to_h(*h)).collect(),
-        map: hdr.pairs.iter().fold(BTreeMap::new(), |mut m: BTreeMap<H, Vec<H>>, [a, b]| {
-            if let (Some(a), Some(b)) = (triple_to_h(*a), triple_to_h(*b)) {
-                let seconds = m.entry(a).or_default();
-                if !seconds.contains(&b) {
-                    seconds.push(b);
+        map: hdr
+            .pairs
+            .iter()
+            .fold(BTreeMap::new(), |mut m: BTreeMap<H, Vec<H>>, [a, b]| {
+                if let (Some(a), Some(b)) = (triple_to_h(*a), triple_to_h(*b)) {
+                    let seconds = m.entry(a).or_default();
+                    if !seconds.contains(&b) {
+                        seconds.push(b);
+                    }
                 }
-            }
-            m
-        }),
+                m
+            }),
     };
     let all_ok = two.all_ok();
     let mark = MarkType::Mark;
@@ -1958,7 +2183,8 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 if !is_local && !two.face_exact(face) {
                     // CreateOffsetSurface is virtual and every SmBSplineSurface subclass
                     // the importer reduces to its B-spline part overrides it: the Rust
-                    // would dispatch the B-spline override instead
+                    // would dispatch the B-spline override instead (the shim stops the
+                    // script here, as nothing after it is compared; HANG-21)
                     return Err(Fail::Solid(SolidError::Unported {
                         upstream: "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
                         unit: ANALYTIC_EXPORT,
@@ -2036,7 +2262,12 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
             }
             OpIn::ReplaceEdgeCurves { eu, c3, uv, orig } => {
                 o.push(10.0);
-                let (eu, c3, uv, orig) = (triple_to_h(*eu), triple_to_h(*c3), triple_to_h(*uv), triple_to_h(*orig));
+                let (eu, c3, uv, orig) = (
+                    triple_to_h(*eu),
+                    triple_to_h(*c3),
+                    triple_to_h(*uv),
+                    triple_to_h(*orig),
+                );
                 let Some(eu) = eu else {
                     o.push(NULL_DEREF);
                     continue;
@@ -2073,14 +2304,18 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 // the copies the shim hands over
                 let c3c = match c3 {
                     Some(h) => {
-                        let c = ClassGeometry::curve(&two, h).ok_or_else(|| harness("store curve"))?.clone();
+                        let c = ClassGeometry::curve(&two, h)
+                            .ok_or_else(|| harness("store curve"))?
+                            .clone();
                         Some(two.insert_curve(c).ok_or_else(|| harness("store"))?)
                     }
                     None => None,
                 };
                 let uvc = match uv {
                     Some(h) => {
-                        let c = ClassGeometry::curve(&two, h).ok_or_else(|| harness("store curve"))?.clone();
+                        let c = ClassGeometry::curve(&two, h)
+                            .ok_or_else(|| harness("store curve"))?
+                            .clone();
                         Some(two.insert_curve(c).ok_or_else(|| harness("store"))?)
                     }
                     None => None,
@@ -2113,12 +2348,19 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 }
                 let c3 = match c3.kind {
                     K_EDGE_CURVE => two.edge_curve_h(c3)?.ok_or_else(|| invalid("edge curve"))?,
-                    _ => curve_h(c3.b, c3.kind, c3.i, ClassGeometry::curve(&two, c3).ok_or_else(|| invalid("curve"))?),
+                    _ => curve_h(
+                        c3.b,
+                        c3.kind,
+                        c3.i,
+                        ClassGeometry::curve(&two, c3).ok_or_else(|| invalid("curve"))?,
+                    ),
                 };
-                let uvb = triple_to_h(*uv_base)
-                    .and_then(|h| ClassGeometry::curve(&two, h).map(|c| curve_h(h.b, h.kind, h.i, c)));
-                let uvo = triple_to_h(*uv_other)
-                    .and_then(|h| ClassGeometry::curve(&two, h).map(|c| curve_h(h.b, h.kind, h.i, c)));
+                let uvb = triple_to_h(*uv_base).and_then(|h| {
+                    ClassGeometry::curve(&two, h).map(|c| curve_h(h.b, h.kind, h.i, c))
+                });
+                let uvo = triple_to_h(*uv_other).and_then(|h| {
+                    ClassGeometry::curve(&two, h).map(|c| curve_h(h.b, h.kind, h.i, c))
+                });
                 let r = geom.trim_extended_edge(
                     &k,
                     &mut two,
@@ -2140,10 +2382,19 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     o.extend([ivl.min(), ivl.max()]);
                 }
             }
-            OpIn::ExtendTrimEdges { eu, other, off, other_off } => {
+            OpIn::ExtendTrimEdges {
+                eu,
+                other,
+                off,
+                other_off,
+            } => {
                 o.push(12.0);
-                let (eu, other, off, other_off) =
-                    (triple_to_h(*eu), triple_to_h(*other), triple_to_h(*off), triple_to_h(*other_off));
+                let (eu, other, off, other_off) = (
+                    triple_to_h(*eu),
+                    triple_to_h(*other),
+                    triple_to_h(*off),
+                    triple_to_h(*other_off),
+                );
                 let (Some(eu), Some(off)) = (eu, off) else {
                     o.push(NULL_DEREF);
                     continue;
@@ -2162,7 +2413,16 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     o.push(NULL_DEREF);
                     continue;
                 }
-                let r = geom.extend_trim_edges(&k, &mut two, &exec, eu, other, Some(off), other_off, mark);
+                let r = geom.extend_trim_edges(
+                    &k,
+                    &mut two,
+                    &exec,
+                    eu,
+                    other,
+                    Some(off),
+                    other_off,
+                    mark,
+                );
                 status(r, &mut o)?; // the edges' states: after every status
                 let off_edge = two.edgeuse_edge(off)?.ok_or_else(|| invalid("edge"))?;
                 two.put_edge_state(&mut o, off_edge)?;
@@ -2172,14 +2432,23 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     two.put_edge_state(&mut o, e)?;
                 }
             }
-            OpIn::MateEdges { eu, other, off, other_off } => {
+            OpIn::MateEdges {
+                eu,
+                other,
+                off,
+                other_off,
+            } => {
                 o.push(13.0);
                 if !all_ok {
                     o.push(NULL_DEREF);
                     continue;
                 }
-                let (eu, other, off, other_off) =
-                    (triple_to_h(*eu), triple_to_h(*other), triple_to_h(*off), triple_to_h(*other_off));
+                let (eu, other, off, other_off) = (
+                    triple_to_h(*eu),
+                    triple_to_h(*other),
+                    triple_to_h(*off),
+                    triple_to_h(*other_off),
+                );
                 let r = geom.mate_edges(&k, &mut two, &exec, eu, other, off, other_off, mark);
                 status(r, &mut o)?; // the edges' states: after every status
                 o.push(flag(off.is_some()));
@@ -2195,7 +2464,8 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
             }
             OpIn::HaveTangentGaps { n, off, other_off } => {
                 o.push(14.0);
-                let (Some(off), Some(other_off)) = (triple_to_h(*off), triple_to_h(*other_off)) else {
+                let (Some(off), Some(other_off)) = (triple_to_h(*off), triple_to_h(*other_off))
+                else {
                     o.push(NULL_DEREF);
                     continue;
                 };
@@ -2208,10 +2478,19 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 o.push(0.0);
                 o.push(flag(gaps));
             }
-            OpIn::EdgeuseOffset { orig, other_orig, off, other_off } => {
+            OpIn::EdgeuseOffset {
+                orig,
+                other_orig,
+                off,
+                other_off,
+            } => {
                 o.push(15.0);
-                let (orig, other_orig, off, other_off) =
-                    (triple_to_h(*orig), triple_to_h(*other_orig), triple_to_h(*off), triple_to_h(*other_off));
+                let (orig, other_orig, off, other_off) = (
+                    triple_to_h(*orig),
+                    triple_to_h(*other_orig),
+                    triple_to_h(*off),
+                    triple_to_h(*other_off),
+                );
                 let Some(orig) = orig else {
                     o.push(NULL_DEREF);
                     continue;
@@ -2220,12 +2499,20 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     o.push(NULL_DEREF);
                     continue;
                 }
+                if i.dist.abs() > MAX_EDGEUSE_OFFSET_DISTANCE {
+                    // the shim stops the script here (HANG-22)
+                    return Err(Fail::Solid(SolidError::Unported {
+                        upstream: "SmCrvOnSurf::ApproximateCurve (EdgeuseOffset rail; HANG-22 distance bound)",
+                        unit: HANG_22,
+                    }));
+                }
                 if exec.extend_convex_edges() {
                     // a tangent or lamina edge goes to ExtendTrimEdges, which dereferences
                     // the offset edge use (null is refused) and its UV trim curves
                     let orig_edge = two.edgeuse_edge(orig)?.ok_or_else(|| invalid("edge"))?;
                     let lamina = two.edge_is_lamina(orig_edge)?;
-                    let tangent = two.edgeuse_is_tangent_sector(&k, orig, geom.tangency_tol_degrees())?;
+                    let tangent =
+                        two.edgeuse_is_tangent_sector(&k, orig, geom.tangency_tol_degrees())?;
                     if tangent || lamina {
                         let mut bad = off.is_none() || two.edgeuse_uv_trim_curve(orig)?.is_none();
                         if !bad && !lamina {
@@ -2240,7 +2527,8 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                         }
                     }
                 }
-                let r = geom.edgeuse_offset(&k, &mut two, &exec, orig, other_orig, off, other_off, mark);
+                let r = geom
+                    .edgeuse_offset(&k, &mut two, &exec, orig, other_orig, off, other_off, mark);
                 if let Some(out) = status(r, &mut o)? {
                     // the out-parameters: only after success
                     o.push(flag(out.surface.is_some()));
@@ -2297,7 +2585,11 @@ fn rust_surface(s: &SrfIn) -> Result<Surface, HarnessError> {
             let net = b
                 .net
                 .iter()
-                .map(|r| r.iter().map(|p| CPoint::new(p[0], p[1], p[2], p[3])).collect())
+                .map(|r| {
+                    r.iter()
+                        .map(|p| CPoint::new(p[0], p[1], p[2], p[3]))
+                        .collect()
+                })
                 .collect();
             let nl = NlSurface::new(net, b.p, b.q, b.u.clone(), b.v.clone())
                 .map_err(|e| harness(format!("surface: {e}")))?;
@@ -2349,7 +2641,9 @@ const FILES: [&str; 15] = [
 fn clamped_knots(rng: &mut Rng, p: usize, n: usize, a: f64, b: f64) -> Vec<f64> {
     let inner = n - p;
     let mut u = vec![a; p + 1];
-    let mut t: Vec<f64> = (0..inner).map(|_| rng.uniform(a + 1e-3, b - 1e-3)).collect();
+    let mut t: Vec<f64> = (0..inner)
+        .map(|_| rng.uniform(a + 1e-3, b - 1e-3))
+        .collect();
     t.sort_by(f64::total_cmp);
     u.extend(t);
     u.extend(vec![b; p + 1]);
@@ -2365,7 +2659,11 @@ fn gen_curve(rng: &mut Rng, dim: u64, scale: f64) -> CrvIn {
             [q[0], q[1], if dim == 2 { NOZ } else { q[2] }, NOW]
         })
         .collect();
-    let (a, b) = if rng.chance(0.5) { (0.0, 1.0) } else { (rng.uniform(-2.0, 0.0), rng.uniform(1.0, 3.0)) };
+    let (a, b) = if rng.chance(0.5) {
+        (0.0, 1.0)
+    } else {
+        (rng.uniform(-2.0, 0.0), rng.uniform(1.0, 3.0))
+    };
     CrvIn {
         dim,
         cpts,
@@ -2377,7 +2675,11 @@ fn gen_curve(rng: &mut Rng, dim: u64, scale: f64) -> CrvIn {
 fn gen_surface(rng: &mut Rng) -> SrfIn {
     if rng.chance(0.3) {
         let o = rng.point3(-2.0, 2.0);
-        let n = [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0), rng.uniform(0.2, 1.0)];
+        let n = [
+            rng.uniform(-1.0, 1.0),
+            rng.uniform(-1.0, 1.0),
+            rng.uniform(0.2, 1.0),
+        ];
         return SrfIn::Plane { o, n };
     }
     let p = 1 + rng.below(3) as usize;
@@ -2418,7 +2720,11 @@ fn gen_brep(rng: &mut Rng) -> BrepIn {
                 curve.u.first().copied().unwrap_or(0.0),
                 curve.u.last().copied().unwrap_or(1.0),
             );
-            BrepIn::Wire { curve, t0: a, t1: b }
+            BrepIn::Wire {
+                curve,
+                t0: a,
+                t1: b,
+            }
         }
         2 => BrepIn::Face {
             surface: SrfIn::Plane {
@@ -2490,7 +2796,9 @@ fn gen_op(rng: &mut Rng, has_b: bool) -> OpIn {
                 scale: *rng.choose(&[1.0, 1.0, 1.1, 0.9, 2.0]).unwrap_or(&1.0),
             }
         }
-        3 => OpIn::AddSurface { surface: gen_surface(rng) },
+        3 => OpIn::AddSurface {
+            surface: gen_surface(rng),
+        },
         4 => OpIn::SetEdgeCurve {
             e: gen_h(rng, has_b, &[K_EDGE], 0.0),
             c: gen_curve_h(rng, 0.0),
@@ -2500,7 +2808,9 @@ fn gen_op(rng: &mut Rng, has_b: bool) -> OpIn {
             c: gen_curve_h(rng, 0.2),
             max_dist: *rng.choose(&[0.0, 1e-5, 1e-3]).unwrap_or(&0.0),
         },
-        6 => OpIn::Mark { eu: gen_eu(rng, ob, 0.0) },
+        6 => OpIn::Mark {
+            eu: gen_eu(rng, ob, 0.0),
+        },
         7 => OpIn::Getters,
         8 => OpIn::FaceuseOffset {
             fu: gen_h(rng, has_b, &[K_FACEUSE], 0.05),
@@ -2570,7 +2880,9 @@ fn gen_op(rng: &mut Rng, has_b: bool) -> OpIn {
         },
         _ => {
             if rng.chance(0.5) {
-                OpIn::EdgeState { e: gen_h(rng, has_b, &[K_EDGE], 0.05) }
+                OpIn::EdgeState {
+                    e: gen_h(rng, has_b, &[K_EDGE], 0.05),
+                }
             } else {
                 OpIn::SetEdgeTol {
                     e: gen_h(rng, has_b, &[K_EDGE], 0.05),
@@ -2585,11 +2897,17 @@ fn generate(rng: &mut Rng) -> Option<Value> {
     let brep_a = gen_brep(rng);
     let has_b = rng.chance(0.8);
     let brep_b = if has_b {
-        Some(if rng.chance(0.6) { brep_a.clone() } else { gen_brep(rng) })
+        Some(if rng.chance(0.6) {
+            brep_a.clone()
+        } else {
+            gen_brep(rng)
+        })
     } else {
         None
     };
-    let dist = *rng.choose(&[0.1, 0.5, 1.0, -0.25, 2.0, 1e-3, 100.0, 0.05]).unwrap_or(&0.5);
+    let dist = *rng
+        .choose(&[0.1, 0.5, 1.0, -0.25, 2.0, 1e-3, 100.0, 0.05])
+        .unwrap_or(&0.5);
     let approx = *rng.choose(&[1e-5, 1e-5, 1e-4, 1e-3, 1e-6]).unwrap_or(&1e-5);
     let ob = off_b(has_b);
     let n_pairs = rng.below(12) as usize;
@@ -2607,7 +2925,9 @@ fn generate(rng: &mut Rng) -> Option<Value> {
             ]
         })
         .collect();
-    let shell = (0..rng.below(3)).map(|_| gen_h(rng, false, &[K_FACE], 0.1)).collect();
+    let shell = (0..rng.below(3))
+        .map(|_| gen_h(rng, false, &[K_FACE], 0.1))
+        .collect();
     let n = 1 + rng.below(6) as usize;
     let mut ops = Vec::new();
     // some store geometry first, so that the curve handles resolve
@@ -2755,7 +3075,9 @@ fn edge_cases() -> Vec<(String, Value)> {
             e: h(1, K_EDGE, 1),
             tol: 1e-3,
         },
-        OpIn::Mark { eu: h(1, K_EDGEUSE, 0) },
+        OpIn::Mark {
+            eu: h(1, K_EDGEUSE, 0),
+        },
         OpIn::EdgeState { e: h(1, K_EDGE, 0) },
     ];
     add("cone_fixture_ops", i);
@@ -2764,10 +3086,15 @@ fn edge_cases() -> Vec<(String, Value)> {
     // surfaces): with analytics the listed surface is reparameterised, copied and consumed,
     // so a second op on the same face is refused; without analytics it is returned as is;
     // an unlisted face is SM_ERR.
-    for (analytics, name) in [(true, "local_offset_analytics"), (false, "local_offset_plain")] {
+    for (analytics, name) in [
+        (true, "local_offset_analytics"),
+        (false, "local_offset_plain"),
+    ] {
         let mut i = base("cone.smb", None, 0.5);
         i.analytics = analytics;
-        i.local = (0..3).map(|f| [h(0, K_FACE, f), h(2, K_SURFACE, f)]).collect();
+        i.local = (0..3)
+            .map(|f| [h(0, K_FACE, f), h(2, K_SURFACE, f)])
+            .collect();
         i.ops = (0..3)
             .map(|f| OpIn::AddSurface {
                 surface: SrfIn::Plane {
@@ -2777,10 +3104,22 @@ fn edge_cases() -> Vec<(String, Value)> {
             })
             .collect();
         i.ops.extend([
-            OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 0), skip: false },
-            OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 0), skip: true },
-            OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 1), skip: false },
-            OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 5), skip: false },
+            OpIn::LocalFaceuseOffset {
+                fu: h(0, K_FACEUSE, 0),
+                skip: false,
+            },
+            OpIn::LocalFaceuseOffset {
+                fu: h(0, K_FACEUSE, 0),
+                skip: true,
+            },
+            OpIn::LocalFaceuseOffset {
+                fu: h(0, K_FACEUSE, 1),
+                skip: false,
+            },
+            OpIn::LocalFaceuseOffset {
+                fu: h(0, K_FACEUSE, 5),
+                skip: false,
+            },
         ]);
         add(name, i);
     }
@@ -2788,20 +3127,30 @@ fn edge_cases() -> Vec<(String, Value)> {
     let mut i = base("plane_square.smb", None, 0.1);
     i.local = vec![[h(0, K_FACE, 0), h(2, K_SURFACE, 0)]];
     i.ops = vec![
-        OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 0), skip: false },
+        OpIn::LocalFaceuseOffset {
+            fu: h(0, K_FACEUSE, 0),
+            skip: false,
+        },
         OpIn::AddSurface {
             surface: SrfIn::Plane {
                 o: [0.0, 0.0, 0.0],
                 n: [0.0, 0.0, 1.0],
             },
         },
-        OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 0), skip: false },
+        OpIn::LocalFaceuseOffset {
+            fu: h(0, K_FACEUSE, 0),
+            skip: false,
+        },
     ];
     add("local_offset_late_surface", i);
 
     // ReplaceEdgeCurves: same ends (delete flags), reversed copy, UV only, null UV with
     // a reversed curve (refused), a moved copy (vertex moves: deferred)
-    for (name, f) in [("cone", "cone.smb"), ("torus", "torus.smb"), ("box", "box_with_large_fillet.smb")] {
+    for (name, f) in [
+        ("cone", "cone.smb"),
+        ("torus", "torus.smb"),
+        ("box", "box_with_large_fillet.smb"),
+    ] {
         let mut i = base(f, Some(f), 0.25);
         i.pairs = pairs(4, 1);
         i.ops = vec![
@@ -2885,7 +3234,12 @@ fn edge_cases() -> Vec<(String, Value)> {
             },
             OpIn::VertexOffset {
                 v: h(0, K_VERTEX, 1),
-                edges: vec![h(1, K_EDGE, 0), h(1, K_EDGE, 1), h(1, K_EDGE, 2), h(1, K_EDGE, 3)],
+                edges: vec![
+                    h(1, K_EDGE, 0),
+                    h(1, K_EDGE, 1),
+                    h(1, K_EDGE, 2),
+                    h(1, K_EDGE, 3),
+                ],
             },
             OpIn::VertexOffset {
                 v: NULL_H,
@@ -2902,10 +3256,18 @@ fn edge_cases() -> Vec<(String, Value)> {
     // VertexOffset with three arcs of one plane-sized sphere: replace three edges of the
     // box by circle arcs through the offset corner
     {
-        let mut i = base("box_with_large_fillet.smb", Some("box_with_large_fillet.smb"), 0.5);
+        let mut i = base(
+            "box_with_large_fillet.smb",
+            Some("box_with_large_fillet.smb"),
+            0.5,
+        );
         let arc = |a: [f64; 3], m: [f64; 3], b: [f64; 3]| CrvIn {
             dim: 3,
-            cpts: vec![[a[0], a[1], a[2], NOW], [m[0], m[1], m[2], NOW], [b[0], b[1], b[2], NOW]],
+            cpts: vec![
+                [a[0], a[1], a[2], NOW],
+                [m[0], m[1], m[2], NOW],
+                [b[0], b[1], b[2], NOW],
+            ],
             p: 2,
             u: vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
         };
@@ -3045,9 +3407,27 @@ fn edge_cases() -> Vec<(String, Value)> {
             u: vec![0.0, 0.0, 1.0, 1.0],
         };
         for (name, dist, c0, c1, c2) in [
-            ("torus", 0.5, circle(2.0, 0.0), circle(2.5, 0.0), circle(1.5, 0.0)),
-            ("torus_self_intersecting", 3.0, circle(2.0, 0.0), circle(5.0, 0.0), circle(2.0, 3.0)),
-            ("torus_vertical", 1.0, circle(2.0, 0.0), circle(2.0, 1.0), circle(2.0, -1.0)),
+            (
+                "torus",
+                0.5,
+                circle(2.0, 0.0),
+                circle(2.5, 0.0),
+                circle(1.5, 0.0),
+            ),
+            (
+                "torus_self_intersecting",
+                3.0,
+                circle(2.0, 0.0),
+                circle(5.0, 0.0),
+                circle(2.0, 3.0),
+            ),
+            (
+                "torus_vertical",
+                1.0,
+                circle(2.0, 0.0),
+                circle(2.0, 1.0),
+                circle(2.0, -1.0),
+            ),
             (
                 "cylinder",
                 0.5,
@@ -3117,7 +3497,12 @@ fn edge_cases() -> Vec<(String, Value)> {
     }
 
     // TrimExtendedEdge: drop of the base vertex, marked neighbours, UV intersections
-    for (name, f) in [("cone", "cone.smb"), ("box", "box_with_large_fillet.smb"), ("torus", "torus.smb"), ("vase", "vase_rev.smb")] {
+    for (name, f) in [
+        ("cone", "cone.smb"),
+        ("box", "box_with_large_fillet.smb"),
+        ("torus", "torus.smb"),
+        ("vase", "vase_rev.smb"),
+    ] {
         let mut i = base(f, Some(f), 0.5);
         i.pairs = pairs(16, 1);
         i.ops = vec![
@@ -3154,10 +3539,18 @@ fn edge_cases() -> Vec<(String, Value)> {
                 uv_base: NULL_H,
                 uv_other: NULL_H,
             },
-            OpIn::Mark { eu: h(0, K_EDGEUSE, 2) },
-            OpIn::Mark { eu: h(0, K_EDGEUSE, 3) },
-            OpIn::Mark { eu: h(0, K_EDGEUSE, 4) },
-            OpIn::Mark { eu: h(0, K_EDGEUSE, 5) },
+            OpIn::Mark {
+                eu: h(0, K_EDGEUSE, 2),
+            },
+            OpIn::Mark {
+                eu: h(0, K_EDGEUSE, 3),
+            },
+            OpIn::Mark {
+                eu: h(0, K_EDGEUSE, 4),
+            },
+            OpIn::Mark {
+                eu: h(0, K_EDGEUSE, 5),
+            },
             OpIn::TrimExtendedEdge {
                 base: h(0, K_EDGEUSE, 0),
                 other_base: h(0, K_EDGEUSE, 1),
@@ -3189,7 +3582,10 @@ fn edge_cases() -> Vec<(String, Value)> {
     {
         let mut i = base("cone.smb", Some("cone.smb"), 0.5);
         i.pairs = pairs(8, 1);
-        i.local = vec![[h(0, K_FACE, 0), h(2, K_SURFACE, 0)], [h(0, K_FACE, 1), NULL_H]];
+        i.local = vec![
+            [h(0, K_FACE, 0), h(2, K_SURFACE, 0)],
+            [h(0, K_FACE, 1), NULL_H],
+        ];
         i.ops = vec![
             OpIn::AddSurface {
                 surface: SrfIn::Plane {

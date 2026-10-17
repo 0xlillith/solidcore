@@ -36,7 +36,12 @@
 //! 6 a B-rep (`index` 0 or 1), 8 null. A status is `0` (success), the upstream `SmStatus`
 //! code, or `-2` when the shim refused the op because upstream would dereference null
 //! (an op that walks the topology needs every edge use of both B-reps to be a loop edge
-//! use with edge, curve, vertex, mate, neighbours and a face with surface).
+//! use with edge, curve, vertex, mate, neighbours and a face with surface). `-6` ends
+//! the script at an op the Rust side defers at without comparing anything: a non-local
+//! `FaceuseOffset` of a face whose surface is neither an `SmPlane` nor a plain
+//! `SmBSplineSurface` (HANG-21: an `SmSurfOfRevolution`'s offset self-intersection takes
+//! 20 s to minutes, or never returns at large distances), and an `EdgeuseOffset` with
+//! `|offset distance| > 1e6` (HANG-22).
 //!
 //! The `n_local` pairs name store surfaces only (kind 7): `SmLocalOperationGeometryCreation`
 //! owns its listed surfaces (with `make_analytics` it reparameterises and deletes each one
@@ -333,7 +338,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiErr
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     Ok((a, b))
@@ -359,7 +366,10 @@ fn check_points(rd: &mut Reader<'_>, k: usize, planar: bool, what: &str) -> Resu
             return Err(bad(format!("{what}: weight out of range")));
         }
         let z = if z == NOZ { 0.0 } else { z };
-        if [x, y, z].iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
+        if [x, y, z]
+            .iter()
+            .any(|c| !c.is_finite() || c.abs() > MAX_COORD)
+        {
             return Err(bad(format!("{what}: point out of range")));
         }
     }
@@ -594,7 +604,11 @@ impl Counts {
                 }
             }
         }
-        Ok(Some(Handle { brep: b, kind, index }))
+        Ok(Some(Handle {
+            brep: b,
+            kind,
+            index,
+        }))
     }
 
     /// A handle of one of `kinds` (or null when `allow_null`).
@@ -614,7 +628,12 @@ impl Counts {
     }
 
     /// A store curve of dimension `dim` (or null when `allow_null`).
-    fn store_curve(&self, rd: &mut Reader<'_>, dim: usize, allow_null: bool) -> Result<(), FfiError> {
+    fn store_curve(
+        &self,
+        rd: &mut Reader<'_>,
+        dim: usize,
+        allow_null: bool,
+    ) -> Result<(), FfiError> {
         if let Some(h) = self.kinded(rd, &[HandleKind::Curve], allow_null)? {
             if self.curves.get(h.index).copied() != Some(dim) {
                 return Err(bad(format!("store curve must be {dim}D here")));
