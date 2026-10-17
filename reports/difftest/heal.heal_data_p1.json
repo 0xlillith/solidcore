@@ -487,8 +487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "heal_brep_targets",
@@ -499,8 +499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmBrep::GetVertices",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "heal_brep_op_none",
@@ -511,8 +511,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "fix_infinite_region_fresh",
@@ -1199,8 +1199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmBrep::HealBrep",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "api_heal_box_10",
@@ -1255,8 +1255,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmBrep::GetVertices",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "heal_box_10_healbrep_all_faces_only",
@@ -2135,8 +2135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmBrep::HealBrep",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0026",
@@ -2655,8 +2655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0083",
@@ -3251,8 +3251,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmBrep::HealBrep",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0147",
@@ -3579,8 +3579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0183",
@@ -3679,8 +3679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmBrep::HealBrep",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0194",
@@ -3819,8 +3819,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmBrep::HealBrep",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0209",
@@ -3831,8 +3831,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0210",
@@ -4183,8 +4183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmBrep::HealBrep",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0247",
@@ -4683,8 +4683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmBrep::HealBrep",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0301",
@@ -4864,13 +4864,12 @@
   "cases_passed": 265,
   "cases_total": 493,
   "deferred_by_unit": {
-    "heal.heal_data_p3": 11,
     "query.face_p4": 62,
+    "topology.brep_p1": 12,
     "topology.edgeuse_p3": 45,
-    "topology.face_p2": 52,
+    "topology.face_p2": 54,
     "topology.face_p3": 18,
-    "topology.face_p4": 37,
-    "topology.shell": 3
+    "topology.face_p4": 37
   },
   "max_rel_err": 0.0,
   "pass": true,
