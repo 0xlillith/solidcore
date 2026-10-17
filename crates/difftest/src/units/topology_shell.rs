@@ -293,12 +293,21 @@ fn rust_ray(brep: &solidcore::topology::Brep, input: &RayInput) -> Result<Output
     let mut out = Vec::new();
     // The shim's guard: non-finite ray values would reach the intersection solver
     // through a shell's boundary faces (a face use whose mate lies in another shell).
-    let finite = input.start.iter().chain(&input.direction).all(|v| v.is_finite())
+    let finite = input
+        .start
+        .iter()
+        .chain(&input.direction)
+        .all(|v| v.is_finite())
         && input.tolerance.is_finite()
         && input.radius.is_none_or(f64::is_finite);
     if !finite {
         for id in brep.shells().ids() {
-            for faceuse in brep.shell(id).map_err(failure)?.get_faceuses().map_err(failure)? {
+            for faceuse in brep
+                .shell(id)
+                .map_err(failure)?
+                .get_faceuses()
+                .map_err(failure)?
+            {
                 let mate = brep.faceuse(faceuse).map_err(failure)?.mate;
                 if let Some(mate) = mate {
                     if brep.faceuse(mate).map_err(failure)?.shell != Some(id) {
@@ -660,10 +669,11 @@ fn rust_transfer_records(
     // input compares as `rejected_input` on both sides.
     let mut kernel = solidcore::kernel::Kernel::default();
     let rejected = || Output::err("rejected_input");
-    let crashes_wire_edges = |brep: &solidcore::topology::Brep, id: ShellId| -> Result<bool, HarnessError> {
-        let shell = brep.shell(id).map_err(failure)?;
-        Ok(shell.is_wire_shell() && shell.wire_edge(brep).map_err(failure)?.is_none())
-    };
+    let crashes_wire_edges =
+        |brep: &solidcore::topology::Brep, id: ShellId| -> Result<bool, HarnessError> {
+            let shell = brep.shell(id).map_err(failure)?;
+            Ok(shell.is_wire_shell() && shell.wire_edge(brep).map_err(failure)?.is_none())
+        };
     let mut pre_status = Vec::new();
     for &(from, to) in &options.pre {
         for id in brep.shells().ids().collect::<Vec<_>>() {
@@ -714,17 +724,12 @@ fn rust_transfer_records(
         }
     }
     let counters = mark_counters(&kernel);
-    let status = match transfer_children(
-        &mut kernel,
-        brep,
-        source,
-        recipient,
-        candidates.as_deref(),
-    ) {
-        Ok(()) => 0,
-        Err(SolidError::Upstream { code, .. }) => i64::from(code),
-        Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
-    };
+    let status =
+        match transfer_children(&mut kernel, brep, source, recipient, candidates.as_deref()) {
+            Ok(()) => 0,
+            Err(SolidError::Upstream { code, .. }) => i64::from(code),
+            Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
+        };
     let transfer_marks = mark_delta(&kernel, counters);
     let mut out = vec![status];
     out.extend(transfer_marks);
@@ -1018,15 +1023,22 @@ impl UnitDiff for Runner {
             let mut kernel = solidcore::kernel::Kernel::default();
             let mut out = vec![brep.shells().len() as i64, brep.regions().len() as i64];
             for id in brep.shells().ids() {
-                match solidcore::topology::shell::shell_is_degenerate(&mut kernel, &brep, id, tolerance)
-                {
+                match solidcore::topology::shell::shell_is_degenerate(
+                    &mut kernel,
+                    &brep,
+                    id,
+                    tolerance,
+                ) {
                     Ok(value) => out.push(flag(value)),
                     Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
                 }
             }
             for id in brep.regions().ids() {
                 match solidcore::topology::shell::region_is_degenerate(
-                    &mut kernel, &brep, id, tolerance,
+                    &mut kernel,
+                    &brep,
+                    id,
+                    tolerance,
                 ) {
                     Ok(value) => out.push(flag(value)),
                     Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
@@ -1203,16 +1215,26 @@ impl UnitDiff for Runner {
                         .get(rng.below(6) as usize)
                         .copied()?,
                 };
-                let shell = if rng.chance(0.4) { Value::Null } else { json!(rng.below(6)) };
+                let shell = if rng.chance(0.4) {
+                    Value::Null
+                } else {
+                    json!(rng.below(6))
+                };
                 case.insert("type_probe".into(), json!({"code": code, "shell": shell}));
             }
             9 => {
                 let direction = if rng.chance(0.1) {
                     [0.0; 3]
                 } else {
-                    [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0)]
+                    [
+                        rng.uniform(-1.0, 1.0),
+                        rng.uniform(-1.0, 1.0),
+                        rng.uniform(-1.0, 1.0),
+                    ]
                 };
-                let tolerance = [1e-9, 1e-7, 1e-3, 1.0].get(rng.below(4) as usize).copied()?;
+                let tolerance = [1e-9, 1e-7, 1e-3, 1.0]
+                    .get(rng.below(4) as usize)
+                    .copied()?;
                 let radius = if rng.chance(0.4) {
                     Value::Null
                 } else {
@@ -1294,7 +1316,10 @@ fn generate_brep(rng: &mut Rng) -> Option<(Value, BrepKind)> {
                 // A near-coincident pair at the tolerance limit.
                 points.push(first.map(|v| v + 1e-7 * scale));
             }
-            (json!({"kind": "vertices", "points": points}), BrepKind::Other)
+            (
+                json!({"kind": "vertices", "points": points}),
+                BrepKind::Other,
+            )
         }
         2 | 3 => {
             let mut face = plane(rng);
