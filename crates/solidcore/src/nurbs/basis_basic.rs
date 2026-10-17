@@ -38,6 +38,8 @@
 //!   product overflows (signed overflow is undefined upstream) Rust returns
 //!   [`SolidError::InvalidInput`].
 
+use std::collections::TryReserveError;
+
 use crate::error::{NlibCode, Result, SolidError};
 use crate::nurbs::geom::Interval;
 use crate::nurbs::knots::{KnotVector, Side};
@@ -72,17 +74,29 @@ fn nlib(operation: &'static str, code: NlibCode) -> SolidError {
 /// A zero `rows x w` array (upstream `N_AllocReal2dArray(rows - 1, w - 1)`).
 ///
 /// Upstream allocates the row pointers and the values as two blocks and fails softly
-/// with `NL_MEM_ERR` when either does not fit. Both are reserved here before filling,
-/// so a huge size returns that error instead of aborting.
+/// with `NL_MEM_ERR` when either does not fit. Here the row list and every row are
+/// reserved fallibly and filled within that capacity, so any failed allocation
+/// returns that error instead of aborting.
 fn zeros2(rows: usize, w: usize, op: &'static str) -> Result<Vec<Vec<f64>>> {
-    let mem = || nlib(op, NlibCode::Memory);
+    zeros2_with(rows, w, op, Vec::try_reserve_exact)
+}
+
+/// [`zeros2`] with the row reservation passed in, so a test can make it fail midway.
+fn zeros2_with(
+    rows: usize,
+    w: usize,
+    op: &'static str,
+    mut reserve: impl FnMut(&mut Vec<f64>, usize) -> std::result::Result<(), TryReserveError>,
+) -> Result<Vec<Vec<f64>>> {
+    let mem = |_| nlib(op, NlibCode::Memory);
     let mut a: Vec<Vec<f64>> = Vec::new();
-    a.try_reserve_exact(rows).map_err(|_| mem())?;
-    let values = rows.checked_mul(w).ok_or_else(mem)?;
-    let mut probe: Vec<f64> = Vec::new();
-    probe.try_reserve_exact(values).map_err(|_| mem())?;
-    drop(probe);
-    a.resize(rows, vec![0.0; w]);
+    a.try_reserve_exact(rows).map_err(mem)?;
+    for _ in 0..rows {
+        let mut r = Vec::new();
+        reserve(&mut r, w).map_err(mem)?;
+        r.resize(w, 0.0);
+        a.push(r);
+    }
     Ok(a)
 }
 
@@ -877,6 +891,36 @@ mod tests {
                 "der = {der}"
             );
         }
+    }
+
+    /// A row allocation that fails after earlier ones succeeded is `NL_MEM_ERR` too, not
+    /// an abort (review of PR #214).
+    #[test]
+    fn zeros2_row_failure_midway_is_memory_error() {
+        for fail_at in 1..=4 {
+            let mut calls = 0;
+            let got = zeros2_with(4, 4, "test", |r, n| {
+                calls += 1;
+                if calls == fail_at {
+                    // A real reservation error, without allocating.
+                    Vec::<f64>::new().try_reserve(usize::MAX)
+                } else {
+                    r.try_reserve_exact(n)
+                }
+            });
+            assert!(
+                matches!(
+                    got,
+                    Err(SolidError::Nlib {
+                        code: NlibCode::Memory,
+                        ..
+                    })
+                ),
+                "fail_at = {fail_at}"
+            );
+            assert_eq!(calls, fail_at);
+        }
+        assert_eq!(zeros2(4, 3, "test").unwrap(), vec![vec![0.0; 3]; 4]);
     }
 
     #[test]
