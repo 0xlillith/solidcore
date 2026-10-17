@@ -4389,6 +4389,24 @@
           0
         ]
       }
+    },
+    {
+      "name": "remove_empty_faces_with_preexisting_mark_lock_editing_False",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:SmBrep::RemoveFaces (SmNewMarkAndLock lifetime)",
+      "inputs": {
+        "op": 9,
+        "editing": false,
+        "flag": true
+      }
+    },
+    {
+      "name": "remove_empty_faces_with_preexisting_mark_lock_editing_True",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:SmBrep::RemoveFaces (SmNewMarkAndLock lifetime)",
+      "inputs": {
+        "op": 9,
+        "editing": true,
+        "flag": true
+      }
     }
   ]
 }

@@ -34,6 +34,7 @@
 use crate::curve::curve::Curve;
 use crate::error::{Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
+use crate::geom::context::{MarkLock, ALL_MARKS};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::tol::ZONE_TOL_3D;
@@ -347,15 +348,26 @@ pub fn remove_topological_edges_and_vertices(
 }
 
 /// Removes the requested faces then their wire edges and shell vertices.
-/// The empty list is a native no-op; editing must still be enabled.
-pub fn remove_faces(b: &mut Brep, editing_enabled: bool, faces: &[FaceId]) -> Result<()> {
+/// Even an empty list advances and releases one unlocked context traversal mark.
+/// Editing-disabled refusal occurs before the mark is acquired.
+pub fn remove_faces(
+    k: &mut Kernel,
+    b: &mut Brep,
+    editing_enabled: bool,
+    faces: &[FaceId],
+) -> Result<()> {
     require_editing(editing_enabled)?;
-    if let Some(&f) = faces.first() {
-        b.face(f)?;
-        // UNPORTED(topology.face_p4): SmFace::GetEdges
-        return missing("SmFace::GetEdges", "topology.face_p4");
-    }
-    Ok(())
+    let mut mark = MarkLock::new(core::slice::from_mut(&mut k.context), 0, ALL_MARKS)?;
+    let result = (|| {
+        if let Some(&f) = faces.first() {
+            b.face(f)?;
+            // UNPORTED(topology.face_p4): SmFace::GetEdges
+            return missing("SmFace::GetEdges", "topology.face_p4");
+        }
+        Ok(())
+    })();
+    mark.release(core::slice::from_mut(&mut k.context))?;
+    result
 }
 
 /// Stitching and orientation options with the native defaults.
@@ -474,7 +486,7 @@ mod tests {
     #[test]
     fn identity_precedes_tolerance_update_and_notifications() {
         let mut b = Brep::new();
-        let k = Kernel::default();
+        let mut k = Kernel::default();
         let v = b
             .add_vertex_record(Vertex {
                 point: Vec3::new(1., 2., 3.),
@@ -486,7 +498,42 @@ mod tests {
         transform(&k, &mut b, &Axis2Placement::IDENTITY, None, true).unwrap();
         assert_eq!(b.vertex(v).unwrap(), &original);
         assert_eq!(b.vertices().len(), 1);
-        assert!(remove_faces(&mut b, true, &[]).is_ok());
-        assert!(remove_faces(&mut b, false, &[]).is_err());
+        assert!(remove_faces(&mut k, &mut b, true, &[]).is_ok());
+        assert!(remove_faces(&mut k, &mut b, false, &[]).is_err());
+    }
+
+    #[test]
+    fn empty_face_removal_preserves_an_existing_mark_lock() {
+        use crate::geom::context::MarkType;
+        let mut k = Kernel::default();
+        let mut b = Brep::new();
+        let mut outer = MarkLock::new(core::slice::from_mut(&mut k.context), 0, ALL_MARKS).unwrap();
+        let held = outer.mark_type();
+        let marks = [
+            MarkType::Mark,
+            MarkType::Mark2,
+            MarkType::Mark3,
+            MarkType::MarkIo,
+            MarkType::MarkAssert,
+        ];
+        let before = marks.map(|m| k.context.current_mark(m));
+        remove_faces(&mut k, &mut b, true, &[]).unwrap();
+        assert!(k.context.is_mark_locked(held));
+        let advanced: Vec<_> = marks
+            .into_iter()
+            .zip(before)
+            .filter(|(m, n)| k.context.current_mark(*m) != *n)
+            .collect();
+        assert_eq!(advanced.len(), 1);
+        assert_ne!(advanced[0].0, held);
+        assert_eq!(k.context.current_mark(advanced[0].0), advanced[0].1 + 2);
+        assert!(!k.context.is_mark_locked(advanced[0].0));
+        let before_refusal = marks.map(|m| k.context.current_mark(m));
+        assert!(remove_faces(&mut k, &mut b, false, &[]).is_err());
+        assert_eq!(marks.map(|m| k.context.current_mark(m)), before_refusal);
+        outer
+            .release(core::slice::from_mut(&mut k.context))
+            .unwrap();
+        assert!(!k.context.is_mark_locked(held));
     }
 }

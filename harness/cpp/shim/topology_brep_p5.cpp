@@ -126,7 +126,17 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
     } else if (op==9) {
         SmTArray<SmFace*> fs;
         if (a[4]!=0 && face) fs.Add(face);
+        const SmContext& ctx=*b->GetContext();
+        std::unique_ptr<SmNewMarkAndLock> held;
+        if (a[20]!=0) held=std::make_unique<SmNewMarkAndLock>(&ctx,SM_MT_ALLMARKS);
+        const SmMarkType marks[]={SM_MT_MARK,SM_MT_MARK2,SM_MT_MARK3,SM_MT_MARKIO,SM_MT_MARKASSERT};
+        ULONG before[5];
+        for (int j=0;j<5;++j) before[j]=ctx.GetCurrentMark(marks[j]);
         status=b->RemoveFaces(fs); o.push_back(st(status));
+        for (int j=0;j<5;++j) {
+            o.push_back((double)(ctx.GetCurrentMark(marks[j])-before[j]));
+            o.push_back(flg(ctx.IsMarkLocked(marks[j])));
+        }
     } else if (op==10) {
         SmBoolean just=a[20]!=0;
         status=b->StitchAndOrient(a[5],a[21]!=0,nullptr,a[4]==0?nullptr:&just);

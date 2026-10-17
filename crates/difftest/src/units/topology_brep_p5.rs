@@ -10,6 +10,7 @@ use serde_json::Value;
 use solidcore::curve::curve::Curve;
 use solidcore::curve::line::{BoundedLineOptions, Line};
 use solidcore::geom::axis2_placement::Axis2Placement;
+use solidcore::geom::context::{MarkLock, MarkType, ALL_MARKS};
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
@@ -149,7 +150,7 @@ fn native(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
     ffi::eval(op(i)?, &i.fixture, &args(i)).map_err(|e| HarnessError::new(e.to_string()))
 }
 
-fn rust_record(k: &Kernel, b: &mut Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
+fn rust_record(k: &mut Kernel, b: &mut Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
     let v1 = vertex(b, i.first);
     let v2 = vertex(b, i.second);
     let e = edge(b, i.aux);
@@ -238,7 +239,37 @@ fn rust_record(k: &Kernel, b: &mut Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
             } else {
                 Vec::new()
             };
-            vec![status(p5::remove_faces(b, i.editing, &faces))?]
+            let mut outer = if i.flag {
+                Some(MarkLock::new(
+                    core::slice::from_mut(&mut k.context),
+                    0,
+                    ALL_MARKS,
+                )?)
+            } else {
+                None
+            };
+            let marks = [
+                MarkType::Mark,
+                MarkType::Mark2,
+                MarkType::Mark3,
+                MarkType::MarkIo,
+                MarkType::MarkAssert,
+            ];
+            let before = marks.map(|m| k.context.current_mark(m));
+            let result = p5::remove_faces(k, b, i.editing, &faces);
+            let mut changes = Vec::new();
+            for (mark, old) in marks.into_iter().zip(before) {
+                changes.extend([
+                    k.context.current_mark(mark).wrapping_sub(old) as f64,
+                    f(k.context.is_mark_locked(mark)),
+                ]);
+            }
+            if let Some(outer) = outer.as_mut() {
+                outer.release(core::slice::from_mut(&mut k.context))?;
+            }
+            let mut out = vec![status(result)?];
+            out.extend(changes);
+            out
         }
         10 => vec![status(p5::stitch_and_orient(
             b,
@@ -321,7 +352,7 @@ impl UnitDiff for Runner {
         let raw = ffi::eval(Op::Export, &i.fixture, &args(&i))
             .map_err(|e| HarnessError::new(e.to_string()))?;
         let (mut b, _) = import(&raw)?;
-        match rust_record(&Kernel::default(), &mut b, &i) {
+        match rust_record(&mut Kernel::default(), &mut b, &i) {
             Ok(record) if i.op == 2 => Ok(Output::new().values("target_stage", record)),
             Ok(record) => Ok(graph(&b, record)),
             Err(e) => Output::unported(&e).ok_or_else(|| HarnessError::new(e.to_string())),
