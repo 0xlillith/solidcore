@@ -800,6 +800,120 @@ void attach(Rd& rd, Graph& g, int64_t id)
 }
 
 
+// The healed B-rep (OP_HEAL): a fresh walk, the extras of OP_EXPORT, then the fields the
+// Rust B-rep holds, in graph order (the order of the import, which the Rust side emits as
+// its arena order; a heal that leaves the topology lists as they are keeps the two equal).
+// Per region: in the B-rep; per shell: region; per face use: shell, face, mate,
+// orientation, loop uses; per face: surface block, UV domain, tolerance, surface type;
+// per loop use: face use, loop, mate, start kind (1 edge use, 2 vertex use, 0 other),
+// start, orientation; per loop: loop use; per edge use: edge, owner kind (1 loop use,
+// 2 shell, 0 other), owner, CW, CCW, vertex use, orientation, UV trim curve fingerprint,
+// drop-curve fail (set, status, B-rep set), edge/face and CCW gap init flags; per edge:
+// tolerance, interval, edge uses, curve type, curve fingerprint; per vertex use: vertex,
+// owner kind (1 edge use, 2 loop use, 3 shell, 0 other), owner, vertex/face gap init;
+// per vertex: point, tolerance; then the B-rep tolerance and validate-only flag.
+void put_healed(SmBrep* brep, std::vector<double>& o)
+{
+    Graph g;
+    walk(brep, g);
+    walk_more(brep, g);
+    put_extras(brep, g, o);
+    for (auto n : {g.regions.size(), g.shells.size(), g.faceuses.size(), g.faces.size(), g.loopuses.size(),
+                   g.loops.size(), g.edgeuses.size(), g.edges.size(), g.vertexuses.size(), g.vertices.size()})
+        o.push_back((double)n);
+    for (SmRegion* p : g.regions)
+        o.push_back(p->GetOwner() == (SmOwningTopology*)brep ? 1.0 : 0.0);
+    for (SmShell* p : g.shells)
+        o.push_back((double)g.find(0, p->GetOwner()));
+    for (SmFaceuse* p : g.faceuses)
+    {
+        o.push_back((double)g.find(1, p->GetOwner()));
+        o.push_back((double)g.find(3, p->*FuPeek::face()));
+        o.push_back((double)g.find(2, p->*FuPeek::mate()));
+        o.push_back((double)p->GetOrientation());
+        std::vector<int64_t> v;
+        for (SmTopology* t : list_of(p->GetList()))
+            v.push_back(g.find(4, t));
+        put_list(o, v);
+    }
+    for (SmFace* p : g.faces)
+    {
+        put_surface(o, p->GetSurface());
+        SmExtent2d d = p->GetUVDomain();
+        o.push_back(d.GetMin().x);
+        o.push_back(d.GetMin().y);
+        o.push_back(d.GetMax().x);
+        o.push_back(d.GetMax().y);
+        o.push_back((double)p->GetTolerance());
+        o.push_back(p->GetSurface() ? (double)p->GetSurface()->GetType() : -1.0);
+    }
+    for (SmLoopuse* p : g.loopuses)
+    {
+        o.push_back((double)g.find(2, p->GetOwner()));
+        o.push_back((double)g.find(5, p->*LuPeek::loop()));
+        o.push_back((double)g.find(4, p->*LuPeek::mate()));
+        SM_TYPE ty = p->*LuPeek::type();
+        SmTopology* start = p->*LuPeek::start();
+        o.push_back(ty == SmEdgeuse_TYPE ? 1.0 : ty == SmVertexuse_TYPE ? 2.0 : 0.0);
+        o.push_back((double)(ty == SmEdgeuse_TYPE ? g.find(6, start) : ty == SmVertexuse_TYPE ? g.find(8, start) : -1));
+        o.push_back((double)(p->*LuPeek::orient()));
+    }
+    for (SmLoop* p : g.loops)
+        o.push_back((double)g.find(4, p->GetLoopuse()));
+    for (SmEdgeuse* p : g.edgeuses)
+    {
+        o.push_back((double)g.find(7, p->GetOwner()));
+        SM_TYPE ty = p->GetEdgeuseType();
+        SmTopology* sorlu = p->*EuPeek::sorlu();
+        o.push_back(ty == SmLoopuse_TYPE ? 1.0 : ty == SmShell_TYPE ? 2.0 : 0.0);
+        o.push_back((double)(ty == SmLoopuse_TYPE ? g.find(4, sorlu) : ty == SmShell_TYPE ? g.find(1, sorlu) : -1));
+        o.push_back((double)g.find(6, p->GetCWEdgeuse()));
+        o.push_back((double)g.find(6, p->GetCCWEdgeuse()));
+        o.push_back((double)g.find(8, p->*EuPeek::vu()));
+        o.push_back((double)p->GetOrientation());
+        put_curve_id(o, p->*EuPeek::uv());
+        SmDropCurveFail* fail = p->*EuPeek::fail();
+        o.push_back(fail ? 1.0 : 0.0);
+        o.push_back(fail ? (double)fail->m_sFailStatus : 0.0);
+        o.push_back(fail && fail->m_pBrep ? 1.0 : 0.0);
+        o.push_back(flg((p->*EuPeek::face_gap()).IsInit()));
+        o.push_back(flg((p->*EuPeek::ccw_gap()).IsInit()));
+    }
+    for (SmEdge* p : g.edges)
+    {
+        o.push_back((double)p->GetTolerance());
+        SmExtent1d ivl = p->GetInterval();
+        o.push_back(ivl.GetMin());
+        o.push_back(ivl.GetMax());
+        std::vector<int64_t> v;
+        for (SmTopology* t : list_of(p->GetList()))
+            v.push_back(g.find(6, t));
+        put_list(o, v);
+        SmCurve* c = p->GetCurve();
+        o.push_back(c ? (double)c->GetType() : -1.0);
+        put_curve_id(o, SM_CAST_PTR(SmBSplineCurve, c));
+    }
+    for (SmVertexuse* p : g.vertexuses)
+    {
+        o.push_back((double)g.find(9, p->GetOwner()));
+        SM_TYPE ty = p->GetVertexuseType();
+        SmTopology* own = p->*VuPeek::owner();
+        o.push_back(ty == SmEdgeuse_TYPE ? 1.0 : ty == SmLoopuse_TYPE ? 2.0 : ty == SmShell_TYPE ? 3.0 : 0.0);
+        o.push_back((double)(ty == SmEdgeuse_TYPE   ? g.find(6, own)
+                             : ty == SmLoopuse_TYPE ? g.find(4, own)
+                             : ty == SmShell_TYPE   ? g.find(1, own)
+                                                    : -1));
+        o.push_back(flg((p->*VuPeek::face_gap()).IsInit()));
+    }
+    for (SmVertex* p : g.vertices)
+    {
+        put_vec(o, p->GetPoint());
+        o.push_back((double)p->GetTolerance());
+    }
+    o.push_back((double)brep->GetTolerance());
+    o.push_back(flg(brep->m_bValidateOnly));
+}
+
 void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
 {
     SmContext& ctx = const_cast<SmContext&>(the_context());
@@ -1469,10 +1583,12 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
     {
         SmHealerOpType op_code = (SmHealerOpType)rd.idx();
         bool make_uv = rd.flag();
-        // SmBrep::HealBrep ignores the healer's status and returns SM_SUCCESS; the Rust
-        // side runs the same healer and defers at its first unported step
+        // SmBrep::HealBrep ignores the healer's status and returns SM_SUCCESS whatever the
+        // healer did, so the healed B-rep is the result; the Rust side runs the same
+        // healer and defers at its first unported step
         SmStatus s = brep->HealBrep(op_code, NULL, NULL, NULL, make_uv ? TRUE : FALSE);
         o.push_back(st(s));
+        put_healed(brep, o);
         break;
     }
     default:

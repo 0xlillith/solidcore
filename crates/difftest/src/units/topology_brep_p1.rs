@@ -44,8 +44,8 @@ use solidcore::topology::brep_cache::{arena_identity, CacheObject};
 use solidcore::topology::edge::AttributeFilter;
 use solidcore::topology::topology_traverser::{Entity, Marks};
 use solidcore::topology::{
-    Brep, EdgeId, EdgeuseId, FaceId, FaceuseId, LoopId, LoopuseId, RegionId, ShellId, VertexId,
-    VertexuseId,
+    Brep, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId, LoopuseStart,
+    RegionId, ShellId, VertexId, VertexuseId, VertexuseOwner,
 };
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_p1::{self as ffi, Op, N_EXTRA_SCALARS, TARGET_TYPES};
@@ -136,7 +136,7 @@ enum OpIn {
     FindSector { face: i64, guess: Option<[f64; 2]>, p: [f64; 3], dir: [f64; 3] },
     UpdateIvls { vertex: i64 },
     /// `seam`: an `SmSurfParamType` code (0 U, 1 V, 2 UNKNOWN, 3 BOTH, 4 NEITHER, 5 UMIN,
-    /// 6 VMIN, 7 UMAX).
+    /// 6 VMIN, 7 UMAX, 8 VMAX).
     Redistribute { edge: i64, has_uv: bool, seam: u8, dom: [f64; 4] },
     /// `orient`: 0 unknown, 1 same, 2 opposite (`SmOrientType`).
     SplitUv {
@@ -163,7 +163,8 @@ enum OpIn {
     },
     /// `healer_op`: an `SmHealerOpType` code, 0 (`SM_HO_NONE`) to 26 (`SM_HO_ALL`); the
     /// FFI rejects anything above (upstream would run every step for an out-of-range code,
-    /// the Rust enum has no such value).
+    /// the Rust enum has no such value). `SmBrep::HealBrep` always returns `SM_SUCCESS`, so
+    /// the compared result is the healed B-rep ([`put_healed`]).
     Heal { healer_op: u8, make_uv: bool },
 }
 
@@ -273,7 +274,7 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
         OpIn::Redistribute { edge, has_uv, seam, dom } => OpIn::Redistribute {
             edge: need(n_e, edge)?,
             has_uv,
-            seam: seam % 8,
+            seam: seam % 9,
             dom,
         },
         OpIn::SplitUv { eu_orig, eu_new, p, t, scaled_zero, orient, for_tess } => OpIn::SplitUv {
@@ -520,6 +521,9 @@ fn import(ex: &[f64], graph_at: usize) -> Result<(Brep, ImportTypes), HarnessErr
     if editing != 0.0 || est != tol::USE_DEFAULT || ratio != tol::USE_DEFAULT || head_is_inf != 1.0 {
         return Err(harness("export: unexpected SmBrep state"));
     }
+    // the exported head of the region list (`m_pList`) is the infinite region (or NULL
+    // on a wire B-rep without regions), checked just above
+    b.set_region_list_head(b.infinite_region());
     let n_v = *ex.get(1 + N_EXTRA_SCALARS).ok_or_else(|| harness("short extras"))? as usize;
     let mut at = 2 + N_EXTRA_SCALARS;
     for v in 0..n_v {
@@ -889,6 +893,123 @@ fn put_surface(o: &mut Vec<f64>, s: &Surface) -> Result<(), HarnessError> {
         }
         _ => o.push(-2.0),
     }
+    Ok(())
+}
+
+/// The code of an `SmOrientType`, as the shared import reads it.
+fn orient_code(o: OrientType) -> f64 {
+    match o {
+        OrientType::Unknown => 0.0,
+        OrientType::Same => 1.0,
+        OrientType::Opposite => 2.0,
+    }
+}
+
+/// An optional id as the shim's `Graph::find`: the index, `-1` for none.
+fn idx<I: solidcore::topology::ArenaId>(id: Option<I>) -> f64 {
+    id.map_or(-1.0, |i| f64::from(i.index()))
+}
+
+/// The healed B-rep, as the shim's `put_healed`: the `Export` extras (infinite region,
+/// editing flag, size estimate and ratio, list head, the vertex use lists, the face,
+/// edge and vertex list orders), the ten counts, then per record the fields the Rust
+/// B-rep holds (see the shim), in arena order. The import numbers the arenas in the
+/// shim's graph order, and the shim re-walks the healed B-rep, so the two agree while
+/// the heal leaves the topology lists as they are; a step that reorders or adds records
+/// shows up as a disagreement, never as a silent pass.
+fn put_healed(k: &Kernel, b: &Brep, types: &ImportTypes, o: &mut Vec<f64>) -> Result<(), Fail> {
+    o.push(idx(b.infinite_region()));
+    o.push(flag(b.editing_enabled()));
+    o.push(b.this_model_size_estimate(k, false));
+    o.push(b.this_large_small_size_ratio(k, false));
+    o.push(flag(b.region_list_head() == b.infinite_region()));
+    o.push(b.vertices().len() as f64);
+    for (_, v) in b.vertices().iter() {
+        o.extend(ids(&v.vertexuses));
+    }
+    o.extend(ids(&bp1::faces(b, None)?));
+    o.extend(ids(&bp1::edges(b, None)?));
+    o.extend(ids(&bp1::vertices(b, None)?));
+    for n in [
+        b.regions().len(),
+        b.shells().len(),
+        b.faceuses().len(),
+        b.faces().len(),
+        b.loopuses().len(),
+        b.loops().len(),
+        b.edgeuses().len(),
+        b.edges().len(),
+        b.vertexuses().len(),
+        b.vertices().len(),
+    ] {
+        o.push(n as f64);
+    }
+    for (_, r) in b.regions().iter() {
+        o.push(flag(r.in_brep));
+    }
+    for (_, s) in b.shells().iter() {
+        o.push(idx(s.region));
+    }
+    for (_, fu) in b.faceuses().iter() {
+        o.extend([idx(fu.shell), idx(fu.face), idx(fu.mate), orient_code(fu.orientation)]);
+        o.extend(ids(&fu.loopuses));
+    }
+    for (id, f) in b.faces().iter() {
+        match f.surface.as_ref() {
+            Some(s) => put_surface(o, s)?,
+            None => o.push(-1.0),
+        }
+        let d = &f.uv_domain;
+        o.extend([d.min().x, d.min().y, d.max().x, d.max().y, f.tolerance]);
+        o.push(types.face_surface_types.get(id.index() as usize).map_or(-1.0, |&t| t as f64));
+    }
+    for (_, lu) in b.loopuses().iter() {
+        o.extend([idx(lu.faceuse), idx(lu.loop_), idx(lu.mate)]);
+        match lu.start {
+            LoopuseStart::Edgeuse(eu) => o.extend([1.0, idx(eu)]),
+            LoopuseStart::Vertexuse(vu) => o.extend([2.0, idx(vu)]),
+            LoopuseStart::Unknown => o.extend([0.0, -1.0]),
+        }
+        o.push(orient_code(lu.orientation));
+    }
+    for (_, l) in b.loops().iter() {
+        o.push(idx(l.loopuse));
+    }
+    for (_, eu) in b.edgeuses().iter() {
+        o.push(idx(eu.edge));
+        match eu.owner {
+            EdgeuseOwner::Loopuse(lu) => o.extend([1.0, idx(lu)]),
+            EdgeuseOwner::Shell(s) => o.extend([2.0, idx(s)]),
+            EdgeuseOwner::Unknown => o.extend([0.0, -1.0]),
+        }
+        o.extend([idx(eu.cw), idx(eu.ccw), idx(eu.vertexuse), orient_code(eu.orientation)]);
+        curve_id(eu.uv_trim_curve.as_ref(), o);
+        match eu.drop_curve_fail.as_deref() {
+            Some(f) => o.extend([1.0, f64::from(f.fail_status), flag(f.brep.is_some())]),
+            None => o.extend([0.0, 0.0, 0.0]),
+        }
+        o.extend([flag(eu.max_edge_face_gap.is_init()), flag(eu.edge_ccw_edge_gap.is_init())]);
+    }
+    for (id, e) in b.edges().iter() {
+        o.extend([e.tolerance, e.interval.min(), e.interval.max()]);
+        o.extend(ids(&e.edgeuses));
+        o.push(types.edge_curve_types.get(id.index() as usize).map_or(-1.0, |&t| t as f64));
+        curve_id(e.curve.as_ref(), o);
+    }
+    for (_, vu) in b.vertexuses().iter() {
+        o.push(idx(vu.vertex));
+        match vu.owner {
+            VertexuseOwner::Edgeuse(eu) => o.extend([1.0, idx(eu)]),
+            VertexuseOwner::Loopuse(lu) => o.extend([2.0, idx(lu)]),
+            VertexuseOwner::Shell(s) => o.extend([3.0, idx(s)]),
+            VertexuseOwner::Unknown => o.extend([0.0, -1.0]),
+        }
+        o.push(flag(vu.vertex_face_gap.is_init()));
+    }
+    for (_, v) in b.vertices().iter() {
+        o.extend([v.point.x, v.point.y, v.point.z, v.tolerance]);
+    }
+    o.extend([b.tolerance(), flag(b.validate_only())]);
     Ok(())
 }
 
@@ -1293,7 +1414,8 @@ fn run_rust_op(
         }
         OpIn::Redistribute { edge, has_uv, seam, dom } => {
             let e = EdgeId::from_index(*edge as u32);
-            let seam = SurfParamType::from_code(u64::from(*seam)).unwrap_or(SurfParamType::Neither);
+            let seam = SurfParamType::from_code(u64::from(*seam))
+                .ok_or_else(|| harness(format!("seam code {seam} outside SM_SP_U..=SM_SP_VMAX")))?;
             // the trim curve argument is only tested for NULL: a stand-in on both sides
             let uv: Option<Curve> = has_uv.then(stand_in_uv_curve);
             let d = Extent2d::from_bounds(dom[0], dom[1], dom[2], dom[3]);
@@ -1426,7 +1548,12 @@ fn run_rust_op(
                 harness(format!("healer op {healer_op} outside SM_HO_NONE..=SM_HO_ALL (0..=26)"))
             })?;
             bp1::heal_brep(k, b, healer_op, None, None, None, *make_uv)?;
+            // the healer evaluates the geometry: compared only where the import is exact
+            if let Some(d) = inexact(types, None, None) {
+                return Ok(Err(d));
+            }
             o.push(0.0);
+            put_healed(k, b, types, &mut o)?;
         }
     }
     Ok(Ok(o))
@@ -1576,7 +1703,8 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         20 => OpIn::Redistribute {
             edge: gen_sel(rng),
             has_uv: rng.chance(0.5),
-            seam: rng.below(8) as u8,
+            // SM_SP_U (0) ..= SM_SP_VMAX (8)
+            seam: rng.below(9) as u8,
             dom: [0.0, 0.0, 1.0, 1.0],
         },
         21 => OpIn::SplitUv {

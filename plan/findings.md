@@ -5930,29 +5930,29 @@ independent p6 integration.
 
 ## topology.brep_p1 (`SmBrep` members, collections, `sm_*` helpers of `SmBrep.cpp`, PR #145, 2026-10-16; partial, no disagreements)
 
-Difftest (`fixtures/topology.brep_p1/`: 2080 cases on the 15 upstream `.smb` files read by
+Difftest (`fixtures/topology.brep_p1/`: 2095 cases on the 15 upstream `.smb` files read by
 `SmBrep::ReadFromFile`, 232 on constructed B-reps (wire edges, plane and B-spline faces, the
-`prog_test` wire network, 10 `sm_FindSideOfCurve` cases among them), 16 generated): 2328 cases,
-1712 pass, 0 failed, 616 deferred (`harness:analytic-geometry-export` 207, `topology.shell` 151,
+`prog_test` wire network, 10 `sm_FindSideOfCurve` cases among them), 16 generated): 2343 cases,
+1717 pass, 0 failed, 626 deferred (`harness:analytic-geometry-export` 217, `topology.shell` 151,
 `topology.edgeuse_p3` 93, `query.brep` 71, `topology.face_p2` 44, `topology.face_p3` 18,
 `topology.face_p1` 16, `query.face_p2` 9, `curve.crv_on_surf` 4, `surface.surface_cache_p1` 3);
-`--perturb` detects 1712/1712; a 1000-seed generated sweep (3312 cases) passes 2404 with 0
-failed and 908 deferred; `--green` runs 198 units with 0 failed.
-Every compared value is bit-identical; no absolute floors. 60 of the 1712 passes compare no value
+`--perturb` detects 1717/1717; a 1000-seed generated sweep (3327 cases) passes 2408 with 0
+failed and 919 deferred; `--green` runs 198 units with 0 failed.
+Every compared value is bit-identical; no absolute floors. 60 of the 1717 passes compare no value
 because both sides report the same error (`both_errored` in the report): 15 `no_entity` lookups
 on the three wire B-reps (`ReflectShell`, `sm_MarkLoopsToDelete`, `sm_SwapFaceUV`,
 `FindSectorOfFace` local and global, no face to find) and 45 `null_dereference_guard` cases where
 the shim stops before an upstream null dereference and the Rust returns the matching error (15
 `AddAttributes` on a null indexed target, 27 `sm_RedistributeSeamUVTrimCurves` with a trim curve
 on files with fewer than four seam edge uses, UB-162, and 3 `SetInfiniteRegion` swaps without an
-infinite region); the other 1652 compare values.
+infinite region); the other 1657 compare values.
 
-- **Coverage, honestly.** `GetShells`, `SmLockBrepBox` and `HealBrep` have no passing case
-  (every case defers: every fixture B-rep has regions, so `GetShells` stops at
-  `SmRegion::GetShells`, and the empty list on a region-less B-rep is only unit-tested;
-  `HealBrep` runs the C++ healer and the Rust `HealData`, whose heal sequence
-  (`heal.heal_data_p3`, #164) stops at `SmEdgeuse::NormalizedEvaluate` on every fixture
-  file). A harness defect surfaced when #164's sequence replaced the `HealTgts` stub: the 15
+- **Coverage, honestly.** `GetShells` and `SmLockBrepBox` have no passing case (every
+  `GetShells` case defers: every fixture B-rep has regions, so it stops at
+  `SmRegion::GetShells`, and the empty list on a region-less B-rep is only unit-tested).
+  `HealBrep` runs the C++ healer and the Rust `HealData` (`heal.heal_data_p3`, #164).
+  `SmBrep::HealBrep` always returns `SM_SUCCESS`, so a status-only comparison compares nothing: both sides now emit the same digest of the healed B-rep after the heal (the shim's and the runner's `put_healed`: the `Export` extras, then every record's links, orientations, geometry ids and types, domains, tolerances and gap-init flags, in C++ list order and Rust arena order, which agree because the steps that complete reorder no list; a byte-identical re-export was not possible because the Rust import discards the region and shell lists). The sequence reaches `SmEdgeuse::NormalizedEvaluate` from `SM_HO_CACHE_EDGEPROPS` on, so only `SM_HO_NONE` and `SM_HO_FIX_BACKPOINTERS` complete: the 5 `*_heal_backpointers` fixtures on the B-spline-only files (Endcap, disk, ellips_ts2, plane_circ, plane_square) compare the healed B-rep (2785 values), the other 10 defer on the analytic export, the 15 `SM_HO_ALL` fixtures defer at `topology.edgeuse_p3`, and in the 1000-seed sweep 3 of the 33 generated heal cases complete and compare (718 values; the generator draws `heal` for 1% of cases). No heal case passes on status alone. The digest found one disagreement: after the heal the C++ region list head was the infinite region and the Rust's was `None`, because the runner's import checked the exported head flag but never set `Brep::region_list_head`; the import now sets it (no library change: `regions()` already started at list index 0, which is the infinite region).
+  A harness defect surfaced earlier when #164's sequence replaced the `HealTgts` stub: the 15
   `HealBrep` fixtures passed healer op 39, outside `SmHealerOpType` (`SM_HO_ALL` is 26); the
   C++ ran every step for it while the Rust runner mapped the unknown code to `SM_HO_NONE` and
   ran nothing, so the 15 cases briefly "passed" on an always-equal status. The fixtures now

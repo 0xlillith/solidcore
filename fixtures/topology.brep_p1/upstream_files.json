@@ -2482,6 +2482,20 @@
    }
   },
   {
+   "name": "Mouse_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
+    "make_uv": false
+   }
+  },
+  {
    "name": "Endcap_lists_0",
    "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
    "inputs": {
@@ -4959,6 +4973,20 @@
     },
     "op": "heal",
     "healer_op": 26,
+    "make_uv": false
+   }
+  },
+  {
+   "name": "Endcap_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
     "make_uv": false
    }
   },
@@ -7444,6 +7472,20 @@
    }
   },
   {
+   "name": "box_with_large_fillet_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
+    "make_uv": false
+   }
+  },
+  {
    "name": "cone_lists_0",
    "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
    "inputs": {
@@ -9921,6 +9963,20 @@
     },
     "op": "heal",
     "healer_op": 26,
+    "make_uv": false
+   }
+  },
+  {
+   "name": "cone_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
     "make_uv": false
    }
   },
@@ -12406,6 +12462,20 @@
    }
   },
   {
+   "name": "disk_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
+    "make_uv": false
+   }
+  },
+  {
    "name": "ellips_ts2_lists_0",
    "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
    "inputs": {
@@ -14883,6 +14953,20 @@
     },
     "op": "heal",
     "healer_op": 26,
+    "make_uv": false
+   }
+  },
+  {
+   "name": "ellips_ts2_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
     "make_uv": false
    }
   },
@@ -17368,6 +17452,20 @@
    }
   },
   {
+   "name": "plane_circ_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
+    "make_uv": false
+   }
+  },
+  {
    "name": "plane_square_lists_0",
    "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
    "inputs": {
@@ -19845,6 +19943,20 @@
     },
     "op": "heal",
     "healer_op": 26,
+    "make_uv": false
+   }
+  },
+  {
+   "name": "plane_square_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
     "make_uv": false
    }
   },
@@ -22330,6 +22442,20 @@
    }
   },
   {
+   "name": "sphere_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
+    "make_uv": false
+   }
+  },
+  {
    "name": "surf_extrude_lists_0",
    "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
    "inputs": {
@@ -24807,6 +24933,20 @@
     },
     "op": "heal",
     "healer_op": 26,
+    "make_uv": false
+   }
+  },
+  {
+   "name": "surf_extrude_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
     "make_uv": false
    }
   },
@@ -27292,6 +27432,20 @@
    }
   },
   {
+   "name": "surf_rev_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
+    "make_uv": false
+   }
+  },
+  {
    "name": "surf_sphere150_lists_0",
    "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
    "inputs": {
@@ -29769,6 +29923,20 @@
     },
     "op": "heal",
     "healer_op": 26,
+    "make_uv": false
+   }
+  },
+  {
+   "name": "surf_sphere150_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
     "make_uv": false
    }
   },
@@ -32254,6 +32422,20 @@
    }
   },
   {
+   "name": "torus_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
+    "make_uv": false
+   }
+  },
+  {
    "name": "toruswvy_lists_0",
    "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
    "inputs": {
@@ -34735,6 +34917,20 @@
    }
   },
   {
+   "name": "toruswvy_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
+    "make_uv": false
+   }
+  },
+  {
    "name": "vase_rev_lists_0",
    "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
    "inputs": {
@@ -37212,6 +37408,20 @@
     },
     "op": "heal",
     "healer_op": 26,
+    "make_uv": false
+   }
+  },
+  {
+   "name": "vase_rev_heal_backpointers",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; SmBrep::HealBrep SM_HO_FIX_BACKPOINTERS)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "heal",
+    "healer_op": 1,
     "make_uv": false
    }
   },
