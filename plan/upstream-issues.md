@@ -1438,6 +1438,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** hang in practice.
 - **Rust port:** `GetCreateExtendedSurface` is `UNPORTED(offset.offset_executive_p1)` in the port, so the Rust side never reaches it; the difftest shim and runner refuse (`-5`, a hang guard, not a deferral) exactly the calls that would reach it: `ExtendTrimEdges`, `MateEdges` with four non-null edge uses, `EdgeuseOffset` with `GetExtendConvexEdges()` on a tangent or lamina edge or with four non-null edge uses, and `TrimExtendedEdge` when a non-tangent neighbour has a mapped offset edge use.
 
+#### HANG-19. `SmBSplineSurface::CreateExtendedSurface` never finishes for a negative extension distance
+- **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp` (`SmBSplineSurface::CreateExtendedSurface`, the per-side extension loops, about line 4580: `while (dExtDist < dDist/2.0) { dExtDist *= 2.0; N_SrfExtendByDist(...); }`), reached through `SmOffsetExecutive::GetCreateExtendedSurface` with `dDist = 5 * GetOffsetDistance()`.
+- **What happens:** The loop is meant to double a halved extension distance back up to the request. With a negative request the condition `dExtDist < dDist / 2` holds from the start (`dDist < dDist / 2` for `dDist < 0`) and keeps holding while each extension succeeds, so the distance doubles without bound and every iteration runs a full surface extension (`ST_surxsdr`, knot removal, validity check); on a plane the extensions keep succeeding.
+- **Trigger:** `SmOffsetGeometryCreation::ExtendTrimEdges`, `MateEdges` (four edge uses), `EdgeuseOffset` with `GetExtendConvexEdges()`, or `TrimExtendedEdge`'s non-tangent neighbour, for an executive whose offset distance is negative, on any face: `pt_TestFiles/plane_circ.smb` (generated case gen0019, offset -0.25, `EdgeuseOffset`), `ellips_ts2.smb` (gen0213, `MateEdges`), `sphere.smb` + `box_with_large_fillet.smb` (gen0248, `EdgeuseOffset`).
+- **How found:** three generated difftest cases of `offset.offset_geometry_creation` (PR #156) still ran past 30 s with the HANG-17 guard on; `gdb` backtraces of all three sat in `ST_surxsdr` / `N_SrfRemoveKnotConditional` under `CreateExtendedSurface` <- `GetCreateExtendedSurface`; all three share the offset distance -0.25 while the per-face HANG-17 probe at +0.5 completed on these files.
+- **Confirmed:** yes (the three cases run for more than 60 s each and were killed; the loop has no other exit while extensions succeed).
+- **Severity:** hang in practice (an unbounded loop).
+- **Rust port:** the port never reaches `GetCreateExtendedSurface` (`UNPORTED(offset.offset_executive_p1)`); the difftest shim and runner refuse, with the hang-guard status `-5`, every call that would extend a surface while the offset distance is negative (an exact trigger, no over-rejection: positive distances are unaffected).
+
+#### WR-103. `CreateSphereFromArcs`' centre check compares a frame with itself
+- **Location:** `source/SMLib/src/SmBSplineSurface.cpp:2044`-`2065`, `SmBSplineSurface::CreateSphereFromArcs`: `const SmPoint3d & rOrigin = sRefFrame.GetOriginRef();` then, for each other arc, `IsArc(5, d3DTol, sRefFrame, ...)` and `sDiff = sRefFrame.GetOriginRef() - rOrigin`.
+- **What happens:** `rOrigin` is a reference into `sRefFrame`, which the later `IsArc` calls overwrite, so `sDiff` is always zero: arcs about different centres pass the "OtherCurve center is not the same as 1st Curve cent" test, and every later use of `rOrigin` (the sphere centre) sees the centre of whichever arc `IsArc` examined last.
+- **Trigger:** three arcs of equal radius about different centres; a generated `offset.offset_geometry_creation` case (`VertexOffset` with bounding edges from two B-reps: two torus circles about (10, 0, 0) and a sphere circle about the origin, all of radius 5) builds a sphere from them.
+- **How found:** difftest of `offset.offset_geometry_creation` (PR #156): the port captured the first centre by value, rejected the arcs with `SM_ERR`, and disagreed with the C++, which returned three trimming curves.
+- **Confirmed:** yes (the C++ build succeeds on the inputs above).
+- **Severity:** a silent wrong result (a sphere from non-concentric arcs); no crash.
+- **Rust port:** `nurbs::b_spline_surface::p2::BSplineSurface::create_sphere_from_arcs` reads the centre from the current frame at each use, as the reference does (the check is kept in its dead form with a comment); fixed by PR #156 in that unit's file.
+
 #### ND-1. `srand(time(NULL))` in face sampling and shell classification
 - **Location:** `SmFace.cpp:21183` `SmFace::GetPointsInFace` (def. `:21167`); `SmShell.cpp:888`, `:905` (in `SmShell::IsInnerShellOf`, def. `:827`).
 - **What happens:** The C RNG is reseeded from the clock and used to dither sample parameters / ray directions. Results differ between runs, and the global `rand()` state is clobbered for the whole process.

@@ -5637,19 +5637,51 @@ torus, cylinder, "raise the tolerances" and "non-synchronised" branches of
 `EdgeuseOffset`; three rational arcs through an offset corner reach the sphere of
 `VertexOffset`.
 
-**Upstream hang (HANG-17).** `SmOffsetExecutive::GetCreateExtendedSurface` extends the
-face's surface by five offset distances (`SmBSplineSurface::CreateExtendedSurface`,
-`SM_CT_G1R`); `ST_surxsdr` splits a large extension and recurses twice per level to
-depth 10, so a surface whose iso-curves are short relative to the distance (cone,
-torus, Endcap of `pt_TestFiles`) runs through up to `2^11` extensions and does not
-return in practice (28 minutes, killed; `plan/upstream-issues.md`). The port never
-reaches it (`UNPORTED(offset.offset_executive_p1)`), so the shim and the runner refuse,
-with the hang-guard status `-5` on both sides, exactly the calls that would:
+**Upstream hangs (HANG-17, HANG-19).** `SmOffsetExecutive::GetCreateExtendedSurface` extends
+the face's surface by five offset distances (`SmBSplineSurface::CreateExtendedSurface`,
+`SM_CT_G1R`). Two things make that call not return. (1) HANG-19: with a negative offset
+distance the per-side loop `while (dExtDist < dDist/2.0) { dExtDist *= 2.0; ... }` holds
+from the start and keeps holding while the extensions succeed, so the distance doubles
+without bound on any face, planes included (three generated cases at -0.25 ran past 60 s,
+gdb backtraces in `ST_surxsdr` under `CreateExtendedSurface`; `plan/upstream-issues.md`).
+(2) HANG-17: with a positive distance `ST_surxsdr` splits a large extension and recurses
+twice per level to depth 10, so a surface whose iso-curves are short relative to the
+distance runs through up to `2^11` extensions (28 minutes, killed). The port never reaches
+either (`UNPORTED(offset.offset_executive_p1)`), so the shim and the runner refuse, with the
+hang-guard status `-5` on both sides, exactly the calls that would extend a surface:
 `ExtendTrimEdges` always, `MateEdges` with four edge uses, `EdgeuseOffset` with
 `GetExtendConvexEdges` on a tangent or lamina edge or with four edge uses, and
-`TrimExtendedEdge` when a non-tangent neighbour has a mapped offset edge use (the
-neighbour classification is replicated on both sides). These are hang guards, not
-deferrals.
+`TrimExtendedEdge` when a non-tangent neighbour has a mapped offset edge use (the neighbour
+classification is replicated on both sides) -- when the offset distance is negative (the
+exact HANG-19 trigger, no over-rejection) or an offset face's surface is closed in U or V
+(the HANG-17 proxy). The proxy was measured with `SC_OG_NO_HANG_GUARD=1` (a shim/runner
+switch the difftest never sets): `ExtendTrimEdges` on each of the first eight faces of the
+15 `pt_TestFiles` B-reps at offset 0.5 completes within 45 s on every file but Endcap (8 of
+8 faces hang); the proxy refuses Endcap, cone, sphere, torus, toruswvy and vase_rev, i.e.
+48 of the 120 probe faces, of which 40 (five files) would have completed: an over-rejection
+of one third of the probe, stated here rather than replicated (the exact trigger is the
+depth-0 recursion test of `ST_surxsdr`, five iso-curve extensions per side). These are hang
+guards, not deferrals.
+
+**Local creation.** `SmLocalOperationGeometryCreation(dist, approx, faces, surfaces)`
+copies its two lists at construction and its `FaceuseOffset` returns the surface listed
+for the face (`SM_ERR` for an unlisted face). Its `m_bMakeAnalytics` is `FALSE` from the
+constructor and neither side calls `SetMakeAnalytics` on it, so the analytic branch (which
+reparameterises, copies and deletes the listed surface) is not exercised. The listed
+surfaces must be store surfaces: three generated cases that listed a face's own surface
+segfaulted (the analytic copy would delete the face's surface; without it the shim freed
+the store's copy of the pointer at teardown), so the FFI and the runner refuse such pairs.
+The store is filled by the script's ops, so the header's surface handles are resolved
+again before each local op on both sides (the local creation is rebuilt then; a listed
+face whose surface is not there yet is refused with `-2`, as upstream dereferences it);
+the fixed cases `local_offset_*` cover the listed, unlisted and not-yet-added surfaces.
+
+**Fixes outside the unit.** `nurbs::b_spline_surface::p2::create_sphere_from_arcs` (green,
+#13) captured the first arc's centre by value; upstream's `rOrigin` is a reference into the
+frame every later `IsArc` overwrites, so its centre check is dead and its sphere centre is
+the last arc's (WR-103). A generated `VertexOffset` on circles about two centres exposed it
+(the C++ builds the sphere, the port said `SM_ERR`); the port now reads the current frame's
+origin at each use and that unit's difftest stays green.
 
 **Guards.** The topology-walking functions dereference edge, curve, vertex use, mate,
 CW/CCW neighbour, face use, face and surface pointers without checking, so the shim

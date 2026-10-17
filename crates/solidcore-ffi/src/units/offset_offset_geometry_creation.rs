@@ -14,7 +14,7 @@
 //! | [`Op`]   | after the blocks | outputs |
 //! |----------|------------------|---------|
 //! | `Export` |                  | per B-rep `len export` (`len 0` for an absent one), each export a `0`-prefixed graph as [`super::topology_vertexuse`] exports it |
-//! | `Run`    | `dist approx make_analytics n_local (face surface)* inset extend n_shell face* n_pairs (eu eu)* n_ops ops*` | per op its code, a status and its outputs (below) |
+//! | `Run`    | `dist approx make_analytics n_local (face surface)* inset extend n_shell face* n_pairs (eu eu)* n_ops ops*` | per op its code, a status and its outputs (below): an op's out-parameters follow a success status only, the states of existing topology (edge states, a face's domain and surface) follow every status |
 //!
 //! The run header makes `SmOffsetGeometryCreation(dist, approx)` (with
 //! `SetMakeAnalytics`), `SmLocalOperationGeometryCreation(dist, approx, faces,
@@ -32,11 +32,17 @@
 //! code, `-2` when the shim refused the op because upstream would dereference null
 //! (an op that walks the topology needs every edge use of both B-reps to be a loop edge
 //! use with edge, curve, vertex, mate, neighbours and a face with surface), or `-5` when
-//! it refused the op because upstream would not return (HANG-17: the extended surface
-//! of `SmOffsetExecutive::GetCreateExtendedSurface`, reached by `ExtendTrimEdges`,
+//! it refused the op because upstream would not return (the extended surface of
+//! `SmOffsetExecutive::GetCreateExtendedSurface`, reached by `ExtendTrimEdges`,
 //! `MateEdges` with four edge uses, `EdgeuseOffset` with `GetExtendConvexEdges` on a
 //! tangent or lamina edge or with four edge uses, and `TrimExtendedEdge` when a
-//! non-tangent neighbour has a mapped offset edge use).
+//! non-tangent neighbour has a mapped offset edge use: HANG-19 whenever the offset
+//! distance is negative, HANG-17 when an offset face's surface is closed in U or V).
+//!
+//! The `n_local` pairs name store surfaces only (kind 7): `SmLocalOperationGeometryCreation`
+//! owns its listed surfaces (with `make_analytics` it reparameterises and deletes each one
+//! after copying it), so a face's own surface there is refused as invalid input. The
+//! handles are resolved against the store as it stands at each `LocalFaceuseOffset`.
 //!
 //! Geometry outputs: `curve` is the fixture header's `put_curve` block (`-1` null,
 //! `-2` not a B-spline curve, else `type dim has_nurb [n p m cpts knots] [line data]`);
@@ -76,8 +82,9 @@ use std::path::Path;
 
 use crate::{call_with_buffer, FfiError};
 
-/// Largest control point index.
-pub const MAX_INDEX: usize = 32;
+/// Largest control point index (edge curves copied from the `pt_TestFiles` B-reps
+/// have hundreds of control points, `Mouse.smb` up to 240).
+pub const MAX_INDEX: usize = 4096;
 /// Largest degree.
 pub const MAX_DEGREE: usize = 5;
 /// Largest coordinate magnitude.
@@ -533,6 +540,22 @@ impl Counts {
         }
     }
 
+    /// A header handle naming a store surface that the script's ops add later
+    /// (resolved against the store at each local op, null while absent): the kind
+    /// and the index's sign are checked, its range is not.
+    fn store_surface_lazy(rd: &mut Reader<'_>) -> Result<(), FfiError> {
+        let _b = rd.int(-1, 2)?;
+        let kind = rd.int(-1, 11)?;
+        let i = rd.int(-1, i64::MAX)?;
+        let kind = HandleKind::from_code(kind).ok_or_else(|| bad("bad handle kind"))?;
+        match kind {
+            HandleKind::Null => Ok(()),
+            HandleKind::Surface if i >= 0 => Ok(()),
+            HandleKind::Surface => Err(bad("negative handle index")),
+            _ => Err(bad("handle of the wrong kind")),
+        }
+    }
+
     /// Reads and checks a handle; `None` for null.
     fn handle(&self, rd: &mut Reader<'_>) -> Result<Option<Handle>, FfiError> {
         let b = rd.int(-1, 2)?;
@@ -624,7 +647,11 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
     let n_local = rd.index(MAX_LIST)?;
     for _ in 0..n_local {
         c.kinded(rd, &[HandleKind::Face], true)?;
-        c.kinded(rd, &[HandleKind::Surface, HandleKind::FaceSurface], true)?;
+        // a store surface only: the local creation owns the listed surfaces (with
+        // analytics on it reparameterises and deletes each one after copying it), so a
+        // face's own surface here corrupts its B-rep; the surface may be added by a
+        // later op (null until then)
+        Counts::store_surface_lazy(rd)?;
     }
     rd.flag()?; // inset
     rd.flag()?; // extend convex edges

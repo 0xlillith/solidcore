@@ -29,6 +29,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <array>
 
 namespace
 {
@@ -169,10 +170,15 @@ bool closed_face_surface(const SmFace* f)
 }
 
 bool closed_offset_face(const SmEdgeuse* eu) { return eu != nullptr && closed_face_surface(eu->GetFace()); }
+// The HANG-19 trigger: a negative offset distance (dDist = 5 * offset < 0) makes
+// SmBSplineSurface::CreateExtendedSurface's doubling loop (`while (dExtDist < dDist / 2.0)`)
+// unbounded on any surface, planes included; `dist < 0.0` is tested beside the closed-face
+// test at every site that would extend a surface.
 
-// Whether TrimExtendedEdge would extend a closed neighbouring face's surface (HANG-17):
-// the neighbour classification of its two ends, replicated.
-bool would_extend_closed_neighbour(SmOffsetExecutive& exec, const SmEdgeuse* base, const SmEdgeuse* other_base)
+// Whether TrimExtendedEdge would extend a closed neighbouring face's surface (HANG-17) or
+// any neighbour's with a negative offset distance (HANG-19): the neighbour classification
+// of its two ends, replicated.
+bool would_extend_closed_neighbour(SmOffsetExecutive& exec, double dist, const SmEdgeuse* base, const SmEdgeuse* other_base)
 {
     double tol_deg = exec.GetTangencyTolDegrees();
     SmEdge* base_edge = base->GetEdge();
@@ -201,7 +207,7 @@ bool would_extend_closed_neighbour(SmOffsetExecutive& exec, const SmEdgeuse* bas
             {
                 SmEdgeuse* adj = n->GetRadial();
                 SmEdgeuse* off_adj = adj ? exec.GetOffsetEdgeuse(adj) : nullptr;
-                if (off_adj && closed_offset_face(off_adj))
+                if (off_adj && (dist < 0.0 || closed_offset_face(off_adj)))
                     return true;
             }
         }
@@ -406,15 +412,26 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
     geom.SetMakeAnalytics(make_analytics ? TRUE : FALSE);
 
     // the local-operation creation (its lists are the face/surface pairs given)
+    // The listed surfaces are store surfaces (the FFI refuses a face's own: the local
+    // creation owns them), named by handle; the store is filled by the script's ops, so
+    // the handles are resolved again before each local op (upstream copies the lists at
+    // construction; the local creation is rebuilt then). Its m_bMakeAnalytics stays
+    // FALSE, as the constructor leaves it (SetMakeAnalytics is never called on it), so
+    // FaceuseOffset returns the listed surface as is.
     int64_t n_local = rd.idx();
     SmTArray<SmFace*> local_faces(ctx);
     SmTArray<SmSurface*> local_surfaces(ctx);
+    std::vector<std::array<int64_t, 3>> local_srf;
     for (int64_t k = 0; k < n_local; k++)
     {
         SmFace* f = (SmFace*)rd_h(rd, t);
-        SmSurface* s = (SmSurface*)rd_h(rd, t);
+        std::array<int64_t, 3> h;
+        h[0] = rd.idx();
+        h[1] = rd.idx();
+        h[2] = rd.idx();
         local_faces.Add(f);
-        local_surfaces.Add(s);
+        local_surfaces.Add((SmSurface*)t.resolve(h[0], h[1], h[2]));
+        local_srf.push_back(h);
     }
     SmLocalOperationGeometryCreation local(dist, approx, local_faces, local_surfaces);
 
@@ -542,55 +559,53 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                 o.push_back(ST_NULL_DEREF);
                 break;
             }
+            ULONG lidx = 0;
+            bool lfound = false;
             if (op == S_LOCAL_FACEUSE_OFFSET)
             {
-                // the listed surface is reparameterised in place and deleted by the analytic copy
-                ULONG idx = 0;
-                if (local_faces.FindElement(fu->GetFace(), idx) && local_surfaces[idx] == nullptr)
+                // the listed surfaces, as the store stands now
+                for (size_t k = 0; k < local_srf.size(); k++)
+                    local_surfaces[(ULONG)k] = (SmSurface*)t.resolve(local_srf[k][0], local_srf[k][1], local_srf[k][2]);
+                // a listed face without surface (not added yet, or deleted) is dereferenced
+                // upstream
+                lfound = local_faces.FindElement(fu->GetFace(), lidx) ? true : false;
+                if (lfound && local_surfaces[lidx] == nullptr)
                 {
                     o.push_back(ST_NULL_DEREF);
                     break;
                 }
             }
+            SmLocalOperationGeometryCreation local_now(dist, approx, local_faces, local_surfaces);
             SmSurface* ns = nullptr;
             SmSSIData ssi;
             SmStatus s = (op == S_LOCAL_FACEUSE_OFFSET)
-                             ? local.FaceuseOffset(ctx, fu, skip ? TRUE : FALSE, ns, ssi)
+                             ? local_now.FaceuseOffset(ctx, fu, skip ? TRUE : FALSE, ns, ssi)
                              : geom.FaceuseOffset(ctx, fu, skip ? TRUE : FALSE, ns, ssi);
             o.push_back(st(s));
-            o.push_back(ns ? 1.0 : 0.0);
-            if (ns)
-                put_srf(o, ns);
-            o.push_back((double)ssi.m_v3DCurves.GetSize());
-            for (ULONG j = 0; j < ssi.m_v3DCurves.GetSize(); j++)
+            if (s == SM_SUCCESS) // the out-parameters: only after success
             {
-                put_curve(o, ssi.m_v3DCurves[j]);
-                put_curve(o, j < ssi.m_vUVCurves1.GetSize() ? ssi.m_vUVCurves1[j] : nullptr);
-                put_curve(o, j < ssi.m_vUVCurves2.GetSize() ? ssi.m_vUVCurves2[j] : nullptr);
-                o.push_back(j < ssi.m_vCurveTypes.GetSize() ? (double)ssi.m_vCurveTypes[j] : -1.0);
-                o.push_back(j < ssi.m_vDeviations.GetSize() ? ssi.m_vDeviations[j] : -1.0);
+                o.push_back(ns ? 1.0 : 0.0);
+                if (ns)
+                    put_srf(o, ns);
+                o.push_back((double)ssi.m_v3DCurves.GetSize());
+                for (ULONG j = 0; j < ssi.m_v3DCurves.GetSize(); j++)
+                {
+                    put_curve(o, ssi.m_v3DCurves[j]);
+                    put_curve(o, j < ssi.m_vUVCurves1.GetSize() ? ssi.m_vUVCurves1[j] : nullptr);
+                    put_curve(o, j < ssi.m_vUVCurves2.GetSize() ? ssi.m_vUVCurves2[j] : nullptr);
+                    o.push_back(j < ssi.m_vCurveTypes.GetSize() ? (double)ssi.m_vCurveTypes[j] : -1.0);
+                    o.push_back(j < ssi.m_vDeviations.GetSize() ? ssi.m_vDeviations[j] : -1.0);
+                }
             }
             if (op == S_LOCAL_FACEUSE_OFFSET && ns != nullptr)
             {
-                // the listed surface was consumed (deleted) by the analytic copy, or returned as is
-                ULONG idx = 0;
-                bool found = local_faces.FindElement(fu->GetFace(), idx) ? true : false;
+                // the listed store surface, returned as is (owned by the store already)
                 bool listed = false;
                 for (size_t q = 0; q < t.surfaces.size(); q++)
                     if (t.surfaces[q] == ns)
                         listed = true;
                 if (!listed)
-                {
-                    // an analytic copy replaced the store's surface: forget the deleted one
-                    if (found)
-                    {
-                        for (size_t q = 0; q < t.surfaces.size(); q++)
-                            if (t.surfaces[q] == local_surfaces[idx])
-                                t.surfaces[q] = nullptr;
-                        local_surfaces[idx] = ns;
-                    }
                     t.surfaces.push_back(ns);
-                }
             }
             else
                 delete ns;
@@ -630,11 +645,14 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             SmSurface* ns = nullptr;
             SmStatus s = geom.VertexOffset(ctx, v, edges, curves, orients, ns);
             o.push_back(st(s));
-            put_curves(o, curves);
-            put_orients(o, orients);
-            o.push_back(ns ? 1.0 : 0.0);
-            if (ns)
-                put_srf(o, ns);
+            if (s == SM_SUCCESS) // the out-parameters: only after success
+            {
+                put_curves(o, curves);
+                put_orients(o, orients);
+                o.push_back(ns ? 1.0 : 0.0);
+                if (ns)
+                    put_srf(o, ns);
+            }
             delete_curves(curves);
             delete ns;
             break;
@@ -686,9 +704,12 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             SmBoolean del3 = FALSE, deluv = FALSE;
             SmStatus s = geom.ReplaceEdgeCurves(eu, c3c, uvc, orig, del3, deluv);
             o.push_back(st(s));
-            o.push_back(flg(del3));
-            o.push_back(flg(deluv));
-            put_edge_state(o, eu->GetEdge());
+            if (s == SM_SUCCESS) // the out-parameters: only after success
+            {
+                o.push_back(flg(del3));
+                o.push_back(flg(deluv));
+            }
+            put_edge_state(o, eu->GetEdge()); // the edge's state: after every status
             if (del3)
                 delete c3c;
             if (deluv)
@@ -709,7 +730,7 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                 o.push_back(ST_NULL_DEREF);
                 break;
             }
-            if (hang_guard_on() && would_extend_closed_neighbour(exec, base, other_base))
+            if (hang_guard_on() && would_extend_closed_neighbour(exec, dist, base, other_base))
             {
                 o.push_back(ST_HANG);
                 break;
@@ -719,11 +740,14 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             SmStatus s = geom.TrimExtendedEdge(ctx, &exec, base, other_base, off, other_off, c3, uv_base, uv_other, good,
                                                ivl, mark);
             o.push_back(st(s));
-            o.push_back(flg(good));
-            if (good)
+            if (s == SM_SUCCESS) // the out-parameters: only after success
             {
-                o.push_back(ivl.GetMin());
-                o.push_back(ivl.GetMax());
+                o.push_back(flg(good));
+                if (good)
+                {
+                    o.push_back(ivl.GetMin());
+                    o.push_back(ivl.GetMax());
+                }
             }
             break;
         }
@@ -744,7 +768,7 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                 o.push_back(ST_NULL_DEREF);
                 break;
             }
-            if (hang_guard_on() && (closed_offset_face(off) || closed_offset_face(other_off)))
+            if (hang_guard_on() && (dist < 0.0 || closed_offset_face(off) || closed_offset_face(other_off)))
             {
                 o.push_back(ST_HANG); // HANG-17: the offset faces' surfaces are extended
                 break;
@@ -768,7 +792,7 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                 o.push_back(ST_NULL_DEREF);
                 break;
             }
-            if (hang_guard_on() && eu && other && off && other_off && (closed_offset_face(off) || closed_offset_face(other_off)))
+            if (hang_guard_on() && eu && other && off && other_off && (dist < 0.0 || closed_offset_face(off) || closed_offset_face(other_off)))
             {
                 o.push_back(ST_HANG); // HANG-17: both faces' surfaces are extended
                 break;
@@ -826,13 +850,13 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                         o.push_back(ST_NULL_DEREF);
                         break;
                     }
-                    if (hang_guard_on() && (closed_offset_face(off) || closed_offset_face(other_off)))
+                    if (hang_guard_on() && (dist < 0.0 || closed_offset_face(off) || closed_offset_face(other_off)))
                     {
                         o.push_back(ST_HANG);
                         break;
                     }
                 }
-                else if (hang_guard_on() && other_orig && off && other_off && (closed_offset_face(off) || closed_offset_face(other_off)))
+                else if (hang_guard_on() && other_orig && off && other_off && (dist < 0.0 || closed_offset_face(off) || closed_offset_face(other_off)))
                 {
                     o.push_back(ST_HANG); // MateEdges extends both faces' surfaces
                     break;
@@ -844,13 +868,16 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             SmSSIData ssi;
             SmStatus s = geom.EdgeuseOffset(ctx, &exec, orig, other_orig, off, other_off, ns, curves, orients, ssi, mark);
             o.push_back(st(s));
-            o.push_back(ns ? 1.0 : 0.0);
-            if (ns)
-                put_srf(o, ns);
-            put_curves(o, curves);
-            put_orients(o, orients);
-            o.push_back((double)ssi.m_v3DCurves.GetSize());
-            o.push_back(off ? 1.0 : 0.0);
+            if (s == SM_SUCCESS) // the out-parameters: only after success
+            {
+                o.push_back(ns ? 1.0 : 0.0);
+                if (ns)
+                    put_srf(o, ns);
+                put_curves(o, curves);
+                put_orients(o, orients);
+                o.push_back((double)ssi.m_v3DCurves.GetSize());
+            }
+            o.push_back(off ? 1.0 : 0.0); // the edges' states: after every status
             if (off)
                 put_edge_state(o, off->GetEdge());
             o.push_back(other_off ? 1.0 : 0.0);

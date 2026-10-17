@@ -54,7 +54,10 @@
 //!   propagated, as everywhere.
 //! - **`CreateSphereFromArcs`** returns the indices of the input arcs in CCW order
 //!   (upstream returns the same curve pointers). The recomputing `IsArc` calls whose
-//!   result upstream ignores keep the previous frame and angles when they fail.
+//!   result upstream ignores keep the previous frame and angles when they fail. Its
+//!   `rOrigin` is a reference into the frame those calls overwrite, so the centre check
+//!   never fires and the sphere centre is the last examined arc's (WR-103): the port
+//!   reads the current frame's origin at each use.
 //! - **`SetCanonical`** passes no domain to `CreateCanonical` (as upstream), so the
 //!   [`CanonicalSurfaceData::uv_domain`] of its argument is ignored. As upstream, only
 //!   the NURB is replaced: form and knot type stay those of the surface.
@@ -465,7 +468,8 @@ impl BSplineSurface {
 
         // extract Sphere Params from Arc shapes
         let mut angle_span = first.end_deg - first.start_deg;
-        let origin = ref_frame.origin();
+        // (upstream's `rOrigin` is a reference into `sRefFrame`, which every later `IsArc`
+        // overwrites: the centre is read from the current frame at each use, WR-103)
 
         // for all other input arcs - check for Compatible centers and radii
         for i in 1..total_curves {
@@ -478,11 +482,9 @@ impl BSplineSurface {
             }
             ref_frame = a.frame;
 
-            // no work - OtherCurve center is not the same as 1st Curve cent
-            let diff = ref_frame.origin() - origin;
-            if diff.length() > tol_3d {
-                return Err(SolidError::sm_err(OP_SPHERE));
-            }
+            // no work - OtherCurve center is not the same as 1st Curve cent: upstream
+            // compares `sRefFrame.GetOriginRef()` with `rOrigin`, a reference to that same
+            // origin, so the difference is zero and the check never fires (WR-103)
 
             // remember the largest ArcAngle seen
             let angle_span1 = a.end_deg - a.start_deg;
@@ -589,7 +591,7 @@ impl BSplineSurface {
         }
 
         // Define ZAxis in same general direction as sRefZAxis
-        let mut z_axis = origin - non_common_pnt;
+        let mut z_axis = ref_frame.origin() - non_common_pnt;
         if z_axis.dot(ref_z_axis) < 0.0 {
             z_axis = -z_axis;
         }
@@ -600,7 +602,7 @@ impl BSplineSurface {
         let sphere = Self::create_surf_of_revolution(
             &Kernel::default(),
             gen_curve,
-            origin,
+            ref_frame.origin(),
             z_axis,
             angle_span,
             false,

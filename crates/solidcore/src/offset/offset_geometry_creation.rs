@@ -456,16 +456,21 @@ fn b_spline_of<O: ClassObject>(
     let c = geometry
         .curve(h)
         .ok_or(dangling("curve handle cannot be resolved"))?;
-    // the cast succeeds for every SmBSplineCurve subclass; what the callers copy or use
-    // is the B-spline part (a line or conic is sliced to a plain B-spline curve)
-    Ok(match c.kind() {
+    Ok(b_spline_part(c))
+}
+
+/// `SM_CAST_PTR(SmBSplineCurve, c)` of a curve: the cast succeeds for every
+/// `SmBSplineCurve` subclass, and what the callers copy or use is the B-spline part (a
+/// line or conic is sliced to a plain B-spline curve); `None` for the other kinds.
+fn b_spline_part(c: &Curve) -> Option<BSplineCurve> {
+    match c.kind() {
         CurveKind::BSpline(b) => Some(b.clone()),
         CurveKind::Line(l) => Some(l.base.clone()),
         CurveKind::Ellipse(e) => Some(e.base().clone()),
         CurveKind::Hyperbola(h) => Some(h.base().clone()),
         CurveKind::Parabola(p) => Some(p.base().clone()),
         _ => None,
-    })
+    }
 }
 
 /// The curve behind `h` (a dereference upstream).
@@ -932,9 +937,11 @@ impl OffsetGeometryCreation {
 
                 // See if all arc points lie on 2 planes
                 for kidx in 0..curves.len() {
+                    // (upstream keeps pArc and its ends from before the kk loop: a replacement
+                    // of sCurves[k] inside the loop does not change what the next kk reads)
+                    let orig_arc = curves.get(kidx).ok_or(dangling("curve index"))?.clone();
                     let (start, end) = {
-                        let arc = curves.get(kidx).ok_or(dangling("curve index"))?;
-                        let ends = arc.ends()?;
+                        let ends = orig_arc.ends()?;
                         (ends.start, ends.end)
                     };
                     for kk in 0..curves.len() {
@@ -956,7 +963,7 @@ impl OffsetGeometryCreation {
                                 other = (other + 1) % 3;
                             }
 
-                            let arc = curves.get(kidx).ok_or(dangling("curve index"))?;
+                            let arc = &orig_arc;
                             // the status of IsArc is not checked here; a non-arc leaves the
                             // frame and radius uninitialised upstream
                             let Some((frame, radius, _, _)) = is_arc(arc, 10, tol)? else {
@@ -1505,10 +1512,9 @@ impl OffsetGeometryCreation {
                         }
                         Some(h) => curve_of(brep, h)?.copy(k)?,
                     };
-                    let uv_bs = match uv_copy.kind() {
-                        CurveKind::BSpline(b) => b.clone(),
-                        _ => return Err(dangling("UV trim curve is not a B-spline curve")),
-                    };
+                    // (SmBSplineCurve *pUVCurve = pTanEU->GetUVTrimCurve(): a B-spline kind)
+                    let uv_bs = b_spline_part(&uv_copy)
+                        .ok_or(dangling("UV trim curve is not a B-spline curve"))?;
 
                     // set pUVCurve extension amounts
                     let curve_extension_factor = 10.0; // Curve Extension Factor
@@ -2565,10 +2571,10 @@ impl OffsetGeometryCreation {
             // get OtherRailCurve knots (or UVCurve knots if unavailable)
             let knots: Vec<f64> = match &rail2 {
                 Some(r2) => r2.knots(None)?.0,
-                None => match curve_of(brep, uv_h)?.kind() {
-                    CurveKind::BSpline(b) => b.knots(None)?.0,
-                    _ => return Err(dangling("UV trim curve is not a B-spline curve")),
-                },
+                None => b_spline_part(curve_of(brep, uv_h)?)
+                    .ok_or(dangling("UV trim curve is not a B-spline curve"))?
+                    .knots(None)?
+                    .0,
             };
 
             // let pRail1Curve = approximation of the 3dCurve on the offset surface
@@ -2762,9 +2768,10 @@ impl OffsetGeometryCreation {
                     out.trim_orientations = trimmed.trim_orientations;
                     new_surface = Some(trimmed.plane);
                 }
-                Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
-                    return Err(e)
-                }
+                Err(e @ SolidError::Unported { .. }) => return Err(e),
+                // any other failure is upstream's `!= SM_SUCCESS` (e.g. the `SM_ERR` of
+                // `Unitize` on the zero cross product of two collinear-derivative rails):
+                // the ruled surface between the rails instead
                 Err(_) => {
                     new_surface = Some(BSplineSurface::create_ruled_surface(
                         &rail1,

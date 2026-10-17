@@ -101,6 +101,9 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 
 /// The shim's "upstream would dereference null" status.
 const NULL_DEREF: f64 = -2.0;
+/// Upstream's `SM_ERR_INVALID_INPUT` status (`SmMessages.h`), the status a library
+/// `SolidError::InvalidInput` stands for.
+const SM_ERR_INVALID_INPUT: f64 = 1007.0;
 /// The shim's "upstream would not return" status (HANG-17: the extended surface of
 /// `SmOffsetExecutive::GetCreateExtendedSurface`).
 const HANG: f64 = -5.0;
@@ -1269,15 +1272,8 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
             Some(_) => Err(format!("unresolvable_{what}_kind")),
         }
     };
-    // header
-    let mut local = Vec::new();
-    for (j, [f, s]) in i.local.iter().enumerate() {
-        let what = format!("local{j}");
-        local.push([
-            hk(c, *f, &[K_FACE], true, 3, &what)?,
-            hk(c, *s, &[K_SURFACE, K_FACE_SURFACE], true, 3, &what)?,
-        ]);
-    }
+    // header (the local pairs come last: their store surfaces are named against the
+    // store the ops fill, and resolved again at each local op)
     let mut shell = Vec::new();
     for (j, f) in i.shell.iter().enumerate() {
         shell.push(hk(c, *f, &[K_FACE], true, 3, &format!("shell{j}"))?);
@@ -1417,6 +1413,14 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
             },
         };
         out.push(ROp { op: rop });
+    }
+    let mut local = Vec::new();
+    for (j, [f, s]) in i.local.iter().enumerate() {
+        let what = format!("local{j}");
+        local.push([
+            hk(c, *f, &[K_FACE], true, 3, &what)?,
+            hk(c, *s, &[K_SURFACE], true, 3, &what)?, // a face's own surface is refused (the FFI's contract)
+        ]);
     }
     Ok((RHeader { local, shell, pairs }, out))
 }
@@ -1645,7 +1649,9 @@ fn status<T>(r: Result<T, SolidError>, o: &mut Vec<f64>) -> Result<Option<T>, Fa
             Ok(None)
         }
         Err(SolidError::InvalidInput { .. }) => {
-            o.push(NULL_DEREF);
+            // upstream's SM_ERR_INVALID_INPUT status (a null dereference upstream is refused
+            // by the runner before the call, with NULL_DEREF)
+            o.push(SM_ERR_INVALID_INPUT);
             Ok(None)
         }
         Err(e) => Err(Fail::Solid(e)),
@@ -1744,9 +1750,16 @@ fn closed_offset_face(two: &Two, eu: Option<H>) -> Result<bool, Fail> {
 }
 
 /// Whether `TrimExtendedEdge` would extend a closed neighbouring face's surface (the
-/// shim's `would_extend_closed_neighbour`, HANG-17): the neighbour classification of
-/// its two ends.
-fn would_extend_closed_neighbour(k: &Kernel, two: &Two, exec: &Exec, base: H, other_base: Option<H>) -> Result<bool, Fail> {
+/// shim's `would_extend_closed_neighbour`, HANG-17) or any neighbour's with a negative
+/// offset distance (HANG-19): the neighbour classification of its two ends.
+fn would_extend_closed_neighbour(
+    k: &Kernel,
+    two: &Two,
+    exec: &Exec,
+    dist: f64,
+    base: H,
+    other_base: Option<H>,
+) -> Result<bool, Fail> {
     let tol_deg = exec.tangency_tol_degrees();
     let base_edge = two.edgeuse_edge(base)?.ok_or_else(|| invalid("edge"))?;
     for i in 0..2 {
@@ -1796,7 +1809,7 @@ fn would_extend_closed_neighbour(k: &Kernel, two: &Two, exec: &Exec, base: H, ot
             if !two.vertex_are_edges_tangent(v, e, n_edge, 1.0)? {
                 if let Some(adj) = two.edgeuse_radial(n)? {
                     if let Some(off_adj) = exec.offset_edgeuse(adj) {
-                        if closed_offset_face(two, Some(off_adj))? {
+                        if dist < 0.0 || closed_offset_face(two, Some(off_adj))? {
                             return Ok(true);
                         }
                     }
@@ -1821,17 +1834,26 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
 
     let mut geom = OffsetGeometryCreation::new(i.dist, i.approx);
     geom.set_make_analytics(i.analytics);
-    // the local creation: the pairs with a face (its lists stay aligned)
-    let local_pairs: Vec<(Option<H>, Option<H>)> =
-        hdr.local.iter().map(|[f, s]| (triple_to_h(*f), triple_to_h(*s))).collect();
-    let (lf, ls): (Vec<H>, Vec<H>) = local_pairs
-        .iter()
-        .filter_map(|(f, s)| match (f, s) {
-            (Some(f), Some(s)) => Some((*f, *s)),
-            _ => None,
-        })
-        .unzip();
-    let local = LocalOperationGeometryCreation::new(i.dist, i.approx, &lf, &ls);
+    // the local creation: the listed faces, each with its store surface as the store
+    // stands at the op (the shim resolves the handles again at each local op). Its
+    // analytics flag stays FALSE, as upstream's constructor leaves it (neither side
+    // calls SetMakeAnalytics on it), so the listed surface is returned as is.
+    let local_faces: Vec<Option<H>> = hdr.local.iter().map(|[f, _]| triple_to_h(*f)).collect();
+    let local_lists = |two: &Two| -> (Vec<H>, Vec<H>) {
+        let mut lf = Vec::new();
+        let mut ls = Vec::new();
+        for [f, sh] in &hdr.local {
+            let (Some(f), Some(sh)) = (triple_to_h(*f), triple_to_h(*sh)) else { continue };
+            if ClassGeometry::surface(two, sh).is_none() {
+                continue;
+            }
+            lf.push(f);
+            ls.push(sh);
+        }
+        (lf, ls)
+    };
+    let (lf0, ls0) = local_lists(&two);
+    let local = LocalOperationGeometryCreation::new(i.dist, i.approx, &lf0, &ls0);
     let shell_count = hdr.shell.len();
     let exec = Exec {
         inset: i.inset,
@@ -1939,14 +1961,20 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     continue;
                 }
                 if is_local {
-                    // the listed surface of the face is null
-                    if let Some((_, None)) = local_pairs.iter().find(|(f, _)| *f == Some(face)) {
-                        o.push(NULL_DEREF);
-                        continue;
+                    // a listed face without surface (not added yet, or deleted) is
+                    // dereferenced upstream
+                    if let Some(idx) = local_faces.iter().position(|f| *f == Some(face)) {
+                        let sh = hdr.local.get(idx).and_then(|[_, sh]| triple_to_h(*sh));
+                        if sh.is_none_or(|sh| ClassGeometry::surface(&two, sh).is_none()) {
+                            o.push(NULL_DEREF);
+                            continue;
+                        }
                     }
                 }
                 let r = if is_local {
-                    local.faceuse_offset(&k, &mut two, fu, *skip)
+                    let (lf, ls) = local_lists(&two);
+                    let local_now = LocalOperationGeometryCreation::new(i.dist, i.approx, &lf, &ls);
+                    local_now.faceuse_offset(&k, &mut two, fu, *skip)
                 } else {
                     geom.faceuse_offset(&k, &mut two, fu, *skip)
                 };
@@ -2007,9 +2035,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     continue;
                 }
                 let r = geom.update_face_surface_domain(&k, &mut two, f, s);
-                if status(r, &mut o)?.is_none() {
-                    continue;
-                }
+                status(r, &mut o)?; // the face's domain and surface: after every status
                 let d = two.face_uv_domain(f)?;
                 o.extend([d.u_min(), d.u_max(), d.v_min(), d.v_max()]);
                 let sh = two.face_surface(f)?;
@@ -2067,12 +2093,12 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     None => None,
                 };
                 let r = geom.replace_edge_curves(&k, &mut two, eu, c3c, uvc, orig);
-                let Some(flags) = status(r, &mut o)? else {
-                    continue;
-                };
-                o.push(flag(flags.delete_3d_curve));
-                o.push(flag(flags.delete_uv_curve));
-                two.put_edge_state(&mut o, edge)?;
+                if let Some(flags) = status(r, &mut o)? {
+                    // the out-parameters: only after success
+                    o.push(flag(flags.delete_3d_curve));
+                    o.push(flag(flags.delete_uv_curve));
+                }
+                two.put_edge_state(&mut o, edge)?; // the edge's state: after every status
             }
             OpIn::TrimExtendedEdge {
                 base,
@@ -2092,7 +2118,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     o.push(NULL_DEREF);
                     continue;
                 }
-                if hang_guard_on() && would_extend_closed_neighbour(&k, &two, &exec, base, triple_to_h(*other_base))? {
+                if hang_guard_on() && would_extend_closed_neighbour(&k, &two, &exec, i.dist, base, triple_to_h(*other_base))? {
                     o.push(HANG);
                     continue;
                 }
@@ -2147,14 +2173,12 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     o.push(NULL_DEREF);
                     continue;
                 }
-                if hang_guard_on() && (closed_offset_face(&two, Some(off))? || closed_offset_face(&two, other_off)?) {
+                if hang_guard_on() && (i.dist < 0.0 || closed_offset_face(&two, Some(off))? || closed_offset_face(&two, other_off)?) {
                     o.push(HANG); // HANG-17: the offset faces' surfaces are extended
                     continue;
                 }
                 let r = geom.extend_trim_edges(&k, &mut two, &exec, eu, other, off, other_off, mark);
-                if status(r, &mut o)?.is_none() {
-                    continue;
-                }
+                status(r, &mut o)?; // the edges' states: after every status
                 let off_edge = two.edgeuse_edge(off)?.ok_or_else(|| invalid("edge"))?;
                 two.put_edge_state(&mut o, off_edge)?;
                 o.push(flag(other_off.is_some()));
@@ -2176,15 +2200,13 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     && other.is_some()
                     && off.is_some()
                     && other_off.is_some()
-                    && (closed_offset_face(&two, off)? || closed_offset_face(&two, other_off)?)
+                    && (i.dist < 0.0 || closed_offset_face(&two, off)? || closed_offset_face(&two, other_off)?)
                 {
                     o.push(HANG); // HANG-17: both faces' surfaces are extended
                     continue;
                 }
                 let r = geom.mate_edges(&k, &mut two, &exec, eu, other, off, other_off, mark);
-                if status(r, &mut o)?.is_none() {
-                    continue;
-                }
+                status(r, &mut o)?; // the edges' states: after every status
                 o.push(flag(off.is_some()));
                 if let Some(off) = off {
                     let e = two.edgeuse_edge(off)?.ok_or_else(|| invalid("edge"))?;
@@ -2243,7 +2265,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                             o.push(NULL_DEREF);
                             continue;
                         }
-                        if hang_guard_on() && (closed_offset_face(&two, off)? || closed_offset_face(&two, other_off)?) {
+                        if hang_guard_on() && (i.dist < 0.0 || closed_offset_face(&two, off)? || closed_offset_face(&two, other_off)?) {
                             o.push(HANG);
                             continue;
                         }
@@ -2251,24 +2273,24 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                         && other_orig.is_some()
                         && off.is_some()
                         && other_off.is_some()
-                        && (closed_offset_face(&two, off)? || closed_offset_face(&two, other_off)?)
+                        && (i.dist < 0.0 || closed_offset_face(&two, off)? || closed_offset_face(&two, other_off)?)
                     {
                         o.push(HANG); // MateEdges extends both faces' surfaces
                         continue;
                     }
                 }
                 let r = geom.edgeuse_offset(&k, &mut two, &exec, orig, other_orig, off, other_off, mark);
-                let Some(out) = status(r, &mut o)? else {
-                    continue;
-                };
-                o.push(flag(out.surface.is_some()));
-                if let Some(s) = out.surface {
-                    put_srf(&mut o, ClassGeometry::surface(&two, s));
+                if let Some(out) = status(r, &mut o)? {
+                    // the out-parameters: only after success
+                    o.push(flag(out.surface.is_some()));
+                    if let Some(s) = out.surface {
+                        put_srf(&mut o, ClassGeometry::surface(&two, s));
+                    }
+                    put_hcurves(&mut o, &two, &out.trimming_curves)?;
+                    put_orients(&mut o, &out.trim_orientations);
+                    o.push(out.self_intersections.curves_3d.len() as f64);
                 }
-                put_hcurves(&mut o, &two, &out.trimming_curves)?;
-                put_orients(&mut o, &out.trim_orientations);
-                o.push(out.self_intersections.curves_3d.len() as f64);
-                o.push(flag(off.is_some()));
+                o.push(flag(off.is_some())); // the edges' states: after every status
                 if let Some(off) = off {
                     let e = two.edgeuse_edge(off)?.ok_or_else(|| invalid("edge"))?;
                     two.put_edge_state(&mut o, e)?;
@@ -2620,7 +2642,7 @@ fn generate(rng: &mut Rng) -> Option<Value> {
         .map(|_| {
             [
                 gen_h(rng, has_b, &[K_FACE], 0.1),
-                gen_h(rng, has_b, &[K_SURFACE, K_FACE_SURFACE], 0.1),
+                gen_h(rng, has_b, &[K_SURFACE], 0.1),
             ]
         })
         .collect();
@@ -2776,6 +2798,45 @@ fn edge_cases() -> Vec<(String, Value)> {
         OpIn::EdgeState { e: h(1, K_EDGE, 0) },
     ];
     add("cone_fixture_ops", i);
+
+    // LocalFaceuseOffset on listed faces with store surfaces (the local creation's own
+    // surfaces): with analytics the listed surface is reparameterised, copied and consumed,
+    // so a second op on the same face is refused; without analytics it is returned as is;
+    // an unlisted face is SM_ERR.
+    for (analytics, name) in [(true, "local_offset_analytics"), (false, "local_offset_plain")] {
+        let mut i = base("cone.smb", None, 0.5);
+        i.analytics = analytics;
+        i.local = (0..3).map(|f| [h(0, K_FACE, f), h(2, K_SURFACE, f)]).collect();
+        i.ops = (0..3)
+            .map(|f| OpIn::AddSurface {
+                surface: SrfIn::Plane {
+                    o: [0.0, 0.0, 0.25 * f64::from(f)],
+                    n: [0.0, 0.0, 1.0],
+                },
+            })
+            .collect();
+        i.ops.extend([
+            OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 0), skip: false },
+            OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 0), skip: true },
+            OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 1), skip: false },
+            OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 5), skip: false },
+        ]);
+        add(name, i);
+    }
+    // a listed face whose store surface is added only after the first local op
+    let mut i = base("plane_square.smb", None, 0.1);
+    i.local = vec![[h(0, K_FACE, 0), h(2, K_SURFACE, 0)]];
+    i.ops = vec![
+        OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 0), skip: false },
+        OpIn::AddSurface {
+            surface: SrfIn::Plane {
+                o: [0.0, 0.0, 0.0],
+                n: [0.0, 0.0, 1.0],
+            },
+        },
+        OpIn::LocalFaceuseOffset { fu: h(0, K_FACEUSE, 0), skip: false },
+    ];
+    add("local_offset_late_surface", i);
 
     // ReplaceEdgeCurves: same ends (delete flags), reversed copy, UV only, null UV with
     // a reversed curve (refused), a moved copy (vertex moves: deferred)
