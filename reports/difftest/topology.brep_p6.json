@@ -3,6 +3,454 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask0_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#0 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask0_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#1 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask0_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#2 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask0_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#3 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask1_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#4 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask1_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#5 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask1_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#6 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask1_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#7 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask2_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#8 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask2_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#9 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask2_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#10 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask2_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#11 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask4_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#12 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask4_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#13 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask4_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#14 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask4_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#15 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask8_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#16 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask8_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#17 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask8_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#18 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask8_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#19 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask16_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#20 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask16_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#21 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask16_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#22 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask16_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#23 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask31_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#24 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask31_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#25 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask31_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#26 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed0_mask31_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#27 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask0_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#28 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask0_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#29 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask0_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#30 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask0_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#31 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask1_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#32 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask1_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#33 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask1_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#34 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask1_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#35 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask2_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#36 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask2_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#37 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask2_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#38 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask2_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#39 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask4_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#40 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask4_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#41 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask4_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#42 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask4_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#43 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask8_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#44 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask8_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#45 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask8_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#46 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask8_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#47 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask16_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#48 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask16_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#49 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask16_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#50 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask16_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#51 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask31_repeat1_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#52 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask31_repeat1_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#53 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask31_repeat2_infinite0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#54 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "open_box_seed5_mask31_repeat2_infinite1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p6/open_traversal.json#55 (upstream source/SMLib/src/SmBrep.cpp:27877 (open ClosureTraversal return))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "closure_Mouse.smb_0_0",
       "outcome": "pass",
       "pass": true,
@@ -2887,7 +3335,7 @@
         "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
-      "name": "plane_lamina_1e-09_0",
+      "name": "plane_edgeless_1e-09_0",
       "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/topology.brep_p6/operations.json#360 (upstream source/SMLib/src/SmBrep.cpp:27845)",
@@ -2899,7 +3347,7 @@
         "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
-      "name": "plane_lamina_1e-09_1",
+      "name": "plane_edgeless_1e-09_1",
       "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/topology.brep_p6/operations.json#361 (upstream source/SMLib/src/SmBrep.cpp:27845)",
@@ -2911,7 +3359,7 @@
         "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
-      "name": "plane_lamina_1e-09_16",
+      "name": "plane_edgeless_1e-09_16",
       "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/topology.brep_p6/operations.json#362 (upstream source/SMLib/src/SmBrep.cpp:27845)",
@@ -2923,7 +3371,7 @@
         "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
-      "name": "plane_lamina_1e-06_0",
+      "name": "plane_edgeless_1e-06_0",
       "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/topology.brep_p6/operations.json#363 (upstream source/SMLib/src/SmBrep.cpp:27845)",
@@ -2935,7 +3383,7 @@
         "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
-      "name": "plane_lamina_1e-06_1",
+      "name": "plane_edgeless_1e-06_1",
       "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/topology.brep_p6/operations.json#364 (upstream source/SMLib/src/SmBrep.cpp:27845)",
@@ -2947,7 +3395,7 @@
         "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
-      "name": "plane_lamina_1e-06_16",
+      "name": "plane_edgeless_1e-06_16",
       "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/topology.brep_p6/operations.json#365 (upstream source/SMLib/src/SmBrep.cpp:27845)",
@@ -3733,8 +4181,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 48,
   "cases_failed": 0,
-  "cases_passed": 394,
-  "cases_total": 442,
+  "cases_passed": 450,
+  "cases_total": 498,
   "deferred_by_unit": {
     "topology.brep_p2": 6,
     "topology.brep_p5": 23,

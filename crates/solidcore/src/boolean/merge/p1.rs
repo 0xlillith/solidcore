@@ -523,7 +523,7 @@ pub fn propagate_other_src_region_attribs(
     attributes: &mut AttributeStore,
     mut context: Option<&mut Context>,
     operation: BooleanOperation,
-    region_lookup: Option<&dyn crate::topology::shell::RegionLookup>,
+    region_lookup: Option<&dyn shell::RegionLookup>,
 ) -> Result<()> {
     for &RegionPropagation {
         region,

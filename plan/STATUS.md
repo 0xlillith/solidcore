@@ -1,18 +1,31 @@
 # solidcore status
 
-Last updated: 2026-10-17, PR #169 (`topology.brep_p6` partial: 394 native comparisons pass, 48 dependency deferrals, 0 failures; sensitivity 394/394). Built on the existing `topology.shell` PR #154. The healer back-edge is wired, and region-attribute propagation passes the caller topology lookup. Per-unit evidence is in `plan/modules.toml` and `reports/difftest/`.
+Last updated: 2026-10-17, PR #169 review fixes (`topology.brep_p6` partial).
+The PR is blocked on dependency #154 being reviewed and merged first; its ready
+head `9af40484` is integrated, along with main `52ab9e2f`. Do not merge #169 to
+land the dependency indirectly.
 
-Local verification: fmt, default and C++ Clippy, 1260 kernel tests, wasm32,
-native FFI regressions and all six directly touched differential units pass.
-The complete manifest run finished with 197 units: 109 passed, 88 partial,
-0 failed. Current main `4757b211` is merged; its last commit only regenerates
-the progress checklist. The compound-mark-mask FFI follow-up also passes its
-native tests, standard brep_p6 comparison and 394/394 sensitivity checks.
+The 56 new open-sheet fixtures reach ClosureTraversal and the open return;
+prior 369 successful closure fixtures only covered the pre-lock early returns.
+The six tiny edgeless plane cases still defer at Notify. MakeFaceTopology's
+native fixtures have empty loop/edgeuse/loop-vertex lists and no explicit region;
+loop validation and existing-shell branches are not compared. Non-null surfaces
+always defer at SetTolerance. New output identities use native -3 rather than
+arena indices. Formatting and the latest shell mark-lock API are integrated.
 
-The unchecked healer split call now retains partial outputs and ignores only
-native status through `RegionSplitAttempt`; missing dependencies and Rust
-topology/resolver refusals still propagate. Four p6 kernel regressions and three
-native FFI regressions cover the status boundary and partial split outputs.
+Current local checks pass: formatting, strict default/C++ Clippy, 1277 kernel
+tests, wasm32, four native FFI regressions and all six affected difftests. P6 has
+498 cases / 450 pass / 48 deferred / 0 failures; sensitivity detects 450/450.
+The current complete gate and hosted CI results are recorded in the PR checks.
+The earlier complete run at `c4aaab6f` had 197 units, 109 passed, 88 partial and
+0 failures; it does not certify these review changes. The manifest now includes
+new units from main and requires a new complete gate.
+
+The unchecked healer split call retains partial outputs and ignores only native
+status through RegionSplitAttempt; missing dependencies and Rust representation
+errors propagate. The caller's region lookup reaches attribute notification.
+Four p6 kernel regressions and four native FFI regressions cover the split status
+boundary and prove the new sheet fixture reaches traversal with nonzero marks.
 
 Latest unit: `intersect.curve_class_p9` ([PR #151](https://github.com/bherbruck/solidcore/pull/151)) is partial on a standalone official-main base: review validation has 424 differential cases, 225 bit-identical passes, 197 dependency deferrals, 2 native setup rejections and zero failures. It ports edge and trim-boundary intersections with concrete query handle mappings. Pole lookup now matches the native FALSE default; collapsed caches, wider input ranges and positive endpoint classification are covered. Interior partition insertion awaits part 2. No open dependency PR is bundled. The manifest has 195 ported units (108 green, 87 partial); final integration results are recorded in the PR checks.
 

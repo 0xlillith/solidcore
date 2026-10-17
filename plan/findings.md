@@ -6163,18 +6163,34 @@ shell, transfers the connected face uses in native order and reaches
 deferred. No completed copy, successful face construction, region split, radial
 sector recovery, trim generation or ray classification is certified here.
 
-There are 426 explicit fixtures plus 16 fixed-seed generated inputs. Of the
-fixtures, 369 compare successful no-split closure paths, two compare empty copy
-paths and 16 compare actual null-surface operation errors and reset outputs.
-The other 39 fixtures and nine generated inputs defer at actual missing calls;
-seven generated inputs pass. Parity includes statuses, optional output reset,
-face-use shell identities, all five face-use mark classes, context mark
-increments and lock state, including held caller locks and repeated calls.
-Geometry inputs include 15 upstream `.smb` B-reps, analytic planes, actual curved
-edges and scaled B-spline faces. The large-scale B-splines keep their UV domain
-inside the natural domain rather than asking the plane fixture builder to accept
-an invalid domain. There are no absolute floors. Nonempty copies and non-null
-face construction are deferred, not counted as geometric parity passes.
+Coverage correction after review: the original 369 successful op-0 fixtures
+all return before taking a mark lock, because the mate is in another shell or
+the seed has a lamina edge. Their zero context deltas and cleared marks do not
+certify traversal or lock release. Six tiny plane cases are edgeless, not lamina,
+and defer at `Notify` after closed traversal; they do not establish split parity.
+
+`open_traversal.json` adds 56 cases over the actual five-face sheet in
+`open_box.smb` (provenance and generation recipe in the fixture README). Seeds
+0 and 5 share their mate's shell and have no lamina edge; traversal reaches the
+hole through adjacent faces and returns open. Native FFI regressions assert a
+nonzero MARK advance (4 per call), visited faceuse marks and a released operation
+lock. Differential comparisons cover both seeds, held caller locks, repeat counts
+and infinite-region flags, comparing all five mark classes and shell links.
+
+All `MakeFaceTopology` shim inputs have empty loop, edgeuse and loop-vertex lists
+and no explicit region. Consequently its loop validation and existing-shell
+branches are not compared; non-null surfaces always defer at `SetTolerance`.
+Rust-only loop regressions do not change that native coverage limitation.
+Other passing fixtures compare two empty copies and 16 null-surface operation
+errors with preseeded outputs reset. Inputs also include 15 upstream `.smb`
+B-reps, analytic planes, actual curved edges and scaled B-spline faces. Large
+B-spline fixtures keep UV domains inside their natural domain. Nonempty copies,
+non-null face construction and completed splits are deferred. No absolute floors.
+
+The runner uses the native graph identity encoding consistently: null is -1,
+original objects use their traversal-order index, and shells/regions created
+after the input walk are -3. This includes output pointers and faceuse shell
+links, so future `brep_p2` integration cannot expose arena indices as identities.
 
 Rust regressions check extreme loop counts without allocation from those counts,
 and release of the operation's mark lock after a dependency error while preserving
@@ -6233,3 +6249,21 @@ graph encodes them as -3, distinct from NULL (-1). Native errors therefore must
 not be replaced by empty output lists. Kernel regressions check partial output
 retention, outer propagation of `Unported`/typed-resolver failures, and rejection
 of missing split links. Completed region splits remain deferred and uncertified.
+
+
+### PR #169 review correction validation
+
+On main `52ab9e2f` plus shell dependency `9af40484`, the focused run is
+498 cases / 450 pass / 48 deferred / 0 failed, maximum relative error 0;
+all 450 perturbations are detected. The 56 new open-sheet cases all pass.
+The six affected differential units pass (healer 493/265/228,
+merge 248/175/73, traverser 909/889/20, shell 911/892/19,
+rotational sweep 761/718/43; counts are total/pass/deferred, zero failures).
+Formatting, both strict Clippy configurations, 1277 kernel tests, wasm32 and
+four native FFI regressions pass. A new complete manifest gate is required;
+earlier 197-unit results above are historical, not evidence for these changes.
+
+Dependency #154 is ready and its hosted checks pass, but it remains open.
+Do not merge #169 before #154 is separately reviewed and merged, then merge
+main here and repeat the current-head checks. The dependency's status/note
+changes must not land indirectly through this PR.

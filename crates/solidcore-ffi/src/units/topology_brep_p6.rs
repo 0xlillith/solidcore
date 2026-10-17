@@ -209,4 +209,38 @@ mod tests {
         assert!(result.first().is_some_and(|status| *status > 0.0));
         assert_eq!(result.get(1..3), Some([-3.0, -3.0].as_slice()));
     }
+
+    #[test]
+    fn open_sheet_reaches_traversal_and_releases_its_mark_lock() {
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../fixtures/topology.brep_p6/open_box.smb"
+        );
+        let input = [0.0, 0.0, 0.0, 0.0];
+        let fixture = export(path, &input).unwrap();
+        let c = counts(&fixture.graph).unwrap();
+        assert_eq!(c[0..4], [1, 1, 10, 5]);
+        for seed in [0, 5] {
+            for repeat in [1, 2] {
+                let result = eval(
+                    path,
+                    &input,
+                    &Request {
+                        op: 0,
+                        seed,
+                        indices: vec![],
+                        repeat,
+                        lock_mask: 0,
+                        flags: 1,
+                    },
+                )
+                .unwrap();
+                assert_eq!(result[0..3], [0.0, -1.0, -1.0]);
+                // This would be zero for either pre-traversal early return.
+                assert_eq!(result[3], 4.0 * f64::from(repeat));
+                assert_eq!(result[4], 0.0); // operation lock released
+                assert!(result[5..5 + c[2]].contains(&1.0));
+            }
+        }
+    }
 }

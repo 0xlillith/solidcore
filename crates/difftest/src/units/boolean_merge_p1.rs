@@ -15,8 +15,8 @@ use solidcore::geom::context::{Context, NotifyCallback};
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
-use solidcore::topology::topology::Topology;
 use solidcore::topology::shell::{RegionLookup, RegionRef};
+use solidcore::topology::topology::Topology;
 use solidcore::topology::BrepId;
 use solidcore::topology::{
     ArenaId, Brep, EdgeId, EdgeuseOwner, FaceId, FaceuseId, LoopuseStart, RegionId, VertexId,
@@ -269,9 +269,18 @@ fn append_events(context: &Context, out: &mut Vec<f64>) -> solidcore::Result<()>
 struct MergeRegions<'a>([(ObjectKey, &'a Brep, BrepId, RegionId); 2]);
 impl RegionLookup for MergeRegions<'_> {
     fn resolve_region(&self, object: ObjectKey) -> solidcore::Result<RegionRef<'_>> {
-        let (_, brep, brep_id, region_id) = self.0.iter().find(|entry| entry.0 == object)
-            .ok_or_else(|| SolidError::invalid_input("boolean_merge_p1::regions", "unregistered region"))?;
-        Ok(RegionRef { brep, brep_id: *brep_id, region_id: *region_id })
+        let (_, brep, brep_id, region_id) = self
+            .0
+            .iter()
+            .find(|entry| entry.0 == object)
+            .ok_or_else(|| {
+                SolidError::invalid_input("boolean_merge_p1::regions", "unregistered region")
+            })?;
+        Ok(RegionRef {
+            brep,
+            brep_id: *brep_id,
+            region_id: *region_id,
+        })
     }
 }
 
@@ -413,10 +422,16 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                 let h = attrs.insert(Attribute::merge_region(r.key, 0, ObjectKey(2), 1))?;
                 attrs.add_attribute(r.key, h)?;
             }
-            b.region_mut(RegionId::from_index(0))?.set_is_void(i32::from(a != 0));
+            b.region_mut(RegionId::from_index(0))?
+                .set_is_void(i32::from(a != 0));
             let lookup = MergeRegions([
                 (r.key, &*b, BrepId::from_index(0), RegionId::from_index(0)),
-                (ObjectKey(2), other, BrepId::from_index(1), RegionId::from_index(0)),
+                (
+                    ObjectKey(2),
+                    other,
+                    BrepId::from_index(1),
+                    RegionId::from_index(0),
+                ),
             ]);
             port::propagate_other_src_region_attribs(
                 &[port::RegionPropagation {

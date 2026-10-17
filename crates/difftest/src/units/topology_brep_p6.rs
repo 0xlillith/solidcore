@@ -40,6 +40,16 @@ struct Inputs {
     flags: i32,
 }
 
+// Match Graph::find: a live object allocated after the input walk is -3,
+// distinct from null (-1), even if its arena index is otherwise representable.
+fn original_index(index: u32, original_count: usize) -> i64 {
+    if (index as usize) < original_count {
+        i64::from(index)
+    } else {
+        -3
+    }
+}
+
 fn one() -> i32 {
     1
 }
@@ -65,6 +75,28 @@ fn block(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
     }
     out.extend([0.0, 0.0]);
     Ok(out)
+}
+
+// Unit-local ASCII topology fixtures use the same native file reader as upstream
+// files. Keep their path under this fixture directory, without parent components.
+fn path_of(brep: &BrepIn) -> Result<String, HarnessError> {
+    if let BrepIn::File { file, .. } = brep {
+        if file.starts_with("fixtures/topology.brep_p6/") {
+            let path = std::path::Path::new(file);
+            if path
+                .components()
+                .any(|c| !matches!(c, std::path::Component::Normal(_)))
+            {
+                return Err(harness("invalid local fixture path"));
+            }
+            let path = crate::case::repo_root().join(path);
+            if !path.is_file() {
+                return Err(harness("local fixture not found"));
+            }
+            return Ok(path.to_string_lossy().into_owned());
+        }
+    }
+    shared::path_of(brep)
 }
 
 fn request(i: &Inputs, c: [usize; 10]) -> Request {
@@ -93,7 +125,7 @@ impl UnitDiff for Runner {
 
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
-        let path = shared::path_of(&i.brep)?;
+        let path = path_of(&i.brep)?;
         let input = block(&i)?;
         let fixture = ffi::export(&path, &input).map_err(harness)?;
         let Some(c) = counts(&fixture.graph) else {
@@ -113,7 +145,7 @@ impl UnitDiff for Runner {
 
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
-        let fixture = ffi::export(&shared::path_of(&i.brep)?, &block(&i)?).map_err(harness)?;
+        let fixture = ffi::export(&path_of(&i.brep)?, &block(&i)?).map_err(harness)?;
         let c = counts(&fixture.graph).ok_or_else(|| harness("fixture construction failed"))?;
         let request = request(&i, c);
         let (mut b, _) = shared::import(&fixture.graph)?;
@@ -154,8 +186,12 @@ impl UnitDiff for Runner {
                 )
                 .and_then(|attempt| {
                     body = vec![
-                        attempt.shell.map_or(-1, |s| i64::from(s.index())),
-                        attempt.region.map_or(-1, |r| i64::from(r.index())),
+                        attempt
+                            .shell
+                            .map_or(-1, |s| original_index(s.index(), c[1])),
+                        attempt
+                            .region
+                            .map_or(-1, |r| original_index(r.index(), c[0])),
                     ];
                     attempt.status
                 }),
@@ -234,7 +270,7 @@ impl UnitDiff for Runner {
             }
         }
         for (_, fu) in b.faceuses().iter().take(c[2]) {
-            output.push(fu.shell.map_or(-1, |s| i64::from(s.index())));
+            output.push(fu.shell.map_or(-1, |s| original_index(s.index(), c[1])));
         }
         output.extend([
             b.faces().len() as i64,
