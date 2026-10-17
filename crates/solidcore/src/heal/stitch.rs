@@ -5,7 +5,7 @@
 //! stitch entry points of `source/SM_API/src/SmApiBrep.cpp`. Split by the port plan
 //! into [`p1`] (the callback, the vertex/edge pair gluing, face-pair stitching, normal
 //! unification and the API entry points) and `p2` (`DoStitching`, `StitchIntoSolid`,
-//! `StitchIntoShell`, `SelectRing`, `SplitEdgesWithVertices`, the one-list
-//! `StitchVertexPairs`; not ported yet).
+//! `StitchIntoShell`, `SplitEdgesWithVertices`, the one-list `StitchVertexPairs`;
+//! not ported yet).
 
 pub mod p1;
