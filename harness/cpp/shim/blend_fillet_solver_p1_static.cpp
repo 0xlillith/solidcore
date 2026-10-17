@@ -45,6 +45,12 @@
 
 #include "sc_edgeuse_graph.h"
 
+#include <SmAxis2Placement.h>
+#include <SmCone.h>
+#include <SmCylinder.h>
+#include <SmSphere.h>
+#include <SmTorus.h>
+
 #include <stdexcept>
 
 // Library members whose signatures name the solver class carry the renamed name in this TU
@@ -94,6 +100,7 @@ enum : int32_t
     S_CONVEXITY = 5,
     S_TRIM_RAIL = 6,
     S_QUERIES = 7,
+    S_ANALYTIC_REV = 8,
 };
 
 // An SmEdge outside any B-rep's lists (no edge uses); its context comes from the B-rep.
@@ -195,6 +202,63 @@ void run_analytic(Rd& rd, std::vector<double>& o)
     const SmContext& ctx = the_context();
     SmSurface* s = read_surface(rd, ctx);
     o.push_back(flg(sm_TestAnalyticSurface((SmBSplineSurface*)s)));
+    delete s;
+}
+
+// `kind origin x y p[4]` -> `status ret` (`ret` only when the surface was built): kind 0
+// SmCone::CreateCanonical(bot, top, height), 1 SmCylinder(radius, start, end, height) +
+// MakeNurb, 2 SmSphere::CreateCanonical(radius), 3 SmTorus::CreateCanonical(major, minor).
+void run_analytic_rev(Rd& rd, std::vector<double>& o)
+{
+    const SmContext& ctx = the_context();
+    int64_t kind = rd.idx();
+    SmPoint3d org = rd.vec();
+    SmVector3d x = rd.vec();
+    SmVector3d y = rd.vec();
+    double p[4];
+    for (int i = 0; i < 4; i++)
+        p[i] = rd.num();
+    SmAxis2Placement a2p(org, x, y);
+    SmBSplineSurface* s = NULL;
+    SmStatus stt = SM_SUCCESS;
+    switch (kind)
+    {
+    case 0:
+    {
+        SmCone* c = NULL;
+        stt = SmCone::CreateCanonical(ctx, a2p, p[0], p[1], p[2], c, FALSE, FALSE);
+        s = c;
+        break;
+    }
+    case 1:
+    {
+        SmCylinder* c = new (ctx) SmCylinder(org, x, y, p[0], p[1], p[2], p[3], FALSE, FALSE, FALSE, &ctx);
+        stt = c->MakeNurb();
+        s = c;
+        break;
+    }
+    case 2:
+    {
+        SmSphere* c = NULL;
+        stt = SmSphere::CreateCanonical(ctx, a2p, p[0], c);
+        s = c;
+        break;
+    }
+    default:
+    {
+        SmTorus* c = NULL;
+        stt = SmTorus::CreateCanonical(ctx, a2p, p[0], p[1], c);
+        s = c;
+        break;
+    }
+    }
+    o.push_back(st(stt));
+    if (stt != SM_SUCCESS || s == NULL)
+    {
+        delete s;
+        return;
+    }
+    o.push_back(flg(sm_TestAnalyticSurface(s)));
     delete s;
 }
 
@@ -429,6 +493,7 @@ SC_EXPORT int32_t sc_blend_fillet_solver_p1_static_eval(int32_t op, const char* 
     case S_CONVEXITY: run_convexity(rd, path, o); break;
     case S_TRIM_RAIL: run_trim_rail(rd, path, o); break;
     case S_QUERIES: run_queries(rd, path, o); break;
+    case S_ANALYTIC_REV: run_analytic_rev(rd, o); break;
     default: return SC_ERR_ARG;
     }
     (void)n_in;

@@ -51,6 +51,7 @@
 //! | `FindNext`      | `sm_FindNextGoodInterval` | `n start cls[n]` (mid point classes) | `status found index` (`999` when not found) |
 //! | `CheckDomains`  | `sm_CheckEdgeCurveDomains` | `block edge before after` | `0 ret curve` |
 //! | `Analytic`      | `sm_TestAnalyticSurface` | `surface` | `ret` |
+//! | `AnalyticRev`   | `sm_TestAnalyticSurface` on an `SmCone` / `SmCylinder` / `SmSphere` / `SmTorus` | `kind origin[3] x[3] y[3] p[4]` (kind 0 `SmCone::CreateCanonical(bot, top, height)`, 1 `SmCylinder(radius, start, end, height)` + `MakeNurb`, 2 `SmSphere::CreateCanonical(radius)`, 3 `SmTorus::CreateCanonical(major, minor)`) | `status ret` (`ret` only when built) |
 //! | `RailRail`      | `SmRailRailIntersectENFO::Evaluate` | `rail other load1 found1 load2 found2 arrays` | `status found f J` |
 //! | `Clipped`       | `SmFindClippedRadiusEFO` constructor | `idx dist tol has0 off0 has1 off1 o0 o1 dom0[4] dom1[4] param iso uv0[2] uv1[2]` | the members |
 //! | `Convexity`     | `sm_TestSideEdgeConvexity` (the library's) | `block edge tangential` (`edge` `-1`: a fresh `SmEdge`) | `0 ret` |
@@ -336,6 +337,8 @@ pub enum StaticOp {
     TrimRail,
     /// `GetVertex`, `FindIndexOfRailOnFace`, `FindIndexOfRailXSideEdgeuse`.
     Queries,
+    /// `sm_TestAnalyticSurface` on a cone, cylinder, sphere or torus.
+    AnalyticRev,
 }
 
 impl StaticOp {
@@ -349,6 +352,7 @@ impl StaticOp {
             StaticOp::Convexity => 5,
             StaticOp::TrimRail => 6,
             StaticOp::Queries => 7,
+            StaticOp::AnalyticRev => 8,
         }
     }
 
@@ -435,6 +439,22 @@ fn validate_static_args(
             rd.below_or_none(n_eu)?;
             rd.below_or_none(n_f)?;
             rd.below(n_eu)?;
+        }
+        StaticOp::AnalyticRev => {
+            rd.index(3)?;
+            let v = rd.finites(9)?;
+            let [_, _, _, x0, x1, x2, y0, y1, y2] = v[..] else {
+                return Err(bad("analytic: placement"));
+            };
+            // the placement's axes: long enough and far from parallel (as unit
+            // surface.cone_p1 requires)
+            let (lx, ly) = ((x0 * x0 + x1 * x1 + x2 * x2).sqrt(), (y0 * y0 + y1 * y1 + y2 * y2).sqrt());
+            let c = [x1 * y2 - x2 * y1, x2 * y0 - x0 * y2, x0 * y1 - x1 * y0];
+            let lc = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
+            if lx < 1e-6 || ly < 1e-6 || lc < 1e-3 * lx * ly {
+                return Err(bad("analytic: degenerate or parallel axes"));
+            }
+            rd.finites(4)?;
         }
     }
     Ok(())

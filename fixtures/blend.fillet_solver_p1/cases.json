@@ -542,6 +542,50 @@
    "inputs": {
     "op": "split"
    }
+  },
+  {
+   "name": "analytic_cone_canonical",
+   "inputs": {
+    "op": "analytic_rev",
+    "kind": 0,
+    "origin": [0.0, 0.0, 0.0],
+    "x": [1.0, 0.0, 0.0],
+    "y": [0.0, 1.0, 0.0],
+    "p": [1.0, 2.0, 3.0, 0.0]
+   }
+  },
+  {
+   "name": "analytic_cylinder_bounded",
+   "inputs": {
+    "op": "analytic_rev",
+    "kind": 1,
+    "origin": [1.0, -2.0, 0.5],
+    "x": [0.0, 0.0, 1.0],
+    "y": [1.0, 0.0, 0.0],
+    "p": [2.0, 0.0, 360.0, 4.0]
+   }
+  },
+  {
+   "name": "analytic_sphere_canonical",
+   "inputs": {
+    "op": "analytic_rev",
+    "kind": 2,
+    "origin": [0.0, 0.0, 0.0],
+    "x": [1.0, 0.0, 0.0],
+    "y": [0.0, 1.0, 0.0],
+    "p": [1.5, 0.0, 0.0, 0.0]
+   }
+  },
+  {
+   "name": "analytic_torus_canonical",
+   "inputs": {
+    "op": "analytic_rev",
+    "kind": 3,
+    "origin": [0.0, 0.0, 0.0],
+    "x": [1.0, 0.0, 0.0],
+    "y": [0.0, 1.0, 0.0],
+    "p": [3.0, 1.0, 0.0, 0.0]
+   }
   }
  ]
 }

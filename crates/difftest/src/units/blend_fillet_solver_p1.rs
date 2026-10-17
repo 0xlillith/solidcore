@@ -23,7 +23,9 @@
 //! `SmFilletSolver.cpp` compiled by the static shim: `sm_FindNextGoodInterval`
 //! (`find_next`), `sm_CheckEdgeCurveDomains` (`check_domains`), `sm_TestAnalyticSurface`
 //! (`analytic`: planes and planar B-splines compare, the cone test of other surfaces
-//! defers), `SmRailRailIntersectENFO` (`rail_rail`, two loading solvers), the
+//! defers; `analytic_rev`: real `SmCone` (compares, the `SmCone_TYPE` branch),
+//! bounded `SmCylinder` and `SmTorus` (built on both sides, defer at the cone test) and
+//! `SmSphere` (defers: no Rust type)), `SmRailRailIntersectENFO` (`rail_rail`, two loading solvers), the
 //! `SmFindClippedRadiusEFO` constructor (`clipped`), `sm_TestSideEdgeConvexity`
 //! (`convexity`: an edge without edge uses compares, others defer), `sm_TrimRail`
 //! (`trim_rail`, on a B-rep edge) and the solver's B-rep queries (`queries`: `GetVertex`,
@@ -39,6 +41,7 @@ use serde_json::Value;
 use solidcore::blend::fillet_custom_solver::{JacobianLoad, OffsetSurface, SurfaceId};
 use solidcore::blend::fillet_solver::p1::{
     check_edge_curve_domains, compute_uv_vectors, find_next_good_interval, test_analytic_surface,
+    AnalyticTestSurface,
     test_side_edge_convexity, tol_ang_tol_rad, trim_rail, FilStatus, FilletSolver,
     FilletSolverOffsetsData, FilletSolverOps, FilletSphereSolveEnfo, FilletSurfaceGenerator,
     FindClippedRadiusEfo, OffsetSurfaceSlot, RailRailIntersectEnfo, RailUvCurveIntersectEnfo,
@@ -49,7 +52,14 @@ use solidcore::geom::matrix::Matrix;
 use solidcore::geom::vector2d::{Point2, Vec2};
 use solidcore::geom::vector3d::Vec3;
 use solidcore::intersect::curve_class::p1::CurveClassification;
-use solidcore::intersect::point_class::{ClassObject, ClassObjectKind, PointClassType};
+use solidcore::curve::curve::Curve;
+use solidcore::geom::axis2_placement::Axis2Placement;
+use solidcore::intersect::point_class::{ClassGeometry, ClassObject, ClassObjectKind, PointClassType};
+use solidcore::math::Point3;
+use solidcore::surface::cone::Cone;
+use solidcore::surface::surface::Surface;
+use solidcore::surface::torus::{Torus, TorusOptions};
+use solidcore::surface::volume::Volume;
 use solidcore::intersect::surface_intersector::p1::TsectPnt;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_surface::SurfParamType;
@@ -182,6 +192,17 @@ enum Inputs {
     Analytic {
         surface: SrfIn,
     },
+    /// `sm_TestAnalyticSurface` on a real analytic surface: `kind` 0 a canonical cone
+    /// (`bot top height`), 1 a bounded cylinder (`radius start end height`, then
+    /// `MakeNurb`), 2 a canonical sphere (`radius`), 3 a canonical torus (`major
+    /// minor`), placed at `origin` with axes `x`, `y`.
+    AnalyticRev {
+        kind: u8,
+        origin: [f64; 3],
+        x: [f64; 3],
+        y: [f64; 3],
+        p: [f64; 4],
+    },
     RailRail {
         rail: usize,
         other: usize,
@@ -243,6 +264,7 @@ impl Inputs {
             Inputs::FindNext { .. } => StaticOp::FindNext,
             Inputs::CheckDomains { .. } => StaticOp::CheckDomains,
             Inputs::Analytic { .. } => StaticOp::Analytic,
+            Inputs::AnalyticRev { .. } => StaticOp::AnalyticRev,
             Inputs::RailRail { .. } => StaticOp::RailRail,
             Inputs::Clipped { .. } => StaticOp::Clipped,
             Inputs::Convexity { .. } => StaticOp::Convexity,
@@ -348,6 +370,10 @@ fn static_input(i: &Inputs, c: Option<&BrepCase>) -> Result<Vec<f64>, HarnessErr
             o.extend([r[0] as f64, b(*before), b(*after)]);
         }
         Inputs::Analytic { surface } => push_surface(&mut o, surface)?,
+        Inputs::AnalyticRev { kind, origin, x, y, p } => {
+            o.push(f64::from(*kind));
+            o.extend(origin.iter().chain(x).chain(y).chain(p));
+        }
         Inputs::RailRail {
             rail,
             other,
@@ -612,15 +638,15 @@ fn rust_state(
             fs.extension_factor(),
             b(fs.reverse_trim()),
             f64::from(fs.status() as i32),
-            fs.jacobian_size() as f64,
-            b(fs.can_make_analytic()),
-            b(fs.offset_radii_can_change()),
+            fs.jacobian_size()? as f64,
+            b(fs.can_make_analytic()?),
+            b(fs.offset_radii_can_change()?),
             fs.fillet_geoms().len() as f64,
             b(fs.first_fillet_geom()? == fs.last_fillet_geom()?),
-            fs.type_code() as f64,
-            b(FilletSolverOps::is_kind_of(&fs, FilletSolver::TYPE)),
-            b(FilletSolverOps::is_kind_of(&fs, solidcore::geom::object::OBJECT_TYPE)),
-            b(FilletSolverOps::is_kind_of(&fs, 16002)),
+            fs.type_code()? as f64,
+            b(FilletSolverOps::is_kind_of(&fs, FilletSolver::TYPE)?),
+            b(FilletSolverOps::is_kind_of(&fs, solidcore::geom::object::OBJECT_TYPE)?),
+            b(FilletSolverOps::is_kind_of(&fs, 16002)?),
             b(fs.edgeuse(0)?.is_none()),
             b(fs.vertex(&Brep::default(), 0)?.is_none()),
             b(fs.fillet_surface_generator().is_none()),
@@ -683,7 +709,7 @@ fn shim_with(s: &Surfs, load: bool, found: bool, setup: bool) -> Result<ShimSolv
 }
 
 /// `put_crv` of the static shim: `1 t0 t1 P(t0) P(mid) P(t1)`, `-1` for none.
-fn put_crv(o: &mut Vec<f64>, c: Option<&solidcore::curve::curve::Curve>) {
+fn put_crv(o: &mut Vec<f64>, c: Option<&Curve>) {
     let Some(c) = c else {
         o.push(-1.0);
         return;
@@ -816,7 +842,47 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
         }
         Inputs::Analytic { surface } => {
             let s = surface_of(surface)?;
-            test_analytic_surface(&s).map(|v| o.push(b(v)))
+            test_analytic_surface(AnalyticTestSurface::Surface(&s)).map(|v| o.push(b(v)))
+        }
+        Inputs::AnalyticRev { kind, origin, x, y, p } => {
+            let k = Kernel::default();
+            let v = |a: [f64; 3]| Vec3::new(a[0], a[1], a[2]);
+            let a2p = Axis2Placement::new(v(*origin), v(*x), v(*y));
+            let tested = |s: AnalyticTestSurface<'_>, o: &mut Vec<f64>| {
+                o.push(0.0);
+                test_analytic_surface(s).map(|r| o.push(b(r)))
+            };
+            let built = match kind {
+                0 => Cone::create_canonical(&k, &a2p, p[0], p[1], p[2], false, false).map(Rev::Cone),
+                1 => {
+                    let mut c = Cone::new_cylinder_bounded(
+                        v(*origin),
+                        v(*x),
+                        v(*y),
+                        p[0],
+                        p[1],
+                        p[2],
+                        p[3],
+                        false,
+                        false,
+                        false,
+                    );
+                    c.make_nurb(&k).map(|()| Rev::Cone(c))
+                }
+                // UNPORTED(surface.sphere): SmSphere::CreateCanonical
+                2 => Err(SolidError::unported("SmSphere::CreateCanonical", "surface.sphere")),
+                _ => Torus::create_canonical(&k, &a2p, p[0], p[1], TorusOptions::default(), None)
+                    .map(Rev::Torus),
+            };
+            match built {
+                Err(e @ SolidError::Unported { .. }) => Err(e),
+                Err(e) => {
+                    o.push(status(&e));
+                    Ok(())
+                }
+                Ok(Rev::Cone(c)) => tested(AnalyticTestSurface::Cone(&c), o),
+                Ok(Rev::Torus(t)) => tested(AnalyticTestSurface::Torus(&t), o),
+            }
         }
         Inputs::RailRail {
             rail,
@@ -1051,7 +1117,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let k = Kernel::default();
             let mut fs = FilletSolver::new(1.0e-6, 0.1, 0.01);
             let cc: CurveClassification<H> = CurveClassification::new(&k);
-            let r = fs.split_fillet_geom(0, 0, &[], &[], &cc, &cc);
+            let r = fs.split_fillet_geom(&k, &mut Brep::default(), &NoGeometry, 0, 0, &[], &[], &cc, &cc);
             if r.is_ok() {
                 o.extend_from_slice(&[0.0, fs.fillet_geoms().len() as f64]);
             }
@@ -1236,6 +1302,31 @@ impl ClassObject for H {
     fn class_kind(&self) -> ClassObjectKind {
         ClassObjectKind::Other
     }
+}
+
+/// No geometry behind the classification handles (`SplitFilletGeom` with empty
+/// intervals classifies nothing).
+struct NoGeometry;
+
+impl ClassGeometry<H> for NoGeometry {
+    fn curve(&self, _o: H) -> Option<&Curve> {
+        None
+    }
+    fn surface(&self, _o: H) -> Option<&Surface> {
+        None
+    }
+    fn volume(&self, _o: H) -> Option<&Volume> {
+        None
+    }
+    fn point(&self, _o: H) -> Option<Point3> {
+        None
+    }
+}
+
+/// A built analytic surface of [`Inputs::AnalyticRev`].
+enum Rev {
+    Cone(Cone),
+    Torus(Torus),
 }
 
 // ---- generators ------------------------------------------------------------------------
@@ -1483,6 +1574,51 @@ fn gen_brep_case(rng: &mut Rng) -> BrepIn {
     gen_brep(rng)
 }
 
+/// A cone, cylinder, sphere or torus at a random placement (axes possibly unnormalised
+/// and not perpendicular), at scales from `1e-3` to `1e3`.
+fn gen_analytic_rev(rng: &mut Rng) -> Inputs {
+    let kind = rng.below(4) as u8;
+    let scale = *rng.choose(&[1e-3, 1.0, 1.0, 1.0, 1e3]).unwrap_or(&1.0);
+    let origin = rng.point3(-2.0, 2.0).map(|c| c * scale);
+    let dot = |a: [f64; 3], b: [f64; 3]| a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    let mut x = rng.point3(-1.0, 1.0);
+    if dot(x, x) < 0.04 {
+        x = [1.0, 0.0, 0.0];
+    }
+    let mut y = rng.point3(-1.0, 1.0);
+    let c = [x[1] * y[2] - x[2] * y[1], x[2] * y[0] - x[0] * y[2], x[0] * y[1] - x[1] * y[0]];
+    if dot(y, y) < 0.04 || dot(c, c) < 0.01 * dot(x, x) * dot(y, y) {
+        // far from parallel
+        y = if x[0].abs() > 0.5 { [-x[1], x[0], 0.0] } else { [0.0, -x[2], x[1]] };
+        if dot(y, y) < 0.04 {
+            y = [x[2], 0.0, -x[0]];
+        }
+    }
+    if rng.chance(0.5) {
+        // perpendicular axes
+        let d = dot(x, y) / dot(x, x);
+        y = [y[0] - d * x[0], y[1] - d * x[1], y[2] - d * x[2]];
+    }
+    let r = |rng: &mut Rng| rng.uniform(0.1, 2.0) * scale;
+    let p = match kind {
+        // bot top height (equal radii: a cone of semi-angle 0, still SmCone_TYPE)
+        0 => {
+            let bot = r(rng);
+            let top = if rng.chance(0.2) { bot } else { r(rng) };
+            [bot, top, r(rng), 0.0]
+        }
+        // radius start end height
+        1 => {
+            let start = rng.uniform(-360.0, 0.0);
+            [r(rng), start, start + rng.uniform(10.0, 360.0), r(rng)]
+        }
+        2 => [r(rng), 0.0, 0.0, 0.0],
+        // major minor (a spindle torus when minor > major)
+        _ => [r(rng), r(rng), 0.0, 0.0],
+    };
+    Inputs::AnalyticRev { kind, origin, x, y, p }
+}
+
 fn gen_static(rng: &mut Rng) -> Inputs {
     let s = |rng: &mut Rng| rng.below(64) as i64;
     match rng.below(9) {
@@ -1511,7 +1647,11 @@ fn gen_static(rng: &mut Rng) -> Inputs {
                     bs.net.iter_mut().flatten().for_each(|q| q[2] = z);
                 }
             }
-            Inputs::Analytic { surface }
+            if rng.chance(0.5) {
+                gen_analytic_rev(rng)
+            } else {
+                Inputs::Analytic { surface }
+            }
         }
         3 => {
             let mut arrays = gen_arrays(rng, 1, 2, 2, 1);
@@ -1571,7 +1711,8 @@ fn gen_static(rng: &mut Rng) -> Inputs {
 }
 
 fn gen_case(rng: &mut Rng) -> Inputs {
-    match rng.below(32) {
+    match rng.below(36) {
+        32..=35 => gen_analytic_rev(rng),
         0..=4 => gen_state(rng),
         5..=10 => gen_extension(rng),
         11 => gen_sphere(rng),
