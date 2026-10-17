@@ -337,7 +337,7 @@ fn trim_interval(c: &BrepCase, e: i64, t: [f64; 2]) -> Result<[f64; 2], HarnessE
 
 fn static_input(i: &Inputs, c: Option<&BrepCase>) -> Result<Vec<f64>, HarnessError> {
     let mut o = c.map(|c| c.block.clone()).unwrap_or_default();
-    let r = c.map(|c| resolve(i, c)).unwrap_or([-1; 4]);
+    let r = c.map_or([-1; 4], |c| resolve(i, c));
     match i {
         Inputs::FindNext { start, cls } => {
             o.push(cls.len() as f64);
@@ -746,25 +746,22 @@ fn rust_brep(i: &Inputs, c: &mut BrepCase, o: &mut Vec<f64>) -> Result<Result<()
                 Some(p) => eu::mate(&c.brep, p).map_err(|e| harness(e.to_string()))?,
                 None => None,
             };
-            match (prim, mate) {
-                (Some(prim), Some(mate)) => {
-                    let st = match trim_rail(&k, &mut c.brep, e, &Extent1d::from_min_max(t0, t1)) {
-                        Ok(()) => 0.0,
-                        Err(e @ SolidError::Unported { .. }) => return Ok(Err(e)),
-                        Err(e) => status(&e),
-                    };
-                    o.push(st);
-                    let bb = &c.brep;
-                    let err = |e: SolidError| harness(e.to_string());
-                    put_crv(o, bb.edge(e).map_err(err)?.curve.as_ref());
-                    put_crv(o, eu::uv_trim_curve(bb, prim).map_err(err)?.0);
-                    put_crv(o, eu::uv_trim_curve(bb, mate).map_err(err)?.0);
-                    Ok(())
-                }
-                _ => {
-                    o.push(-2.0);
-                    Ok(())
-                }
+            if let (Some(prim), Some(mate)) = (prim, mate) {
+                let st = match trim_rail(&k, &mut c.brep, e, &Extent1d::from_min_max(t0, t1)) {
+                    Ok(()) => 0.0,
+                    Err(e @ SolidError::Unported { .. }) => return Ok(Err(e)),
+                    Err(e) => status(&e),
+                };
+                o.push(st);
+                let bb = &c.brep;
+                let err = |e: SolidError| harness(e.to_string());
+                put_crv(o, bb.edge(e).map_err(err)?.curve.as_ref());
+                put_crv(o, eu::uv_trim_curve(bb, prim).map_err(err)?.0);
+                put_crv(o, eu::uv_trim_curve(bb, mate).map_err(err)?.0);
+                Ok(())
+            } else {
+                o.push(-2.0);
+                Ok(())
             }
         }
         Inputs::Queries { .. } => {
@@ -865,8 +862,11 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
                     }
                 }
                 fs.orientations = *orient;
-                let d = |a: usize| Extent2d::from_points(Point2::new(doms[a], doms[a + 1]), Point2::new(doms[a + 2], doms[a + 3]));
-                let ds = [d(0), d(4)];
+                let [a0, a1, a2, a3, b0, b1, b2, b3] = *doms;
+                let ds = [
+                    Extent2d::from_points(Point2::new(a0, a1), Point2::new(a2, a3)),
+                    Extent2d::from_points(Point2::new(b0, b1), Point2::new(b2, b3)),
+                ];
                 let uvs = [Vec2::new(uv[0], uv[1]), Vec2::new(uv[2], uv[3])];
                 let fields = {
                     let e = FindClippedRadiusEfo::new(&mut fs, *idx, &ds, surf_param(*param), *iso, uvs, *dist)?;
@@ -1135,7 +1135,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let r = fs.load_initial_values(&k, None, *do2 != 0, *rail, &s1, 0, &mut ext, &mut per, &mut guess);
             match r {
                 Ok(_) => o.push(0.0),
-                Err(e @ SolidError::Unported { .. }) => return Ok(Output::unported(&e).unwrap_or_else(Output::new)),
+                Err(e @ SolidError::Unported { .. }) => return Ok(Output::unported(&e).unwrap_or_default()),
                 Err(e) => o.push(status(&e)),
             }
             o.extend([f64::from(*do2), f64::from(*idx2), 1.0, per.len() as f64, guess.len() as f64]);
@@ -1302,13 +1302,17 @@ fn pinched(rng: &mut Rng, sides: u8) -> SrfIn {
         if sides & 1 != 0 {
             let a = apex(rng);
             if let Some(row) = bs.net.first_mut() {
-                row.iter_mut().for_each(|q| *q = a);
+                for q in row {
+                    *q = a;
+                }
             }
         }
         if sides & 2 != 0 && n > 0 {
             let a = apex(rng);
             if let Some(row) = bs.net.last_mut() {
-                row.iter_mut().for_each(|q| *q = a);
+                for q in row {
+                    *q = a;
+                }
             }
         }
         if sides & 4 != 0 && m > 0 {
