@@ -3203,10 +3203,10 @@ soft_depends_on = ["blend.fillet_solver_p1", "blend.fillet_standard_solver_p1", 
 est_lines = 2652
 layer = 51
 tests = ["SM_API_test:TestSmOffsetBrepFull", "SM_API_test:TestSmShellBrepFull", "prog_test:airfoil_offset", "prog_test:my_local_op", "prog_test:my_local_op_regression", "prog_test:my_test_offset", "pt_TestFiles/Fillet/nurb_box.smb", "pt_TestFiles/Solids/box.smb", "pt_TestFiles/Solids/cylinder.smb", "pt_TestFiles/offset_nurb.sms"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "15 fns; largest: SmOffsetGeometryCreation::EdgeuseOffset, SmOffsetGeometryCreation::TrimExtendedEdge, SmOffsetGeometryCreation::ExtendTrimEdges, SmOffsetGeometryCreation::MateEdges; cycle back-edges (call into later units; stub or co-port): offset.offset_executive_p1(9); unit-SCC #26 (2 units); 11 upstream test entry points reach this unit"
+notes = "partial (PR #156): 861 cases (5 fixtures, 56 built in code, 800 generated two-B-rep scripts), 331 pass bit for bit, 0 fail, 530 deferred (topology.edgeuse_p3 145, topology.brep_p2 125, surface.offset_surface 121, offset.offset_executive_p1 94, topology.face_p1 40, blend.fillet_standard_solver_p1 4, surface.cone_p2 1), 0 both-errored, every pass compares real values; --perturb SENSITIVE 331/331; green-par 198 units failed=0 (main 197). Hang guards (not deferrals, status -5 on both sides): HANG-19 (negative offset distance, exact) and HANG-17 (closed offset-face surface, a measured proxy: 5 of 15 pt_TestFiles over-rejected at +0.5). Crash guards (-2) mirror the shim; local pairs name store surfaces only. CO-PORTED here: OffsetExecutive<O> (the accessor surface of offset.offset_executive_p1: GetInset, GetExtendConvexEdges, GetTangencyTolDegrees, GetShellFaces, GetOffsetEdgeuse), SsiData<O> (SmSSIData). FIXES elsewhere: nurbs.b_spline_surface_p2 create_sphere_from_arcs (WR-103). 15 fns; largest: SmOffsetGeometryCreation::EdgeuseOffset, SmOffsetGeometryCreation::TrimExtendedEdge, SmOffsetGeometryCreation::ExtendTrimEdges, SmOffsetGeometryCreation::MateEdges; cycle back-edges (call into later units; stub or co-port): offset.offset_executive_p1(9); unit-SCC #26 (2 units); 11 upstream test entry points reach this unit"
 
 [[unit]]
 id = "sweep.topology_sweep"
@@ -3458,7 +3458,7 @@ tests = ["SM_API_test:TestSmOffsetBrepFull", "SM_API_test:TestSmShellBrepFull", 
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "29 fns; largest: SmOffsetExecutive::BuildOffsetOfFaceuse, SmOffsetExecutive::BuildOffsetOfEdgeuses, SmOffsetExecutive::PiecewiseMerge, SmOffsetExecutive::BuildOffsetOfVertex; unit-SCC #26 (2 units); hazards: ptr-hash; 11 upstream test entry points reach this unit"
+notes = "CO-PORTED in offset.offset_geometry_creation (PR #156): the accessor surface the geometry creation reads (SmOffsetExecutive::GetInset, GetExtendConvexEdges, GetTangencyTolDegrees, GetShellFaces, GetOffsetEdgeuse) -> offset::offset_geometry_creation::OffsetExecutive<O>, a trait for the executive to implement (its difftest adapter `Exec` holds the same fields); GetCreateExtendedSurface stays UNPORTED(offset.offset_executive_p1). 29 fns; largest: SmOffsetExecutive::BuildOffsetOfFaceuse, SmOffsetExecutive::BuildOffsetOfEdgeuses, SmOffsetExecutive::PiecewiseMerge, SmOffsetExecutive::BuildOffsetOfVertex; unit-SCC #26 (2 units); hazards: ptr-hash; 11 upstream test entry points reach this unit"
 
 [[unit]]
 id = "primitive.api_primitives"

@@ -56,9 +56,9 @@
 //! |----|------|------|---------|
 //! | 1  | add curve                  | curve block              | `0 index` |
 //! | 2  | add surface                | surface block            | `0 index` |
-//! | 3  | `SmEdge::SetCurve(copy, TRUE)` + `SetOwner` + `SetInterval(natural)` | `h(edge) c` | `0 edge_state` |
-//! | 4  | `SmEdgeuse::SetUVTrimCurve(copy, max_dist, TRUE)` | `h(eu) c|null max_dist` | `0 curve` |
-//! | 5  | `SmTopology::Mark`         | `h(eu)`                  | `0 marked` |
+//! | 3  | `SmEdge::SetCurve(copy, TRUE)` + `SetOwner` + `SetInterval(natural)` | `h(edge)|null c|null` | `status [edge_state]` |
+//! | 4  | `SmEdgeuse::SetUVTrimCurve(copy, max_dist, TRUE)` | `h(eu)|null c|null max_dist` | `status [curve]` |
+//! | 5  | `SmTopology::Mark`         | `h(eu)|null`             | `status [marked]` |
 //! | 6  | getters                    |                          | `0 approx tan_rad tan_deg dist local_approx local_tan_deg local_dist exec_tan_deg inset extend n_shell` |
 //! | 7  | `FaceuseOffset`            | `h(fu) skip`             | `status has_surface [surface] n (curve curve curve type dev)*` |
 //! | 8  | `VertexOffset`             | `h(vertex) n h(edge)*`   | `status n curve* n orient* has_surface [surface]` |
@@ -683,11 +683,12 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
                 c.surfaces += 1;
             }
             ScriptOp::SetEdgeCurve => {
-                c.kinded(rd, &[HandleKind::Edge], false)?;
-                c.store_curve(rd, 3, false)?;
+                // (a null edge or curve is refused by the shim with -2)
+                c.kinded(rd, &[HandleKind::Edge], true)?;
+                c.store_curve(rd, 3, true)?;
             }
             ScriptOp::SetEuUv => {
-                c.edgeuse(rd, false)?;
+                c.edgeuse(rd, true)?; // (a null edge use is refused by the shim with -2)
                 c.store_curve(rd, 2, true)?;
                 let d = rd.finite()?;
                 if d < 0.0 {
@@ -695,7 +696,7 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
                 }
             }
             ScriptOp::Mark => {
-                c.edgeuse(rd, false)?;
+                c.edgeuse(rd, true)?; // (a null edge use is refused by the shim with -2)
             }
             ScriptOp::Getters => {}
             ScriptOp::FaceuseOffset | ScriptOp::LocalFaceuseOffset => {

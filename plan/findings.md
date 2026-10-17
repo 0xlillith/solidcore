@@ -5802,6 +5802,17 @@ again before each local op on both sides (the local creation is rebuilt then; a 
 face whose surface is not there yet is refused with `-2`, as upstream dereferences it);
 the fixed cases `local_offset_*` cover the listed, unlisted and not-yet-added surfaces.
 
+**Fixes the first run forced.** The 12 disagreements of the first complete run were:
+`values.state.len` differences from the shim emitting an op's out-parameters after an
+error status (the rule above), a library `InvalidInput` reported as the runner's `-2`
+where upstream returned status 1007, UV trim curves of a line or conic kind refused by a
+`CurveKind::BSpline`-only match (`SM_CAST_PTR(SmBSplineCurve, ..)` accepts every
+subclass; now `b_spline_part`), the ruled-plane call of `EdgeuseOffset` propagating the
+`SM_ERR` of a zero `Unitize` instead of taking upstream's `!= SM_SUCCESS` fallback,
+`VertexOffset` re-reading a replaced arc inside its plane loop (upstream keeps `pArc`),
+and WR-103 below. Three segfaults and three stalls of that run are the local-pair and
+hang-guard items above.
+
 **Fixes outside the unit.** `nurbs::b_spline_surface::p2::create_sphere_from_arcs` (green,
 #13) captured the first arc's centre by value; upstream's `rOrigin` is a reference into the
 frame every later `IsArc` overwrites, so its centre check is dead and its sphere centre is
@@ -5841,7 +5852,26 @@ include `SmLine`s, are compared). `SmOffsetSurface` never appears (no surface ki
 offset surface until `surface.offset_surface` lands), so the `SetAllowExtension(FALSE)`
 branch of both `FaceuseOffset`s is dead in the port.
 
-**Results.** TBD_RESULTS
+**Results.** 861 cases (5 upstream-derived fixtures, 56 cases built in code, 800 generated
+two-B-rep scripts): 331 pass bit for bit (`max_rel_err 0`), 0 fail, 530 deferred, 0 cases
+where both sides reject the script. Every pass compares real values (315 of the 331
+compare more than six, 141 more than fifty); none is a status-only comparison. Deferred
+by owner: `topology.edgeuse_p3` 145 (`NormalizedEvaluate`, `CreateUVTrimCurve`),
+`topology.brep_p2` 125 (`MateLaminaEdgeToSurface`, `ReplaceSurface`),
+`surface.offset_surface` 121 (the offset surface constructor), `offset.offset_executive_p1`
+94 (`GetCreateExtendedSurface`), `topology.face_p1` 40 (`CalculateUVDomainFromUVTrimCurves`),
+`blend.fillet_standard_solver_p1` 4 (`SmCircularCrossSectionFSG`), `surface.cone_p2` 1.
+Compared green paths: the getters, edge state and tolerance ops, `ReplaceEdgeCurves` (same
+ends with its delete flags, reversed copies, UV only, the null-UV shape test),
+`VertexOffset` (seam edge, coincident bounding curves, the end caps of one and two edges,
+the three-arc sphere incl. the plane tests), `TrimExtendedEdge` on planar neighbours,
+`ExtendTrimEdges` / `MateEdges` / `EdgeuseOffset` up to their first extension or offset
+surface (statuses, edge states, the ruled-plane and ruled-surface branches with shell
+faces), `UpdateFaceSurfaceDomain`, both `FaceuseOffset`s (the local one on listed,
+unlisted and not-yet-added store surfaces) and the refusals (-2, -5) of every op. The
+first difftest run of these 861 cases found 12 disagreements, all fixed in this PR (listed
+under "Fixes" below) and none left. Perturb: `SENSITIVE 331/331` (every perturbed case fails). All green/partial units:
+`green-par: 198 units, failed=0` on the tree merged with `main` at `52ab9e2f`.
 
 ## intersect.curve_class_p5: independent port
 

@@ -2571,10 +2571,12 @@ impl OffsetGeometryCreation {
             // get OtherRailCurve knots (or UVCurve knots if unavailable)
             let knots: Vec<f64> = match &rail2 {
                 Some(r2) => r2.knots(None)?.0,
-                None => b_spline_part(curve_of(brep, uv_h)?)
-                    .ok_or(dangling("UV trim curve is not a B-spline curve"))?
-                    .knots(None)?
-                    .0,
+                None => {
+                    b_spline_part(curve_of(brep, uv_h)?)
+                        .ok_or(dangling("UV trim curve is not a B-spline curve"))?
+                        .knots(None)?
+                        .0
+                }
             };
 
             // let pRail1Curve = approximation of the 3dCurve on the offset surface

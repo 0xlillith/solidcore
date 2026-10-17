@@ -126,20 +126,22 @@
       "values_compared": 17
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0006",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762762",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0007",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762763",
       "values_compared": 0
     },
@@ -192,13 +194,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0013",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762769",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "deferred": {
@@ -313,11 +314,14 @@
       "values_compared": 111
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0024",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762780",
       "values_compared": 0
     },
@@ -350,13 +354,12 @@
       "values_compared": 13
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0028",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762784",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -407,13 +410,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0034",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762790",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "deferred": {
@@ -476,11 +478,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0040",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762796",
       "values_compared": 0
     },
@@ -525,11 +530,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0045",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762801",
       "values_compared": 0
     },
@@ -546,11 +554,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0047",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762803",
       "values_compared": 0
     },
@@ -667,11 +678,14 @@
       "values_compared": 14
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::EvaluateBinormal",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0059",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762815",
       "values_compared": 0
     },
@@ -684,13 +698,12 @@
       "values_compared": 208
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0061",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762817",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -713,22 +726,24 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0064",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762820",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0065",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762821",
-      "values_compared": 0
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -751,11 +766,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0068",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762824",
       "values_compared": 0
     },
@@ -792,13 +810,12 @@
       "values_compared": 147
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0072",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762828",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -869,11 +886,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0079",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762835",
       "values_compared": 0
     },
@@ -914,20 +934,22 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0083",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762839",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0084",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762840",
       "values_compared": 0
     },
@@ -980,13 +1002,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0089",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762845",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "deferred": {
@@ -1017,13 +1038,12 @@
       "values_compared": 6
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0093",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762849",
-      "values_compared": 0
+      "values_compared": 44
     },
     {
       "max_rel_err": 0.0,
@@ -1046,11 +1066,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0096",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762852",
       "values_compared": 0
     },
@@ -1075,13 +1098,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0099",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762855",
-      "values_compared": 0
+      "values_compared": 23
     },
     {
       "deferred": {
@@ -1164,13 +1186,12 @@
       "values_compared": 17
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0107",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762863",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1181,13 +1202,12 @@
       "values_compared": 17
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0109",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762865",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -1198,22 +1218,24 @@
       "values_compared": 6
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0111",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762867",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0112",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762868",
-      "values_compared": 0
+      "values_compared": 27
     },
     {
       "deferred": {
@@ -1256,13 +1278,12 @@
       "values_compared": 335
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0117",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762873",
-      "values_compared": 0
+      "values_compared": 56
     },
     {
       "deferred": {
@@ -1289,11 +1310,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0120",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762876",
       "values_compared": 0
     },
@@ -1454,13 +1478,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0135",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762891",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "deferred": {
@@ -1531,13 +1554,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0142",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762898",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "deferred": {
@@ -1552,29 +1574,34 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0144",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762900",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0145",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762901",
-      "values_compared": 0
+      "values_compared": 56
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0146",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762902",
       "values_compared": 0
     },
@@ -1587,31 +1614,32 @@
       "values_compared": 645
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::EvaluateBinormal",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0148",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762904",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0149",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762905",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0150",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762906",
-      "values_compared": 0
+      "values_compared": 73
     },
     {
       "deferred": {
@@ -1638,11 +1666,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0153",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762909",
       "values_compared": 0
     },
@@ -1659,11 +1690,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0155",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762911",
       "values_compared": 0
     },
@@ -1700,11 +1734,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0159",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762915",
       "values_compared": 0
     },
@@ -1725,13 +1762,12 @@
       "values_compared": 7
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0162",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762918",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -1794,13 +1830,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0169",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762925",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -1871,11 +1906,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0176",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762932",
       "values_compared": 0
     },
@@ -1904,11 +1942,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0179",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762935",
       "values_compared": 0
     },
@@ -1993,11 +2034,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0188",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762944",
       "values_compared": 0
     },
@@ -2014,13 +2058,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0190",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762946",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -2179,13 +2222,12 @@
       "values_compared": 124
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0206",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762962",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -2236,13 +2278,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0212",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762968",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -2321,20 +2362,22 @@
       "values_compared": 14
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0221",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762977",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0222",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762978",
       "values_compared": 0
     },
@@ -2347,13 +2390,12 @@
       "values_compared": 12
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0224",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762980",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
       "deferred": {
@@ -2380,11 +2422,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0227",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762983",
       "values_compared": 0
     },
@@ -2397,11 +2442,14 @@
       "values_compared": 284
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0229",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762985",
       "values_compared": 0
     },
@@ -2526,11 +2574,14 @@
       "values_compared": 13
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0241",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762997",
       "values_compared": 0
     },
@@ -2611,13 +2662,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0250",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763006",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "deferred": {
@@ -2644,11 +2694,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0253",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763009",
       "values_compared": 0
     },
@@ -2673,20 +2726,26 @@
       "values_compared": 3
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::EvaluateBinormal",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0256",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763012",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0257",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763013",
       "values_compared": 0
     },
@@ -2703,13 +2762,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0259",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763015",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
@@ -2724,13 +2782,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0261",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763017",
-      "values_compared": 0
+      "values_compared": 22
     },
     {
       "deferred": {
@@ -2753,13 +2810,12 @@
       "values_compared": 114
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0264",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763020",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -2818,11 +2874,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0270",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763026",
       "values_compared": 0
     },
@@ -2895,13 +2954,12 @@
       "values_compared": 85
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0277",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763033",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -2912,11 +2970,14 @@
       "values_compared": 165
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0279",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763035",
       "values_compared": 0
     },
@@ -2945,13 +3006,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0282",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763038",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -2962,13 +3022,12 @@
       "values_compared": 182
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0284",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763040",
-      "values_compared": 0
+      "values_compared": 35
     },
     {
       "deferred": {
@@ -2983,13 +3042,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0286",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763042",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -3120,13 +3178,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0299",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763055",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -3349,22 +3406,20 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0321",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763077",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0322",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763078",
-      "values_compared": 0
+      "values_compared": 51
     },
     {
       "deferred": {
@@ -3379,11 +3434,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0324",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763080",
       "values_compared": 0
     },
@@ -3396,22 +3454,24 @@
       "values_compared": 27
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0326",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763082",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0327",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763083",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -3470,13 +3530,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0333",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763089",
-      "values_compared": 0
+      "values_compared": 22
     },
     {
       "deferred": {
@@ -3515,13 +3574,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0337",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763093",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -3576,13 +3634,12 @@
       "values_compared": 11
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0343",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763099",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -3857,13 +3914,12 @@
       "values_compared": 15
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0370",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763126",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -3906,13 +3962,12 @@
       "values_compared": 54
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0375",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763131",
-      "values_compared": 0
+      "values_compared": 143
     },
     {
       "deferred": {
@@ -3987,13 +4042,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0382",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763138",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "deferred": {
@@ -4020,13 +4074,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0385",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763141",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -4049,11 +4102,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0388",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763144",
       "values_compared": 0
     },
@@ -4070,13 +4126,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0390",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763146",
-      "values_compared": 0
+      "values_compared": 402
     },
     {
       "deferred": {
@@ -4163,13 +4218,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0399",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763155",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -4268,13 +4322,12 @@
       "values_compared": 314
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0409",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763165",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -4317,13 +4370,12 @@
       "values_compared": 50
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0414",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763170",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
       "deferred": {
@@ -4390,13 +4442,12 @@
       "values_compared": 12
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0421",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763177",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -4427,13 +4478,12 @@
       "values_compared": 116
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0425",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763181",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
@@ -4456,31 +4506,28 @@
       "values_compared": 68
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0428",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763184",
-      "values_compared": 0
+      "values_compared": 21
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0429",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763185",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0430",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763186",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "deferred": {
@@ -4547,13 +4594,12 @@
       "values_compared": 234
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0437",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763193",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "deferred": {
@@ -4600,13 +4646,12 @@
       "values_compared": 347
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0442",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763198",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -4677,13 +4722,12 @@
       "values_compared": 253
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0450",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763206",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -4818,13 +4862,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0463",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763219",
-      "values_compared": 0
+      "values_compared": 65
     },
     {
       "max_rel_err": 0.0,
@@ -4859,11 +4902,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::EvaluateBinormal",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0467",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763223",
       "values_compared": 0
     },
@@ -4968,22 +5014,20 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0477",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763233",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0478",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763234",
-      "values_compared": 0
+      "values_compared": 24
     },
     {
       "deferred": {
@@ -5006,13 +5050,12 @@
       "values_compared": 9
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0481",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763237",
-      "values_compared": 0
+      "values_compared": 71
     },
     {
       "deferred": {
@@ -5027,13 +5070,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0483",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763239",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -5212,13 +5254,12 @@
       "values_compared": 213
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0500",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763256",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "deferred": {
@@ -5233,20 +5274,22 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0502",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763258",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0503",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763259",
       "values_compared": 0
     },
@@ -5259,11 +5302,14 @@
       "values_compared": 22
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0505",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763261",
       "values_compared": 0
     },
@@ -5372,13 +5418,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0516",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763272",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "deferred": {
@@ -5429,22 +5474,20 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0521",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763277",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0522",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763278",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "deferred": {
@@ -5459,11 +5502,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0524",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763280",
       "values_compared": 0
     },
@@ -5568,22 +5614,24 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0535",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763291",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0536",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763292",
-      "values_compared": 0
+      "values_compared": 119
     },
     {
       "deferred": {
@@ -5718,13 +5766,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0549",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763305",
-      "values_compared": 0
+      "values_compared": 116
     },
     {
       "deferred": {
@@ -5739,11 +5786,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0551",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763307",
       "values_compared": 0
     },
@@ -5776,20 +5826,26 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0555",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763311",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0556",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763312",
       "values_compared": 0
     },
@@ -5822,11 +5878,14 @@
       "values_compared": 98
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0560",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763316",
       "values_compared": 0
     },
@@ -5855,31 +5914,28 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0563",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763319",
-      "values_compared": 0
+      "values_compared": 219
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0564",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763320",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0565",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763321",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -5918,11 +5974,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0569",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763325",
       "values_compared": 0
     },
@@ -6027,22 +6086,24 @@
       "values_compared": 14
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0579",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763335",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0580",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763336",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
       "deferred": {
@@ -6093,13 +6154,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0585",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763341",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "deferred": {
@@ -6138,13 +6198,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0589",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763345",
-      "values_compared": 0
+      "values_compared": 165
     },
     {
       "max_rel_err": 0.0,
@@ -6155,11 +6214,14 @@
       "values_compared": 9
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0591",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763347",
       "values_compared": 0
     },
@@ -6208,20 +6270,26 @@
       "values_compared": 24
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0597",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763353",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0598",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763354",
       "values_compared": 0
     },
@@ -6270,22 +6338,20 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0603",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763359",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0604",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763360",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -6364,13 +6430,12 @@
       "values_compared": 266
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0613",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763369",
-      "values_compared": 0
+      "values_compared": 26
     },
     {
       "deferred": {
@@ -6405,11 +6470,14 @@
       "values_compared": 31
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
+        "unit": "topology.face_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0617",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763373",
       "values_compared": 0
     },
@@ -6458,13 +6526,12 @@
       "values_compared": 383
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0622",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763378",
-      "values_compared": 0
+      "values_compared": 475
     },
     {
       "deferred": {
@@ -6563,11 +6630,14 @@
       "values_compared": 67
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0632",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763388",
       "values_compared": 0
     },
@@ -6584,13 +6654,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0634",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763390",
-      "values_compared": 0
+      "values_compared": 169
     },
     {
       "deferred": {
@@ -6617,13 +6686,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0637",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763393",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -6686,11 +6754,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0643",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763399",
       "values_compared": 0
     },
@@ -6719,13 +6790,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0646",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763402",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -6736,13 +6806,12 @@
       "values_compared": 14
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0648",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763404",
-      "values_compared": 0
+      "values_compared": 401
     },
     {
       "max_rel_err": 0.0,
@@ -6777,11 +6846,14 @@
       "values_compared": 128
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0653",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763409",
       "values_compared": 0
     },
@@ -6850,31 +6922,36 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0660",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763416",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0661",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763417",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0662",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763418",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -6985,11 +7062,14 @@
       "values_compared": 218
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0673",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763429",
       "values_compared": 0
     },
@@ -7138,11 +7218,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0688",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763444",
       "values_compared": 0
     },
@@ -7231,13 +7314,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0697",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763453",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "deferred": {
@@ -7444,13 +7526,12 @@
       "values_compared": 216
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0718",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763474",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
       "max_rel_err": 0.0,
@@ -7513,31 +7594,32 @@
       "values_compared": 349
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0725",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763481",
-      "values_compared": 0
+      "values_compared": 237
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0726",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763482",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0727",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763483",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "deferred": {
@@ -7560,11 +7642,14 @@
       "values_compared": 66
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0730",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763486",
       "values_compared": 0
     },
@@ -7589,11 +7674,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0733",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763489",
       "values_compared": 0
     },
@@ -7710,13 +7798,12 @@
       "values_compared": 19
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0744",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763500",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "deferred": {
@@ -7731,11 +7818,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0746",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763502",
       "values_compared": 0
     },
@@ -7772,11 +7862,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0750",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763506",
       "values_compared": 0
     },
@@ -7817,11 +7910,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
+        "unit": "offset.offset_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0755",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763511",
       "values_compared": 0
     },
@@ -7902,11 +7998,14 @@
       "values_compared": 110
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0763",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763519",
       "values_compared": 0
     },
@@ -8003,22 +8102,24 @@
       "values_compared": 48
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmOffsetSurface::SmOffsetSurface",
+        "unit": "surface.offset_surface"
+      },
       "max_rel_err": 0.0,
       "name": "gen0773",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763529",
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0774",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763530",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -8053,11 +8154,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0778",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763534",
       "values_compared": 0
     },
@@ -8114,11 +8218,14 @@
       "values_compared": 27
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0784",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763540",
       "values_compared": 0
     },
@@ -8195,13 +8302,12 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0793",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763549",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -8212,13 +8318,12 @@
       "values_compared": 13
     },
     {
-      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0795",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058763551",
-      "values_compared": 0
+      "values_compared": 218
     },
     {
       "deferred": {
@@ -8257,11 +8362,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0799",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763555",
       "values_compared": 0
     },
@@ -8902,19 +9010,19 @@
       "values_compared": 357
     }
   ],
-  "cases_both_errored": 160,
-  "cases_deferred": 463,
+  "cases_both_errored": 0,
+  "cases_deferred": 530,
   "cases_failed": 0,
-  "cases_passed": 398,
+  "cases_passed": 331,
   "cases_total": 861,
   "deferred_by_unit": {
     "blend.fillet_standard_solver_p1": 4,
-    "offset.offset_executive_p1": 77,
+    "offset.offset_executive_p1": 94,
     "surface.cone_p2": 1,
-    "surface.offset_surface": 109,
-    "topology.brep_p2": 102,
-    "topology.edgeuse_p3": 135,
-    "topology.face_p1": 35
+    "surface.offset_surface": 121,
+    "topology.brep_p2": 125,
+    "topology.edgeuse_p3": 145,
+    "topology.face_p1": 40
   },
   "max_rel_err": 0.0,
   "pass": true,

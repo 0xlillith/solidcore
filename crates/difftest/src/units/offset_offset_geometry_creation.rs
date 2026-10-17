@@ -1237,7 +1237,9 @@ impl Counts {
                 let slot = usize::try_from(b).map_err(|_| ())?;
                 let n = Self::of(self.breps.get(slot).copied().flatten().ok_or(())?, kind);
                 if n == 0 {
-                    return Err(());
+                    // a B-rep without that kind (a wire has no faces): the null handle, as
+                    // an empty store yields, so the op runs into its null guard
+                    return Ok(None);
                 }
                 Ok(Some(hd(b as i8, kind, (sel % n as u64) as u32)))
             }
@@ -1309,16 +1311,21 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
                 OpIn::AddCurve { curve: curve.clone() }
             }
             OpIn::AddCurveFrom { src, d, scale } => {
-                let s = h(c, *src, &[K_EDGE, K_EDGEUSE], false, 3)?;
-                let sh = triple_to_h(s).ok_or_else(|| format!("unresolvable_{what}_null"))?;
-                let curve = if sh.kind == K_EDGE {
+                // a null source, or one without a (B-spline) curve, has nothing to copy:
+                // the op is dropped from the script both sides run
+                let s = h(c, *src, &[K_EDGE, K_EDGEUSE], true, 3)?;
+                let Some(sh) = triple_to_h(s) else { continue };
+                let source = if sh.kind == K_EDGE {
                     two.edge_curve_h(sh).ok().flatten()
                 } else {
                     two.eu_uv_h(sh).ok().flatten()
-                }
-                .and_then(|ch| ClassGeometry::curve(two, ch))
-                .and_then(|cv| curve_in_of(cv, *d, *scale))
-                .ok_or_else(|| format!("unresolvable_{what}_source_curve"))?;
+                };
+                let Some(curve) = source
+                    .and_then(|ch| ClassGeometry::curve(two, ch))
+                    .and_then(|cv| curve_in_of(cv, *d, *scale))
+                else {
+                    continue;
+                };
                 let dim = usize::from(curve.dim == 2);
                 let n = c.curves[0].len() + c.curves[1].len();
                 if let Some(list) = c.curves.get_mut(dim) {
@@ -1331,15 +1338,15 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
                 OpIn::AddSurface { surface: surface.clone() }
             }
             OpIn::SetEdgeCurve { e, c: cc } => OpIn::SetEdgeCurve {
-                e: h(c, *e, &[K_EDGE], false, 3)?,
-                c: h(c, *cc, &[K_CURVE], false, 3)?,
+                e: h(c, *e, &[K_EDGE], true, 3)?,
+                c: h(c, *cc, &[K_CURVE], true, 3)?,
             },
             OpIn::SetEuUv { eu: e, c: cc, max_dist } => OpIn::SetEuUv {
-                eu: eu(c, *e, false)?,
+                eu: eu(c, *e, true)?,
                 c: h(c, *cc, &[K_CURVE], true, 2)?,
                 max_dist: *max_dist,
             },
-            OpIn::Mark { eu: e } => OpIn::Mark { eu: eu(c, *e, false)? },
+            OpIn::Mark { eu: e } => OpIn::Mark { eu: eu(c, *e, true)? },
             OpIn::Getters => OpIn::Getters,
             OpIn::FaceuseOffset { fu, skip } => OpIn::FaceuseOffset {
                 fu: h(c, *fu, &[K_FACEUSE], true, 3)?,
