@@ -24,7 +24,7 @@
 //! | `Edges`     | `tol manifold fast ignore nesting n v*n`            | `status [max_gap min_gap glued deleted [digest]]` (`StitchEdgesOfVertices`) |
 //! | `Simple`    | `api tol nk f*nk nd f*nd`                           | `status [max_vertex_gap max_edge_gap stitched digest]` (`DoSimpleFaceStitch`, or `SmApiSimpleFaceStitch` with the B-rep tolerance) |
 //! | `Unify`     | `api tol face n_samples`                            | `status [flipped (u0 v0 u1 v1)*n]` (`UnifyNormals`, or `SmApiUnifyNormals`) |
-//! | `Api`       | `which null_brep ..`                                | which 0 `SmApiStitch(brep)`: `status`; 1 `face+1` `SmApiStitch(brep, face)` (only with a null B-rep or face: the B-rep's own face crashes `MergeAddedFace`): `status`; 2 `SmApiStitchIntoSolid`: `status [solid n vgap egap]`; 3 `well_formed ratio` `SmApiStitchIntoShell`: `status [n vgap egap]`; 4 `face+1 n` `SmApiUnifyNormals`: `status [flipped]`; 5 `SmApiSimpleFaceStitch` (empty lists): `status`; 6 `tol squeeze split manifold slivers` `SmApiStitchAdvanced`: `status [n lamina vgap egap]` |
+//! | `Api`       | `which null_brep ..`                                | which 0 `SmApiStitch(brep)`: `status`; 1 `face+1` `SmApiStitch(brep, face)` (only with a null B-rep or face: otherwise `SmMerge`'s constructor dereferences the null other B-rep, UB-167): `status`; 2 `SmApiStitchIntoSolid`: `status [solid n vgap egap]`; 3 `well_formed ratio` `SmApiStitchIntoShell`: `status [n vgap egap]`; 4 `face+1 n` `SmApiUnifyNormals`: `status [flipped]`; 5 `SmApiSimpleFaceStitch` (empty lists): `status`; 6 `tol squeeze split manifold slivers` `SmApiStitchAdvanced`: `status [n lamina vgap egap]` |
 //!
 //! A digest is the B-rep after a mutating op: `n_faces n_edges n_vertices` then each
 //! vertex point in list order. `Simple` reports `-2` when the face lists are equally
@@ -214,11 +214,13 @@ fn op_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError> 
             let null_brep = rd.flag()?;
             match which {
                 1 => {
-                    // SmMerge::MergeAddedFace merges a face not yet in the B-rep: one of
-                    // the B-rep's own faces crashes upstream (only the null guards run)
+                    // SmApiStitch(brep, face) builds SmMerge(ctx, brep, NULL) with a zero
+                    // tolerance, whose constructor dereferences the null other B-rep
+                    // (UB-167): with a B-rep and a face it always crashes upstream, so
+                    // only the null guards run
                     let face = rd.index(nf)?;
                     if !null_brep && face != 0 {
-                        return Err(bad("SmApiStitch(brep, face): face already in the B-rep"));
+                        return Err(bad("SmApiStitch(brep, face): SmMerge dereferences the null other B-rep (UB-167)"));
                     }
                 }
                 3 => {

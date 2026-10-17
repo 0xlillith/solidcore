@@ -2445,6 +2445,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it.
 
+#### UB-167. `SmApiStitch(SmBrep*, SmFace*)` always crashes: `SmMerge` dereferences its null other B-rep
+- **Location:** `source/SM_API/src/SmApiBrep.cpp:1157`-`1188` (`SmApiStitch(pBrep, pFaceToStitch)`: `SmMerge sMerge( *pContext, pBrep, NULL )`), then `source/SMLib/src/SmMerge.cpp:98`-`125` (`SmMerge::SmMerge`: `if( dApproxTol3d < SM_EFF_ZERO )` ... `pOtherBrep->GetMinEdgeBBoxSize(dEdge2Size, pE2)`).
+- **What happens:** The constructor comment says `pOtherBrep` "can now be Null, for the Stitch methods", but `SmApiStitch` passes the default `dApproxTol3d = 0`, so the automatic-tolerance branch runs and calls `GetMinEdgeBBoxSize` on the null other B-rep (SIGSEGV in `SmBrep::GetEdges` with `this == NULL`), before the face is looked at.
+- **Trigger:** any call with a non-null B-rep and a non-null face, e.g. a `SmApiCreateBox` box and one of its faces.
+- **How found:** difftest fuzzing of `heal.stitch_p1` (PR #196): 4 crashes in 2000 programs; gdb backtrace `SmBrep::GetEdges <- SmBrep::GetMinEdgeBBoxSize <- SmMerge::SmMerge <- SmApiStitch`.
+- **Confirmed:** yes (C++ reference build, standalone reproducer under gdb).
+- **Severity:** crash/UB.
+- **Rust port:** `heal::stitch::p1::api_stitch_face` returns `Unported` (`SmMerge::MergeAddedFace`, unit `boolean.merge_p2`); the difftest FFI refuses `SmApiStitch` with a B-rep and a face, so only its null-argument guards are compared.
+
 ### Numerical integration
 
 #### WR-94. `SmIntegrator::IntegrateIt` hides integration/evaluator failure as zero

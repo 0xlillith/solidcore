@@ -13,7 +13,7 @@
 //! input upstream would dereference null or free twice) is an error on both sides.
 //!
 //! Selectors are taken modulo the entity count; an op needing an entity the B-rep
-//! lacks is `no_entity` on both sides. Edge parameters are given normalised to the
+//! lacks is rejected (nothing runs on either side). Edge parameters are given normalised to the
 //! edge's interval and split points as an offset from the edge, resolved on the
 //! imported B-rep (identically for both sides).
 //!
@@ -222,8 +222,10 @@ pub(crate) fn build_failure(export: &[f64]) -> Output {
     ))
 }
 
+/// An op naming an entity kind the B-rep lacks (e.g. a face op on a wire B-rep): no code
+/// runs on either side, so the case is rejected (not counted as a pass).
 pub(crate) fn no_entity() -> Output {
-    Output::err("no_entity")
+    Output::rejected("no entity of the op's kind in this B-rep: nothing runs on either side")
 }
 
 // ---- resolution ---------------------------------------------------------------------------
@@ -447,8 +449,9 @@ fn resolve(op: &OpIn, b: &Brep) -> Result<Option<Resolved>, HarnessError> {
             if *which > MAX_API {
                 return Err(harness(format!("unknown SmApi selector {which}")));
             }
-            // SmApiStitch(brep, face) merges a face not yet in the B-rep: with a real
-            // B-rep only the null face is defined (the FFI refuses the B-rep's own faces)
+            // SmApiStitch(brep, face) crashes upstream for any face with a real B-rep
+            // (SmMerge(ctx, brep, NULL) dereferences the null other B-rep, UB-167): only
+            // the null face is defined there (the FFI refuses the rest)
             let f = if *face < 0 || (*which == 1 && !*null_brep) {
                 None
             } else {
