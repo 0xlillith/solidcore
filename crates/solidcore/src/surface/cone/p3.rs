@@ -188,15 +188,20 @@ fn bbox(cone: &Cone, domain: &Extent2d) -> Result<Extent3d> {
 fn angle_in_sweep(cone: &Cone, axis: Vec3, direction: Vec3, tol: f64) -> Result<bool> {
     let angle = axis.ccw_angle_between(cone.rev().position().x_axis(), direction)?;
     let sweep = cone.rev().step_uv_domain().u_interval();
+    // Snap and compare against the raw start/end angles (`dStartAng`/`dEndAng`), as
+    // upstream does; only the periodic mapping uses the normalised sweep
+    // (`sSweepIvl`), so a reversed angle range matches the C++ (no curve).
+    let start = cone.rev().start_angle_deg();
+    let end = cone.rev().end_angle_deg();
     let mut deg = sweep
         .contains_periodic_value(angle * 180.0 / PI, 360.0, 0.0)
         .periodic_value;
-    if are_same_to_tol(deg, sweep.min(), tol) {
-        deg = sweep.min();
-    } else if are_same_to_tol(deg, sweep.max(), tol) {
-        deg = sweep.max();
+    if are_same_to_tol(deg, start, tol) {
+        deg = start;
+    } else if are_same_to_tol(deg, end, tol) {
+        deg = end;
     }
-    Ok(deg >= sweep.min() && deg <= sweep.max())
+    Ok(deg >= start && deg <= end)
 }
 
 fn add_plane_line(
