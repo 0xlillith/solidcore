@@ -114,12 +114,10 @@ fn main() -> ExitCode {
     }
     let args = match parse_args() {
         Ok(a) => a,
-        Err(e) if e.is_empty() => {
-            println!("{USAGE}");
-            return ExitCode::SUCCESS;
-        }
         Err(e) => {
-            eprintln!("difftest: {e}");
+            if !e.is_empty() {
+                eprintln!("difftest: {e}");
+            }
             eprintln!("{USAGE}");
             return ExitCode::from(2);
         }
@@ -374,8 +372,12 @@ fn fuzz_main(args: &Args, ctx: &CaseContext, root: &Path) -> ExitCode {
                 dir.strip_prefix(root).unwrap_or(&dir).display()
             );
         }
-        for note in res.notes.iter().take(MAX_FUZZ_LINES) {
-            println!("  note (differs) {note}");
+        for n in res.notes.iter().take(MAX_FUZZ_LINES) {
+            let file = n.file.as_deref().map_or_else(String::new, |p| {
+                format!(" -> {}", p.strip_prefix(root).unwrap_or(p).display())
+            });
+            let what = n.verdict.as_str();
+            println!("  note ({what}) {}: {}{file}", n.case, n.detail);
         }
         if !res.pass() {
             failed += 1;

@@ -12,10 +12,12 @@
 //! [`run_child`]), so a C++ crash or hang ends the batch, not the run. The child reports
 //! each case as it starts and finishes, so the case that died is known; it is re-run
 //! alone to confirm. A crash that only happens after earlier cases of its batch is still
-//! a failure, and its reproduction file keeps those cases in order.
+//! a failure, and its reproduction file keeps those cases in order. A timeout that does
+//! not reproduce when the case runs alone is load-dependent: the case counts with the
+//! verdict it gets alone and the timeout is only a note.
 //!
-//! Verdicts ([`Verdict`]): `rejected` (the C++ runner returned a harness error: the FFI
-//! guard refused the input), `malformed` (the mutation broke the input schema), `ran`
+//! Verdicts ([`Verdict`]): `rejected` (the C++ runner returned a harness error, the FFI
+//! guard refused the input, or its fixture constructor refused it; Rust is not run), `malformed` (the mutation broke the input schema), `ran`
 //! (both sides ran; `differs` when they disagree, which is only a note because fuzz
 //! inputs may lie outside the generator's domain), and the failures `crash` (killed by a
 //! signal or an abnormal exit), `panic` (a runner panicked on either side) and `timeout`
@@ -268,7 +270,8 @@ pub fn fuzz_cases(unit: &str, bases: &[Case], n: usize) -> Vec<FuzzCase> {
 /// Classification of one fuzz case.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Verdict {
-    /// The C++ runner returned a harness error (the FFI guard refused the input).
+    /// The C++ runner returned a harness error (the FFI guard refused the input) or its
+    /// fixture constructor rejected the case (Rust is not run).
     Rejected,
     /// The inputs no longer parse (the mutation broke the schema, not a guard probe).
     Malformed,
@@ -352,6 +355,10 @@ fn call(f: impl FnOnce() -> Result<Output, HarnessError>) -> Side {
 fn classify(cpp: Side, rust: Side, floors: &[AbsFloor]) -> (Verdict, String) {
     match (cpp, rust) {
         (Side::Panic(m), _) => (Verdict::Panic, format!("cpp runner: {m}")),
+        // The native constructor refused the fixture: Rust must not run on it (`run_unit`).
+        (Side::Done(c), _) if c.rejected.is_some() => {
+            (Verdict::Rejected, c.rejected.unwrap_or_default())
+        }
         (_, Side::Panic(m)) => (Verdict::Panic, format!("rust: {m}")),
         (Side::Harness(m), _) if is_malformed(&m) => (Verdict::Malformed, m),
         (Side::Harness(m), _) => (Verdict::Rejected, m),
@@ -423,8 +430,13 @@ pub fn run_child(args: &[String]) -> ExitCode {
         };
         println!("{MARK}start {i} cpp");
         let cpp = call(|| unit.run_cpp(&case));
-        println!("{MARK}start {i} rust");
-        let rust = call(|| unit.run_rust(&case));
+        let rust = if matches!(&cpp, Side::Done(c) if c.rejected.is_some()) {
+            // Rust never runs on a fixture the C++ constructor refused.
+            Side::Harness(String::new())
+        } else {
+            println!("{MARK}start {i} rust");
+            call(|| unit.run_rust(&case))
+        };
         let (verdict, detail) = classify(cpp, rust, unit.abs_floors());
         println!("{MARK}done {i} {} {}", verdict.as_str(), one_line(&detail));
     }
@@ -599,8 +611,9 @@ pub struct FuzzResult {
     pub verdicts: Vec<Verdict>,
     /// The crash, panic and timeout cases.
     pub failures: Vec<Failure>,
-    /// `<case>: <first difference> -> <reproduction file>` of the `differs` cases.
-    pub notes: Vec<String>,
+    /// The `differs` cases (detail = first difference, `file` = reproduction), plus
+    /// harness observations that are not failures (e.g. a timeout that did not reproduce).
+    pub notes: Vec<Failure>,
     /// Failure to build or run the cases.
     pub harness_error: Option<String>,
 }
@@ -680,7 +693,7 @@ fn write_repro(
     Ok(path)
 }
 
-/// Removes the `fuzzNNNNN.json` files of an earlier run from `dir` (nothing else).
+/// Removes the `fuzzNNNNN.json` files (five or more digits) of an earlier run from `dir`.
 fn clear_old(dir: &Path) {
     let Ok(rd) = std::fs::read_dir(dir) else {
         return;
@@ -690,7 +703,7 @@ fn clear_old(dir: &Path) {
         let digits = name
             .strip_prefix("fuzz")
             .and_then(|n| n.strip_suffix(".json"));
-        if digits.is_some_and(|d| d.len() == 5 && d.bytes().all(|b| b.is_ascii_digit())) {
+        if digits.is_some_and(|d| d.len() >= 5 && d.bytes().all(|b| b.is_ascii_digit())) {
             let _ = std::fs::remove_file(p);
         }
     }
@@ -761,10 +774,9 @@ fn run_all(
                     detail: detail.clone(),
                     file: None,
                 };
-                let path = write_repro(dir, &f, std::slice::from_ref(c), "")?;
-                let shown = path.display();
-                res.notes
-                    .push(format!("{}: {detail} -> {shown}", c.case.name));
+                let mut note = f;
+                note.file = Some(write_repro(dir, &note, std::slice::from_ref(c), "")?);
+                res.notes.push(note);
             } else if v.is_failure() {
                 let f = Failure {
                     case: c.case.name.clone(),
@@ -775,24 +787,66 @@ fn run_all(
                 record(res, dir, f, std::slice::from_ref(c), "")?;
             }
         }
-        let k = start + b.done.len();
         let End::Abnormal { verdict, detail } = b.end else {
             start += batch.len();
             continue;
         };
+        if b.done.len() >= batch.len() {
+            // Every case reported before the child died (e.g. at process exit): no case is
+            // to blame and the next batch's first case must not be.
+            let last = batch
+                .last()
+                .map(|c| c.case.name.clone())
+                .unwrap_or_default();
+            res.notes.push(Failure {
+                case: last,
+                verdict,
+                detail: format!("child ended abnormally after reporting every case: {detail}"),
+                file: None,
+            });
+            start += batch.len();
+            continue;
+        }
+        let k = start + b.done.len();
         let Some(culprit) = cases.get(k) else {
             break;
         };
         // Confirm the case alone; keep its batch predecessors if it only dies after them.
-        let (solo, solo_err) = if b.done.is_empty() {
-            (Some((verdict, detail.clone())), b.stderr.clone())
+        // A timeout is always re-run: it may only have been machine load.
+        let (solo, solo_err, alone) = if b.done.is_empty() && verdict != Verdict::Timeout {
+            (Some((verdict, detail.clone())), b.stderr.clone(), None)
         } else {
             let s = run_batch(exe, unit, std::slice::from_ref(culprit), scratch)?;
             match s.end {
-                End::Abnormal { verdict, detail } => (Some((verdict, detail)), s.stderr),
-                End::Normal => (None, String::new()),
+                End::Abnormal { verdict, detail } => (Some((verdict, detail)), s.stderr, None),
+                End::Normal => (None, String::new(), s.done.first().cloned()),
             }
         };
+        if let (Verdict::Timeout, None, Some((v, d))) = (verdict, &solo, &alone) {
+            // Did not reproduce alone: load-dependent, so not a failure. The case counts
+            // with the verdict it got alone.
+            let only = std::slice::from_ref(culprit);
+            let mut f = Failure {
+                case: culprit.case.name.clone(),
+                verdict: *v,
+                detail: d.clone(),
+                file: None,
+            };
+            res.verdicts.push(*v);
+            if v.is_failure() {
+                record(res, dir, f, only, "")?;
+            } else {
+                f.verdict = Verdict::Timeout;
+                f.detail = format!(
+                    "{detail}; finished alone ({}), so load-dependent, not counted",
+                    v.as_str()
+                );
+                f.file = Some(write_repro(dir, &f, only, "")?);
+                res.notes.push(f);
+            }
+            start = k + 1;
+            continue;
+        }
         let f = |verdict, detail: String, stderr: &str| Failure {
             case: culprit.case.name.clone(),
             verdict,
@@ -968,6 +1022,21 @@ mod tests {
                 ok()
             ),
             Verdict::Malformed
+        );
+        // A fixture the C++ constructor refused is `rejected`, whatever Rust would have said.
+        assert_eq!(
+            v(
+                Side::Done(Output::rejected("ctor")),
+                Side::Harness(String::new())
+            ),
+            Verdict::Rejected
+        );
+        assert_eq!(
+            v(
+                Side::Done(Output::rejected("ctor")),
+                Side::Done(Output::new())
+            ),
+            Verdict::Rejected
         );
         assert_eq!(
             v(Side::Harness("x".into()), Side::Panic("p".into())),

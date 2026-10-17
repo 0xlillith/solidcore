@@ -80,12 +80,12 @@ case gets one verdict:
 
 | verdict | meaning |
 |---|---|
-| `rejected` | the C++ runner returned a harness error: the guard refused the input (fine) |
+| `rejected` | the C++ runner returned a harness error (the guard refused the input) or its fixture constructor rejected the case; Rust is not run on it (fine) |
 | `malformed` | the mutated inputs no longer parse into the runner's input type (fine; not a guard probe) |
 | `ran` | both sides ran (fine). `differs` counts those where they disagree: a note only (not a failure), since fuzz inputs may be outside the generator's domain; each is still written as a reproduction file, like a failure |
 | `crash` | the child died from a signal or an abnormal exit (C++ crash, Rust stack overflow or failed allocation): **FAIL** |
 | `panic` | a runner panicked on either side: **FAIL** |
-| `timeout` | no result within 20 s: **FAIL** |
+| `timeout` | no result within 20 s, and again when the case runs alone: **FAIL**. A timeout that does not reproduce alone is load-dependent: the case counts with the verdict it gets alone and a `note (timeout)` line records it |
 
 ```
 FUZZ-PASS|FUZZ-FAIL <unit> cases=… rejected=… malformed=… ran=… differs=… crashes=… panics=… timeouts=…
