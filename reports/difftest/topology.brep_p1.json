@@ -2042,6 +2042,54 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "wire_line_split_uv_orient_unknown",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#232 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "wire_cubic_sub_split_uv_orient_unknown",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#233 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_plane_split_uv_orient_unknown",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#234 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_bspline_split_uv_orient_unknown",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#235 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "face_bspline_sub_split_uv_orient_unknown",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#236 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_split_uv_orient_unknown",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#237 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
+      "values_compared": 17
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "Mouse_lists_0",
       "outcome": "pass",
       "pass": true,
@@ -2438,7 +2486,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -2450,7 +2498,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -3723,7 +3771,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -3735,7 +3783,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -4959,7 +5007,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -4971,7 +5019,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -6208,7 +6256,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -6220,7 +6268,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -7494,7 +7542,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -7506,7 +7554,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -8734,7 +8782,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -8746,7 +8794,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -9954,7 +10002,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -9966,7 +10014,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -11198,7 +11246,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -11210,7 +11258,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -12438,7 +12486,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -12450,7 +12498,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -13723,7 +13771,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -13735,7 +13783,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -15011,7 +15059,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -15023,7 +15071,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -16299,7 +16347,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -16311,7 +16359,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -17583,7 +17631,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -17595,7 +17643,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -18880,7 +18928,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -18892,7 +18940,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -20177,7 +20225,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -20189,7 +20237,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -21073,7 +21121,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -21094,7 +21142,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -21115,7 +21163,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
+        "symbol": "SmRegion::IsVoid",
         "unit": "topology.shell"
       },
       "max_rel_err": 0.0,
@@ -21313,8 +21361,8 @@
   "cases_both_errored": 60,
   "cases_deferred": 626,
   "cases_failed": 0,
-  "cases_passed": 1717,
-  "cases_total": 2343,
+  "cases_passed": 1723,
+  "cases_total": 2349,
   "deferred_by_unit": {
     "curve.crv_on_surf": 4,
     "harness:analytic-geometry-export": 217,
