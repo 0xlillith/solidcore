@@ -17,7 +17,8 @@
 //! shell-vertex topology and face/B-rep notifications stop at their owning units;
 //! continuations behind these barriers are not implemented or certified. Interior
 //! wire splitting and face insertion defer before allocating orphan records; the
-//! native pre-barrier allocations/notifications are not replayed on deferral. No input-driven recursion
+//! native pre-barrier allocations/notifications are not replayed on deferral.
+//! Owned geometry arguments are dropped on Rust errors. No input-driven recursion
 //! is reachable: `FindInfiniteRegion` stops before its single shell-to-no-shell retry.
 //! Native null dereferences and nonfinite split parameters return `InvalidInput`.
 
