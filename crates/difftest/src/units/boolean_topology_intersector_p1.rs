@@ -64,7 +64,7 @@ use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::extent3d::Extent3d;
 use solidcore::geom::object::{ObjectRef, ShapeMember};
 use solidcore::geom::solution_array::{ObjectKind, Solution, SolutionArray, SolutionObject};
-use solidcore::geom::tol::{update_object_tolerance, TopologyToUpdate, UNINIT_TOL};
+use solidcore::geom::tol::{update_object_tolerance, zone_tol3d, TopologyToUpdate, UNINIT_TOL};
 use solidcore::intersect::curve_class::p1::{CurveClassification, CurveInterval};
 use solidcore::intersect::point_class::{
     ClassGeometry, ClassObject, ClassObjectKind, PointClassType, PointClassification,
@@ -391,6 +391,14 @@ fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
             if b.net.iter().any(|r| r.len() != m + 1) {
                 return Err(harness("ragged net"));
             }
+            let ku =
+                b.u.len()
+                    .checked_sub(1)
+                    .ok_or_else(|| harness("surface without u knots"))?;
+            let kv =
+                b.v.len()
+                    .checked_sub(1)
+                    .ok_or_else(|| harness("surface without v knots"))?;
             v.extend([
                 0.0,
                 flag(b.oob),
@@ -399,8 +407,8 @@ fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
                 m as f64,
                 b.p as f64,
                 b.q as f64,
-                (b.u.len() - 1) as f64,
-                (b.v.len() - 1) as f64,
+                ku as f64,
+                kv as f64,
             ]);
             for row in &b.net {
                 for p in row {
@@ -1290,6 +1298,10 @@ fn new_classification(
 ) -> Result<CurveClassification<H>, SolidError> {
     let mut cc: CurveClassification<H> = CurveClassification::new(k);
     cc.set_curve(Some(curve), false);
+    // the constructor's `SmZoneTol3d sSrcZoneTol3d` argument converts the double first
+    // (`SM_USE_DEFAULT` -> the system zone tolerance, then `fabs`); `ReSet` then keeps it
+    // only when positive and gives the first interval's points the converted value
+    let tol = zone_tol3d(k, tol);
     cc.set_src_zone_tol_3d(if tol > 0.0 { tol } else { UNINIT_TOL });
     let _ = cc.set_interval(&ivl); // SetMinMax's status is ignored (inline SetInterval is void)
     cc.set_size(k, 1)?;
@@ -1301,15 +1313,31 @@ fn new_classification(
     Ok(cc)
 }
 
-fn tsect_type(code: i64) -> TsectCurveType {
-    match code {
+/// `SmTsectCurveType` of its code (`resolve` refuses anything but 0..=6, as the FFI does).
+fn tsect_type(code: i64) -> Result<TsectCurveType, HarnessError> {
+    Ok(match code {
+        0 => TsectCurveType::Unknown,
         1 => TsectCurveType::Touching,
         2 => TsectCurveType::Crossing,
         3 => TsectCurveType::Tangent,
         4 => TsectCurveType::Coincident,
         5 => TsectCurveType::NearTangent,
         6 => TsectCurveType::RegionBoundary,
-        _ => TsectCurveType::Unknown,
+        _ => return Err(harness("bad curve type")),
+    })
+}
+
+/// An `SmPointClassificationType` code (100..=110, as the FFI accepts), else the
+/// resolver's refusal.
+fn cls_code(code: i64) -> Result<i64, String> {
+    if i32::try_from(code)
+        .ok()
+        .and_then(PointClassType::from_code)
+        .is_some()
+    {
+        Ok(code)
+    } else {
+        Err("bad_point_class".into())
     }
 }
 
@@ -1486,11 +1514,11 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
                 dim: *dim,
                 tol: *tol,
                 pc_b: PcIn {
-                    cls: pc_b.cls,
+                    cls: cls_code(pc_b.cls)?,
                     h: h(pc_b.h)?,
                 },
                 pc_o: PcIn {
-                    cls: pc_o.cls,
+                    cls: cls_code(pc_o.cls)?,
                     h: h(pc_o.h)?,
                 },
             },
@@ -1503,11 +1531,11 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
                 dim: *dim,
                 tol: *tol,
                 pc_b: PcIn {
-                    cls: pc_b.cls,
+                    cls: cls_code(pc_b.cls)?,
                     h: h(pc_b.h)?,
                 },
                 pc_o: PcIn {
-                    cls: pc_o.cls,
+                    cls: cls_code(pc_o.cls)?,
                     h: h(pc_o.h)?,
                 },
             },
@@ -1529,6 +1557,9 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
                     curves: cs.clone(),
                 };
                 for sc in cs {
+                    if !(0..=6).contains(&sc.ty) {
+                        return Err("bad_curve_type".into()); // SmTsectCurveType is 0..=6
+                    }
                     curves += 1 + usize::from(sc.uv1.is_some()) + usize::from(sc.uv2.is_some());
                 }
                 r
@@ -1538,7 +1569,7 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two) -> Result<Vec<ROp>, String> {
                 s2: hk(*s2, &[K_FACE_SURFACE], true)?,
             },
             OpIn::ClearSsi => OpIn::ClearSsi,
-            OpIn::CanImprint { ty } => OpIn::CanImprint { ty: *ty },
+            OpIn::CanImprint { ty } => OpIn::CanImprint { ty: cls_code(*ty)? },
             OpIn::Lowest { list: l } => OpIn::Lowest {
                 list: list(l, &any, true)?,
             },
@@ -2034,11 +2065,14 @@ fn status<T>(r: Result<T, SolidError>, o: &mut Vec<f64>) -> Result<Option<T>, Fa
     }
 }
 
-fn pc_from(k: &PcIn, tol: f64) -> PointClassification<H> {
+fn pc_from(k: &PcIn, tol: f64) -> Result<PointClassification<H>, HarnessError> {
     let mut pc = PointClassification::new(tol);
-    let cls = PointClassType::from_code(k.cls as i32).unwrap_or(PointClassType::Unknown);
+    let cls = i32::try_from(k.cls)
+        .ok()
+        .and_then(PointClassType::from_code)
+        .ok_or_else(|| harness("bad point class"))?;
     pc.set_class_object(cls, triple_to_h(k.h));
-    pc
+    Ok(pc)
 }
 
 fn put_pc(o: &mut Vec<f64>, pc: &PointClassification<H>) {
@@ -2176,8 +2210,8 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
             } => {
                 let end = matches!(r.op, OpIn::FixupEnd { .. });
                 o.push(if end { 11.0 } else { 12.0 });
-                let mut b = pc_from(pc_b, *tol);
-                let mut c = pc_from(pc_o, *tol);
+                let mut b = pc_from(pc_b, *tol)?;
+                let mut c = pc_from(pc_o, *tol)?;
                 if end {
                     ti.fixup_end_point_class_mates(u64::from(*dim), &mut b, &mut c, None);
                 } else {
@@ -2234,7 +2268,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     e.curves_3d.push(Some(h3));
                     e.uv_curves1.push(uvs[0]);
                     e.uv_curves2.push(uvs[1]);
-                    e.curve_types.push(tsect_type(sc.ty));
+                    e.curve_types.push(tsect_type(sc.ty)?);
                     e.deviations.push(sc.dev);
                 }
                 let mut table = ti.intersection_table().cloned().unwrap_or_default();
@@ -2278,7 +2312,10 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
             }
             OpIn::CanImprint { ty } => {
                 o.push(19.0);
-                let cls = PointClassType::from_code(*ty as i32).unwrap_or(PointClassType::Unknown);
+                let cls = i32::try_from(*ty)
+                    .ok()
+                    .and_then(PointClassType::from_code)
+                    .ok_or_else(|| harness("bad point class"))?;
                 o.push(flag(ti::can_imprint(cls)));
             }
             OpIn::Lowest { list } => {

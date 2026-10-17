@@ -733,7 +733,7 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
                             c.curves += 1;
                         }
                     }
-                    rd.index(7)?;
+                    rd.index(6)?; // SmTsectCurveType: 0..=6
                     rd.finite()?;
                 }
             }
