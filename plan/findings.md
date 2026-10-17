@@ -5814,7 +5814,7 @@ independent p6 integration.
 
 Gate: `PARTIAL blend.fillet_geom_p1 cases=444 passed=421 failed=0 deferred=18 max_rel_err=0e0 rejected=5`
 (`cases_both_errored` 0, so 421 real passes; the 5 rejected cases are the regression
-inputs below; SWEEP_LINE; `--perturb` PERTURB_LINE).
+inputs below; 2000-seed sweep 2033 pass / 106 deferred / 0 failed / 5 rejected; `--perturb` 421/421 detected).
 
 - **Deferred (unported callees, no stub of this unit's own code).**
   `sm_ClassifyFacePoint` defers on `SmFace::CalculateUVDomainFromUVTrimCurves`
@@ -5894,10 +5894,10 @@ inputs below; SWEEP_LINE; `--perturb` PERTURB_LINE).
   control point `Pw / w` by `MAX_MAGNITUDE = 1e50`; that over-rejects valid but slow
   upstream inputs, and is documented as such. The other ops take any finite value.
   Rejected regression cases: the original 1e154 shape, the slow -1e150 input, a value
-  just above 1e50, a 1e-150 weight; the -1e50 boundary input is an accepted case. The
+  just above 1e50, a 1e-20 weight under a homogeneous 1e40 (Euclidean 1e60); the -1e50 boundary input is an accepted case. The
   Rust side still defers that op on `topology.face_p1`. The sweep itself runs one
   thread per call with a 30 s timeout (`FUZZ_SEED` / `FUZZ_CALLS` override the seed
-  and length): FUZZ_RESULTS.
+  and length): seed 777 at 40k calls (the pre-review's), the default seed at 60k and seed 4242 at 40k all ran without a crash or hang (10613, 16116 and 10692 accepted programs).
 - **Record writes without a notification environment.** `SmVertex::SetPoint` and
   `SmEdge::SetCurve(.., TRUE)` notify `SM_NO_CHANGE_GEOMETRY`; the pseudo B-rep has no
   notification environment, so the port applies the same resets directly (vertex-use
