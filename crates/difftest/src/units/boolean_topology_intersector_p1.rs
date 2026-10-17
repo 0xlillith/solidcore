@@ -91,7 +91,7 @@ use solidcore::topology::proto_topology::p1::ProtoTopology;
 use solidcore::topology::proto_topology::{ProtoBrep, ProtoGeometry, ProtoTopologyManager};
 use solidcore::topology::topology::Topology;
 use solidcore::topology::vertex as vx;
-use solidcore::topology::{Brep, EdgeId, FaceId, LoopId, VertexId, VertexuseId};
+use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, VertexId, VertexuseId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::boolean_topology_intersector_p1::{self as ffi, Op};
 
@@ -408,6 +408,12 @@ const K_NULL: i64 = 8;
 const K_TI: u8 = 9;
 const K_EDGEUSE: u8 = 10;
 const K_LOOP: u8 = 11;
+/// A vertex use, by the index of its id (Rust side only: the classification's own
+/// identities, never exported by the shim).
+const K_VERTEXUSE: u8 = 12;
+/// The UV trim curve stored on an edge use (or its mate), by the edge use's index
+/// (Rust side only, resolved by `ClassGeometry::curve`).
+const K_TRIM_CURVE: u8 = 13;
 
 /// An object handle: the B-rep (`2` for the curve stores, `-1` for the intersector),
 /// the kind and the index. Ordered as the shim sorts (`brep`, `kind`, `index`). A
@@ -457,9 +463,10 @@ impl ClassObject for H {
             K_VERTEX => ClassObjectKind::Vertex,
             K_EDGE => ClassObjectKind::Edge,
             K_FACE => ClassObjectKind::Face,
-            K_EDGE_CURVE | K_CURVE | K_EXTRA => ClassObjectKind::Curve,
+            K_EDGE_CURVE | K_CURVE | K_EXTRA | K_TRIM_CURVE => ClassObjectKind::Curve,
             K_FACE_SURFACE => ClassObjectKind::Surface,
             K_EDGEUSE => ClassObjectKind::Edgeuse,
+            K_VERTEXUSE => ClassObjectKind::Vertexuse,
             K_LOOP => ClassObjectKind::Loop,
             _ => ClassObjectKind::Other,
         }
@@ -472,7 +479,7 @@ impl SolutionObject for H {
             K_VERTEX => ObjectKind::Vertex,
             K_EDGE => ObjectKind::Edge,
             K_FACE => ObjectKind::Face,
-            K_EDGE_CURVE | K_CURVE | K_EXTRA => ObjectKind::Curve,
+            K_EDGE_CURVE | K_CURVE | K_EXTRA | K_TRIM_CURVE => ObjectKind::Curve,
             K_FACE_SURFACE => ObjectKind::Surface,
             _ => ObjectKind::Other,
         }
@@ -666,6 +673,7 @@ impl ClassGeometry<H> for Two {
         match o.kind {
             K_EDGE_CURVE => self.brep(o)?.edge(eid(o)).ok()?.curve.as_ref(),
             K_CURVE => self.curves.get(o.i as usize),
+            K_TRIM_CURVE => eu1::uv_trim_curve(self.brep(o)?, EdgeuseId::from_index(o.i)).ok()?.0,
             K_EXTRA => self.extra.get(o.i as usize),
             _ => None,
         }
@@ -681,6 +689,23 @@ impl ClassGeometry<H> for Two {
     }
     fn point(&self, _o: H) -> Option<Point3> {
         None
+    }
+    // What `intersect.curve_class_p5` asks of the operands' topology (as the
+    // `query.face_p2` runner answers it): a vertex's point and the stored zone
+    // tolerance of a vertex, edge or face. The vertex/face gap stays at the trait's
+    // default (`None`): part 5's runner adapter supplies none either, and its
+    // large-gap projections are uncertified on main for that reason.
+    fn classification_vertex_point(&self, o: H) -> Option<Point3> {
+        if o.kind != K_VERTEX {
+            return None;
+        }
+        vx::point(self.brep(o)?, vid(o)).ok()
+    }
+    fn topology_zone_tol_3d(&self, o: H) -> Option<f64> {
+        match o.kind {
+            K_VERTEX | K_EDGE | K_FACE => self.topology_tolerance(o),
+            _ => None,
+        }
     }
 }
 
@@ -723,11 +748,23 @@ impl CurveOnClassifyObjects<H> for Objs<'_> {
     fn vertex(&self, v: VertexId) -> H {
         hd(self.b, K_VERTEX, v.index())
     }
-    fn surface(&self, f: FaceId) -> Option<H> {
-        self.two.face_surface_h(hd(self.b, K_FACE, f.index())).flatten()
+    fn edge(&self, e: EdgeId) -> H {
+        hd(self.b, K_EDGE, e.index())
     }
-    fn curve(&self, curve: H) -> Option<&SmCurve> {
-        ClassGeometry::curve(self.two, curve)
+    fn vertexuse(&self, vu: VertexuseId) -> H {
+        hd(self.b, K_VERTEXUSE, vu.index())
+    }
+    fn edgeuse(&self, eu: EdgeuseId) -> H {
+        hd(self.b, K_EDGEUSE, eu.index())
+    }
+    fn edge_curve(&self, e: EdgeId) -> H {
+        hd(self.b, K_EDGE_CURVE, e.index())
+    }
+    fn trim_curve(&self, eu: EdgeuseId) -> H {
+        hd(self.b, K_TRIM_CURVE, eu.index())
+    }
+    fn face_surface(&self, f: FaceId) -> Option<H> {
+        self.two.face_surface_h(hd(self.b, K_FACE, f.index())).flatten()
     }
     fn loop_id(&self, tgt_loop: H) -> Option<LoopId> {
         (tgt_loop.kind == K_LOOP && tgt_loop.b == self.b).then(|| LoopId::from_index(tgt_loop.i))

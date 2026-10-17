@@ -5925,7 +5925,33 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   `edge::other_vertex`'s: `None`, as `SmEdge::GetOtherVertex(NULL)` after `SE(SM_ERR)`),
   renamed its handle-returning `edge_brep` to `edge_brep_handle`, and its runner's
   `Two` implements `ProtoTopology<H>` (the walks over the handles' own operand). No
-  numeric change: the difftest result is identical.
+  numeric change: the difftest result is identical. Likewise #151 (`intersect.curve_class_p9`,
+  merged after it) extended `query::face::p2::CurveOnClassifyObjects` (edge, vertexuse,
+  edgeuse, edge-curve and trim-curve identities, `face_surface` for `surface`, `curve`
+  removed): the runner's `Objs` implements the new form with two Rust-side handle kinds
+  (vertex use 12, trim curve 13; the shim never exports them) and `ClassGeometry::curve`
+  resolves a trim curve through `edgeuse::p1::uv_trim_curve`. Difftest result identical.
+- **Wired calls audited against their callees (brief lesson 21).** Each stub this unit
+  wired to a ported function was checked for the exact upstream call: arguments, branch
+  and the callee's Deviations line. `SmSurface::GlobalCurveIntersect` (`EdgeFaceIntersect`,
+  five arguments, `surface::surface::p8::Surface::global_curve_intersect` with the handles
+  in its documented order curve/surface; p8 builds the surface cache per call where
+  upstream shares one, its own documented deviation; its unported callees return
+  `Unported`). `SmSurface::CoincidenceCheck` (`FaceFaceIntersect`: the angle tolerance as
+  the 3D tolerance, `bAllowExtensions = FALSE` as `whole_surface = false`, `pSCover`
+  unused; plane override and `base_coincidence_check` defer through `Unported`).
+  `SmCurveClassification::InsertTopologyIntersections(sols, 0)` and `Homogenize(other)`
+  (`IIREdgeBrep`): part 5 rejects only `object_index > 1` and defers its edge branch and
+  SSS block, part 6 defers its p2/p4/p7 callees, all as `Unported`. The intersector's
+  `geometry` is part 5's `ClassGeometry`: the runner's `Two` answers
+  `classification_vertex_point` and `topology_zone_tol_3d` (vertex, edge, face) as the
+  `query.face_p2` runner does and leaves `vertex_face_gap` at the default (`None`: part
+  5's adapter gap on main). None of these calls is reached by a passing case yet
+  (`EdgeFaceIntersect` defers earlier at `SmFace::CalculateBoundingBox`, `IIREdgeBrep` at
+  `SmBrep::GetEdges`), so they are wired, not certified. `SmTopologyIntersector::Relate`
+  for #163's vertices: `SM_USE_OLDTOL` is defined (`SmConfig.h:227`), so the tolerance
+  maximisation is live; `SetTolerance`'s defaults are `(TRUE, TRUE)`; `MergeVertex`'s
+  own `SM_OLDTOL_LINE SetTolerance` after `Relate` is #163's `merge_vertex`.
 - **#163 (`boolean.merge_p1`, merged after the pre-review).** Its co-port of the mate
   storage over typed ids (`MateMap`, `Relations`, at this unit's module path
   `boolean::topology_intersector::p1`) is kept in this unit's `p1.rs` (add/add merge; the
