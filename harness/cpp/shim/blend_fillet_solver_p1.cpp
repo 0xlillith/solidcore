@@ -30,6 +30,11 @@
 
 #include <vector>
 
+#include <SmFilletStandardSolver.h>
+#include <SmTol.h>
+
+#include <cstddef>
+
 #include "sc_edgeuse_graph.h"
 
 namespace
@@ -45,6 +50,8 @@ enum : int32_t
     OP_UV_VECTORS = 5,
     OP_SPLIT = 6,
     OP_FINISH = 7,
+    OP_FSG = 8,
+    OP_MISC = 9,
 };
 
 struct ShimFS : SmFilletSolver
@@ -65,11 +72,20 @@ struct ShimFS : SmFilletSolver
             pc[0] = 0;
     }
     // A deterministic LoadJacobian (mirrored by the runner's ShimSolver) when `load`:
-    // row rlNumEquations is x[rlSurf1Offset] - 0.5 x[0] + lRailIndex with its two
-    // partials (written only inside rF and the Jacobian), rlSurf2Offset = rlNumParameters,
-    // then rlNumEquations += 1, rlNumParameters += 2, rbFoundAnswer = `found`.
+    // row rlNumEquations is x[rlSurf1Offset] - 0.5 x[0] + lRailIndex + 0.25 rlSurf2Offset
+    // (the incoming value) with its two partials (written only inside rF and the
+    // Jacobian), rlSurf2Offset = rlNumParameters, then rlNumEquations += 1,
+    // rlNumParameters += 2, rbFoundAnswer = `found`. With `setup`, SetupOffsetValues
+    // succeeds without changing anything (the base fails).
     bool load = false;
     bool found = false;
+    bool setup = false;
+    virtual SmStatus SetupOffsetValues(const SmTsectPnt& t, double* d = NULL)
+    {
+        if (!setup)
+            return SmFilletSolver::SetupOffsetValues(t, d);
+        return SM_SUCCESS;
+    }
     virtual SmStatus LoadJacobian(ULONG& ne, ULONG& np, ULONG rail, SmSurface*& s1, ULONG& o1, SmSurface*& s2,
                                   ULONG& o2, const SmTArray<double>& x, SmTArray<double>& f, SmMatrix* j,
                                   SmBoolean& rbFound)
@@ -77,7 +93,7 @@ struct ShimFS : SmFilletSolver
         if (!load)
             return SmFilletSolver::LoadJacobian(ne, np, rail, s1, o1, s2, o2, x, f, j, rbFound);
         if (ne < f.GetSize() && o1 < x.GetSize() && x.GetSize() > 0)
-            f[ne] = x[o1] - 0.5 * x[0] + (double)rail;
+            f[ne] = x[o1] - 0.5 * x[0] + (double)rail + 0.25 * (double)o2;
         if (j && ne < j->GetNumRows())
         {
             if (o1 < j->GetNumColumns())
@@ -93,7 +109,51 @@ struct ShimFS : SmFilletSolver
     }
     double saved(int i) const { return m_dSavedOffsets[i]; }
     void set_orientation(int i, double o) { m_dOrientations[i] = o; }
+    void set_edgeuses(SmEdgeuse* a, SmEdgeuse* b)
+    {
+        m_pEdgeuses[0] = a;
+        m_pEdgeuses[1] = b;
+    }
     SmStatus finish() { return FinishConstruction(); }
+};
+
+// A solver laid out as SmConstantDistanceFS (the base, then the distance): the
+// SmFindClippedRadiusEFO constructor casts its solver to SmConstantDistanceFS and reads
+// GetDistance() (static shim). Every other virtual is the base version.
+struct ShimDistFS : SmFilletSolver
+{
+    double m_dDistance;
+    ShimDistFS(const SmContext& ctx, double tol, double dist) : SmFilletSolver(ctx, tol, 0.1, 0.01), m_dDistance(dist)
+    {
+        m_pEdgeuses[0] = m_pEdgeuses[1] = NULL;
+        m_pExecutive = NULL;
+        m_dOrientations[0] = m_dOrientations[1] = 1.0;
+        m_dSavedOffsets[0] = m_dSavedOffsets[1] = 0.0;
+        m_bExtendBefore = m_bExtendAfter = FALSE;
+    }
+    virtual SmFilletSolverType GetSolverType() { return SM_FS_UNKNOWN; }
+    virtual void GetName(TCHAR* pc, size_t n)
+    {
+        if (n > 0)
+            pc[0] = 0;
+    }
+    void set_orientation(int i, double o) { m_dOrientations[i] = o; }
+};
+
+struct CDPeek : SmConstantDistanceFS
+{
+    static constexpr size_t distance_offset() { return offsetof(CDPeek, m_dDistance); }
+};
+static_assert(CDPeek::distance_offset() == offsetof(ShimDistFS, m_dDistance),
+              "ShimDistFS must lay out its distance as SmConstantDistanceFS does");
+
+// Peeks at the protected FSG members.
+struct CircPeek : SmCircularCrossSectionFSG
+{
+    CircPeek() {}
+    CircPeek(SmBoolean a, double t, SmBoolean m, SmBoolean c) : SmCircularCrossSectionFSG(a, t, m, c) {}
+    double mirror() const { return m_bMirror ? 1.0 : 0.0; }
+    double complement() const { return m_bComplement ? 1.0 : 0.0; }
 };
 
 void put_pt(std::vector<double>& o, const SmVector3d& v)
@@ -298,21 +358,45 @@ int32_t run_extension(Rd& rd, const SmContext& ctx, std::vector<double>& o)
     return 0;
 }
 
+// `surf has0 off0 has1 off1`: offset surfaces of one base installed into `fs`; returns the
+// base (deleted by the caller after the solver, which deletes the offset surfaces).
+SmSurface* install_surfaces(Rd& rd, const SmContext& ctx, SmFilletSolver& fs)
+{
+    SmSurface* base = read_surface(rd, ctx);
+    for (ULONG i = 0; i < 2; i++)
+    {
+        bool has = rd.flag();
+        double off = rd.num();
+        if (has)
+            fs.SetSurface(i, new (ctx) SmOffsetSurface(off, *base));
+    }
+    return base;
+}
+
 int32_t run_sphere(Rd& rd, const SmContext& ctx, std::vector<double>& o)
 {
     SmPoint3d c = rd.vec();
     double r = rd.num();
     bool adjusts = rd.flag();
-    Arrays a;
-    a.read(rd);
-    ShimFS fs(ctx, 1.0e-6, 0.1, 0.01);
-    SmFilletSphereSolveENFO e(c, r, fs);
-    e.SetPlaneAdjusts(adjusts ? TRUE : FALSE);
-    SmBoolean found = FALSE;
-    SmStatus s = e.Evaluate(a.x, a.f, a.j, found);
-    o.push_back(st(s));
-    o.push_back(flg(found));
-    a.put(o);
+    bool load = rd.flag();
+    bool found_flag = rd.flag();
+    SmSurface* base = NULL;
+    {
+        ShimFS fs(ctx, 1.0e-6, 0.1, 0.01);
+        fs.load = load;
+        fs.found = found_flag;
+        base = install_surfaces(rd, ctx, fs);
+        Arrays a;
+        a.read(rd);
+        SmFilletSphereSolveENFO e(c, r, fs);
+        e.SetPlaneAdjusts(adjusts ? TRUE : FALSE);
+        SmBoolean found = FALSE;
+        SmStatus s = e.Evaluate(a.x, a.f, a.j, found);
+        o.push_back(st(s));
+        o.push_back(flg(found));
+        a.put(o);
+    }
+    delete base;
     return 0;
 }
 
@@ -344,12 +428,104 @@ int32_t run_rail_uv(Rd& rd, const SmContext& ctx, std::vector<double>& o)
 
 int32_t run_surf_values(Rd& rd, const SmContext& ctx, std::vector<double>& o)
 {
-    SmPoint2d uv[2];
-    uv[0] = rd.uv();
-    uv[1] = rd.uv();
+    bool setup = rd.flag();
+    SmSurface* base = NULL;
+    {
+        ShimFS fs(ctx, 1.0e-6, 0.1, 0.01);
+        fs.setup = setup;
+        base = install_surfaces(rd, ctx, fs);
+        SmPoint2d uv[2];
+        uv[0] = rd.uv();
+        uv[1] = rd.uv();
+        SmTsectPnt t;
+        o.push_back(st(fs.ComputeSurfaceValues(uv, t)));
+    }
+    delete base;
+    return 0;
+}
+
+// `kind a b c d`: 0 SmFilletSurfaceGenerator, 1 SmLinearCrossSectionFSG, 2/3
+// SmCircularCrossSectionFSG (defaults / `a b c d`), 4/5 SmBlendCurveCrossSectionFSG
+// (defaults / scale `a`, continuity `b`) -> `type approx tol% mirror complement scale
+// continuity create` (`create`: the base CreateSurface status, -1 for the derived kinds).
+int32_t run_fsg(Rd& rd, const SmContext& ctx, std::vector<double>& o)
+{
+    int64_t kind = rd.idx();
+    double a = rd.num(), b = rd.num(), c = rd.num(), d = rd.num();
+    double v[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    SmFilletSurfaceGenerator* g = NULL;
+    switch (kind)
+    {
+    case 0: g = new (ctx) SmFilletSurfaceGenerator(); break;
+    case 1: g = new (ctx) SmLinearCrossSectionFSG(); break;
+    case 2:
+    case 3:
+    {
+        CircPeek* p = kind == 2 ? new (ctx) CircPeek()
+                                : new (ctx) CircPeek(a != 0.0 ? TRUE : FALSE, b, c != 0.0 ? TRUE : FALSE,
+                                                     d != 0.0 ? TRUE : FALSE);
+        v[0] = flg(p->GetApproximateArcs());
+        v[1] = p->GetTolPercentRadius();
+        v[2] = p->mirror();
+        v[3] = p->complement();
+        g = p;
+        break;
+    }
+    default:
+    {
+        SmBlendCurveCrossSectionFSG* p =
+            kind == 4 ? new (ctx) SmBlendCurveCrossSectionFSG() : new (ctx) SmBlendCurveCrossSectionFSG(a, (ULONG)b);
+        v[4] = p->GetBlendScale();
+        v[5] = (double)p->GetContinuity();
+        g = p;
+        break;
+    }
+    }
+    o.push_back((double)g->GetFilletSurfaceGeneratorType());
+    for (double x : v)
+        o.push_back(x);
+    if (kind == 0)
+    {
+        ShimFS fs(ctx, 1.0e-6, 0.1, 0.01);
+        SmTArray<SmTsectPnt*> pts;
+        SmBSplineSurface* out = NULL;
+        o.push_back(st(g->CreateSurface(fs, NULL, NULL, NULL, pts, NULL, NULL, NULL, NULL, out)));
+    }
+    else
+        o.push_back(-1.0);
+    delete g;
+    return 0;
+}
+
+// `which ...`: 0 `has ang` -> SmTol::GetAngTolRad(solver or NULL); 1 `do2 rail idx2` -> the
+// base LoadInitialValues: `status do2 idx2 surface2_null n_periodic n_guess`.
+int32_t run_misc(Rd& rd, const SmContext& ctx, std::vector<double>& o)
+{
+    int64_t which = rd.idx();
+    if (which == 0)
+    {
+        bool has = rd.flag();
+        double ang = rd.num();
+        ShimFS fs(ctx, 1.0e-6, ang, 0.01);
+        o.push_back(SmTol::GetAngTolRad(has ? (const SmFilletSolver*)&fs : (const SmFilletSolver*)NULL));
+        return 0;
+    }
+    ULONG do2 = (ULONG)rd.idx();
+    ULONG rail = (ULONG)rd.idx();
+    ULONG idx2 = (ULONG)rd.idx();
     ShimFS fs(ctx, 1.0e-6, 0.1, 0.01);
-    SmTsectPnt t;
-    o.push_back(st(fs.ComputeSurfaceValues(uv, t)));
+    SmPlane plane(SmPoint3d(0.0, 0.0, 0.0), SmVector3d(0.0, 0.0, 1.0), &ctx);
+    SmSurface* s2 = NULL;
+    SmExtentNd ext(3);
+    SmTArray<SmBoolean> per;
+    SmTArray<double> guess;
+    SmStatus s = fs.LoadInitialValues(do2, rail, plane, 0, s2, idx2, ext, per, guess);
+    o.push_back(st(s));
+    o.push_back((double)do2);
+    o.push_back((double)idx2);
+    o.push_back(flg(s2 == NULL));
+    o.push_back((double)per.GetSize());
+    o.push_back((double)guess.GetSize());
     return 0;
 }
 
@@ -426,6 +602,8 @@ SC_EXPORT int32_t sc_blend_fillet_solver_p1_eval(int32_t op, const double* in, i
     case OP_UV_VECTORS: rc = run_uv_vectors(rd, ctx, o); break;
     case OP_SPLIT: rc = run_split(rd, ctx, o); break;
     case OP_FINISH: rc = run_finish(rd, ctx, o); break;
+    case OP_FSG: rc = run_fsg(rd, ctx, o); break;
+    case OP_MISC: rc = run_misc(rd, ctx, o); break;
     default: break;
     }
     (void)n_in;
@@ -433,4 +611,48 @@ SC_EXPORT int32_t sc_blend_fillet_solver_p1_eval(int32_t op, const double* in, i
         return rc;
     return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);
     SC_CATCH
+}
+
+// ---- solvers for the static shim (blend_fillet_solver_p1_static.cpp) ----------------------
+
+extern "C" void* sc_fsp1_solver_new(int32_t load, int32_t found, double tol)
+{
+    ShimFS* fs = new (the_context()) ShimFS(the_context(), tol, 0.1, 0.01);
+    fs->load = load != 0;
+    fs->found = found != 0;
+    return (SmFilletSolver*)fs;
+}
+
+extern "C" void* sc_fsp1_dist_solver_new(double dist, double tol)
+{
+    return (SmFilletSolver*)new (the_context()) ShimDistFS(the_context(), tol, dist);
+}
+
+extern "C" void sc_fsp1_solver_delete(void* fs) { delete (SmFilletSolver*)fs; }
+
+extern "C" void sc_fsp1_solver_set_edgeuses(void* fs, SmEdgeuse* eu0, SmEdgeuse* eu1)
+{
+    static_cast<ShimFS*>((SmFilletSolver*)fs)->set_edgeuses(eu0, eu1);
+}
+
+extern "C" void sc_fsp1_solver_set_surface(void* fs, uint32_t rail, SmOffsetSurface* s)
+{
+    ((SmFilletSolver*)fs)->SetSurface(rail, s);
+}
+
+extern "C" void sc_fsp1_dist_solver_set_orientation(void* fs, uint32_t rail, double o)
+{
+    static_cast<ShimDistFS*>((SmFilletSolver*)fs)->set_orientation((int)rail, o);
+}
+
+extern "C" SmVertex* sc_fsp1_solver_vertex(void* fs, uint32_t index) { return ((SmFilletSolver*)fs)->GetVertex(index); }
+
+extern "C" uint32_t sc_fsp1_solver_rail_on_face(void* fs, SmFace* face)
+{
+    return (uint32_t)((SmFilletSolver*)fs)->FindIndexOfRailOnFace(face);
+}
+
+extern "C" uint32_t sc_fsp1_solver_rail_x_side(void* fs, SmEdgeuse* side)
+{
+    return (uint32_t)((SmFilletSolver*)fs)->FindIndexOfRailXSideEdgeuse(side);
 }
