@@ -181,12 +181,7 @@ fn rust_record(k: &mut Kernel, b: &mut Brep, i: &Inputs) -> SolidResult<Vec<f64>
             i32::from(i.mode),
             None,
         ))?],
-        5 => vec![status(p5::glue_vertices(
-            b,
-            v1.ok_or_else(null)?,
-            v2.ok_or_else(null)?,
-            None,
-        ))?],
+        5 => vec![status(p5::glue_vertices(b, v1, v2, None))?],
         6 => {
             let old = p5::EdgeInFace {
                 edge: e,

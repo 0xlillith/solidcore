@@ -452,7 +452,7 @@ impl<O: LoopObject> HealData<O> {
     }
 }
 
-fn combine_vertices(k: &Kernel, b: &mut Brep, a: VertexId, d: VertexId) -> Result<Changes> {
+fn combine_vertices(k: &mut Kernel, b: &mut Brep, a: VertexId, d: VertexId) -> Result<Changes> {
     let mut deleted_edge = None;
     crate::topology::brep::p5::combine_coincident_vertices(k, b, a, d, &mut deleted_edge)?;
     let mut removed = vec![EntityRef::Vertex(d)];
@@ -968,7 +968,7 @@ fn create_face_from_surface(_b: &mut Brep, _r: RegionId, _s: Surface) -> Result<
     ))
 }
 fn glue_vertices(b: &mut Brep, a: VertexId, d: VertexId) -> Result<Changes> {
-    crate::topology::brep::p5::glue_vertices(b, a, d, None)?;
+    crate::topology::brep::p5::glue_vertices(b, Some(a), Some(d), None)?;
     Ok(Changes {
         removed: vec![EntityRef::Vertex(d)],
         added: vec![Some(EntityRef::Vertex(a))],

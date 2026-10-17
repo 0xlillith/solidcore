@@ -6848,3 +6848,30 @@ independent p6 integration.
   (`ignore_soft`), so that `InvalidInput` is swallowed there and the split reports no new
   faces. It is unreachable today (`MergeInterval` makes no topology until
   `intersect.curve_class_p2`); that unit's porter must give the healer a typed resolver.
+
+## topology.brep_p5 — review follow-up in progress
+
+PR #194 returned to draft; the unit is `todo` while omitted bodies are being
+ported. Previous `95967da6`/`89a20913` validation above is historical and does
+not certify these review changes. No open dependency PR is included; official
+main `f75223ad` is merged (including the proto-topology conflict resolution).
+
+The declaration's default is `SM_VS_INFINITEREGION_SWAP` (2), despite the old
+source comment claiming nested-solid. The healer now passes 2. Same-input glue
+returns success before notification; combining an aliased vertex is refused only
+when it is isolated, where native deletion invalidates the survivor. A native
+inspection helper checks the selected vertex's actual incidence before that
+refusal. Forty alias fixtures are added but not yet validated.
+
+Continuations are now present for `CombineCoincidentVertices`,
+`CreateWireEdgeFromCurve`, `FindAndSetInfiniteRegion`, `MakeEdgeInFace`,
+`MakeManifold`, `RemoveFaces` and `StitchAndOrient`, including the second stitch
+pass and explicit `just_unify` override. Mutation continuations remain uncertified.
+The larger omitted bodies have explicit source ranges at their early returns and
+remain work in progress. Notification records/attributes are caller-supplied;
+no temporary records or invented change lists may substitute for them.
+
+Validation is pending. The first current-main kernel check failed in
+`surface/sphere.rs:852`: `SurfaceKind::OffsetSurface` is absent from a match.
+This is independent of this unit and already has open fixes #218/#221; neither
+is pulled into #194. No old passes are presented as current-revision results.

@@ -61,7 +61,7 @@ template<class T> T* select(const std::vector<T*>& v, double x) {
 // placement O/X/Y (9), have_scale, scale xyz (3), scale_tol, flag, spare.
 SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, int64_t nf,
         const double* a, int64_t na, double* out, int64_t cap, int64_t* out_len) {
-    if (nf!=11 || na!=22 || !fixture || !a || !out_len || op<0 || op>13) return SC_ERR_ARG;
+    if (nf!=11 || na!=22 || !fixture || !a || !out_len || op<0 || op>14) return SC_ERR_ARG;
     SC_TRY
     SmStatus status=SM_SUCCESS;
     std::unique_ptr<SmBrep> owner(p5_build(fixture,status));
@@ -82,9 +82,19 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
     SmVertex* v2=select(g.vertices,a[2]);
     SmEdge* edge=select(g.edges,a[3]);
     SmFace* face=select(g.faces,a[1]);
+    if (op==14) {
+        if (!v1) return SC_ERR_ARG;
+        SmTArray<SmEdge*> edges; v1->GetEdges(edges);
+        const double isolated=edges.GetSize()==0 ? 1.0 : 0.0;
+        return sc_copy_out(&isolated,1,out,cap,out_len);
+    }
     if (op==1 || op==2) {
-        // Equal vertices cause native use-after-free, and nulls are dereferenced.
-        if (!v1 || !v2 || v1==v2) return SC_ERR_ARG;
+        if (!v1 || !v2) return SC_ERR_ARG;
+        if (v1==v2) {
+            SmTArray<SmEdge*> edges; v1->GetEdges(edges);
+            // Only the isolated alias deletes the survivor before its next use.
+            if (edges.GetSize()==0) return SC_ERR_ARG;
+        }
         if (op==2) {
             SmTArray<SmEdge*> e1,e2; v1->GetEdges(e1); v2->GetEdges(e2);
             if (e1.GetSize()!=0 && e2.GetSize()!=0) return SC_ERR_ARG;
@@ -105,7 +115,7 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
         status=b->FindAndSetInfiniteRegion(nullptr,(SmSetRegionVoidType)(int)a[4],nullptr);
         o.push_back(st(status));
     } else if (op==5) {
-        if (!v1 || !v2 || v1==v2) return SC_ERR_ARG;
+        if (v1!=v2 && (!v1 || !v2)) return SC_ERR_ARG;
         status=b->GlueVertices(v1,v2); o.push_back(st(status));
     } else if (op==6) {
         // The disabled-edit and null-face paths are defined before geometry is read.

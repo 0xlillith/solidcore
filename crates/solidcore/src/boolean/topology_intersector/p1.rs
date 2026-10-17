@@ -376,12 +376,8 @@ fn brep_make_vertex_split_edge<O>(_brep: O, _edge: O, _t: f64) -> Result<(O, O, 
 }
 
 /// `SmBrep::GlueVertices(pV1, pV2)`.
-fn brep_glue_vertices<O>(_brep: O, _v1: O, _v2: O) -> Result<()> {
-    // UNPORTED(topology.brep_p5): SmBrep::GlueVertices
-    Err(SolidError::unported(
-        "SmBrep::GlueVertices",
-        "topology.brep_p5",
-    ))
+fn brep_glue_vertices<O: PartialEq>(_brep: O, v1: O, v2: O) -> Result<()> {
+    crate::topology::brep::p5::glue_vertices_entry(v1 == v2)
 }
 
 /// `SmBrep::MakeEdgeInFace(pFace, pV1, pV2, pCurve, NULL, ivl, SM_OT_SAME, tol,

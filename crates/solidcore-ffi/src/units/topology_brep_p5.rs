@@ -91,12 +91,16 @@ fn integer(x: f64) -> bool {
 }
 
 fn raw(op: Op, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, FfiError> {
+    raw_code(op as i32, fixture, args)
+}
+
+fn raw_code(op: i32, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, FfiError> {
     call_with_buffer(1024, |out, len| {
         // SAFETY: fixed-size inputs are validated by eval; C++ constructs its own
         // complete graph. Output storage and length remain live during this call.
         unsafe {
             sys::sc_topology_brep_p5_eval(
-                op as i32,
+                op,
                 fixture.as_ptr(),
                 11,
                 args.as_ptr(),
@@ -117,7 +121,8 @@ fn raw(op: Op, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, FfiErr
 /// stitching tolerance, placement origin/X/Y, have-scale, scale xyz, scale-tols,
 /// flag, allow-spine-edges. Selectors use the shared raw graph's traversal order.
 ///
-/// Guards refuse aliasing/null merge inputs (native use-after-free), the unsafe
+/// Guards refuse null merge inputs and isolated aliased combinations (native
+/// use-after-free), the unsafe
 /// non-refusal null-geometry insertion branch, and a null face on enabled squeeze.
 /// Negative raw tolerances remain valid and convert through native zone-tol types.
 pub fn eval(op: Op, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, FfiError> {
@@ -151,9 +156,18 @@ pub fn eval(op: Op, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, F
     let v2 = select(args[2], counts[9]);
     let face = select(args[1], counts[3]);
     if matches!(op, Op::Combine | Op::CombineTarget | Op::GlueVertices)
-        && (v1.is_none() || v2.is_none() || v1 == v2)
+        && (v1.is_none() || v2.is_none())
+        && !(op == Op::GlueVertices && v1 == v2)
     {
-        return Err(invalid("null or aliased merge vertices"));
+        return Err(invalid("null merge vertices"));
+    }
+    if matches!(op, Op::Combine | Op::CombineTarget) && v1 == v2 {
+        // Inspect the actual selected native vertex. Fixture selectors can name
+        // star leaves as well as centers, so declared star counts are insufficient.
+        let isolated = raw_code(14, fixture, args)?;
+        if isolated.first() != Some(&0.0) {
+            return Err(invalid("isolated aliased combination deletes its survivor"));
+        }
     }
     if op == Op::CombineTarget {
         // This stage's oracle is limited to shell-vertex branches: its final
