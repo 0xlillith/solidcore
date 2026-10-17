@@ -6746,7 +6746,7 @@ independent p6 integration.
   faces. It is unreachable today (`MergeInterval` makes no topology until
   `intersect.curve_class_p2`); that unit's porter must give the healer a typed resolver.
 
-## topology.brep_p9: dependency-limited independent port (PR #183)
+## topology.brep_p9: incomplete independent work (PR #183, todo)
 
 - **Review status correction (2026-10-18).** The following `47758e96` /
   `c482d6fc` evidence is historical. The unit is now `todo`, because the code after
@@ -6776,10 +6776,13 @@ independent p6 integration.
   point-classification and merge notes and all new findings. No open PR branch is
   merged. Editing state remains an explicit argument until the canonical part-1
   B-rep field (PR #145) lands; the module-index conflict with other B-rep parts is
-  documented for that integration. New validation is pending. The merged main
-  currently fails compilation at `sphere.rs:852` (missing `OffsetSurface` match
-  arm, separately addressed by PR #218). Preliminary Linux checks use only that
-  one extra arm in the runner copy; it is not a PR change or clean-head evidence.
+  documented for that integration. The initial merged main `f75223ad` failed
+  compilation at `sphere.rs:852` (missing `OffsetSurface` match arm). Preliminary
+  Linux checks used that one extra arm only in the runner copy. Official main
+  `a8958254` (PR #221) then landed the byte-identical arm and corrected the stale
+  reader test; it is now merged. The running native gate uses the same numerical
+  source as this official fix. Clean validation is complete, with no additional
+  source prerequisite remaining (final summaries below).
 - **Review-focused evidence.** Numerical source `12b60efa`, linked endpoint test
   fixture `f52eeb29`, projection probe `6d200c86` and doc lint fix `8f11ed4a`:
   `PARTIAL topology.brep_p9 cases=613 passed=505 failed=0 deferred=108 max_rel_err=0e0`.
@@ -6794,12 +6797,33 @@ independent p6 integration.
   other focused counts are unchanged. No successful mutation of the six owned
   p9 entrypoints is compared; the two successful projection probes certify only
   that extracted prefix. The native part-container guard regression passes.
-  Plain strict Clippy and WASM checks pass with the runner prerequisite above;
-  the full test rerun is 1317 passed / 1 failed. Its remaining failure is main's
+  Plain strict Clippy and WASM checks passed with the former runner prerequisite;
+  the pre-main-fix full test rerun was 1317 passed / 1 failed. That failure was main's
   `surface::surface::p2::tests::read_from_db_unported_types`, which still asserts
   that the newly ported OffsetSurface reader returns Unported. Both p9 regressions
-  pass. Native-enabled strict workspace Clippy also passes with the same
-  prerequisite. The complete 202-unit integration run is pending.
+  pass. Native-enabled strict workspace Clippy also passed with that now-official
+  arm. The complete integration run is recorded below. Clean Clippy passes on
+  macOS. Its full test build hit a full disk; package-scoped Cargo cleanup removed
+  only this worktree's generated solidcore output. The clean test/WASM/formatting
+  rerun is on Linux, which has sufficient space.
+- **Clean reruns after main's fix.** No temporary source change remains. The
+  sphere source SHA-256 is identical locally and on the runner:
+  `8dc0b5917c3a337e07157cdf2774c2c2b433f3d2d7ed47bed31ef7bbb0a462b9`.
+  All 1318 kernel tests and documentation checking pass, as do WASM, formatting
+  (including direct rustfmt of both new include-generated modules), strict plain
+  and native-enabled workspace Clippy and the native part-container guard test.
+  The runner's default rustdoc was 1.93.1 while rustc was 1.98.0; the clean run
+  selects the installed 1.98.0 toolchain through task-local PATH, without a source
+  patch or global configuration change. Clean p9 default/perturbation/4096-seed
+  runs reproduce the 505/108 and 3479/718 counts above, bit-identical. The complete
+  native gate passes: `difftest: 202 unit(s), 112 passed, 90 partial, 0 failed`.
+  Final `--status-of topology.brep_p9` prints `partial`; that describes its tested
+  subset, while plan status remains `todo` for its omitted owned bodies.
+  A SHA-256 manifest verifies all 1234 tracked source/config/fixture files match
+  the runner byte for byte, with no extra source prerequisite:
+  `e9d25c655a4d9638e57861d1a6752c2df9664a775ac984ddd5b8807e95d0232a`.
+
+### Previous checkpoint `c482d6fc` (historical)
 
 - **Compared subset.** Numerical source `47758e96`: 604 default cases (92 fixed,
   512 generated), 497 bit-identical comparisons, 107 dependency deferrals, no
