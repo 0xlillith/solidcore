@@ -6338,8 +6338,8 @@ infinite region); the other 1657 compare values.
   (`SmFace::GetBrep`). Their stored reports were re-run (`deferred_by_unit` only changed).
 - **Deferred, by design until their units land:** `GetShells` / `ResetInfiniteRegion` void flags /
   `SetRegionIsVoidFlagsForNestedSolids` (`topology.shell`), `NormalizedEvaluate` /
-  `GetOrCreateUVTrimCurve` / `EvaluateBinormal` (`topology.edgeuse_p3`), `SmFace::SwapUV`
-  (`topology.face_p1`), `SmFace::FaceIntersect` (`topology.face_p3`), `CalculateBoundingBox` /
+  `GetOrCreateUVTrimCurve` / `EvaluateBinormal` (`topology.edgeuse_p3`), `SmFace::GetBrep` /
+  `GetUpwardLoopuses` inside face_p1's `SwapUV` (`topology.face_p4`), `SmFace::FaceIntersect` (`topology.face_p3`), `CalculateBoundingBox` /
   `LockBoundingBox` (`query.brep`). The error
   paths before each stub are compared (`ResetInfiniteRegion(NULL)`, the "infinite region not
   first" check, `CreateCornerBlend` with fewer than two edge uses, `CreateEdgeEdgeBlend`

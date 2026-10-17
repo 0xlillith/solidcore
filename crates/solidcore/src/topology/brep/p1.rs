@@ -1087,7 +1087,8 @@ fn mark_loops_to_delete_bounded(
 /// # Errors
 ///
 /// [`SolidError::NotFound`] for a dangling face; [`SolidError::Unported`] from
-/// `SwapUV`'s unported callees.
+/// `SwapUV`'s unported callees; [`SolidError::InvalidInput`] where `SwapUV`
+/// dereferences null upstream (a face without surface or face use).
 pub fn swap_face_uv(
     k: &Kernel,
     b: &mut Brep,
@@ -1100,8 +1101,18 @@ pub fn swap_face_uv(
     if marks.is_marked(k, Entity::Face(face), mark) {
         return Ok(());
     }
-    // swap and mark the face (SE: the status is ignored)
-    ignore_status(face1::swap_uv(k, b, face))?;
+    // swap and mark the face (SE: the status is ignored). The port's InvalidInput marks
+    // a null pointer upstream's SwapUV dereferences (undefined there, not a status): it
+    // propagates, as this unit's own null dereferences.
+    match face1::swap_uv(k, b, face) {
+        Err(e) if matches!(e, SolidError::InvalidInput { .. }) => {
+            return Err(SolidError::invalid_input(
+                OP,
+                "sm_SwapFaceUV: SmFace::SwapUV dereferences a null pointer",
+            ));
+        }
+        r => ignore_status(r)?,
+    }
     marks.mark(k, Entity::Face(face), mark);
     Ok(())
 }

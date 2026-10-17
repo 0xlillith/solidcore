@@ -1305,6 +1305,12 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         if (premark)
             f->Mark(mark);
         bool swaps = !f->IsMarked(mark);
+        // SmFace::SwapUV dereferences the face's surface and upward face use
+        if (swaps && (f->GetSurface() == NULL || f->GetUpwardFaceuse() == NULL))
+        {
+            o.push_back(ST_NULL_DEREF);
+            return;
+        }
         sc_brep_p1::sm_SwapFaceUV(f, mark);
         o.push_back(0.0);
         o.push_back(flg(f->IsMarked(mark)));

@@ -1623,7 +1623,10 @@ fn run_rust_op(
                 marks.mark(k, Entity::Face(f), mark);
             }
             let swaps = !marks.is_marked(k, Entity::Face(f), mark);
-            bp1::swap_face_uv(k, b, &mut marks, f, mark)?;
+            match bp1::swap_face_uv(k, b, &mut marks, f, mark) {
+                Err(e) if !e.is_unported() => return Ok(Ok(vec![status_of(&e)])),
+                r => r?,
+            }
             // a swap transforms the surface and mirrors the trim curves: compared only
             // where the import is exact
             if swaps {
