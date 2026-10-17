@@ -240,6 +240,7 @@ SC_EXPORT int32_t sc_blend_hcr_eval(int32_t op, const char* path, const double* 
     for (SmEdge* e : g.edges)
         scene_ex.push_back(e->GetCurve() ? (double)e->GetCurve()->GetType() : -1.0);
     put_box(scene_ex, scene_box);
+    scene_ex.push_back(0.0); // the build status slot of the export layout
     export_graph(scene, g, scene_ex);
     auto edge_at = [&](int64_t i) -> SmEdge* { return (i >= 0 && i < (int64_t)g.edges.size()) ? g.edges[(size_t)i] : nullptr; };
 

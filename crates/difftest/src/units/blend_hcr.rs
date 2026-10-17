@@ -40,7 +40,7 @@ use solidcore::intersect::curve_class::p1::CurveClassification;
 use solidcore::intersect::point_class::PointClassification;
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
-use solidcore::topology::{edge, ArenaId, Brep, EdgeId, VertexId};
+use solidcore::topology::{edge, Brep, EdgeId, VertexId};
 use solidcore::SolidError;
 use solidcore_ffi::units::{blend_hcr as ffi, topology_vertexuse as fixture};
 use std::collections::BTreeSet;
@@ -49,7 +49,7 @@ use std::collections::BTreeSet;
 pub struct Runner;
 
 fn harness(msg: impl Into<String>) -> HarnessError {
-    HarnessError::Harness(msg.into())
+    HarnessError::new(msg)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
