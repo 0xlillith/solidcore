@@ -5975,7 +5975,10 @@ independent p6 integration.
   `== SM_OT_SAME`, its tangent flip at `SmEdge.cpp:2110` tests `== SM_OT_OPPOSITE`); the runner
   first decoded every code other than 1 as `Opposite`. With the exact decode the 52
   orientation-0 fixtures give 19 passes comparing status and region and 33 deferrals, as
-  before (unit counts unchanged).
+  before (unit counts unchanged). For `topology.edgeuse_p3`: 32 of those deferrals
+  (`SmEdgeuse::EvaluateBinormal`, edge/vertex classes) reach the one site where
+  `SM_OT_UNKNOWN` acts as `SAME` (the tangent flip, `SmEdge.cpp:2110` =
+  `query/edge.rs:953`); re-check them when they flip to compared.
 - **`heal.heal_data_p1` box cases.** Wiring `SetTolerance` let `SmApiHealBrep` run past
   `Fix_TolSizes` on the heal_data_p1 runner's stand-in: an empty Rust `Brep` against the C++
   `SmApiCreateBox` box (7 cases, C++ status 1000 vs Rust success). The runner now defers those

@@ -77,6 +77,7 @@ use solidcore::topology::proto_topology::p1::{
     VertexDefinition,
 };
 use solidcore::topology::topology::{Topology, TopologyRecords};
+use solidcore::topology::Brep;
 use solidcore::SolidError;
 use solidcore_ffi::units::topology_proto_topology_p1::{
     self as ffi, kind, list_op as lop, pool as pk, proto_op as p, proto_op_p2 as q, slot, tobj,
@@ -1922,7 +1923,9 @@ fn run_proto(
     let brep2 = H(100_001, ClassObjectKind::Other);
     let ti = H(100_002, ClassObjectKind::Other);
     let ti_tol = approx_tol;
-    let mgr = match st(ProtoTopologyManager::new(brep1, brep2, ti, ti_tol, capture, override_tol))? {
+    // two empty B-reps, as the shim's
+    let (b1, b2) = (Brep::new(), Brep::new());
+    let mgr = match st(ProtoTopologyManager::new(&k, (brep1, &b1), (brep2, &b2), ti, ti_tol, capture, override_tol))? {
         Ok(m) => m,
         Err(s) => return Err(harness(format!("manager: status {s}")).into()),
     };
@@ -5284,6 +5287,32 @@ fn edge_cases() -> Vec<(String, Value)> {
             ops
         }),
     ));
+    // an approximation tolerance below `SM_EFF_ZERO` (zero, negative, tiny) falls back
+    // to the two empty B-reps' tolerances and edge sizes; `SM_EFF_ZERO` itself does not
+    for (name, approx_tol) in [
+        ("zero", 0.0),
+        ("negative", -1e-3),
+        ("minus_one", -1.0),
+        ("tiny", 1e-13),
+        ("eff_zero", 1e-12),
+    ] {
+        let objects = vec![ObjIn::Curve(line([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0]))];
+        let ops = vec![
+            opv(p::PV_NEW, &[0.0, 0.0, 0.0, 1e-5]),
+            opv(p::MGR_ADD_PV, &[0.0]),
+            opv(p::MGR_FIND_PV, &[3e-4, 0.0, 0.0]),
+        ];
+        out.push((
+            format!("edge_proto_fallback_tol_{name}"),
+            json!(Script::Proto {
+                objects,
+                approx_tol,
+                capture: 1e-3,
+                override_tol: 0.5,
+                ops
+            }),
+        ));
+    }
     // transforms: every API call on a line, a B-spline, a circle and a plane
     let bs = CurveIn::Bspline(BSplineIn {
         dim: 3,

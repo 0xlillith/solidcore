@@ -616,11 +616,20 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     } = &i.op
     {
         let h = EntityRef::Face(FaceId::from_index(0));
-        let mut mgr: ProtoTopologyManager<EntityRef> =
-            match ProtoTopologyManager::new(h, h, h, *approx, *capture, *override_tol) {
-                Ok(m) => m,
-                Err(e) => return Ok(rust_err(&e)),
-            };
+        // two empty B-reps, as the shim's
+        let e = Brep::new();
+        let mut mgr: ProtoTopologyManager<EntityRef> = match ProtoTopologyManager::new(
+            &k,
+            (h, &e),
+            (h, &e),
+            h,
+            *approx,
+            *capture,
+            *override_tol,
+        ) {
+            Ok(m) => m,
+            Err(e) => return Ok(rust_err(&e)),
+        };
         let [px, py, pz] = *p;
         let [qx, qy, qz] = *q;
         let id = match mgr.new_proto_vertex(Vec3::new(px, py, pz), *tol) {
