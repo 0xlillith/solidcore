@@ -46,6 +46,8 @@
 //!   edge list return `InvalidInput`; fewer vertices than edges skips edges, as
 //!   upstream). Outputs that a failed callee leaves uninitialised upstream return
 //!   `InvalidInput` instead of being read.
+//! - `ComputeGlobalVisibility`'s copy of edge and face attributes onto the edge curves
+//!   (display colours) is not ported: curves carry no attribute list here.
 //! - `m_pFrontFaceTree`, `m_pVisiblePoints` and `m_pInvisiblePoints` (unused upstream)
 //!   are not kept.
 //! - `IsPointVisible` keeps the ray tracer's surface set and grid and rebuilds the
