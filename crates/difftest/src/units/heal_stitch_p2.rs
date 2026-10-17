@@ -237,7 +237,7 @@ struct Inputs {
 enum Resolved {
     Do {
         tol: f64,
-        /// nesting ignore fast squeeze split manifold slivers want_vgap want_egap
+        /// `nesting ignore fast squeeze split manifold slivers want_vgap want_egap`
         flags: [bool; 9],
         cand_vertices: Option<Vec<VertexId>>,
         cand_edges: Option<Vec<EdgeId>>,

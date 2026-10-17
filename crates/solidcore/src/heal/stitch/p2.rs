@@ -48,14 +48,15 @@ use crate::curve::curve::Curve;
 use crate::error::{ignore_status, ignored, EntityRef, SM_ERR};
 use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::SolverOperation;
+use crate::geom::object::NotifyOperation;
 use crate::geom::tol::{update_object_tolerance, zone_tol3d, TopologyToUpdate};
 use crate::geom::tree::{NodeGeomType, Tree};
 use crate::kernel::Kernel;
 use crate::math::{Vec3, BIG_DOUBLE};
 use crate::nurbs::b_spline_curve::p2::BoundingBoxRequest;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
-use crate::topology::brep::p1 as bp1;
-use crate::topology::{edge, vertex, Brep, EdgeId, FaceId, VertexId};
+use crate::topology::brep::p1::{self as bp1, SetRegionVoidType};
+use crate::topology::{edge, vertex, Brep, EdgeId, FaceId, RegionId, ShellId, VertexId};
 use crate::{Result, SolidError};
 
 const OP: &str = "heal::stitch::p2";
@@ -266,9 +267,9 @@ impl Stitch<'_> {
             let zone_tol = zone_tol3d(k, tol_3d / 2.0);
             for f in bp1::faces(b, None)? {
                 // when face is a lamina sliver
-                if face_is_lamina(b, f)? && face_is_degenerate(k, b, f, true, zone_tol)? {
+                if face_is_lamina(b, f)? && face_is_degenerate(k, b, f, true, Some(zone_tol))? {
                     // delete Face and its boundary edges and vertices from the Brep
-                    ignore_status(delete_face(k, b, f, true))?;
+                    ignore_status(delete_face(k, b, f, true, true, None, None))?;
                 }
             }
         }
@@ -335,7 +336,8 @@ impl Stitch<'_> {
             // Check for Vertices coincident with Edges if asked.
             if self.split_edges_with_vertices {
                 // get modified Brep Bounding box (status not checked)
-                let brep_bbox = ignored(brep_bounding_box(b, false))?.unwrap_or_default();
+                let brep_bbox =
+                    ignored(brep_bounding_box(b, false, false, true))?.unwrap_or_default();
 
                 // build modified Brep Edge spatial tree (lNumPerNode only sizes the
                 // memory blocks)
@@ -611,7 +613,14 @@ impl Stitch<'_> {
         if out.stitched_edges > 0 {
             ignore_status(brep_notify_pre_edit(b))?;
             for f in bp1::faces(b, None)? {
-                ignore_status(face_notify_pre_edit(b, f))?;
+                ignore_status(face_notify(
+                    b,
+                    f,
+                    NotifyOperation::PreEdit,
+                    Some(EntityRef::Face(f)),
+                    true,
+                    None,
+                ))?;
             }
         }
 
@@ -620,7 +629,13 @@ impl Stitch<'_> {
         if self.do_region_nesting && bp1::regions(b, None)?.len() > 1 {
             let old = b.editing_enabled();
             b.set_editing_enabled(false);
-            let r = find_and_set_infinite_region(k, b);
+            let r = find_and_set_infinite_region(
+                k,
+                b,
+                None,
+                SetRegionVoidType::InfiniteRegionSwap,
+                None,
+            );
             b.set_editing_enabled(old);
             r?;
         }
@@ -1293,7 +1308,7 @@ pub fn stitch_into_solid(k: &mut Kernel, b: &mut Brep) -> Result<AdvancedStitch>
         max_edge_gap: 0.0,
     };
 
-    let bbox = brep_bounding_box(b, true)?; // TRUE: Approx is fine [B259]
+    let bbox = brep_bounding_box(b, true, false, true)?; // TRUE: Approx is fine [B259]
     let dist = bbox.size().length();
     // This tol will be iteratively increased:
     let mut stitch_tol_3d = b.tolerance() / 10.0;
@@ -1405,9 +1420,15 @@ pub fn stitch_into_shell(
 
 // ---- unported callees ----------------------------------------------------------------
 
-/// `SmBrep::CalculateBoundingBox(rBox, bApprox)` (unit `query.brep`).
-fn brep_bounding_box(b: &Brep, approx: bool) -> Result<Extent3d> {
-    let _ = (b, approx);
+/// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
+/// `query.brep`; upstream defaults `FALSE`, `FALSE`, `TRUE`).
+fn brep_bounding_box(
+    b: &Brep,
+    approx: bool,
+    tight: bool,
+    expand_by_zone_tol: bool,
+) -> Result<Extent3d> {
+    let _ = (b, approx, tight, expand_by_zone_tol);
     // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
     Err(SolidError::unported(
         "SmBrep::CalculateBoundingBox",
@@ -1415,9 +1436,27 @@ fn brep_bounding_box(b: &Brep, approx: bool) -> Result<Extent3d> {
     ))
 }
 
-/// `SmBrep::DeleteFace(face, bDeleteBoundary)` (unit `topology.brep_p3`).
-fn delete_face(k: &mut Kernel, b: &mut Brep, f: FaceId, delete_boundary: bool) -> Result<()> {
-    let _ = (k, b, f, delete_boundary);
+/// `SmBrep::DeleteFace(face, bDeleteEdgesVertices, bDoRegionNesting,
+/// pOptDeletedEdgesVertices, pOptRegionToKeep)` (unit `topology.brep_p3`; upstream
+/// defaults `FALSE`, `TRUE`, `NULL`, `NULL`).
+fn delete_face(
+    k: &mut Kernel,
+    b: &mut Brep,
+    f: FaceId,
+    delete_edges_vertices: bool,
+    do_region_nesting: bool,
+    deleted_edges_vertices: Option<&mut Vec<EntityRef>>,
+    region_to_keep: Option<RegionId>,
+) -> Result<()> {
+    let _ = (
+        k,
+        b,
+        f,
+        delete_edges_vertices,
+        do_region_nesting,
+        deleted_edges_vertices,
+        region_to_keep,
+    );
     // UNPORTED(topology.brep_p3): SmBrep::DeleteFace
     Err(SolidError::unported(
         "SmBrep::DeleteFace",
@@ -1425,9 +1464,17 @@ fn delete_face(k: &mut Kernel, b: &mut Brep, f: FaceId, delete_boundary: bool) -
     ))
 }
 
-/// `SmBrep::FindAndSetInfiniteRegion` (unit `topology.brep_p5`).
-fn find_and_set_infinite_region(k: &mut Kernel, b: &mut Brep) -> Result<()> {
-    let _ = (k, b);
+/// `SmBrep::FindAndSetInfiniteRegion(pOptShellToTest, eVoidSettingFlag, pOptBrepBBox)`
+/// (unit `topology.brep_p5`; upstream defaults `NULL`, `SM_VS_INFINITEREGION_SWAP`,
+/// `NULL`).
+fn find_and_set_infinite_region(
+    k: &mut Kernel,
+    b: &mut Brep,
+    shell_to_test: Option<ShellId>,
+    void_setting: SetRegionVoidType,
+    brep_bbox: Option<&Extent3d>,
+) -> Result<()> {
+    let _ = (k, b, shell_to_test, void_setting, brep_bbox);
     // UNPORTED(topology.brep_p5): SmBrep::FindAndSetInfiniteRegion
     Err(SolidError::unported(
         "SmBrep::FindAndSetInfiniteRegion",
@@ -1442,15 +1489,16 @@ fn face_is_lamina(b: &Brep, f: FaceId) -> Result<bool> {
     Err(SolidError::unported("SmFace::IsLamina", "topology.face_p3"))
 }
 
-/// `SmFace::IsDegenerate(bCheckArea, pZoneTol3d)` (unit `topology.face_p3`).
+/// `SmFace::IsDegenerate(bSkipQuickCheck, pOptZoneTol3d)` (unit `topology.face_p3`;
+/// upstream defaults `FALSE`, `NULL`).
 fn face_is_degenerate(
     k: &Kernel,
     b: &Brep,
     f: FaceId,
-    check_area: bool,
-    zone_tol: f64,
+    skip_quick_check: bool,
+    zone_tol_3d: Option<f64>,
 ) -> Result<bool> {
-    let _ = (k, b, f, check_area, zone_tol);
+    let _ = (k, b, f, skip_quick_check, zone_tol_3d);
     // UNPORTED(topology.face_p3): SmFace::IsDegenerate
     Err(SolidError::unported(
         "SmFace::IsDegenerate",
@@ -1458,9 +1506,18 @@ fn face_is_degenerate(
     ))
 }
 
-/// `SmFace::Notify(SM_NO_PRE_EDIT, face, brep, NULL)` (unit `topology.face_p3`).
-fn face_notify_pre_edit(b: &mut Brep, f: FaceId) -> Result<()> {
-    let _ = (b, f);
+/// `SmFace::Notify(eNotifyOperation, pData1, pData2, pData3)` (unit
+/// `topology.face_p3`); `data2_is_brep` stands for `pData2` being the face's B-rep
+/// (`SM_NO_GET_BREP(pF)`, i.e. `b`), else null.
+fn face_notify(
+    b: &mut Brep,
+    f: FaceId,
+    operation: NotifyOperation,
+    data1: Option<EntityRef>,
+    data2_is_brep: bool,
+    data3: Option<EntityRef>,
+) -> Result<()> {
+    let _ = (b, f, operation, data1, data2_is_brep, data3);
     // UNPORTED(topology.face_p3): SmFace::Notify
     Err(SolidError::unported("SmFace::Notify", "topology.face_p3"))
 }
