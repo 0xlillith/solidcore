@@ -17,7 +17,7 @@ cpp = []
 [dependencies]
 
 [build-dependencies]
-cc = { version = "1.2", features = ["parallel"] }
+cc = "1.2"
 serde_json = "1"
 
 [lints]

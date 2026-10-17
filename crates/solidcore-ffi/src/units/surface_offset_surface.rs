@@ -34,7 +34,7 @@
 //! | `Trim`         | `TrimWithDomain`                      | the (snapped) domain                   |
 //! | `Split`        | `SplitAt`                             | both halves' states                    |
 //! | `CreateOffset` | `CreateOffsetSurface`                 | the result's state                     |
-//! | `Extend`, `ExtendDir` | `CreateExtendedSurface`        | the result's state                     |
+//! | `Extend`, `ExtendDir` | `CreateExtendedSurface`        | (refused, see below)                   |
 //! | `Copy`         | `Copy`                                | the copy's state                       |
 //! | `Eq`           | `operator==` with another offset and itself | `eq self_eq`                     |
 //! | `IsPlanar`     | `IsPlanar` (`SmSurface` body, virtual box) | `planar P N dev`                  |
@@ -49,25 +49,22 @@
 //! base (their polar box recurses without bound upstream, UB-84), no box whose domain
 //! may lie outside the base domain (the base-class box of the offset asks the offset
 //! again for the outside part, without bound once an extension exists, and its surface
-//! cache subdivision runs away for small trimmed bases), and no planarity test once an
-//! extension may exist. The isolated worker (`harness/cpp/offset_worker.cpp`) checks
+//! cache subdivision runs away for small trimmed bases), no planarity test once an
+//! extension may exist, and no `CreateExtendedSurface` ([`Step::Extend`],
+//! [`Step::ExtendDir`]): its in-place retry reads arrays a failed extension half-wrote
+//! (UB-107) and its arc-length searches can stall or crawl (HANG-6, HANG-22), which
+//! nothing outside NLib can detect before the C++ runs in this process. The shim checks
 //! the state-dependent cases on the actual surfaces as the script runs: the non-zero
-//! offset writing past the caller's array for `bOnlyUpperHalf` orders (UB-165, only
+//! offset writing past the caller's array for `bOnlyUpperHalf` orders (UB-171, only
 //! when the compound distance is not exactly `0.0`), zero-distance delegation to an
-//! `SmPlane` with more `u` than `v` orders (UB-166), a box reaching the `SmSurface` body
-//! at any level of the offset chain (UB-167, HANG-19), a read of a surface a failed
-//! in-place extension half-wrote (UB-107), and extension searches that cannot advance
-//! or crawl past a work bound (HANG-6, HANG-20). A surface of revolution base is checked
-//! with the revolution unit's `Limits::Isolated` limits (no minimum sizes).
+//! `SmPlane` with more `u` than `v` orders (UB-172), and a box (also `IsPlanar`'s, over
+//! the natural domain an inner offset's extension may have widened) reaching the
+//! `SmSurface` body at any level of the offset chain (UB-173, HANG-21). A surface of revolution base
+//! is checked as in unit `surface.surf_of_revolution_p1` (lines and circles of at least
+//! `1e-6`).
 
 use super::surface_surf_of_revolution_p1 as rev;
-use crate::FfiError;
-
-/// Unchanged C++ did not finish within the five-second oracle deadline.
-/// This is a harness error, not a kernel status or a deferred comparison.
-pub const REFERENCE_TIMEOUT: i32 = crate::offset_reference::TIMEOUT;
-/// The isolated reference process crashed or its transport failed.
-pub const REFERENCE_PROCESS_ERROR: i32 = crate::offset_reference::PROCESS_ERROR;
+use crate::{call_with_buffer, FfiError, SC_ERR_ARG};
 
 /// Largest control point index.
 pub const MAX_INDEX: usize = 24;
@@ -272,14 +269,14 @@ pub enum Step {
         /// Signed distance.
         d: f64,
     },
-    /// `CreateExtendedSurface(dist, cont)`.
+    /// `CreateExtendedSurface(dist, cont)` (refused: module docs).
     Extend {
         /// Distance.
         dist: f64,
         /// `SmContinuityType` code.
         cont: u8,
     },
-    /// `CreateExtendedSurface(param, dist, cont)`.
+    /// `CreateExtendedSurface(param, dist, cont)` (refused: module docs).
     ExtendDir {
         /// `SmSurfParamType` code.
         param: u8,
@@ -543,7 +540,7 @@ fn push_srf(o: &mut Vec<f64>, s: &Srf, depth: usize) -> Result<BaseInfo, FfiErro
         }
         Srf::Revolution(r) => {
             o.push(4.0);
-            rev::push_surf_with(o, r, rev::Limits::Isolated)?;
+            rev::push_surf(o, r)?;
             BaseInfo {
                 dom: None,
                 unboxable: false,
@@ -574,9 +571,9 @@ fn check_orders(hu: usize, hv: usize, _upper: bool) -> Result<(), FfiError> {
     if hu > MAX_ORDER || hv > MAX_ORDER {
         return Err(bad("eval: order above MAX_ORDER"));
     }
-    // UB-165 (the non-zero path writing past the array) and UB-166 (zero-distance
+    // UB-171 (the non-zero path writing past the array) and UB-172 (zero-distance
     // delegation to SmPlane) depend on the actual distance after the preceding ops:
-    // the shim checks both in the worker.
+    // the shim checks both as the script runs.
     Ok(())
 }
 
@@ -693,7 +690,7 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                     return Err(bad("box: curve-bounded or STEP base (UB-84)"));
                 }
                 // Unknown/edited domains are checked against the actual base by the
-                // isolated shim. Unknown is not evidence of containment (UB-167).
+                // shim. Unknown is not evidence of containment (UB-173).
                 if dom.is_some() && !contained(*d, dom) {
                     return Err(bad("box: domain may lie outside the base domain"));
                 }
@@ -790,17 +787,10 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
                 finite(&[*d], "offset distance")?;
                 o.push(*d);
             }
-            Step::Extend { dist, cont } => {
-                if !(dist.is_finite() && *dist > 0.0) || *cont > 13 {
-                    return Err(bad("extend: distance or continuity"));
-                }
-                o.extend([*dist, f64::from(*cont)]);
-            }
-            Step::ExtendDir { param, dist, cont } => {
-                if *param > 8 || !(dist.is_finite() && *dist > 0.0) || *cont > 13 {
-                    return Err(bad("extend: direction, distance or continuity"));
-                }
-                o.extend([f64::from(*param), *dist, f64::from(*cont)]);
+            Step::Extend { .. } | Step::ExtendDir { .. } => {
+                return Err(bad(
+                    "extend: CreateExtendedSurface is not run in process (UB-107, HANG-6, HANG-22)",
+                ));
             }
             Step::Eq { other } => {
                 push_off(o, other, 1)?;
@@ -836,13 +826,47 @@ fn push_steps(o: &mut Vec<f64>, off: &Off, info: BaseInfo, steps: &[Step]) -> Re
     Ok(())
 }
 
+mod sys {
+    extern "C" {
+        pub fn sc_surface_offset_surface_eval(
+            op: i32,
+            input: *const f64,
+            n_in: i64,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
+    }
+}
+
+/// Runs the shim; its run-time refusal of the actual state (`SC_ERR_ARG`) is
+/// [`FfiError::InvalidArgument`], as a static one.
 fn call(op: i32, input: &[f64]) -> Result<Vec<f64>, FfiError> {
-    crate::offset_reference::call(op, input)
+    let n_in = i64::try_from(input.len()).map_err(|_| bad("input too long"))?;
+    call_with_buffer(4096, |buf, len| {
+        let cap = buf.len() as i64;
+        // SAFETY: `input` is valid for `n_in` reads, `buf` for `cap` writes, `len` for
+        // one; the shim reads exactly the layout validated by the caller.
+        unsafe {
+            sys::sc_surface_offset_surface_eval(
+                op,
+                input.as_ptr(),
+                n_in,
+                buf.as_mut_ptr(),
+                cap,
+                &raw mut *len,
+            )
+        }
+    })
+    .map_err(|e| match e {
+        FfiError::Status(SC_ERR_ARG) => bad("the shim refused the actual surface or state"),
+        e => e,
+    })
 }
 
 /// Static validation of `off` and `steps` (without calling upstream).
 ///
-/// State-dependent guards run inside [`script`]'s isolated reference worker.
+/// State-dependent guards run inside [`script`]'s shim call.
 ///
 /// # Errors
 ///
@@ -859,8 +883,7 @@ pub fn check(off: &Off, steps: &[Step]) -> Result<(), FfiError> {
 /// # Errors
 ///
 /// [`FfiError::InvalidArgument`] for inputs upstream cannot handle (module docs);
-/// [`FfiError::Status`] for a shim failure, [`REFERENCE_TIMEOUT`], or
-/// [`REFERENCE_PROCESS_ERROR`]. Neither deadline nor crash is a successful comparison.
+/// [`FfiError::Status`] for a shim failure.
 pub fn script(off: &Off, steps: &[Step]) -> Result<Vec<f64>, FfiError> {
     let mut input = Vec::new();
     let info = push_off(&mut input, off, 0)?;
@@ -980,30 +1003,57 @@ mod tests {
                 (0..4)
                     .map(|j| {
                         let (x, y) = (f64::from(i) / 3.0, f64::from(j) / 3.0);
-                        [x * scale, y * scale, 0.3 * (3.0 * x).sin() * (2.0 * y).cos() * scale, NOW]
+                        [
+                            x * scale,
+                            y * scale,
+                            0.3 * (3.0 * x).sin() * (2.0 * y).cos() * scale,
+                            NOW,
+                        ]
                     })
                     .collect()
             })
             .collect();
-        Srf::BSpline(Bss { oob: false, form: 0, net, p: 3, q: 3, u: k.clone(), v: k })
+        Srf::BSpline(Bss {
+            oob: false,
+            form: 0,
+            net,
+            p: 3,
+            q: 3,
+            u: k.clone(),
+            v: k,
+        })
     }
 
     fn eval(hu: usize, hv: usize, upper: bool) -> Step {
-        Step::Eval { uv: [0.3, 0.6], hu, hv, ul: true, vl: true, upper, nzt: true }
+        Step::Eval {
+            uv: [0.3, 0.6],
+            hu,
+            hv,
+            ul: true,
+            vl: true,
+            upper,
+            nzt: true,
+        }
     }
 
     fn refused(r: &Result<Vec<f64>, FfiError>) -> bool {
         matches!(r, Err(FfiError::InvalidArgument(_)))
     }
 
-    /// UB-165 depends on the actual distance: a zero offset delegates to its base
+    /// UB-171 depends on the actual distance: a zero offset delegates to its base
     /// (accepted for a B-spline, which refuses unequal upper-half orders itself), a
     /// non-zero one writes past the array (refused).
     #[test]
     fn upper_half_write_past_depends_on_actual_distance() {
-        let zero = Off { base: bss(1.0), ..plane(0.0) };
+        let zero = Off {
+            base: bss(1.0),
+            ..plane(0.0)
+        };
         assert!(script(&zero, &[eval(0, 2, true)]).is_ok());
-        let one = Off { base: bss(1.0), ..plane(0.5) };
+        let one = Off {
+            base: bss(1.0),
+            ..plane(0.5)
+        };
         assert!(refused(&script(&one, &[eval(0, 2, true)])));
         assert!(script(&one, &[Step::SetDist { d: 0.0 }, eval(0, 2, true)]).is_ok());
         assert!(script(&one, &[eval(2, 0, true)]).is_ok());
@@ -1013,18 +1063,34 @@ mod tests {
     #[test]
     fn high_orders_return_a_status() {
         for (hu, hv) in [(7, 7), (40, 64), (MAX_ORDER, MAX_ORDER)] {
-            let r = script(&Off { base: bss(1.0), ..plane(0.5) }, &[eval(hu, hv, false)]);
+            let r = script(
+                &Off {
+                    base: bss(1.0),
+                    ..plane(0.5)
+                },
+                &[eval(hu, hv, false)],
+            );
             assert!(r.is_ok(), "{hu},{hv}");
         }
-        assert!(refused(&script(&plane(0.5), &[eval(MAX_ORDER + 1, 0, false)])));
+        assert!(refused(&script(
+            &plane(0.5),
+            &[eval(MAX_ORDER + 1, 0, false)]
+        )));
     }
 
-    /// No coordinate cap, scale floor or revolution minimum size: upstream handles them.
+    /// No coordinate cap or scale floor: upstream handles them. A surface of revolution
+    /// base keeps its own unit's in-process minimum size.
     #[test]
     fn extreme_magnitudes_are_compared() {
         for s in [1e12, 1e154, 1e300] {
-            let off = Off { base: bss(s), ..plane(0.25 * s) };
-            assert!(script(&off, &[Step::State, eval(1, 1, false)]).is_ok(), "{s:e}");
+            let off = Off {
+                base: bss(s),
+                ..plane(0.25 * s)
+            };
+            assert!(
+                script(&off, &[Step::State, eval(1, 1, false)]).is_ok(),
+                "{s:e}"
+            );
         }
         for sc in [1e-100, 0.0, -1e-6] {
             let t = Step::Transform {
@@ -1044,33 +1110,51 @@ mod tests {
                     d: [0.0, 180.0],
                     r: 1e-9,
                 },
-                build: rev::Build::Canonical { point: [0.0; 3], axis: [0.0, 0.0, 1.0] },
+                build: rev::Build::Canonical {
+                    point: [0.0; 3],
+                    axis: [0.0, 0.0, 1.0],
+                },
                 oob: false,
                 swap: false,
             }),
             ..plane(1e-10)
         };
-        assert!(script(&tiny, &[Step::State, eval(1, 1, false)]).is_ok());
+        assert!(refused(&script(&tiny, &[Step::State, eval(1, 1, false)])));
     }
 
-    /// HANG-6: a G1/G2 extension tiny against its surface crawls through `ST_curxcdr`'s
-    /// arc-length search; the worker refuses it at its work bound instead of timing out.
+    /// UB-107, HANG-6 and HANG-22 are inside `CreateExtendedSurface`, which cannot be
+    /// guarded in process: the FFI refuses every extension step, and the shim refuses
+    /// one sent past the FFI without running it.
     #[test]
-    fn crawling_extension_search_is_refused_quickly() {
-        let off = Off { base: bss(1.0), ..plane(0.25) };
-        for (dist, cont) in [(1e-20, 3), (1e-100, 5), (1e-300, 3)] {
-            let t = std::time::Instant::now();
-            assert!(refused(&script(&off, &[Step::Extend { dist, cont }])), "{dist:e}");
-            assert!(t.elapsed() < crate::offset_reference::DEADLINE);
+    fn extension_steps_are_refused_in_process() {
+        let off = Off {
+            base: bss(1.0),
+            ..plane(0.25)
+        };
+        let steps = [
+            Step::Extend { dist: 0.1, cont: 5 },
+            Step::ExtendDir {
+                param: 7,
+                dist: 0.1,
+                cont: 13,
+            },
+        ];
+        for step in steps {
+            assert!(matches!(
+                check(&off, std::slice::from_ref(&step)),
+                Err(FfiError::InvalidArgument(_))
+            ));
+            assert!(refused(&script(&off, &[Step::State, step])));
         }
-        // a normal extension of the same surface is compared where the worker has its
-        // NLib link wrappers (GNU ld --wrap, Linux); elsewhere every extension is refused
-        let normal = script(&off, &[Step::Extend { dist: 0.1, cont: 5 }]);
-        if cfg!(target_os = "linux") {
-            assert!(normal.is_ok());
-        } else {
-            assert!(refused(&normal));
-        }
+        let mut input = Vec::new();
+        push_off(&mut input, &off, 0).unwrap();
+        input.extend([2.0, 0.0, 15.0, 0.1, 5.0]);
+        assert!(refused(&call(OP_SCRIPT, &input)));
+        input.truncate(input.len() - 4);
+        input.extend([16.0, 7.0, 0.1, 13.0]);
+        assert!(refused(&call(OP_SCRIPT, &input)));
+        // a refusal leaves nothing behind for the next call
+        assert!(script(&off, &[Step::State, eval(1, 1, false)]).is_ok());
     }
 
     #[test]
@@ -1117,24 +1201,10 @@ mod tests {
         .is_ok());
     }
 
+    /// HANG-22's exact generated input (a revolution offset, a trim, then a G2
+    /// extension) stops at its extension step, and the replay keeps the input bits.
     #[test]
-    fn tiny_g2_extension_is_rejected_before_a_nonprogressing_search() {
-        assert!(matches!(
-            script(
-                &plane(1.0),
-                &[Step::Extend {
-                    dist: 1e-300,
-                    cont: 5
-                }]
-            ),
-            Err(FfiError::InvalidArgument(_))
-        ));
-        // The rejected child is reaped and does not poison the next call.
-        assert!(script(&plane(1.0), &[upper()]).is_ok());
-    }
-
-    #[test]
-    fn gen5909_is_bounded_and_keeps_exact_input_bits() {
+    fn gen5909_stops_at_its_extension_step() {
         let input: Vec<f64> = include_str!("../../tests/data/offset-gen5909.txt")
             .split_whitespace()
             .map(|s| s.parse().unwrap())
@@ -1144,9 +1214,96 @@ mod tests {
             input[22].to_bits(),
             (-0.916_536_277_098_507_5_f64).to_bits()
         );
-        assert!(matches!(
-            call(OP_SCRIPT, &input),
-            Err(FfiError::InvalidArgument(_))
-        ));
+        assert!(refused(&call(OP_SCRIPT, &input)));
+    }
+
+    /// UB-173 through `IsPlanar`: the outer offset's `STEPInversion` makes the inner
+    /// offset (which allows extension) store an extension, which widens the outer's
+    /// natural domain; `IsPlanar` boxes that domain through the virtual and would reach
+    /// the inner's `SmSurface` body (generated case `gen96022` of a 100,000-seed run).
+    #[test]
+    fn is_planar_after_an_inner_extension_is_refused() {
+        let cpts = [
+            [
+                3.818_261_149_739_884_6,
+                3.592_287_145_635_470_6,
+                2.159_275_728_538_753,
+            ],
+            [
+                1.673_258_763_242_672_8,
+                3.592_287_145_635_470_6,
+                2.876_305_072_302_788,
+            ],
+            [
+                2.286_787_044_121_262_5,
+                3.592_287_145_635_470_6,
+                3.208_259_782_732_793,
+            ],
+            [
+                3.129_343_610_865_042_5,
+                3.592_287_145_635_470_6,
+                4.018_727_646_727_118,
+            ],
+            [
+                3.157_584_068_537_871_8,
+                3.592_287_145_635_470_6,
+                4.267_558_205_247_642,
+            ],
+            [
+                1.707_979_495_083_934_4,
+                3.592_287_145_635_470_6,
+                4.799_044_524_065_897,
+            ],
+            [
+                2.813_762_481_155_630_5,
+                3.592_287_145_635_470_6,
+                5.210_559_461_251_345,
+            ],
+        ];
+        let inner = Off {
+            d: -0.624_646_913_975_984_9,
+            owns: false,
+            sing: 0,
+            allow: true,
+            base: Srf::Revolution(rev::Surf {
+                gen: rev::Gen::BSpline(rev::BSplineData {
+                    cpts: cpts.iter().map(|&[x, y, z]| [x, y, z, NOW]).collect(),
+                    p: 3,
+                    knots: vec![0.0, 0.0, 0.0, 0.0, 0.25, 0.5, 0.75, 1.0, 1.0, 1.0, 1.0],
+                }),
+                build: rev::Build::Canonical {
+                    point: [
+                        0.959_259_060_121_927_3,
+                        3.592_287_145_635_470_6,
+                        1.656_389_858_370_418_2,
+                    ],
+                    axis: [0.0, 0.0, 1.0],
+                },
+                oob: false,
+                swap: true,
+            }),
+        };
+        let off = Off {
+            d: -4.888_818_388_216_292,
+            owns: true,
+            sing: 0,
+            allow: false,
+            base: Srf::Offset(Box::new(inner)),
+        };
+        let inv = Step::StepInv {
+            dom: [0.0, 0.0, 1.0, 1.0],
+            p: [
+                -1.923_259_553_547_025_8,
+                2.989_638_020_517_443,
+                -2.717_957_575_822_730_6,
+            ],
+            tol: 0.289_591_362_594_728_56,
+            guess: None,
+        };
+        let planar = Step::IsPlanar { tol: 1e-6 };
+        assert!(script(&off, std::slice::from_ref(&planar)).is_ok());
+        assert!(script(&off, &[inv.clone(), Step::State]).is_ok());
+        assert!(check(&off, &[inv.clone(), planar.clone()]).is_ok());
+        assert!(refused(&script(&off, &[inv, planar])));
     }
 }

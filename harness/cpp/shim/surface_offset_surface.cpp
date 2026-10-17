@@ -3,17 +3,17 @@
 // Wraps SmOffsetSurface (source/SMLib/src/SmOffsetSurface.cpp, source/SMLib/inc/SmOffsetSurface.h):
 // the constructor, Copy, operator==, CalculateBoundingBox, GetKnots, EvaluateNormal,
 // EvaluatePoint, Evaluate, EvaluateSimple, GetNaturalUVDomain, Reverse, SplitAt,
-// STEPInversion, SwapUV, Transform, TrimWithDomain, CreateOffsetSurface,
-// CreateExtendedSurface (both), ReadFromDB, IsKindOf and the setters, run as a script on
-// one offset so that the extension upstream's const evaluators store is seen by the
-// following ops. WriteToDB is a generator helper.
+// STEPInversion, SwapUV, Transform, TrimWithDomain, CreateOffsetSurface, ReadFromDB,
+// IsKindOf and the setters, run as a script on one offset so that the extension upstream's
+// const evaluators store is seen by the following ops. WriteToDB is a generator helper.
+// CreateExtendedSurface steps are refused: UB-107 and the HANG-6/HANG-22 searches inside it
+// cannot be guarded in process.
 //
 // One entry point, sc_surface_offset_surface_eval(op, in, n_in, out, cap, out_len). Layouts
 // are documented in crates/solidcore-ffi/src/units/surface_offset_surface.rs, which
 // validates every input so upstream only touches valid memory. The surface-of-revolution
 // block and its builder are those of surface_surf_of_revolution_p1.cpp.
 #include "sc_shim.h"
-#include "sc_offset_guard.h"
 
 #include "StdAfx.h"
 #include <SmAxis2Placement.h>
@@ -48,11 +48,14 @@
 #include <string>
 #include <vector>
 
-// (see sc_offset_guard.h; set by the offset worker)
-extern "C" int sc_offset_extension_guards_enabled = 0;
-
 namespace
 {
+// Rejected input or state, never an SMLib numerical result: unwinds to the entry point,
+// which returns SC_ERR_ARG.
+struct ScOffsetUnsafeInput
+{
+};
+
 // Entry ops (keep in sync with crates/solidcore-ffi/src/units/surface_offset_surface.rs).
 enum : int32_t
 {
@@ -197,12 +200,12 @@ bool delegates_to_plane(SmOffsetSurface* s, const SmPoint2d& uv, ULONG hu, ULONG
     if (!base->GetNaturalUVDomain().ContainsPoint2d(uv) && s->GetExtendedBaseSurface())
         base = s->GetExtendedBaseSurface();
     // SmPlane::EvaluateSimple inherits the same evaluator. Other base kinds have
-    // their own checked derivative layouts; only this direct delegation is UB-166.
+    // their own checked derivative layouts; only this direct delegation is UB-172.
     (void)simple;
     return SM_CAST_PTR(SmPlane, base) != NULL;
 }
 
-// UB-165: with bOnlyUpperHalf, EvaluatePlainOrSimple's non-zero path writes the mixed
+// UB-171: with bOnlyUpperHalf, EvaluatePlainOrSimple's non-zero path writes the mixed
 // derivatives at their full-layout indices, past a caller array sized (hu+1)(hv+1).
 // Mirror its checks in order: offset order above 3 and an offset nested twice fail
 // before anything is written, an exact 0.0 compound distance delegates to the base.
@@ -480,6 +483,22 @@ void put_matrix(std::vector<double>& o, const std::vector<SmVector3d>& a, ULONG 
                 put_vec(o, a[i * (hv + 1) + j]);
 }
 
+// Follows SmOffsetSurface::CalculateBoundingBox over `d` down the chain on the actual
+// surfaces after the preceding ops: each level tests the domain against its own
+// m_pSurface and passes the call on, or runs the SmSurface body on itself, whose offset
+// surface cache can recurse (UB-173) or subdivide without progress (HANG-21). Whether
+// the box reaches that body at any level (refused).
+bool box_reaches_surface_body(SmOffsetSurface* s, const SmExtent2d& d)
+{
+    for (SmOffsetSurface* level = s; level != NULL;
+         level = SM_CAST_PTR(SmOffsetSurface, level->GetBaseSurface()))
+    {
+        if (!d.IsContainedBy(level->GetBaseSurface()->GetNaturalUVDomain(), SM_EFF_ZERO))
+            return true;
+    }
+    return false;
+}
+
 // ---- the script -----------------------------------------------------------------------------
 
 void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, std::vector<double>& o)
@@ -572,17 +591,7 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         bool w1 = rd.flag();
         bool w2 = rd.flag();
         SmBoolean expand = rd.bflag();
-        // Follow SmOffsetSurface::CalculateBoundingBox down the chain on the actual
-        // surfaces after the preceding ops: each level tests the domain against its own
-        // m_pSurface and passes the call on, or runs the SmSurface body on itself, whose
-        // offset surface cache can recurse (UB-167) or subdivide without progress
-        // (HANG-19). Refuse a box that reaches that body at any level.
-        for (SmOffsetSurface* level = s; level != NULL;
-             level = SM_CAST_PTR(SmOffsetSurface, level->GetBaseSurface()))
-        {
-            if (!d.IsContainedBy(level->GetBaseSurface()->GetNaturalUVDomain(), SM_EFF_ZERO))
-                throw ScOffsetUnsafeInput{};
-        }
+        if (box_reaches_surface_body(s, d)) throw ScOffsetUnsafeInput{};
         SmExtent3d nb;
         SmPseudoBox pb;
         SmPolarBox qb;
@@ -675,9 +684,12 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         }
         break;
     }
-    case S_CREATE_OFFSET:
     case S_EXTEND:
     case S_EXTEND_DIR:
+        // CreateExtendedSurface reaches UB-107 and the HANG-6/HANG-22 searches, which cannot
+        // be guarded in process: refused (the FFI refuses these steps before calling).
+        throw ScOffsetUnsafeInput{};
+    case S_CREATE_OFFSET:
     case S_COPY:
     {
         SmSurface* r = NULL;
@@ -686,23 +698,6 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
         {
             double d = rd.num();
             stt = s->CreateOffsetSurface(ctx, d, 0.0, r);
-        }
-        else if (step == S_EXTEND)
-        {
-            // CreateExtendedSurface reaches UB-107 and the HANG-6/HANG-20 searches,
-            // guarded only by the worker's link wrappers (not on every platform).
-            if (!sc_offset_extensions_guarded()) throw ScOffsetUnsafeInput{};
-            double dist = rd.num();
-            SmContinuityType cont = (SmContinuityType)rd.idx();
-            stt = s->CreateExtendedSurface(ctx, dist, cont, r);
-        }
-        else if (step == S_EXTEND_DIR)
-        {
-            if (!sc_offset_extensions_guarded()) throw ScOffsetUnsafeInput{};
-            SmSurfParamType param = (SmSurfParamType)rd.idx();
-            double dist = rd.num();
-            SmContinuityType cont = (SmContinuityType)rd.idx();
-            stt = s->CreateExtendedSurface(ctx, param, dist, cont, r);
         }
         else
         {
@@ -741,6 +736,9 @@ void run_step(int64_t step, Rd& rd, const SmContext& ctx, SmOffsetSurface* s, st
     case S_IS_PLANAR:
     {
         double tol = rd.num();
+        // the SmSurface body boxes the natural domain through the virtual (UB-173): an
+        // inner offset's extension, made by the outer's STEPInversion, widens it
+        if (box_reaches_surface_body(s, s->GetNaturalUVDomain())) throw ScOffsetUnsafeInput{};
         SmPoint3d p(SM_UNDEF_DOUBLE, SM_UNDEF_DOUBLE, SM_UNDEF_DOUBLE);
         SmVector3d n(SM_UNDEF_DOUBLE, SM_UNDEF_DOUBLE, SM_UNDEF_DOUBLE);
         double dev = SM_UNDEF_DOUBLE;

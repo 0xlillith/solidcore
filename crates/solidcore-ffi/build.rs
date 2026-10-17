@@ -106,7 +106,6 @@ fn main() {
     for h in sorted_files(&shim_dir, "h") {
         println!("cargo:rerun-if-changed={}", h.display());
     }
-    let mut compiler = None;
     if !shims.is_empty() {
         let mut b = cc::Build::new();
         b.cpp(true).warnings(false).include(&shim_dir);
@@ -134,7 +133,6 @@ fn main() {
             b.flag(f);
         }
         b.files(&shims);
-        compiler = Some(b.get_compiler());
         b.compile("solidcore_shims");
     }
 
@@ -176,64 +174,6 @@ fn main() {
     }
     println!("cargo:rustc-link-lib=dylib=stdc++");
     println!("cargo:rustc-link-lib=dylib=m");
-
-    // Keep the unmodified offset oracle out of the Rust process: upstream extension
-    // searches can hang, and a polar-cache recursion can exhaust the native stack.
-    // Compile/link a small worker against exactly the same shim/reference objects.
-    let worker_source = root.join("harness/cpp/offset_worker.cpp");
-    println!("cargo:rerun-if-changed={}", worker_source.display());
-    let worker = out_dir.join(format!("offset-reference{}", env::consts::EXE_SUFFIX));
-    let mut command = compiler.expect("shim compiler").to_command();
-    command
-        .arg(&worker_source)
-        .arg(out_dir.join("libsolidcore_shims.a"));
-    // The extension guards (UB-107, HANG-6, HANG-20) wrap NLib entry points with GNU
-    // ld's --wrap, available on Linux (where CI runs). Elsewhere the worker is built
-    // without them and the shim refuses the extension ops that would need them.
-    if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("linux") {
-        command.arg(
-            "-Wl,--wrap=N_CrvExtendByDist,--wrap=N_CrvArcLength,--wrap=N_SrfExtendByDist,--wrap=N_SrfCopy",
-        );
-    } else {
-        println!(
-            "cargo:warning=solidcore-ffi: no GNU ld --wrap on this target; surface.offset_surface's reference refuses CreateExtendedSurface cases"
-        );
-        command.arg("-DSC_OFFSET_NO_LINK_WRAP");
-    }
-    for d in [
-        root.join("upstream/source/SMLib/inc"),
-        root.join("upstream/source/SM_API/inc"),
-    ] {
-        command.arg("-I").arg(d);
-    }
-    for d in &cfg.include_dirs {
-        command.arg("-I").arg(d);
-    }
-    command.arg("-L").arg(&lib_dir);
-    for d in &cfg.lib_dirs {
-        command.arg("-L").arg(d);
-    }
-    for (name, kind) in &libs {
-        if *kind == "static" {
-            command.arg(lib_dir.join(format!("lib{name}.a")));
-        } else {
-            command.arg(format!("-l{name}"));
-        }
-    }
-    for lib in cfg.syslibs.as_deref().unwrap_or(&[]) {
-        command.arg(format!("-l{lib}"));
-    }
-    let status = command
-        .arg("-lm")
-        .arg("-o")
-        .arg(&worker)
-        .status()
-        .expect("compile offset worker");
-    assert!(status.success(), "offset reference worker link failed");
-    println!(
-        "cargo:rustc-env=SOLIDCORE_OFFSET_WORKER={}",
-        worker.display()
-    );
 }
 
 #[derive(Default)]

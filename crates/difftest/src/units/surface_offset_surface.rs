@@ -1486,6 +1486,8 @@ fn gen_step(rng: &mut Rng, d: [f64; 4], scale: f64, size: f64, can_via: bool) ->
                 rng.uniform(-1.0, 1.0) * scale
             },
         },
+        // (`ffi::check` refuses `CreateExtendedSurface` in process, UB-107/HANG-6/HANG-22,
+        // so `gen_case` drops a script with one of these)
         86..=87 => StepIn::Extend {
             dist: rng.uniform(0.05, 0.4) * size,
             cont: *rng.choose(&[3, 4, 5, 13]).unwrap_or(&3),
@@ -1506,11 +1508,14 @@ fn gen_step(rng: &mut Rng, d: [f64; 4], scale: f64, size: f64, can_via: bool) ->
         96..=97 => StepIn::IsPlanar {
             tol: *rng.choose(&[0.0, 1e-9, 1e-6, 1e-3, 0.1]).unwrap_or(&1e-6),
         },
+        // (relative to the base's size, as in surface.surf_of_revolution_p2: an offset
+        // far larger than a revolution's generator degenerates, and upstream's
+        // `CreateSimpleOffset` then copies an uninitialised `dMaxGap3d`)
         98 => StepIn::BaseOffset {
             d: if rng.chance(0.1) {
                 0.0
             } else {
-                rng.uniform(-1.0, 1.0) * scale
+                rng.uniform(-1.0, 1.0) * size
             },
             tol: *rng.choose(&[0.0, 1e-6, 1e-3]).unwrap_or(&1e-3) * scale,
         },
@@ -1568,14 +1573,13 @@ fn gen_case(rng: &mut Rng) -> Option<Inputs> {
     let fsteps = ffi_steps(&steps).ok()?;
     ffi::check(&foff, &fsteps).ok()?;
     // Domain/zero-offset guards depend on the actual C++ state after preceding
-    // edits. Preflight candidates requiring those checks, but never discard a
-    // timeout/crash: keep that case so difftest reports the oracle failure.
+    // edits. Preflight candidates requiring those checks, dropping only an explicit
+    // refusal: any other C++ error is kept so difftest reports it.
     let dynamic_guard = fsteps.iter().any(|s| {
         matches!(
             s,
             ffi::Step::BBox { .. }
-                | ffi::Step::Extend { .. }
-                | ffi::Step::ExtendDir { .. }
+                | ffi::Step::IsPlanar { .. }
                 | ffi::Step::Eval { upper: true, .. }
                 | ffi::Step::EvalSimple { upper: true, .. }
         )
@@ -1605,7 +1609,10 @@ fn degree_1_directions(k: &Kernel, off: &OffIn) -> Option<[bool; 2]> {
             SurfaceKind::CurveBounded(c) => c.basis(),
             SurfaceKind::Step(st) => st.surface()?,
             SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) => {
-                let d = [s.degree(SurfParamType::U) == 1, s.degree(SurfParamType::V) == 1];
+                let d = [
+                    s.degree(SurfParamType::U) == 1,
+                    s.degree(SurfParamType::V) == 1,
+                ];
                 return (d[0] || d[1]).then_some(d);
             }
             SurfaceKind::SrfInVolume(_) => return None,
