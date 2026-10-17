@@ -361,7 +361,7 @@ fn brep_edges(brep: &Brep) -> Result<Vec<EdgeId>> {
 
 /// `SmBrep::GetShells` (ported in `topology::brep::p1`; empty for a B-rep without
 /// regions, otherwise it defers on `SmRegion::GetShells`, unit `topology.shell`, until
-/// that lands; that port also widens this to `&mut Kernel` for its mark lock).
+/// that lands; `&mut Kernel` for its mark lock).
 fn brep_shells(k: &mut Kernel, brep: &Brep) -> Result<Vec<ShellId>> {
     crate::topology::brep::p1::shells(k, brep, None)
 }
