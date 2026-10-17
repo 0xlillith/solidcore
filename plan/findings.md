@@ -6780,6 +6780,26 @@ independent p6 integration.
   currently fails compilation at `sphere.rs:852` (missing `OffsetSurface` match
   arm, separately addressed by PR #218). Preliminary Linux checks use only that
   one extra arm in the runner copy; it is not a PR change or clean-head evidence.
+- **Review-focused evidence.** Numerical source `12b60efa`, linked endpoint test
+  fixture `f52eeb29`, projection probe `6d200c86` and doc lint fix `8f11ed4a`:
+  `PARTIAL topology.brep_p9 cases=613 passed=505 failed=0 deferred=108 max_rel_err=0e0`.
+  All 505 perturbations are detected. The 4096-seed run has 4197 cases, 3479
+  comparisons, 718 deferrals and zero failures. All six nonfinite parameter
+  cases and both overlapping/contained projection probes pass. The empty-drop
+  probe reaches the real DropAndTrimCurve and defers at its deeper
+  `SmSurfaceDropCurve::DoTrace` boundary. Ten focused runners have zero failures:
+  p9; point class; curve class p3; proto-topology p1/p2/p3; merge p1/p5;
+  surface-drop-lib p1; plane p1. Proto p2 is 1247 pass / 286 deferred: its four
+  opaque-edge merges now defer instead of being counted as guard matches. The
+  other focused counts are unchanged. No successful mutation of the six owned
+  p9 entrypoints is compared; the two successful projection probes certify only
+  that extracted prefix. The native part-container guard regression passes.
+  Plain strict Clippy and WASM checks pass with the runner prerequisite above;
+  the full test rerun is 1317 passed / 1 failed. Its remaining failure is main's
+  `surface::surface::p2::tests::read_from_db_unported_types`, which still asserts
+  that the newly ported OffsetSurface reader returns Unported. Both p9 regressions
+  pass. Native-enabled strict workspace Clippy also passes with the same
+  prerequisite. The complete 202-unit integration run is pending.
 
 - **Compared subset.** Numerical source `47758e96`: 604 default cases (92 fixed,
   512 generated), 497 bit-identical comparisons, 107 dependency deferrals, no
