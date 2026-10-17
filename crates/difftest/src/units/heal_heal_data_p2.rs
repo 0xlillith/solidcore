@@ -1926,7 +1926,14 @@ mod tests {
     /// not a capacity-overflow panic or a 32 GiB object list (issue #181).
     #[test]
     fn prob_refuses_unguarded_object_counts() {
-        for n in [0, ffi::MAX_OBJECTS as u64 + 1, 1 << 31, 1 << 32, i64::MAX as u64, u64::MAX] {
+        for n in [
+            0,
+            ffi::MAX_OBJECTS as u64 + 1,
+            1 << 31,
+            1 << 32,
+            i64::MAX as u64,
+            u64::MAX,
+        ] {
             let i = Inputs::Prob {
                 kind: 1,
                 n,
