@@ -421,7 +421,7 @@ pub struct HcrOptions {
 #[derive(Debug, Clone)]
 enum RaySurface {
     Face(FaceId),
-    Owned(Surface),
+    Owned(Box<Surface>),
 }
 
 /// The ray tracer state of [`Hcr::is_point_visible`] (`m_pRayTracer`, its grid).
@@ -451,7 +451,7 @@ pub struct Hcr {
     invisible_curves: Vec<Curve>,
     approx_tol_3d: f64,
     ang_tol_rad: f64,
-    hcr_for_silhouettes: bool,
+    for_silhouettes: bool,
     display_seams: bool,
     display_smooth_edges: bool,
     ray: Option<RaySetup>,
@@ -532,7 +532,7 @@ impl Hcr {
             invisible_curves: Vec::new(),
             approx_tol_3d: opts.approx_tol_3d,
             ang_tol_rad: opts.ang_tol_rad,
-            hcr_for_silhouettes: false,
+            for_silhouettes: false,
             display_seams: opts.display_seams,
             display_smooth_edges: opts.display_smooth_edges,
             ray: None,
@@ -604,7 +604,7 @@ impl Hcr {
     /// `SetHCRForSilhouettes`: skip non-silhouette edges in
     /// [`Hcr::compute_global_visibility`].
     pub fn set_hcr_for_silhouettes(&mut self, hcr_for_silhouettes: bool) {
-        self.hcr_for_silhouettes = hcr_for_silhouettes;
+        self.for_silhouettes = hcr_for_silhouettes;
     }
     /// `SetDisplaySeams`.
     pub fn set_display_seams(&mut self, display_seams: bool) {
@@ -778,7 +778,7 @@ impl Hcr {
 
         // Now compute visibility for every edge that has not been marked as invisible.
         for &e in &edges2 {
-            if self.hcr_for_silhouettes && !self.sil_edges.contains(&e) {
+            if self.for_silhouettes && !self.sil_edges.contains(&e) {
                 continue;
             }
             if !marked.contains(&e) {
@@ -1252,37 +1252,28 @@ impl Hcr {
                     continue;
                 }
                 let (domain, rectangular, natural) =
-                    match ignored(find_if_rectangular_trim(&self.scene, f))? {
-                        Some(r) => r,
-                        None => (Extent2d::default(), false, false),
-                    };
+                    ignored(find_if_rectangular_trim(&self.scene, f))?.unwrap_or_default();
                 let mut entry = RaySurface::Face(f);
                 if rectangular {
                     if natural {
                         // Domain match, no trimming needed: just copy.
-                        match ignored(surface.copy())? {
-                            Some(copy) => {
-                                add_deleted_surface(&mut self.scene)?;
-                                entry = RaySurface::Owned(copy);
-                            }
-                            None => {
-                                self.ray = Some(setup);
-                                return Ok(false);
-                            }
+                        if let Some(copy) = ignored(surface.copy())? {
+                            add_deleted_surface(&mut self.scene)?;
+                            entry = RaySurface::Owned(Box::new(copy));
+                        } else {
+                            self.ray = Some(setup);
+                            return Ok(false);
                         }
                     } else if let Some(bss) = b_spline_part(surface) {
                         let mut trimmed = bss.clone();
                         let mut domain = domain;
                         let _ = ignored(trimmed.trim_with_domain(&mut domain))?;
-                        match ignored(trimmed.copy_and_add_analytics())? {
-                            Some(copy) => {
-                                add_deleted_surface(&mut self.scene)?;
-                                entry = RaySurface::Owned(copy);
-                            }
-                            None => {
-                                self.ray = Some(setup);
-                                return Ok(false);
-                            }
+                        if let Some(copy) = ignored(trimmed.copy_and_add_analytics())? {
+                            add_deleted_surface(&mut self.scene)?;
+                            entry = RaySurface::Owned(Box::new(copy));
+                        } else {
+                            self.ray = Some(setup);
+                            return Ok(false);
                         }
                     }
                 }
@@ -1303,7 +1294,7 @@ impl Hcr {
                     .surface
                     .as_ref()
                     .ok_or(undefined("face without surface"))?,
-                RaySurface::Owned(ref s) => s,
+                RaySurface::Owned(ref s) => &**s,
             };
             ignore_status(tracer.add_surface_to_grid(k, surface))?;
         }
