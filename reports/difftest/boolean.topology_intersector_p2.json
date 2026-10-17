@@ -4193,7 +4193,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360882",
-      "values_compared": 5
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -7329,6 +7329,54 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "set_relationships_no_maps",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 8
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetTolerance",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "iir_negative_tol",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "inline",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GetTolerance",
+        "unit": "topology.brep_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "iir_tiny_tol",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "inline",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "squeeze_edge_mate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "squeeze_face_mate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 11
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "split_pair_mated",
       "outcome": "pass",
       "pass": true,
@@ -7350,6 +7398,14 @@
       "pass": true,
       "source": "inline",
       "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "split_oob",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 36
     },
     {
       "max_rel_err": 0.0,
@@ -7405,12 +7461,12 @@
     }
   ],
   "cases_both_errored": 2,
-  "cases_deferred": 180,
+  "cases_deferred": 182,
   "cases_failed": 0,
-  "cases_passed": 655,
-  "cases_total": 835,
+  "cases_passed": 659,
+  "cases_total": 841,
   "deferred_by_unit": {
-    "topology.brep_p1": 124,
+    "topology.brep_p1": 126,
     "topology.brep_p5": 15,
     "topology.brep_p9": 7,
     "topology.face_p3": 3,

@@ -634,6 +634,67 @@ fn edge_cases() -> Vec<(String, Value)> {
         "iir".into(),
         inputs(box_(), Some(file("torus.smb")), 0, vec![OpIn::Iir]),
     ));
+    // SetRelationships without the maps (an empty manager: no definition reaches Relate)
+    out.push((
+        "set_relationships_no_maps".into(),
+        inputs(
+            box_(),
+            Some(box_()),
+            1,
+            vec![
+                OpIn::MgrNew {
+                    capture: 0.01,
+                    override_tol: 0.0,
+                },
+                OpIn::SetRels,
+            ],
+        ),
+    ));
+    // IntersectInsertRelate at a negative tolerance (only zero hangs, HANG-25)
+    for (name, approx) in [("iir_negative_tol", -1e-5), ("iir_tiny_tol", 1e-200)] {
+        out.push((
+            name.into(),
+            serde_json::to_value(Inputs {
+                brep_a: box_(),
+                brep_b: Some(file("torus.smb")),
+                ctor: 0,
+                approx,
+                ang: 0.1,
+                ops: vec![OpIn::Iir],
+            })
+            .ok(),
+        ));
+    }
+    // CheckForSqueezeVertices: the other vertex's B-rep mate is an edge / a face, which
+    // only the second block dereferences; the first one returns SM_ERR (the existing
+    // relationship is closer)
+    for (name, mate) in [
+        ("squeeze_edge_mate", e(0, 0)),
+        ("squeeze_face_mate", [0, i64::from(K_FACE), 0]),
+    ] {
+        out.push((
+            name.into(),
+            inputs(
+                box_(),
+                Some(box_()),
+                0,
+                vec![
+                    OpIn::Relate {
+                        a: v(0, 0),
+                        b: v(1, 0),
+                    },
+                    OpIn::Relate {
+                        a: mate,
+                        b: v(1, 6),
+                    },
+                    OpIn::Squeeze {
+                        bv: v(0, 0),
+                        ov: v(1, 6),
+                    },
+                ],
+            ),
+        ));
+    }
 
     // FixupClassMates / FixupSplitVertexPair on edge 0's curve
     let split_pair = |bv: Hin, ov: Hin| {
@@ -697,6 +758,27 @@ fn edge_cases() -> Vec<(String, Value)> {
                         b: v(1, 0),
                     },
                     OpIn::FixupClass { b, o: o2 },
+                ],
+            ),
+        ));
+    }
+    {
+        // FixupSplitVertexPair with a shorter other classification: upstream bounds the
+        // index + 1 writes by the B-rep one's size only
+        let (b, mut o) = split_pair(v(0, 0), v(1, 0));
+        o.ivls.truncate(1);
+        out.push((
+            "split_oob".into(),
+            inputs(
+                box_(),
+                Some(box_()),
+                0,
+                vec![
+                    OpIn::Relate {
+                        a: v(0, 0),
+                        b: v(1, 0),
+                    },
+                    OpIn::FixupSplit { index: 0, b, o },
                 ],
             ),
         ));
@@ -876,6 +958,9 @@ mod tests {
         let mut deferred = 0usize;
         for c in &cases {
             let i: Inputs = c.parse().expect("inputs");
+            if i.ops.iter().any(|o| matches!(o, OpIn::Iir)) {
+                println!("op47-case {}", c.name);
+            }
             match rust_op_statuses(&i) {
                 Some(v) => {
                     for (code, st, first) in v {

@@ -33,10 +33,21 @@
 //! curve and vertices (50), an interval index inside both classifications (49), a
 //! classification curve; no handle-taking op may follow an op that may change
 //! topology; 45 and 46 need the manager (45 both intersector
-//! B-reps, 46 and 47 the maps of constructor 0), 47 both B-reps, a positive
-//! approximation tolerance and B-rep blocks below [`HANG_COORD`] (the full upstream
-//! intersection does not finish otherwise) and it must be the last op. The shim checks what depends on the B-reps' state (mates that are not
-//! vertices, edges of a vertex without curve, faces without surface) and answers `-2`.
+//! B-reps, 47 the maps of constructor 0), 47 both B-reps, a nonzero approximation
+//! tolerance (HANG-25) and B-rep blocks below [`HANG_COORD`] (HANG-16's class: the
+//! full upstream intersection does not finish otherwise) and it must be the last op.
+//! The shim checks what depends on the B-reps' and the manager's state (mates that
+//! are not vertices where upstream dereferences them, edges of a vertex without
+//! curve, faces without surface, 46 without the maps reaching `Relate`'s insert) and
+//! answers `-2`; it also answers `-2` for a 47 whose manager teardown would read a
+//! freed proto edge (UB-175: the shim runs a verbatim copy of
+//! `IntersectInsertRelate` that unlinks the stale entries first).
+//!
+//! 49 checks the index against both classifications only: upstream bounds its
+//! `index + 1` writes by the B-rep classification's size, so with a shorter other
+//! classification the write lands in `SmTArray`'s spare slots (at least 16 are
+//! allocated) and is hidden by the `RemoveAt`. That holds only while
+//! [`MAX_INTERVALS`] is below 16; past it the guard must refuse such pairs.
 
 use super::boolean_topology_intersector_p1::{
     bad, eval_with, Counts, Entry, ExtraOps, HandleKind, Op, Reader, ScriptState,
@@ -215,22 +226,22 @@ impl ExtraOps for Part2 {
                 }
             }
             ScriptOp2::SetRelationships => {
-                if !st.has_mgr || st.ctor != 0 {
-                    return Err(bad("SetRelationships needs the manager and the maps"));
+                // (without the maps, constructor 1, the shim refuses a definition with
+                // both final topologies: only those reach Relate's map insert)
+                if !st.has_mgr {
+                    return Err(bad("SetRelationships needs the manager"));
                 }
             }
             ScriptOp2::IntersectInsertRelate => {
                 if st.ctor != 0 || !st.have_breps[0] || !st.have_breps[1] {
                     return Err(bad("IntersectInsertRelate needs both B-reps and the maps"));
                 }
-                // the full intersection upstream (SmFace::FaceIntersect, ..) does not finish
-                // (fuzz: no result within 20 s) for a non-positive approximation tolerance
-                // or coordinates whose squares overflow (HANG-16's class)
-                if st.approx.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater)
-                    || st.block_max_abs >= HANG_COORD
-                {
+                // the full intersection upstream does not finish for a zero approximation
+                // tolerance (HANG-25; negative and tiny positive ones return) or
+                // coordinates whose squares overflow (HANG-16's class)
+                if st.approx == 0.0 || st.block_max_abs >= HANG_COORD {
                     return Err(bad(
-                        "IntersectInsertRelate needs a positive tolerance and coordinates below 1e154",
+                        "IntersectInsertRelate needs a nonzero tolerance and coordinates below 1e154",
                     ));
                 }
                 st.closed = true;

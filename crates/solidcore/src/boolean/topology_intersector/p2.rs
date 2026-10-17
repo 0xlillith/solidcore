@@ -93,7 +93,7 @@ use crate::math::{max2, max3, min2, Point2, Point3, BIG_DOUBLE, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::p2::TsectCurveType;
 use crate::topology::proto_topology::p3::Mates;
-use crate::topology::proto_topology::ProtoTopologyManager;
+use crate::topology::proto_topology::{ProtoEdgeId, ProtoTopologyManager, ProtoVertexId};
 
 use super::p1::{
     add_unique, brep_glue_edges_general, brep_make_edge_in_face, can_imprint, contains, dangling,
@@ -443,22 +443,6 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         Ok(())
     }
 
-    /// Moves the mate maps out (for [`ProtoTopologyManager::glue_coincident_brep_vertices`],
-    /// run on the intersector's own manager); put them back with
-    /// [`TopologyIntersector::restore_mates`].
-    pub fn take_mates(&mut self) -> MapMates<O> {
-        MapMates {
-            b_to_o: self.b_to_o.take(),
-            o_to_b: self.o_to_b.take(),
-        }
-    }
-
-    /// Puts back the mate maps moved out by [`TopologyIntersector::take_mates`].
-    pub fn restore_mates(&mut self, mates: MapMates<O>) {
-        self.b_to_o = mates.b_to_o;
-        self.o_to_b = mates.o_to_b;
-    }
-
     /// A mate that upstream casts to `SmVertex*`: [`SolidError::InvalidInput`] when
     /// it is not a vertex (upstream calls vertex members on it).
     fn as_vertex(mate: Option<O>) -> Result<Option<O>> {
@@ -515,7 +499,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
         // Get any already-existing vertex relationships.
         let other_v = Self::as_vertex(self.other_mate(Some(brep_vertex)))?;
-        let brep_v = Self::as_vertex(self.brep_mate(Some(other_vertex)))?;
+        // (read now, cast where the second block dereferences it: the first block can
+        // fail before)
+        let brep_v = self.brep_mate(Some(other_vertex));
 
         // Check for a pre-existing, conflicting relationship.
         if let Some(other_v) = other_v.filter(|&v| v != other_vertex) {
@@ -549,6 +535,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
         // Check for a pre-existing, conflicting relationship.
         if let Some(brep_v) = brep_v.filter(|&v| v != brep_vertex) {
+            let brep_v = Self::as_vertex(Some(brep_v))?.ok_or(dangling("no B-rep mate"))?;
             tol_of(brep, brep_v)?;
 
             let p = brep.vertex_point(other_vertex)?;
@@ -679,6 +666,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// `CombineCoincidentVertices` ([`SolidError::Unported`], `topology.brep_p5`) and
     /// of the edge length; [`SolidError::InvalidInput`] for an unknown handle, an edge
     /// without curve, a mate that is not a vertex or a missing B-rep.
+    #[allow(clippy::neg_cmp_op_on_partial_ord)] // upstream's NaN-safe test
     pub fn fix_gaps(
         &mut self,
         brep: &mut impl IntersectorBrepP2<O>,
@@ -697,8 +685,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 let tol_factor = 1.01;
                 let tol = tol_factor * (tol_of(brep, v1)? + tol_of(brep, v2)?);
 
-                // look for a close enough pairing
-                if brep.vertex_point(v1)?.distance(brep.vertex_point(v2)?) >= tol {
+                // look for a close enough pairing (a NaN distance or tolerance is none)
+                if !(brep.vertex_point(v1)?.distance(brep.vertex_point(v2)?) < tol) {
                     continue;
                 }
 
@@ -784,7 +772,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// Those of the manager's construction, `IntersectTopology` and
     /// `ResolveIntersections` (the manager then stays installed, as upstream leaks
     /// it); [`SolidError::Unported`] / [`SolidError::InvalidInput`] from the imprint;
-    /// [`SolidError::InvalidInput`] without both B-reps.
+    /// [`SolidError::InvalidInput`] without both B-reps, and when the manager's
+    /// destructor would read a freed proto edge (UB-175; the manager is still
+    /// destroyed and every other effect has happened).
     pub fn intersect_insert_relate(
         &mut self,
         k: &mut Kernel,
@@ -824,11 +814,19 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         }
 
         // Set relationship maps.
-        self.set_relationships(k, brep)?;
+        let status = self.set_relationships(k, brep);
 
         // all done - clean up and exit
+        let mut reads_freed = false;
         if let Some(mut mgr) = self.proto_topo_mgr.take() {
+            reads_freed = teardown_reads_freed(&mgr);
             deleted.extend(mgr.destroy());
+        }
+        status?;
+        if reads_freed {
+            return Err(dangling(
+                "~SmProtoTopologyManager reads a freed proto edge (UB-175)",
+            ));
         }
         Ok(deleted)
     }
@@ -1362,7 +1360,12 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         }
         if size > 1 && index + 2 <= size {
             cc_brep.at_mut(index + 1)?.start = pc_b;
-            cc_other.at_mut(index + 1)?.start = pc_o;
+            // (upstream bounds both by the B-rep classification's size: past the end
+            // of a shorter other one the write lands in SmTArray's spare slots, which
+            // nothing reads after the RemoveAt below)
+            if index + 1 < cc_other.size() {
+                cc_other.at_mut(index + 1)?.start = pc_o;
+            }
         }
 
         // remove the specified interval
@@ -1753,4 +1756,48 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
         Ok(out)
     }
+}
+
+/// Whether `~SmProtoTopologyManager` reads freed memory (UB-175): it deletes the listed
+/// proto edges before the listed proto vertices, each `~SmProtoEdge` unlists itself
+/// once from its start vertex and once from a different end vertex, and each
+/// `~SmProtoVertex` then dereferences every edge it still lists. An edge whose ends
+/// coincide is listed twice there (`AddProtoEdge`, DD1) and a combined vertex keeps
+/// entries of edges that no longer end at it, so such an entry is a listed edge
+/// already freed. Replays the unlisting on copies of the vertex lists.
+fn teardown_reads_freed<O: ClassObject>(mgr: &ProtoTopologyManager<O>) -> bool {
+    let mut lists: Vec<(ProtoVertexId, Vec<ProtoEdgeId>)> = Vec::new();
+    for &pv in mgr.proto_vertices() {
+        if lists.iter().all(|(v, _)| *v != pv) {
+            if let Some(v) = mgr.proto_vertex(pv) {
+                lists.push((pv, v.proto_edges().to_vec()));
+            }
+        }
+    }
+    let mut unlist = |pv: Option<ProtoVertexId>, pe: ProtoEdgeId| {
+        if let Some((_, l)) = lists.iter_mut().find(|(v, _)| Some(*v) == pv) {
+            if let Some(i) = l.iter().position(|&e| e == pe) {
+                l.remove(i);
+            }
+        }
+    };
+    let mut freed: Vec<ProtoEdgeId> = Vec::new();
+    for &pe in mgr.proto_edges() {
+        // (a second listing is a second delete of the same edge, skipped as `destroy`)
+        if freed.contains(&pe) {
+            continue;
+        }
+        let Some(edge) = mgr.proto_edge(pe) else {
+            continue;
+        };
+        freed.push(pe);
+        let (start, end) = (edge.start_proto_vertex(), edge.end_proto_vertex());
+        unlist(start, pe);
+        if end != start {
+            unlist(end, pe);
+        }
+    }
+    lists
+        .iter()
+        .any(|(_, l)| l.iter().any(|e| freed.contains(e)))
 }

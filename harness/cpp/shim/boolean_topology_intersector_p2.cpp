@@ -143,12 +143,18 @@ bool fix_gaps_first_candidate_ok(SmTopologyIntersector* ti, const SmTArray<SmVer
 }
 
 // CheckForSqueezeVertices: whether a combination would run with a null B-rep (each block
-// combines in its B-rep unless the previous relationship is better, which returns SM_ERR).
+// combines in its B-rep unless the previous relationship is better, which returns SM_ERR),
+// or the second block would dereference a B-rep mate of the other vertex that is not a
+// vertex (the first block's SM_ERR returns before; a first block that combines is assumed
+// to reach the second, whose cases the port defers at CombineCoincidentVertices anyway).
+// The other mate of the B-rep vertex is checked by the caller: the first block
+// dereferences it at once.
 bool squeeze_breps_ok(SmTopologyIntersector* ti, SmVertex* bv, SmVertex* ov)
 {
     bool need_other = false, need_brep = false;
     SmVertex* other_v = (SmVertex*)ti->GetOtherMate(bv);
-    SmVertex* brep_v = (SmVertex*)ti->GetBrepMate(ov);
+    SmObject* brep_mate = ti->GetBrepMate(ov);
+    SmVertex* brep_v = (SmVertex*)brep_mate;
     if (other_v && other_v != ov)
     {
         double d_old = bv->GetPoint().DistanceBetween(other_v->GetPoint());
@@ -159,12 +165,77 @@ bool squeeze_breps_ok(SmTopologyIntersector* ti, SmVertex* bv, SmVertex* ov)
     }
     if (brep_v && brep_v != bv)
     {
+        if (!is_vertex(brep_mate))
+            return false;
         double d_old = ov->GetPoint().DistanceBetween(brep_v->GetPoint());
         double d_new = ov->GetPoint().DistanceBetween(bv->GetPoint());
         if (!(d_new > d_old + SM_EFF_ZERO_SQRT))
             need_brep = true;
     }
     return (!need_other || ti->GetOtherBrep() != nullptr) && (!need_brep || ti->GetPrimaryBrep() != nullptr);
+}
+
+// SetRelationships without the maps (constructor 1): Relate dereferences the null maps only
+// for a definition with both final topologies (the others are skipped with a warning).
+bool set_rels_maps_ok(SmProtoTopologyManager* mgr, int64_t ctor_kind)
+{
+    if (ctor_kind == 0)
+        return true;
+    SmTArray<SmVertexDefinition*> vds;
+    mgr->GetAllVertexDefinitions(vds);
+    for (ULONG i = 0; i < vds.GetSize(); i++)
+        if (vds[i]->GetFinalVertex(1) != nullptr && vds[i]->GetFinalVertex(2) != nullptr)
+            return false;
+    SmTArray<SmEdgeDefinition*> eds;
+    mgr->GetAllEdgeDefinitions(eds);
+    for (ULONG i = 0; i < eds.GetSize(); i++)
+        if (eds[i] != nullptr && eds[i]->GetFinalEdge(1) != nullptr && eds[i]->GetFinalEdge(2) != nullptr)
+            return false;
+    return true;
+}
+
+// IntersectInsertRelate (SmTopologyIntersector.cpp:1092-1270) VERBATIM, apart from the
+// SM_VALIDATE_TOPOLOGY, SM_DEBUG_CODE and SM_USE_TBB blocks (not defined in the reference
+// build) and the members reached through accessors, plus one addition: before the delete,
+// whether ~SmProtoTopologyManager would read a freed proto edge (UB-175); if so the stale
+// entries are unlinked first, so the run stays defined, and `ub` is set (the port answers
+// InvalidInput there).
+SmStatus iir_verbatim(SmTopologyIntersector* ti, bool& ub)
+{
+  SmProtoTopologyManager*& m_pProtoTopoMgr = ti->*ti_get(TiMgr());
+  SmBrep* m_pBrep = ti->GetPrimaryBrep();
+  SmBrep* m_pOther = ti->GetOtherBrep();
+
+  // Capture Distance
+  double dCaptureDistance = 0.01;
+
+  // Make sure it's not smaller than our tolerance value.
+  double dTopoIntTol = ti->GetThisApproxTol3d();
+  if ( dCaptureDistance < dTopoIntTol * 2000 )
+    { dCaptureDistance = dTopoIntTol * 2000; }
+
+  m_pProtoTopoMgr = new( m_pBrep ) SmProtoTopologyManager( m_pBrep, m_pOther, ti, dCaptureDistance );
+
+  SmStatus eStat = ti->IntersectTopology();
+
+  SER_MSG( eStat, _T("\nSmProtoExecutive: Failure returned from IntersectTopology().\n") );
+
+  eStat = ti->ResolveIntersections();
+
+  SER_MSG( eStat, _T("\nSmProtoExecutive: Failure returned from ResolveProtoTopology().\n") );
+
+  // Imprint Intersections, now we'll modify the Breps.
+  eStat = ti->ImprintIntersections();
+
+  // If that didn't work, inform the public
+  SE_MSG( eStat, _T("\nSmProtoExecutive: Error returned from ImprintIntersections().\n") );
+
+  // Set relationship maps.
+  eStat = ti->SetRelationships();
+
+  // all done - clean up and exit
+  if(m_pProtoTopoMgr) { ub = mgr_teardown_stale(m_pProtoTopoMgr, true); delete m_pProtoTopoMgr ; m_pProtoTopoMgr = NULL; }
+  return eStat;
 }
 } // namespace
 
@@ -189,7 +260,7 @@ bool run_extra_op(int64_t op, Rd& rd, Two& t, SmTopologyIntersector* ti, SmProto
         SmVertex* bv = (SmVertex*)rd_h(rd, t);
         SmVertex* ov = (SmVertex*)rd_h(rd, t);
         if (!is_vertex(bv) || !is_vertex(ov) || !vertex_mate_ok(ti->GetOtherMate(bv)) ||
-            !vertex_mate_ok(ti->GetBrepMate(ov)) || !squeeze_breps_ok(ti, bv, ov))
+            !squeeze_breps_ok(ti, bv, ov))
         {
             o.push_back(ST_NULL_DEREF);
             return true;
@@ -256,7 +327,7 @@ bool run_extra_op(int64_t op, Rd& rd, Two& t, SmTopologyIntersector* ti, SmProto
     {
         // (IntersectTopology reads both B-reps' faces; SetRelationships' Relate needs the maps)
         if (mgr == nullptr || (op == S_INTERSECT_TOPO && (ti->GetPrimaryBrep() == nullptr || ti->GetOtherBrep() == nullptr)) ||
-            (op == S_SET_RELS && ctor_kind != 0))
+            (op == S_SET_RELS && !set_rels_maps_ok(mgr, ctor_kind)))
         {
             o.push_back(ST_NULL_DEREF);
             return true;
@@ -277,7 +348,9 @@ bool run_extra_op(int64_t op, Rd& rd, Two& t, SmTopologyIntersector* ti, SmProto
         }
         // (the manager IntersectInsertRelate makes replaces the installed one, which stays
         // owned by the script; it is the script's last op)
-        o.push_back(st(ti->IntersectInsertRelate()));
+        bool ub = false;
+        SmStatus s = iir_verbatim(ti, ub);
+        o.push_back(ub ? ST_NULL_DEREF : st(s));
         return true;
     }
     case S_FIXUP_CLASS:

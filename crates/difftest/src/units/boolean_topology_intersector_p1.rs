@@ -1551,17 +1551,14 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two, start: Start) -> Result<Vec<ROp>
         if matches!(op, OpIn::IntersectTopo) && (!has_mgr || !have_breps[0] || !have_breps[1]) {
             return Err(fail("intersect_topology"));
         }
-        if matches!(op, OpIn::SetRels) && (!has_mgr || i_ctor != 0) {
+        if matches!(op, OpIn::SetRels) && !has_mgr {
             return Err(fail("set_relationships"));
         }
         if matches!(op, OpIn::Iir) && (i_ctor != 0 || !have_breps[0] || !have_breps[1]) {
             return Err(fail("intersect_insert_relate"));
         }
-        // the FFI's hang guard of IntersectInsertRelate
-        if matches!(op, OpIn::Iir)
-            && (approx.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater)
-                || start.block_max_abs >= ffi2::HANG_COORD)
-        {
+        // the FFI's hang guard of IntersectInsertRelate (HANG-25, HANG-16's class)
+        if matches!(op, OpIn::Iir) && (approx == 0.0 || start.block_max_abs >= ffi2::HANG_COORD) {
             return Err(fail("intersect_insert_relate_hang"));
         }
         if let OpIn::SetTols { approx: a, .. } = op {
@@ -2969,11 +2966,6 @@ fn put_cc(o: &mut Vec<f64>, cc: &CurveClassification<H>) {
     }
 }
 
-/// A mate that upstream casts to `SmVertex*` (the shim refuses a non-vertex one).
-fn vertex_mate_ok(m: Option<H>) -> bool {
-    m.is_none_or(|m| m.kind == K_VERTEX)
-}
-
 /// The shim's `vertex_edges_ok`: every edge of the vertex has a curve and a vertex.
 fn vertex_edges_ok(two: &Two, v: H) -> solidcore::Result<bool> {
     Ok(two
@@ -3012,12 +3004,9 @@ fn run_part2_op(
                 o.push(NULL_DEREF);
                 return Ok(());
             };
-            // (a null B-rep where a combination would run is the port's InvalidInput,
-            // reported as -2 like the shim's guard)
-            if !vertex_mate_ok(ti.other_mate(Some(bv))) || !vertex_mate_ok(ti.brep_mate(Some(ov))) {
-                o.push(NULL_DEREF);
-                return Ok(());
-            }
+            // (a null B-rep where a combination would run, or a mate that is not a vertex
+            // where upstream dereferences it, is the port's InvalidInput, reported as -2
+            // like the shim's guard)
             let Some(r) = status(ti.check_for_squeeze_vertices(two, bv, ov), o)? else {
                 return Ok(());
             };
@@ -3062,17 +3051,21 @@ fn run_part2_op(
         OpIn::IntersectTopo | OpIn::SetRels => {
             let topo = matches!(op, OpIn::IntersectTopo);
             o.push(if topo { 45.0 } else { 46.0 });
-            if ti.proto_topology_manager().is_none()
-                || (topo && !have_breps)
-                || (!topo && i.ctor != 0)
-            {
+            if ti.proto_topology_manager().is_none() || (topo && !have_breps) {
                 o.push(NULL_DEREF);
                 return Ok(());
             }
             if topo {
                 status(ti.intersect_topology(k, two), o)?;
             } else {
-                status(ti.set_relationships(k, two), o)?;
+                // (without the maps, a definition with both finals is the port's
+                // InvalidInput, which the shim refuses with -2 alone)
+                let r = ti.set_relationships(k, two);
+                if matches!(r, Err(SolidError::InvalidInput { .. })) {
+                    o.push(NULL_DEREF);
+                    return Ok(());
+                }
+                status(r, o)?;
             }
             let m = ti
                 .proto_topology_manager()
