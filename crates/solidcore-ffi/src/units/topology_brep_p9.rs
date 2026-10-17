@@ -52,7 +52,7 @@ pub struct Request<'a> {
     pub parameter: f64,
     /// Point for vertex creation.
     pub point: [f64; 3],
-    /// Exact assignments to the two endpoint tolerances before splitting.
+    /// Raw endpoint tolerances, converted by native `SmZoneTol3d` before assignment.
     pub tolerances: [f64; 2],
 }
 
@@ -68,7 +68,7 @@ pub fn eval(request: Request<'_>, export_only: bool) -> Result<Vec<f64>, FfiErro
         || request
             .tolerances
             .iter()
-            .any(|v| !v.is_finite() || *v < 0.0)
+            .any(|v| !v.is_finite())
     {
         return Err(bad());
     }

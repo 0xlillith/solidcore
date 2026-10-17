@@ -4018,6 +4018,90 @@
           2
         ]
       }
+    },
+    {
+      "name": "bspline_negative_raw_tolerance_converts_before_split",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:21282; source/SMLib/inc/SmTol.h:SmZoneTol3d",
+      "inputs": {
+        "op": 4,
+        "brep": {
+          "kind": "wire",
+          "curve": {
+            "dim": 3,
+            "cpts": [
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                0,
+                0,
+                1
+              ]
+            ],
+            "p": 1,
+            "u": [
+              0,
+              0,
+              1,
+              1
+            ]
+          },
+          "t0": 0,
+          "t1": 1
+        },
+        "variant": 0,
+        "parameter": 0.01,
+        "tolerances": [
+          -0.02,
+          0
+        ]
+      }
+    },
+    {
+      "name": "real_line_negative_raw_tolerance_converts_before_split",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:21282; source/SMLib/inc/SmTol.h:SmZoneTol3d",
+      "inputs": {
+        "op": 4,
+        "brep": {
+          "kind": "wire",
+          "curve": {
+            "dim": 3,
+            "cpts": [
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                0,
+                0,
+                1
+              ]
+            ],
+            "p": 1,
+            "u": [
+              0,
+              0,
+              1,
+              1
+            ]
+          },
+          "t0": 0,
+          "t1": 1
+        },
+        "variant": 1,
+        "parameter": 0.01,
+        "tolerances": [
+          -0.02,
+          0
+        ]
+      }
     }
   ]
 }
