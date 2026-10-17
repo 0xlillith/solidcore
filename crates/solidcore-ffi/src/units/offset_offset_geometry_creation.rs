@@ -21,8 +21,8 @@
 //! surfaces)` from the `n_local` pairs, and an `SmOffsetExecutive` over the first
 //! B-rep with `SetInset`, `SetExtendConvexEdges`, `SetShellFaces` (when `n_shell > 0`)
 //! and its original-to-offset edge-use relation filled with the `n_pairs` pairs (a
-//! many-to-many relation: an edge use may be mapped more than once, and
-//! `GetOffsetEdgeuse` then returns null for it). A mark is locked for the run
+//! many-to-many relation: an edge use mapped to two different offset edge uses makes
+//! `GetOffsetEdgeuse` return null for it; a repeated pair adds nothing). A mark is locked for the run
 //! (`SmNewMarkAndLock`). Before every op the executive's extended-surface cache is
 //! seeded with every face surface of both B-reps and every store surface mapped to
 //! itself, so `GetCreateExtendedSurface` returns the base surface unextended and the

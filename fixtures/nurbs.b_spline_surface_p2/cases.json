@@ -7180,7 +7180,7 @@
   },
   {
    "name": "three_arcs_about_two_centres",
-   "upstream_ref": "source/SMLib/src/SmBSplineSurface.cpp CreateSphereFromArcs (WR-103: rOrigin aliases sRefFrame, so arcs about different centres pass the centre check and the sphere is built about the last arc's centre)",
+   "upstream_ref": "source/SMLib/src/SmBSplineSurface.cpp CreateSphereFromArcs (WR-103: rOrigin aliases sRefFrame, so the centre check is dead: three radius-5 arcs, a 120-degree generator about the origin, its 90-degree neighbour about (10,0,0) sharing its start point, a 60-degree arc about (10,0,0), build a sphere; a port with the check rejects them)",
    "inputs": {
     "op": "sphere",
     "arcs": [
@@ -7193,14 +7193,14 @@
         1.0
        ],
        [
-        3.5355339059327378,
-        3.5355339059327378,
+        2.5,
+        4.330127018922193,
         0.0,
-        0.7071067811865476
+        0.5
        ],
        [
-        0,
-        5,
+        -2.5,
+        4.330127018922193,
         0,
         1.0
        ]
@@ -7255,15 +7255,15 @@
         1.0
        ],
        [
-        7.0710678118654755,
-        3.5355339059327378,
-        3.5355339059327378,
-        0.7071067811865476
+        8.660254037844386,
+        4.330127018922193,
+        2.5,
+        0.8660254037844386
        ],
        [
         10,
-        0,
-        5,
+        2.5,
+        4.330127018922193,
         1.0
        ]
       ],

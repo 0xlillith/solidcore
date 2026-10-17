@@ -101,6 +101,11 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 
 /// The shim's "upstream would dereference null" status.
 const NULL_DEREF: f64 = -2.0;
+/// The deferral label of an op whose upstream path dispatches a virtual surface method
+/// on a face surface the importer could only bring in as its B-spline part (an
+/// `SmBSplineSurface` subclass other than `SmPlane`): no plan unit's port would
+/// unblock it, an exact import would.
+const ANALYTIC_EXPORT: &str = "harness:analytic-geometry-export";
 /// Upstream's `SM_ERR_INVALID_INPUT` status (`SmMessages.h`), the status a library
 /// `SolidError::InvalidInput` stands for.
 const SM_ERR_INVALID_INPUT: f64 = 1007.0;
@@ -578,6 +583,10 @@ fn key_of(e: EntityRef) -> ObjectRef {
 /// curves and surfaces (kinds 12 and 13) and the marked edge uses.
 struct Two {
     breps: [Option<Brep>; 2],
+    /// Per B-rep, per face (traversal order): whether the face's surface was imported
+    /// exactly. An `SmBSplineSurface` subclass other than `SmPlane` (surface of
+    /// revolution or extrusion, cone, sphere, torus) arrives as its B-spline part.
+    exact: [Vec<bool>; 2],
     curves: Vec<SmCurve>,
     surfaces: Vec<Option<Surface>>,
     extra: Vec<SmCurve>,
@@ -607,10 +616,11 @@ const fn fuid(h: H) -> FaceuseId {
 }
 
 impl Two {
-    fn new(a: Brep, b: Option<Brep>) -> Self {
+    fn new(a: Brep, b: Option<Brep>, exact: [Vec<bool>; 2]) -> Self {
         let env = [NotifyEnv::new(Some(&a)), NotifyEnv::new(b.as_ref())];
         Self {
             breps: [Some(a), b],
+            exact,
             curves: Vec::new(),
             surfaces: Vec::new(),
             extra: Vec::new(),
@@ -622,6 +632,16 @@ impl Two {
 
     fn brep(&self, h: H) -> Option<&Brep> {
         self.breps.get(usize::try_from(h.b).ok()?)?.as_ref()
+    }
+
+    /// Whether `face`'s surface is the upstream kind on this side (see `exact`).
+    fn face_exact(&self, face: H) -> bool {
+        usize::try_from(face.b)
+            .ok()
+            .and_then(|b| self.exact.get(b))
+            .and_then(|v| v.get(usize::try_from(face.i).ok()?))
+            .copied()
+            .unwrap_or(true)
     }
 
     fn brep_mut(&mut self, h: H) -> Option<&mut Brep> {
@@ -897,6 +917,14 @@ impl OffsetBrep<H> for Two {
         if face.b != edge.b || face.kind != K_FACE {
             return Err(invalid("face of another B-rep"));
         }
+        if !self.face_exact(face) {
+            // SmEdge::IsSeam calls the surface's virtual IsClosed, which SmSphere
+            // overrides; the importer does not keep the subclass (see `exact`)
+            return Err(SolidError::Unported {
+                upstream: "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+                unit: ANALYTIC_EXPORT,
+            });
+        }
         ed::is_seam_of_surface(self.brep_r(edge)?, eid(edge), fid(face))
     }
     fn edge_vertex(&self, edge: H) -> solidcore::Result<Option<H>> {
@@ -1008,7 +1036,8 @@ impl OffsetBrep<H> for Two {
 }
 
 /// The executive's data: flags, shell faces and the original-to-offset edge-use relation
-/// (many-to-many, as `m_vEUToEU`: the offset edge uses of an original in pair order).
+/// (many-to-many, as `m_vEUToEU`: the distinct offset edge uses of an original, a
+/// repeated pair adding nothing, as `SmMapPtrToPtrs::Insert` into its `unordered_set`).
 struct Exec {
     inset: bool,
     extend: bool,
@@ -1299,8 +1328,8 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
     for (j, f) in i.shell.iter().enumerate() {
         shell.push(hk(c, *f, &[K_FACE], true, 3, &format!("shell{j}"))?);
     }
-    // (the relation is many-to-many: an edge use mapped twice is kept, and
-    // GetOffsetEdgeuse then gives null for it)
+    // (the relation is many-to-many: an edge use mapped to two different offset edge
+    // uses makes GetOffsetEdgeuse give null for it; a repeated pair adds nothing)
     let mut pairs = Vec::new();
     for (j, [a, b]) in i.pairs.iter().enumerate() {
         let what = format!("pair{j}");
@@ -1593,10 +1622,13 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
     let Some((a, b)) = ffi::split_exports(&ex) else {
         return Err(Box::new(Ok(build_failure(&ex))));
     };
-    let (brep_a, _) = import(&a).map_err(|e| Box::new(Err(e)))?;
-    let brep_b = match &b {
-        Some(b) => Some(import(b).map_err(|e| Box::new(Err(e)))?.0),
-        None => None,
+    let (brep_a, exact_a) = import(&a).map_err(|e| Box::new(Err(e)))?;
+    let (brep_b, exact_b) = match &b {
+        Some(b) => {
+            let (brep, exact) = import(b).map_err(|e| Box::new(Err(e)))?;
+            (Some(brep), exact)
+        }
+        None => (None, Vec::new()),
     };
     let count5 = |b: &Brep| {
         [
@@ -1612,7 +1644,7 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
         curves: [Vec::new(), Vec::new()],
         surfaces: 0,
     };
-    let two = Two::new(brep_a, brep_b);
+    let two = Two::new(brep_a, brep_b, [exact_a, exact_b]);
     let (hdr, ops) = match resolve(i, &mut counts, &two) {
         Ok(r) => r,
         Err(name) => return Err(Box::new(Ok(Output::err(name)))),
@@ -1789,7 +1821,10 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
         shell: hdr.shell.iter().filter_map(|h| triple_to_h(*h)).collect(),
         map: hdr.pairs.iter().fold(BTreeMap::new(), |mut m: BTreeMap<H, Vec<H>>, [a, b]| {
             if let (Some(a), Some(b)) = (triple_to_h(*a), triple_to_h(*b)) {
-                m.entry(a).or_default().push(b);
+                let seconds = m.entry(a).or_default();
+                if !seconds.contains(&b) {
+                    seconds.push(b);
+                }
             }
             m
         }),
@@ -1898,6 +1933,15 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                             continue;
                         }
                     }
+                }
+                if !is_local && !two.face_exact(face) {
+                    // CreateOffsetSurface is virtual and every SmBSplineSurface subclass
+                    // the importer reduces to its B-spline part overrides it: the Rust
+                    // would dispatch the B-spline override instead
+                    return Err(Fail::Solid(SolidError::Unported {
+                        upstream: "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+                        unit: ANALYTIC_EXPORT,
+                    }));
                 }
                 let r = if is_local {
                     let (lf, ls) = local_lists(&two);

@@ -490,8 +490,8 @@
       "name": "three_arcs_about_two_centres",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/nurbs.b_spline_surface_p2/cases.json#60 (upstream source/SMLib/src/SmBSplineSurface.cpp CreateSphereFromArcs (WR-103: rOrigin aliases sRefFrame, so arcs about different centres pass the centre check and the sphere is built about the last arc's centre))",
-      "values_compared": 1
+      "source": "fixture:fixtures/nurbs.b_spline_surface_p2/cases.json#60 (upstream source/SMLib/src/SmBSplineSurface.cpp CreateSphereFromArcs (WR-103: rOrigin aliases sRefFrame, so the centre check is dead: three radius-5 arcs, a 120-degree generator about the origin, its 90-degree neighbour about (10,0,0) sharing its start point, a 60-degree arc about (10,0,0), build a sphere; a port with the check rejects them))",
+      "values_compared": 94
     },
     {
       "max_rel_err": 0.0,

@@ -5878,23 +5878,38 @@ include `SmLine`s, are compared). `SmOffsetSurface` never appears (no surface ki
 offset surface until `surface.offset_surface` lands), so the `SetAllowExtension(FALSE)`
 branch of both `FaceuseOffset`s is dead in the port.
 
+**Analytic faces.** The `.smb` importer keeps a plane exactly but brings every other
+`SmBSplineSurface` subclass (cylinder, cone, sphere, torus, revolution, ...) in as its
+B-spline part, with `exact = false` in the per-face flag `import` returns. Where upstream
+dispatches a subclass-overridden virtual on such a face's own surface, the runner defers
+under `harness:analytic-geometry-export` instead of letting the port run the B-spline
+override: `CreateOffsetSurface` in the non-local `FaceuseOffset` (59 cases) and
+`IsClosed` in `SmEdge::IsSeam` (20 cases). The `IsClosed` deferral is conservative: only
+`SmSphere` overrides it, but the importer does not keep the subclass, so every inexact
+face defers there; it cost 5 cases that passed before (`gen0224`, `gen0300`, `gen0436`,
+`gen0514`, `gen0762`). Exporting the analytic kinds exactly would turn all 79 back into
+compares.
+
 **Results.** 861 cases (5 upstream-derived fixtures, 56 cases built in code, 800 generated
-two-B-rep scripts): 327 pass bit for bit (`max_rel_err 0`), 0 fail, 534 deferred, 0 cases
-where both sides reject the script. Every pass compares real values (311 of the 327
-compare more than six, 152 more than fifty; none is a constant-status compare, the
+two-B-rep scripts): 322 pass bit for bit (`max_rel_err 0`), 0 fail, 539 deferred, 0 cases
+where both sides reject the script. Every pass compares real values (306 of the 322
+compare more than six, 147 more than fifty; none is a constant-status compare, the
 hang-guard passes of the pre-review version having become deferrals). Deferred, by the
-unit that blocks: `topology.edgeuse_p3` 144, `offset.offset_executive_p1` 138 (the
-extended surface, now reached by every op that used to be refused), `topology.brep_p2`
-120, `surface.offset_surface` 90 (B-spline faces only; plane faces are offset here),
-`topology.face_p1` 37, `blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 1. Ops with
-no successful pass (compared only through matching refusals or upstream statuses):
-`UpdateFaceSurfaceDomain` (42 refusals), `ExtendTrimEdges` (32), `MateEdges` (18 refusals,
-32 matching upstream statuses), `HaveTangentGaps` (28); the others have 5
-(`LocalFaceuseOffset`) to 43 (`FaceuseOffset`) successes among the passing cases. A
-4000-seed sweep (4061 cases) passes 1599, fails 0, defers 2462, with no C++ crash or
-stall. Perturb: `SENSITIVE 327/327`. `nurbs.b_spline_surface_p2` (touched): 764 cases,
-759 pass, 5 deferred. All green/partial units: `green-par: 198 units, failed=0` on
-the tree merged with `main` at `54522f50`.
+unit that blocks: `offset.offset_executive_p1` 138 (the extended surface, now reached by
+every op that used to be refused), `topology.edgeuse_p3` 133, `topology.brep_p2` 116,
+`harness:analytic-geometry-export` 79 (above), `topology.face_p1` 37,
+`surface.offset_surface` 31 (exact B-spline faces only; plane faces are offset here),
+`blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 1. Ops with no successful pass
+(compared only through matching refusals or upstream statuses): `UpdateFaceSurfaceDomain`,
+`ExtendTrimEdges`, `MateEdges`, `HaveTangentGaps`; the others have 5
+(`LocalFaceuseOffset`) to 43 (`FaceuseOffset`) successes among the passing cases (counted
+at 31aaf333, before the five cases above became deferrals). A 4000-seed sweep (4061
+cases) passes 1576, fails 0, defers 2485, with no C++ crash or stall. Perturb:
+`SENSITIVE 322/322`. `nurbs.b_spline_surface_p2` (touched): 764 cases, 759 pass, 5
+deferred; its `three_arcs_about_two_centres` case (arcs meeting end to end about two
+centres) compares 94 values and fails with the first arc's centre captured by value, so
+it pins WR-103. All green/partial units: `green-par: 198 units, failed=0` on the tree
+merged with `main` at `54522f50`.
 
 ## intersect.curve_class_p5: independent port
 

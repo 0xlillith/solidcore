@@ -1442,6 +1442,47 @@ mod tests {
     use crate::nurbs::math::CPoint;
     use crate::nurbs::srf_basic::Surface;
 
+    /// A rational quadratic arc from `p0` to `p2` with tangent corner `c` and corner
+    /// weight `w` (the cosine of half the arc angle).
+    fn arc3(p0: [f64; 3], c: [f64; 3], w: f64, p2: [f64; 3]) -> SmCurve {
+        let pw = vec![
+            CPoint::new(p0[0], p0[1], p0[2], 1.0),
+            CPoint::new(c[0] * w, c[1] * w, c[2] * w, w),
+            CPoint::new(p2[0], p2[1], p2[2], 1.0),
+        ];
+        let cur = crate::nurbs::crv_basic::Curve::new(pw, 2, vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0])
+            .expect("curve");
+        SmCurve::from(BSplineCurve::from_nurb(cur, 3, false))
+    }
+
+    /// WR-103: arcs about two centres that meet end to end build a sphere, as upstream's
+    /// aliased (dead) centre check lets them.
+    #[test]
+    fn sphere_from_arcs_about_two_centres() {
+        let arcs = [
+            arc3(
+                [5.0, 0.0, 0.0],
+                [5.0, 8.660_254_037_844_386, 0.0],
+                0.5,
+                [-2.5, 4.330_127_018_922_193, 0.0],
+            ),
+            arc3(
+                [5.0, 0.0, 0.0],
+                [5.0, 0.0, 5.0],
+                std::f64::consts::FRAC_1_SQRT_2,
+                [10.0, 0.0, 5.0],
+            ),
+            arc3(
+                [10.0, 5.0, 0.0],
+                [10.0, 5.0, 2.886_751_345_948_129],
+                0.866_025_403_784_438_6,
+                [10.0, 2.5, 4.330_127_018_922_193],
+            ),
+        ];
+        let r = BSplineSurface::create_sphere_from_arcs(&arcs, 1e-6).unwrap();
+        assert_eq!(r.ccw_arcs, vec![0, 1, 2]);
+    }
+
     /// A biquadratic 3 x 3 patch over `[0, 2] x [0, 1]`.
     fn patch(rational: bool) -> BSplineSurface {
         let net = (0..3)

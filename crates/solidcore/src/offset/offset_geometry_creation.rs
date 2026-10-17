@@ -74,6 +74,16 @@
 //!   kind's override; only `new SmBSplineCurve(*p)` and the static B-spline routines
 //!   (`CreateTrimmedPlaneFromRuled`'s reading of an arc, `MakeCurvesCompatible`, the
 //!   knots and extension of a UV curve) see the B-spline part.
+//! - **Latent differences behind stubs** (code reached only after an `Unported` callee
+//!   today; whoever ports `offset.offset_executive_p1` or `topology.edgeuse_p3` should
+//!   revisit them): statuses upstream ignores but the port propagates with `?`:
+//!   `HaveTangentGaps`' `NormalizedEvaluate` / `ClosestPoint` (upstream uses only
+//!   `bSuccess && d > tol`), `TrimExtendedEdge`'s `Evaluate` / `EvaluateNormal` of a
+//!   solution, and the unchecked `Copy` calls of `ExtendTrimEdges` and `MateEdges`;
+//!   and `ExtendTrimEdges` for a non-lamina edge without other offset edge use, where
+//!   upstream keeps `pOtherUVCurve` as the edge use's or radial's own UV trim curve
+//!   (`cpp:1452`, `1458`), passes it to `TrimExtendedEdge` and trims it in place
+//!   (`cpp:1694`), while the port has no other UV curve there.
 //! - **Trim intervals.** A `Trim(SmExtent1d &)` may snap its interval to knots; where
 //!   upstream trims several curves to one interval, the snapped interval reaches the
 //!   next trim as it does there.
@@ -2079,7 +2089,7 @@ impl OffsetGeometryCreation {
                 false,
             )?
             .curve;
-        let mut lifted_curve = lifted;
+        let lifted_curve = lifted;
 
         // When the Edgeuse is not lamina - build the 2nd UVTrimCurve on the other Surface
         let mut uv_curve_extended_h: Option<O> = None;
@@ -2192,7 +2202,6 @@ impl OffsetGeometryCreation {
         // Trim the 3 curves to the common interval (may snap sIvl by tol to existing knots:
         // the snapped interval is what the next trim gets)
         let mut ti = trim_ivl;
-        lifted_curve.trim(k, &mut ti, TrimMode::Notify)?;
         {
             let c = brep
                 .curve_mut(lifted_h)

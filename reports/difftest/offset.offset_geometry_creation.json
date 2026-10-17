@@ -27,8 +27,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "cylinder_seam_vertex_and_edge_caps",
@@ -75,8 +75,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0001",
@@ -135,8 +135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0007",
@@ -203,8 +203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0014",
@@ -323,8 +323,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0025",
@@ -635,8 +635,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0054",
@@ -663,8 +663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0057",
@@ -759,8 +759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0067",
@@ -863,8 +863,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0077",
@@ -1011,8 +1011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0090",
@@ -1087,8 +1087,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0098",
@@ -1143,8 +1143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0103",
@@ -1347,8 +1347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0123",
@@ -1371,8 +1371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0125",
@@ -1383,8 +1383,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0126",
@@ -1527,8 +1527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0139",
@@ -1683,8 +1683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0154",
@@ -1823,8 +1823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0168",
@@ -1867,8 +1867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0172",
@@ -1911,8 +1911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0176",
@@ -2386,12 +2386,16 @@
       "values_compared": 12
     },
     {
+      "deferred": {
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
+      },
       "max_rel_err": 0.0,
       "name": "gen0224",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762980",
-      "values_compared": 178
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -2463,8 +2467,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0231",
@@ -2495,8 +2499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0234",
@@ -2531,8 +2535,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0237",
@@ -2615,8 +2619,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0246",
@@ -2907,8 +2911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0273",
@@ -2919,8 +2923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0274",
@@ -2979,8 +2983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0280",
@@ -3079,8 +3083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0290",
@@ -3143,8 +3147,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0296",
@@ -3186,12 +3190,16 @@
       "values_compared": 7
     },
     {
+      "deferred": {
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
+      },
       "max_rel_err": 0.0,
       "name": "gen0300",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763056",
-      "values_compared": 219
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -3503,8 +3511,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0331",
@@ -3759,8 +3767,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0355",
@@ -3771,8 +3779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0356",
@@ -3891,8 +3899,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0367",
@@ -4015,8 +4023,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0379",
@@ -4115,8 +4123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0388",
@@ -4191,8 +4199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0395",
@@ -4303,8 +4311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0405",
@@ -4427,8 +4435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0417",
@@ -4447,8 +4455,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0419",
@@ -4614,12 +4622,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
+      },
       "max_rel_err": 0.0,
       "name": "gen0436",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763192",
-      "values_compared": 234
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4643,8 +4655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0439",
@@ -4655,8 +4667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0440",
@@ -4703,8 +4715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0445",
@@ -5107,8 +5119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0484",
@@ -5195,8 +5207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0492",
@@ -5231,8 +5243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0495",
@@ -5422,17 +5434,21 @@
       "values_compared": 179
     },
     {
+      "deferred": {
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
+      },
       "max_rel_err": 0.0,
       "name": "gen0514",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763270",
-      "values_compared": 178
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0515",
@@ -5463,8 +5479,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0518",
@@ -5515,8 +5531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0523",
@@ -5555,8 +5571,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0527",
@@ -5627,8 +5643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0534",
@@ -5811,8 +5827,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0551",
@@ -5915,8 +5931,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0561",
@@ -6055,8 +6071,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0574",
@@ -6067,8 +6083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0575",
@@ -6343,8 +6359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0602",
@@ -6387,8 +6403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0607",
@@ -6419,8 +6435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0610",
@@ -6511,8 +6527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0619",
@@ -6659,8 +6675,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0633",
@@ -7011,8 +7027,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0667",
@@ -7079,8 +7095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0673",
@@ -7143,8 +7159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0679",
@@ -7287,8 +7303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0693",
@@ -7323,8 +7339,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0696",
@@ -7475,8 +7491,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0711",
@@ -7639,8 +7655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0728",
@@ -7751,8 +7767,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0738",
@@ -7839,8 +7855,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0746",
@@ -8006,12 +8022,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
+      },
       "max_rel_err": 0.0,
       "name": "gen0762",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763518",
-      "values_compared": 356
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -8123,8 +8143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0773",
@@ -8195,8 +8215,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0780",
@@ -8455,8 +8475,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "cone_vertex_offset",
@@ -8475,8 +8495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "sphere_vertex_offset",
@@ -8487,8 +8507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "torus_vertex_offset",
@@ -8499,8 +8519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "vase_vertex_offset",
@@ -9027,17 +9047,18 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 534,
+  "cases_deferred": 539,
   "cases_failed": 0,
-  "cases_passed": 327,
+  "cases_passed": 322,
   "cases_total": 861,
   "deferred_by_unit": {
     "blend.fillet_standard_solver_p1": 4,
+    "harness:analytic-geometry-export": 79,
     "offset.offset_executive_p1": 138,
     "surface.cone_p2": 1,
-    "surface.offset_surface": 90,
-    "topology.brep_p2": 120,
-    "topology.edgeuse_p3": 144,
+    "surface.offset_surface": 31,
+    "topology.brep_p2": 116,
+    "topology.edgeuse_p3": 133,
     "topology.face_p1": 37
   },
   "max_rel_err": 0.0,
