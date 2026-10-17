@@ -13,7 +13,8 @@
 //                                         (the silhouette branch of ComputeSilhouettes'
 //                                         edge loop, replicated below) and back-facing
 //   op arguments (see below).
-// The output is `status record_len record[..] scene_box(6) scene_export`, the scene being
+// The output is `status record_len record[..] n_e curve_type[n_e] scene_box(6)
+// scene_export`, the scene being
 // GetSceneBrep() right after construction (the export of sc_topology_fixture.h) and
 // scene_box its SmBrep::CalculateBoundingBox. Private members are read through
 // explicitly instantiated member pointers. Ops whose upstream path reads an
@@ -26,6 +27,8 @@
 #include <SmMapPtrToPtr.h>
 #include <SmPointClass.h>
 #include <SmTree.h>
+#include <algorithm>
+#include <memory>
 
 namespace
 {
@@ -196,11 +199,11 @@ void put_sorted(std::vector<double>& o, Graph& g, SmTArray<SmEdge*>& edges)
 // op: 0 construction state, 1 IsSilhouetteEdge(e), 2 IsBackFacingEdge(e),
 // 3 IntersectCurveWithSilhouettes(e, fa, fb), 4 ComputeCurveVisibility(e, fa, fb, hints),
 // 5 ComputeEdgeVisibility(e, vertex, visible, premark), 6 GetSilhouetteEdges,
-// 7 IsPointVisible(P).
+// 7 IsPointVisible(P), 8 the scene only.
 SC_EXPORT int32_t sc_blend_hcr_eval(int32_t op, const char* path, const double* in, int64_t n_in,
                                     double* out, int64_t cap, int64_t* out_len)
 {
-    if (op < 0 || op > 7 || in == nullptr || n_in <= 0)
+    if (op < 0 || op > 8 || in == nullptr || n_in <= 0)
         return SC_ERR_ARG;
     SC_TRY
     const SmContext& ctx = the_context();
@@ -224,35 +227,49 @@ SC_EXPORT int32_t sc_blend_hcr_eval(int32_t op, const char* path, const double* 
     double ang_tol = rd.num();
     SmBoolean seams = rd.bflag();
     SmBoolean smooth = rd.bflag();
-    SmHCR* ph = view_mode == 0 ? new (ctx) SmHCR(ctx, built.brep, a, approx_tol, ang_tol, seams, smooth)
-                               : new (ctx) SmHCR(ctx, built.brep, placement, approx_tol, ang_tol, seams, smooth);
-    SmObjDelete clean(ph);
+    std::unique_ptr<SmHCR> ph(view_mode == 0 ? new SmHCR(ctx, built.brep, a, approx_tol, ang_tol, seams, smooth)
+                                             : new SmHCR(ctx, built.brep, placement, approx_tol, ang_tol, seams, smooth));
     SmHCR& h = *ph;
     SmBrep* scene = h.GetSceneBrep();
     Graph g;
     walk(scene, g);
     SmExtent3d scene_box;
     scene->CalculateBoundingBox(scene_box);
+    std::vector<double> scene_ex;
+    scene_ex.push_back((double)g.edges.size());
+    for (SmEdge* e : g.edges)
+        scene_ex.push_back(e->GetCurve() ? (double)e->GetCurve()->GetType() : -1.0);
+    put_box(scene_ex, scene_box);
+    export_graph(scene, g, scene_ex);
+    auto edge_at = [&](int64_t i) -> SmEdge* { return (i >= 0 && i < (int64_t)g.edges.size()) ? g.edges[(size_t)i] : nullptr; };
 
     int64_t n_sil = rd.idx();
     for (int64_t i = 0; i < n_sil; i++)
     {
-        SmEdge* e = g.edges[(size_t)rd.idx()];
-        if (e->GetCurve() == nullptr)
+        SmEdge* e = edge_at(rd.idx());
+        if (e == nullptr || e->GetCurve() == nullptr)
             return SC_ERR_ARG;
         seed_silhouette(h, e);
     }
     int64_t n_back = rd.idx();
     for (int64_t i = 0; i < n_back; i++)
     {
-        SmEdge* e = g.edges[(size_t)rd.idx()];
+        SmEdge* e = edge_at(rd.idx());
+        if (e == nullptr)
+            return SC_ERR_ARG;
         (h.*get(Hcr_m_pBackFacingEdges()))->Insert(e, e);
     }
 
     std::vector<double> record;
     double status = 0.0;
-    auto edge_arg = [&]() -> SmEdge* { return g.edges[(size_t)rd.idx()]; };
-    if (op == 0)
+    SmEdge* e_arg = (op >= 1 && op <= 5) ? edge_at(rd.idx()) : nullptr;
+    if (op >= 1 && op <= 5 && e_arg == nullptr)
+        return SC_ERR_ARG;
+    auto edge_arg = [&]() -> SmEdge* { return e_arg; };
+    if (op == 8)
+    {
+    }
+    else if (op == 0)
     {
         put_axis(record, h.*get(Hcr_m_vViewTransform()));
         put_axis(record, h.*get(Hcr_m_vInvViewTransform()));
@@ -299,6 +316,8 @@ SC_EXPORT int32_t sc_blend_hcr_eval(int32_t op, const char* path, const double* 
         int64_t vsel = rd.idx();
         SmBoolean visible = rd.bflag();
         bool premark = rd.flag();
+        if (vsel >= (int64_t)g.vertices.size())
+            return SC_ERR_ARG;
         SmVertex* v = vsel < 0 ? nullptr : g.vertices[(size_t)vsel];
         SmNewMarkAndLock lock(&ctx, SM_MT_ALLMARKS);
         SmMarkType mark = lock.GetMarkType();
@@ -348,8 +367,7 @@ SC_EXPORT int32_t sc_blend_hcr_eval(int32_t op, const char* path, const double* 
 
     std::vector<double> result{status, (double)record.size()};
     result.insert(result.end(), record.begin(), record.end());
-    put_box(result, scene_box);
-    export_graph(scene, g, result);
+    result.insert(result.end(), scene_ex.begin(), scene_ex.end());
     return sc_copy_out(result.data(), result.size(), out, cap, out_len);
     SC_CATCH
 }

@@ -1281,6 +1281,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** proto edges are arena ids that are never freed, so the repeat reads a deleted-edge slot and finds no group; nothing is read after free.
 
+#### UB-169. `SmHCR(.., crViewVector, ..)` builds the view transform from uninitialised vectors for a zero view vector
+- **Location:** `source/SMLib/src/SmHCR.cpp:144` `SmHCR::SmHCR` (view-vector constructor).
+- **What happens:** The status of `MakeUnitOrthoVectors` is ignored. When the view vector cannot be unitized (squared length below `SM_EFF_ZERO_SQ`), `sPerp1` and `sPerp2` (`SmVector3d() = default`) stay uninitialised and `SetSTEPCanonical` reads them.
+- **Trigger:** `SmHCR(ctx, pBrep, SmVector3d(0, 0, 0), ..)`.
+- **How found:** read during porting (`blend.hcr`).
+- **Confirmed:** no (the difftest guard rejects such view vectors).
+- **Severity:** crash/UB.
+- **Rust port:** `view_transform_for_vector` returns `InvalidInput`.
+
+#### UB-170. `SmHCR::IntersectCurveWithSilhouettes` reads silhouette edges past the queried array [PSIRT]
+- **Location:** `source/SMLib/src/SmHCR.cpp:2121` `SmHCR::IntersectCurveWithSilhouettes`.
+- **What happens:** The loop that copies the silhouette edges found in the curve's box is bounded by the size of the vertex query (`sObjects`) instead of the edge query (`sObjectsInBox`). With more silhouette vertices than edges in the box it reads past the edge array (unchecked `operator[]` in release) and uses the values as edges; with fewer it skips edges.
+- **Trigger:** A curve whose box holds an open chain of silhouette edges (one more vertex than edges), for example any `ComputeGlobalVisibility` whose silhouettes are open curves.
+- **How found:** read during porting (`blend.hcr`).
+- **Confirmed:** no (the difftest shim skips the call when the vertex count exceeds the edge count; the skipped-edge behaviour is compared).
+- **Severity:** crash/UB.
+- **Rust port:** Reads the edges up to the vertex count as upstream and returns `InvalidInput` at the first index past the edge list.
+
 #### UB-136. Fillet geometry substitution reads a missing partner interval
 - **Location:** `source/SMLib/src/SmCurveClass.cpp:16830` (`sm_SetDoFilletingGeometry`), called by `SmCurveClassification::MergeInterval`; unchecked indexing in `source/SMLib/inc/SmCurveClass.h:508`.
 - **What happens:** Fillet merging indexes both classifications at the target interval without checking the paired classification's size. An empty partner yields a null read; a shorter partner permits an out-of-range interval read.
