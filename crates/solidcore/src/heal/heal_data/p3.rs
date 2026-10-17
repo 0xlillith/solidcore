@@ -1131,11 +1131,21 @@ fn split_face_at_seam<O: LoopObject>(
     let split = with_classes(p, |cu, cv, p| {
         fp1::split_at_seam(k, b, f, cu, cv, problem, Some(p), &|_| None)
     })?;
-    let mut changes = Changes::default();
-    changes.added.extend(split.faces.iter().map(|&x| Some(EntityRef::Face(x))));
-    changes.added.extend(split.edges.iter().map(|&x| Some(EntityRef::Edge(x))));
-    changes.added.extend(split.vertices.iter().map(|&x| Some(EntityRef::Vertex(x))));
-    Ok((split.faces, changes))
+    let added = split
+        .faces
+        .iter()
+        .map(|&x| EntityRef::Face(x))
+        .chain(split.edges.iter().map(|&x| EntityRef::Edge(x)))
+        .chain(split.vertices.iter().map(|&x| EntityRef::Vertex(x)))
+        .map(Some)
+        .collect();
+    Ok((
+        split.faces,
+        Changes {
+            removed: Vec::new(),
+            added,
+        },
+    ))
 }
 
 #[cfg(test)]
