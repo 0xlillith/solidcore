@@ -6089,16 +6089,19 @@ regression inputs below; 2000-seed sweep 2037 pass / 111 deferred / 0 failed / 1
   by the pre-review), so the shim repeats upstream's degree / kind / end-distance
   pre-checks and refuses (`SC_ERR_ARG`, recorded as a rejected case) any input that
   would reach it; the Rust side on that path rebuilds the rails and stops at
-  `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`, PR #136) with
+  `SmOffsetSurface::GetNaturalUVDomain` (`surface.offset_surface`; the drop domain,
+  evaluated before `SmSurface::DropCurve` of `intersect.surface_drop_lib_p3`) with
   `Unported`, or with a null-pointer error when, as in the difftest, no solver is
   passed. The Rust adjusting path (net-row copy, rail `SetCurve` resets, the solver's
-  offset-distance save and restore, the `Unported` at `DropCurve`, the null-solver
+  offset-distance save and restore, the `Unported` at the drop, the null-solver
   error) is covered by the unit test `examine_copies_the_good_row_rebuilds_the_rail_and_stops_at_the_drop`
   only.
   `sm_FindStepoffUV` and `sm_CreateCubicRailRailInterpolant` take an `SmFilletSolver`
   (unported) and have no difftest cases: the first is ported over the co-ported
   `ConstantRadiusAssistedFs` and a B-rep, the second returns `Unported` at its first
-  solver call.
+  solver call (`FindIndexOfRailOnFace`); its tail (guess UV point, rail/rail
+  intersection, the five-point cubic through `CreateCanonical`) is ported behind the
+  two solver call stubs but cannot run yet (lesson 27: a stub replaces only its call).
 - **Pseudo-B-rep construction.** `SmFilletEdgeuse(SmFilletBrep*)` needs the pseudo
   B-rep's infinite region and first shell (`topology.brep_p1` / `topology.brep_p2`,
   sibling PRs #145 / #149, `topology.shell` #154): stubbed. The difftest builds the
@@ -6162,6 +6165,14 @@ regression inputs below; 2000-seed sweep 2037 pass / 111 deferred / 0 failed / 1
   widened specials then found HANG-20. With the HANG-20 bound in place, seed 4242 (40k:
   11429 ran), seed 777 (40k: 11490 ran) and the default seed (60k: 17189 ran) found no
   crash or hang.
+- **Fuzz (`difftest --fuzz 2000`, round 6).** The first run found three Rust panics
+  (`attempt to add with overflow`, `nurbs/srf_nurb.rs:1087`, `N_SrfIsClosedSmooth`'s
+  u-closure loop): a fuzzed surface `q = i64::MAX` that the FFI refuses, but whose
+  Rust side the fuzz still runs. `nurbs::srf_basic::Surface::new` and
+  `crv_basic::Curve::new` check only shapes ("see `is_valid`"), so the runner now
+  applies the FFI's count rules (`1 <= p <= n`, `r = n + p + 1`, likewise in v and
+  for curves) before building either. Library code that takes an unvalidated
+  `srf_basic::Surface` still assumes consistent counts (owner: `nurbs.srf_nurb`).
 - **Upstream crash UB-166: a near-zero or near-start interior v knot.** The
   re-review's fuzz found a SIGSEGV in `sm_DecomposeSrf` through the surface cache
   (`sm_SurfaceDropPoint`, and `sm_ClassifyFacePoint` through `SmSurface::DropCurve`):

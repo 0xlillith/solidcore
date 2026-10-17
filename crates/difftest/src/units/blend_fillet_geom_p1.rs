@@ -36,8 +36,8 @@ use serde_json::Value;
 use crate::util::{flag, v3};
 
 use solidcore::blend::fillet_geom::p1::{
-    self as fg, FilStatus, FilletBrep, FilletCornerId, FilletEdgeType, FilletEdgeuse,
-    FilletGeom, FilletGeomId, FilletGeomType, FilletVertex, FilletVertexType, FilletVertexuse,
+    self as fg, FilStatus, FilletBrep, FilletCornerId, FilletEdgeType, FilletEdgeuse, FilletGeom,
+    FilletGeomId, FilletGeomType, FilletVertex, FilletVertexType, FilletVertexuse,
 };
 use solidcore::curve::curve::{Curve, CurveKind};
 use solidcore::geom::extent1d::Extent1d;
@@ -466,9 +466,15 @@ impl Inputs {
 }
 
 fn shape(s: &Srf) -> Result<(usize, usize), HarnessError> {
-    let n = s.net.len().checked_sub(1).ok_or_else(|| harness("empty net"))?;
+    let n = s
+        .net
+        .len()
+        .checked_sub(1)
+        .ok_or_else(|| harness("empty net"))?;
     let cols = s.net.first().map_or(0, Vec::len);
-    let m = cols.checked_sub(1).ok_or_else(|| harness("empty net row"))?;
+    let m = cols
+        .checked_sub(1)
+        .ok_or_else(|| harness("empty net row"))?;
     if s.net.iter().any(|r| r.len() != cols) {
         return Err(harness("net rows differ in length"));
     }
@@ -480,8 +486,15 @@ fn shape(s: &Srf) -> Result<(usize, usize), HarnessError> {
 fn push_srf(o: &mut Vec<f64>, s: &Srf) -> Result<(), HarnessError> {
     let (n, m) = shape(s)?;
     o.extend(
-        [n, m, s.p, s.q, s.u.len().saturating_sub(1), s.v.len().saturating_sub(1)]
-            .map(|x| x as f64),
+        [
+            n,
+            m,
+            s.p,
+            s.q,
+            s.u.len().saturating_sub(1),
+            s.v.len().saturating_sub(1),
+        ]
+        .map(|x| x as f64),
     );
     for row in &s.net {
         for p in row {
@@ -495,7 +508,12 @@ fn push_srf(o: &mut Vec<f64>, s: &Srf) -> Result<(), HarnessError> {
 
 fn push_crv(o: &mut Vec<f64>, c: &Crv) {
     let n = c.cpts.len().saturating_sub(1);
-    o.extend([c.dim as f64, n as f64, c.p as f64, c.u.len().saturating_sub(1) as f64]);
+    o.extend([
+        c.dim as f64,
+        n as f64,
+        c.p as f64,
+        c.u.len().saturating_sub(1) as f64,
+    ]);
     for p in &c.cpts {
         o.extend_from_slice(p);
     }
@@ -527,8 +545,10 @@ fn push_model(o: &mut Vec<f64>, m: &Model) -> Result<(), HarnessError> {
     for v in &m.vertices {
         o.extend_from_slice(&v.point);
         o.extend(
-            [v.vtype, v.status, v.corner, v.pc_class, v.pc_kind, v.pc_index, v.pc_sub, v.pc_face]
-                .map(|x| x as f64),
+            [
+                v.vtype, v.status, v.corner, v.pc_class, v.pc_kind, v.pc_index, v.pc_sub, v.pc_face,
+            ]
+            .map(|x| x as f64),
         );
         o.push(v.t_param);
         o.extend_from_slice(&v.uv);
@@ -544,7 +564,13 @@ fn push_model(o: &mut Vec<f64>, m: &Model) -> Result<(), HarnessError> {
     }
     o.push(m.edges.len() as f64);
     for e in &m.edges {
-        o.extend([e.vs as f64, e.ve as f64, e.etype as f64, e.status as f64, e.corner as f64]);
+        o.extend([
+            e.vs as f64,
+            e.ve as f64,
+            e.etype as f64,
+            e.status as f64,
+            e.corner as f64,
+        ]);
         push_opt_crv(o, e.curve.as_ref());
         o.push(flag(e.interval.is_some()));
         if let Some([a, b]) = e.interval {
@@ -872,7 +898,10 @@ impl Split<'_> {
                 return Err(harness(format!("bad surface dims {dims:?}")));
             }
             self.put(&format!("{pfx}dims"), dims);
-            self.vals(&format!("{pfx}cpts"), 4 * (n as usize + 1) * (m as usize + 1))?;
+            self.vals(
+                &format!("{pfx}cpts"),
+                4 * (n as usize + 1) * (m as usize + 1),
+            )?;
             self.vals(&format!("{pfx}u"), r as usize + 1)?;
             self.vals(&format!("{pfx}v"), s as usize + 1)?;
         }
@@ -1012,6 +1041,14 @@ fn to_output(i: &Inputs, flat: &[f64]) -> Result<Output, HarnessError> {
 // ---- Rust side: building geometry -------------------------------------------------------
 
 fn curve_of(c: &Crv) -> Result<BSplineCurve, HarnessError> {
+    // the FFI's count rule (`solidcore_ffi` `curve`), as for surfaces in `surface_of`
+    let n = c.cpts.len().wrapping_sub(1);
+    if c.cpts.is_empty()
+        || !(1..=n).contains(&c.p)
+        || n.checked_add(c.p + 1) != Some(c.u.len().wrapping_sub(1))
+    {
+        return Err(harness("curve input: need 1 <= p <= n and m = n + p + 1"));
+    }
     let pw = c
         .cpts
         .iter()
@@ -1023,10 +1060,30 @@ fn curve_of(c: &Crv) -> Result<BSplineCurve, HarnessError> {
 }
 
 fn surface_of(s: &Srf) -> Result<Surface, HarnessError> {
+    // the FFI's count rule (`solidcore_ffi` `surface`): the C++ refuses anything else,
+    // and `srf_basic::Surface::new` checks only the shapes, so an inconsistent degree
+    // must not reach the library (a fuzzed `q = i64::MAX` overflowed its index loops)
+    let n = s.net.len().wrapping_sub(1);
+    let m = s.net.first().map_or(0, Vec::len).wrapping_sub(1);
+    let counts_ok = !s.net.is_empty()
+        && s.net.first().is_some_and(|r| !r.is_empty())
+        && (1..=n).contains(&s.p)
+        && (1..=m).contains(&s.q)
+        && n.checked_add(s.p + 1) == Some(s.u.len().wrapping_sub(1))
+        && m.checked_add(s.q + 1) == Some(s.v.len().wrapping_sub(1));
+    if !counts_ok {
+        return Err(harness(
+            "surface input: need 1 <= p <= n, 1 <= q <= m, r = n+p+1, s = m+q+1",
+        ));
+    }
     let net = s
         .net
         .iter()
-        .map(|r| r.iter().map(|&[x, y, z, w]| CPoint::new(x, y, z, w)).collect())
+        .map(|r| {
+            r.iter()
+                .map(|&[x, y, z, w]| CPoint::new(x, y, z, w))
+                .collect()
+        })
         .collect();
     let nurb = NurbSurface::new(net, s.p, s.q, s.u.clone(), s.v.clone())
         .map_err(|e| harness(format!("surface input: {e}")))?;
@@ -1152,8 +1209,12 @@ fn face_brep(surface: Surface) -> Result<(Brep, FaceId), HarnessError> {
 fn wire_edge(b: &mut Brep, curve: BSplineCurve, tol: Option<f64>) -> Result<EdgeId, HarnessError> {
     let c = Curve::from(curve);
     let ivl = c.natural_interval();
-    let ps = c.evaluate_point(ivl.min()).map_err(|e| harness(e.to_string()))?;
-    let pe = c.evaluate_point(ivl.max()).map_err(|e| harness(e.to_string()))?;
+    let ps = c
+        .evaluate_point(ivl.min())
+        .map_err(|e| harness(e.to_string()))?;
+    let pe = c
+        .evaluate_point(ivl.max())
+        .map_err(|e| harness(e.to_string()))?;
     let vs = b.add_vertex(ps).map_err(|e| harness(e.to_string()))?;
     let ve = if ps.distance(pe) < ZONE_TOL_3D {
         vs
@@ -1175,7 +1236,12 @@ fn wire_edge(b: &mut Brep, curve: BSplineCurve, tol: Option<f64>) -> Result<Edge
 
 /// Two edge uses (primary `SM_OT_SAME`, mate `SM_OT_OPPOSITE`) on `e` with vertex uses on
 /// `vs` and `ve`, as `MakeFilletEdge` / `CreateWireEdgeFromCurve` link them.
-fn link_uses(b: &mut Brep, e: EdgeId, vs: VertexId, ve: VertexId) -> Result<[EdgeuseId; 2], HarnessError> {
+fn link_uses(
+    b: &mut Brep,
+    e: EdgeId,
+    vs: VertexId,
+    ve: VertexId,
+) -> Result<[EdgeuseId; 2], HarnessError> {
     let h = |e: SolidError| harness(e.to_string());
     let eu1 = b.add_edgeuse_record(Edgeuse::default()).map_err(h)?;
     let eu2 = b.add_edgeuse_record(Edgeuse::default()).map_err(h)?;
@@ -1273,8 +1339,9 @@ impl RustModel {
             };
             fv.set_point_class(class, object);
             if let Ok(i) = usize::try_from(v.pc_face) {
-                fv.point_classification_mut()
-                    .set_face(Some(EntityRef::Face(*target_faces.get(i).ok_or_else(|| harness("pc face"))?)));
+                fv.point_classification_mut().set_face(Some(EntityRef::Face(
+                    *target_faces.get(i).ok_or_else(|| harness("pc face"))?,
+                )));
             }
             fv.set_original_t_param(v.t_param);
             fv.set_original_uv(uv(v.uv));
@@ -1284,7 +1351,8 @@ impl RustModel {
 
         let mut gids = Vec::new();
         for g in &m.geoms {
-            let gtype = FilletGeomType::from_code(g.gtype).ok_or_else(|| harness("bad geom type"))?;
+            let gtype =
+                FilletGeomType::from_code(g.gtype).ok_or_else(|| harness("bad geom type"))?;
             let mut geom = FilletGeom::new(None, gtype).map_err(h)?;
             geom.status = FilStatus::from_code(g.status).ok_or_else(|| harness("bad status"))?;
             if let Some(c) = &g.center {
@@ -1308,7 +1376,11 @@ impl RustModel {
                     FilletEdgeType::from_code(e.etype).ok_or_else(|| harness("bad edge type"))?,
                 );
                 fe.set_status(FilStatus::from_code(e.status).ok_or_else(|| harness("bad status"))?);
-                let fbe = |x: i64| usize::try_from(x).ok().and_then(|i| fillet_edges.get(i).copied());
+                let fbe = |x: i64| {
+                    usize::try_from(x)
+                        .ok()
+                        .and_then(|i| fillet_edges.get(i).copied())
+                };
                 fe.fillet_brep_edge1 = fbe(e.fbe[0]);
                 fe.fillet_brep_edge2 = fbe(e.fbe[1]);
             }
@@ -1408,11 +1480,18 @@ impl RustModel {
     }
 
     fn vertex(&self, i: usize) -> Result<VertexId, HarnessError> {
-        self.vertices().get(i).copied().ok_or_else(|| harness("vertex index"))
+        self.vertices()
+            .get(i)
+            .copied()
+            .ok_or_else(|| harness("vertex index"))
     }
 
     fn edge(&self, i: usize) -> Result<EdgeId, HarnessError> {
-        self.fb.edge_list().get(i).copied().ok_or_else(|| harness("edge index"))
+        self.fb
+            .edge_list()
+            .get(i)
+            .copied()
+            .ok_or_else(|| harness("edge index"))
     }
 
     fn edgeuse(&self, e: usize, which: usize) -> Result<EdgeuseId, HarnessError> {
@@ -1500,7 +1579,13 @@ impl RustModel {
             }
             Some(EntityRef::Edgeuse(eu)) => {
                 for (i, &e) in self.target_edges.iter().enumerate() {
-                    if self.target.edge(e).ok().and_then(|r| r.edgeuses.first().copied()) == Some(eu) {
+                    if self
+                        .target
+                        .edge(e)
+                        .ok()
+                        .and_then(|r| r.edgeuses.first().copied())
+                        == Some(eu)
+                    {
                         o.extend([2.0, i as f64, 0.0]);
                         return;
                     }
@@ -1584,7 +1669,9 @@ impl RustModel {
             for &eu in &edge.edgeuses {
                 let r = b.edgeuse(eu).map_err(h)?;
                 o.push(orient_code(r.orientation));
-                let v = r.vertexuse.and_then(|vu| b.vertexuse(vu).ok().and_then(|u| u.vertex));
+                let v = r
+                    .vertexuse
+                    .and_then(|vu| b.vertexuse(vu).ok().and_then(|u| u.vertex));
                 o.push(self.vertex_index(v));
                 dump_curve(o, r.uv_trim_curve.as_ref());
                 let g = self.fb.fillet_edgeuse(eu).map_err(h)?.fillet_geom();
@@ -1715,7 +1802,8 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
         } => {
             let s = surface_of(surface)?;
             let mut q = uv(*p);
-            let r = fg::adjust_uv_on_seam(&s, Vec3::new(ref_dir[0], ref_dir[1], ref_dir[2]), &mut q);
+            let r =
+                fg::adjust_uv_on_seam(&s, Vec3::new(ref_dir[0], ref_dir[1], ref_dir[2]), &mut q);
             match try_status!(r) {
                 Ok(()) => o.push(0.0),
                 Err(st) => o.push(st),
@@ -1731,7 +1819,8 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
         } => {
             let mut sv = Vec3::new(svec[0], svec[1], svec[2]);
             let mut ev = Vec3::new(evec[0], evec[1], evec[2]);
-            let r = fg::interpolate_endpts_and_tangents(v3(*start), v3(*end), &mut sv, &mut ev, *dim);
+            let r =
+                fg::interpolate_endpts_and_tangents(v3(*start), v3(*end), &mut sv, &mut ev, *dim);
             let curve = match try_status!(r) {
                 Ok(c) => {
                     o.push(0.0);
@@ -1747,7 +1836,13 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
         }
         Inputs::SurfaceDropPoint { surface, pnt, tol } => {
             let s = surface_of(surface)?;
-            match try_status!(fg::surface_drop_point::<NoObject>(&k, &s, Some(NoObject), v3(*pnt), *tol)) {
+            match try_status!(fg::surface_drop_point::<NoObject>(
+                &k,
+                &s,
+                Some(NoObject),
+                v3(*pnt),
+                *tol
+            )) {
                 Ok(sols) => {
                     o.extend([0.0, sols.len() as f64]);
                     for n in 0..sols.len() {
@@ -1954,7 +2049,9 @@ fn rust_pseudo(model: &Model, q: &Query) -> Result<Rec, HarnessError> {
             for &c in edges {
                 es.push(*m.fillet_edges.get(c).ok_or_else(|| harness("edge"))?);
             }
-            m.fb.fillet_edge_mut(e).map_err(h)?.clear_fillet_brep_edges(&es);
+            m.fb.fillet_edge_mut(e)
+                .map_err(h)?
+                .clear_fillet_brep_edges(&es);
             o.push(0.0);
             let fe = m.fb.fillet_edge(e).map_err(h)?;
             let got = fe.fillet_brep_edges();
@@ -2047,7 +2144,16 @@ fn rust_pseudo(model: &Model, q: &Query) -> Result<Rec, HarnessError> {
             let (sv, ev) = (m.vertex(*sv)?, m.vertex(*ev)?);
             // the shim's geometries have no solver (NULL), so none is passed here
             let r = fg::examine_n_fix_fillet_geoms(
-                &m.k, &mut m.fb, g1, *at1, g2, *at2, sv, ev, *tol, [None, None],
+                &m.k,
+                &mut m.fb,
+                g1,
+                *at1,
+                g2,
+                *at2,
+                sv,
+                ev,
+                *tol,
+                [None, None],
             );
             match try_status!(r) {
                 Ok(()) => o.push(0.0),
@@ -2077,7 +2183,8 @@ fn rust_pseudo(model: &Model, q: &Query) -> Result<Rec, HarnessError> {
                 Some(c) => Some(Curve::from(curve_of(c)?)),
                 None => None,
             };
-            m.fb.set_edgeuse_uv_curve(eu, c, *delete, *warn).map_err(h)?;
+            m.fb.set_edgeuse_uv_curve(eu, c, *delete, *warn)
+                .map_err(h)?;
             o.push(0.0);
             m.put(&mut o)?;
         }
@@ -2090,13 +2197,12 @@ fn rust_pseudo(model: &Model, q: &Query) -> Result<Rec, HarnessError> {
         Query::SetVuProperty { e, eu, te, teu } => {
             let eu = m.edgeuse(*e, *eu)?;
             let teu = m.edgeuse(*te, *teu)?;
-            let vu = m
-                .fb
-                .brep()
-                .edgeuse(eu)
-                .map_err(h)?
-                .vertexuse
-                .ok_or_else(|| harness("no vertex use"))?;
+            let vu =
+                m.fb.brep()
+                    .edgeuse(eu)
+                    .map_err(h)?
+                    .vertexuse
+                    .ok_or_else(|| harness("no vertex use"))?;
             m.fb.set_vertexuse_property(vu, teu).map_err(h)?;
             o.push(0.0);
             m.put(&mut o)?;
@@ -2119,9 +2225,15 @@ fn rust_pseudo(model: &Model, q: &Query) -> Result<Rec, HarnessError> {
 fn knots(n: usize, p: usize, rng: &mut Rng) -> Vec<f64> {
     // clamped, with random interior knots (sorted) over [0, L]
     let m = n + p + 1;
-    let len = if rng.chance(0.3) { rng.uniform(0.5, 4.0) } else { 1.0 };
+    let len = if rng.chance(0.3) {
+        rng.uniform(0.5, 4.0)
+    } else {
+        1.0
+    };
     let interior = m + 1 - 2 * (p + 1);
-    let mut inner: Vec<f64> = (0..interior).map(|_| rng.uniform(0.05, 0.95) * len).collect();
+    let mut inner: Vec<f64> = (0..interior)
+        .map(|_| rng.uniform(0.05, 0.95) * len)
+        .collect();
     inner.sort_by(f64::total_cmp);
     let mut k = vec![0.0; p + 1];
     k.extend(inner);
@@ -2187,7 +2299,9 @@ fn gen_cylinder(rng: &mut Rng, r: f64, h: f64) -> Srf {
         net,
         p: 2,
         q: 1,
-        u: vec![0.0, 0.0, 0.0, 0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 1.0, 1.0, 1.0],
+        u: vec![
+            0.0, 0.0, 0.0, 0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 1.0, 1.0, 1.0,
+        ],
         v: vec![0.0, 0.0, 1.0, 1.0],
     }
 }
@@ -2203,7 +2317,11 @@ fn gen_curve(rng: &mut Rng, dim: u64, scale: f64) -> Crv {
             [
                 (t + rng.uniform(-0.1, 0.1)) * scale,
                 rng.uniform(-0.5, 0.5) * scale,
-                if dim == 3 { rng.uniform(-0.5, 0.5) * scale } else { 0.0 },
+                if dim == 3 {
+                    rng.uniform(-0.5, 0.5) * scale
+                } else {
+                    0.0
+                },
                 w,
             ]
         })
@@ -2245,7 +2363,9 @@ fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
     match kind {
         0 => {
             let base = rng.uniform(-5.0, 5.0);
-            let noise = *rng.choose(&[0.0, 1e-13, -1e-13, 1e-11, 1e-9, 1e-7]).unwrap_or(&0.0);
+            let noise = *rng
+                .choose(&[0.0, 1e-13, -1e-13, 1e-11, 1e-9, 1e-7])
+                .unwrap_or(&0.0);
             let digits = rng.below(5) as i32;
             let q = (base * 10f64.powi(digits)).round() / 10f64.powi(digits);
             Inputs::CleanupNoise {
@@ -2507,7 +2627,9 @@ fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
 fn gen_model(rng: &mut Rng) -> Model {
     let scale = scale_of(rng);
     let nt = rng.below(3) as usize;
-    let targets = (0..nt).map(|_| gen_curve(rng, 3, scale)).collect::<Vec<_>>();
+    let targets = (0..nt)
+        .map(|_| gen_curve(rng, 3, scale))
+        .collect::<Vec<_>>();
     let nf = rng.below(3) as usize;
     let faces = (0..nf)
         .map(|_| gen_surface(rng, scale.max(1e-2)))
@@ -2530,8 +2652,7 @@ fn gen_model(rng: &mut Rng) -> Model {
                 2 if nf > 0 => (102, 3, rng.below(nf as u64) as i64, 0),
                 // the other classes carry no object in this model
                 _ => (
-                    *rng
-                        .choose(&[100, 101, 103, 105, 106, 107, 108, 110])
+                    *rng.choose(&[100, 101, 103, 105, 106, 107, 108, 110])
                         .unwrap_or(&100),
                     0,
                     -1,
@@ -2547,7 +2668,11 @@ fn gen_model(rng: &mut Rng) -> Model {
                 pc_kind,
                 pc_index,
                 pc_sub,
-                pc_face: if nf > 0 { rng.range_i64(-1, nf as i64 - 1) } else { -1 },
+                pc_face: if nf > 0 {
+                    rng.range_i64(-1, nf as i64 - 1)
+                } else {
+                    -1
+                },
                 t_param: rng.uniform(-1.0, 1.0),
                 uv: [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0)],
                 mates: [-1, -1],
@@ -2594,18 +2719,42 @@ fn gen_model(rng: &mut Rng) -> Model {
                 None
             },
             fbe: [
-                if nfb > 0 { rng.range_i64(-1, nfb as i64 - 1) } else { -1 },
-                if nfb > 0 { rng.range_i64(-1, nfb as i64 - 1) } else { -1 },
+                if nfb > 0 {
+                    rng.range_i64(-1, nfb as i64 - 1)
+                } else {
+                    -1
+                },
+                if nfb > 0 {
+                    rng.range_i64(-1, nfb as i64 - 1)
+                } else {
+                    -1
+                },
             ],
             eus: [
                 EuIn {
-                    uv_curve: if rng.chance(0.4) { Some(gen_curve(rng, 2, 1.0)) } else { None },
-                    geom: if ng > 0 { rng.range_i64(-1, ng as i64 - 1) } else { -1 },
+                    uv_curve: if rng.chance(0.4) {
+                        Some(gen_curve(rng, 2, 1.0))
+                    } else {
+                        None
+                    },
+                    geom: if ng > 0 {
+                        rng.range_i64(-1, ng as i64 - 1)
+                    } else {
+                        -1
+                    },
                     vu_uv: [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0)],
                 },
                 EuIn {
-                    uv_curve: if rng.chance(0.4) { Some(gen_curve(rng, 2, 1.0)) } else { None },
-                    geom: if ng > 0 { rng.range_i64(-1, ng as i64 - 1) } else { -1 },
+                    uv_curve: if rng.chance(0.4) {
+                        Some(gen_curve(rng, 2, 1.0))
+                    } else {
+                        None
+                    },
+                    geom: if ng > 0 {
+                        rng.range_i64(-1, ng as i64 - 1)
+                    } else {
+                        -1
+                    },
                     vu_uv: [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0)],
                 },
             ],
@@ -2621,7 +2770,11 @@ fn gen_model(rng: &mut Rng) -> Model {
     };
     for g in &mut m.geoms {
         for rail in &mut g.rails {
-            *rail = if rng.chance(0.7) { rng.below(ne as u64) as i64 } else { -1 };
+            *rail = if rng.chance(0.7) {
+                rng.below(ne as u64) as i64
+            } else {
+                -1
+            };
         }
         for _ in 0..rng.below(3) {
             g.other1.push(rng.below(ne as u64) as usize);
@@ -2630,7 +2783,8 @@ fn gen_model(rng: &mut Rng) -> Model {
             g.other2.push(rng.below(ne as u64) as usize);
         }
         for _ in 0..rng.below(3) {
-            g.sides.push([rng.below(ne as u64) as usize, rng.below(2) as usize]);
+            g.sides
+                .push([rng.below(ne as u64) as usize, rng.below(2) as usize]);
         }
     }
     for v in &mut m.vertices {
@@ -2650,7 +2804,11 @@ fn gen_query(rng: &mut Rng, m: &Model) -> Query {
     let nf = m.faces.len();
     let nfb = m.fillet_brep.len();
     let pick = |rng: &mut Rng, n: usize| rng.below(n as u64) as usize;
-    let rail_ok = |g: usize| m.geoms.get(g).is_some_and(|g| g.rails.iter().all(|&r| r >= 0));
+    let rail_ok = |g: usize| {
+        m.geoms
+            .get(g)
+            .is_some_and(|g| g.rails.iter().all(|&r| r >= 0))
+    };
     let free_vertex = (0..nv).find(|&v| !m.edges.iter().any(|e| e.vs == v || e.ve == v));
     let vertex_kind = |k: i64| m.vertices.iter().position(|v| v.pc_kind == k);
     let curved_edge = m.edges.iter().position(|e| e.curve.is_some());
@@ -2662,7 +2820,11 @@ fn gen_query(rng: &mut Rng, m: &Model) -> Query {
         1 => Query::VertexGeoms { v: pick(rng, nv) },
         2 => Query::VuAtRailEnd {
             v: pick(rng, nv),
-            geom: if ng > 0 { rng.range_i64(-1, ng as i64 - 1) } else { -1 },
+            geom: if ng > 0 {
+                rng.range_i64(-1, ng as i64 - 1)
+            } else {
+                -1
+            },
             exclude: if rng.chance(0.4) {
                 Some([pick(rng, ne), pick(rng, 2)])
             } else {
@@ -2682,11 +2844,15 @@ fn gen_query(rng: &mut Rng, m: &Model) -> Query {
         5 if curved_edge.is_some() => Query::FindEdge {
             e: curved_edge.unwrap_or(0),
             multi: rng.chance(0.5),
-            cands: (0..rng.below(nfb as u64 + 1)).map(|_| pick(rng, nfb)).collect(),
+            cands: (0..rng.below(nfb as u64 + 1))
+                .map(|_| pick(rng, nfb))
+                .collect(),
         },
         6 => Query::ClearEdges {
             e: pick(rng, ne),
-            edges: (0..rng.below(nfb as u64 + 1)).map(|_| pick(rng, nfb)).collect(),
+            edges: (0..rng.below(nfb as u64 + 1))
+                .map(|_| pick(rng, nfb))
+                .collect(),
         },
         7 => Query::BrepEdges { e: pick(rng, ne) },
         8 if (0..ng).any(rail_ok) => {
@@ -2727,12 +2893,20 @@ fn gen_query(rng: &mut Rng, m: &Model) -> Query {
         15 => Query::SetEuGeom {
             e: pick(rng, ne),
             eu: pick(rng, 2),
-            geom: if ng > 0 { rng.range_i64(-1, ng as i64 - 1) } else { -1 },
+            geom: if ng > 0 {
+                rng.range_i64(-1, ng as i64 - 1)
+            } else {
+                -1
+            },
         },
         16 => Query::SetUvCurve {
             e: pick(rng, ne),
             eu: pick(rng, 2),
-            curve: if rng.chance(0.7) { Some(gen_curve(rng, 2, 1.0)) } else { None },
+            curve: if rng.chance(0.7) {
+                Some(gen_curve(rng, 2, 1.0))
+            } else {
+                None
+            },
             delete: rng.chance(0.5),
             warn: rng.chance(0.5),
         },
@@ -2830,18 +3004,59 @@ mod tests {
             }
         }
         let specials = [
-            0.0, 1.0, -1.0, 2.0, 0.5, 100.0, 1e300, -1e300, 1e-300, f64::NAN, f64::INFINITY,
-            -f64::INFINITY, 1e20, -1e20, 1e-12, 13.0, 999.0,
+            0.0,
+            1.0,
+            -1.0,
+            2.0,
+            0.5,
+            100.0,
+            1e300,
+            -1e300,
+            1e-300,
+            f64::NAN,
+            f64::INFINITY,
+            -f64::INFINITY,
+            1e20,
+            -1e20,
+            1e-12,
+            13.0,
+            999.0,
             // the guard boundaries: the magnitude cap, tiny positive weights, counts
-            ffi::MAX_MAGNITUDE, -ffi::MAX_MAGNITUDE, 1e149, 1e-150, 1e-6, 1e-9, 64.0, 63.0, -0.0,
+            ffi::MAX_MAGNITUDE,
+            -ffi::MAX_MAGNITUDE,
+            1e149,
+            1e-150,
+            1e-6,
+            1e-9,
+            64.0,
+            63.0,
+            -0.0,
             // the HANG-16 slow range and the UB-166 knot fixup (scaled zero 2e-12 on [0, 1],
             // spread tolerance 1.2e-8 and its 1.01 increment)
-            1e15, -1e15, 1e30, 1e-13, 2e-12, 3e-12, 1e-11, 5e-9, 1e-8, 1.2e-8, 1.2e-8 * 1.01, 2.4e-8,
+            1e15,
+            -1e15,
+            1e30,
+            1e-13,
+            2e-12,
+            3e-12,
+            1e-11,
+            5e-9,
+            1e-8,
+            1.2e-8,
+            1.2e-8 * 1.01,
+            2.4e-8,
             // the HANG-20 bound of the global-solver ops and the measured hangs above it
-            ffi::MAX_SOLVER_MAGNITUDE, -ffi::MAX_SOLVER_MAGNITUDE, 3e307, -7e307, 8e307,
+            ffi::MAX_SOLVER_MAGNITUDE,
+            -ffi::MAX_SOLVER_MAGNITUDE,
+            3e307,
+            -7e307,
+            8e307,
         ];
         let env_u64 = |name: &str, default: u64| {
-            std::env::var(name).ok().and_then(|v| v.parse().ok()).unwrap_or(default)
+            std::env::var(name)
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(default)
         };
         let seed = env_u64("FUZZ_SEED", 0xfa11_ba11);
         let max_calls = env_u64("FUZZ_CALLS", 60_000);
@@ -2916,14 +3131,37 @@ mod tests {
             let op = if rng.chance(0.05) {
                 // the same program under a random op
                 let ops = [
-                    Op::CleanupNoise, Op::CheckSeamOut, Op::CheckSeamOn, Op::SurfaceClosure,
-                    Op::IsOrderCorrect, Op::AdjustUvOnSeam, Op::Interpolate,
-                    Op::SurfaceDropPoint, Op::TwoPnts, Op::EvaluateMate, Op::Capping,
-                    Op::ClassifyFacePoint, Op::FbExport, Op::FbVertexGeoms, Op::FbVuAtRailEnd,
-                    Op::FbRailVertexuse, Op::FbEdgeName, Op::FbFindEdge, Op::FbClearEdges,
-                    Op::FbTrim, Op::FbDeleteVertex, Op::FbDeleteEdge, Op::FbVertOnVert,
-                    Op::FbCliff, Op::FbSplitFace, Op::FbExamine, Op::FbSetEuGeom,
-                    Op::FbSetUvCurve, Op::FbOrigUvCurve, Op::FbSetVuProperty, Op::FbBrepEdges,
+                    Op::CleanupNoise,
+                    Op::CheckSeamOut,
+                    Op::CheckSeamOn,
+                    Op::SurfaceClosure,
+                    Op::IsOrderCorrect,
+                    Op::AdjustUvOnSeam,
+                    Op::Interpolate,
+                    Op::SurfaceDropPoint,
+                    Op::TwoPnts,
+                    Op::EvaluateMate,
+                    Op::Capping,
+                    Op::ClassifyFacePoint,
+                    Op::FbExport,
+                    Op::FbVertexGeoms,
+                    Op::FbVuAtRailEnd,
+                    Op::FbRailVertexuse,
+                    Op::FbEdgeName,
+                    Op::FbFindEdge,
+                    Op::FbClearEdges,
+                    Op::FbTrim,
+                    Op::FbDeleteVertex,
+                    Op::FbDeleteEdge,
+                    Op::FbVertOnVert,
+                    Op::FbCliff,
+                    Op::FbSplitFace,
+                    Op::FbExamine,
+                    Op::FbSetEuGeom,
+                    Op::FbSetUvCurve,
+                    Op::FbOrigUvCurve,
+                    Op::FbSetVuProperty,
+                    Op::FbBrepEdges,
                     Op::FbRemoveEdge,
                 ];
                 ops[rng.below(ops.len() as u64) as usize]
@@ -2970,7 +3208,12 @@ mod tests {
     /// `CASE_SEEDS` (default 2000) sizes the case list as `--seeds` does;
     /// `CASE_INDICES=<i>,..` picks cases by their index in it, otherwise
     /// `CASE_OPS=<op>,..` picks the cases of those ops (default the pseudo-B-rep ops 20 to
-    /// 39), at most `CASE_PER_OP` of each (default all).
+    /// 39), at most `CASE_PER_OP` of each (default all), leaving out `CASE_SKIP=<i>,..`
+    /// (cases too heavy for valgrind). `CASE_DRY` only prints the picked indices.
+    /// `CASE_CENSUS` instead tallies, per op, the Rust outcome of every case (status `0`,
+    /// a non-zero upstream status, a deferral or a harness error); with no failed case
+    /// those tallies are the passes' success-path / error-status split (flagged
+    /// `expected_rejection` cases are left out).
     #[test]
     #[ignore = "runs cases for valgrind; run on demand"]
     fn case_sample() {
@@ -2984,42 +3227,89 @@ mod tests {
             seeds: env("CASE_SEEDS").map_or(2000, |s| s.parse().unwrap()),
         };
         let cases = Runner.cases(&ctx).unwrap();
-        let indices: Vec<usize> = match env("CASE_INDICES") {
-            Some(t) => list(t).into_iter().map(|i| i as usize).collect(),
-            None => {
-                let ops = env("CASE_OPS").map_or_else(|| (20..40).collect(), list);
-                let per_op = env("CASE_PER_OP").map_or(usize::MAX, |s| s.parse().unwrap());
-                let mut taken = std::collections::BTreeMap::<i64, usize>::new();
-                (0..cases.len())
-                    .filter(|&i| {
-                        let Ok(inp) = cases[i].parse::<Inputs>() else {
-                            return false;
-                        };
-                        let op = inp.op() as i64;
-                        let n = taken.entry(op).or_default();
-                        if !ops.contains(&op) || *n >= per_op {
-                            return false;
-                        }
-                        *n += 1;
-                        true
-                    })
-                    .collect()
+        if env("CASE_CENSUS").is_some() {
+            let mut tally = std::collections::BTreeMap::<(i32, &str), usize>::new();
+            for case in &cases {
+                // flagged regression inputs are rejected, never passes (and the HANG-20
+                // ones loop on the Rust side too)
+                let Ok(CaseInputs {
+                    expected_rejection: false,
+                    inputs,
+                }) = case.parse::<CaseInputs>()
+                else {
+                    continue;
+                };
+                let kind = match Runner.run_rust(case) {
+                    Ok(o) if o.deferred.is_some() => "deferred",
+                    Ok(o) => match o
+                        .values
+                        .get("status")
+                        .and_then(|v| v.first())
+                        .map(|&st| st == 0.0)
+                    {
+                        Some(true) => "status0",
+                        Some(false) => "error_status",
+                        None => "no_status",
+                    },
+                    Err(_) => "harness_error",
+                };
+                *tally.entry((inputs.op() as i32, kind)).or_default() += 1;
             }
+            for ((op, kind), n) in tally {
+                eprintln!("case_census: op {op} {kind} {n}");
+            }
+            return;
+        }
+        let indices: Vec<usize> = if let Some(t) = env("CASE_INDICES") {
+            list(t).into_iter().map(|i| i as usize).collect()
+        } else {
+            let ops = env("CASE_OPS").map_or_else(|| (20..40).collect(), list);
+            let per_op = env("CASE_PER_OP").map_or(usize::MAX, |s| s.parse().unwrap());
+            let skip = env("CASE_SKIP").map_or_else(Vec::new, list);
+            let mut taken = std::collections::BTreeMap::<i64, usize>::new();
+            (0..cases.len())
+                .filter(|&i| {
+                    let Ok(inp) = cases[i].parse::<Inputs>() else {
+                        return false;
+                    };
+                    let op = inp.op() as i64;
+                    let n = taken.entry(op).or_default();
+                    if !ops.contains(&op) || *n >= per_op || skip.contains(&(i as i64)) {
+                        return false;
+                    }
+                    *n += 1;
+                    true
+                })
+                .collect()
         };
+        if env("CASE_DRY").is_some() {
+            eprintln!("case_sample: indices {indices:?}");
+            return;
+        }
         for i in indices {
             let case = &cases[i];
             let inputs: Inputs = case.parse().unwrap();
             let r = if rust_side {
-                format!("{:?}", Runner.run_rust(case).map(|o| (o.error, o.deferred.map(|d| d.unit))))
+                format!(
+                    "{:?}",
+                    Runner
+                        .run_rust(case)
+                        .map(|o| (o.error, o.deferred.map(|d| d.unit)))
+                )
             } else {
                 format!(
                     "{:?}",
                     cpp_input(&inputs).map(|flat| {
-                        ffi::eval(inputs.op(), &flat).map(|r| r.into_iter().take(2).collect::<Vec<_>>())
+                        ffi::eval(inputs.op(), &flat)
+                            .map(|r| r.into_iter().take(2).collect::<Vec<_>>())
                     })
                 )
             };
-            eprintln!("case_sample: {i} {} op {} -> {r}", case.name, inputs.op() as i32);
+            eprintln!(
+                "case_sample: {i} {} op {} -> {r}",
+                case.name,
+                inputs.op() as i32
+            );
         }
     }
 
@@ -3064,13 +3354,17 @@ mod tests {
         let program = input.clone();
         let t0 = std::time::Instant::now();
         std::thread::spawn(move || {
-            let _ = tx.send(ffi::eval(op, &program).map(|r| r.into_iter().take(4).collect::<Vec<_>>()));
+            let _ =
+                tx.send(ffi::eval(op, &program).map(|r| r.into_iter().take(4).collect::<Vec<_>>()));
         });
         let Ok(r) = rx.recv_timeout(std::time::Duration::from_secs(limit)) else {
             eprintln!("replay_program: op {op_code} did not return within {limit} s");
             std::process::exit(0);
         };
-        eprintln!("replay_program: op {op_code} -> {r:?} in {:?}", t0.elapsed());
+        eprintln!(
+            "replay_program: op {op_code} -> {r:?} in {:?}",
+            t0.elapsed()
+        );
     }
 
     #[test]
@@ -3082,7 +3376,9 @@ mod tests {
             let inputs: Inputs = serde_json::from_value(v).unwrap();
             seen.insert(inputs.op() as i32);
         }
-        for op in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 21, 22, 24, 26, 27, 29, 35, 39] {
+        for op in [
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 21, 22, 24, 26, 27, 29, 35, 39,
+        ] {
             assert!(seen.contains(&op), "op {op} never generated");
         }
     }

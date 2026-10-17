@@ -195,7 +195,10 @@ impl Op {
     /// The op with this code (the `op` of the shim entry point), if any.
     #[must_use]
     pub fn from_code(code: i64) -> Option<Self> {
-        Self::ALL.iter().copied().find(|&op| i64::from(op as i32) == code)
+        Self::ALL
+            .iter()
+            .copied()
+            .find(|&op| i64::from(op as i32) == code)
     }
 
     /// Every op, in code order.
@@ -359,7 +362,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(), FfiError> {
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     Ok(())
@@ -367,7 +372,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(), FfiError> {
 
 /// Checks that all points share their rational marker and, for `dim == 3`, are 3D.
 fn check_points(pts: &[[f64; 4]], dim: usize, what: &str) -> Result<(), FfiError> {
-    let [_, _, _, w0] = *pts.first().ok_or_else(|| bad(format!("{what}: no points")))?;
+    let [_, _, _, w0] = *pts
+        .first()
+        .ok_or_else(|| bad(format!("{what}: no points")))?;
     for &[_, _, z, w] in pts {
         if dim == 3 && z == NOZ {
             return Err(bad(format!("{what}: 2D data")));
@@ -576,7 +583,7 @@ fn validate_block(rd: &mut Reader<'_>) -> Result<Block, FfiError> {
         rd.index(13)?; // SmFilletVertexType
         rd.index(12)?; // SmFilStatus
         rd.opt_index(MAX_LIST)?; // corner tag
-        // SmPointClassificationType: SM_PC_UNKNOWN (100) ..= SM_PC_NOTHING (110)
+                                 // SmPointClassificationType: SM_PC_UNKNOWN (100) ..= SM_PC_NOTHING (110)
         let pc_class = rd.index(110)?;
         if pc_class < 100 {
             return Err(bad("vertex: point class below SM_PC_UNKNOWN"));
@@ -724,8 +731,7 @@ fn validate_pseudo(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             rd.flag()?;
             let n = rd.index(MAX_LIST)?;
             for _ in 0..n {
-                rd.opt_index(b.nfb)?
-                    .ok_or_else(|| bad("candidate -1"))?;
+                rd.opt_index(b.nfb)?.ok_or_else(|| bad("candidate -1"))?;
             }
         }
         Op::FbClearEdges => {
