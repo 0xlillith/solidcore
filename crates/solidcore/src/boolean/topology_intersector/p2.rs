@@ -86,7 +86,7 @@ use crate::intersect::point_class::{
     ClassGeometry, ClassObject, ClassObjectKind, PointClassType, PointClassification,
 };
 use crate::kernel::Kernel;
-use crate::math::{max2, max3, min2, Point3, BIG_DOUBLE, EFF_ZERO_SQRT};
+use crate::math::{max2, max3, min2, Point2, Point3, BIG_DOUBLE, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::p2::TsectCurveType;
 use crate::topology::proto_topology::p3::Mates;
@@ -180,14 +180,23 @@ impl<O: Ord + Copy> Mates<O> for MapMates<O> {
 
 // ---- unported callees ----------------------------------------------------------------------
 
-/// `SmBrep::GetFaces(rFaces)`.
-fn brep_faces<O>(_brep: O) -> Result<Vec<O>> {
+/// `SmBrep::GetFaces(rFaces, pOptAttributeId)`.
+fn brep_faces<O>(_brep: O, _opt_attribute_id: Option<u64>) -> Result<Vec<O>> {
     // UNPORTED(topology.brep_p1): SmBrep::GetFaces
     Err(SolidError::unported("SmBrep::GetFaces", "topology.brep_p1"))
 }
 
-/// `SmBrep::DeleteFace(pFace, bDeleteEdgesVertices)`.
-fn brep_delete_face<O>(_brep: O, _face: O, _delete_edges_vertices: bool) -> Result<()> {
+/// `SmBrep::DeleteFace(pFace, bDeleteEdgesVertices, bDoRegionNesting,
+/// pOptDeletedEdgesVertices, pOptRegionToKeep)`: the deleted edges and vertices when
+/// they are asked for.
+fn brep_delete_face<O>(
+    _brep: O,
+    _face: O,
+    _delete_edges_vertices: bool,
+    _do_region_nesting: bool,
+    _want_deleted_edges_vertices: bool,
+    _opt_region_to_keep: Option<O>,
+) -> Result<Option<Vec<O>>> {
     // UNPORTED(topology.brep_p3): SmBrep::DeleteFace
     Err(SolidError::unported(
         "SmBrep::DeleteFace",
@@ -195,8 +204,8 @@ fn brep_delete_face<O>(_brep: O, _face: O, _delete_edges_vertices: bool) -> Resu
     ))
 }
 
-/// `SmBrep::DeleteEdge(pEdge)`.
-fn brep_delete_edge<O>(_brep: O, _edge: O) -> Result<()> {
+/// `SmBrep::DeleteEdge(pEdge, pOptSurfaceToKeep)`.
+fn brep_delete_edge<O>(_brep: O, _edge: O, _opt_surface_to_keep: Option<O>) -> Result<()> {
     // UNPORTED(topology.brep_p4): SmBrep::DeleteEdge
     Err(SolidError::unported(
         "SmBrep::DeleteEdge",
@@ -227,14 +236,19 @@ fn brep_combine_coincident_vertices<O>(
     ))
 }
 
-/// `SmFace::Point3DClassify(pt, sSrcZoneTol3d, bDoBoundaryIntersections, rPC)` with
-/// upstream's defaults for the rest (no guess UV, all loops).
+/// `SmFace::Point3DClassify(pt, sSrcZoneTol3d, bDoBoundaryIntersections, rPC,
+/// pOptGuessUV, bTgtLoopsOnly, pOptTgtLoops, bUVSpaceOkay)`.
+#[allow(clippy::too_many_arguments)]
 fn face_point_3d_classify<O>(
     _face: O,
     _point: Point3,
     _src_zone_tol_3d: f64,
     _do_boundary_intersections: bool,
     _pc: &mut PointClassification<O>,
+    _opt_guess_uv: Option<Point2>,
+    _tgt_loops_only: bool,
+    _opt_tgt_loops: Option<&[O]>,
+    _uv_space_okay: bool,
 ) -> Result<()> {
     // UNPORTED(query.face_p1): SmFace::Point3DClassify
     Err(SolidError::unported(
@@ -584,8 +598,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             let b = face_brep_h.ok_or(dangling("face without B-rep"))?;
 
             // delete TargetFace from its Brep (FALSE = don't delete dangling edges and
-            // vertices, we do that below in accordance with pOptKeepAsWires)
-            brep_delete_face(b, f, false)?;
+            // vertices, we do that below in accordance with pOptKeepAsWires; the rest
+            // are DeleteFace's defaults)
+            brep_delete_face(b, f, false, true, false, None)?;
         }
 
         if face_brep_h.is_none() {
@@ -611,7 +626,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             let b = brep
                 .edge_brep_handle(e)?
                 .ok_or(dangling("edge without B-rep"))?;
-            brep_delete_edge(b, e)?;
+            brep_delete_edge(b, e, None)?;
         }
 
         // iter every vertex of every deleted face looking for ShellVertices to delete
@@ -827,8 +842,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             .ok_or(dangling("no proto topology manager"))?
             .reset();
 
-        let faces1 = brep_faces(this)?;
-        let faces2 = brep_faces(other)?;
+        let faces1 = brep_faces(this, None)?;
+        let faces2 = brep_faces(other, None)?;
 
         {
             let mgr = self
@@ -917,9 +932,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 // second list is read past its end)
                 let num_ccs = fi.cc1.len();
                 for kk in 0..num_ccs {
-                    let (cc1, cc2) = match (fi.cc1.get_mut(kk), fi.cc2.get_mut(kk)) {
-                        (Some(a), Some(b)) => (a, b),
-                        _ => return Err(dangling("classification lists differ")),
+                    let (Some(cc1), Some(cc2)) = (fi.cc1.get_mut(kk), fi.cc2.get_mut(kk)) else {
+                        return Err(dangling("classification lists differ"));
                     };
                     let num_ivls = cc1.size();
 
@@ -955,8 +969,12 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     let mut pc2 = PointClassification::new(f2_zone_tol);
 
                     // classify the point against both faces; skip what doesn't classify
-                    let st1 = face_point_3d_classify(f1, pt, f1_zone_tol, true, &mut pc1);
-                    let st2 = face_point_3d_classify(f2, pt, f2_zone_tol, true, &mut pc2);
+                    let st1 = face_point_3d_classify(
+                        f1, pt, f1_zone_tol, true, &mut pc1, None, false, None, true,
+                    );
+                    let st2 = face_point_3d_classify(
+                        f2, pt, f2_zone_tol, true, &mut pc2, None, false, None, true,
+                    );
                     if ignore_soft(st1)?.is_none() {
                         continue;
                     }
@@ -1550,7 +1568,17 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     let crv_pt = eval_curve_point(brep, curve_h, edge_dom.evaluate(0.38))?;
                     // Allow any part of the Face: including Edges and Vertices
                     // (status unchecked).
-                    ignore_soft(face_point_3d_classify(f, crv_pt, edge_zone_tol, false, &mut pt_class))?;
+                    ignore_soft(face_point_3d_classify(
+                        f,
+                        crv_pt,
+                        edge_zone_tol,
+                        false,
+                        &mut pt_class,
+                        None,
+                        false,
+                        None,
+                        true,
+                    ))?;
                     if !matches!(
                         pt_class.point_class(),
                         PointClassType::Face | PointClassType::Edge | PointClassType::Vertex
@@ -1562,7 +1590,17 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     }
 
                     let crv_pt = eval_curve_point(brep, curve_h, edge_dom.evaluate(0.71))?;
-                    ignore_soft(face_point_3d_classify(f, crv_pt, approx_tol, false, &mut pt_class))?;
+                    ignore_soft(face_point_3d_classify(
+                        f,
+                        crv_pt,
+                        approx_tol,
+                        false,
+                        &mut pt_class,
+                        None,
+                        false,
+                        None,
+                        true,
+                    ))?;
                     if !matches!(
                         pt_class.point_class(),
                         PointClassType::Face | PointClassType::Edge | PointClassType::Vertex
