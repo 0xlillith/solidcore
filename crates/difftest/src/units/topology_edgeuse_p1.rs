@@ -195,6 +195,9 @@ pub(crate) fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessErr
             if b.net.iter().any(|r| r.len() != m + 1) {
                 return Err(harness("ragged net"));
             }
+            if b.u.is_empty() || b.v.is_empty() {
+                return Err(harness("empty knot vector"));
+            }
             v.extend([
                 0.0,
                 f64::from(u8::from(b.oob)),

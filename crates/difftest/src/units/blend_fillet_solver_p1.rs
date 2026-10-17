@@ -285,6 +285,16 @@ impl Inputs {
     }
 }
 
+/// The Jacobian of `a` (rows and columns at most `MAX_ARRAY`, as the FFI accepts).
+fn jacobian_of(a: &Arrays) -> Result<Option<Matrix>, HarnessError> {
+    match a.jac {
+        Some([r, c]) if r > ffi::MAX_ARRAY || c > ffi::MAX_ARRAY => {
+            Err(harness("Jacobian larger than MAX_ARRAY"))
+        }
+        jac => Ok(jac.map(|[r, c]| Matrix::new(r, c))),
+    }
+}
+
 fn push_arrays(o: &mut Vec<f64>, a: &Arrays) {
     o.push(a.x.len() as f64);
     o.extend_from_slice(&a.x);
@@ -894,7 +904,7 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
             let mut s1 = shim_with(&Surfs::default(), load[0], found[0], false)?;
             let mut s2 = shim_with(&Surfs::default(), load[1], found[1], false)?;
             let mut f = arrays.f.clone();
-            let mut j = arrays.jac.map(|[r, c]| Matrix::new(r, c));
+            let mut j = jacobian_of(arrays)?;
             let mut e = RailRailIntersectEnfo::new(*rail, &mut s1, *other, &mut s2);
             let res = e.evaluate(&arrays.x, &mut f, j.as_mut());
             match &res {
@@ -1022,7 +1032,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         } => {
             let mut fs = shim_with(surfs, *load, *found, false)?;
             let mut f = arrays.f.clone();
-            let mut j = arrays.jac.map(|[r, c]| Matrix::new(r, c));
+            let mut j = jacobian_of(arrays)?;
             let mut e = FilletSphereSolveEnfo::new(Vec3::new(c[0], c[1], c[2]), *r, &mut fs);
             e.set_plane_adjusts(*adjusts);
             let res = e.evaluate(&arrays.x, &mut f, j.as_mut());
@@ -1054,7 +1064,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                 setup: false,
             };
             let mut f = arrays.f.clone();
-            let mut j = arrays.jac.map(|[r, c]| Matrix::new(r, c));
+            let mut j = jacobian_of(arrays)?;
             let mut e = RailUvCurveIntersectEnfo::new(
                 &crv,
                 Extent1d::from_min_max(ivl[0], ivl[1]),
