@@ -5940,7 +5940,7 @@ independent p6 integration.
   digit of an integer token), the face makers' input errors, `MakeFace`'s null-surface
   status, the glue no-ops (compared as the B-rep's counts after the op) and
   `MergeSelfIntersectionCurves` without curves. Of the 197 passes, 173 compare values
-  (115 glue B-rep counts after the op, 62 `MergeSelfIntersectionCurves` records) and 24 a
+  (111 glue B-rep counts after the op, 62 `MergeSelfIntersectionCurves` records) and 24 a
   status only; the shim's `-2` guards are deferrals, not passes. Before the pre-review of
   PR #155 no `ReadFromFile` case compared anything.
 - **C++ guards.** A damaged `.smb` stream goes through `topology.brep_data`'s stream guard
@@ -5955,8 +5955,8 @@ independent p6 integration.
   overwrites of the leading `//Brep Starts` comment were dropped: C++ reads them exactly as
   the plain file. The other shim guards answer `-2` (upstream would dereference null) and
   are deferred, not compared: `cpp-guard:ub-165` (`MakeFaceWithCurves`, below),
-  `cpp-guard:null-curve` (`GlueEdgesGeneral` of an edge without curve,
-  `CurveMaxDistanceBetween`), `cpp-guard:null-surface` (`MergeSelfIntersectionCurves` on a
+  `cpp-guard:null-curve` (`GlueEdgesGeneral` with `SM_OT_SAME`, equal intervals and one
+  edge without curve, `CurveMaxDistanceBetween`; no fixture edge lacks a curve), `cpp-guard:null-surface` (`MergeSelfIntersectionCurves` on a
   face without surface). `GlueEdgesGeneral` of distinct edges sharing both vertices runs in
   C++ (the pre-review of PR #155 ran all 36 such calls of the fixture files to status 0); the
   Rust side defers those at `SmBrep::Notify` (`topology.brep_p2`).
@@ -5966,7 +5966,9 @@ independent p6 integration.
   surface with a gap target upstream edits its UV curve in place. The port defers exactly
   that call (`UNPORTED(curve.curve_p6)`, a curve on surface with a target); other curve
   kinds dispatch before the argument is read upstream, and without targets upstream
-  returns at once, so those call the port. The port's `CrvOnSurf` holds only
+  returns at once, so those call the port. One built-in case reaches the deferral
+  (`face_curves_cos_open_loop`: three UV sides with `crv_on_surf` TRUE; C++ builds it,
+  status 0 in the round-3 review run). The gap is also recorded in `curve.curve_p6`'s notes. The port's `CrvOnSurf` holds only
   `SmBSplineSurface` kinds (`curve.crv_on_surf`, partial): a curve on surface of another
   surface kind defers to `curve.crv_on_surf`, with the same tag and label as that gap's
   other sites.

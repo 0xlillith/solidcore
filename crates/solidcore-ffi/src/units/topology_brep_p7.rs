@@ -14,7 +14,7 @@
 //! | `Read`              | `n byte*n file_type rebuild` | `status [counts]` (`SmBrep::ReadFromFile` of the bytes) |
 //! | `MakeFaceWithCurves`| `surface u0 v0 u1 v1 orient region_null crv_on_surf nloops count* has3d has_uv ncurves (curve3d? curveuv? orient)* npts pt[3]*` | `-2 \| status [face shell region counts]` (`-2`: `crv_on_surf` TRUE with 3D but no UV curves, where upstream dereferences the null UV array) |
 //! | `MakeFace`          | `kind side orient region_null` (`kind` 0: null surface, 1: a square wire loop on `z = 0`) | `-3 \| status [face shell region counts]` (`-3`: the square's lines cannot be made) |
-//! | `Glue`              | `e1 e2 orient gap nesting`, B-rep block | `0 (-2 \| status counts)` (`-2`: an edge without curve) (`-1 status` when the B-rep build fails) |
+//! | `Glue`              | `e1 e2 orient gap nesting`, B-rep block | `0 (-2 \| status counts)` (`-2`: `SM_OT_SAME`, equal intervals and one edge without curve) (`-1 status` when the B-rep build fails) |
 //! | `Copy`              | `n use_merge`, B-rep block | `0 status nfaces counts` |
 //! | `MergeSelf`         | `face tol`, B-rep block | `0 (-2 \| status nedges)` |
 //!

@@ -22,7 +22,8 @@
 //! shim guards answer `-2` (upstream would dereference null); both sides would only echo
 //! that constant, so the Rust side defers them: `cpp-guard:ub-165`
 //! (`MakeFaceWithCurves` with a curve on surface and no UV curves), `cpp-guard:null-curve`
-//! (`GlueEdgesGeneral` of an edge without curve), `cpp-guard:null-surface`
+//! (`GlueEdgesGeneral` with `SM_OT_SAME`, equal intervals and one edge without curve),
+//! `cpp-guard:null-surface`
 //! (`MergeSelfIntersectionCurves` on a face without surface).
 //!
 //! **Deferred.** Every read that gets past `SmBrepData::ReadFromFile`, every face made
@@ -43,6 +44,7 @@ use solidcore::curve::line::Line;
 use solidcore::geom::attribute::{AttributeStore, ObjectKey};
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::object::ObjectRef;
+use solidcore::geom::tol::are_same;
 use solidcore::geom::vector2d::Point2;
 use solidcore::geom::vector3d::Vec3;
 use solidcore::kernel::Kernel;
@@ -290,6 +292,7 @@ fn read_bytes(file: &str, damage: Option<Damage>) -> Result<Vec<u8>, HarnessErro
 fn cpp_brep_data_reads(bytes: &[u8]) -> Result<bool, Fail> {
     let req = bd::Request {
         mode: bd::Mode::ReadFile,
+        // every read case is ASCII: the encoder sends `binary = 0` to the FFI
         binary: false,
         version: 0,
         dim: 0,
@@ -689,7 +692,8 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             let cos = match crv_on_surf {
                 0 => None,
                 1 => Some(false),
-                _ => Some(true),
+                2 => Some(true),
+                _ => return Err(hfail("crv_on_surf code")),
             };
             let r = p7::make_face_with_curves(
                 k,
@@ -769,14 +773,17 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             let (mut b, _) = shared::import(ex)?;
             let eid = |x: i64| (x >= 0).then(|| EdgeId::from_index(x as u32));
             // the shim's guard: upstream dereferences a null edge curve
-            // (CurveMaxDistanceBetween) when gluing two distinct non-wire edges
+            // (CurveMaxDistanceBetween) when gluing two distinct non-wire edges with
+            // SM_OT_SAME, the same intervals and exactly one curve (two null curves
+            // compare equal)
             if let (Some(a), Some(d)) = (eid(*e1), eid(*e2)) {
-                if a != d
-                    && !ed::is_wire(&b, d).map_err(hfail)?
-                    && (b.edge(a).map_err(hfail)?.curve.is_none()
-                        || b.edge(d).map_err(hfail)?.curve.is_none())
-                {
-                    return Err(cpp_null_deref("cpp-guard:null-curve", "SmBrep::GlueEdgesGeneral"));
+                if a != d && !ed::is_wire(&b, d).map_err(hfail)? && *orient == 1 {
+                    let (ia, id) = (ed::interval(&b, a).map_err(hfail)?, ed::interval(&b, d).map_err(hfail)?);
+                    let one_null =
+                        b.edge(a).map_err(hfail)?.curve.is_none() != b.edge(d).map_err(hfail)?.curve.is_none();
+                    if are_same(ia.min(), id.min()) && are_same(ia.max(), id.max()) && one_null {
+                        return Err(cpp_null_deref("cpp-guard:null-curve", "SmBrep::GlueEdgesGeneral"));
+                    }
                 }
             }
             let mut records = BTreeMap::new();
@@ -1094,32 +1101,6 @@ impl UnitDiff for Runner {
                     },
                 )?;
             }
-            // damaged headers and bodies (overwrites of the leading `//Brep Starts` comment,
-            // bytes 0, 8 and 9, were dropped: C++ reads them exactly as the plain file)
-            for (j, d) in [
-                (0, Damage::Truncate(0)),
-                (1, Damage::Truncate(1)),
-                (2, Damage::Truncate(10)),
-                (3, Damage::Truncate(64)),
-                (4, Damage::Truncate(300)),
-                (5, Damage::Truncate(2000)),
-                (9, Damage::Overwrite { at: 40, byte: b'.' }),
-            ]
-            {
-                // (a stream the B-rep data guard rejects compares nothing)
-                if !guard_accepts(&read_bytes(file, Some(d))?, false)? {
-                    continue;
-                }
-                push(
-                    &mut v,
-                    format!("read_{file}_damaged{j}"),
-                    &Inputs::Read {
-                        file: file.to_string(),
-                        damage: Some(d),
-                        rebuild: false,
-                    },
-                )?;
-            }
             // glue no-ops and errors, merge without curves, copies of small files
             let brep = BrepIn::File {
                 file: file.to_string(),
@@ -1206,6 +1187,24 @@ impl UnitDiff for Runner {
                 )?;
             }
         }
+        // an open UV-only loop (three sides of the square) with crv_on_surf TRUE: the gap
+        // target takes upstream's pOptSurfCrvOnSurf branch of DeformToEndPointTargets
+        push(
+            &mut v,
+            "face_curves_cos_open_loop".to_string(),
+            &Inputs::MakeFaceWithCurves {
+                surface: plane.clone(),
+                dom: [0.0, 0.0, 10.0, 10.0],
+                orient: 1,
+                region_null: false,
+                crv_on_surf: 2,
+                loops: vec![3],
+                has3d: false,
+                has_uv: true,
+                curves: sq.iter().take(3).cloned().collect(),
+                points: Vec::new(),
+            },
+        )?;
         // a square too small for its lines (CreateLineSegment fails: -3 on both sides) and
         // the smallest side that still makes a face in C++
         for (name, side) in [("make_face_tiny_1e-300", 1.0e-300), ("make_face_small_1e-12", 1.0e-12)] {

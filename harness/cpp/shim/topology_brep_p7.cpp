@@ -200,8 +200,10 @@ void p7_make_face(Rd& rd, std::vector<double>& o)
     }
     if (!lines_ok)
     {
-        // CreateLineSegment failed (the side's square underflows): the shim cannot build
-        // the loop; the Rust side defers every square-loop case anyway
+        // CreateLineSegment failed (the side's square underflows), or MakeShellVertex /
+        // MakeWireEdgeVertex failed before the third side (not reached with the sides
+        // used): the shim cannot build the loop; the Rust side reports `-3` for the first
+        // and defers every square-loop case at MakeShellVertex
         o.push_back(P7_NOT_RUN);
         return;
     }
@@ -236,8 +238,9 @@ void p7_make_face(Rd& rd, std::vector<double>& o)
 }
 
 // `e1 e2 orient gap nesting`, B-rep block (edge indices, `-1` null). Two distinct edges,
-// the second not a wire, one of them without a curve: `-2` (upstream dereferences the null
-// curve in CurveMaxDistanceBetween). Output `status counts` (or `-2`).
+// the second not a wire, SM_OT_SAME, the same intervals and exactly one curve: `-2`
+// (upstream dereferences the null curve in CurveMaxDistanceBetween, SmBrep.cpp:9875-9896;
+// two null curves compare equal). Output `status counts` (or `-2`).
 void p7_glue(SmBrep* b, Graph& g, Rd& rd, std::vector<double>& o)
 {
     int64_t i1 = rd.idx(), i2 = rd.idx();
@@ -246,10 +249,15 @@ void p7_glue(SmBrep* b, Graph& g, Rd& rd, std::vector<double>& o)
     SmBoolean nesting = rd.bflag();
     SmEdge* e1 = i1 >= 0 ? g.edges.at((size_t)i1) : NULL;
     SmEdge* e2 = i2 >= 0 ? g.edges.at((size_t)i2) : NULL;
-    if (e1 && e2 && e1 != e2 && !e2->IsWire() && (e1->GetCurve() == NULL || e2->GetCurve() == NULL))
+    if (e1 && e2 && e1 != e2 && !e2->IsWire() && orient == SM_OT_SAME)
     {
-        o.push_back(P7_NULL_DEREF);
-        return;
+        SmExtent1d a = e1->GetInterval(), d = e2->GetInterval();
+        if (SM_ARE_SAME(a.GetMin(), d.GetMin()) && SM_ARE_SAME(a.GetMax(), d.GetMax())
+            && (e1->GetCurve() == NULL) != (e2->GetCurve() == NULL))
+        {
+            o.push_back(P7_NULL_DEREF);
+            return;
+        }
     }
     o.push_back(st(b->GlueEdgesGeneral(e1, orient, gap, nesting, e2)));
     p7_put_counts(o, b);
