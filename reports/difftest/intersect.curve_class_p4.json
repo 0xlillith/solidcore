@@ -106,16 +106,12 @@
       "values_compared": 7767
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0010",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947447",
-      "values_compared": 0
+      "values_compared": 10614
     },
     {
       "deferred": {
@@ -262,28 +258,20 @@
       "values_compared": 2990
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0024",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947461",
-      "values_compared": 0
+      "values_compared": 15397
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0025",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947462",
-      "values_compared": 0
+      "values_compared": 1159
     },
     {
       "deferred": {
@@ -415,8 +403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0038",
@@ -526,16 +514,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0048",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947485",
-      "values_compared": 0
+      "values_compared": 16559
     },
     {
       "max_rel_err": 0.0,
@@ -579,8 +563,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0053",
@@ -603,8 +587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::HasSeamProblem",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0055",
@@ -683,8 +667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0062",
@@ -751,8 +735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0068",
@@ -931,8 +915,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0085",
@@ -954,16 +938,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0087",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947524",
-      "values_compared": 0
+      "values_compared": 928
     },
     {
       "deferred": {
@@ -1027,8 +1007,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0093",
@@ -1118,16 +1098,12 @@
       "values_compared": 25724
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0102",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947539",
-      "values_compared": 0
+      "values_compared": 15109
     },
     {
       "deferred": {
@@ -1154,16 +1130,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0105",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947542",
-      "values_compared": 0
+      "values_compared": 5171
     },
     {
       "deferred": {
@@ -1315,8 +1287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0120",
@@ -1510,16 +1482,12 @@
       "values_compared": 2668
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0138",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947575",
-      "values_compared": 0
+      "values_compared": 13445
     },
     {
       "deferred": {
@@ -1691,8 +1659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0155",
@@ -1839,8 +1807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0170",
@@ -1850,28 +1818,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0171",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947608",
-      "values_compared": 0
+      "values_compared": 18211
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0172",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947609",
-      "values_compared": 0
+      "values_compared": 1313
     },
     {
       "deferred": {
@@ -1979,8 +1939,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0183",
@@ -2043,8 +2003,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0189",
@@ -2290,16 +2250,12 @@
       "values_compared": 9763
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0211",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947648",
-      "values_compared": 0
+      "values_compared": 3254
     },
     {
       "max_rel_err": 0.0,
@@ -2318,16 +2274,12 @@
       "values_compared": 13774
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0214",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947651",
-      "values_compared": 0
+      "values_compared": 1019
     },
     {
       "max_rel_err": 0.0,
@@ -2350,16 +2302,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0217",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947654",
-      "values_compared": 0
+      "values_compared": 10566
     },
     {
       "deferred": {
@@ -2374,16 +2322,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0219",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947656",
-      "values_compared": 0
+      "values_compared": 2426
     },
     {
       "max_rel_err": 0.0,
@@ -2555,8 +2499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0236",
@@ -2647,8 +2591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0245",
@@ -2706,16 +2650,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0250",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947687",
-      "values_compared": 0
+      "values_compared": 15156
     },
     {
       "deferred": {
@@ -2771,8 +2711,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0256",
@@ -2815,8 +2755,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0260",
@@ -2890,16 +2830,12 @@
       "values_compared": 1003
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0268",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947705",
-      "values_compared": 0
+      "values_compared": 10006
     },
     {
       "deferred": {
@@ -2947,8 +2883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0273",
@@ -2959,8 +2895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0274",
@@ -3074,16 +3010,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0284",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947721",
-      "values_compared": 0
+      "values_compared": 8740
     },
     {
       "deferred": {
@@ -3222,16 +3154,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0297",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947734",
-      "values_compared": 0
+      "values_compared": 2083
     },
     {
       "deferred": {
@@ -3247,8 +3175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0299",
@@ -3259,8 +3187,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0300",
@@ -3290,16 +3218,12 @@
       "values_compared": 11734
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0303",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947740",
-      "values_compared": 0
+      "values_compared": 12043
     },
     {
       "deferred": {
@@ -3314,16 +3238,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0305",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947742",
-      "values_compared": 0
+      "values_compared": 8403
     },
     {
       "max_rel_err": 0.0,
@@ -3355,8 +3275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0309",
@@ -3519,8 +3439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0325",
@@ -3610,21 +3530,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0333",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947770",
-      "values_compared": 0
+      "values_compared": 20621
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0334",
@@ -3634,16 +3550,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0335",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947772",
-      "values_compared": 0
+      "values_compared": 10206
     },
     {
       "max_rel_err": 0.0,
@@ -3751,8 +3663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0347",
@@ -3762,16 +3674,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0348",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947785",
-      "values_compared": 0
+      "values_compared": 10526
     },
     {
       "deferred": {
@@ -3798,16 +3706,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0351",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947788",
-      "values_compared": 0
+      "values_compared": 6769
     },
     {
       "max_rel_err": 0.0,
@@ -3843,8 +3747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0355",
@@ -3882,21 +3786,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0359",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947796",
-      "values_compared": 0
+      "values_compared": 28986
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0360",
@@ -3918,16 +3818,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0362",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947799",
-      "values_compared": 0
+      "values_compared": 12448
     },
     {
       "max_rel_err": 0.0,
@@ -4015,8 +3911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0371",
@@ -4226,16 +4122,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0390",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947827",
-      "values_compared": 0
+      "values_compared": 2822
     },
     {
       "deferred": {
@@ -4282,16 +4174,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0395",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947832",
-      "values_compared": 0
+      "values_compared": 8131
     },
     {
       "max_rel_err": 0.0,
@@ -4363,8 +4251,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0402",
@@ -4398,16 +4286,12 @@
       "values_compared": 14114
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0406",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947843",
-      "values_compared": 0
+      "values_compared": 15608
     },
     {
       "deferred": {
@@ -4422,16 +4306,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0408",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947845",
-      "values_compared": 0
+      "values_compared": 16764
     },
     {
       "deferred": {
@@ -4782,16 +4662,12 @@
       "values_compared": 11501
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0442",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947879",
-      "values_compared": 0
+      "values_compared": 12724
     },
     {
       "max_rel_err": 0.0,
@@ -4810,16 +4686,12 @@
       "values_compared": 3009
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0445",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947882",
-      "values_compared": 0
+      "values_compared": 17468
     },
     {
       "max_rel_err": 0.0,
@@ -4911,8 +4783,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0454",
@@ -4967,8 +4839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0459",
@@ -5071,8 +4943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0468",
@@ -5090,16 +4962,12 @@
       "values_compared": 15343
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0470",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947907",
-      "values_compared": 0
+      "values_compared": 5854
     },
     {
       "max_rel_err": 0.0,
@@ -5131,8 +4999,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0474",
@@ -5186,16 +5054,12 @@
       "values_compared": 8843
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0480",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947917",
-      "values_compared": 0
+      "values_compared": 5860
     },
     {
       "max_rel_err": 0.0,
@@ -5206,16 +5070,12 @@
       "values_compared": 10882
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0482",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947919",
-      "values_compared": 0
+      "values_compared": 1535
     },
     {
       "deferred": {
@@ -5258,16 +5118,12 @@
       "values_compared": 1009
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0487",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947924",
-      "values_compared": 0
+      "values_compared": 13740
     },
     {
       "deferred": {
@@ -5303,8 +5159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0491",
@@ -5339,8 +5195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0494",
@@ -5438,16 +5294,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0503",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947940",
-      "values_compared": 0
+      "values_compared": 859
     },
     {
       "max_rel_err": 0.0,
@@ -5482,16 +5334,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0507",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947944",
-      "values_compared": 0
+      "values_compared": 5614
     },
     {
       "deferred": {
@@ -5538,16 +5386,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0512",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947949",
-      "values_compared": 0
+      "values_compared": 1468
     },
     {
       "deferred": {
@@ -5607,8 +5451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0519",
@@ -5898,16 +5742,12 @@
       "values_compared": 13959
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0547",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947984",
-      "values_compared": 0
+      "values_compared": 8605
     },
     {
       "max_rel_err": 0.0,
@@ -6043,8 +5883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0560",
@@ -6054,16 +5894,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0561",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701947998",
-      "values_compared": 0
+      "values_compared": 933
     },
     {
       "deferred": {
@@ -6111,8 +5947,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0566",
@@ -6190,16 +6026,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0573",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948010",
-      "values_compared": 0
+      "values_compared": 7891
     },
     {
       "deferred": {
@@ -6214,16 +6046,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0575",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948012",
-      "values_compared": 0
+      "values_compared": 9917
     },
     {
       "deferred": {
@@ -6263,8 +6091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0579",
@@ -6502,16 +6330,12 @@
       "values_compared": 8515
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0601",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948038",
-      "values_compared": 0
+      "values_compared": 15114
     },
     {
       "deferred": {
@@ -6570,16 +6394,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0607",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948044",
-      "values_compared": 0
+      "values_compared": 13339
     },
     {
       "deferred": {
@@ -6647,8 +6467,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0614",
@@ -6763,8 +6583,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0625",
@@ -6807,8 +6627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0629",
@@ -6850,16 +6670,12 @@
       "values_compared": 8960
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0633",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948070",
-      "values_compared": 0
+      "values_compared": 1396
     },
     {
       "deferred": {
@@ -6915,8 +6731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0639",
@@ -6975,8 +6791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0646",
@@ -6994,16 +6810,12 @@
       "values_compared": 25721
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0648",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948085",
-      "values_compared": 0
+      "values_compared": 5069
     },
     {
       "deferred": {
@@ -7026,16 +6838,12 @@
       "values_compared": 1560
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0651",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948088",
-      "values_compared": 0
+      "values_compared": 3384
     },
     {
       "deferred": {
@@ -7094,16 +6902,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0657",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948094",
-      "values_compared": 0
+      "values_compared": 3856
     },
     {
       "max_rel_err": 0.0,
@@ -7142,16 +6946,12 @@
       "values_compared": 11093
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0662",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948099",
-      "values_compared": 0
+      "values_compared": 10440
     },
     {
       "deferred": {
@@ -7166,28 +6966,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0664",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948101",
-      "values_compared": 0
+      "values_compared": 20267
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0665",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948102",
-      "values_compared": 0
+      "values_compared": 8586
     },
     {
       "deferred": {
@@ -7358,16 +7150,12 @@
       "values_compared": 925
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0682",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948119",
-      "values_compared": 0
+      "values_compared": 27463
     },
     {
       "deferred": {
@@ -7394,16 +7182,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0685",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948122",
-      "values_compared": 0
+      "values_compared": 10492
     },
     {
       "max_rel_err": 0.0,
@@ -7622,16 +7406,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0707",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948144",
-      "values_compared": 0
+      "values_compared": 9999
     },
     {
       "max_rel_err": 0.0,
@@ -7662,16 +7442,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0711",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948148",
-      "values_compared": 0
+      "values_compared": 25724
     },
     {
       "deferred": {
@@ -7686,16 +7462,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0713",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948150",
-      "values_compared": 0
+      "values_compared": 11476
     },
     {
       "deferred": {
@@ -7766,16 +7538,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0720",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948157",
-      "values_compared": 0
+      "values_compared": 12724
     },
     {
       "deferred": {
@@ -7855,8 +7623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0728",
@@ -7890,16 +7658,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0731",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948168",
-      "values_compared": 0
+      "values_compared": 1241
     },
     {
       "deferred": {
@@ -7995,8 +7759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0741",
@@ -8019,8 +7783,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0743",
@@ -8062,16 +7826,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0747",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948184",
-      "values_compared": 0
+      "values_compared": 2319
     },
     {
       "max_rel_err": 0.0,
@@ -8090,16 +7850,12 @@
       "values_compared": 3641
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0750",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948187",
-      "values_compared": 0
+      "values_compared": 1861
     },
     {
       "deferred": {
@@ -8162,16 +7918,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0756",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948193",
-      "values_compared": 0
+      "values_compared": 5128
     },
     {
       "max_rel_err": 0.0,
@@ -8247,8 +7999,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0765",
@@ -8259,8 +8011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0766",
@@ -8322,28 +8074,20 @@
       "values_compared": 9704
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0772",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948209",
-      "values_compared": 0
+      "values_compared": 11472
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0773",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948210",
-      "values_compared": 0
+      "values_compared": 1391
     },
     {
       "deferred": {
@@ -8370,16 +8114,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0776",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948213",
-      "values_compared": 0
+      "values_compared": 10528
     },
     {
       "deferred": {
@@ -8419,8 +8159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0780",
@@ -8430,16 +8170,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0781",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948218",
-      "values_compared": 0
+      "values_compared": 6140
     },
     {
       "deferred": {
@@ -8454,16 +8190,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0783",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948220",
-      "values_compared": 0
+      "values_compared": 5432
     },
     {
       "deferred": {
@@ -8499,8 +8231,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0787",
@@ -8546,16 +8278,12 @@
       "values_compared": 15898
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0792",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948229",
-      "values_compared": 0
+      "values_compared": 5759
     },
     {
       "deferred": {
@@ -8830,16 +8558,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0819",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948256",
-      "values_compared": 0
+      "values_compared": 3337
     },
     {
       "deferred": {
@@ -8891,8 +8615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0824",
@@ -8942,16 +8666,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0829",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948266",
-      "values_compared": 0
+      "values_compared": 1009
     },
     {
       "max_rel_err": 0.0,
@@ -8962,16 +8682,12 @@
       "values_compared": 11070
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0831",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948268",
-      "values_compared": 0
+      "values_compared": 11167
     },
     {
       "deferred": {
@@ -9011,8 +8727,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0836",
@@ -9275,8 +8991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0860",
@@ -9302,16 +9018,12 @@
       "values_compared": 1633
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0863",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948300",
-      "values_compared": 0
+      "values_compared": 5590
     },
     {
       "deferred": {
@@ -9502,28 +9214,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0880",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948317",
-      "values_compared": 0
+      "values_compared": 4016
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0881",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948318",
-      "values_compared": 0
+      "values_compared": 13177
     },
     {
       "deferred": {
@@ -9611,8 +9315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0890",
@@ -9686,16 +9390,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0898",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948335",
-      "values_compared": 0
+      "values_compared": 3466
     },
     {
       "deferred": {
@@ -9710,16 +9410,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0900",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948337",
-      "values_compared": 0
+      "values_compared": 11645
     },
     {
       "max_rel_err": 0.0,
@@ -9831,8 +9527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0912",
@@ -9855,8 +9551,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0914",
@@ -9866,16 +9562,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0915",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948352",
-      "values_compared": 0
+      "values_compared": 1399
     },
     {
       "max_rel_err": 0.0,
@@ -9886,16 +9578,12 @@
       "values_compared": 37742
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0917",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948354",
-      "values_compared": 0
+      "values_compared": 1891
     },
     {
       "deferred": {
@@ -9958,16 +9646,12 @@
       "values_compared": 18222
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0924",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948361",
-      "values_compared": 0
+      "values_compared": 6586
     },
     {
       "deferred": {
@@ -10042,16 +9726,12 @@
       "values_compared": 18465
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0932",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948369",
-      "values_compared": 0
+      "values_compared": 13079
     },
     {
       "deferred": {
@@ -10078,16 +9758,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0935",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948372",
-      "values_compared": 0
+      "values_compared": 12999
     },
     {
       "deferred": {
@@ -10191,8 +9867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0945",
@@ -10246,16 +9922,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0950",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948387",
-      "values_compared": 0
+      "values_compared": 3644
     },
     {
       "deferred": {
@@ -10306,16 +9978,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0955",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948392",
-      "values_compared": 0
+      "values_compared": 2238
     },
     {
       "deferred": {
@@ -10390,16 +10058,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0962",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948399",
-      "values_compared": 0
+      "values_compared": 8264
     },
     {
       "max_rel_err": 0.0,
@@ -10411,8 +10075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0964",
@@ -10430,16 +10094,12 @@
       "values_compared": 15319
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0966",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948403",
-      "values_compared": 0
+      "values_compared": 5904
     },
     {
       "deferred": {
@@ -10454,16 +10114,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0968",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948405",
-      "values_compared": 0
+      "values_compared": 1318
     },
     {
       "max_rel_err": 0.0,
@@ -10482,40 +10138,28 @@
       "values_compared": 18178
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0971",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948408",
-      "values_compared": 0
+      "values_compared": 2604
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0972",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948409",
-      "values_compared": 0
+      "values_compared": 4315
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0973",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948410",
-      "values_compared": 0
+      "values_compared": 5807
     },
     {
       "deferred": {
@@ -10547,8 +10191,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0977",
@@ -10590,16 +10234,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0981",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948418",
-      "values_compared": 0
+      "values_compared": 17164
     },
     {
       "max_rel_err": 0.0,
@@ -10722,21 +10362,17 @@
       "values_compared": 1828
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0993",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948430",
-      "values_compared": 0
+      "values_compared": 11798
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen0994",
@@ -10790,16 +10426,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen0999",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948436",
-      "values_compared": 0
+      "values_compared": 26471
     },
     {
       "deferred": {
@@ -10858,16 +10490,12 @@
       "values_compared": 21967
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1005",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948442",
-      "values_compared": 0
+      "values_compared": 13278
     },
     {
       "max_rel_err": 0.0,
@@ -10934,16 +10562,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1012",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948449",
-      "values_compared": 0
+      "values_compared": 933
     },
     {
       "deferred": {
@@ -11034,16 +10658,12 @@
       "values_compared": 30142
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1021",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948458",
-      "values_compared": 0
+      "values_compared": 22107
     },
     {
       "deferred": {
@@ -11143,8 +10763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1031",
@@ -11347,8 +10967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1049",
@@ -11414,16 +11034,12 @@
       "values_compared": 1702
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1056",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948493",
-      "values_compared": 0
+      "values_compared": 16481
     },
     {
       "deferred": {
@@ -11467,8 +11083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1061",
@@ -11487,8 +11103,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1063",
@@ -11522,16 +11138,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1066",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948503",
-      "values_compared": 0
+      "values_compared": 2553
     },
     {
       "deferred": {
@@ -11583,8 +11195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1071",
@@ -11615,8 +11227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1074",
@@ -11791,8 +11403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1091",
@@ -11811,8 +11423,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1093",
@@ -11950,16 +11562,12 @@
       "values_compared": 2552
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1106",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948543",
-      "values_compared": 0
+      "values_compared": 8792
     },
     {
       "deferred": {
@@ -12094,16 +11702,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1120",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948557",
-      "values_compared": 0
+      "values_compared": 7043
     },
     {
       "deferred": {
@@ -12179,8 +11783,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1128",
@@ -12266,16 +11870,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1136",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948573",
-      "values_compared": 0
+      "values_compared": 6494
     },
     {
       "max_rel_err": 0.0,
@@ -12338,16 +11938,12 @@
       "values_compared": 18485
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1143",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948580",
-      "values_compared": 0
+      "values_compared": 13379
     },
     {
       "max_rel_err": 0.0,
@@ -12379,8 +11975,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1147",
@@ -12558,16 +12154,12 @@
       "values_compared": 925
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1164",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948601",
-      "values_compared": 0
+      "values_compared": 10083
     },
     {
       "max_rel_err": 0.0,
@@ -12619,8 +12211,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1170",
@@ -12847,8 +12439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1193",
@@ -12903,8 +12495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1198",
@@ -13055,8 +12647,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1213",
@@ -13110,16 +12702,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1218",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948655",
-      "values_compared": 0
+      "values_compared": 8788
     },
     {
       "max_rel_err": 0.0,
@@ -13162,16 +12750,12 @@
       "values_compared": 4845
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1223",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948660",
-      "values_compared": 0
+      "values_compared": 8582
     },
     {
       "deferred": {
@@ -13354,16 +12938,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1240",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948677",
-      "values_compared": 0
+      "values_compared": 14010
     },
     {
       "max_rel_err": 0.0,
@@ -13419,8 +12999,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1246",
@@ -13594,16 +13174,12 @@
       "values_compared": 25914
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1262",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948699",
-      "values_compared": 0
+      "values_compared": 3474
     },
     {
       "deferred": {
@@ -13619,8 +13195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1264",
@@ -13714,16 +13290,12 @@
       "values_compared": 30056
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1273",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948710",
-      "values_compared": 0
+      "values_compared": 1166
     },
     {
       "deferred": {
@@ -13890,16 +13462,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1289",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948726",
-      "values_compared": 0
+      "values_compared": 1088
     },
     {
       "deferred": {
@@ -13934,16 +13502,12 @@
       "values_compared": 7165
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1293",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948730",
-      "values_compared": 0
+      "values_compared": 16477
     },
     {
       "deferred": {
@@ -13959,8 +13523,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::HasSeamProblem",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen1295",
@@ -13970,16 +13534,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1296",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948733",
-      "values_compared": 0
+      "values_compared": 1011
     },
     {
       "max_rel_err": 0.0,
@@ -14083,8 +13643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1307",
@@ -14242,16 +13802,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1322",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948759",
-      "values_compared": 0
+      "values_compared": 23840
     },
     {
       "max_rel_err": 0.0,
@@ -14262,21 +13818,17 @@
       "values_compared": 11850
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1324",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948761",
-      "values_compared": 0
+      "values_compared": 5724
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1325",
@@ -14350,16 +13902,12 @@
       "values_compared": 12616
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1333",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948770",
-      "values_compared": 0
+      "values_compared": 6495
     },
     {
       "deferred": {
@@ -14439,8 +13987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1341",
@@ -14463,8 +14011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1343",
@@ -14526,16 +14074,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1349",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948786",
-      "values_compared": 0
+      "values_compared": 1858
     },
     {
       "max_rel_err": 0.0,
@@ -14611,8 +14155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1357",
@@ -14623,8 +14167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1358",
@@ -14679,8 +14223,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1363",
@@ -14763,8 +14307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1371",
@@ -15115,8 +14659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1404",
@@ -15294,16 +14838,12 @@
       "values_compared": 19290
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1421",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948858",
-      "values_compared": 0
+      "values_compared": 2083
     },
     {
       "max_rel_err": 0.0,
@@ -15326,16 +14866,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1424",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948861",
-      "values_compared": 0
+      "values_compared": 10594
     },
     {
       "max_rel_err": 0.0,
@@ -15346,16 +14882,12 @@
       "values_compared": 8548
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1426",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948863",
-      "values_compared": 0
+      "values_compared": 1780
     },
     {
       "deferred": {
@@ -15379,8 +14911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1429",
@@ -15414,21 +14946,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1432",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948869",
-      "values_compared": 0
+      "values_compared": 2556
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1433",
@@ -15555,8 +15083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1445",
@@ -15635,8 +15163,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1452",
@@ -15646,21 +15174,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1453",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948890",
-      "values_compared": 0
+      "values_compared": 12420
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1454",
@@ -15679,8 +15203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1456",
@@ -15739,8 +15263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1461",
@@ -15783,8 +15307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1465",
@@ -15794,16 +15318,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1466",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948903",
-      "values_compared": 0
+      "values_compared": 6682
     },
     {
       "deferred": {
@@ -15826,16 +15346,12 @@
       "values_compared": 3251
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1469",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948906",
-      "values_compared": 0
+      "values_compared": 18412
     },
     {
       "max_rel_err": 0.0,
@@ -15846,16 +15362,12 @@
       "values_compared": 15836
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1471",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948908",
-      "values_compared": 0
+      "values_compared": 6555
     },
     {
       "deferred": {
@@ -16263,8 +15775,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1512",
@@ -16274,16 +15786,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1513",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948950",
-      "values_compared": 0
+      "values_compared": 2242
     },
     {
       "deferred": {
@@ -16306,16 +15814,12 @@
       "values_compared": 4245
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1516",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948953",
-      "values_compared": 0
+      "values_compared": 10835
     },
     {
       "deferred": {
@@ -16478,16 +15982,12 @@
       "values_compared": 4188
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1535",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948972",
-      "values_compared": 0
+      "values_compared": 6850
     },
     {
       "deferred": {
@@ -16502,16 +16002,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1537",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948974",
-      "values_compared": 0
+      "values_compared": 11433
     },
     {
       "max_rel_err": 0.0,
@@ -16659,8 +16155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1552",
@@ -16671,8 +16167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1553",
@@ -16682,16 +16178,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1554",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948991",
-      "values_compared": 0
+      "values_compared": 2404
     },
     {
       "max_rel_err": 0.0,
@@ -16702,28 +16194,20 @@
       "values_compared": 1936
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1556",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948993",
-      "values_compared": 0
+      "values_compared": 4766
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1557",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701948994",
-      "values_compared": 0
+      "values_compared": 15404
     },
     {
       "deferred": {
@@ -16782,16 +16266,12 @@
       "values_compared": 16823
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1564",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949001",
-      "values_compared": 0
+      "values_compared": 8605
     },
     {
       "deferred": {
@@ -16974,16 +16454,12 @@
       "values_compared": 3121
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1582",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949019",
-      "values_compared": 0
+      "values_compared": 11467
     },
     {
       "max_rel_err": 0.0,
@@ -17050,16 +16526,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1589",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949026",
-      "values_compared": 0
+      "values_compared": 9342
     },
     {
       "deferred": {
@@ -17266,16 +16738,12 @@
       "values_compared": 11271
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1610",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949047",
-      "values_compared": 0
+      "values_compared": 11251
     },
     {
       "deferred": {
@@ -17378,16 +16846,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1620",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949057",
-      "values_compared": 0
+      "values_compared": 10000
     },
     {
       "deferred": {
@@ -17498,16 +16962,12 @@
       "values_compared": 19604
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1631",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949068",
-      "values_compared": 0
+      "values_compared": 1236
     },
     {
       "max_rel_err": 0.0,
@@ -17839,8 +17299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1666",
@@ -17862,16 +17322,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1668",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949105",
-      "values_compared": 0
+      "values_compared": 5495
     },
     {
       "deferred": {
@@ -17907,8 +17363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen1672",
@@ -18050,16 +17506,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1685",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949122",
-      "values_compared": 0
+      "values_compared": 1394
     },
     {
       "max_rel_err": 0.0,
@@ -18090,16 +17542,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1689",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949126",
-      "values_compared": 0
+      "values_compared": 18774
     },
     {
       "deferred": {
@@ -18139,8 +17587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1693",
@@ -18151,8 +17599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1694",
@@ -18222,16 +17670,12 @@
       "values_compared": 12144
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1701",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949138",
-      "values_compared": 0
+      "values_compared": 13017
     },
     {
       "deferred": {
@@ -18330,16 +17774,12 @@
       "values_compared": 16455
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1712",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949149",
-      "values_compared": 0
+      "values_compared": 15580
     },
     {
       "deferred": {
@@ -18451,8 +17891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1723",
@@ -18523,8 +17963,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1730",
@@ -18642,28 +18082,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1741",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949178",
-      "values_compared": 0
+      "values_compared": 14546
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1742",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949179",
-      "values_compared": 0
+      "values_compared": 29275
     },
     {
       "deferred": {
@@ -18687,8 +18119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1745",
@@ -18746,16 +18178,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1751",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949188",
-      "values_compared": 0
+      "values_compared": 1396
     },
     {
       "deferred": {
@@ -18770,16 +18198,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1753",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949190",
-      "values_compared": 0
+      "values_compared": 1398
     },
     {
       "deferred": {
@@ -18879,8 +18303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1763",
@@ -18975,8 +18399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1772",
@@ -19106,16 +18530,12 @@
       "values_compared": 4072
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1784",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949221",
-      "values_compared": 0
+      "values_compared": 28124
     },
     {
       "deferred": {
@@ -19167,8 +18587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1789",
@@ -19207,8 +18627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1793",
@@ -19218,16 +18638,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1794",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949231",
-      "values_compared": 0
+      "values_compared": 6519
     },
     {
       "deferred": {
@@ -19242,16 +18658,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1796",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949233",
-      "values_compared": 0
+      "values_compared": 6259
     },
     {
       "deferred": {
@@ -19367,8 +18779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1808",
@@ -19422,16 +18834,12 @@
       "values_compared": 3516
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1813",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949250",
-      "values_compared": 0
+      "values_compared": 1096
     },
     {
       "max_rel_err": 0.0,
@@ -19454,28 +18862,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1816",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949253",
-      "values_compared": 0
+      "values_compared": 25522
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1817",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949254",
-      "values_compared": 0
+      "values_compared": 19738
     },
     {
       "deferred": {
@@ -19490,16 +18890,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1819",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949256",
-      "values_compared": 0
+      "values_compared": 15108
     },
     {
       "max_rel_err": 0.0,
@@ -19578,21 +18974,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1827",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949264",
-      "values_compared": 0
+      "values_compared": 23991
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1828",
@@ -19778,16 +19170,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1845",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949282",
-      "values_compared": 0
+      "values_compared": 7473
     },
     {
       "deferred": {
@@ -19830,16 +19218,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1850",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949287",
-      "values_compared": 0
+      "values_compared": 17244
     },
     {
       "max_rel_err": 0.0,
@@ -19882,16 +19266,12 @@
       "values_compared": 12037
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1855",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949292",
-      "values_compared": 0
+      "values_compared": 16925
     },
     {
       "deferred": {
@@ -19919,8 +19299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1858",
@@ -19931,8 +19311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1859",
@@ -19963,8 +19343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1862",
@@ -20051,8 +19431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1871",
@@ -20094,16 +19474,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1875",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949312",
-      "values_compared": 0
+      "values_compared": 1564
     },
     {
       "deferred": {
@@ -20118,16 +19494,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1877",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949314",
-      "values_compared": 0
+      "values_compared": 1236
     },
     {
       "max_rel_err": 0.0,
@@ -20174,16 +19546,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1882",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949319",
-      "values_compared": 0
+      "values_compared": 1095
     },
     {
       "deferred": {
@@ -20278,16 +19646,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1891",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949328",
-      "values_compared": 0
+      "values_compared": 1092
     },
     {
       "max_rel_err": 0.0,
@@ -20346,16 +19710,12 @@
       "values_compared": 11387
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1898",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949335",
-      "values_compared": 0
+      "values_compared": 6116
     },
     {
       "max_rel_err": 0.0,
@@ -20366,16 +19726,12 @@
       "values_compared": 8736
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1900",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949337",
-      "values_compared": 0
+      "values_compared": 5942
     },
     {
       "deferred": {
@@ -20470,16 +19826,12 @@
       "values_compared": 1851
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1910",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949347",
-      "values_compared": 0
+      "values_compared": 28327
     },
     {
       "deferred": {
@@ -20530,16 +19882,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1915",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949352",
-      "values_compared": 0
+      "values_compared": 4506
     },
     {
       "max_rel_err": 0.0,
@@ -20619,8 +19967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1924",
@@ -20826,16 +20174,12 @@
       "values_compared": 9441
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1944",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949381",
-      "values_compared": 0
+      "values_compared": 9858
     },
     {
       "deferred": {
@@ -20955,8 +20299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen1956",
@@ -21098,16 +20442,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1970",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949407",
-      "values_compared": 0
+      "values_compared": 10069
     },
     {
       "deferred": {
@@ -21122,16 +20462,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1972",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949409",
-      "values_compared": 0
+      "values_compared": 19945
     },
     {
       "deferred": {
@@ -21242,16 +20578,12 @@
       "values_compared": 7908
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1984",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949421",
-      "values_compared": 0
+      "values_compared": 31009
     },
     {
       "max_rel_err": 0.0,
@@ -21378,16 +20710,12 @@
       "values_compared": 3450
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1997",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949434",
-      "values_compared": 0
+      "values_compared": 13958
     },
     {
       "deferred": {
@@ -21402,16 +20730,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen1999",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949436",
-      "values_compared": 0
+      "values_compared": 1958
     },
     {
       "deferred": {
@@ -21459,8 +20783,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2004",
@@ -21822,16 +21146,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2039",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949476",
-      "values_compared": 0
+      "values_compared": 17275
     },
     {
       "deferred": {
@@ -21887,8 +21207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2045",
@@ -21919,8 +21239,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2048",
@@ -21930,16 +21250,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2049",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949486",
-      "values_compared": 0
+      "values_compared": 11952
     },
     {
       "max_rel_err": 0.0,
@@ -21990,16 +21306,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2055",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949492",
-      "values_compared": 0
+      "values_compared": 1545
     },
     {
       "max_rel_err": 0.0,
@@ -22119,8 +21431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2067",
@@ -22162,16 +21474,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2071",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949508",
-      "values_compared": 0
+      "values_compared": 9968
     },
     {
       "deferred": {
@@ -22186,16 +21494,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2073",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949510",
-      "values_compared": 0
+      "values_compared": 14230
     },
     {
       "max_rel_err": 0.0,
@@ -22262,16 +21566,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2081",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949518",
-      "values_compared": 0
+      "values_compared": 11798
     },
     {
       "deferred": {
@@ -22318,16 +21618,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2086",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949523",
-      "values_compared": 0
+      "values_compared": 851
     },
     {
       "deferred": {
@@ -22366,16 +21662,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2090",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949527",
-      "values_compared": 0
+      "values_compared": 10256
     },
     {
       "deferred": {
@@ -22467,8 +21759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2099",
@@ -22606,16 +21898,12 @@
       "values_compared": 471
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2113",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949550",
-      "values_compared": 0
+      "values_compared": 4897
     },
     {
       "deferred": {
@@ -22898,16 +22186,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2139",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949576",
-      "values_compared": 0
+      "values_compared": 1175
     },
     {
       "deferred": {
@@ -23007,8 +22291,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2149",
@@ -23130,28 +22414,20 @@
       "values_compared": 27455
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2161",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949598",
-      "values_compared": 0
+      "values_compared": 6477
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2162",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949599",
-      "values_compared": 0
+      "values_compared": 2238
     },
     {
       "max_rel_err": 0.0,
@@ -23231,8 +22507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2171",
@@ -23383,8 +22659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2186",
@@ -23618,16 +22894,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2209",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949646",
-      "values_compared": 0
+      "values_compared": 11028
     },
     {
       "deferred": {
@@ -23687,8 +22959,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2215",
@@ -23763,8 +23035,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2222",
@@ -24023,8 +23295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2247",
@@ -24035,8 +23307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2248",
@@ -24191,8 +23463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2262",
@@ -24215,8 +23487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2264",
@@ -24226,16 +23498,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2265",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949702",
-      "values_compared": 0
+      "values_compared": 16867
     },
     {
       "deferred": {
@@ -24294,16 +23562,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2271",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949708",
-      "values_compared": 0
+      "values_compared": 7781
     },
     {
       "deferred": {
@@ -24338,16 +23602,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2275",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949712",
-      "values_compared": 0
+      "values_compared": 9948
     },
     {
       "max_rel_err": 0.0,
@@ -24379,8 +23639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2279",
@@ -24503,8 +23763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2291",
@@ -24590,16 +23850,12 @@
       "values_compared": 1782
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2299",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949736",
-      "values_compared": 0
+      "values_compared": 6948
     },
     {
       "deferred": {
@@ -24839,8 +24095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2320",
@@ -25111,8 +24367,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2346",
@@ -25147,8 +24403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2349",
@@ -25158,16 +24414,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2350",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949787",
-      "values_compared": 0
+      "values_compared": 1861
     },
     {
       "deferred": {
@@ -25415,8 +24667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2374",
@@ -25427,8 +24679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2375",
@@ -25603,8 +24855,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2392",
@@ -25658,16 +24910,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2397",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949834",
-      "values_compared": 0
+      "values_compared": 5961
     },
     {
       "deferred": {
@@ -25683,8 +24931,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2399",
@@ -25694,16 +24942,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2400",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949837",
-      "values_compared": 0
+      "values_compared": 10517
     },
     {
       "deferred": {
@@ -25803,8 +25047,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2410",
@@ -25915,8 +25159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2420",
@@ -25963,8 +25207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2424",
@@ -26019,8 +25263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2429",
@@ -26195,8 +25439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2444",
@@ -26206,16 +25450,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2445",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949882",
-      "values_compared": 0
+      "values_compared": 10123
     },
     {
       "max_rel_err": 0.0,
@@ -26226,16 +25466,12 @@
       "values_compared": 17553
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2447",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949884",
-      "values_compared": 0
+      "values_compared": 22634
     },
     {
       "deferred": {
@@ -26323,8 +25559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2455",
@@ -26439,8 +25675,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2466",
@@ -26451,8 +25687,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2467",
@@ -26775,8 +26011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2496",
@@ -26891,8 +26127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2507",
@@ -26930,16 +26166,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2511",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949948",
-      "values_compared": 0
+      "values_compared": 3895
     },
     {
       "deferred": {
@@ -26994,16 +26226,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2517",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949954",
-      "values_compared": 0
+      "values_compared": 1829
     },
     {
       "max_rel_err": 0.0,
@@ -27074,16 +26302,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2524",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949961",
-      "values_compared": 0
+      "values_compared": 21390
     },
     {
       "deferred": {
@@ -27110,16 +26334,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2527",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949964",
-      "values_compared": 0
+      "values_compared": 13012
     },
     {
       "deferred": {
@@ -27135,8 +26355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2529",
@@ -27247,8 +26467,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2540",
@@ -27326,16 +26546,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2548",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701949985",
-      "values_compared": 0
+      "values_compared": 4202
     },
     {
       "deferred": {
@@ -27383,8 +26599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2553",
@@ -27519,8 +26735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2566",
@@ -27530,16 +26746,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2567",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950004",
-      "values_compared": 0
+      "values_compared": 10710
     },
     {
       "deferred": {
@@ -27614,16 +26826,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2574",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950011",
-      "values_compared": 0
+      "values_compared": 5521
     },
     {
       "deferred": {
@@ -27647,8 +26855,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2577",
@@ -28062,16 +27270,12 @@
       "values_compared": 1395
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2617",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950054",
-      "values_compared": 0
+      "values_compared": 10518
     },
     {
       "deferred": {
@@ -28138,16 +27342,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2624",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950061",
-      "values_compared": 0
+      "values_compared": 2383
     },
     {
       "deferred": {
@@ -28170,16 +27370,12 @@
       "values_compared": 1088
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2627",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950064",
-      "values_compared": 0
+      "values_compared": 13091
     },
     {
       "max_rel_err": 0.0,
@@ -28191,8 +27387,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2629",
@@ -28234,16 +27430,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2633",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950070",
-      "values_compared": 0
+      "values_compared": 2240
     },
     {
       "deferred": {
@@ -28290,16 +27482,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2638",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950075",
-      "values_compared": 0
+      "values_compared": 14964
     },
     {
       "deferred": {
@@ -28398,21 +27586,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2648",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950085",
-      "values_compared": 0
+      "values_compared": 2006
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2649",
@@ -28446,28 +27630,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2652",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950089",
-      "values_compared": 0
+      "values_compared": 1088
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2653",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950090",
-      "values_compared": 0
+      "values_compared": 9703
     },
     {
       "max_rel_err": 0.0,
@@ -28582,16 +27758,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2665",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950102",
-      "values_compared": 0
+      "values_compared": 6614
     },
     {
       "max_rel_err": 0.0,
@@ -28602,16 +27774,12 @@
       "values_compared": 11092
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2667",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950104",
-      "values_compared": 0
+      "values_compared": 4558
     },
     {
       "deferred": {
@@ -28675,8 +27843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2674",
@@ -28775,8 +27943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2684",
@@ -28943,8 +28111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2699",
@@ -29011,8 +28179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2705",
@@ -29059,8 +28227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2709",
@@ -29070,16 +28238,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2710",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950147",
-      "values_compared": 0
+      "values_compared": 9377
     },
     {
       "deferred": {
@@ -29094,16 +28258,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2712",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950149",
-      "values_compared": 0
+      "values_compared": 15580
     },
     {
       "deferred": {
@@ -29130,16 +28290,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2715",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950152",
-      "values_compared": 0
+      "values_compared": 4650
     },
     {
       "deferred": {
@@ -29154,16 +28310,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2717",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950154",
-      "values_compared": 0
+      "values_compared": 18648
     },
     {
       "deferred": {
@@ -29222,16 +28374,12 @@
       "values_compared": 4710
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2723",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950160",
-      "values_compared": 0
+      "values_compared": 6634
     },
     {
       "max_rel_err": 0.0,
@@ -29374,16 +28522,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2738",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950175",
-      "values_compared": 0
+      "values_compared": 5074
     },
     {
       "deferred": {
@@ -29463,8 +28607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2746",
@@ -29642,16 +28786,12 @@
       "values_compared": 12805
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2763",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950200",
-      "values_compared": 0
+      "values_compared": 4246
     },
     {
       "deferred": {
@@ -29686,16 +28826,12 @@
       "values_compared": 15287
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2767",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950204",
-      "values_compared": 0
+      "values_compared": 1395
     },
     {
       "max_rel_err": 0.0,
@@ -29747,8 +28883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2773",
@@ -29979,8 +29115,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2797",
@@ -30002,28 +29138,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2799",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950236",
-      "values_compared": 0
+      "values_compared": 4897
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2800",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950237",
-      "values_compared": 0
+      "values_compared": 4120
     },
     {
       "deferred": {
@@ -30039,8 +29167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2802",
@@ -30246,16 +29374,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2821",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950258",
-      "values_compared": 0
+      "values_compared": 1703
     },
     {
       "deferred": {
@@ -30471,8 +29595,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2841",
@@ -30519,8 +29643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2845",
@@ -30530,16 +29654,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2846",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950283",
-      "values_compared": 0
+      "values_compared": 14829
     },
     {
       "max_rel_err": 0.0,
@@ -30563,8 +29683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2849",
@@ -30575,8 +29695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2850",
@@ -30586,21 +29706,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2851",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950288",
-      "values_compared": 0
+      "values_compared": 6366
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2852",
@@ -30655,8 +29771,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2857",
@@ -30686,16 +29802,12 @@
       "values_compared": 9676
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2860",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950297",
-      "values_compared": 0
+      "values_compared": 6564
     },
     {
       "deferred": {
@@ -30807,8 +29919,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2871",
@@ -30918,16 +30030,12 @@
       "values_compared": 3902
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2881",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950318",
-      "values_compared": 0
+      "values_compared": 9641
     },
     {
       "deferred": {
@@ -30943,8 +30051,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmEdge::IsConnectedTo",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen2883",
@@ -31146,16 +30254,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2902",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950339",
-      "values_compared": 0
+      "values_compared": 3336
     },
     {
       "deferred": {
@@ -31234,16 +30338,12 @@
       "values_compared": 1318
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2911",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950348",
-      "values_compared": 0
+      "values_compared": 3204
     },
     {
       "deferred": {
@@ -31259,8 +30359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmVertex::IsConnectedTo",
+        "unit": "topology.vertex"
       },
       "max_rel_err": 0.0,
       "name": "gen2913",
@@ -31282,16 +30382,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2915",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950352",
-      "values_compared": 0
+      "values_compared": 3321
     },
     {
       "max_rel_err": 0.0,
@@ -31354,16 +30450,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2922",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950359",
-      "values_compared": 0
+      "values_compared": 18224
     },
     {
       "deferred": {
@@ -31414,16 +30506,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2928",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950365",
-      "values_compared": 0
+      "values_compared": 12594
     },
     {
       "deferred": {
@@ -31438,16 +30526,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2930",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950367",
-      "values_compared": 0
+      "values_compared": 10860
     },
     {
       "deferred": {
@@ -31506,16 +30590,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2936",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950373",
-      "values_compared": 0
+      "values_compared": 12276
     },
     {
       "deferred": {
@@ -31554,16 +30634,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2940",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950377",
-      "values_compared": 0
+      "values_compared": 3124
     },
     {
       "max_rel_err": 0.0,
@@ -31574,16 +30650,12 @@
       "values_compared": 1241
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2942",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950379",
-      "values_compared": 0
+      "values_compared": 8385
     },
     {
       "max_rel_err": 0.0,
@@ -31627,8 +30699,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2947",
@@ -31675,8 +30747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2951",
@@ -31686,16 +30758,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2952",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950389",
-      "values_compared": 0
+      "values_compared": 26385
     },
     {
       "deferred": {
@@ -31710,28 +30778,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2954",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950391",
-      "values_compared": 0
+      "values_compared": 8736
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2955",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950392",
-      "values_compared": 0
+      "values_compared": 1780
     },
     {
       "max_rel_err": 0.0,
@@ -31870,16 +30930,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2970",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950407",
-      "values_compared": 0
+      "values_compared": 4763
     },
     {
       "max_rel_err": 0.0,
@@ -31890,16 +30946,12 @@
       "values_compared": 18581
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2972",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950409",
-      "values_compared": 0
+      "values_compared": 8795
     },
     {
       "deferred": {
@@ -31934,16 +30986,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2976",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950413",
-      "values_compared": 0
+      "values_compared": 8814
     },
     {
       "max_rel_err": 0.0,
@@ -31986,16 +31034,12 @@
       "values_compared": 10694
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2981",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950418",
-      "values_compared": 0
+      "values_compared": 8140
     },
     {
       "deferred": {
@@ -32130,16 +31174,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "gen2994",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816356984701950431",
-      "values_compared": 0
+      "values_compared": 1838
     },
     {
       "max_rel_err": 0.0,
@@ -32175,8 +31215,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
+        "symbol": "SmCurveClassification::ConnectIntervals",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen2998",
@@ -32222,16 +31262,12 @@
       "values_compared": 784
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "edge_loop_crossings_unit_plane_line",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 1550
     },
     {
       "deferred": {
@@ -33490,16 +32526,12 @@
       "values_compared": 784
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "unit": "intersect.curve_class_p7"
-      },
       "max_rel_err": 0.0,
       "name": "edge_loop_crossings_tiny_plane_line",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 1550
     },
     {
       "deferred": {
@@ -34111,16 +33143,16 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 2125,
+  "cases_deferred": 1883,
   "cases_failed": 0,
-  "cases_passed": 1076,
+  "cases_passed": 1318,
   "cases_total": 3201,
   "deferred_by_unit": {
-    "intersect.curve_class_p2": 960,
-    "intersect.curve_class_p7": 419,
-    "topology.edge": 44,
-    "topology.face_p2": 344,
-    "topology.face_p4": 358
+    "intersect.curve_class_p2": 1014,
+    "topology.edge": 82,
+    "topology.face_p2": 376,
+    "topology.face_p4": 360,
+    "topology.vertex": 51
   },
   "max_rel_err": 0.0,
   "pass": true,

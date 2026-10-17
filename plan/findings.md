@@ -5159,10 +5159,16 @@ mutated scales and accepted/reduced step counts are compared.
   returns propagates instead of leaving partial outputs: the port's `compute_uv_sector` reports evaluation
   failures as errors). Only `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`) remains a stub: part 4 calls
   the existing stub in `topology::edge` (now `pub(crate)`).
-- **Other stubs** are the maintainer's open PRs: `intersect.curve_class_p2` (PR #85: `ReSet`, so the whole
-  constructor; `ConnectIntervals`, so every squeeze; `GetMinUV` / `GetMaxUV`) and `intersect.curve_class_p7`
-  (PR #65: `GetPointClassifiesConnectedTo`, so every touch list). Both were still open when this unit was last
-  pushed.
+- **Other stubs.** `intersect.curve_class_p2` (PR #85, still open: `ReSet`, so the whole
+  constructor; `ConnectIntervals`, so every squeeze; `GetMinUV` / `GetMaxUV`). `intersect.curve_class_p7`
+  (PR #65, merged) is wired: `GetLoopCrossings` calls `CurveClassification::point_classifies_connected_to`
+  (review round 2 of PR #137: 1076 -> 1318 passing, 2125 -> 1883 deferred, 0 failed).
+- **UB-131 in `GetLoopCrossings`.** With face props seeded at stage `GAPSa` or `GAPS` and no face pointer
+  (seed field 24 unset), `SetProps_Stage2` -> `SetProps_Gaps` returns early and `m_pFace->GetSurface()` runs
+  on `NULL`. The Rust side no longer ignores the `InvalidInput` of `FaceProps::set_props_stage2`, and the FFI
+  guard (`stage2_derefs_null_face`, simulating stage and face pointer as the `heal.face_props` validator
+  does) rejects those scripts. A `NULL` loop at an index past 0 is still rejected by the shim: the handle
+  type cannot represent `NULL` (upstream's `IsConnectedTo(NULL)` returns TRUE), so that input is not compared.
 - **What the difftest compares** (one-face B-rep built by `SmBrepConstructor` in the shim, through the shared
   `harness/cpp/shim/sc_one_face_brep.h` that `heal.face_props` uses too, rebuilt record by record by
   `heal_face_props::rust_brep`; plane, cylinder and sphere faces (`SmSurfOfRevolution::CreateCanonical`, closed
@@ -5172,8 +5178,8 @@ mutated scales and accepted/reduced step counts are compared.
   by seeds, the props snapshot, the face's surface and zone tolerance, `IsClosed` / `IsDegenerate` of the
   classification curve and the return without crossings of a degenerate one) and over empty loop lists;
   `GetIvlBound_EdgeuseObj` on the real face for interval ends not on an edge (the face's upward face use and
-  surface, then the `NULL` return). Deferred and so not compared: every touch list (`intersect.curve_class_p7`,
-  reached after the seam sampling, which on a face-owned surface also defers on `SmFace::GetTolerance` in the
+  surface, then the `NULL` return). Deferred and so not compared: every touch list that reaches an unported
+  `IsConnectedTo` (`topology.vertex` / `topology.edge`; reached after the seam sampling, which on a face-owned surface also defers on `SmFace::GetTolerance` in the
   surface's zone tolerance, `topology.face_p2`, a pre-existing stub of `surface.surface_p1` / `_p4`),
   `SetProps_Stage2` of a closed face (`SmFace::HasSeamProblem`, `topology.face_p4`), every edge end of
   `GetIvlBound_EdgeuseObj` (`SmEdge::GetCurve` in `PointClassification::curve_object`, a pre-existing
