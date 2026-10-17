@@ -1138,6 +1138,47 @@ int32_t run_geometry(int32_t op, Rd& rd, std::vector<double>& o)
     }
 }
 
+// Whether sm_ExamineNFixFilletGeoms(g1, a1, g2, a2, sv, ev, tol) would reach its adjusting
+// path: upstream's own pre-checks (SmFilletGeom.cpp:4844-4940) repeated verbatim. Surfaces
+// missing (NER), a low U degree or a non-B-spline kind return early; otherwise exactly one
+// surface failing to meet the vertices within tol means adjustment.
+bool sc_examine_reaches_adjust(SmFilletGeom* g1, bool a1, SmFilletGeom* g2, bool a2,
+                               SmFilletVertex* sv, SmFilletVertex* ev, double tol)
+{
+    SM_FILLETSURF_TYPE* s[2] = { g1->GetFilletSurface(), g2->GetFilletSurface() };
+    if (s[0] == NULL || s[1] == NULL)
+        return false;
+    if (s[0]->GetDegree(SM_SP_U) < 3 || s[1]->GetDegree(SM_SP_U) < 3
+        || !s[0]->IsKindOf(SmBSplineSurface_TYPE) || !s[1]->IsKindOf(SmBSplineSurface_TYPE))
+        return false;
+    SmPoint3d sp = sv->GetPoint();
+    SmPoint3d ep = ev->GetPoint();
+    bool at[2] = { a1, a2 };
+    bool adjust[2] = { true, true };
+    for (int i = 0; i < 2; ++i)
+    {
+        SmExtent2d dom = s[i]->GetNaturalUVDomain();
+        SmPoint2d uv1 = at[i] ? dom.Evaluate(0.0, 0.0) : dom.Evaluate(1.0, 0.0);
+        SmPoint2d uv2 = at[i] ? dom.Evaluate(0.0, 1.0) : dom.Evaluate(1.0, 1.0);
+        SmPoint3d p1, p2;
+        if (s[i]->EvaluatePoint(uv1, p1) != SM_SUCCESS || s[i]->EvaluatePoint(uv2, p2) != SM_SUCCESS)
+            return false;
+        double dStart = sp.DistanceBetween(p1);
+        double d2 = sp.DistanceBetween(p2);
+        double dEnd;
+        if (dStart < d2)
+            dEnd = ep.DistanceBetween(p2);
+        else
+        {
+            dStart = d2;
+            dEnd = ep.DistanceBetween(p1);
+        }
+        if (dStart < tol && dEnd < tol)
+            adjust[i] = false;
+    }
+    return adjust[0] != adjust[1];
+}
+
 int32_t run_pseudo(int32_t op, Rd& rd, std::vector<double>& o)
 {
     const SmContext& ctx = the_context();
@@ -1379,7 +1420,12 @@ int32_t run_pseudo(int32_t op, Rd& rd, std::vector<double>& o)
         SmFilletVertex* sv = M.vertex(rd.idx());
         SmFilletVertex* ev = M.vertex(rd.idx());
         double tol = rd.num();
-        if (rd.bad || g1 == NULL || g2 == NULL || g1 == g2 || sv == NULL || ev == NULL)
+        if (rd.bad || g1 == NULL || g2 == NULL || sv == NULL || ev == NULL)
+            return SC_ERR_ARG;
+        // The geometries here have no SmFilletSolver (new SmFilletGeom(NULL, type)); the
+        // adjusting path dereferences it (SmFilletGeom.cpp:5071 GetFilletSolver(), :5092
+        // GetSurface(k)), so an input that would reach it is refused.
+        if (sc_examine_reaches_adjust(g1, a1, g2, a2, sv, ev, tol))
             return SC_ERR_ARG;
         SmStatus s = sm_ExamineNFixFilletGeoms(g1, a1 ? TRUE : FALSE, g2, a2 ? TRUE : FALSE, sv,
                                                ev, tol, 0);

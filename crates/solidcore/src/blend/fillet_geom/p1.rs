@@ -103,12 +103,20 @@
 //!   slice of [`TsectPnt`] values (upstream: an array of pointers) and fails on an index
 //!   out of range. `sm_FindMarkForContext2` searches a slice of [`MarkLock`] for a
 //!   context index and returns the position of the first match.
+//!   `sm_ExamineNFixFilletGeoms` takes the two geometries' solvers (upstream:
+//!   `GetFilletSolver()`, an opaque id here) as co-ported [`ConstantRadiusAssistedFs`]
+//!   values; a geometry whose adjusting path needs a solver it does not have is a
+//!   null-pointer error (upstream dereferences it).
 //! - **Surface cache flags.** `sm_SurfaceDropPoint` and `sm_FindStepoffUV` temporarily
-//!   turn off the surface cache's point test and turn on its boundary-curve processing
-//!   around `GlobalPointSolve`. A standalone surface's cache has exactly that state
-//!   (`m_bPointTestEnabled` only matters for a face's surface, `m_bProcessBoundaryCurves`
-//!   defaults to `TRUE`), and the Rust point solve of a face-owned surface is itself
-//!   unported (`query.face_p2`), so nothing is toggled here.
+//!   turn off the surface cache's point test (`m_bPointTestEnabled`) and turn on its
+//!   boundary-curve processing around `GlobalPointSolve`, so every solution is kept
+//!   unclassified. The Rust surface cache has no such switch yet: for a standalone
+//!   surface the flags change nothing (the point test only runs for a face's surface,
+//!   `m_bProcessBoundaryCurves` defaults to `TRUE`), and for a face-owned surface
+//!   `Surface::global_point_solve` returns `Unported(query.face_p2)` at the point test
+//!   itself (`surface::surface::p4`, where the switch is noted for that porter: once it
+//!   exists, these two callers must disable the test or their solutions will be
+//!   classified against the trim boundaries, unlike upstream).
 //! - **Statuses.** Ignored upstream statuses (`Unitize` in
 //!   `sm_InterpolateEndptsAndTangents`, `Trim` and `Intersect` in `SmFilletGeom::Trim`)
 //!   are ignored here too (`Unitize` of a zero vector yields `(0, 0, 1)`, a failed
@@ -117,27 +125,31 @@
 //!   (missing rails, curves, uses) are [`SolidError::Upstream`] with
 //!   `SM_ERR_NULL_POINTER`; a point classification object of the wrong kind where
 //!   upstream casts blindly is [`SolidError::InvalidInput`].
-//! - **`SetCurve` in `sm_ExamineNFixFilletGeoms`.** `pRail->SetCurve(pIsoCrv, TRUE)`
-//!   replaces the rail's curve and deletes the UV trim curves of its edge uses; the
-//!   port writes the records directly (the pseudo B-rep has no notification
-//!   environment). The routine then reads the solver's offset surfaces
-//!   (`SmFilletSolver::GetSurface`, `blend.fillet_solver_p1`) and drops the new rail
-//!   onto them (`SmSurface::DropCurve`, `intersect.surface_drop_lib_p3`) and returns
+//! - **Record writes.** `SmVertex::SetPoint` (in `CalcVertOnVert`,
+//!   `CalcCliffRailIntEdge`) and `pRail->SetCurve(pIsoCrv, TRUE)` (in
+//!   `sm_ExamineNFixFilletGeoms`) notify `SM_NO_CHANGE_GEOMETRY`; the pseudo B-rep has
+//!   no notification environment, so the port applies the resets that notification
+//!   performs directly: the cached gaps of the vertex's uses, and for the edge the UV
+//!   trim curve, drop-curve record and cached edge/face gap of each edge use (its
+//!   mate's gap too) and the cached gaps of their vertex uses. The examine routine
+//!   then drops the new rail onto the solver's offset surface with its offset distance
+//!   at `0` (`SmSurface::DropCurve`, `intersect.surface_drop_lib_p3`) and returns
 //!   [`SolidError::Unported`] there.
 //! - **Difftest coverage.** The shim builds plain `SmBSplineSurface` / `SmBSplineCurve`
 //!   geometry only: the plane and surface-of-revolution arms of [`evaluate_mate`]'s cast
 //!   and any analytic-kind path inside the surface callees are never compared.
 //! - **Unported callees.** `SmSurface::PointBasedSurfaceIntersect` defers in
 //!   `intersect.surface_intersector_p4`; `SmSurface::GlobalCurveIntersect` (in
-//!   [`FilletBrep::calc_cliff_rail_int_edge`]) in `SmSurfaceDropCurve::DoTrace`
-//!   (`intersect.surface_drop_curve`); `SmFace::CalculateUVDomainFromUVTrimCurves`
-//!   (`topology.face_p1`) and `SmFace::Point3DClassify` (`query.face_p1`) in
-//!   `sm_ClassifyFacePoint`; `SmFilletSolver::FindIndexOfRailOnFace`
-//!   (`blend.fillet_solver_p1`) and `SmFilletSolver::RailRailIntersect`
-//!   (`blend.fillet_solver_p2`) in `sm_CreateCubicRailRailInterpolant`.
-//! - **`IsKindOf` chains.** The base-class steps `SmVertexuse::IsKindOf`,
-//!   `SmVertex::IsKindOf` and `SmEdge::IsKindOf` (units `topology.vertexuse`,
-//!   `topology.vertex`, `topology.edge`) are the one-line type tests inlined here.
+//!   [`FilletBrep::calc_cliff_rail_int_edge`]) stops at the unwired
+//!   `SmSurfaceDropCurve::DoTrace` call of `intersect.surface_drop_lib_p1` (its stub
+//!   carries the label `intersect.surface_drop_curve`);
+//!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`) and
+//!   `SmFace::Point3DClassify` (`query.face_p1`) in `sm_ClassifyFacePoint`;
+//!   `SmFilletSolver::FindIndexOfRailOnFace` (`blend.fillet_solver_p1`) and
+//!   `SmFilletSolver::RailRailIntersect` (`blend.fillet_solver_p2`) in
+//!   `sm_CreateCubicRailRailInterpolant`; `SmSurface::DropCurve`
+//!   (`intersect.surface_drop_lib_p3`) in the adjusting path of
+//!   `sm_ExamineNFixFilletGeoms`.
 //! - **Bounds.** `sm_ExamineNFixFilletGeoms` copies at most the smaller control net
 //!   row; indices are checked. No input-driven recursion.
 
@@ -178,7 +190,6 @@ use crate::topology::edge::{self as edge_unit, set_interval};
 use crate::topology::edgeuse::p1::{self as eu1, face as edgeuse_face, mate, primary_edgeuse};
 use crate::topology::edgeuse::p2::{evaluate_binormal_step_off, StepOffOptions};
 use crate::topology::face::p2 as face2;
-use crate::topology::topology as topo;
 use crate::topology::vertex::vertexuses;
 use crate::topology::{Brep, EdgeId, EdgeuseId, FaceId, VertexId, VertexuseId, VertexuseOwner};
 
@@ -204,9 +215,6 @@ const OP_SET_OFFSET: &str = "blend::fillet_geom::p1::FilletGeom::set_offset_surf
 
 /// `SM_ERR_BAD_INTERSECTIONS`.
 pub const SM_ERR_BAD_INTERSECTIONS: i32 = 1027;
-/// `SM_ERR_INVALID_INPUT`.
-const SM_ERR_INVALID_INPUT: i32 = 1007;
-
 fn upstream(operation: &'static str, code: i32) -> SolidError {
     SolidError::Upstream {
         operation,
@@ -390,8 +398,11 @@ impl FilletVertexType {
     }
 }
 
-/// `SmBoundaryTrimmingType`: how the ends of a fillet surface are trimmed.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+/// How a fillet surface is trimmed (`SmBoundaryTrimmingType`); discriminants are the
+/// upstream values. PR #168 (`blend.fillet_standard_solver_p1`) co-ports the same enum,
+/// identically, at `blend::fillet_standard_solver::p1::BoundaryTrimmingType`; whichever
+/// lands second re-exports the other's.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum BoundaryTrimmingType {
     /// `SM_BT_NONE`.
     #[default]
@@ -552,35 +563,17 @@ pub const FILLET_VERTEX_CLASS_STRING: &str = "SmFilletVertex";
 /// `SmFilletVertex::GetTypeString`.
 pub const FILLET_VERTEX_TYPE_STRING: &str = "SmFilletVertex_TYPE";
 
-/// `SmVertexuse::IsKindOf` (`topology.vertexuse`): `SmVertexuse_TYPE`, then the
-/// `SmTopology` chain.
-const fn vertexuse_is_kind_of(t: i64) -> bool {
-    t == crate::topology::vertexuse::TYPE || topo::is_kind_of(t)
-}
-
-/// `SmVertex::IsKindOf` (`topology.vertex`): `SmVertex_TYPE`, then the
-/// `SmOwningTopology` chain.
-const fn vertex_is_kind_of(t: i64) -> bool {
-    t == crate::topology::vertex::TYPE || eu1::owning_topology_is_kind_of(t)
-}
-
-/// `SmEdge::IsKindOf` (`topology.edge`): `SmEdge_TYPE`, then the `SmOwningTopology`
-/// chain.
-const fn edge_is_kind_of(t: i64) -> bool {
-    t == edge_unit::TYPE || eu1::owning_topology_is_kind_of(t)
-}
-
 /// `SmFilletVertexuse::IsKindOf`: [`FILLET_VERTEXUSE_TYPE`], then the `SmVertexuse`
 /// chain.
 #[must_use]
 pub const fn fillet_vertexuse_is_kind_of(t: i64) -> bool {
-    t == FILLET_VERTEXUSE_TYPE || vertexuse_is_kind_of(t)
+    t == FILLET_VERTEXUSE_TYPE || crate::topology::vertexuse::is_kind_of(t)
 }
 
 /// `SmFilletVertex::IsKindOf`: [`FILLET_VERTEX_TYPE`], then the `SmVertex` chain.
 #[must_use]
 pub const fn fillet_vertex_is_kind_of(t: i64) -> bool {
-    t == FILLET_VERTEX_TYPE || vertex_is_kind_of(t)
+    t == FILLET_VERTEX_TYPE || crate::topology::vertex::is_kind_of(t)
 }
 
 /// `SmFilletEdgeuse::IsKindOf`: [`FILLET_EDGEUSE_TYPE`], then the `SmEdgeuse` chain.
@@ -592,7 +585,7 @@ pub const fn fillet_edgeuse_is_kind_of(t: i64) -> bool {
 /// `SmFilletEdge::IsKindOf`: [`FILLET_EDGE_TYPE`], then the `SmEdge` chain.
 #[must_use]
 pub const fn fillet_edge_is_kind_of(t: i64) -> bool {
-    t == FILLET_EDGE_TYPE || edge_is_kind_of(t)
+    t == FILLET_EDGE_TYPE || edge_unit::is_kind_of(t)
 }
 
 // ---- records -------------------------------------------------------------------------
@@ -1179,10 +1172,9 @@ impl FilletGeom {
         which: usize,
         new_off_srf: Option<OffsetSurface>,
     ) -> Result<()> {
-        let slot = self
-            .off_surfs
-            .get_mut(which)
-            .ok_or_else(|| upstream(OP_SET_OFFSET, SM_ERR_INVALID_INPUT))?;
+        let slot = self.off_surfs.get_mut(which).ok_or_else(|| {
+            SolidError::invalid_input(OP_SET_OFFSET, "offset surface index above 1")
+        })?;
         *slot = new_off_srf;
         Ok(())
     }
@@ -1211,7 +1203,7 @@ impl FilletGeom {
 /// The pseudo B-rep holding the fillet edges and vertices (`SmFilletBrep`), with the
 /// fillet members of its topology records and the fillet geometries referenced from
 /// them.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct FilletBrep {
     /// The topology records (`SmBrep`).
     brep: Brep,
@@ -1224,6 +1216,13 @@ pub struct FilletBrep {
     geoms: Vec<FilletGeom>,
     /// `m_bEditingEnabled`.
     editing_enabled: bool,
+}
+
+impl Default for FilletBrep {
+    /// [`FilletBrep::new`] (editing enabled, as `SmFilletBrep()` leaves it).
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl FilletBrep {
@@ -1334,6 +1333,8 @@ impl FilletBrep {
         corner: Option<FilletCornerId>,
     ) -> Result<EdgeId> {
         let e = self.brep.add_edge(start, end)?;
+        // SmEdge(): m_sZoneTol3d(0.0)
+        self.brep.edge_mut(e)?.tolerance = 0.0;
         self.edges.insert(e, FilletEdge::with_corner(corner));
         self.add_edge(e);
         Ok(e)
@@ -1349,8 +1350,6 @@ impl FilletBrep {
     /// `SmRegion::GetShells` of `topology.shell` and `SmBrep::MakeShellVertexTopology`
     /// of `topology.brep_p2`).
     pub fn new_fillet_edgeuse(&mut self) -> Result<EdgeuseId> {
-        // the pseudo B-rep's regions: its infinite region's first shell owns the use
-        let _ = self.brep.regions();
         // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
         // UNPORTED(topology.shell): SmRegion::GetShells
         // UNPORTED(topology.brep_p2): SmBrep::MakeShellVertexTopology
@@ -1554,8 +1553,20 @@ impl FilletBrep {
             }
             None => return Err(SolidError::null_pointer(OP_VERT_ON_VERT)),
         };
-        self.brep.vertex_mut(v)?.point = point;
+        self.set_vertex_point(v, point)?;
         self.fillet_vertex_mut(v)?.set_status(FilStatus::Processed);
+        Ok(())
+    }
+
+    /// `SmVertex::SetPoint`: `Notify(SM_NO_CHANGE_GEOMETRY)` resets the cached gaps of
+    /// every vertex use of the vertex, then the point is stored.
+    fn set_vertex_point(&mut self, v: VertexId, point: Point3) -> Result<()> {
+        for vu in self.brep.vertex(v)?.vertexuses.clone() {
+            let vu = self.brep.vertexuse_mut(vu)?;
+            vu.vertex_edge_gap.reset();
+            vu.vertex_face_gap.reset();
+        }
+        self.brep.vertex_mut(v)?.point = point;
         Ok(())
     }
 
@@ -1616,9 +1627,14 @@ impl FilletBrep {
             .ok_or_else(|| SolidError::sm_err(OP_CLIFF))?;
 
         // side effect: Set SmFilletVertex::m_vPoint = XSectPoint(FilletSurface, Orig BrepCurve)
-        let t = first.start.parameters.first().copied().unwrap_or(0.0);
+        let t = first
+            .start
+            .parameters
+            .first()
+            .copied()
+            .ok_or_else(|| SolidError::sm_err(OP_CLIFF))?;
         let pnt = curve_3d.evaluate_point(t)?;
-        self.brep.vertex_mut(v)?.point = pnt;
+        self.set_vertex_point(v, pnt)?;
         self.fillet_vertex_mut(v)?.set_status(FilStatus::Processed);
         Ok(())
     }
@@ -1759,16 +1775,18 @@ impl FilletBrep {
         eu: EdgeuseId,
         fillet_geom: Option<FilletGeomId>,
     ) -> Result<()> {
+        if !self.edgeuses.contains_key(&eu) {
+            return Err(SolidError::NotFound {
+                operation: OP_EDGEUSE,
+                entity: EntityRef::Edgeuse(eu),
+            });
+        }
         if let Some(g) = fillet_geom {
             self.geom_mut(g)?.add_referenced_fillet_edgeuse(eu);
         }
-        self.edgeuses
-            .get_mut(&eu)
-            .ok_or(SolidError::NotFound {
-                operation: OP_EDGEUSE,
-                entity: EntityRef::Edgeuse(eu),
-            })?
-            .fillet_geom = fillet_geom;
+        if let Some(rec) = self.edgeuses.get_mut(&eu) {
+            rec.fillet_geom = fillet_geom;
+        }
         Ok(())
     }
 
@@ -2166,12 +2184,19 @@ fn solution_uv<O: SolutionObject>(solutions: &SolutionArray<O>, index: usize) ->
 pub fn evaluate_mate(brep: &Brep, face: FaceId, uv: Point2) -> Result<Point3> {
     let surface =
         face2::surface(brep, face)?.ok_or_else(|| SolidError::null_pointer(OP_EVALUATE_MATE))?;
+    // SM_CAST_PTR(SmBSplineSurface, ..) and NER before the domain test: B-spline surfaces
+    // and the kinds deriving from them (planes, surfaces of revolution); the other kinds
+    // fail the cast
+    if !matches!(
+        surface.kind(),
+        SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_)
+    ) {
+        return Err(SolidError::null_pointer(OP_EVALUATE_MATE));
+    }
     let natural_uv_domain = surface.natural_uv_domain();
     if natural_uv_domain.contains_point(uv, 0.0) {
         surface.evaluate_point(uv)
     } else {
-        // SM_CAST_PTR(SmBSplineSurface, ..): B-spline surfaces and the kinds deriving from
-        // them (planes, surfaces of revolution); the other kinds fail the cast (NER)
         match surface.kind() {
             SurfaceKind::BSpline(s) => s.evaluate_point_on_extended_surface(uv),
             SurfaceKind::Plane(p) => p.base_for_query().evaluate_point_on_extended_surface(uv),
@@ -2457,14 +2482,31 @@ fn calculate_uv_domain_from_uv_trim_curves(
     ))
 }
 
+/// `CalculateUVDomainFromUVTrimCurves` with its status ignored, as upstream does: on
+/// any error but an unported callee the input domain stands.
+fn uv_domain_from_uv_trim_curves(brep: &Brep, face: FaceId, domain: Extent2d) -> Result<Extent2d> {
+    match calculate_uv_domain_from_uv_trim_curves(brep, face, domain) {
+        Ok(d) => Ok(d),
+        Err(e) if e.is_unported() => Err(e),
+        Err(_) => Ok(domain),
+    }
+}
+
 /// `SmFace::Point3DClassify` (unit `query.face_p1`): the classification's point class
-/// and the call's status.
+/// and the call's status. `zone_tol_3d` is `SmTol::GetZoneTol3d(pOrigFace)` for both
+/// faces; the flags are upstream's `TRUE` (check boundaries first), `FALSE` (target
+/// loops only), `NULL` (target loops) and `TRUE` (okay to work in UV space).
 fn point_3d_classify(
     _k: &Kernel,
     _brep: &Brep,
     _face: FaceId,
     _pos: Point3,
+    _zone_tol_3d: f64,
+    _check_boundaries_first: bool,
     _guess_uv: Option<Point2>,
+    _target_loops_only: bool,
+    _target_loops: Option<&[crate::topology::LoopId]>,
+    _ok_in_uv_space: bool,
 ) -> Result<(PointClassType, bool)> {
     // UNPORTED(query.face_p1): SmFace::Point3DClassify
     Err(SolidError::unported(
@@ -2492,7 +2534,7 @@ pub fn classify_face_point(
     new_face: FaceId,
 ) -> Result<i32> {
     let face_domain1 = face2::uv_domain(brep, orig_face)?;
-    let face_domain1 = calculate_uv_domain_from_uv_trim_curves(brep, orig_face, face_domain1)?;
+    let face_domain1 = uv_domain_from_uv_trim_curves(brep, orig_face, face_domain1)?;
 
     // Use Normalize: it should be over the Face it's in, and don't bother finding the
     // closest approach if it's not.
@@ -2502,7 +2544,7 @@ pub fn classify_face_point(
     }
 
     let face_domain2 = face2::uv_domain(brep, new_face)?;
-    let face_domain2 = calculate_uv_domain_from_uv_trim_curves(brep, new_face, face_domain2)?;
+    let face_domain2 = uv_domain_from_uv_trim_curves(brep, new_face, face_domain2)?;
 
     let (stat2, mut success2, uv2, gap2) = normalized_drop(k, brep, new_face, pos, &face_domain2)?;
     if success2 && !face_domain2.contains_point(uv2, 0.0) {
@@ -2535,11 +2577,17 @@ pub fn classify_face_point(
 
     // If we're still here, we'll have to do the more expensive point-in-Face test.
     let guess_uv = if success1 { Some(uv1) } else { None };
-    let (class1, stat1) = point_3d_classify(k, brep, orig_face, pos, guess_uv)?;
+    // SmTol::GetZoneTol3d(pOrigFace): the face's tolerance, used for both faces
+    let tol = face2::tolerance(brep, orig_face)?;
+    let (class1, stat1) = point_3d_classify(
+        k, brep, orig_face, pos, tol, true, guess_uv, false, None, true,
+    )?;
     let success1 = class1 != PointClassType::Unknown;
 
     let guess_uv = if success2 { Some(uv2) } else { None };
-    let (class2, stat2) = point_3d_classify(k, brep, new_face, pos, guess_uv)?;
+    let (class2, stat2) = point_3d_classify(
+        k, brep, new_face, pos, tol, true, guess_uv, false, None, true,
+    )?;
     let success2 = class2 != PointClassType::Unknown;
 
     if stat1 && !stat2 {
@@ -2585,7 +2633,8 @@ fn normalized_drop(
     match surface.drop_point::<NoObject>(k, pos, domain, &opts) {
         Ok(d) => Ok((true, d.success, d.result_uv, d.gap)),
         Err(e) if e.is_unported() => Err(e),
-        Err(_) => Ok((false, false, Point2::new(0.0, 0.0), 0.0)),
+        // DropPoint sets dGap = SM_BIG_DOUBLE before failing
+        Err(_) => Ok((false, false, Point2::new(0.0, 0.0), BIG_DOUBLE)),
     }
 }
 
@@ -2841,13 +2890,19 @@ pub fn cleanup_noise(uv: Point2) -> Point2 {
 ///
 /// # Errors
 ///
+/// `solvers` are the two geometries' fillet solvers (`GetFilletSolver()`), used on the
+/// adjusting path for the offset surface each rebuilt rail is dropped onto. The same
+/// geometry may be passed twice (`SmFilletEdge::CalcCrossSection` does so for a closed
+/// loop).
+///
+/// # Errors
+///
 /// [`SolidError::Upstream`] (`SM_ERR_NULL_POINTER`) for a geometry without a fillet
-/// surface or rails; `SM_ERR` when both surfaces need adjusting;
-/// [`SolidError::Unported`]: after rebuilding the rail curves, the drop of each rail
-/// onto the solver's offset surface (`SmFilletSolver::GetSurface`,
-/// `blend.fillet_solver_p1`; then `SmSurface::DropCurve`,
-/// `intersect.surface_drop_lib_p3`); [`SolidError::InvalidInput`] for the same
-/// geometry twice.
+/// surface or rails, or, on the adjusting path, without a solver or a solver without
+/// the rail's offset surface (upstream dereferences them); `SM_ERR` when both surfaces
+/// need adjusting; [`SolidError::Unported`]: after rebuilding the rail curves, the drop
+/// of each rail onto the solver's offset surface (`SmSurface::DropCurve`,
+/// `intersect.surface_drop_lib_p3`).
 pub fn examine_n_fix_fillet_geoms(
     k: &Kernel,
     fb: &mut FilletBrep,
@@ -2858,13 +2913,8 @@ pub fn examine_n_fix_fillet_geoms(
     start_fv: VertexId,
     end_fv: VertexId,
     dist_tol: f64,
+    solvers: [Option<&mut ConstantRadiusAssistedFs>; 2],
 ) -> Result<()> {
-    if geom1 == geom2 {
-        return Err(SolidError::invalid_input(
-            OP_EXAMINE,
-            "the two fillet geometries are the same",
-        ));
-    }
     let start_pnt = fb.vertex_point(start_fv)?;
     let end_pnt = fb.vertex_point(end_fv)?;
 
@@ -2955,7 +3005,7 @@ pub fn examine_n_fix_fillet_geoms(
             .fillet_surface
             .as_mut()
             .ok_or_else(|| SolidError::null_pointer(OP_EXAMINE))?;
-        let SurfaceKind::BSpline(bs) = from_surface.kind_mut() else {
+        let Some(bs) = b_spline_net_mut(from_surface) else {
             return Ok(());
         };
         let gw = bs.get_or_create_gw_nurb()?;
@@ -2969,7 +3019,7 @@ pub fn examine_n_fix_fillet_geoms(
             .fillet_surface
             .as_mut()
             .ok_or_else(|| SolidError::null_pointer(OP_EXAMINE))?;
-        let SurfaceKind::BSpline(bs) = to_surface.kind_mut() else {
+        let Some(bs) = b_spline_net_mut(to_surface) else {
             return Ok(());
         };
         let gw = bs.get_or_create_gw_nurb()?;
@@ -3005,6 +3055,9 @@ pub fn examine_n_fix_fillet_geoms(
 
     // Recreate rail curves
     let adjust_fg = to_geom;
+    // pAdjustFG->GetFilletSolver()
+    let [solver1, solver2] = solvers;
+    let mut adjust_solver = if adjust0 { solver1 } else { solver2 };
     let (surf_domain, rails) = {
         let g = fb.geom(adjust_fg)?;
         let surface = g
@@ -3036,18 +3089,50 @@ pub fn examine_n_fix_fillet_geoms(
                 false,
             )?
         };
-        // pRail->SetCurve(pIsoCrv, TRUE): the old curve is deleted and so are the
-        // edge uses' UV trim curves
-        let uses = edge_unit::edgeuses(fb.brep(), rail, None, None)?;
-        for eu in uses {
-            fb.brep_mut().edgeuse_mut(eu)?.uv_trim_curve = None;
-        }
-        fb.brep_mut().edge_mut(rail)?.curve = Some(iso.curve);
+        // pRail->SetCurve(pIsoCrv, TRUE): the old curve is deleted and the change
+        // notification clears the edge uses' UV trim curves and cached gaps
+        set_rail_curve(fb.brep_mut(), rail, iso.curve)?;
 
         // Project the new curve onto the surface of the original brep
-        drop_rail_onto_offset_surface(k, fb, adjust_fg, kk, rail, dist_tol)?;
+        drop_rail_onto_offset_surface(k, fb, adjust_solver.as_deref_mut(), kk, rail, dist_tol)?;
     }
 
+    Ok(())
+}
+
+/// The B-spline net of a fillet surface that `IsKindOf(SmBSplineSurface_TYPE)`: a
+/// B-spline surface, or the base net of a surface of revolution; a plane never gets
+/// here (its degree 1 fails the degree check).
+fn b_spline_net_mut(surface: &mut Surface) -> Option<&mut BSplineSurface> {
+    match surface.kind_mut() {
+        SurfaceKind::BSpline(bs) => Some(bs),
+        SurfaceKind::SurfOfRevolution(s) => Some(s.base_mut()),
+        _ => None,
+    }
+}
+
+/// `SmEdge::SetCurve(pCurve, TRUE)` on a pseudo-B-rep rail: the `SM_NO_CHANGE_GEOMETRY`
+/// notification clears each edge use's UV trim curve and drop-curve record and resets
+/// its cached edge/face gap (its mate's too) and the cached gaps of the edge's vertex
+/// uses; then the curve replaces the old one.
+fn set_rail_curve(brep: &mut Brep, rail: EdgeId, curve: Curve) -> Result<()> {
+    for eu in edge_unit::edgeuses(brep, rail, None, None)? {
+        let mate_eu = mate(brep, eu)?;
+        let rec = brep.edgeuse_mut(eu)?;
+        rec.uv_trim_curve = None;
+        rec.drop_curve_fail = None;
+        rec.max_edge_face_gap.reset();
+        let vu = rec.vertexuse;
+        if let Some(m) = mate_eu {
+            brep.edgeuse_mut(m)?.max_edge_face_gap.reset();
+        }
+        if let Some(vu) = vu {
+            let vu = brep.vertexuse_mut(vu)?;
+            vu.vertex_edge_gap.reset();
+            vu.vertex_face_gap.reset();
+        }
+    }
+    brep.edge_mut(rail)?.curve = Some(curve);
     Ok(())
 }
 
@@ -3055,19 +3140,33 @@ pub fn examine_n_fix_fillet_geoms(
 /// curve onto the solver's offset surface for that rail with its offset distance set to
 /// `0` and, when the drop yields one UV curve, makes it the rail's mate edge use's UV
 /// curve.
+///
+/// `adjust_solver` is the adjusted geometry's `GetFilletSolver()`; upstream dereferences
+/// it (and `GetSurface(k)` with `NER`) without a null check, so a missing solver or
+/// offset surface is `SM_ERR_NULL_POINTER`.
 fn drop_rail_onto_offset_surface(
     _k: &Kernel,
     _fb: &mut FilletBrep,
-    _adjust_fg: FilletGeomId,
-    _rail_index: usize,
+    adjust_solver: Option<&mut ConstantRadiusAssistedFs>,
+    rail_index: usize,
     _rail: EdgeId,
     _dist_tol: f64,
 ) -> Result<()> {
-    // UNPORTED(blend.fillet_solver_p1): SmFilletSolver::GetSurface
+    let solver = adjust_solver.ok_or_else(|| SolidError::null_pointer(OP_EXAMINE))?;
+    // SmFilletSolver::GetSurface(k); NER(pOffsetSurf)
+    let offset_surf = solver
+        .surfaces
+        .get_mut(rail_index)
+        .and_then(Option::as_mut)
+        .ok_or_else(|| SolidError::null_pointer(OP_EXAMINE))?;
+    let orig_offset_dist = offset_surf.offset_distance;
+    offset_surf.set_offset_distance(0.0);
+    // Drop the 3d curve onto the surface, then restore the offset distance
     // UNPORTED(intersect.surface_drop_lib_p3): SmSurface::DropCurve
+    offset_surf.set_offset_distance(orig_offset_dist);
     Err(SolidError::unported(
-        "SmFilletSolver::GetSurface",
-        "blend.fillet_solver_p1",
+        "SmSurface::DropCurve",
+        "intersect.surface_drop_lib_p3",
     ))
 }
 
@@ -3295,12 +3394,11 @@ pub fn set_surface_closure(surf: &Surface, domain: &Extent2d) -> Result<SurfPara
 }
 
 /// `sm_FindMarkForContext2`: the position in `mark_locks` of the first lock bound to
-/// the context `context`, or `None`.
+/// the context `context` (`None` is upstream's `NULL` context, which matches a lock
+/// bound to `NULL`), or `None`.
 #[must_use]
-pub fn find_mark_for_context2(mark_locks: &[MarkLock], context: usize) -> Option<usize> {
-    mark_locks
-        .iter()
-        .position(|lock| lock.context() == Some(context))
+pub fn find_mark_for_context2(mark_locks: &[MarkLock], context: Option<usize>) -> Option<usize> {
+    mark_locks.iter().position(|lock| lock.context() == context)
 }
 
 #[cfg(test)]
@@ -3566,7 +3664,7 @@ mod tests {
     fn kind_of_chains_and_type_codes() {
         assert!(fillet_vertex_is_kind_of(FILLET_VERTEX_TYPE));
         assert!(fillet_vertex_is_kind_of(crate::topology::vertex::TYPE));
-        assert!(fillet_vertex_is_kind_of(topo::TYPE));
+        assert!(fillet_vertex_is_kind_of(crate::topology::topology::TYPE));
         assert!(!fillet_vertex_is_kind_of(FILLET_EDGE_TYPE));
         assert!(fillet_edge_is_kind_of(edge_unit::TYPE));
         assert!(fillet_edgeuse_is_kind_of(eu1::TYPE));

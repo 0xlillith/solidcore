@@ -70,17 +70,21 @@
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: well-formed
 //! clamped B-splines (`1 <= p <= n`, at most [`MAX_INDEX`] control points per direction,
-//! degrees at most [`MAX_DEGREE`], finite data of magnitude at most [`MAX_MAGNITUDE`],
-//! consistent rationality, non-decreasing
+//! degrees at most [`MAX_DEGREE`], finite data, consistent rationality, non-decreasing
 //! knots with end multiplicity `degree + 1` and interior multiplicity at most the degree),
 //! 3D edge, centre-line and target curves and 2D UV curves, enum values in range, indices
 //! inside the block, at most [`MAX_LIST`] objects per list, a curve on an edge whose
 //! fillet B-rep edge is looked for, both rails on a trimmed or rail-queried geometry, a
 //! vertex-classified vertex for `FbVertOnVert`, an edge-use-classified one for `FbCliff`,
-//! two different geometries for `FbExamine`, a deleted vertex without edges (its edge
-//! uses would keep dangling vertex-use pointers the export reads), finite tolerances
-//! and parameters of magnitude at most [`MAX_MAGNITUDE`]. Inverted intervals are accepted (upstream `SetInterval` and `Trim`
-//! take them).
+//! a deleted vertex without edges (its edge uses would keep dangling vertex-use pointers
+//! the export reads), finite tolerances and parameters. For `ClassifyFacePoint` and
+//! `FbSplitFace`, the ops that reach `sm_ClassifyFacePoint`, every value (control points
+//! as Euclidean `Pw / w`) is bounded by [`MAX_MAGNITUDE`] (HANG-16). Inverted intervals
+//! are accepted (upstream `SetInterval` and `Trim` take them). One refusal lives in the
+//! shim: an `FbExamine` whose adjusting path would be reached returns `SC_ERR_ARG`,
+//! because the shim's geometries have no `SmFilletSolver` and upstream dereferences it
+//! there (the shim repeats upstream's own degree, kind and end-distance checks to
+//! decide); the same geometry may be passed twice.
 
 use crate::{call_with_buffer, FfiError};
 
@@ -90,11 +94,17 @@ pub const MAX_INDEX: usize = 64;
 pub const MAX_DEGREE: usize = 9;
 /// Largest number of objects in any list (vertices, edges, geometries, candidates, ...).
 pub const MAX_LIST: usize = 64;
-/// Largest magnitude of any coordinate, knot, parameter or tolerance. From about `1.3e154`
-/// squared distances overflow to infinity and the closed-curve split in upstream
-/// `SmCurve::GlobalCoincidenceChecker` (reached from `sm_ClassifyFacePoint`) never
-/// terminates (HANG-16: a control point of `1e153` returns, `1e154` hangs).
-pub const MAX_MAGNITUDE: f64 = 1e150;
+/// Largest magnitude of any coordinate, knot, parameter or tolerance of a
+/// [`Op::ClassifyFacePoint`] or [`Op::FbSplitFace`] input, the ops that reach
+/// `sm_ClassifyFacePoint`; rational control points are bounded as `Pw / w`. The
+/// boundary split in upstream `SmCurve::GlobalCoincidenceChecker` (reached through
+/// `SmFace::CalculateUVDomainFromUVTrimCurves`) slows down continuously with the
+/// magnitude of a control point and never terminates once squared distances overflow
+/// (HANG-16: a control point of `1e50` returns in 0.15 s, `1e80` in 10 s, `1e100` in
+/// 23 s, `1e120`..`1e150` in 70-99 s, `1e154` never; a weight of `1e-150` under a
+/// homogeneous `1e150` takes 34 s). Values beyond this bound are valid upstream inputs
+/// that merely run slowly; the other ops take any finite value.
+pub const MAX_MAGNITUDE: f64 = 1e50;
 /// `NL_NOZ`.
 const NOZ: f64 = f64::MAX;
 /// `NL_NOW`.
@@ -167,6 +177,8 @@ fn bad(msg: impl Into<String>) -> FfiError {
 struct Reader<'a> {
     input: &'a [f64],
     at: usize,
+    /// Whether values are bounded by [`MAX_MAGNITUDE`] (the ops reaching HANG-16).
+    bounded: bool,
 }
 
 impl Reader<'_> {
@@ -182,19 +194,19 @@ impl Reader<'_> {
 
     fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
-        if !v.is_finite() || v.abs() > MAX_MAGNITUDE {
+        if !v.is_finite() || (self.bounded && v.abs() > MAX_MAGNITUDE) {
             return Err(bad("non-finite or oversized value"));
         }
         Ok(v)
     }
 
-    /// Exactly `marker` (`NL_NOZ` / `NL_NOW`), or a finite bounded value.
+    /// Exactly `marker` (`NL_NOZ` / `NL_NOW`), or a finite (bounded) value.
     fn marker_or_finite(&mut self, marker: f64) -> Result<f64, FfiError> {
         let v = self.num()?;
         if v == marker {
             return Ok(v);
         }
-        if !v.is_finite() || v.abs() > MAX_MAGNITUDE {
+        if !v.is_finite() || (self.bounded && v.abs() > MAX_MAGNITUDE) {
             return Err(bad("non-finite or oversized value"));
         }
         Ok(v)
@@ -292,12 +304,25 @@ fn check_points(pts: &[[f64; 4]], dim: usize, what: &str) -> Result<(), FfiError
 fn points(rd: &mut Reader<'_>, k: usize) -> Result<Vec<[f64; 4]>, FfiError> {
     (0..k)
         .map(|_| {
-            Ok([
+            let pt = [
                 rd.finite()?,
                 rd.finite()?,
                 rd.marker_or_finite(NOZ)?,
                 rd.marker_or_finite(NOW)?,
-            ])
+            ];
+            // the bound is on the Euclidean point: a tiny weight under a bounded
+            // homogeneous coordinate reaches the HANG-16 regime just the same
+            let w = pt[3];
+            if rd.bounded && w != NOW {
+                let oversized = |c: f64| {
+                    let e = (c / w).abs();
+                    e.is_nan() || e > MAX_MAGNITUDE
+                };
+                if oversized(pt[0]) || oversized(pt[1]) || (pt[2] != NOZ && oversized(pt[2])) {
+                    return Err(bad("oversized Euclidean control point"));
+                }
+            }
+            Ok(pt)
         })
         .collect()
 }
@@ -673,9 +698,10 @@ fn validate_pseudo(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             rd.opt_index(b.nv())?.ok_or_else(|| bad("vertex -1"))?;
             rd.opt_index(b.nv())?.ok_or_else(|| bad("vertex -1"))?;
             rd.finite()?;
-            if g1 == g2 {
-                return Err(bad("examine: the same geometry twice"));
-            }
+            // the same geometry twice is allowed (SmFilletEdge::CalcCrossSection does
+            // it); the shim refuses an input that reaches the adjusting path, where
+            // upstream dereferences the geometry's (here NULL) SmFilletSolver
+            let _ = (g1, g2);
         }
         Op::FbSetEuGeom => {
             edge_use(rd, &b)?;
@@ -705,7 +731,11 @@ fn validate_pseudo(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
 /// [`FfiError::InvalidArgument`] for an input upstream could not handle safely;
 /// [`FfiError::Status`] for a shim error (`SC_ERR_*`).
 pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader {
+        input,
+        at: 0,
+        bounded: matches!(op, Op::ClassifyFacePoint | Op::FbSplitFace),
+    };
     if op.is_pseudo() {
         validate_pseudo(op, &mut rd)?;
     } else {

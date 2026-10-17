@@ -1289,10 +1289,11 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes, the maintainer reproduced SIGSEGV for all five curve kinds in full and vertices-only modes (13 crashing probes in total), plus the one-interval out-of-range read.
 - **Severity:** crash / out-of-range read.
 - **Rust port:** Kernel topology mutation remains deferred. Both the safe FFI validator and the C++ shim require equally sized partners for op 3 with fillets. Six `rejected_fillets_*` fixtures check rejection; 660 isolated probes independently exercise both guards at first and last indices of 1/2/3/32 intervals. Valid equal-sized pairs and non-fillet calls remain accepted.
+
 #### UB-159. `SmFilletGeom(SmFilletSolver*, SmFilletGeomType)` leaves `m_dOrientations` and `m_bCapped` uninitialised
 - **Location:** `source/SMLib/src/SmFilletGeom.cpp:8971-9004` (`SmFilletGeom::SmFilletGeom`).
-- **What happens:** The constructor's initialiser list and loop set the type, solver, centre line, surface, split flag, status, offset surfaces, rails and deviations, but never `m_dOrientations[2]` or `m_bCapped[2]`; they hold whatever the allocation held until `CalcBlendingGeom` / the surface generator assign them. Readers before that (`m_dOrientations` in `SmFilletGeom::Copy`, `m_bCapped` in the end-curve code) see indeterminate values.
-- **Trigger:** Any `SmFilletGeom` read for its orientations or capping flags before its geometry is computed.
+- **What happens:** The constructor's initialiser list and loop set the type, solver, centre line, surface, split flag, status, offset surfaces, rails and deviations, but never `m_dOrientations[2]` or `m_bCapped[2]`. `m_bCapped` is assigned only by `SmFilletGeom::MakeFaceBrep` (`:9427`, `:9476`) and read by `SmFilletGeom::InsertIntersectionTopology` (`:12158`, `if (pV && !m_bCapped[ii])`) and `DumpLevel` (`:13306`): a geometry whose intersection topology is inserted before `MakeFaceBrep` has run reads indeterminate flags. `m_dOrientations` (`SmFilletGeom.h:546`) is never read or written after its declaration (the `m_dOrientations` of the solver classes are their own members), so it is merely dead and uninitialised.
+- **Trigger:** `InsertIntersectionTopology` (or `DumpLevel`) on an `SmFilletGeom` before `MakeFaceBrep`.
 - **How found:** read during porting (`blend.fillet_geom_p1`, PR #147).
 - **Confirmed:** no (source inspection; the difftest never exports these members before they are set).
 - **Severity:** UB (indeterminate reads).
@@ -1411,12 +1412,12 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 #### HANG-16. `SmCurve::GlobalCoincidenceChecker` splits a face boundary forever when a surface control point is huge
 - **Location:** `SmCurve.cpp:19950` `SmCurve::GlobalCoincidenceChecker` (closed / half-closed split into thirds; the only recursion guard is the parameter length against `SM_ZONE_TOL_3D/10`), reached from `sm_ClassifyFacePoint` through `SmFace::CalculateUVDomainFromUVTrimCurves` -> `SmEdgeuse::CreateUVTrimCurve` -> `SmSurface::DropAndTrimCurve` -> `SmSurfaceDropCurve::FindBoundaryStartPoints` -> `SmCurve::GlobalCurveIntersect`.
-- **What happens:** With a control point of magnitude `1e154` or more, squared distances overflow to infinity, so the closedness / polar-box tests keep asking for a split and every third is split again; the parameter-length guard is never reached before the call takes effectively forever (an hour on one core without returning).
-- **Trigger:** `sm_ClassifyFacePoint` on a face built from a 3 x 4 cubic-by-quadratic B-spline surface whose sixth control point has `z = 1e300` (any coordinate `>= 1e154`; `1e153` returns in 90 ms).
-- **How found:** `fuzz_guards` sweep of the `blend.fillet_geom_p1` FFI guards (PR #147), located with gdb.
-- **Confirmed:** yes (gdb backtrace 25 frames deep in `GlobalCoincidenceChecker`; never returned).
+- **What happens:** With a huge control point, squared distances lose precision or overflow to infinity, so the closedness / polar-box tests keep asking for a split and every third is split again; the parameter-length guard is reached late or never. The runtime grows continuously with the magnitude: on a 4 x 3 cubic-by-quadratic surface with one control point at `-1e50` the call returns in 0.15 s, at `-1e80` in 10 s, at `-1e100` in 23 s, at `-1e120`..`-1e150` in 70-99 s; on a 3 x 4 surface with one control point at `1e153` it returns in 90 ms and at `1e154` (squared distances infinite) never (an hour on one core). A rational surface reaches the same regime through its weights: a homogeneous `1e150` under a weight of `1e-150` (Euclidean `1e300`) takes 34 s.
+- **Trigger:** `sm_ClassifyFacePoint` on a face whose surface has a control point of Euclidean magnitude above about `1e50` (slow) or `1e154` (never returns on the shape above).
+- **How found:** `fuzz_guards` sweep of the `blend.fillet_geom_p1` FFI guards (PR #147), located with gdb; the slow range and the weight bypass by the PR's pre-review (seed 777, boundary-value specials).
+- **Confirmed:** yes (gdb backtrace 25 frames deep in `GlobalCoincidenceChecker`; never returned; timings measured in the reference build).
 - **Severity:** hang.
-- **Rust port:** The FFI wrapper rejects any value above `1e150` (`MAX_MAGNITUDE`). The Rust `classify_face_point` still defers on `topology.face_p1`.
+- **Rust port:** The FFI wrapper rejects, for the ops that reach `sm_ClassifyFacePoint` (`ClassifyFacePoint`, `FbSplitFace`), any value and any Euclidean control point (`Pw / w`) above `MAX_MAGNITUDE` (see `crates/solidcore-ffi/src/units/blend_fillet_geom_p1.rs`); the other ops take any finite value. The Rust `classify_face_point` still defers on `topology.face_p1`.
 
 #### HANG-15. Tiny surfaces build a surface cache of millions of nodes
 - **Location:** `SmSurfaceCache.cpp:4495` `SmSurfaceCache::SubdivideToTolerances` (stops only at `m_dMinimumSideLengthRatioUV`, `:3932`-`:3949`), through `smsurf_GetSurfaceCache` from `SmSurface::GlobalLineIntersect` / `GlobalCurveIntersect`.

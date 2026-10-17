@@ -5683,16 +5683,17 @@ report now point to UB-134. The maintainer has assigned UB-134 to this PR and wi
 renumber the parallel claim in #148. No bundled numerical results certify this
 independent tree. The maintainer confirmed all review items resolved before the
 independent p6 integration.
+
 ## blend.fillet_geom_p1 (`SmFilletGeom.cpp` part 1: fillet records, pseudo B-rep, static helpers; PR #147, 2026-10-16; partial, no disagreements)
 
-Gate: `PARTIAL blend.fillet_geom_p1 cases=436 passed=419 failed=0 deferred=17 max_rel_err=0e0`
-(`cases_both_errored` 0, so 419 real passes; 2000-seed sweep 2031 pass / 105 deferred /
-0 failed; `--perturb` 419/419 detected).
+Gate: `PARTIAL blend.fillet_geom_p1 cases=444 passed=421 failed=0 deferred=18 max_rel_err=0e0 rejected=5`
+(`cases_both_errored` 0, so 421 real passes; the 5 rejected cases are the regression
+inputs below; SWEEP_LINE; `--perturb` PERTURB_LINE).
 
 - **Deferred (unported callees, no stub of this unit's own code).**
   `sm_ClassifyFacePoint` defers on `SmFace::CalculateUVDomainFromUVTrimCurves`
   (`topology.face_p1`, sibling PR #148; then `SmFace::Point3DClassify` of
-  `query.face_p1`, PR #105): 13 cases, so `SmFilletVertex::UpdateSplitFace` defers only
+  `query.face_p1`, PR #105): 14 cases (one is the 1e50 boundary input below), so `SmFilletVertex::UpdateSplitFace` defers only
   for a vertex classified to the split face and other vertices compare.
   `sm_TwoPntsIntersection` defers past its point drops in
   `SmSurface::PointBasedSurfaceIntersect` (3 cases): `surface.surface_p2`'s port stops
@@ -5702,13 +5703,23 @@ Gate: `PARTIAL blend.fillet_geom_p1 cases=436 passed=419 failed=0 deferred=17 ma
   `SmAdvSurfaceIntersector`'s override until the intersector parts dispatch their
   virtual calls (comment in `surface/surface/p2.rs`); cases whose drops fail compare the
   failure. `SmFilletVertex::CalcCliffRailIntEdge` reaches `SmSurface::GlobalCurveIntersect`
-  (wired, `surface.surface_p8`), which defers in `SmSurfaceDropCurve::DoTrace`
-  (`intersect.surface_drop_curve`): `intersect.surface_drop_lib_p1`'s stub, wired by its
-  open PR #140 (1 case; this PR does not build on #140 so its diff stays its own).
-  `sm_ExamineNFixFilletGeoms` compares its early returns (analytic/low-degree surfaces, no
-  adjustment needed, both surfaces need adjusting) and the control-net copy; the
-  adjusting path then needs `SmFilletSolver::GetSurface` (`blend.fillet_solver_p1`) and
-  `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`, PR #136) and defers.
+  (wired, `surface.surface_p8`), which stops at `intersect.surface_drop_lib_p1`'s own
+  unwired call of `SmSurfaceDropCurve::DoTrace` (ported; the stub in
+  `intersect/surface_drop_lib/p1.rs` is labelled `intersect.surface_drop_curve`, which
+  is what the difftest's `blocked_by` prints): the true owner is
+  `intersect.surface_drop_lib_p1`, whose open PR #140 wires it (1 case; this PR does not
+  build on #140 so its diff stays its own).
+  `sm_ExamineNFixFilletGeoms` compares only its early returns (analytic/low-degree
+  surfaces, no adjustment needed, both surfaces need adjusting, the same geometry
+  twice): the adjusting path, control-net copy included, has no compared case. The
+  shim's geometries have no `SmFilletSolver` (`new SmFilletGeom(NULL, type)`) and
+  upstream dereferences it there (`GetFilletSolver()->GetSurface(k)`: SIGSEGV, found
+  by the pre-review), so the shim repeats upstream's degree / kind / end-distance
+  pre-checks and refuses (`SC_ERR_ARG`, recorded as a rejected case) any input that
+  would reach it; the Rust side on that path rebuilds the rails and stops at
+  `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`, PR #136) with
+  `Unported`, or with a null-pointer error when, as in the difftest, no solver is
+  passed.
   `sm_FindStepoffUV` and `sm_CreateCubicRailRailInterpolant` take an `SmFilletSolver`
   (unported) and have no difftest cases: the first is ported over the co-ported
   `ConstantRadiusAssistedFs` and a B-rep, the second returns `Unported` at its first
@@ -5739,18 +5750,36 @@ Gate: `PARTIAL blend.fillet_geom_p1 cases=436 passed=419 failed=0 deferred=17 ma
   analytic-kind path inside the surface callees are never compared. Ops with no passing
   case: `fb` `cliff` (deferred), `classify_face_point` (all deferred), `fb`
   `split_face` of a vertex classified to the split face (deferred; other vertices
-  pass), `two_pnts` past its point drops (deferred; drop failures pass),
-  `sm_FindStepoffUV` and `sm_CreateCubicRailRailInterpolant` (no cases: they take an
-  `SmFilletSolver`). `capping` with a cap (iso-parameter lines lifted through
-  `sm_ExtractIsoCurve`) now compares. The FFI guards were fuzzed with 60k mutated
-  programs (`fuzz_guards` test in the runner, one thread per call with a 30 s timeout):
-  22777 accepted programs ran without a crash or hang.
-- **Upstream hang HANG-16.** The fuzz found a face whose surface has a control point of
-  magnitude 1e154: `sm_ClassifyFacePoint`'s C++ path (`CalculateUVDomainFromUVTrimCurves`
-  -> `DropAndTrimCurve` -> `SmCurve::GlobalCoincidenceChecker`) splits the boundary
-  forever once squared distances overflow (1e153 returns in 90 ms). The FFI rejects
-  coordinates above 1e150 (`MAX_MAGNITUDE`); the Rust side still defers that op on
-  `topology.face_p1`.
+  pass), `two_pnts` past its point drops (deferred; drop failures pass), `fb`
+  `examine` past its pre-checks (rejected, above), `sm_FindStepoffUV` and
+  `sm_CreateCubicRailRailInterpolant` (no cases: they take an `SmFilletSolver`).
+  `capping` with a cap (iso-parameter lines lifted through `sm_ExtractIsoCurve`)
+  compares.
+- **Upstream hang HANG-16 and the magnitude guard.** The `fuzz_guards` sweep found a
+  face whose surface has a control point of magnitude 1e154: `sm_ClassifyFacePoint`'s
+  C++ path (`CalculateUVDomainFromUVTrimCurves` -> `DropAndTrimCurve` ->
+  `SmCurve::GlobalCoincidenceChecker`) splits the boundary forever once squared
+  distances overflow. The pre-review's extended fuzz (seed 777, boundary specials)
+  showed the slowdown is continuous: on another shape a control point of 1e50 returns
+  in 0.15 s, 1e80 in 10 s, 1e100 in 23 s, 1e120..1e150 in 70-99 s, and a rational
+  surface reaches the same regime through a tiny weight (homogeneous 1e150 over
+  1e-150: 34 s). The FFI therefore bounds, for `ClassifyFacePoint` and `FbSplitFace`
+  only (the ops that reach `sm_ClassifyFacePoint`), every value and every Euclidean
+  control point `Pw / w` by `MAX_MAGNITUDE = 1e50`; that over-rejects valid but slow
+  upstream inputs, and is documented as such. The other ops take any finite value.
+  Rejected regression cases: the original 1e154 shape, the slow -1e150 input, a value
+  just above 1e50, a 1e-150 weight; the -1e50 boundary input is an accepted case. The
+  Rust side still defers that op on `topology.face_p1`. The sweep itself runs one
+  thread per call with a 30 s timeout (`FUZZ_SEED` / `FUZZ_CALLS` override the seed
+  and length): FUZZ_RESULTS.
+- **Record writes without a notification environment.** `SmVertex::SetPoint` and
+  `SmEdge::SetCurve(.., TRUE)` notify `SM_NO_CHANGE_GEOMETRY`; the pseudo B-rep has no
+  notification environment, so the port applies the same resets directly (vertex-use
+  gaps; edge-use UV trim curve, drop-curve record and edge/face gap with its mate's,
+  and their vertex-use gaps). The co-ported `SmFilletEdge` constructor sets the edge
+  tolerance to `0.0` as `SmEdge()` does. `SmBoundaryTrimmingType` is also co-ported,
+  identically, by PR #168 (`blend.fillet_standard_solver_p1`); whichever lands second
+  re-exports the other's (COORD.md).
 - Upstream defect UB-159 (`SmFilletGeom` constructor leaves `m_dOrientations` and
   `m_bCapped` uninitialised) recorded in `plan/upstream-issues.md`.
 

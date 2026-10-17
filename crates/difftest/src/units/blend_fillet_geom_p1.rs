@@ -28,6 +28,8 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use crate::util::{flag, v3};
+
 use solidcore::blend::fillet_geom::p1::{
     self as fg, FilStatus, FilletBrep, FilletCornerId, FilletEdgeType, FilletEdgeuse,
     FilletGeom, FilletGeomId, FilletGeomType, FilletVertex, FilletVertexType, FilletVertexuse,
@@ -40,7 +42,7 @@ use solidcore::geom::vector2d::Point2;
 use solidcore::intersect::point_class::PointClassType;
 use solidcore::intersect::surface_intersector::p1::TsectPnt;
 use solidcore::kernel::Kernel;
-use solidcore::math::{Point3, Vec3};
+use solidcore::math::Vec3;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::p1::SurfParamType;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
@@ -445,10 +447,6 @@ impl Inputs {
     }
 }
 
-fn flag(b: bool) -> f64 {
-    f64::from(u8::from(b))
-}
-
 fn shape(s: &Srf) -> Result<(usize, usize), HarnessError> {
     let n = s.net.len().checked_sub(1).ok_or_else(|| harness("empty net"))?;
     let cols = s.net.first().map_or(0, Vec::len);
@@ -759,7 +757,19 @@ fn cpp_input(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
 
 fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let input = cpp_input(i)?;
-    let flat = ffi::eval(i.op(), &input).map_err(|e| harness(e.to_string()))?;
+    let flat = match ffi::eval(i.op(), &input) {
+        Ok(flat) => flat,
+        // the wrapper refused an input upstream cannot handle (see the FFI module doc)
+        Err(solidcore_ffi::FfiError::InvalidArgument(reason)) => {
+            return Ok(Output::rejected(reason));
+        }
+        // the shim refused it (`SC_ERR_ARG`: the `FbExamine` adjusting path without a
+        // solver, a face upstream will not build)
+        Err(solidcore_ffi::FfiError::Status(solidcore_ffi::SC_ERR_ARG)) => {
+            return Ok(Output::rejected("shim_rejected_args"));
+        }
+        Err(e) => return Err(harness(e.to_string())),
+    };
     to_output(i, &flat)
 }
 
@@ -999,10 +1009,6 @@ fn surface_of(s: &Srf) -> Result<Surface, HarnessError> {
     Ok(Surface::from(BSplineSurface::from_nurb(nurb, false)))
 }
 
-fn pt(p: [f64; 3]) -> Point3 {
-    Point3::new(p[0], p[1], p[2])
-}
-
 fn uv(p: [f64; 2]) -> Point2 {
     Point2::new(p[0], p[1])
 }
@@ -1209,7 +1215,7 @@ impl RustModel {
         let corner = |c: i64| usize::try_from(c).ok().map(|i| FilletCornerId(i as u32));
         let mut vids = Vec::new();
         for v in &m.vertices {
-            let id = fb.brep_mut().add_vertex(pt(v.point)).map_err(h)?;
+            let id = fb.brep_mut().add_vertex(v3(v.point)).map_err(h)?;
             let mut fv = FilletVertex::new(&k, corner(v.corner));
             fv.set_fillet_vertex_type(
                 FilletVertexType::from_code(v.vtype).ok_or_else(|| harness("bad vertex type"))?,
@@ -1668,7 +1674,7 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
                 .iter()
                 .map(|[p, d]| {
                     let mut t = TsectPnt::new();
-                    *t.crv_pos_mut() = pt(*p);
+                    *t.crv_pos_mut() = v3(*p);
                     *t.crv_deriv_mut() = Vec3::new(d[0], d[1], d[2]);
                     t
                 })
@@ -1701,7 +1707,7 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
         } => {
             let mut sv = Vec3::new(svec[0], svec[1], svec[2]);
             let mut ev = Vec3::new(evec[0], evec[1], evec[2]);
-            let r = fg::interpolate_endpts_and_tangents(pt(*start), pt(*end), &mut sv, &mut ev, *dim);
+            let r = fg::interpolate_endpts_and_tangents(v3(*start), v3(*end), &mut sv, &mut ev, *dim);
             let curve = match try_status!(r) {
                 Ok(c) => {
                     o.push(0.0);
@@ -1717,7 +1723,7 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
         }
         Inputs::SurfaceDropPoint { surface, pnt, tol } => {
             let s = surface_of(surface)?;
-            match try_status!(fg::surface_drop_point::<NoObject>(&k, &s, Some(NoObject), pt(*pnt), *tol)) {
+            match try_status!(fg::surface_drop_point::<NoObject>(&k, &s, Some(NoObject), v3(*pnt), *tol)) {
                 Ok(sols) => {
                     o.extend([0.0, sols.len() as f64]);
                     for n in 0..sols.len() {
@@ -1747,8 +1753,8 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
             let mut d = Vec3::new(dir[0], dir[1], dir[2]);
             let r = fg::two_pnts_intersection(
                 &k,
-                pt(*start),
-                end.map(pt),
+                v3(*start),
+                end.map(v3),
                 &mut d,
                 end_dir.map(|e| Vec3::new(e[0], e[1], e[2])),
                 &s1,
@@ -1832,7 +1838,7 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
                 *faces.first().ok_or_else(|| harness("face"))?,
                 *faces.get(1).ok_or_else(|| harness("face"))?,
             );
-            match try_status!(fg::classify_face_point(&k, &b, pt(*pos), f1, f2)) {
+            match try_status!(fg::classify_face_point(&k, &b, v3(*pos), f1, f2)) {
                 Ok(w) => o.extend([0.0, f64::from(w)]),
                 Err(st) => o.extend([st, 0.0]),
             }
@@ -2015,7 +2021,10 @@ fn rust_pseudo(model: &Model, q: &Query) -> Result<Rec, HarnessError> {
         } => {
             let (g1, g2) = (m.geom(*g1)?, m.geom(*g2)?);
             let (sv, ev) = (m.vertex(*sv)?, m.vertex(*ev)?);
-            let r = fg::examine_n_fix_fillet_geoms(&m.k, &mut m.fb, g1, *at1, g2, *at2, sv, ev, *tol);
+            // the shim's geometries have no solver (NULL), so none is passed here
+            let r = fg::examine_n_fix_fillet_geoms(
+                &m.k, &mut m.fb, g1, *at1, g2, *at2, sv, ev, *tol, [None, None],
+            );
             match try_status!(r) {
                 Ok(()) => o.push(0.0),
                 Err(st) => o.push(st),
@@ -2758,8 +2767,10 @@ mod tests {
     use super::*;
 
     /// Mutates generated and fixture programs and feeds them to the FFI: every program
-    /// the guards accept must run without crashing (a crash kills the test process).
-    /// `cargo test -p difftest --features cpp -- --ignored fuzz_guards`.
+    /// the guards accept must run without crashing (a crash kills the test process) or
+    /// hanging (30 s per call). `cargo test -p difftest --features cpp -- --ignored
+    /// fuzz_guards`; `FUZZ_SEED` and `FUZZ_CALLS` override the seed (`0xfa11ba11`) and
+    /// the call count (60k).
     #[test]
     #[ignore = "60k FFI calls; run on demand"]
     fn fuzz_guards() {
@@ -2785,14 +2796,21 @@ mod tests {
         let specials = [
             0.0, 1.0, -1.0, 2.0, 0.5, 100.0, 1e300, -1e300, 1e-300, f64::NAN, f64::INFINITY,
             -f64::INFINITY, 1e20, -1e20, 1e-12, 13.0, 999.0,
+            // the guard boundaries: the magnitude cap, tiny positive weights, counts
+            ffi::MAX_MAGNITUDE, -ffi::MAX_MAGNITUDE, 1e49, 1e-150, 1e-6, 1e-9, 64.0, 63.0, -0.0,
         ];
-        let mut rng = Rng::new(0xfa11_ba11);
+        let env_u64 = |name: &str, default: u64| {
+            std::env::var(name).ok().and_then(|v| v.parse().ok()).unwrap_or(default)
+        };
+        let seed = env_u64("FUZZ_SEED", 0xfa11_ba11);
+        let max_calls = env_u64("FUZZ_CALLS", 60_000);
+        let mut rng = Rng::new(seed);
         let (mut accepted, mut rejected) = (0u64, 0u64);
         let mut calls = 0u64;
-        while calls < 60_000 {
+        while calls < max_calls {
             let (op, base) = &bases[rng.below(bases.len() as u64) as usize];
             let mut input = base.clone();
-            let n_mut = rng.below(4);
+            let n_mut = rng.below(6);
             for _ in 0..n_mut {
                 match rng.below(6) {
                     0 if !input.is_empty() => {
