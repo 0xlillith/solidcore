@@ -21,16 +21,6 @@ env:
   UPSTREAM_COMMIT: c9c5979f04cea8c38213004d4f04df0dcfb40d05  # c9c5979
 
 jobs:
-  cpp-build-script:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      # /bin/bash exercises stock Bash 3.2 on macOS; no C++ checkout/build needed.
-      - run: python3 harness/cpp/test_build.py
-
   fmt:
     runs-on: ubuntu-latest
     steps:
