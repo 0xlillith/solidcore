@@ -5939,8 +5939,10 @@ independent p6 integration.
   streams the brep_data guard accepts (pinned by a deterministic search: an overwritten
   digit of an integer token), the face makers' input errors, `MakeFace`'s null-surface
   status, the glue no-ops (compared as the B-rep's counts after the op) and
-  `MergeSelfIntersectionCurves` without curves. Before the pre-review of PR #155 no
-  `ReadFromFile` case compared anything.
+  `MergeSelfIntersectionCurves` without curves. Of the 197 passes, 173 compare values
+  (115 glue B-rep counts after the op, 62 `MergeSelfIntersectionCurves` records) and 24 a
+  status only; the shim's `-2` guards are deferrals, not passes. Before the pre-review of
+  PR #155 no `ReadFromFile` case compared anything.
 - **C++ guards.** A damaged `.smb` stream goes through `topology.brep_data`'s stream guard
   on both sides (rejected streams are not generated). A damaged stream whose C++
   `SmBrepData` read still succeeds is not run in C++: `MakeTopologyFromData` uses its
