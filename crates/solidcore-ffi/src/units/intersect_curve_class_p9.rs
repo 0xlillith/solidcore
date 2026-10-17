@@ -58,6 +58,16 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
         || (header[0] == 1. && (header[8] != 0. || ne != 0))
         || (header[9] != 0. && nv != 0)
         || (header[0] == 0. && (nv != 0 || header[9] != 0.))
+        // A "modified" cache (state 2) on a Brep with editing disabled (the SmBrep
+        // default) is deleted and rebuilt by SmCacheMgrTSrf::CacheMakeOrValidate
+        // (SmCacheMgrTSrf.cpp:97-107) before IntersectTSBound reads it. For a face
+        // with no loopuse at all, SmTrimSrfCache::BuildTree leaves its face domain
+        // empty and `sSurfaceDomain.Intersect(sFaceDomain, ..)` fails as disjoint
+        // (SmTrimSrfCache.cpp:329, SmExtent2d.cpp:414-418), so the cache is NULL
+        // and the call returns SM_ERR_NULL_POINTER. The rebuild is outside this
+        // unit and the Rust side takes the cache as given, so such a face is not
+        // comparable.
+        || (header[0] == 1. && header[2] == 2. && nv == 0 && header[9] == 0.)
     {
         return Err(invalid());
     }
@@ -145,6 +155,20 @@ mod tests {
         i[13] = 2.;
         i.extend([0., 0., 0., 1., 0., 0., 0., 1., 1., 1e-6]);
         assert!(validate(&i).is_err());
+    }
+    #[test]
+    fn rejects_modified_cache_on_loopless_face() {
+        // op 1 (TSBound), state 2 (face modified), no vertices, no rectangle face.
+        let mut i = vec![
+            1., 0., 2., 1., 0., 1., 1., 0., 0., 0., 1., 1e-7, 0., 0., 0., 1., 0., 0., 0., 1., 0.,
+            0.,
+        ];
+        assert!(validate(&i).is_err());
+        i[2] = 1.;
+        assert!(validate(&i).is_ok());
+        i[2] = 2.;
+        i[9] = 1.;
+        assert!(validate(&i).is_ok());
     }
     #[test]
     fn accepts_defined_inputs_beyond_the_old_fixture_ranges() {
