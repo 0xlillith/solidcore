@@ -135,7 +135,8 @@ enum OpIn {
     FindSide { curve: CrvIn, p: [f64; 3], dir: [f64; 3], tol: f64 },
     FindSector { face: i64, guess: Option<[f64; 2]>, p: [f64; 3], dir: [f64; 3] },
     UpdateIvls { vertex: i64 },
-    /// `seam`: an `SmSurfParamType` code (0 U, 1 V, .., 7 NEITHER).
+    /// `seam`: an `SmSurfParamType` code (0 U, 1 V, 2 UNKNOWN, 3 BOTH, 4 NEITHER, 5 UMIN,
+    /// 6 VMIN, 7 UMAX).
     Redistribute { edge: i64, has_uv: bool, seam: u8, dom: [f64; 4] },
     /// `orient`: 0 unknown, 1 same, 2 opposite (`SmOrientType`).
     SplitUv {
@@ -160,6 +161,9 @@ enum OpIn {
         want_uv: bool,
         want_faces: bool,
     },
+    /// `healer_op`: an `SmHealerOpType` code, 0 (`SM_HO_NONE`) to 26 (`SM_HO_ALL`); the
+    /// FFI rejects anything above (upstream would run every step for an out-of-range code,
+    /// the Rust enum has no such value).
     Heal { healer_op: u8, make_uv: bool },
 }
 
@@ -1418,7 +1422,9 @@ fn run_rust_op(
             }
         }
         OpIn::Heal { healer_op, make_uv } => {
-            let healer_op = HealerOpType::from_code(i64::from(*healer_op)).unwrap_or_default();
+            let healer_op = HealerOpType::from_code(i64::from(*healer_op)).ok_or_else(|| {
+                harness(format!("healer op {healer_op} outside SM_HO_NONE..=SM_HO_ALL (0..=26)"))
+            })?;
             bp1::heal_brep(k, b, healer_op, None, None, None, *make_uv)?;
             o.push(0.0);
         }
@@ -1617,7 +1623,8 @@ fn gen_op(rng: &mut Rng) -> OpIn {
             want_faces: rng.chance(0.5),
         },
         _ => OpIn::Heal {
-            healer_op: rng.below(40) as u8,
+            // SM_HO_NONE (0) ..= SM_HO_ALL (26)
+            healer_op: rng.below(27) as u8,
             make_uv: rng.chance(0.5),
         },
     }

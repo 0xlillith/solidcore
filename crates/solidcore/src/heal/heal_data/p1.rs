@@ -986,11 +986,19 @@ mod tests {
             api_heal_brep(&mut k, None),
             Err(SolidError::InvalidInput { .. })
         ));
-        // on a B-rep the whole-B-rep target lists are gathered (empty here) and
-        // the heal sequence of heal_data_p3 runs; with nothing to heal it succeeds
+        // on a B-rep the whole-B-rep target lists are gathered (empty here) and the
+        // heal sequence of heal_data_p3 runs up to Fix_TolSizes, whose
+        // SmBrep::SetTolerance is unit topology.brep_p2 (SmBrep::HealBrep passes
+        // Unported through, ignoring every other status)
         let mut b = Brep::default();
-        let r = api_heal_brep(&mut k, Some(&mut b));
-        assert!(r.is_ok(), "{r:?}");
+        assert!(matches!(
+            api_heal_brep(&mut k, Some(&mut b)),
+            Err(SolidError::Unported {
+                upstream: "SmBrep::SetTolerance",
+                unit: "topology.brep_p2",
+                ..
+            })
+        ));
         let r = h.heal_brep(
             &mut k,
             Some(&mut b),
@@ -998,7 +1006,14 @@ mod tests {
             HealBrepTargets::default(),
             false,
         );
-        assert!(r.is_ok(), "{r:?}");
+        assert!(matches!(
+            r,
+            Err(SolidError::Unported {
+                upstream: "SmBrep::SetTolerance",
+                unit: "topology.brep_p2",
+                ..
+            })
+        ));
         assert!(h.tgt_faces.is_empty());
         let (v, e, f) = ids();
         let t = HealBrepTargets {

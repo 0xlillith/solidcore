@@ -39,7 +39,7 @@
 //! | `CornerBlend`  | `n eu*n has_tan nt tan*nt tol ang`               | `status n_surfaces` (`-3` for two or more edge uses) |
 //! | `EdgeEdgeBlend`| `flag eu1 eu2 dir`                               | `status [surface block]` (ruled surfaces; `-3` for a blend) |
 //! | `ParallelProj` | `curve V[3] has_dist dist has_tol tol has_ang ang want_3d want_uv want_faces` | `status [n3d (curve id)*n3d nuv (curve id)*nuv nf face*nf]` |
-//! | `Heal`         | `op make_uv`                                     | `-3` (the Rust side defers) |
+//! | `Heal`         | `op make_uv`                                     | `status` (`SmBrep::HealBrep` runs the C++ healer and returns `SM_SUCCESS`) |
 //!
 //! A curve id is `-1` (none) or `1 t0 t1 P(t0) P(mid) P(t1)`; an edge use state is `-1`
 //! or `1 curve_id owner has_fail fail_status fail_brep vu_face_gap_init`.
@@ -365,7 +365,8 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             rd.flag()?;
         }
         Op::Heal => {
-            rd.index(40)?;
+            // SmHealerOpType: SM_HO_NONE (0) ..= SM_HO_ALL (26)
+            rd.index(26)?;
             rd.flag()?;
         }
     }

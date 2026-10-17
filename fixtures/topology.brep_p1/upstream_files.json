@@ -2477,7 +2477,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -4958,7 +4958,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -7439,7 +7439,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -9920,7 +9920,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -12401,7 +12401,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -14882,7 +14882,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -17363,7 +17363,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -19844,7 +19844,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -22325,7 +22325,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -24806,7 +24806,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -27287,7 +27287,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -29768,7 +29768,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -32249,7 +32249,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -34730,7 +34730,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -37211,7 +37211,7 @@
      "rebuild": false
     },
     "op": "heal",
-    "healer_op": 39,
+    "healer_op": 26,
     "make_uv": false
    }
   },
@@ -37313,7 +37313,7 @@
   },
   {
    "name": "Endcap_vote_null_wins",
-   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864)",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11165 called at :11867 and :11889)",
    "inputs": {
     "brep": {
      "kind": "file",
@@ -37330,7 +37330,7 @@
   },
   {
    "name": "Mouse_vote_null_minority",
-   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864)",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11165 called at :11867 and :11889)",
    "inputs": {
     "brep": {
      "kind": "file",
@@ -37348,7 +37348,7 @@
   },
   {
    "name": "vase_rev_vote_null_only",
-   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864)",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11165 called at :11867 and :11889)",
    "inputs": {
     "brep": {
      "kind": "file",
@@ -37363,7 +37363,7 @@
   },
   {
    "name": "box_with_large_fillet_vote_null_tie",
-   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864)",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11165 called at :11867 and :11889)",
    "inputs": {
     "brep": {
      "kind": "file",

@@ -3311,8 +3311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_heal",
@@ -4531,8 +4531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_heal",
@@ -5768,8 +5768,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_heal",
@@ -7046,8 +7046,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_heal",
@@ -8278,8 +8278,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_heal",
@@ -9494,8 +9494,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_heal",
@@ -10726,8 +10726,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_heal",
@@ -11954,8 +11954,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_heal",
@@ -13227,8 +13227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_heal",
@@ -14503,8 +14503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_heal",
@@ -15779,8 +15779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_heal",
@@ -17051,8 +17051,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_heal",
@@ -18336,8 +18336,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_heal",
@@ -19621,8 +19621,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_heal",
@@ -20892,8 +20892,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmHealData::HealTgts",
-        "unit": "heal.heal_data_p3"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_heal",
@@ -20970,7 +20970,7 @@
       "name": "Endcap_vote_null_wins",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2076 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864))",
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2076 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11165 called at :11867 and :11889))",
       "values_compared": 7
     },
     {
@@ -20978,7 +20978,7 @@
       "name": "Mouse_vote_null_minority",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2077 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864))",
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2077 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11165 called at :11867 and :11889))",
       "values_compared": 9
     },
     {
@@ -20986,7 +20986,7 @@
       "name": "vase_rev_vote_null_only",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2078 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864))",
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2078 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11165 called at :11867 and :11889))",
       "values_compared": 5
     },
     {
@@ -20994,7 +20994,7 @@
       "name": "box_with_large_fillet_vote_null_tie",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2079 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11864))",
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2079 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11165 called at :11867 and :11889))",
       "values_compared": 7
     },
     {
@@ -21158,11 +21158,10 @@
   "deferred_by_unit": {
     "curve.crv_on_surf": 4,
     "harness:analytic-geometry-export": 207,
-    "heal.heal_data_p3": 15,
     "query.brep": 71,
     "query.face_p2": 9,
     "surface.surface_cache_p1": 3,
-    "topology.edgeuse_p3": 78,
+    "topology.edgeuse_p3": 93,
     "topology.face_p1": 16,
     "topology.face_p2": 44,
     "topology.face_p3": 18,

@@ -446,7 +446,12 @@ pub fn vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: `SmRegion::GetShells` is unit `topology.shell`.
+/// [`SolidError::Unported`]: `SmRegion::GetShells` is unit `topology.shell`; a B-rep
+/// without regions returns the empty list, as upstream (the per-region loop never runs).
+///
+/// Takes `&Kernel` until `topology.shell` lands: upstream opens `SmNewMarkAndLock` on the
+/// context here, so that port widens this (and `boolean::merge::p1::boolean_post_process`)
+/// to `&mut Kernel`.
 pub fn shells(
     k: &Kernel,
     b: &Brep,
@@ -454,7 +459,10 @@ pub fn shells(
 ) -> Result<Vec<ShellId>> {
     let _ = (k, attribute);
     // get regions
-    let _regions = regions(b, None)?;
+    let regions = regions(b, None)?;
+    if regions.is_empty() {
+        return Ok(Vec::new());
+    }
     // UNPORTED(topology.shell): SmRegion::GetShells
     Err(SolidError::unported(
         "SmRegion::GetShells",

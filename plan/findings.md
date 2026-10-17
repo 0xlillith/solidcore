@@ -5934,10 +5934,10 @@ Difftest (`fixtures/topology.brep_p1/`: 2080 cases on the 15 upstream `.smb` fil
 `SmBrep::ReadFromFile`, 232 on constructed B-reps (wire edges, plane and B-spline faces, the
 `prog_test` wire network, 10 `sm_FindSideOfCurve` cases among them), 16 generated): 2328 cases,
 1712 pass, 0 failed, 616 deferred (`harness:analytic-geometry-export` 207, `topology.shell` 151,
-`topology.edgeuse_p3` 78, `query.brep` 71, `topology.face_p2` 44, `topology.face_p3` 18,
-`topology.face_p1` 16, `heal.heal_data_p3` 15, `query.face_p2` 9, `curve.crv_on_surf` 4,
-`surface.surface_cache_p1` 3); `--perturb` detects 1712/1712; a 1000-seed generated sweep (3312
-cases) passes 2399 with 0 failed and 913 deferred; `--green` runs 196 units with 0 failed.
+`topology.edgeuse_p3` 93, `query.brep` 71, `topology.face_p2` 44, `topology.face_p3` 18,
+`topology.face_p1` 16, `query.face_p2` 9, `curve.crv_on_surf` 4, `surface.surface_cache_p1` 3);
+`--perturb` detects 1712/1712; a 1000-seed generated sweep (3312 cases) passes 2404 with 0
+failed and 908 deferred; `--green` runs 198 units with 0 failed.
 Every compared value is bit-identical; no absolute floors. 60 of the 1712 passes compare no value
 because both sides report the same error (`both_errored` in the report): 15 `no_entity` lookups
 on the three wire B-reps (`ReflectShell`, `sm_MarkLoopsToDelete`, `sm_SwapFaceUV`,
@@ -5948,8 +5948,16 @@ on files with fewer than four seam edge uses, UB-162, and 3 `SetInfiniteRegion` 
 infinite region); the other 1652 compare values.
 
 - **Coverage, honestly.** `GetShells`, `SmLockBrepBox` and `HealBrep` have no passing case
-  (every case defers; `HealBrep` now runs the C++ healer and the Rust `HealData`, which
-  defers at `heal.heal_data_p3`). The passes of `CreateCornerBlend` (36, fewer than two edge uses),
+  (every case defers: every fixture B-rep has regions, so `GetShells` stops at
+  `SmRegion::GetShells`, and the empty list on a region-less B-rep is only unit-tested;
+  `HealBrep` runs the C++ healer and the Rust `HealData`, whose heal sequence
+  (`heal.heal_data_p3`, #164) stops at `SmEdgeuse::NormalizedEvaluate` on every fixture
+  file). A harness defect surfaced when #164's sequence replaced the `HealTgts` stub: the 15
+  `HealBrep` fixtures passed healer op 39, outside `SmHealerOpType` (`SM_HO_ALL` is 26); the
+  C++ ran every step for it while the Rust runner mapped the unknown code to `SM_HO_NONE` and
+  ran nothing, so the 15 cases briefly "passed" on an always-equal status. The fixtures now
+  pass `SM_HO_ALL`, the FFI rejects codes above 26, the generator draws 0..=26 and the runner
+  refuses an unknown code instead of defaulting. The passes of `CreateCornerBlend` (36, fewer than two edge uses),
   `sm_SwapFaceUV` (66, an already marked face), `sm_RedistributeSeamUVTrimCurves` (57, no trim
   curve or not a seam) and `IsDegenerate` (39, the vertex quick check) are early returns; 28 of
   the 51 `sm_MakeVertexSplitUVTrimCurve` passes have no trim curve; `sm_MarkLoopsToDelete`
@@ -6054,8 +6062,10 @@ infinite region); the other 1652 compare values.
   `heal.heal_data_p2` (`fix_tol_sizes` takes `&mut Kernel` now), `GetEdges` in `geom.tools`,
   `GetFaces/GetEdges/GetVertices` in `mass.integrator` and `query.api_queries`, and (merged
   from main meanwhile, #109) `GetVertices` / `GetEdges` / `GetFaces`, the region walk from the
-  infinite region and `SmBrep::HealBrep` in `heal.heal_data_p1` (its 12 deferred cases continue
-  to `heal.heal_data_p3` and `topology.shell`; the heal harness of #128/#109 never exported the
+  infinite region and `SmBrep::HealBrep` in `heal.heal_data_p1` (with #164 merged, of its 12
+  former `topology.brep_p1` deferrals 7 stop at `topology.brep_p2` (`SmBrep::SetTolerance` in
+  `Fix_TolSizes`), 3 at `topology.shell`, 1 at `topology.face_p2` and 1 passes: 266 pass, 227
+  deferred; the heal harness of #128/#109 never exported the
   infinite region, so `Fix_InfiniteRegion` on the three boxes compared a B-rep without one
   against one with it: the lists export now carries the infinite-region index), and (#163)
   `GetEdges` / `GetShells` in `boolean.merge_p1` (`GetShells` still stops at

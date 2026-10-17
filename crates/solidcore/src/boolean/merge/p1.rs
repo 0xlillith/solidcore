@@ -372,8 +372,9 @@ fn brep_edges(brep: &Brep) -> Result<Vec<EdgeId>> {
     crate::topology::brep::p1::edges(brep, None)
 }
 
-/// `SmBrep::GetShells` (ported in `topology::brep::p1`; it defers on
-/// `SmRegion::GetShells`, unit `topology.shell`, until that lands).
+/// `SmBrep::GetShells` (ported in `topology::brep::p1`; empty for a B-rep without
+/// regions, otherwise it defers on `SmRegion::GetShells`, unit `topology.shell`, until
+/// that lands; that port also widens this to `&mut Kernel` for its mark lock).
 fn brep_shells(k: &Kernel, brep: &Brep) -> Result<Vec<ShellId>> {
     crate::topology::brep::p1::shells(k, brep, None)
 }
@@ -571,16 +572,8 @@ mod tests {
             vertices: vec![VertexId::from_index(u32::MAX)],
             ..CleanupRelations::default()
         };
-        let error = boolean_post_process(&Kernel::default(), &mut b, &r, false).unwrap_err();
-        // the stale ids are skipped; the final shell count stops at the region walk
-        assert!(matches!(
-            error,
-            SolidError::Unported {
-                upstream: "SmRegion::GetShells",
-                unit: "topology.shell",
-                ..
-            }
-        ));
+        // the stale ids are skipped and a B-rep without regions has no shells to count
+        boolean_post_process(&Kernel::default(), &mut b, &r, false).unwrap();
     }
 
     #[test]
