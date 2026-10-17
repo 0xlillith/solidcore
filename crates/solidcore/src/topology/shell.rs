@@ -31,8 +31,10 @@
 //! | [`region_remove_shell`] | `SmOwningTopology::Remove` of a shell from its region |
 //!
 //! Deviations: circular lists are typed vectors in head-first order, as in the
-//! shared Brep arena model. Temporary marks use a local set without changing
-//! first-seen order. Incompatible array reinterpret casts return `InvalidInput`;
+//! shared Brep arena model. `GetWireEdges`, `GetMatedShells` and `RayFire` claim and
+//! lock a context mark (`SmNewMarkAndLock`) and mark through
+//! [`crate::topology::topology_traverser::Marks`] (per-call, as the mark values on the
+//! objects are unique per claim), advancing the kernel context's mark counters as upstream. Incompatible array reinterpret casts return `InvalidInput`;
 //! checked member casts retain native NULL. Native
 //! notification/logging side effects are not represented by these arena records.
 //! Face-use sibling links survive a cleared owner head, as in native self-transfer.
@@ -51,11 +53,14 @@
 //! There is no recursion. Missing external callees return explicit `Unported` errors.
 
 use crate::error::{Result, SolidError};
+use crate::geom::context::{with_mark_lock, ALL_MARKS};
+use crate::geom::object::Shape;
+use crate::kernel::Kernel;
 use crate::topology::proto_topology::p1::owning_topology;
+use crate::topology::topology_traverser::{Entity, Marks};
 use crate::topology::{
     Brep, EdgeId, EdgeuseId, FaceuseId, Region, RegionId, Shell, ShellId, VertexId, VertexuseId,
 };
-use std::collections::BTreeSet;
 
 /// The native shell member class, independently stored from its list head.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -243,24 +248,32 @@ impl Shell {
         }
         Ok(false)
     }
-    /// Distinct mate shells in first-seen face-use order.
+    /// Distinct mate shells in first-seen face-use order. Like `SmShell::GetMatedShells`
+    /// this claims and locks a context mark (`SmNewMarkAndLock`, all marks) for the
+    /// duration of the call, so the context's mark counters advance.
     ///
     /// # Errors
-    /// Missing native mates/owners or dangling arena references.
-    pub fn mated_shells(&self, brep: &Brep) -> Result<Vec<ShellId>> {
+    /// Missing native mates/owners or dangling arena references; every mark is still
+    /// released.
+    pub fn mated_shells(&self, kernel: &mut Kernel, brep: &Brep) -> Result<Vec<ShellId>> {
         let mut output = Vec::new();
         if !self.is_faceuse_shell() {
             return Ok(output);
         }
-        let mut seen = BTreeSet::new();
-        for faceuse in self.get_faceuses()? {
-            let mate = brep.faceuse(faceuse)?.mate.ok_or(invalid_members())?;
-            let shell = brep.faceuse(mate)?.shell.ok_or(invalid_members())?;
-            brep.shell(shell)?;
-            if seen.insert(shell) {
+        with_mark_lock(kernel, ALL_MARKS, |kernel, mark| {
+            let mut marks = Marks::default();
+            for faceuse in self.get_faceuses()? {
+                let mate = brep.faceuse(faceuse)?.mate.ok_or(invalid_members())?;
+                let shell = brep.faceuse(mate)?.shell.ok_or(invalid_members())?;
+                brep.shell(shell)?;
+                if marks.is_marked(kernel, Entity::Shell(shell), mark) {
+                    continue;
+                }
+                marks.mark(kernel, Entity::Shell(shell), mark);
                 output.push(shell);
             }
-        }
+            Ok(())
+        })??;
         Ok(output)
     }
     /// Classify whether this is an inner shell: `SmTopologyTraverser::IsInnerShell`
@@ -270,7 +283,7 @@ impl Shell {
     /// Invalid member classes and the errors of
     /// [`crate::topology::topology_traverser::is_inner_shell`] (its `SM_ERR` for an
     /// empty or inconclusive set, `Unported` from its ray intersections).
-    pub fn is_inner_shell(&self, kernel: &mut crate::kernel::Kernel, brep: &Brep) -> Result<bool> {
+    pub fn is_inner_shell(&self, kernel: &mut Kernel, brep: &Brep) -> Result<bool> {
         let faceuses = self.get_faceuses()?;
         crate::topology::topology_traverser::is_inner_shell(kernel, brep, &faceuses)
     }
@@ -376,11 +389,7 @@ impl Region {
 ///
 /// # Errors
 /// Invalid arena references or an unported inner-shell classification.
-pub fn order_region_shells(
-    kernel: &mut crate::kernel::Kernel,
-    brep: &mut Brep,
-    id: RegionId,
-) -> Result<()> {
+pub fn order_region_shells(kernel: &mut Kernel, brep: &mut Brep, id: RegionId) -> Result<()> {
     let shells = brep.region(id)?.shells.clone();
     if shells.len() < 2 {
         return Ok(());
@@ -420,12 +429,15 @@ pub fn order_region_shells(
     Ok(())
 }
 
-/// Wire edges of a shell, preserving native stack and first-seen order.
+/// Wire edges of a shell, preserving native stack and first-seen order. A wire
+/// shell claims and locks a context mark (`SmNewMarkAndLock`, all marks) for its
+/// traversal, so the context's mark counters advance as upstream's do.
 ///
 /// # Errors
 /// Dangling topology links, native undefined pointer accesses, or the missing
-/// vertex edge-list traversal. There is no recursion.
-pub fn wire_edges(brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
+/// vertex edge-list traversal; the mark is released on every path. There is no
+/// recursion.
+pub fn wire_edges(kernel: &mut Kernel, brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
     const WIRE_OP: &str = "topology::shell::wire_edges";
     let shell = brep.shell(id)?;
     let mut output = Vec::new();
@@ -433,26 +445,31 @@ pub fn wire_edges(brep: &Brep, id: ShellId) -> Result<Vec<EdgeId>> {
         return Ok(output);
     }
     if shell.is_wire_shell() {
-        let first = shell.wire_edge(brep)?.ok_or(invalid_members())?;
-        let mut stack = vec![first];
-        let mut seen_vertices = BTreeSet::new();
-        let mut seen_edges = BTreeSet::new();
-        while let Some(edge) = stack.pop() {
-            for vertex in crate::topology::edge::vertices(brep, edge, None)? {
-                // Upstream marks every listed vertex: a NULL start vertex is a
-                // NULL dereference.
-                let vertex = vertex.ok_or_else(|| SolidError::null_pointer(WIRE_OP))?;
-                if !seen_vertices.insert(vertex) {
-                    continue;
-                }
-                for adjacent in crate::topology::vertex::edges(brep, vertex, None)? {
-                    if seen_edges.insert(adjacent) {
+        with_mark_lock(kernel, ALL_MARKS, |kernel, mark| {
+            let first = shell.wire_edge(brep)?.ok_or(invalid_members())?;
+            let mut marks = Marks::default();
+            let mut stack = vec![first];
+            while let Some(edge) = stack.pop() {
+                for vertex in crate::topology::edge::vertices(brep, edge, None)? {
+                    // Upstream marks every listed vertex: a NULL start vertex is a
+                    // NULL dereference.
+                    let vertex = vertex.ok_or_else(|| SolidError::null_pointer(WIRE_OP))?;
+                    if marks.is_marked(kernel, Entity::Vertex(vertex), mark) {
+                        continue;
+                    }
+                    marks.mark(kernel, Entity::Vertex(vertex), mark);
+                    for adjacent in crate::topology::vertex::edges(brep, vertex, None)? {
+                        if marks.is_marked(kernel, Entity::Edge(adjacent), mark) {
+                            continue;
+                        }
+                        marks.mark(kernel, Entity::Edge(adjacent), mark);
                         output.push(adjacent);
                         stack.push(adjacent);
                     }
                 }
             }
-        }
+            Ok(())
+        })??;
         return Ok(output);
     }
     // GetBrep is required even when the edge list happens to be empty.
@@ -510,6 +527,7 @@ pub fn region_remove_shell(brep: &mut Brep, region: RegionId, shell: ShellId) ->
 /// Native `SM_ERR` for an illegal vertex-shell move, dangling graph links, or
 /// incompatible native list classes. The caller must supply connected topology.
 pub fn transfer_children(
+    kernel: &mut Kernel,
     brep: &mut Brep,
     source: ShellId,
     recipient: ShellId,
@@ -557,7 +575,7 @@ pub fn transfer_children(
         }
         wires
     } else {
-        wire_edges(brep, source)?
+        wire_edges(kernel, brep, source)?
     };
     if let Some(&first) = wires.first() {
         if brep.shell(recipient)?.is_unknown_shell() {
@@ -717,7 +735,7 @@ fn refresh_faceuse_sibling_links(brep: &mut Brep, owner: ShellId) -> Result<()> 
 /// Invalid graph references, an undefined native pointer access, or an unported
 /// bounding-box dependency. Ordinary native box errors retain the partial box.
 pub fn shell_is_degenerate(
-    kernel: &crate::kernel::Kernel,
+    kernel: &mut Kernel,
     brep: &Brep,
     id: ShellId,
     tolerance: Option<f64>,
@@ -739,7 +757,7 @@ pub fn shell_is_degenerate(
 /// Invalid graph references or an unported bounding-box dependency. Ordinary
 /// native box errors are ignored while retaining the initialized/partial box.
 pub fn region_is_degenerate(
-    kernel: &crate::kernel::Kernel,
+    kernel: &mut Kernel,
     brep: &Brep,
     id: RegionId,
     tolerance: Option<f64>,
@@ -760,7 +778,7 @@ struct BoundsAttempt {
 // CO-PORTED minimum default-tight=false branches from query.face_p1. Keeping the
 // status beside its box preserves partial writes and Native SER before Union.
 fn region_bounds_for_degeneracy(
-    kernel: &crate::kernel::Kernel,
+    kernel: &mut Kernel,
     brep: &Brep,
     id: RegionId,
 ) -> Result<BoundsAttempt> {
@@ -789,7 +807,7 @@ fn region_bounds_for_degeneracy(
 }
 
 fn shell_bounds_for_degeneracy(
-    kernel: &crate::kernel::Kernel,
+    kernel: &mut Kernel,
     brep: &Brep,
     id: ShellId,
 ) -> Result<BoundsAttempt> {
@@ -801,7 +819,7 @@ fn shell_bounds_for_degeneracy(
             bounds.add_point(brep.vertex(vertex)?.point);
         }
         16005 => {
-            for edge in wire_edges(brep, id)? {
+            for edge in wire_edges(kernel, brep, id)? {
                 let child = edge_bounds_for_shell(kernel, brep, edge, false)?;
                 if let Err(error) = child.status {
                     return Ok(BoundsAttempt {
@@ -834,7 +852,7 @@ fn shell_bounds_for_degeneracy(
 }
 
 fn edge_bounds_for_shell(
-    kernel: &crate::kernel::Kernel,
+    kernel: &mut Kernel,
     brep: &Brep,
     id: EdgeId,
     tight: bool,
@@ -870,7 +888,7 @@ fn edge_bounds_for_shell(
 }
 
 fn face_bounds_for_shell(
-    _kernel: &crate::kernel::Kernel,
+    _kernel: &Kernel,
     brep: &Brep,
     id: crate::topology::FaceId,
     _tight: bool,
@@ -942,7 +960,7 @@ pub trait ShellRayWorld<O>: crate::intersect::topology_solver::p1::TopologyObjec
     /// Default B-rep bounding box when no radius was supplied.
     fn shell_ray_bounds(
         &self,
-        _kernel: &crate::kernel::Kernel,
+        _kernel: &Kernel,
         _brep: crate::topology::BrepId,
     ) -> Result<crate::geom::extent3d::Extent3d> {
         // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
@@ -950,6 +968,13 @@ pub trait ShellRayWorld<O>: crate::intersect::topology_solver::p1::TopologyObjec
             "SmBrep::CalculateBoundingBox",
             "query.brep",
         ))
+    }
+
+    /// The shape of the shell's boundary faces (`SmShape(sBreps, sFaces, ...)`).
+    /// Worlds that cannot build the real shape (a harness without the B-rep's cached
+    /// geometry) defer here instead of failing later.
+    fn shell_ray_shape(&self, faces: &[crate::geom::object::FaceKey]) -> Result<Shape> {
+        Shape::new(&[], faces, &[], &[])
     }
 
     /// Classify the incoming line segment at its known intersection.
@@ -969,7 +994,7 @@ pub trait ShellRayWorld<O>: crate::intersect::topology_solver::p1::TopologyObjec
 /// Native partial output writes survive an error in the returned attempt.
 /// Missing geometry queries are explicit dependency errors.
 pub fn ray_fire<O, W>(
-    kernel: &crate::kernel::Kernel,
+    kernel: &mut Kernel,
     brep: &Brep,
     brep_id: crate::topology::BrepId,
     shell_id: ShellId,
@@ -981,7 +1006,6 @@ where
     W: ShellRayWorld<O>,
 {
     use crate::geom::global_solver::{SolutionRequested, SolverOperation};
-    use crate::geom::object::Shape;
     use crate::intersect::point_class::PointClassType;
     use crate::intersect::topology_solver::{p1::TopologySolver, p2::TopologySolveOptions};
     use crate::math::{BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT};
@@ -1007,23 +1031,28 @@ where
                 code: 1007, // SmVector3d::Unitize returns SM_ERR_INVALID_INPUT.
                 entity: None,
             })?;
-        let mut seen = BTreeSet::new();
-        let mut faces = Vec::new();
-        for id in brep.shell(shell_id)?.get_faceuses()? {
-            let faceuse = brep.faceuse(id)?;
-            let face = faceuse.face.ok_or(SolidError::null_pointer(OP))?;
-            if !seen.insert(face) {
-                continue;
+        // `SmNewMarkAndLock` with the default (all marks) mask, released on every path.
+        let faces = with_mark_lock(kernel, ALL_MARKS, |kernel, mark| {
+            let mut marks = Marks::default();
+            let mut faces = Vec::new();
+            for id in brep.shell(shell_id)?.get_faceuses()? {
+                let faceuse = brep.faceuse(id)?;
+                let face = faceuse.face.ok_or(SolidError::null_pointer(OP))?;
+                if marks.is_marked(kernel, Entity::Face(face), mark) {
+                    continue;
+                }
+                marks.mark(kernel, Entity::Face(face), mark);
+                let mate = brep.faceuse(faceuse.mate.ok_or(SolidError::null_pointer(OP))?)?;
+                if mate.shell != Some(shell_id) {
+                    faces.push((brep_id, face));
+                }
             }
-            let mate = brep.faceuse(faceuse.mate.ok_or(SolidError::null_pointer(OP))?)?;
-            if mate.shell != Some(shell_id) {
-                faces.push((brep_id, face));
-            }
-        }
-        let shape = Shape::new(&[], &faces, &[], &[])?;
+            Ok::<_, SolidError>(faces)
+        })??;
+        let shape = world.shell_ray_shape(&faces)?;
         let vectors = [direction];
         let solutions = TopologySolver::shape_point_solve(
-            kernel,
+            &*kernel,
             world,
             &shape,
             input.start,
@@ -1187,7 +1216,7 @@ mod tests {
                 ..Region::default()
             })
             .unwrap();
-        order_region_shells(&mut crate::kernel::Kernel::default(), &mut brep, region).unwrap();
+        order_region_shells(&mut Kernel::default(), &mut brep, region).unwrap();
         assert_eq!(
             brep.region(region).unwrap().shells,
             vec![ids[2], ids[3], ids[0], ids[1]]
@@ -1221,7 +1250,10 @@ mod tests {
         shell.shell_type = ShellType::Faceuse;
         shell.members = ShellMembers::Faceuses(sources);
         assert_eq!(
-            brep.shell(source).unwrap().mated_shells(&brep).unwrap(),
+            brep.shell(source)
+                .unwrap()
+                .mated_shells(&mut Kernel::default(), &brep)
+                .unwrap(),
             vec![b, a]
         );
         assert!(brep

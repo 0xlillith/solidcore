@@ -616,16 +616,13 @@ fn region_is_void(
     region: ObjectKey,
     regions: Option<&dyn topology::shell::RegionLookup>,
 ) -> Result<bool> {
-    // REGION-LOOKUP(#86): no library `RegionLookup` exists yet, so a region handler reached
-    // without a caller-supplied context fails here instead of inferring region state;
-    // justified: plan/findings.md "borrowed region context for attribute backedges".
-    // The owner of issue #86 replaces this with the real lookup (grep REGION-LOOKUP).
-    let lookup = regions.ok_or_else(|| {
-        SolidError::invalid_input(
-            "geom::a_object::region_lookup",
-            "region lookup context required",
-        )
-    })?;
+    // UNPORTED(topology.shell): SmRegion::IsVoid (REGION-LOOKUP(#86): no library
+    // `RegionLookup` exists yet, so a region handler reached without a caller-supplied
+    // context defers here instead of inferring region state; justified:
+    // plan/findings.md "borrowed region context for attribute backedges". The owner
+    // of issue #86 replaces this with the real lookup (grep REGION-LOOKUP).)
+    let lookup =
+        regions.ok_or_else(|| SolidError::unported("SmRegion::IsVoid", "topology.shell"))?;
     Ok(lookup.resolve_region(region)?.void_state()? != 0)
 }
 
@@ -1358,8 +1355,8 @@ mod tests {
         );
         assert!(matches!(
             e,
-            Err(SolidError::InvalidInput {
-                operation: "geom::a_object::region_lookup",
+            Err(SolidError::Unported {
+                unit: "topology.shell",
                 ..
             })
         ));

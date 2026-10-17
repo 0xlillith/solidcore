@@ -493,21 +493,13 @@ pub fn boolean_post_process(
                 face_shell = Some(shell0);
             }
         }
-        if let (Some(wire_shell), Some(face_shell)) = (wire_shell, face_shell) {
-            // `SmTopologyIntersector::GetCommonVertices`: any B-rep vertex with an
-            // other-operand mate (only the emptiness of the result is used).
-            let has_common_vertex = brep
-                .vertices()
-                .ids()
-                .any(|v| relations.mates.vertices.other(v).is_some());
-            if has_common_vertex {
-                let wire_region = shell::shell_region(brep, wire_shell)?;
-                // SmShell::TransferChildrenTo(pFShell, NULL) and SmRegion::Remove are
-                // not status-checked upstream.
-                ignore_failure(shell::transfer_children(brep, wire_shell, face_shell, None))?;
-                let wire_region = wire_region.ok_or_else(|| SolidError::null_pointer(OP))?;
-                ignore_failure(shell::region_remove_shell(brep, wire_region, wire_shell))?;
-            }
+        if let (Some(_), Some(_)) = (wire_shell, face_shell) {
+            // UNPORTED(boolean.topology_intersector_p1): SmTopologyIntersector::GetCommonVertices
+            // (then SmShell::TransferChildrenTo and SmRegion::Remove, statuses ignored)
+            return unavailable(
+                "SmTopologyIntersector::GetCommonVertices",
+                "boolean.topology_intersector_p1",
+            );
         }
     }
     Ok(())

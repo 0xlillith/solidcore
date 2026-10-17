@@ -56,13 +56,84 @@ struct RegionFilter {
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct RayInput {
+    #[serde(with = "ray_num3")]
     start: [f64; 3],
+    #[serde(with = "ray_num3")]
     direction: [f64; 3],
+    #[serde(with = "ray_num")]
     tolerance: f64,
+    #[serde(with = "ray_opt_num", default)]
     radius: Option<f64>,
 }
 
-// This adapter supports exactly empty shape trees. There are no geometry
+/// JSON numbers, plus the strings `"nan"`, `"inf"` and `"-inf"` for the values JSON
+/// cannot hold (the degeneracy tolerance uses the same spelling).
+fn json_number(value: &Value) -> Option<f64> {
+    value.as_f64().or_else(|| match value.as_str()? {
+        "nan" => Some(f64::NAN),
+        "inf" => Some(f64::INFINITY),
+        "-inf" => Some(f64::NEG_INFINITY),
+        _ => None,
+    })
+}
+
+fn number_json(value: f64) -> Value {
+    if value.is_finite() {
+        json!(value)
+    } else if value.is_nan() {
+        json!("nan")
+    } else if value > 0.0 {
+        json!("inf")
+    } else {
+        json!("-inf")
+    }
+}
+
+mod ray_num {
+    use super::{json_number, number_json, Value};
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    pub fn serialize<S: Serializer>(v: &f64, s: S) -> Result<S::Ok, S::Error> {
+        number_json(*v).serialize(s)
+    }
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<f64, D::Error> {
+        json_number(&Value::deserialize(d)?)
+            .ok_or_else(|| serde::de::Error::custom("number, \"nan\", \"inf\" or \"-inf\""))
+    }
+}
+
+mod ray_opt_num {
+    use super::{json_number, number_json, Value};
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    pub fn serialize<S: Serializer>(v: &Option<f64>, s: S) -> Result<S::Ok, S::Error> {
+        v.map(number_json).serialize(s)
+    }
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<Option<f64>, D::Error> {
+        match Option::<Value>::deserialize(d)? {
+            None | Some(Value::Null) => Ok(None),
+            Some(v) => json_number(&v)
+                .map(Some)
+                .ok_or_else(|| serde::de::Error::custom("number, \"nan\", \"inf\" or \"-inf\"")),
+        }
+    }
+}
+
+mod ray_num3 {
+    use super::{json_number, number_json, Value};
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    pub fn serialize<S: Serializer>(v: &[f64; 3], s: S) -> Result<S::Ok, S::Error> {
+        v.map(number_json).serialize(s)
+    }
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<[f64; 3], D::Error> {
+        let values = <[Value; 3]>::deserialize(d)?;
+        let mut out = [0.0; 3];
+        for (slot, value) in out.iter_mut().zip(&values) {
+            *slot = json_number(value).ok_or_else(|| serde::de::Error::custom("ray number"))?;
+        }
+        Ok(out)
+    }
+}
+
+// This adapter supports exactly empty shape trees (harness-limited, see below). There are no geometry
 // handles to invent: every object-dependent accessor has an uninhabited input.
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum NoRayObject {}
@@ -77,7 +148,27 @@ impl solidcore::intersect::point_class::ClassObject for NoRayObject {
         match *self {}
     }
 }
-impl solidcore::topology::shell::ShellRayWorld<NoRayObject> for EmptyRayWorld {}
+impl solidcore::topology::shell::ShellRayWorld<NoRayObject> for EmptyRayWorld {
+    // Harness-limited: a non-empty boundary-face shape needs the B-rep's cached
+    // geometry (`topology::brep_cache::BrepObjects` over a built `BrepCache`, which
+    // is `query.brep`) plus `SmBrep::LocalCurveSector` (`topology.brep_p2`). The
+    // cases whose C++ run reaches that stage are deferred, never compared here;
+    // swap this world for `BrepObjects` when those units are ported.
+    fn shell_ray_shape(
+        &self,
+        faces: &[solidcore::geom::object::FaceKey],
+    ) -> solidcore::Result<solidcore::geom::object::Shape> {
+        if faces.is_empty() {
+            return solidcore::geom::object::Shape::new(&[], &[], &[], &[]);
+        }
+        // UNPORTED(query.brep): SmBrep cache for SmShape/ShapePointSolve on faces
+        // (harness-limited: this adapter has no B-rep geometry; see the note above)
+        Err(solidcore::SolidError::unported(
+            "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+            "query.brep",
+        ))
+    }
+}
 impl solidcore::intersect::topology_solver::p1::TopologyObjects<NoRayObject> for EmptyRayWorld {
     fn curve(&self, object: NoRayObject) -> solidcore::Result<&solidcore::curve::curve::Curve> {
         match object {}
@@ -146,20 +237,48 @@ impl solidcore::intersect::point_class::ClassGeometry<NoRayObject> for EmptyRayW
     }
 }
 
+/// The mark types whose counters the shim reports, in its order.
+const MARK_TYPES: [solidcore::geom::context::MarkType; 5] = {
+    use solidcore::geom::context::MarkType::{Mark, Mark2, Mark3, MarkAssert, MarkIo};
+    [Mark, Mark2, Mark3, MarkIo, MarkAssert]
+};
+
+/// Current mark counters of the kernel context, taken before a compared call.
+fn mark_counters(k: &solidcore::kernel::Kernel) -> [u64; 5] {
+    MARK_TYPES.map(|mark| k.context.current_mark(mark))
+}
+
+/// How far a call advanced each mark counter, then whether each is still locked
+/// (the shim's `MarkSnap::put`): upstream's `SmNewMarkAndLock` side effects.
+fn mark_delta(k: &solidcore::kernel::Kernel, before: [u64; 5]) -> [i64; 10] {
+    let mut out = [0; 10];
+    for (i, mark) in MARK_TYPES.into_iter().enumerate() {
+        if let Some(slot) = out.get_mut(i) {
+            *slot = k.context.current_mark(mark).wrapping_sub(before[i]) as i64;
+        }
+        if let Some(slot) = out.get_mut(5 + i) {
+            *slot = i64::from(k.context.is_mark_locked(mark));
+        }
+    }
+    out
+}
+
+const RAY_RECORD: usize = 17;
+
 fn ray_output(values: &[f64]) -> Result<Output, HarnessError> {
-    if !values.len().is_multiple_of(7) {
+    if !values.len().is_multiple_of(RAY_RECORD) {
         return Err(failure("invalid ray output length"));
     }
     let mut ints = Vec::new();
     let mut floats = Vec::new();
-    for record in values.as_chunks::<7>().0 {
-        for value in record.iter().take(4) {
+    for record in values.as_chunks::<RAY_RECORD>().0 {
+        for value in record.iter().take(4).chain(record.iter().skip(7)) {
             if !value.is_finite() || value.fract() != 0.0 || value.abs() > (1_u64 << 53) as f64 {
                 return Err(failure("invalid ray integer output"));
             }
             ints.push(*value as i64);
         }
-        floats.extend(record.iter().skip(4).copied());
+        floats.extend(record.iter().skip(4).take(3).copied());
     }
     Ok(Output::new()
         .ints("records", ints)
@@ -169,15 +288,33 @@ fn ray_output(values: &[f64]) -> Result<Output, HarnessError> {
 fn rust_ray(brep: &solidcore::topology::Brep, input: &RayInput) -> Result<Output, HarnessError> {
     use solidcore::intersect::point_class::{PointClassType, PointClassification};
     use solidcore::topology::shell::{ray_fire, ShellRayInput, ShellRayState};
-    let kernel = solidcore::kernel::Kernel::default();
+    let mut kernel = solidcore::kernel::Kernel::default();
     let mut out = Vec::new();
+    // The shim's guard: non-finite ray values would reach the intersection solver
+    // through a shell's boundary faces (a face use whose mate lies in another shell).
+    let finite = input.start.iter().chain(&input.direction).all(|v| v.is_finite())
+        && input.tolerance.is_finite()
+        && input.radius.is_none_or(f64::is_finite);
+    if !finite {
+        for id in brep.shells().ids() {
+            for faceuse in brep.shell(id).map_err(failure)?.get_faceuses().map_err(failure)? {
+                let mate = brep.faceuse(faceuse).map_err(failure)?.mate;
+                if let Some(mate) = mate {
+                    if brep.faceuse(mate).map_err(failure)?.shell != Some(id) {
+                        return Ok(Output::err("rejected_input"));
+                    }
+                }
+            }
+        }
+    }
     for id in brep.shells().ids() {
+        let counters = mark_counters(&kernel);
         let mut classification = PointClassification::<NoRayObject>::new(0.125);
         classification.set_class_object(PointClassType::Point, None);
         classification.set_gap_3d(123.0);
         classification.set_pre_snap_param(456.0);
         let attempt = ray_fire(
-            &kernel,
+            &mut kernel,
             brep,
             solidcore::topology::BrepId::from_index(0),
             id,
@@ -219,6 +356,7 @@ fn rust_ray(brep: &solidcore::topology::Brep, input: &RayInput) -> Result<Output
             pc.gap_3d(&kernel, &EmptyRayWorld, None).map_err(failure)?,
             pc.pre_snap_param(),
         ]);
+        out.extend(mark_delta(&kernel, counters).map(|v| v as f64));
     }
     ray_output(&out)
 }
@@ -519,6 +657,7 @@ fn rust_transfer_records(
     // The native shim rejects exactly the inputs that crash C++ (null dereferences in
     // `GetWireEdges` and in the candidate filter); mirror its predicates so a rejected
     // input compares as `rejected_input` on both sides.
+    let mut kernel = solidcore::kernel::Kernel::default();
     let rejected = || Output::err("rejected_input");
     let crashes_wire_edges = |brep: &solidcore::topology::Brep, id: ShellId| -> Result<bool, HarnessError> {
         let shell = brep.shell(id).map_err(failure)?;
@@ -533,7 +672,7 @@ fn rust_transfer_records(
         }
         let from = ShellId::from_index(u32::try_from(from).map_err(failure)?);
         let to = ShellId::from_index(u32::try_from(to).map_err(failure)?);
-        pre_status.push(match transfer_children(brep, from, to, None) {
+        pre_status.push(match transfer_children(&mut kernel, brep, from, to, None) {
             Ok(()) => 0,
             Err(SolidError::Upstream { code, .. }) => i64::from(code),
             Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
@@ -573,19 +712,28 @@ fn rust_transfer_records(
             return Ok(rejected());
         }
     }
-    let status = match transfer_children(brep, source, recipient, candidates.as_deref()) {
+    let counters = mark_counters(&kernel);
+    let status = match transfer_children(
+        &mut kernel,
+        brep,
+        source,
+        recipient,
+        candidates.as_deref(),
+    ) {
         Ok(()) => 0,
         Err(SolidError::Upstream { code, .. }) => i64::from(code),
         Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
     };
-    let mut out = vec![
-        status,
+    let transfer_marks = mark_delta(&kernel, counters);
+    let mut out = vec![status];
+    out.extend(transfer_marks);
+    out.extend([
         brep.shells().len() as i64,
         brep.faceuses().len() as i64,
         brep.edgeuses().len() as i64,
         brep.vertexuses().len() as i64,
         brep.regions().len() as i64,
-    ];
+    ]);
     for (_, shell) in brep.shells().iter() {
         let (size, kind, head) = match &shell.members {
             ShellMembers::Empty => (0, 0, -1),
@@ -649,9 +797,11 @@ fn rust_transfer_records(
         list(&mut out, region.shells.iter().copied().map(ShellId::index));
     }
     for shell in brep.shells().ids() {
-        let wires = wire_edges(brep, shell).map_err(failure)?;
+        let counters = mark_counters(&kernel);
+        let wires = wire_edges(&mut kernel, brep, shell).map_err(failure)?;
         out.push(0);
         list(&mut out, wires.into_iter().map(EdgeId::index));
+        out.extend(mark_delta(&kernel, counters));
     }
     out.push(pre_status.len() as i64);
     out.extend(pre_status);
@@ -717,15 +867,20 @@ impl UnitDiff for Runner {
             {
                 return Err(failure("ray cannot be combined with another operation"));
             }
-            let values = ffi::ray_fire(
+            let values = match ffi::ray_fire(
                 &path,
                 &block,
                 ray.start,
                 ray.direction,
                 ray.tolerance,
                 ray.radius,
-            )
-            .map_err(failure)?;
+            ) {
+                // The shim's guard: non-finite ray values with boundary faces.
+                Err(solidcore_ffi::FfiError::Status(solidcore_ffi::SC_ERR_ARG)) => {
+                    return Ok(Output::err("rejected_input"));
+                }
+                other => other.map_err(failure)?,
+            };
             return ray_output(&values);
         }
         if let Some(degenerate) = inputs.degenerate {
@@ -859,10 +1014,10 @@ impl UnitDiff for Runner {
                 ));
             }
             let tolerance = degeneracy_tolerance(&degenerate)?;
-            let kernel = solidcore::kernel::Kernel::default();
+            let mut kernel = solidcore::kernel::Kernel::default();
             let mut out = vec![brep.shells().len() as i64, brep.regions().len() as i64];
             for id in brep.shells().ids() {
-                match solidcore::topology::shell::shell_is_degenerate(&kernel, &brep, id, tolerance)
+                match solidcore::topology::shell::shell_is_degenerate(&mut kernel, &brep, id, tolerance)
                 {
                     Ok(value) => out.push(flag(value)),
                     Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
@@ -870,7 +1025,7 @@ impl UnitDiff for Runner {
             }
             for id in brep.regions().ids() {
                 match solidcore::topology::shell::region_is_degenerate(
-                    &kernel, &brep, id, tolerance,
+                    &mut kernel, &brep, id, tolerance,
                 ) {
                     Ok(value) => out.push(flag(value)),
                     Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
@@ -895,14 +1050,17 @@ impl UnitDiff for Runner {
         }
         if inputs.wires {
             let mut out = vec![brep.shells().len() as i64];
+            let mut kernel = solidcore::kernel::Kernel::default();
             for shell in brep.shells().ids() {
-                match wire_edges(&brep, shell) {
+                let counters = mark_counters(&kernel);
+                match wire_edges(&mut kernel, &brep, shell) {
                     Ok(wires) => {
                         out.push(0);
                         list(
                             &mut out,
                             wires.into_iter().map(solidcore::topology::EdgeId::index),
                         );
+                        out.extend(mark_delta(&kernel, counters));
                     }
                     Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
                 }
@@ -910,6 +1068,7 @@ impl UnitDiff for Runner {
             return Ok(Output::new().ints("records", out));
         }
         let mut out = vec![brep.shells().len() as i64, brep.regions().len() as i64];
+        let mut kernel = solidcore::kernel::Kernel::default();
         for (id, shell) in brep.shells().iter() {
             out.extend([
                 Shell::type_code(),
@@ -946,14 +1105,16 @@ impl UnitDiff for Runner {
                     .into_iter()
                     .map(FaceuseId::index),
             );
+            let counters = mark_counters(&kernel);
             list(
                 &mut out,
                 shell
-                    .mated_shells(&brep)
+                    .mated_shells(&mut kernel, &brep)
                     .map_err(failure)?
                     .into_iter()
                     .map(ShellId::index),
             );
+            out.extend(mark_delta(&kernel, counters));
         }
         let regions: Vec<_> = brep.regions().ids().collect();
         for id in regions {
@@ -1056,11 +1217,20 @@ impl UnitDiff for Runner {
                 } else {
                     json!([1e-3, 1.0, 1e3, 1e6].get(rng.below(4) as usize).copied()?)
                 };
-                case.insert(
-                    "ray".into(),
-                    json!({"start": rng.point3(-2.0, 2.0).map(|v| v * scale),
-                        "direction": direction, "tolerance": tolerance, "radius": radius}),
-                );
+                let mut ray = json!({"start": rng.point3(-2.0, 2.0).map(|v| v * scale),
+                    "direction": direction, "tolerance": tolerance, "radius": radius});
+                if rng.chance(0.2) {
+                    // Non-finite ray inputs: C++ only crashes on them once boundary
+                    // faces reach the solver, so empty-shape runs compare them.
+                    let special = ["nan", "inf", "-inf"].get(rng.below(3) as usize).copied()?;
+                    match rng.below(4) {
+                        0 => ray["start"][rng.below(3) as usize] = json!(special),
+                        1 => ray["direction"][rng.below(3) as usize] = json!(special),
+                        2 => ray["tolerance"] = json!(special),
+                        _ => ray["radius"] = json!(special),
+                    }
+                }
+                case.insert("ray".into(), ray);
             }
             10 => {
                 let tolerance = match rng.below(4) {
