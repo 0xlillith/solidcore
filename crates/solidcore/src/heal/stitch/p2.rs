@@ -25,7 +25,8 @@
 //! - Bounds on input-driven loops (upstream has none): `DoStitching`'s per-vertex edge
 //!   gluing rescans a vertex at most `edges + 2` times (each successful glue removes an
 //!   edge); `StitchIntoSolid` / `StitchIntoShell` double the tolerance at most
-//!   [`MAX_TOL_DOUBLINGS`] times (upstream never terminates from a zero tolerance);
+//!   [`MAX_TOL_DOUBLINGS`] times (upstream never terminates from a zero tolerance,
+//!   HANG-23/HANG-24 in `plan/upstream-issues.md`);
 //!   `SplitEdgesWithVertices` splits at most as many edges per vertex as the edge list
 //!   held when that vertex started (a split puts the vertex at both new edge ends).
 //!   Past a bound the port returns [`SolidError::InvalidInput`].

@@ -277,7 +277,7 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
     case OP_SOLID:
     {
         // the doubling from a tenth of the B-rep tolerance never ends from zero, or when
-        // the box diagonal is not finite
+        // the box diagonal is not finite (HANG-24)
         SmExtent3d box;
         if (brep->CalculateBoundingBox(box, TRUE) == SM_SUCCESS)
         {
@@ -306,7 +306,7 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
     {
         SmBoolean well = rd.bflag();
         double max_tol = rd.num();
-        // the doubling from max_tol / 100 never ends when that underflows to zero
+        // the doubling from max_tol / 100 never ends when that underflows to zero (HANG-23)
         if (max_tol / 100.0 == 0.0 && 0.0 < max_tol)
         {
             o.push_back(ST_NO_RETURN);

@@ -3161,10 +3161,10 @@ soft_depends_on = ["geom.context", "query.brep", "topology.brep_p2", "topology.b
 est_lines = 1906
 layer = 50
 tests = ["prog_test:my_test_single_periodic_vertexuse", "SM_API_test:TestSmAdvancedStitch", "SM_API_test:TestSmEdgeCurveOwnership", "SM_API_test:TestSmGetClosestPoint", "SM_API_test:TestSmGetEdges", "SM_API_test:TestSmGetFaces"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "5 fns; largest: SmStitch::DoStitching, SmStitch::StitchVertexPairs, SmStitch::SplitEdgesWithVertices, SmStitch::StitchIntoSolid; unit-SCC #22 (220 units); 179 upstream test entry points reach this unit"
+notes = "5 fns; largest: SmStitch::DoStitching, SmStitch::StitchVertexPairs, SmStitch::SplitEdgesWithVertices, SmStitch::StitchIntoSolid; unit-SCC #22 (220 units); 179 upstream test entry points reach this unit; PARTIAL (PR #205, co-port with heal.stitch_p1 #196): difftest 555 cases (539 constructed fixtures on unstitched sheets and boxes + 16 generated), 315 pass bit-identical (max_rel_err 0), 0 failed, 0 both-errored, 240 deferred (topology.brep_p2 119: SmBrep::Notify, first call of DoStitching; topology.brep_p5 92: GlueVertices; query.brep 15: SmBrep::CalculateBoundingBox; topology.brep_p9 14: MakeVertexSplitEdge). Passes by success path: SplitEdgesWithVertices 124 (drops and far/close outcomes, no split), one-list StitchVertexPairs 112 (86 without coincident pair, 26 with pairs evaluated but not glued) + 13 empty/null lists + 13 SM_ERR (no B-rep), StitchIntoShell 53 (loop never runs, max_tol <= 0). No passing case for DoStitching or StitchIntoSolid. Wired p1's UNPORTED(heal.stitch_p2) API stubs. fuzz 2000 FUZZ-PASS (crashes 0). Upstream issues: HANG-23, HANG-24, UB-171, UB-172, WR-173, WR-174"
 
 [[unit]]
 id = "blend.fillet_solver_p4"

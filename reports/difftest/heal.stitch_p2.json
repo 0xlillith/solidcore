@@ -4963,6 +4963,294 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "box_vlist_manifold_skip_0.02",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#507",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_small_vlist_manifold_skip_0.02",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#508",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_vlist_manifold_skip_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#509",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_small_vlist_manifold_skip_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#510",
+      "values_compared": 19
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_vlist_manifold_skip_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#511",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_small_vlist_manifold_skip_5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#512",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_vlist_manifold_skip_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#513",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_small_vlist_manifold_skip_20",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#514",
+      "values_compared": 16
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_01_0.0025_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#515",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_01_0.0025_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#516",
+      "values_compared": 10
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GlueVertices",
+        "unit": "topology.brep_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_02_0.0025_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#517",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GlueVertices",
+        "unit": "topology.brep_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_02_0.0025_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#518",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_03_0.0025_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#519",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_03_0.0025_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#520",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_12_0.0025_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#521",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_12_0.0025_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#522",
+      "values_compared": 10
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GlueVertices",
+        "unit": "topology.brep_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_13_0.0025_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#523",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GlueVertices",
+        "unit": "topology.brep_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_13_0.0025_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#524",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_23_0.0025_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#525",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_23_0.0025_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#526",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_01_0.01_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#527",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_01_0.01_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#528",
+      "values_compared": 10
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GlueVertices",
+        "unit": "topology.brep_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_02_0.01_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#529",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GlueVertices",
+        "unit": "topology.brep_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_02_0.01_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#530",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_03_0.01_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#531",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_03_0.01_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#532",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_12_0.01_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#533",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_12_0.01_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#534",
+      "values_compared": 10
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GlueVertices",
+        "unit": "topology.brep_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_13_0.01_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#535",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::GlueVertices",
+        "unit": "topology.brep_p5"
+      },
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_13_0.01_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#536",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_23_0.01_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#537",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tiny_face_vlist_23_0.01_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p2/constructed.json#538",
+      "values_compared": 10
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -5115,14 +5403,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 232,
+  "cases_deferred": 240,
   "cases_failed": 0,
-  "cases_passed": 291,
-  "cases_total": 523,
+  "cases_passed": 315,
+  "cases_total": 555,
   "deferred_by_unit": {
     "query.brep": 15,
     "topology.brep_p2": 119,
-    "topology.brep_p5": 84,
+    "topology.brep_p5": 92,
     "topology.brep_p9": 14
   },
   "max_rel_err": 0.0,
