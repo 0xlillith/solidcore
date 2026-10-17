@@ -777,7 +777,8 @@ fn cpp(i: &Inputs, expected_rejection: bool) -> Result<Output, HarnessError> {
     if expected_rejection {
         // A fixture that upstream cannot run (see the FFI module doc): the wrapper
         // refuses it (`InvalidArgument`) or the shim does (`SC_ERR_ARG`: the `FbExamine`
-        // adjusting path without a solver, a face upstream will not build). Only a
+        // adjusting path without a solver, a face upstream will not build, a surface
+        // whose constructed v knots crash the surface cache, UB-166). Only a
         // flagged case may be recorded as rejected.
         return match result {
             Err(solidcore_ffi::FfiError::InvalidArgument(reason)) => Ok(Output::rejected(reason)),
@@ -2850,7 +2851,7 @@ mod tests {
             let mut input = base.clone();
             let n_mut = rng.below(6);
             for _ in 0..n_mut {
-                match rng.below(8) {
+                match rng.below(9) {
                     0 if !input.is_empty() => {
                         let at = rng.below(input.len() as u64) as usize;
                         input[at] = specials[rng.below(specials.len() as u64) as usize];
@@ -2889,6 +2890,18 @@ mod tests {
                         let base = input[at - 1];
                         for x in input.iter_mut().take(end).skip(at) {
                             *x = base + (*x - base) * factor;
+                        }
+                    }
+                    7 if input.len() > 1 => {
+                        // a run of equal values a hair above their predecessor: an end
+                        // knot group the constructor's first stage snaps back before the
+                        // spread (UB-166's end-snap route)
+                        let at = 1 + rng.below(input.len() as u64 - 1) as usize;
+                        let end = (at + 1 + rng.below(4) as usize).min(input.len());
+                        let d = [3e-13, 5e-13, 9e-13, 2e-12][rng.below(4) as usize];
+                        let value = input[at - 1] + d;
+                        for x in input.iter_mut().take(end).skip(at) {
+                            *x = value;
                         }
                     }
                     _ if !input.is_empty() => {

@@ -61939,10 +61939,9 @@
    }
   },
   {
-   "name": "surface_drop_point_spread_v_knot_non_monotone_rejected",
-   "upstream_ref": "source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmNurbsCrv.cpp:386 (sm_FixupKnotVector second stage: distinct knots under SM_EFF_ZERO_PARAM spread by 1.212e-8); UB-166 (round-3 review of #147); spread to the non-monotone [.., 4e-9, 0, ..]: upstream fails with 1006, refused as an invalid object",
+   "name": "surface_drop_point_spread_v_knot_non_monotone",
+   "upstream_ref": "source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmNurbsCrv.cpp:386 (sm_FixupKnotVector second stage: distinct knots under SM_EFF_ZERO_PARAM spread by 1.212e-8); UB-166 (round-3 review of #147); non-monotone constructed vector: defined in C++ (valgrind clean), compared (round-4 review of #147)",
    "inputs": {
-    "expected_rejection": true,
     "op": "surface_drop_point",
     "surface": {
      "net": [
@@ -62073,10 +62072,9 @@
    }
   },
   {
-   "name": "surface_drop_point_spread_v_knot_below_start_rejected",
-   "upstream_ref": "source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmNurbsCrv.cpp:386 (sm_FixupKnotVector second stage: distinct knots under SM_EFF_ZERO_PARAM spread by 1.212e-8); UB-166 (round-3 review of #147); spread to a knot below the start (1e-8 - 1.212e-8): upstream computes on it (no solution), the Rust cache build fails, refused as an invalid object",
+   "name": "surface_drop_point_spread_v_knot_below_start",
+   "upstream_ref": "source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmNurbsCrv.cpp:386 (sm_FixupKnotVector second stage: distinct knots under SM_EFF_ZERO_PARAM spread by 1.212e-8); UB-166 (round-3 review of #147); non-monotone constructed vector: defined in C++ (valgrind clean), compared (round-4 review of #147)",
    "inputs": {
-    "expected_rejection": true,
     "op": "surface_drop_point",
     "surface": {
      "net": [
@@ -62196,6 +62194,311 @@
       1e-08,
       1e-08,
       1e-08
+     ]
+    },
+    "pnt": [
+     -8.441345836979168e-31,
+     4.046822954776353e-31,
+     1.590919568150211e-31
+    ],
+    "tol": 1e-31
+   }
+  },
+  {
+   "name": "surface_drop_point_endsnap_v_knot_rejected",
+   "upstream_ref": "source/SMLib/src/SmNurbsCrv.cpp:386 (sm_FixupKnotVector: the end group snaps to 1.212e-8 first, then the spread moves 5e-9 onto the start knot), SmNurbsSrf.cpp:1524 (sm_DecomposeSrf); UB-166 (round-4 review of #147)",
+   "inputs": {
+    "expected_rejection": true,
+    "op": "surface_drop_point",
+    "surface": {
+     "net": [
+      [
+       [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        0.2,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        0.4,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        0.6000000000000001,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        0.8,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+       ]
+      ],
+      [
+       [
+        0.3,
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.3,
+        0.2,
+        0.05,
+        1.0
+       ],
+       [
+        0.3,
+        0.4,
+        0.1,
+        1.0
+       ],
+       [
+        0.3,
+        0.6000000000000001,
+        0.15000000000000002,
+        1.0
+       ],
+       [
+        0.3,
+        0.8,
+        0.2,
+        1.0
+       ],
+       [
+        0.3,
+        1.0,
+        0.25,
+        1.0
+       ]
+      ],
+      [
+       [
+        0.6,
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.6,
+        0.2,
+        0.1,
+        1.0
+       ],
+       [
+        0.6,
+        0.4,
+        0.2,
+        1.0
+       ],
+       [
+        0.6,
+        0.6000000000000001,
+        0.30000000000000004,
+        1.0
+       ],
+       [
+        0.6,
+        0.8,
+        0.4,
+        1.0
+       ],
+       [
+        0.6,
+        1.0,
+        0.5,
+        1.0
+       ]
+      ]
+     ],
+     "p": 2,
+     "q": 2,
+     "u": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "v": [
+      0.0,
+      0.0,
+      0.0,
+      5e-09,
+      5e-09,
+      1.212e-08,
+      1.2120500000000001e-08,
+      1.2120500000000001e-08,
+      1.2120500000000001e-08
+     ]
+    },
+    "pnt": [
+     -8.441345836979168e-31,
+     4.046822954776353e-31,
+     1.590919568150211e-31
+    ],
+    "tol": 1e-31
+   }
+  },
+  {
+   "name": "surface_drop_point_endsnap_v_knot_control",
+   "upstream_ref": "source/SMLib/src/SmNurbsCrv.cpp:386 (sm_FixupKnotVector: an end group 2e-12 away does not snap, the spread leaves a non-monotone vector and upstream solves with status 0); UB-166 control (round-4 review of #147)",
+   "inputs": {
+    "op": "surface_drop_point",
+    "surface": {
+     "net": [
+      [
+       [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        0.2,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        0.4,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        0.6000000000000001,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        0.8,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+       ]
+      ],
+      [
+       [
+        0.3,
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.3,
+        0.2,
+        0.05,
+        1.0
+       ],
+       [
+        0.3,
+        0.4,
+        0.1,
+        1.0
+       ],
+       [
+        0.3,
+        0.6000000000000001,
+        0.15000000000000002,
+        1.0
+       ],
+       [
+        0.3,
+        0.8,
+        0.2,
+        1.0
+       ],
+       [
+        0.3,
+        1.0,
+        0.25,
+        1.0
+       ]
+      ],
+      [
+       [
+        0.6,
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.6,
+        0.2,
+        0.1,
+        1.0
+       ],
+       [
+        0.6,
+        0.4,
+        0.2,
+        1.0
+       ],
+       [
+        0.6,
+        0.6000000000000001,
+        0.30000000000000004,
+        1.0
+       ],
+       [
+        0.6,
+        0.8,
+        0.4,
+        1.0
+       ],
+       [
+        0.6,
+        1.0,
+        0.5,
+        1.0
+       ]
+      ]
+     ],
+     "p": 2,
+     "q": 2,
+     "u": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "v": [
+      0.0,
+      0.0,
+      0.0,
+      5e-09,
+      5e-09,
+      1.212e-08,
+      1.2122000000000001e-08,
+      1.2122000000000001e-08,
+      1.2122000000000001e-08
      ]
     },
     "pnt": [

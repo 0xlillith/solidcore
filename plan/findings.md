@@ -5812,9 +5812,9 @@ independent p6 integration.
 
 ## blend.fillet_geom_p1 (`SmFilletGeom.cpp` part 1: fillet records, pseudo B-rep, static helpers; PR #147, 2026-10-16; partial, no disagreements)
 
-Gate: `PARTIAL blend.fillet_geom_p1 cases=459 passed=426 failed=0 deferred=19 max_rel_err=0e0 rejected=14`
-(`cases_both_errored` 0, so 426 real passes; the 14 rejected cases are the flagged
-regression inputs below; 2000-seed sweep 2034 pass / 111 deferred / 0 failed / 14 rejected; `--perturb` 426/426 detected).
+Gate: `PARTIAL blend.fillet_geom_p1 cases=461 passed=429 failed=0 deferred=19 max_rel_err=0e0 rejected=13`
+(`cases_both_errored` 0, so 429 real passes; the 13 rejected cases are the flagged
+regression inputs below; 2000-seed sweep 2037 pass / 111 deferred / 0 failed / 13 rejected; `--perturb` 429/429 detected).
 
 - **Deferred (unported callees, no stub of this unit's own code).**
   `sm_ClassifyFacePoint` defers on `SmFace::CalculateUVDomainFromUVTrimCurves`
@@ -5909,12 +5909,13 @@ regression inputs below; 2000-seed sweep 2034 pass / 111 deferred / 0 failed / 1
   sweep itself runs one thread per call with a 30 s timeout, 180 s for those two ops
   (`FUZZ_SEED` / `FUZZ_CALLS` override the seed and length); its specials include the
   bound, 1e15, 1e30, the UB-166 knot gaps (both fixup stages) and the HANG-20 bound;
-  one mutation sets a value a hair above its predecessor and one compresses a run of
-  values towards its predecessor so a knot range drops under the spread tolerance. A
+  one mutation sets a value a hair above its predecessor, one compresses a run of
+  values towards its predecessor so a knot range drops under the spread tolerance, and
+  one sets a run of values to one offset under the scaled zero (an end group). A
   clean sweep is evidence, not proof: the
   earlier sweeps (seeds 777, default, 4242) missed UB-166 and the slow inputs, and the
   widened specials then found HANG-20. With the HANG-20 bound in place, seed 4242 (40k:
-  11241 ran), seed 777 (40k: 11438 ran) and the default seed (60k: 16929 ran) found no
+  11429 ran), seed 777 (40k: 11490 ran) and the default seed (60k: 17189 ran) found no
   crash or hang.
 - **Upstream crash UB-166: a near-zero or near-start interior v knot.** The
   re-review's fuzz found a SIGSEGV in `sm_DecomposeSrf` through the surface cache
@@ -5929,25 +5930,51 @@ regression inputs below; 2000-seed sweep 2034 pass / 111 deferred / 0 failed / 1
   `degree + 2`, `N_BasisGetSpanCount` does not count the zero-length span but
   `sm_DecomposeSrf`'s v loop extracts a patch for it and then reads one patch pointer
   past the array; the u loop has upstream's B262 guard and fails with status 1006
-  instead. The FFI replicates both fixup stages operation for operation
-  (`constructed_knots`) and, only for the six ops whose upstream path builds the surface
-  cache (`SurfaceDropPoint`, `TwoPnts`, `ClassifyFacePoint`, `FbSplitFace`,
-  `FbVertOnVert` through `SmSurfaceIntersector::DoIntersection`, `FbCliff` through
-  `SmSurface::GlobalCurveIntersect`), refuses a surface whose constructed v knot vector
-  has start multiplicity above `degree + 1`, and one whose constructed vector in either
-  direction is no longer non-decreasing (the spread moved a knot below the start knot:
-  an object the library's own invariant forbids, undefined rather than crashing);
-  every other op, the u over-multiplicity and curves are compared as given (the round-3
-  review ran the snapped inputs through every other op without a crash). The
-  reviewer's four reproducers are rejected regression cases
-  (`*_near_zero_v_knot*_rejected`, `surface_drop_point_spread_v_knot_rejected`), as are
-  the two non-monotone spreads (`..._spread_v_knot_non_monotone_rejected`: 1006
-  upstream; `..._spread_v_knot_below_start_rejected`: upstream runs to "no solution",
-  status 1001, while the Rust cache build fails with 1006 because
-  `create_bezier_patch_block` errors inside the tree build although `decompose_srf` of
-  the surface itself succeeds, so the failure is in a derived piece of that invalid
-  object). The u-direction transpose (`surface_drop_point_near_zero_u_knot`) is a
-  compared case: both sides 1006, once `surface_drop_point` ported upstream's own
+  instead. A third route (round-4 review): an end group within the scaled zero of its
+  predecessor (`[.., E, E + d x3]`, `E = 1.212e-8`) snaps to `E` first, and the spread
+  then moves the knot before it onto the start. A Rust replica of both stages in the FFI
+  missed that route by one operation (it took the unsnapped last knot), so the guard
+  now lives in the shim: after the real constructor, `read_surface` reads the knot
+  vector back and, for the six ops whose upstream path builds the surface cache
+  (`SurfaceDropPoint`, `TwoPnts`, `ClassifyFacePoint`, `FbSplitFace`, `FbVertOnVert`
+  through `SmSurfaceIntersector::DoIntersection`, `FbCliff` through
+  `SmSurface::GlobalCurveIntersect`), refuses (`SC_ERR_ARG`) a surface whose v start
+  multiplicity exceeds `degree + 1`. That is exact by construction. Every other op, the
+  u over-multiplicity and curves are compared as given (the round-3 review ran the
+  snapped inputs through every other op without a crash). The rejected regression
+  cases are the reviewers' reproducers: `*_near_zero_v_knot*_rejected`,
+  `surface_drop_point_spread_v_knot_rejected` and
+  `surface_drop_point_endsnap_v_knot_rejected`.
+  Non-monotone constructed vectors (the spread moved a knot below the start) are
+  defined in C++ (valgrind clean, round-4 review) and compared:
+  `..._spread_v_knot_non_monotone` (1006 on both sides), `..._spread_v_knot_below_start`
+  (1001) and `..._endsnap_v_knot_control` (status 0, one solution). Comparing them found
+  three port bugs on the surface-cache path, fixed here as faithful-port fixes in
+  units already on main (`surface.surface_p1`, `nurbs.nurbs_srf`,
+  `surface.surface_cache_p3`): (1) `surface::surface::p1::make_surface_cache` /
+  `make_trim_srf_cache` stored `surface.clone()`, which for a B-spline is the copy
+  constructor and runs `sm_FixupKnotVector` a second time, where upstream's cache keeps
+  a pointer to the surface itself (`m_cpSurface`); on an already non-monotone vector the
+  second fixup snapped the below-start knot back onto the start and the bounded
+  decomposition refused it; they now store `clone_for_evaluation()`. (2)
+  `nurbs::nurbs_srf::compute_net_constants` returned the error of the UV diagonal
+  sampling's `N_SrfEvalPt`, whose status upstream ignores (gdb: 18 `N_BasisEval`
+  numerical errors inside `sm_ComputeNetConstants` during that cache build, and the
+  build completes); the port now keeps upstream's function-scope points and leaves them
+  unchanged on a failed evaluation. (3) `surface::surface_cache::p3`'s
+  `subdivide_node` returned the error of `split_srf` on a patch with a reversed domain,
+  where upstream's `GW_ERR(sm_SplitSrf(..))` only logs: `N_SrfSplit` fails in its
+  parameter checks before writing, so the children keep the zero-filled
+  `SmMemBlockMgr` memory (`calloc`'d blocks, elements handed out sequentially) that
+  `sm_InitNurbSurfaceMemory` sized like the parent; the port now uses `zeroed_like` for
+  both, as its approximation branch already does. With the three fixes the three
+  non-monotone cases compare bit-identical (`below_start` 1001, `non_monotone` 1006,
+  `endsnap_v_knot_control` status 0 with its solution). Two other `Clone`s stand for upstream using the
+  same object and would differ the same way on such vectors, but no case here reaches
+  them: `SurfaceCache::map_objects` (`surface/surface_cache/p1.rs`) and
+  `out_of_bounds_copy` (`surface/surface/p3.rs`); noted for their owners. The
+  u-direction transpose (`surface_drop_point_near_zero_u_knot`) is a compared case:
+  both sides 1006, once `surface_drop_point` ported upstream's own
   `smsurf_GetSurfaceCache` + `NER` fetch (a surface whose cache cannot be built is
   `SM_ERR_NULL_POINTER` before any solve; the Rust solve builds the cache again, which
   costs time only). Curves:

@@ -78,21 +78,17 @@
 //! fillet B-rep edge is looked for, both rails on a trimmed or rail-queried geometry, a
 //! vertex-classified vertex for `FbVertOnVert`, an edge-use-classified one for `FbCliff`,
 //! a deleted vertex without edges (its edge uses would keep dangling vertex-use pointers
-//! the export reads), finite tolerances and parameters. For the ops that build a
-//! surface cache (`SurfaceDropPoint`, `TwoPnts`, `ClassifyFacePoint`, `FbSplitFace`,
-//! `FbVertOnVert`, `FbCliff`: see [`Op::builds_surface_cache`]) every surface's knot
-//! vectors are also checked as the `SmBSplineSurface` constructor leaves them
-//! (`sm_FixupKnotVector`, both stages: a knot within the scaled zero of the end knots
-//! of its predecessor becomes that predecessor, then distinct knots closer than
-//! `SM_EFF_ZERO_PARAM` are spread `1.01` times that apart, which on a short knot range
-//! can land a knot exactly on the start knot or below it): a v vector whose start
-//! multiplicity then exceeds `degree + 1` is refused, because `sm_DecomposeSrf` writes
-//! past the cache's v-patch array for it (UB-166), and a vector in either direction
-//! that is no longer non-decreasing is refused as undefined (upstream computes on the
-//! invalid object, the Rust cache build fails its bounded decomposition). The u
-//! over-multiplicity fails cleanly (upstream's B262 guard, status 1006 on both sides),
-//! a curve's `sm_CreateBezSegments` skips such a start, and the other ops never build
-//! the cache, so those are compared as given. For
+//! the export reads), finite tolerances and parameters. One refusal for UB-166 lives in
+//! the shim, which reads back the knot vector the `SmBSplineSurface` constructor really
+//! left (its `sm_FixupKnotVector` snaps knots within the scaled zero and spreads
+//! distinct knots closer than `SM_EFF_ZERO_PARAM`, which can land a knot on the start
+//! knot): for the six ops that build a surface cache (`SurfaceDropPoint`, `TwoPnts`,
+//! `ClassifyFacePoint`, `FbVertOnVert`, `FbCliff`, `FbSplitFace`) it returns `SC_ERR_ARG`
+//! for a surface whose constructed v knot vector has start multiplicity above
+//! `degree + 1`, because `sm_DecomposeSrf` writes past the cache's v-patch array for it.
+//! The u direction fails cleanly there (upstream's B262 guard), non-monotone constructed
+//! vectors run (defined behaviour), and the other ops never decompose, so all of those
+//! are compared. For
 //! `ClassifyFacePoint` and `FbSplitFace`, the
 //! ops that reach `sm_ClassifyFacePoint`, every value (control points as Euclidean
 //! `Pw / w`) is bounded by [`MAX_MAGNITUDE`], the overflow regime of HANG-16; inputs
@@ -100,7 +96,7 @@
 //! a minute. For `SurfaceDropPoint`, `TwoPnts`, `FbVertOnVert` and `FbCliff`, whose
 //! global solves never finish once a coordinate's own box arithmetic overflows
 //! (HANG-20), every value is bounded by [`MAX_SOLVER_MAGNITUDE`]. Inverted intervals
-//! are accepted (upstream `SetInterval` and `Trim` take them). One refusal lives in the
+//! are accepted (upstream `SetInterval` and `Trim` take them). Another refusal lives in the
 //! shim: an `FbExamine` whose adjusting path would be reached returns `SC_ERR_ARG`,
 //! because the shim's geometries have no `SmFilletSolver` and upstream dereferences it
 //! there (the shim repeats upstream's own degree, kind and end-distance checks to
@@ -192,26 +188,6 @@ impl Op {
         (self as i32) >= 20
     }
 
-    /// Whether the op reaches `smsurf_GetSurfaceCache` (which decomposes every surface
-    /// it is built for into Bezier patches, UB-166): `SurfaceDropPoint`
-    /// (`sm_SurfaceDropPoint`, `SmFilletGeom.cpp:119`), `TwoPnts` (`sm_FindStepoffUV`,
-    /// `:438`), `ClassifyFacePoint` and `FbSplitFace` (`sm_ClassifyFacePoint` through
-    /// `SmSurface::DropCurve`), `FbVertOnVert` (`sm_SrfSrfIntersection` ->
-    /// `SmSurfaceIntersector::DoIntersection`, `SmSurfaceIntersector.cpp:6146`) and
-    /// `FbCliff` (`SmSurface::GlobalCurveIntersect`, `SmSurface.cpp:17196`).
-    #[must_use]
-    pub fn builds_surface_cache(self) -> bool {
-        matches!(
-            self,
-            Self::SurfaceDropPoint
-                | Self::TwoPnts
-                | Self::ClassifyFacePoint
-                | Self::FbVertOnVert
-                | Self::FbCliff
-                | Self::FbSplitFace
-        )
-    }
-
     /// The op with this code (the `op` of the shim entry point), if any.
     #[must_use]
     pub fn from_code(code: i64) -> Option<Self> {
@@ -280,9 +256,6 @@ struct Reader<'a> {
     /// HANG-16, [`MAX_SOLVER_MAGNITUDE`] for the global-solver ops (HANG-20), infinite
     /// otherwise.
     bound: f64,
-    /// Whether this op builds a surface cache, so a surface's knot vectors are checked
-    /// as constructed ([`check_constructed_knots`], UB-166).
-    snap_guard: bool,
 }
 
 impl Reader<'_> {
@@ -388,132 +361,6 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(), FfiError> {
     Ok(())
 }
 
-/// The knot vector as the `SmBSplineSurface` constructors leave it: a replica of
-/// `sm_FixupKnotVector(knv, SM_EFF_ZERO_PARAM)` (`SmNurbsCrv.cpp:386`), operation for
-/// operation. Stage one makes every knot less than the scaled zero of the end knots
-/// (`SM_EFF_ZERO * (1 + max(|u0|, |u1|))`, `SmTol::GetScaledZero(u0, u1)`) above its
-/// already snapped predecessor equal to it. Stage two walks the distinct knots and
-/// spreads a pair closer than `SM_EFF_ZERO_PARAM` (`1.2e-8`) to `1.01` times that
-/// apart: the second knot moves up at the first pair, the first knot moves down at the
-/// last pair, both move away from their midpoint elsewhere. Nothing keeps a moved knot
-/// off the start knot (or below it), so a short knot range can end with a knot equal to
-/// the start.
-fn constructed_knots(knots: &[f64]) -> Vec<f64> {
-    const EFF_ZERO: f64 = 1.0e-12;
-    const EFF_ZERO_PARAM: f64 = 1.2e-8;
-    let mut knots = knots.to_vec();
-    let (Some(&u0), Some(&u1)) = (knots.first(), knots.last()) else {
-        return knots;
-    };
-    let scaled_zero = (EFF_ZERO * (1.0 + u0.abs())).max(EFF_ZERO * (1.0 + u1.abs()));
-    let increment = EFF_ZERO_PARAM * 1.01;
-
-    // Collect the distinct knots, making knots closer than the scaled zero equal.
-    let mut kts: Vec<f64> = Vec::new();
-    let mut mults: Vec<usize> = Vec::new();
-    let mut mult = 1;
-    for i in 0..knots.len().saturating_sub(1) {
-        let (Some(&a), Some(&b)) = (knots.get(i), knots.get(i + 1)) else {
-            break;
-        };
-        if b - a < scaled_zero {
-            mult += 1;
-            if let Some(slot) = knots.get_mut(i + 1) {
-                *slot = a;
-            }
-        } else {
-            mults.push(mult);
-            kts.push(a);
-            mult = 1;
-        }
-    }
-    mults.push(mult);
-    kts.push(u1);
-
-    // Spread distinct knots closer than the parameter tolerance.
-    let num_distinct = kts.len();
-    for i in 0..num_distinct.saturating_sub(1) {
-        let (Some(&a), Some(&b)) = (kts.get(i), kts.get(i + 1)) else {
-            break;
-        };
-        if b - a < EFF_ZERO_PARAM {
-            if i < 1 {
-                if let Some(slot) = kts.get_mut(i + 1) {
-                    *slot = a + increment;
-                }
-            } else if i + 2 >= num_distinct {
-                if let Some(slot) = kts.get_mut(i) {
-                    *slot = b - increment;
-                }
-            } else {
-                let mid = (a + b) / 2.0;
-                if let Some(slot) = kts.get_mut(i) {
-                    *slot = mid - increment / 2.0;
-                }
-                if let Some(slot) = kts.get_mut(i + 1) {
-                    *slot = mid + increment / 2.0;
-                }
-            }
-        }
-    }
-
-    let mut slots = knots.iter_mut();
-    for (&k, &mult) in kts.iter().zip(&mults) {
-        for _ in 0..mult {
-            if let Some(slot) = slots.next() {
-                *slot = k;
-            }
-        }
-    }
-    knots
-}
-
-/// The leading run of knots equal to the start knot.
-fn start_multiplicity(knots: &[f64]) -> usize {
-    let Some(&u0) = knots.first() else {
-        return 0;
-    };
-    knots.iter().take_while(|&&k| k == u0).count()
-}
-
-/// Start multiplicity of [`constructed_knots`].
-#[cfg(test)]
-fn constructed_start_multiplicity(knots: &[f64]) -> usize {
-    start_multiplicity(&constructed_knots(knots))
-}
-
-/// Rejects a surface knot vector the constructor's fixup ([`constructed_knots`]) leaves
-/// ill-formed, for the ops that build a surface cache from it. A vector that is no
-/// longer non-decreasing (the spread moved a knot below the start knot) is an object
-/// upstream's own invariant forbids: `sm_DecomposeSrf` computes on it without an error
-/// while the Rust cache build fails its bounded decomposition, so it is refused in
-/// both directions as undefined. In v, a start multiplicity above `q + 1`
-/// ([`start_multiplicity`] of the constructed vector) makes `sm_DecomposeSrf` extract one v-strip
-/// patch more than `N_BasisGetSpanCount` counted and write past the patch array
-/// (UB-166); in u the same over-count hits upstream's B262 guard and fails with status
-/// 1006 on both sides, so u is compared. The vector as given passes [`check_knots`]
-/// (end multiplicity `q + 1`), so these are the only ways the constructed surface can
-/// be ill-formed.
-fn check_constructed_knots(
-    knots: &[f64],
-    q: usize,
-    what: &str,
-    v_direction: bool,
-) -> Result<(), FfiError> {
-    let fixed = constructed_knots(knots);
-    if fixed.windows(2).any(|w| w.first() > w.last()) {
-        return Err(bad(format!(
-            "{what}: knots not non-decreasing after the constructor's knot fixup"
-        )));
-    }
-    if v_direction && start_multiplicity(&fixed) > q + 1 {
-        return Err(bad(format!(
-            "{what}: start multiplicity above degree + 1 after the constructor's knot fixup"
-        )));
-    }
-    Ok(())
-}
-
 /// Checks that all points share their rational marker and, for `dim == 3`, are 3D.
 fn check_points(pts: &[[f64; 4]], dim: usize, what: &str) -> Result<(), FfiError> {
     let [_, _, _, w0] = *pts.first().ok_or_else(|| bad(format!("{what}: no points")))?;
@@ -595,10 +442,6 @@ fn surface(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     check_points(&pts, 3, "surface")?;
     check_knots(&u, p, "surface u")?;
     check_knots(&v, q, "surface v")?;
-    if rd.snap_guard {
-        check_constructed_knots(&u, p, "surface u", false)?;
-        check_constructed_knots(&v, q, "surface v", true)?;
-    }
     Ok(())
 }
 
@@ -977,7 +820,6 @@ pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
             }
             _ => f64::INFINITY,
         },
-        snap_guard: op.builds_surface_cache(),
     };
     if op.is_pseudo() {
         validate_pseudo(op, &mut rd)?;
@@ -999,83 +841,4 @@ pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
             )
         }
     })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn constructed_knots_follow_both_fixup_stages() {
-        // the spread increment, `SM_EFF_ZERO_PARAM * 1.01`
-        const E: f64 = 1.2e-8 * 1.01;
-        // stage one: the scaled zero of [0, 1] is 2e-12; a knot under it snaps onto the
-        // start knot, and the snap chains from the snapped predecessor
-        assert_eq!(constructed_start_multiplicity(&[0.0, 0.0, 0.0, 1e-12, 1.0, 1.0, 1.0]), 4);
-        assert_eq!(
-            constructed_start_multiplicity(&[0.0, 0.0, 0.0, 6.2e-31, 6.8e-31, 1.0, 1.0, 1.0]),
-            5
-        );
-        // a gap of exactly the scaled zero is not under it
-        assert_eq!(constructed_start_multiplicity(&[0.0, 0.0, 0.0, 1e-12, 2e-12, 1.0, 1.0, 1.0]), 4);
-        assert_eq!(constructed_start_multiplicity(&[0.0, 0.0, 0.0, 1e-12, 1.9e-12, 1.0, 1.0, 1.0]), 5);
-        // the scaled zero grows with the end knots
-        assert_eq!(constructed_start_multiplicity(&[0.0, 0.0, 5e-10, 1e3, 1e3, 1e3]), 3);
-        // stage two moves a first distinct knot under 1.2e-8 up, away from the start
-        assert_eq!(constructed_knots(&[0.0, 0.0, 0.0, 1e-11, 1.0, 1.0, 1.0]), [0.0, 0.0, 0.0, E, 1.0, 1.0, 1.0]);
-        assert_eq!(constructed_knots(&[0.0, 0.0, 5e-9, 1e3, 1e3, 1e3]), [0.0, 0.0, E, 1e3, 1e3, 1e3]);
-        // the reviewer's stage-two crash: the last pair moves the first knot down onto
-        // the start knot exactly
-        assert_eq!(
-            constructed_knots(&[0.0, 0.0, 0.0, 5e-9, 5e-9, E, E, E]),
-            [0.0, 0.0, 0.0, 0.0, 0.0, E, E, E]
-        );
-        assert_eq!(constructed_start_multiplicity(&[0.0, 0.0, 0.0, 5e-9, 5e-9, E, E, E]), 5);
-        // three distinct knots after the start: the first pair moves the second knot up
-        // onto E, the midpoint spread moves it back and the third up, the last pair
-        // moves the third down onto the start; not monotone, start run unchanged
-        let mid = (E + 8e-9) / 2.0;
-        assert_eq!(
-            constructed_knots(&[0.0, 0.0, 0.0, 5e-9, 8e-9, E, E, E]),
-            [0.0, 0.0, 0.0, mid - E / 2.0, 0.0, E, E, E]
-        );
-        assert_eq!(constructed_start_multiplicity(&[0.0, 0.0, 0.0, 5e-9, 8e-9, E, E, E]), 3);
-        // a knot moved below the start is not on it
-        assert_eq!(
-            constructed_knots(&[0.0, 0.0, 0.0, 5e-9, 5e-9, 1e-8, 1e-8, 1e-8]),
-            [0.0, 0.0, 0.0, 1e-8 - E, 1e-8 - E, 1e-8, 1e-8, 1e-8]
-        );
-        assert_eq!(constructed_start_multiplicity(&[0.0, 0.0, 0.0, 5e-9, 5e-9, 1e-8, 1e-8, 1e-8]), 3);
-        // a near-coincident pair away from the start only raises an interior multiplicity
-        assert_eq!(constructed_start_multiplicity(&[0.0, 0.0, 0.0, 0.5, 0.5 + 1e-13, 1.0, 1.0, 1.0]), 3);
-        // wide spacing is left alone
-        assert_eq!(constructed_knots(&[0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0]), [0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0]);
-        // v: the start over-multiplicity and a non-monotone result are refused
-        assert!(check_constructed_knots(&[0.0, 0.0, 0.0, 1e-12, 1.0, 1.0, 1.0], 2, "v", true).is_err());
-        assert!(check_constructed_knots(&[0.0, 0.0, 0.0, 5e-9, 5e-9, E, E, E], 2, "v", true).is_err());
-        assert!(check_constructed_knots(&[0.0, 0.0, 0.0, 1e-11, 1.0, 1.0, 1.0], 2, "v", true).is_ok());
-        assert!(check_constructed_knots(&[0.0, 0.0, 0.0, 5e-9, 8e-9, E, E, E], 2, "v", true).is_err());
-        assert!(check_constructed_knots(&[0.0, 0.0, 0.0, 5e-9, 5e-9, 1e-8, 1e-8, 1e-8], 2, "v", true).is_err());
-        // u: only a non-monotone result is refused; the over-multiplicity fails cleanly
-        assert!(check_constructed_knots(&[0.0, 0.0, 0.0, 1e-12, 1.0, 1.0, 1.0], 2, "u", false).is_ok());
-        assert!(check_constructed_knots(&[0.0, 0.0, 0.0, 5e-9, 5e-9, E, E, E], 2, "u", false).is_ok());
-        assert!(check_constructed_knots(&[0.0, 0.0, 0.0, 5e-9, 8e-9, E, E, E], 2, "u", false).is_err());
-        assert!(check_constructed_knots(&[0.0, 0.0, 0.0, 5e-9, 5e-9, 1e-8, 1e-8, 1e-8], 2, "u", false).is_err());
-    }
-
-    #[test]
-    fn surface_cache_ops_are_the_six_that_reach_the_cache() {
-        let guarded: Vec<Op> = Op::ALL.iter().copied().filter(|op| op.builds_surface_cache()).collect();
-        assert_eq!(
-            guarded,
-            [
-                Op::SurfaceDropPoint,
-                Op::TwoPnts,
-                Op::ClassifyFacePoint,
-                Op::FbVertOnVert,
-                Op::FbCliff,
-                Op::FbSplitFace
-            ]
-        );
-    }
 }

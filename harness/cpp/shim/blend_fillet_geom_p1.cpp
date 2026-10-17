@@ -119,7 +119,9 @@ struct Rd
     int64_t at;
     int64_t n;
     bool bad;
-    Rd(const double* i, int64_t len) : in(i), at(0), n(len), bad(false) {}
+    // The op builds a surface cache from the surfaces it reads (UB-166 guard below).
+    bool cache_op;
+    Rd(const double* i, int64_t len) : in(i), at(0), n(len), bad(false), cache_op(false) {}
     double num()
     {
         if (at >= n)
@@ -193,7 +195,26 @@ SmBSplineSurface* read_surface(Rd& rd, const SmContext& ctx)
         sur->knu->U[i] = rd.num();
     for (gw_INDEX i = 0; i <= s; i++)
         sur->knv->U[i] = rd.num();
-    return new (ctx) SmBSplineSurface(sur, FALSE, NULL);
+    SmBSplineSurface* srf = new (ctx) SmBSplineSurface(sur, FALSE, NULL);
+    // UB-166: the constructor's sm_FixupKnotVector can raise the v start multiplicity
+    // above q + 1 (snap or spread onto the start knot); sm_DecomposeSrf then writes past
+    // its patch array when the surface cache is built. Read the knot vector the
+    // constructor really left and refuse such a surface for the ops that build the
+    // cache (in u the decomposition fails cleanly, and the other ops never decompose).
+    if (rd.cache_op && !rd.bad)
+    {
+        const gw_SURFACE* g = srf->GetGwNurbPointer();
+        if (g != NULL)
+        {
+            const gw_INDEX last = g->knv->m;
+            gw_INDEX mult = 1;
+            while (mult <= last && g->knv->U[mult] == g->knv->U[0])
+                ++mult;
+            if (mult > (gw_INDEX)g->q + 1)
+                rd.bad = true;
+        }
+    }
+    return srf;
 }
 
 // Reads `dim n p m cpts knots` into SmBSplineCurve(gw_CURVE*, dim, FALSE).
@@ -1524,6 +1545,9 @@ SC_EXPORT int32_t sc_blend_fillet_geom_p1_eval(int32_t op, const double* in, int
         return SC_ERR_ARG;
     SC_TRY
     Rd rd(in, n_in);
+    rd.cache_op = op == OP_SURFACE_DROP_POINT || op == OP_TWO_PNTS ||
+                  op == OP_CLASSIFY_FACE_POINT || op == OP_FB_VERT_ON_VERT ||
+                  op == OP_FB_CLIFF || op == OP_FB_SPLIT_FACE;
     std::vector<double> o;
     int32_t rc = op >= OP_FB_EXPORT ? run_pseudo(op, rd, o) : run_geometry(op, rd, o);
     if (rc != SC_OK)
