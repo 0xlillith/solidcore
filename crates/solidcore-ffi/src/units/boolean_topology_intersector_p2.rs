@@ -33,14 +33,18 @@
 //! curve and vertices (50), an interval index inside both classifications (49), a
 //! classification curve; no handle-taking op may follow an op that may change
 //! topology; 45 and 46 need the manager (45 both intersector
-//! B-reps, 46 and 47 the maps of constructor 0), 47 both B-reps and it must be the
-//! last op. The shim checks what depends on the B-reps' state (mates that are not
+//! B-reps, 46 and 47 the maps of constructor 0), 47 both B-reps, a positive
+//! approximation tolerance and B-rep blocks below [`HANG_COORD`] (the full upstream
+//! intersection does not finish otherwise) and it must be the last op. The shim checks what depends on the B-reps' state (mates that are not
 //! vertices, edges of a vertex without curve, faces without surface) and answers `-2`.
 
 use super::boolean_topology_intersector_p1::{
     bad, eval_with, Counts, Entry, ExtraOps, HandleKind, Op, Reader, ScriptState,
 };
 use crate::FfiError;
+
+/// The magnitude from which `IntersectInsertRelate`'s full intersection does not finish.
+pub const HANG_COORD: f64 = 1.0e154;
 
 /// Most intervals in one classification.
 pub const MAX_INTERVALS: usize = 16;
@@ -218,6 +222,16 @@ impl ExtraOps for Part2 {
             ScriptOp2::IntersectInsertRelate => {
                 if st.ctor != 0 || !st.have_breps[0] || !st.have_breps[1] {
                     return Err(bad("IntersectInsertRelate needs both B-reps and the maps"));
+                }
+                // the full intersection upstream (SmFace::FaceIntersect, ..) does not finish
+                // (fuzz: no result within 20 s) for a non-positive approximation tolerance
+                // or coordinates whose squares overflow (HANG-16's class)
+                if st.approx.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater)
+                    || st.block_max_abs >= HANG_COORD
+                {
+                    return Err(bad(
+                        "IntersectInsertRelate needs a positive tolerance and coordinates below 1e154",
+                    ));
                 }
                 st.closed = true;
             }

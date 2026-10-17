@@ -544,7 +544,11 @@ pub(crate) struct Counts {
 
 impl Counts {
     /// A handle triple; returns its kind.
-    pub(crate) fn handle(&self, rd: &mut Reader<'_>, allow_null: bool) -> Result<HandleKind, FfiError> {
+    pub(crate) fn handle(
+        &self,
+        rd: &mut Reader<'_>,
+        allow_null: bool,
+    ) -> Result<HandleKind, FfiError> {
         let b = rd.int(-1, 2)?;
         let kind = rd.int(-1, 8)?;
         let i = rd.int(-1, i64::from(u32::MAX))?;
@@ -646,6 +650,10 @@ pub(crate) struct ScriptState {
     pub have_breps: [bool; 2],
     /// No op may follow (the last op ran).
     pub closed: bool,
+    /// The intersector's current approximation tolerance.
+    pub approx: f64,
+    /// The largest magnitude of the B-rep blocks' numbers (markers excluded).
+    pub block_max_abs: f64,
 }
 
 /// The script ops of a later part of the unit (`boolean.topology_intersector_p2`),
@@ -669,11 +677,16 @@ pub(crate) trait ExtraOps {
 
 /// Checks the script after the B-rep blocks.
 #[allow(clippy::too_many_lines)]
-fn script(rd: &mut Reader<'_>, mut c: Counts, extra: Option<&dyn ExtraOps>) -> Result<(), FfiError> {
+fn script(
+    rd: &mut Reader<'_>,
+    mut c: Counts,
+    extra: Option<&dyn ExtraOps>,
+    block_max_abs: f64,
+) -> Result<(), FfiError> {
     use HandleKind::{Brep, Edge, Face, FaceSurface, Vertex};
     // ctor: both constructors set both B-reps (1 through SetPrimaryBrep / SetOtherBrep)
     let ctor = rd.index(1)?;
-    rd.finite()?; // approx (a negative value is accepted, as upstream)
+    let mut approx = rd.finite()?; // approx (a negative value is accepted, as upstream)
     rd.finite()?; // ang
     let n_ops = rd.index(MAX_OPS)?;
     let mut mutated = false;
@@ -700,6 +713,8 @@ fn script(rd: &mut Reader<'_>, mut c: Counts, extra: Option<&dyn ExtraOps>) -> R
                 has_mgr,
                 have_breps,
                 closed: false,
+                approx,
+                block_max_abs,
             };
             if !extra.op(code, rd, &mut c, &mut st)? {
                 return Err(bad("bad script op"));
@@ -768,7 +783,7 @@ fn script(rd: &mut Reader<'_>, mut c: Counts, extra: Option<&dyn ExtraOps>) -> R
                 point_class(rd, &c)?;
             }
             ScriptOp::SetTols => {
-                rd.finite()?;
+                approx = rd.finite()?;
                 rd.finite()?;
             }
             ScriptOp::SetBreps => {
@@ -884,8 +899,15 @@ fn script(rd: &mut Reader<'_>, mut c: Counts, extra: Option<&dyn ExtraOps>) -> R
 }
 
 /// A shim entry point (`sc_boolean_topology_intersector_p1_eval` or a later part's).
-pub(crate) type Entry =
-    unsafe extern "C" fn(i32, *const std::ffi::c_char, *const f64, i64, *mut f64, i64, *mut i64) -> i32;
+pub(crate) type Entry = unsafe extern "C" fn(
+    i32,
+    *const std::ffi::c_char,
+    *const f64,
+    i64,
+    *mut f64,
+    i64,
+    *mut i64,
+) -> i32;
 
 fn raw(entry: Entry, op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     let cpath = std::ffi::CString::new(path).map_err(|_| bad("path has a NUL byte"))?;
@@ -916,7 +938,13 @@ fn raw(entry: Entry, op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiE
 /// [`FfiError::InvalidArgument`] for a malformed input; [`FfiError::Status`] for a shim
 /// failure.
 pub fn eval(op: Op, paths: [&str; 2], input: &[f64]) -> Result<Vec<f64>, FfiError> {
-    eval_with(sys::sc_boolean_topology_intersector_p1_eval, None, op, paths, input)
+    eval_with(
+        sys::sc_boolean_topology_intersector_p1_eval,
+        None,
+        op,
+        paths,
+        input,
+    )
 }
 
 /// [`eval`] through `entry`, with the later part's ops `extra`.
@@ -955,7 +983,13 @@ pub(crate) fn eval_with(
     if c.breps[0].is_none() {
         return Err(bad("first export unreadable"));
     }
-    script(&mut rd, c, extra)?;
+    // (NOW / NOZ markers are +-f64::MAX)
+    let block_max_abs = block
+        .iter()
+        .map(|v| v.abs())
+        .filter(|v| *v < f64::MAX)
+        .fold(0.0, f64::max);
+    script(&mut rd, c, extra, block_max_abs)?;
     rd.done()?;
     raw(entry, op, &joined, input)
 }

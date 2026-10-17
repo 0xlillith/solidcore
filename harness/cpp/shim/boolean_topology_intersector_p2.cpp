@@ -109,6 +109,63 @@ bool vertex_faces_ok(SmVertex* v)
             return false;
     return true;
 }
+// FixGaps' scan up to its first squeeze candidate (read-only): whether CombineCoincidentVertices
+// would run with a null B-rep or a mate that is not a vertex (the steps before it return early).
+bool fix_gaps_first_candidate_ok(SmTopologyIntersector* ti, const SmTArray<SmVertex*>& verts)
+{
+    ULONG n = verts.GetSize();
+    for (ULONG ii = 0; ii < n; ii++)
+        for (ULONG jj = ii + 1; jj < n; jj++)
+        {
+            SmVertex *v1 = verts[ii], *v2 = verts[jj];
+            double tol = 1.01 * (v1->GetTolerance() + v2->GetTolerance());
+            if (!(v1->GetPoint().DistanceBetween(v2->GetPoint()) < tol))
+                continue;
+            SmTArray<SmEdge*> e1, e2;
+            v1->GetEdges(e1);
+            v2->GetEdges(e2);
+            bool common = false;
+            for (ULONG k = 0; k < e1.GetSize(); k++)
+            {
+                ULONG idx;
+                if (e2.FindElement(e1[k], idx) && e1[k]->GetCurve()->ApproximateLength(e1[k]->GetInterval(), 10) > tol)
+                    common = true;
+            }
+            if (common)
+                continue;
+            SmObject* o1 = ti->GetOtherMate(v1);
+            SmObject* o2 = ti->GetOtherMate(v2);
+            if (o1 == nullptr || o2 == nullptr)
+                return true; // NER returns SM_ERR_NULL_POINTER first
+            return is_vertex(o1) && is_vertex(o2) && ti->GetPrimaryBrep() != nullptr && ti->GetOtherBrep() != nullptr;
+        }
+    return true;
+}
+
+// CheckForSqueezeVertices: whether a combination would run with a null B-rep (each block
+// combines in its B-rep unless the previous relationship is better, which returns SM_ERR).
+bool squeeze_breps_ok(SmTopologyIntersector* ti, SmVertex* bv, SmVertex* ov)
+{
+    bool need_other = false, need_brep = false;
+    SmVertex* other_v = (SmVertex*)ti->GetOtherMate(bv);
+    SmVertex* brep_v = (SmVertex*)ti->GetBrepMate(ov);
+    if (other_v && other_v != ov)
+    {
+        double d_old = bv->GetPoint().DistanceBetween(other_v->GetPoint());
+        double d_new = bv->GetPoint().DistanceBetween(ov->GetPoint());
+        if (d_new > d_old + SM_EFF_ZERO_SQRT)
+            return true;
+        need_other = true;
+    }
+    if (brep_v && brep_v != bv)
+    {
+        double d_old = ov->GetPoint().DistanceBetween(brep_v->GetPoint());
+        double d_new = ov->GetPoint().DistanceBetween(bv->GetPoint());
+        if (!(d_new > d_old + SM_EFF_ZERO_SQRT))
+            need_brep = true;
+    }
+    return (!need_other || ti->GetOtherBrep() != nullptr) && (!need_brep || ti->GetPrimaryBrep() != nullptr);
+}
 } // namespace
 
 namespace
@@ -131,8 +188,8 @@ bool run_extra_op(int64_t op, Rd& rd, Two& t, SmTopologyIntersector* ti, SmProto
     {
         SmVertex* bv = (SmVertex*)rd_h(rd, t);
         SmVertex* ov = (SmVertex*)rd_h(rd, t);
-        if (!is_vertex(bv) || !is_vertex(ov) || ti->GetPrimaryBrep() == nullptr || ti->GetOtherBrep() == nullptr ||
-            !vertex_mate_ok(ti->GetOtherMate(bv)) || !vertex_mate_ok(ti->GetBrepMate(ov)))
+        if (!is_vertex(bv) || !is_vertex(ov) || !vertex_mate_ok(ti->GetOtherMate(bv)) ||
+            !vertex_mate_ok(ti->GetBrepMate(ov)) || !squeeze_breps_ok(ti, bv, ov))
         {
             o.push_back(ST_NULL_DEREF);
             return true;
@@ -171,10 +228,12 @@ bool run_extra_op(int64_t op, Rd& rd, Two& t, SmTopologyIntersector* ti, SmProto
     {
         SmTArray<SmVertex*> verts;
         rd_list(rd, t, verts);
-        bool ok = ti->GetPrimaryBrep() != nullptr && ti->GetOtherBrep() != nullptr;
+        bool ok = true;
         for (ULONG i = 0; i < verts.GetSize(); i++)
-            if (!is_vertex(verts[i]) || !vertex_edges_ok(verts[i]) || !vertex_mate_ok(ti->GetOtherMate(verts[i])))
+            if (!is_vertex(verts[i]) || !vertex_edges_ok(verts[i]))
                 ok = false;
+        if (ok && !fix_gaps_first_candidate_ok(ti, verts))
+            ok = false;
         if (!ok)
         {
             o.push_back(ST_NULL_DEREF);

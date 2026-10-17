@@ -53,9 +53,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use solidcore::boolean::topology_intersector::p1 as ti;
-use solidcore::boolean::topology_intersector::p1::{
-    IntersectorBrep, Reason, TopologyIntersector,
-};
+use solidcore::boolean::topology_intersector::p1::{IntersectorBrep, Reason, TopologyIntersector};
 use solidcore::boolean::topology_intersector::p2::IntersectorBrepP2;
 use solidcore::curve::curve::p2::{CurveKind, BSPLINE_CURVE_TYPE};
 use solidcore::curve::curve::Curve as SmCurve;
@@ -94,6 +92,7 @@ use solidcore::topology::vertex as vx;
 use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, VertexId, VertexuseId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::boolean_topology_intersector_p1::{self as ffi, Op};
+use solidcore_ffi::units::boolean_topology_intersector_p2 as ffi2;
 
 use super::topology_vertexuse::import;
 use crate::case::{CaseContext, CaseSource};
@@ -477,8 +476,12 @@ fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
                 m as f64,
                 b.p as f64,
                 b.q as f64,
-                (b.u.len() - 1) as f64,
-                (b.v.len() - 1) as f64,
+                b.u.len()
+                    .checked_sub(1)
+                    .ok_or_else(|| harness("surface without u knots"))? as f64,
+                b.v.len()
+                    .checked_sub(1)
+                    .ok_or_else(|| harness("surface without v knots"))? as f64,
             ]);
             for row in &b.net {
                 for p in row {
@@ -1457,16 +1460,26 @@ struct ROp {
 /// Resolves the longest runnable prefix of a case's ops against the imported B-reps:
 /// the resolved ops and, when an op was left out, the index and name of the first
 /// unrunnable op.
+/// What the resolution of a script reads besides its ops: the constructor, the initial
+/// approximation tolerance and the largest magnitude of the B-rep blocks (the FFI's
+/// `ScriptState`).
+#[derive(Debug, Clone, Copy)]
+struct Start {
+    ctor: u8,
+    approx: f64,
+    block_max_abs: f64,
+}
+
 fn resolve_prefix(
     ops: &[OpIn],
     c: &Counts,
     two: &Two,
-    ctor: u8,
+    start: Start,
 ) -> (Vec<ROp>, Option<(usize, String)>) {
     let mut n = ops.len();
     let mut cut: Option<(usize, String)> = None;
     loop {
-        match resolve(ops.get(..n).unwrap_or(&[]), c, two, ctor) {
+        match resolve(ops.get(..n).unwrap_or(&[]), c, two, start) {
             Ok(r) => return (r, cut),
             Err(name) => {
                 if n == 0 {
@@ -1482,7 +1495,9 @@ fn resolve_prefix(
 /// Resolves every op of `ops` against the imported B-reps; `Err(name)` names the
 /// first op that cannot be run.
 #[allow(clippy::too_many_lines)]
-fn resolve(ops: &[OpIn], c: &Counts, two: &Two, i_ctor: u8) -> Result<Vec<ROp>, String> {
+fn resolve(ops: &[OpIn], c: &Counts, two: &Two, start: Start) -> Result<Vec<ROp>, String> {
+    let i_ctor = start.ctor;
+    let mut approx = start.approx;
     let mut out = Vec::new();
     let mut curves = 0usize;
     let mut has_mgr = false;
@@ -1541,6 +1556,16 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two, i_ctor: u8) -> Result<Vec<ROp>, 
         }
         if matches!(op, OpIn::Iir) && (i_ctor != 0 || !have_breps[0] || !have_breps[1]) {
             return Err(fail("intersect_insert_relate"));
+        }
+        // the FFI's hang guard of IntersectInsertRelate
+        if matches!(op, OpIn::Iir)
+            && (approx.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater)
+                || start.block_max_abs >= ffi2::HANG_COORD)
+        {
+            return Err(fail("intersect_insert_relate_hang"));
+        }
+        if let OpIn::SetTols { approx: a, .. } = op {
+            approx = *a;
         }
         // GetCommonEdges / GetCommonVertices read only m_pBrep
         if matches!(op, OpIn::CommonEdges | OpIn::CommonVertices) && !have_breps[0] {
@@ -1821,7 +1846,11 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two, i_ctor: u8) -> Result<Vec<ROp>, 
                 if *index >= b.ivls.len() || *index >= o.ivls.len() {
                     return Err(fail("interval_index"));
                 }
-                OpIn::FixupSplit { index: *index, b, o }
+                OpIn::FixupSplit {
+                    index: *index,
+                    b,
+                    o,
+                }
             }
             OpIn::EdgeEdge {
                 edges1,
@@ -1869,12 +1898,15 @@ fn resolve(ops: &[OpIn], c: &Counts, two: &Two, i_ctor: u8) -> Result<Vec<ROp>, 
     Ok(out)
 }
 
+/// A handle resolver: the handle, the kinds allowed and whether null is allowed.
+type HandleOfKind<'a> = dyn Fn(Hin, &[u8], bool) -> Result<Hin, String> + 'a;
+
 /// Resolves a classification input (part 2): its handles (a vertex classification
 /// must name a vertex, the curve must be an edge's or a registered one) and, when
 /// relative, its parameters against the edge's interval.
 fn resolve_cc(
     cc: &CcIn,
-    hk: &dyn Fn(Hin, &[u8], bool) -> Result<Hin, String>,
+    hk: &HandleOfKind<'_>,
     two: &Two,
     fail: &dyn Fn(&str) -> String,
 ) -> Result<CcIn, String> {
@@ -2256,7 +2288,19 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
         breps: [Some(count3(&brep_a)), brep_b.as_ref().map(count3)],
     };
     let two = Two::new(brep_a, brep_b);
-    let (ops, cut) = resolve_prefix(&i.ops, &counts, &two, i.ctor);
+    // (NOW / NOZ markers are +-f64::MAX)
+    let block_max_abs = blocks(i)
+        .map_err(|e| Box::new(Err(e)))?
+        .iter()
+        .map(|v| v.abs())
+        .filter(|v| *v < f64::MAX)
+        .fold(0.0, f64::max);
+    let start = Start {
+        ctor: i.ctor,
+        approx: i.approx,
+        block_max_abs,
+    };
+    let (ops, cut) = resolve_prefix(&i.ops, &counts, &two, start);
     // a script cut at its first op compares nothing: both sides report the error (it is
     // counted as both-errored, not as a pass)
     if ops.is_empty() {
@@ -2272,8 +2316,7 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
 }
 
 /// The shim entry a case runs through (part 1's, or part 2's with its ops).
-pub(super) type Eval =
-    fn(Op, [&str; 2], &[f64]) -> Result<Vec<f64>, solidcore_ffi::FfiError>;
+pub(super) type Eval = fn(Op, [&str; 2], &[f64]) -> Result<Vec<f64>, solidcore_ffi::FfiError>;
 
 /// [`run_cpp`] through `eval`.
 pub(super) fn run_cpp_with(i: &Inputs, eval: Eval) -> Result<Output, HarnessError> {
@@ -2896,8 +2939,12 @@ fn build_cc(k: &Kernel, two: &Two, cc: &CcIn) -> Result<CurveClassification<H>, 
     let mut out = new_classification(k, curve, Extent1d::from_min_max(cc.t0, cc.t1), cc.tol)?;
     out.set_size(k, cc.ivls.len())?;
     for (n, iv) in cc.ivls.iter().enumerate() {
-        let mut ci = CurveInterval::with_interval(k, &Extent1d::from_min_max(iv.a, iv.b), Some(&out));
-        for (pc, inp) in [&mut ci.start, &mut ci.mid, &mut ci.end].into_iter().zip(&iv.pcs) {
+        let mut ci =
+            CurveInterval::with_interval(k, &Extent1d::from_min_max(iv.a, iv.b), Some(&out));
+        for (pc, inp) in [&mut ci.start, &mut ci.mid, &mut ci.end]
+            .into_iter()
+            .zip(&iv.pcs)
+        {
             let cls = PointClassType::from_code(inp.cls as i32)
                 .ok_or_else(|| harness(format!("unknown point class {}", inp.cls)))?;
             pc.set_class_object(cls, triple_to_h(inp.h));
@@ -2929,12 +2976,18 @@ fn vertex_mate_ok(m: Option<H>) -> bool {
 
 /// The shim's `vertex_edges_ok`: every edge of the vertex has a curve and a vertex.
 fn vertex_edges_ok(two: &Two, v: H) -> solidcore::Result<bool> {
-    Ok(two.vertex_edges(v)?.into_iter().all(|e| two.edge_ok(Some(e))))
+    Ok(two
+        .vertex_edges(v)?
+        .into_iter()
+        .all(|e| two.edge_ok(Some(e))))
 }
 
 /// The shim's `vertex_faces_ok`: every face of the vertex has a surface.
 fn vertex_faces_ok(two: &Two, v: H) -> solidcore::Result<bool> {
-    Ok(two.vertex_faces(v)?.into_iter().all(|f| two.face_ok(Some(f))))
+    Ok(two
+        .vertex_faces(v)?
+        .into_iter()
+        .all(|f| two.face_ok(Some(f))))
 }
 
 /// Runs one of part 2's ops (shim ops 41 to 51), with the shim's guards.
@@ -2959,10 +3012,9 @@ fn run_part2_op(
                 o.push(NULL_DEREF);
                 return Ok(());
             };
-            if !have_breps
-                || !vertex_mate_ok(ti.other_mate(Some(bv)))
-                || !vertex_mate_ok(ti.brep_mate(Some(ov)))
-            {
+            // (a null B-rep where a combination would run is the port's InvalidInput,
+            // reported as -2 like the shim's guard)
+            if !vertex_mate_ok(ti.other_mate(Some(bv))) || !vertex_mate_ok(ti.brep_mate(Some(ov))) {
                 o.push(NULL_DEREF);
                 return Ok(());
             }
@@ -2988,9 +3040,11 @@ fn run_part2_op(
         OpIn::FixGaps { verts } => {
             o.push(44.0);
             let vs: Vec<H> = verts.iter().filter_map(|&h| triple_to_h(h)).collect();
-            let mut ok = have_breps && vs.len() == verts.len();
+            // (a null B-rep or a non-vertex mate of the first squeeze candidate is the
+            // port's InvalidInput, reported as -2 like the shim's guard)
+            let mut ok = vs.len() == verts.len();
             for &v in &vs {
-                if !vertex_edges_ok(two, v)? || !vertex_mate_ok(ti.other_mate(Some(v))) {
+                if !vertex_edges_ok(two, v)? {
                     ok = false;
                 }
             }
@@ -3044,7 +3098,9 @@ fn run_part2_op(
                 OpIn::FixupSplit { index, .. } => {
                     ti.fixup_split_vertex_pair(k, two, *index, &mut cb, &mut co)
                 }
-                _ => ti.fixup_class_mates(k, two, &mut cb, &mut co).map(|()| false),
+                _ => ti
+                    .fixup_class_mates(k, two, &mut cb, &mut co)
+                    .map(|()| false),
             };
             let Some(changed) = status(r, o)? else {
                 return Ok(());
@@ -3064,7 +3120,11 @@ fn run_part2_op(
             o.push(50.0);
             let e1: Vec<Option<H>> = edges1.iter().map(|&h| triple_to_h(h)).collect();
             let e2: Vec<Option<H>> = edges2.iter().map(|&h| triple_to_h(h)).collect();
-            if e1.iter().chain(&e2).any(|e| e.is_some() && !two.edge_ok(*e)) {
+            if e1
+                .iter()
+                .chain(&e2)
+                .any(|e| e.is_some() && !two.edge_ok(*e))
+            {
                 o.push(NULL_DEREF);
                 return Ok(());
             }
@@ -3154,9 +3214,11 @@ pub(super) fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     }
 }
 
-/// Per op run on the Rust side, its code and the value after it (the status of the ops
-/// that report one); `None` for a deferred or unrunnable case. For coverage censuses.
-pub(super) fn rust_op_statuses(i: &Inputs) -> Option<Vec<(f64, f64)>> {
+/// Per op run on the Rust side, its code and the two values after it (the status of the
+/// ops that report one, and their first output); `None` for a deferred or unrunnable
+/// case. For coverage censuses.
+#[cfg(test)]
+pub(super) fn rust_op_statuses(i: &Inputs) -> Option<Vec<(f64, f64, f64)>> {
     let p = prepare(i).ok()?;
     let (o, marks) = run_rust_script(i, p).ok()?;
     Some(
@@ -3166,6 +3228,7 @@ pub(super) fn rust_op_statuses(i: &Inputs) -> Option<Vec<(f64, f64)>> {
                 (
                     o.get(m).copied().unwrap_or(f64::NAN),
                     o.get(m + 1).copied().unwrap_or(f64::NAN),
+                    o.get(m + 2).copied().unwrap_or(f64::NAN),
                 )
             })
             .collect(),

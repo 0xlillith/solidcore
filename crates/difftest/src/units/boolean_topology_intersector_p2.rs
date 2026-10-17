@@ -33,8 +33,7 @@ use serde_json::Value;
 use solidcore_ffi::units::boolean_topology_intersector_p2 as ffi;
 
 use super::boolean_topology_intersector_p1::{
-    gen_brep, gen_h, gen_list, gen_sel, gen_tol, run_cpp_with, run_rust, rust_op_statuses, BrepIn,
-    CcIn, Gen, Hin,
+    gen_brep, gen_h, gen_list, gen_sel, gen_tol, run_cpp_with, run_rust, BrepIn, CcIn, Gen, Hin,
     Inputs, IvlIn, OpIn, PciIn, K_EDGE, K_EDGE_CURVE, K_FACE, K_NULL, K_VERTEX, MIN_GENERATED,
 };
 use crate::case::{CaseContext, CaseSource};
@@ -76,7 +75,9 @@ fn gen_pci(rng: &mut Rng, g: &Gen, verts: &[Hin], t: f64) -> PciIn {
 /// A classification of the curve of edge `e` with `n` intervals over fractions of the
 /// edge's interval.
 fn gen_cc(rng: &mut Rng, g: &Gen, e: Hin, n: usize, verts: &[Hin]) -> CcIn {
-    let mut cuts: Vec<f64> = (0..n.saturating_sub(1)).map(|_| rng.uniform(0.0, 1.0)).collect();
+    let mut cuts: Vec<f64> = (0..n.saturating_sub(1))
+        .map(|_| rng.uniform(0.0, 1.0))
+        .collect();
     if rng.chance(0.3) {
         // a short interval
         let c = rng.uniform(0.0, 0.9);
@@ -89,7 +90,10 @@ fn gen_cc(rng: &mut Rng, g: &Gen, e: Hin, n: usize, verts: &[Hin]) -> CcIn {
     let ivls = bounds
         .windows(2)
         .map(|w| {
-            let (a, b) = (w.first().copied().unwrap_or(0.0), w.last().copied().unwrap_or(1.0));
+            let (a, b) = (
+                w.first().copied().unwrap_or(0.0),
+                w.last().copied().unwrap_or(1.0),
+            );
             IvlIn {
                 a,
                 b,
@@ -151,6 +155,12 @@ fn gen_p2_op(rng: &mut Rng, g: &Gen, pairs: &[(Hin, Hin)], has_mgr: &mut bool) -
         }
         4 | 5 => {
             let mut vs: Vec<Hin> = pairs.iter().map(|&(a, _)| a).collect();
+            // a vertex next to its coincident copy in the other B-rep (a gap candidate)
+            if has_b && rng.chance(0.4) {
+                let v = vtx(rng, 0);
+                vs.push(v);
+                vs.push([1, v[1], v[2]]);
+            }
             for _ in 0..rng.below(3) {
                 vs.push(vtx(rng, 0));
             }
@@ -205,8 +215,8 @@ fn gen_p2_op(rng: &mut Rng, g: &Gen, pairs: &[(Hin, Hin)], has_mgr: &mut bool) -
         }
         10 | 11 => {
             let other = if rng.chance(0.6) { ob } else { 0 };
-            let edges1 = (0..1 + rng.below(4)).map(|_| edge(rng, 0)).collect();
-            let mut edges2: Vec<Hin> = (0..1 + rng.below(4)).map(|_| edge(rng, other)).collect();
+            let edges1 = (0..=rng.below(4)).map(|_| edge(rng, 0)).collect();
+            let mut edges2: Vec<Hin> = (0..=rng.below(4)).map(|_| edge(rng, other)).collect();
             if rng.chance(0.15) {
                 edges2.push([-1, K_NULL, -1]);
             }
@@ -257,21 +267,27 @@ fn generate(rng: &mut Rng) -> Option<Value> {
     let approx = *rng
         .choose(&[1e-5, 1e-5, 1e-4, 1e-3, 1e-6, 1e-2])
         .unwrap_or(&1e-5);
-    let ang = *rng.choose(&[20.0_f64.to_radians(), 0.1, 1e-3]).unwrap_or(&0.1);
+    let ang = *rng
+        .choose(&[20.0_f64.to_radians(), 0.1, 1e-3])
+        .unwrap_or(&0.1);
     let ob = i64::from(has_b);
     let mut ops = Vec::new();
     // related vertex pairs (same selector on a copy of the B-rep: coincident vertices)
     let mut pairs = Vec::new();
     for _ in 0..rng.below(4) {
         let a = vtx(rng, 0);
-        let b = if rng.chance(0.4) { [ob, a[1], a[2]] } else { vtx(rng, ob) };
+        let b = if rng.chance(0.4) {
+            [ob, a[1], a[2]]
+        } else {
+            vtx(rng, ob)
+        };
         if ctor == 0 {
             ops.push(OpIn::Relate { a, b });
         }
         pairs.push((a, b));
     }
     let mut has_mgr = false;
-    for _ in 0..1 + rng.below(3) {
+    for _ in 0..=rng.below(3) {
         ops.extend(gen_p2_op(rng, &g, &pairs, &mut has_mgr));
     }
     serde_json::to_value(Inputs {
@@ -307,7 +323,12 @@ fn inputs(a: BrepIn, b: Option<BrepIn>, ctor: u8, ops: Vec<OpIn>) -> Option<Valu
 }
 
 fn pci(cls: i64, h: Hin, t: Option<f64>) -> PciIn {
-    PciIn { cls, h, t, dev: 0.0 }
+    PciIn {
+        cls,
+        h,
+        t,
+        dev: 0.0,
+    }
 }
 
 /// A classification of edge 0's curve of B-rep 0 over `[0, 1]` (relative) with the
@@ -327,7 +348,7 @@ fn ivl(a: f64, b: f64, pcs: [PciIn; 3]) -> IvlIn {
     IvlIn { a, b, pcs }
 }
 
-#[allow(clippy::too_many_lines)]
+#[allow(clippy::too_many_lines, clippy::vec_init_then_push)]
 fn edge_cases() -> Vec<(String, Value)> {
     let v = |b: i64, i: i64| -> Hin { [b, i64::from(K_VERTEX), i] };
     let e = |b: i64, i: i64| -> Hin { [b, i64::from(K_EDGE), i] };
@@ -344,9 +365,18 @@ fn edge_cases() -> Vec<(String, Value)> {
             Some(box_()),
             0,
             vec![
-                OpIn::Relate { a: v(0, 0), b: v(1, 0) },
-                OpIn::RemoveRel { a: v(0, 0), b: v(1, 0) },
-                OpIn::RemoveRel { a: v(0, 0), b: v(1, 0) },
+                OpIn::Relate {
+                    a: v(0, 0),
+                    b: v(1, 0),
+                },
+                OpIn::RemoveRel {
+                    a: v(0, 0),
+                    b: v(1, 0),
+                },
+                OpIn::RemoveRel {
+                    a: v(0, 0),
+                    b: v(1, 0),
+                },
                 OpIn::OtherMate { h: v(0, 0) },
             ],
         ),
@@ -358,23 +388,54 @@ fn edge_cases() -> Vec<(String, Value)> {
             Some(box_()),
             0,
             vec![
-                OpIn::RemoveRel { a: null, b: v(1, 0) },
-                OpIn::RemoveRel { a: v(0, 1), b: null },
-                OpIn::Relate { a: e(0, 0), b: e(1, 0) },
-                OpIn::RemoveRel { a: e(0, 0), b: e(1, 1) },
-                OpIn::RemoveRel { a: e(0, 0), b: e(1, 0) },
+                OpIn::RemoveRel {
+                    a: null,
+                    b: v(1, 0),
+                },
+                OpIn::RemoveRel {
+                    a: v(0, 1),
+                    b: null,
+                },
+                OpIn::Relate {
+                    a: e(0, 0),
+                    b: e(1, 0),
+                },
+                OpIn::RemoveRel {
+                    a: e(0, 0),
+                    b: e(1, 1),
+                },
+                OpIn::RemoveRel {
+                    a: e(0, 0),
+                    b: e(1, 0),
+                },
             ],
         ),
     ));
     out.push((
         "remove_context_only".into(),
-        inputs(box_(), Some(box_()), 1, vec![OpIn::RemoveRel { a: v(0, 0), b: v(1, 0) }]),
+        inputs(
+            box_(),
+            Some(box_()),
+            1,
+            vec![OpIn::RemoveRel {
+                a: v(0, 0),
+                b: v(1, 0),
+            }],
+        ),
     ));
 
     // CheckForSqueezeVertices: no mates, same mates, a better previous relationship
     out.push((
         "squeeze_no_mates".into(),
-        inputs(box_(), Some(box_()), 0, vec![OpIn::Squeeze { bv: v(0, 0), ov: v(1, 0) }]),
+        inputs(
+            box_(),
+            Some(box_()),
+            0,
+            vec![OpIn::Squeeze {
+                bv: v(0, 0),
+                ov: v(1, 0),
+            }],
+        ),
     ));
     out.push((
         "squeeze_same_pair".into(),
@@ -383,8 +444,14 @@ fn edge_cases() -> Vec<(String, Value)> {
             Some(box_()),
             0,
             vec![
-                OpIn::Relate { a: v(0, 2), b: v(1, 2) },
-                OpIn::Squeeze { bv: v(0, 2), ov: v(1, 2) },
+                OpIn::Relate {
+                    a: v(0, 2),
+                    b: v(1, 2),
+                },
+                OpIn::Squeeze {
+                    bv: v(0, 2),
+                    ov: v(1, 2),
+                },
             ],
         ),
     ));
@@ -396,8 +463,14 @@ fn edge_cases() -> Vec<(String, Value)> {
             0,
             vec![
                 // the coincident copy is closer than any other vertex
-                OpIn::Relate { a: v(0, 3), b: v(1, 3) },
-                OpIn::Squeeze { bv: v(0, 3), ov: v(1, 5) },
+                OpIn::Relate {
+                    a: v(0, 3),
+                    b: v(1, 3),
+                },
+                OpIn::Squeeze {
+                    bv: v(0, 3),
+                    ov: v(1, 5),
+                },
             ],
         ),
     ));
@@ -408,8 +481,14 @@ fn edge_cases() -> Vec<(String, Value)> {
             Some(box_()),
             0,
             vec![
-                OpIn::Relate { a: v(0, 4), b: v(1, 4) },
-                OpIn::Squeeze { bv: v(0, 6), ov: v(1, 4) },
+                OpIn::Relate {
+                    a: v(0, 4),
+                    b: v(1, 4),
+                },
+                OpIn::Squeeze {
+                    bv: v(0, 6),
+                    ov: v(1, 4),
+                },
             ],
         ),
     ));
@@ -420,8 +499,14 @@ fn edge_cases() -> Vec<(String, Value)> {
             Some(box_()),
             0,
             vec![
-                OpIn::Relate { a: v(0, 3), b: v(1, 5) },
-                OpIn::Squeeze { bv: v(0, 3), ov: v(1, 3) },
+                OpIn::Relate {
+                    a: v(0, 3),
+                    b: v(1, 5),
+                },
+                OpIn::Squeeze {
+                    bv: v(0, 3),
+                    ov: v(1, 3),
+                },
             ],
         ),
     ));
@@ -429,7 +514,15 @@ fn edge_cases() -> Vec<(String, Value)> {
     // DeleteFaces: nothing to delete, and a face
     out.push((
         "delete_faces_empty".into(),
-        inputs(box_(), Some(box_()), 0, vec![OpIn::DeleteFaces { faces: vec![], keep: None }]),
+        inputs(
+            box_(),
+            Some(box_()),
+            0,
+            vec![OpIn::DeleteFaces {
+                faces: vec![],
+                keep: None,
+            }],
+        ),
     ));
     out.push((
         "delete_faces_one".into(),
@@ -452,9 +545,17 @@ fn edge_cases() -> Vec<(String, Value)> {
             Some(box_()),
             0,
             vec![
-                OpIn::Relate { a: v(0, 0), b: v(1, 0) },
-                OpIn::Relate { a: v(0, 1), b: v(1, 1) },
-                OpIn::FixGaps { verts: vec![v(0, 0), v(0, 1)] },
+                OpIn::Relate {
+                    a: v(0, 0),
+                    b: v(1, 0),
+                },
+                OpIn::Relate {
+                    a: v(0, 1),
+                    b: v(1, 1),
+                },
+                OpIn::FixGaps {
+                    verts: vec![v(0, 0), v(0, 1)],
+                },
             ],
         ),
     ));
@@ -464,7 +565,26 @@ fn edge_cases() -> Vec<(String, Value)> {
             box_(),
             Some(box_()),
             0,
-            vec![OpIn::FixGaps { verts: vec![v(0, 2), v(0, 2)] }],
+            vec![OpIn::FixGaps {
+                verts: vec![v(0, 2), v(0, 2)],
+            }],
+        ),
+    ));
+    out.push((
+        "fix_gaps_coincident_copy_unmated".into(),
+        inputs(
+            box_(),
+            Some(box_()),
+            0,
+            vec![
+                OpIn::Relate {
+                    a: v(0, 3),
+                    b: v(1, 3),
+                },
+                OpIn::FixGaps {
+                    verts: vec![v(0, 3), v(1, 3)],
+                },
+            ],
         ),
     ));
     out.push((
@@ -473,7 +593,9 @@ fn edge_cases() -> Vec<(String, Value)> {
             BrepIn::Network,
             Some(BrepIn::Network),
             0,
-            vec![OpIn::FixGaps { verts: vec![v(0, 0), v(0, 0), v(0, 1)] }],
+            vec![OpIn::FixGaps {
+                verts: vec![v(0, 0), v(0, 0), v(0, 1)],
+            }],
         ),
     ));
 
@@ -485,7 +607,10 @@ fn edge_cases() -> Vec<(String, Value)> {
             Some(box_()),
             0,
             vec![
-                OpIn::MgrNew { capture: 0.01, override_tol: 0.0 },
+                OpIn::MgrNew {
+                    capture: 0.01,
+                    override_tol: 0.0,
+                },
                 OpIn::SetRels,
             ],
         ),
@@ -497,23 +622,45 @@ fn edge_cases() -> Vec<(String, Value)> {
             Some(file("sphere.smb")),
             0,
             vec![
-                OpIn::MgrNew { capture: 0.01, override_tol: 0.0 },
+                OpIn::MgrNew {
+                    capture: 0.01,
+                    override_tol: 0.0,
+                },
                 OpIn::IntersectTopo,
             ],
         ),
     ));
-    out.push(("iir".into(), inputs(box_(), Some(file("torus.smb")), 0, vec![OpIn::Iir])));
+    out.push((
+        "iir".into(),
+        inputs(box_(), Some(file("torus.smb")), 0, vec![OpIn::Iir]),
+    ));
 
     // FixupClassMates / FixupSplitVertexPair on edge 0's curve
     let split_pair = |bv: Hin, ov: Hin| {
         (
             cc(vec![
                 ivl(0.0, 0.001, [pci(104, bv, Some(0.0)), unknown(), unknown()]),
-                ivl(0.001, 1.0, [unknown(), pci(102, [0, i64::from(K_FACE), 0], Some(0.5)), unknown()]),
+                ivl(
+                    0.001,
+                    1.0,
+                    [
+                        unknown(),
+                        pci(102, [0, i64::from(K_FACE), 0], Some(0.5)),
+                        unknown(),
+                    ],
+                ),
             ]),
             cc(vec![
-                ivl(0.0, 0.001, [unknown(), unknown(), pci(104, ov, Some(0.001))]),
-                ivl(0.001, 1.0, [pci(104, ov, Some(0.001)), unknown(), unknown()]),
+                ivl(
+                    0.0,
+                    0.001,
+                    [unknown(), unknown(), pci(104, ov, Some(0.001))],
+                ),
+                ivl(
+                    0.001,
+                    1.0,
+                    [pci(104, ov, Some(0.001)), unknown(), unknown()],
+                ),
             ]),
         )
     };
@@ -521,9 +668,16 @@ fn edge_cases() -> Vec<(String, Value)> {
         let (b, o) = split_pair(v(0, 0), v(1, 0));
         let mut ops = Vec::new();
         if rel {
-            ops.push(OpIn::Relate { a: v(0, 0), b: v(1, 0) });
+            ops.push(OpIn::Relate {
+                a: v(0, 0),
+                b: v(1, 0),
+            });
         }
-        ops.push(OpIn::FixupSplit { index: 0, b: b.clone(), o: o.clone() });
+        ops.push(OpIn::FixupSplit {
+            index: 0,
+            b: b.clone(),
+            o: o.clone(),
+        });
         ops.push(OpIn::FixupClass { b, o });
         out.push((name.into(), inputs(box_(), Some(box_()), 0, ops)));
     }
@@ -538,7 +692,10 @@ fn edge_cases() -> Vec<(String, Value)> {
                 Some(box_()),
                 0,
                 vec![
-                    OpIn::Relate { a: v(0, 0), b: v(1, 0) },
+                    OpIn::Relate {
+                        a: v(0, 0),
+                        b: v(1, 0),
+                    },
                     OpIn::FixupClass { b, o: o2 },
                 ],
             ),
@@ -546,8 +703,16 @@ fn edge_cases() -> Vec<(String, Value)> {
     }
     {
         // mid points on unrelated edges are reset; mated edges are kept
-        let b = cc(vec![ivl(0.0, 1.0, [unknown(), pci(103, e(0, 1), Some(0.5)), unknown()])]);
-        let o = cc(vec![ivl(0.0, 1.0, [unknown(), pci(103, e(1, 2), Some(0.5)), unknown()])]);
+        let b = cc(vec![ivl(
+            0.0,
+            1.0,
+            [unknown(), pci(103, e(0, 1), Some(0.5)), unknown()],
+        )]);
+        let o = cc(vec![ivl(
+            0.0,
+            1.0,
+            [unknown(), pci(103, e(1, 2), Some(0.5)), unknown()],
+        )]);
         out.push((
             "fixup_class_mid_edges".into(),
             inputs(
@@ -555,9 +720,18 @@ fn edge_cases() -> Vec<(String, Value)> {
                 Some(box_()),
                 0,
                 vec![
-                    OpIn::Relate { a: e(0, 1), b: e(1, 1) },
-                    OpIn::FixupClass { b: b.clone(), o: o.clone() },
-                    OpIn::Relate { a: e(0, 3), b: e(1, 2) },
+                    OpIn::Relate {
+                        a: e(0, 1),
+                        b: e(1, 1),
+                    },
+                    OpIn::FixupClass {
+                        b: b.clone(),
+                        o: o.clone(),
+                    },
+                    OpIn::Relate {
+                        a: e(0, 3),
+                        b: e(1, 2),
+                    },
                     OpIn::FixupClass { b, o },
                 ],
             ),
@@ -684,6 +858,7 @@ impl UnitDiff for Runner {
 
 #[cfg(test)]
 mod tests {
+    use super::super::boolean_topology_intersector_p1::rust_op_statuses;
     use super::*;
     use std::collections::BTreeMap;
 
@@ -697,15 +872,18 @@ mod tests {
             seeds: MIN_GENERATED,
         };
         let cases = Runner.cases(&ctx).expect("cases");
-        let mut tally: BTreeMap<(i64, i64), usize> = BTreeMap::new();
+        let mut tally: BTreeMap<(i64, i64, i64), usize> = BTreeMap::new();
         let mut deferred = 0usize;
         for c in &cases {
             let i: Inputs = c.parse().expect("inputs");
             match rust_op_statuses(&i) {
                 Some(v) => {
-                    for (code, st) in v {
+                    for (code, st, first) in v {
                         if code == 16.0 || code >= 41.0 {
-                            *tally.entry((code as i64, st as i64)).or_default() += 1;
+                            // the first output: FixGaps' `modified`, FixupSplitVertexPair's
+                            // `changed`, the size of the first list or classification
+                            let first = if st == 0.0 { first as i64 } else { -1 };
+                            *tally.entry((code as i64, st as i64, first)).or_default() += 1;
                         }
                     }
                 }
@@ -713,8 +891,8 @@ mod tests {
             }
         }
         println!("cases {} deferred-or-unrunnable {deferred}", cases.len());
-        for ((code, st), n) in tally {
-            println!("op {code} status {st}: {n}");
+        for ((code, st, first), n) in tally {
+            println!("op {code} status {st} first {first}: {n}");
         }
     }
 }
