@@ -705,6 +705,11 @@ impl<'c> Stitch<'c> {
         self.tol_3d = stitch_tol_3d;
     }
 
+    /// The selection callback (`m_rStitchCallback`), for the `heal.stitch_p2` members.
+    pub(crate) fn callback(&mut self) -> &mut dyn StitchCallback {
+        &mut *self.callback
+    }
+
     /// The stitch tolerance (`m_dStitchTol3d`).
     #[must_use]
     pub const fn stitch_tol_3d(&self) -> f64 {
@@ -1787,7 +1792,11 @@ fn set_none<T>(list: &mut [Option<T>], i: usize) -> Result<()> {
 /// The insertion sort of `StitchVertexPairs`: indices `0..n` (skipping those `is_null`
 /// reports) ordered by `param`, each inserted at the end, at the front or at its binary
 /// search slot.
-fn sort_by_param(n: usize, is_null: impl Fn(usize) -> bool, param: &[f64]) -> Result<Vec<usize>> {
+pub(crate) fn sort_by_param(
+    n: usize,
+    is_null: impl Fn(usize) -> bool,
+    param: &[f64],
+) -> Result<Vec<usize>> {
     let past = || SolidError::invalid_input(OP, "upstream reads past its parameter array");
     let p = |i: usize| param.get(i).copied().ok_or_else(past);
     let mut sorted: Vec<usize> = Vec::new();
@@ -1830,7 +1839,7 @@ fn sort_by_param(n: usize, is_null: impl Fn(usize) -> bool, param: &[f64]) -> Re
 
 /// `SmVertex::SetPoint`: the change notification (on records local to the call), then
 /// the new position.
-fn set_point(k: &mut Kernel, b: &mut Brep, v: VertexId, point: Point3) -> Result<()> {
+pub(crate) fn set_point(k: &mut Kernel, b: &mut Brep, v: VertexId, point: Point3) -> Result<()> {
     let mut records: BTreeMap<ObjectKey, Topology> = BTreeMap::new();
     let mut attributes = AttributeStore::default();
     let this = arena_identity(CacheObject::Vertex(v));
@@ -1869,7 +1878,7 @@ fn update_object_tolerance(
 }
 
 /// `SmBrep::GlueVertices(keep, delete, pOptWireEdges)` (unit `topology.brep_p5`).
-fn glue_vertices(
+pub(crate) fn glue_vertices(
     b: &mut Brep,
     keep: VertexId,
     delete: VertexId,
@@ -1905,7 +1914,7 @@ fn stitch_and_orient(k: &mut Kernel, b: &mut Brep) -> Result<()> {
 
 /// `SmBrep::GlueEdgesGeneral(keep, orientation, dist, bDoRegionNesting, delete)` (unit
 /// `topology.brep_p7`).
-fn glue_edges_general(
+pub(crate) fn glue_edges_general(
     b: &mut Brep,
     keep: EdgeId,
     orientation: OrientType,
@@ -1922,7 +1931,7 @@ fn glue_edges_general(
 }
 
 /// `SmBrep::SqueezeEdge(edge, keep)` (unit `topology.brep_p3`).
-fn squeeze_edge_to(b: &mut Brep, e: Option<EdgeId>, keep: VertexId) -> Result<()> {
+pub(crate) fn squeeze_edge_to(b: &mut Brep, e: Option<EdgeId>, keep: VertexId) -> Result<()> {
     let _ = (b, e, keep);
     // UNPORTED(topology.brep_p3): SmBrep::SqueezeEdge
     Err(SolidError::unported(
@@ -1946,7 +1955,7 @@ fn make_vertex_split_edge(
 }
 
 /// `SmBrep::Notify(SM_NO_PRE_EDIT, this, NULL, NULL)` (unit `topology.brep_p2`).
-fn brep_notify_pre_edit(b: &mut Brep) -> Result<()> {
+pub(crate) fn brep_notify_pre_edit(b: &mut Brep) -> Result<()> {
     let _ = b;
     // UNPORTED(topology.brep_p2): SmBrep::Notify
     Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
