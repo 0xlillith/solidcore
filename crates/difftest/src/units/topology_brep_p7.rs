@@ -13,14 +13,17 @@
 //!
 //! **Guards.** A `read` stream goes through the stream guard of unit `topology.brep_data`
 //! on both sides (a rejected stream is an `err("guard")` case). A modified stream whose
-//! `SmBrepData` read succeeds is not run in C++ (its topology is not known to be safe
-//! for `MakeTopologyFromData`): the C++ side reports `-3`, the Rust side defers there
-//! (`MakeTopologyFromData`, unit `topology.brep_p10`). `glue` of two distinct edges that
-//! share both vertices is not run in C++ either (`-3`); the Rust side defers it
-//! (`SmBrep::Notify`, unit `topology.brep_p2`).
-//!
-//! These C++-skipped cases are deferred on the Rust side to `cpp-guard:unvalidated-topology`
-//! and `cpp-guard:glue-shared-vertices` (they never become comparable).
+//! C++ `SmBrepData` read succeeds is not run in C++: `MakeTopologyFromData` uses its
+//! cross-reference indices unchecked and crashes on some of them
+//! (`plan/upstream-issues.md` UB-164). Both sides decide this with the C++ reader; the
+//! C++ side reports `-3` and the Rust side defers to `cpp-guard:unvalidated-topology`.
+//! **Revisit when `topology.brep_p10` lands** (e.g. run the C++ read out of process): a
+//! guard-free sweep crashed in 13 of 15 files, while most such streams are safe. The other
+//! shim guards answer `-2` (upstream would dereference null); both sides would only echo
+//! that constant, so the Rust side defers them: `cpp-guard:ub-165`
+//! (`MakeFaceWithCurves` with a curve on surface and no UV curves), `cpp-guard:null-curve`
+//! (`GlueEdgesGeneral` of an edge without curve), `cpp-guard:null-surface`
+//! (`MergeSelfIntersectionCurves` on a face without surface).
 //!
 //! **Deferred.** Every read that gets past `SmBrepData::ReadFromFile`, every face made
 //! (`MakeShellVertex`, `MakeFaceTopology`, `GetInfiniteRegion`), every glue past its
@@ -36,6 +39,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use solidcore::curve::curve::Curve as SmCurve;
+use solidcore::curve::line::Line;
 use solidcore::geom::attribute::{AttributeStore, ObjectKey};
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::object::ObjectRef;
@@ -74,8 +78,8 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 
 /// `SM_ERR_INVALID_INPUT`.
 const SM_ERR_INVALID_INPUT: f64 = 1007.0;
-/// "Upstream would dereference null".
-const NULL_DEREF: f64 = -2.0;
+/// "Not run": the shim keeps the call away from upstream (`-3`).
+const NOT_RUN: f64 = -3.0;
 /// `NOW`: the weight of a non-rational control point.
 const NOW: f64 = -f64::MAX;
 /// `NOZ`: the z of a 2D control point.
@@ -279,6 +283,24 @@ fn read_bytes(file: &str, damage: Option<Damage>) -> Result<Vec<u8>, HarnessErro
         }
     }
     Ok(bytes)
+}
+
+/// Whether the C++ `SmBrepData::ReadFromFile` (through the `topology.brep_data` shim)
+/// reads the bytes successfully: the FFI's test for not running a modified stream.
+fn cpp_brep_data_reads(bytes: &[u8]) -> Result<bool, Fail> {
+    let req = bd::Request {
+        mode: bd::Mode::ReadFile,
+        binary: false,
+        version: 0,
+        dim: 0,
+        persist: false,
+        source: 0,
+        pre: 0,
+        data: bytes.to_vec(),
+        upstream_file: false,
+    };
+    let items = bd::run(&req).map_err(|e| hfail(format!("c++ brep data: {e}")))?;
+    Ok(items.first() == Some(&bd::Item::Int(0)))
 }
 
 /// The `topology.brep_data` stream guard of the bytes: `false` when it rejects them.
@@ -488,6 +510,12 @@ fn hfail(e: impl core::fmt::Display) -> Fail {
     Fail::Harness(harness(e.to_string()))
 }
 
+/// A case the shim answers with `-2` (upstream would dereference null): both sides would
+/// only echo that constant, so it is deferred under the guard's `label`, never compared.
+fn cpp_null_deref(label: &str, symbol: &str) -> Fail {
+    Fail::Deferred(Box::new(Output::deferred(label, symbol)))
+}
+
 /// The `SmStatus` of a Rust result (`0` success, `SM_ERR_INVALID_INPUT` for
 /// `InvalidInput`); a deferral or another error ends the case.
 fn status<T>(r: &Result<T, SolidError>) -> Result<f64, Fail> {
@@ -594,12 +622,10 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             rebuild,
         } => {
             let bytes = read_bytes(file, *damage)?;
-            // the C++ side does not run a modified stream its B-rep data read accepts
-            // (the topology is not known to be safe for MakeTopologyFromData)
-            if damage.is_some()
-                && solidcore::topology::brep_data::BrepData::read_from_file(k, bytes.clone(), FileType::Ascii)
-                    .is_ok()
-            {
+            // the C++ side does not run a modified stream its SmBrepData read accepts
+            // (MakeTopologyFromData does not validate the topology: UB-164); decided with
+            // the same C++ reader as the FFI
+            if damage.is_some() && cpp_brep_data_reads(&bytes)? {
                 return Err(Fail::Deferred(Box::new(Output::deferred(
                     "cpp-guard:unvalidated-topology",
                     "SmBrep::MakeTopologyFromData",
@@ -628,7 +654,7 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             // the shim's guard: upstream dereferences the null UV curve array once MakeFace
             // succeeds (the port returns InvalidInput there)
             if *crv_on_surf == 2 && !*has_uv && *has3d {
-                return Ok(vec![NULL_DEREF]);
+                return Err(cpp_null_deref("cpp-guard:ub-165", "SmBrep::MakeFaceWithCurves"));
             }
             let mut b = Brep::new();
             let region = if *region_null {
@@ -680,10 +706,30 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
         }
         Inputs::MakeFace {
             kind,
-            side: _,
+            side,
             orient,
             region_null,
         } => {
+            if *kind == 1 {
+                // the shim's square wire loop: its -3 when a side is too small for a line
+                let p = [
+                    Vec3::new(0.0, 0.0, 0.0),
+                    Vec3::new(*side, 0.0, 0.0),
+                    Vec3::new(*side, *side, 0.0),
+                    Vec3::new(0.0, *side, 0.0),
+                ];
+                for (a, b) in p.iter().zip(p.iter().cycle().skip(1)) {
+                    if Line::create_line_segment(3, *a, *b, None).is_err() {
+                        return Ok(vec![NOT_RUN]);
+                    }
+                }
+                // the loop needs MakeShellVertex (topology.brep_p9), then MakeWireEdgeVertex
+                // and MakeWireEdge (topology.brep_p3), before MakeFace sees it
+                return Err(Fail::Deferred(Box::new(Output::deferred(
+                    "topology.brep_p9",
+                    "SmBrep::MakeShellVertex",
+                ))));
+            }
             let mut b = Brep::new();
             let region = if *region_null {
                 None
@@ -721,27 +767,16 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
         } => {
             let ex = ex.ok_or_else(|| hfail("no export"))?;
             let (mut b, _) = shared::import(ex)?;
-            let c = fixture::counts(ex).ok_or_else(|| hfail("counts"))?;
             let eid = |x: i64| (x >= 0).then(|| EdgeId::from_index(x as u32));
-            // the C++ side does not glue two distinct non-wire edges sharing both
-            // vertices (or without curves): a real merge of arbitrary fixture edges
+            // the shim's guard: upstream dereferences a null edge curve
+            // (CurveMaxDistanceBetween) when gluing two distinct non-wire edges
             if let (Some(a), Some(d)) = (eid(*e1), eid(*e2)) {
-                if a != d && !ed::is_wire(&b, d).map_err(hfail)? {
-                    let ends = |e: EdgeId| -> Result<_, Fail> {
-                        let s = ed::start_vertex(&b, e).map_err(hfail)?;
-                        Ok((s, ed::other_vertex(&b, e, s).map_err(hfail)?))
-                    };
-                    let (a1, b1) = ends(a)?;
-                    let (a2, b2) = ends(d)?;
-                    let shared = (a1 == a2 || a1 == b2) && (b1 == a2 || b1 == b2);
-                    let no_curve = b.edge(a).map_err(hfail)?.curve.is_none()
-                        || b.edge(d).map_err(hfail)?.curve.is_none();
-                    if shared || no_curve {
-                        return Err(Fail::Deferred(Box::new(Output::deferred(
-                            "cpp-guard:glue-shared-vertices",
-                            "SmBrep::GlueEdgesGeneral",
-                        ))));
-                    }
+                if a != d
+                    && !ed::is_wire(&b, d).map_err(hfail)?
+                    && (b.edge(a).map_err(hfail)?.curve.is_none()
+                        || b.edge(d).map_err(hfail)?.curve.is_none())
+                {
+                    return Err(cpp_null_deref("cpp-guard:null-curve", "SmBrep::GlueEdgesGeneral"));
                 }
             }
             let mut records = BTreeMap::new();
@@ -764,7 +799,6 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 &mut env,
             );
             let s = status(&r)?;
-            let _ = c;
             // the B-rep's counts after the op (the shim walks the C++ B-rep afterwards)
             let mut o = vec![0.0, s];
             o.extend(brep_counts(&b));
@@ -786,7 +820,10 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             let (mut b, _) = shared::import(ex)?;
             let f = FaceId::from_index(*face as u32);
             if b.face(f).map_err(hfail)?.surface.is_none() {
-                return Ok(vec![0.0, NULL_DEREF]);
+                return Err(cpp_null_deref(
+                    "cpp-guard:null-surface",
+                    "SmBrep::MergeSelfIntersectionCurves",
+                ));
             }
             let mut records = BTreeMap::new();
             let mut attrs = AttributeStore::default();
@@ -1057,21 +1094,17 @@ impl UnitDiff for Runner {
                     },
                 )?;
             }
-            // damaged headers and bodies
+            // damaged headers and bodies (overwrites of the leading `//Brep Starts` comment,
+            // bytes 0, 8 and 9, were dropped: C++ reads them exactly as the plain file)
             for (j, d) in [
-                Damage::Truncate(0),
-                Damage::Truncate(1),
-                Damage::Truncate(10),
-                Damage::Truncate(64),
-                Damage::Truncate(300),
-                Damage::Truncate(2000),
-                Damage::Overwrite { at: 0, byte: b'X' },
-                Damage::Overwrite { at: 8, byte: b'X' },
-                Damage::Overwrite { at: 9, byte: b'-' },
-                Damage::Overwrite { at: 40, byte: b'.' },
+                (0, Damage::Truncate(0)),
+                (1, Damage::Truncate(1)),
+                (2, Damage::Truncate(10)),
+                (3, Damage::Truncate(64)),
+                (4, Damage::Truncate(300)),
+                (5, Damage::Truncate(2000)),
+                (9, Damage::Overwrite { at: 40, byte: b'.' }),
             ]
-            .into_iter()
-            .enumerate()
             {
                 // (a stream the B-rep data guard rejects compares nothing)
                 if !guard_accepts(&read_bytes(file, Some(d))?, false)? {
@@ -1092,7 +1125,9 @@ impl UnitDiff for Runner {
                 file: file.to_string(),
                 rebuild: false,
             };
-            for (j, (e1, e2)) in [(-1, 0), (0, -1), (-1, -1), (0, 0), (3, 3), (0, 1), (1, 5), (2, 7)]
+            // ((0, 1), (0, 4) and (2, 5) include every distinct edge pair of the files that
+            // shares both vertices: Mouse (0, 4) (2, 5); disk, surf_sphere150, torus, toruswvy (0, 1))
+            for (j, (e1, e2)) in [(-1, 0), (0, -1), (-1, -1), (0, 0), (3, 3), (0, 1), (1, 5), (2, 7), (0, 4), (2, 5)]
                 .into_iter()
                 .enumerate()
             {
@@ -1171,11 +1206,12 @@ impl UnitDiff for Runner {
                 )?;
             }
         }
-        // a square too small for its lines (CreateLineSegment fails in the shim)
-        for side in [1.0e-300, 1.0e-12] {
+        // a square too small for its lines (CreateLineSegment fails: -3 on both sides) and
+        // the smallest side that still makes a face in C++
+        for (name, side) in [("make_face_tiny_1e-300", 1.0e-300), ("make_face_small_1e-12", 1.0e-12)] {
             push(
                 &mut v,
-                format!("make_face_tiny_{side:e}"),
+                name.to_string(),
                 &Inputs::MakeFace {
                     kind: 1,
                     side,

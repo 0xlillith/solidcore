@@ -117,7 +117,9 @@ void p7_make_face_with_curves(Rd& rd, std::vector<double>& o)
         pts.Add(rd.vec());
     // pbOptCrvOnSurf TRUE without UV curves: once MakeFace succeeds upstream loops over the
     // null UV curve array (SmBrep.cpp:16600) and crashes; with 3D curves given it gets
-    // that far (without any curves it fails first with SM_ERR_INVALID_INPUT)
+    // that far (without any curves it fails first with SM_ERR_INVALID_INPUT). Over-wide but
+    // harmless: it also fires for no loops and for inputs upstream rejects with 1007
+    // before MakeFace; the Rust side defers every such case.
     if (cos == 2 && !hasuv && has3d)
     {
         o.push_back(P7_NULL_DEREF);
@@ -233,10 +235,9 @@ void p7_make_face(Rd& rd, std::vector<double>& o)
     }
 }
 
-// `e1 e2 orient gap nesting`, B-rep block (edge indices, `-1` null). Distinct edges are
-// glued only when they do not share both vertices (upstream returns SM_ERR before
-// touching the topology) or when one is a wire (deleted); otherwise `-3`. Output `status
-// counts` (or `-3`).
+// `e1 e2 orient gap nesting`, B-rep block (edge indices, `-1` null). Two distinct edges,
+// the second not a wire, one of them without a curve: `-2` (upstream dereferences the null
+// curve in CurveMaxDistanceBetween). Output `status counts` (or `-2`).
 void p7_glue(SmBrep* b, Graph& g, Rd& rd, std::vector<double>& o)
 {
     int64_t i1 = rd.idx(), i2 = rd.idx();
@@ -245,18 +246,10 @@ void p7_glue(SmBrep* b, Graph& g, Rd& rd, std::vector<double>& o)
     SmBoolean nesting = rd.bflag();
     SmEdge* e1 = i1 >= 0 ? g.edges.at((size_t)i1) : NULL;
     SmEdge* e2 = i2 >= 0 ? g.edges.at((size_t)i2) : NULL;
-    if (e1 && e2 && e1 != e2 && !e2->IsWire())
+    if (e1 && e2 && e1 != e2 && !e2->IsWire() && (e1->GetCurve() == NULL || e2->GetCurve() == NULL))
     {
-        SmVertex* a1 = e1->GetStartVertex();
-        SmVertex* b1 = e1->GetOtherVertex(a1);
-        SmVertex* a2 = e2->GetStartVertex();
-        SmVertex* b2 = e2->GetOtherVertex(a2);
-        bool shared = (a1 == a2 || a1 == b2) && (b1 == a2 || b1 == b2);
-        if (shared || e1->GetCurve() == NULL || e2->GetCurve() == NULL)
-        {
-            o.push_back(P7_NOT_RUN);
-            return;
-        }
+        o.push_back(P7_NULL_DEREF);
+        return;
     }
     o.push_back(st(b->GlueEdgesGeneral(e1, orient, gap, nesting, e2)));
     p7_put_counts(o, b);

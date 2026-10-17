@@ -42,11 +42,12 @@
 //!   upstream; a Rust error of those tests (other than [`SolidError::Unported`]) counts as
 //!   "not degenerate".
 //! - **Gaps in other units' ports** (`plan/findings.md`): the port of
-//!   `SmCurve::DeformToEndPointTargets` (unit `curve.curve_p6`) has no `pOptSurfCrvOnSurf`;
-//!   upstream edits a curve on surface's UV curve there, the port approximates the curve
-//!   (a known limit of that unit). A curve on surface of a surface that is not a B-spline
-//!   kind (the port's `CrvOnSurf` holds an `SmBSplineSurface`) returns
-//!   [`SolidError::Unported`] labelled `port-gap:curve.crv_on_surf`.
+//!   `SmCurve::DeformToEndPointTargets` (unit `curve.curve_p6`) has no `pOptSurfCrvOnSurf`,
+//!   so deforming a curve on surface to a gap target (upstream edits its UV curve) returns
+//!   [`SolidError::Unported`] for `curve.curve_p6`; other curves, and curves on surface
+//!   without targets, call the port. A curve on surface of a surface that is not a
+//!   B-spline kind (the port's `CrvOnSurf` holds an `SmBSplineSurface`) returns
+//!   [`SolidError::Unported`] for `curve.crv_on_surf`, as at that gap's other sites.
 //! - **Statuses ignored upstream** (`LiftCurve`, `DeformToEndPointTargets`, `ConvertTo2D`
 //!   of the UV curves, `GetEnds`, `CopyAndAddAnalytics`, `FindRadialSector`,
 //!   `SetUVTrimCurve`, `TestClosureSplitRegion`, `sm_CheckAndFixUVTrimCurves`,
@@ -81,6 +82,7 @@
 //! - **Bounds.** No recursion; every loop is over input arrays or B-rep lists.
 
 use crate::curve::crv_on_surf::CrvOnSurf;
+use crate::curve::curve::p2::CurveKind;
 use crate::curve::curve::Curve;
 use crate::error::{ignore_status, ignored, EntityRef, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
@@ -673,14 +675,13 @@ pub fn make_face_with_curves(
                             SurfaceKind::BSpline(s) => s.clone(),
                             SurfaceKind::Plane(p) => p.base_for_query().into_owned(),
                             SurfaceKind::SurfOfRevolution(s) => s.base().clone(),
-                            // the port's curve on surface holds an SmBSplineSurface only
-                            // (a limit of the port of unit curve.crv_on_surf, not an
-                            // unported unit: plan/findings.md)
                             _ => {
+                                // UNPORTED(curve.crv_on_surf): SmCrvOnSurf over a non-B-spline
+                                // surface (the Rust CrvOnSurf holds only B-spline surfaces)
                                 return Err(SolidError::unported(
-                                    "SmCrvOnSurf::SmCrvOnSurf (non-SmBSplineSurface)",
-                                    "port-gap:curve.crv_on_surf",
-                                ))
+                                    "SmCrvOnSurf (non-B-spline surface)",
+                                    "curve.crv_on_surf",
+                                ));
                             }
                         };
                         let c = CrvOnSurf::new(k, uv_curve, base, Some(*uv_domain), 2)?;
@@ -753,10 +754,21 @@ pub fn make_face_with_curves(
                     let Some(Some(curve)) = s3d.get_mut(ci) else {
                         return Err(null("missing curve"));
                     };
-                    // (upstream passes the surface as pOptSurfCrvOnSurf, so a curve on
-                    // surface edits its UV curve; the port of DeformToEndPointTargets, unit
-                    // curve.curve_p6, has no such parameter and approximates it instead:
-                    // plan/findings.md)
+                    // upstream passes the surface as pOptSurfCrvOnSurf, so a curve on surface
+                    // with a target edits its UV curve in place (DropPoint of the targets);
+                    // the port of DeformToEndPointTargets has no such parameter and would
+                    // approximate the curve instead. Without targets upstream returns at once,
+                    // and other curve kinds dispatch before pOptSurfCrvOnSurf is read.
+                    if matches!(curve.kind(), CurveKind::CrvOnSurf(_))
+                        && (new_start.is_some() || new_end.is_some())
+                    {
+                        // UNPORTED(curve.curve_p6): SmCurve::DeformToEndPointTargets
+                        // (pOptSurfCrvOnSurf branch)
+                        return Err(SolidError::unported(
+                            "SmCurve::DeformToEndPointTargets (pOptSurfCrvOnSurf)",
+                            "curve.curve_p6",
+                        ));
+                    }
                     let deformed = ignored(curve.deform_to_end_point_targets(
                         k,
                         new_start,
