@@ -5992,3 +5992,11 @@ independent p6 integration.
   (a surface cannot reach its owner's B-rep there) and `proto_topology::p2`'s
   `CalculateUVDomainFromUVTrimCurves` (a `ProtoBrep` face handle cannot reach a `Brep`
   face); both keep their `UNPORTED(topology.face_p1)` markers with that note.
+- **`heal.heal_data_p3` back-edges wired** (after #164): `Fix_MoveSeam` and
+  `Fix_SplitFaceAtSeams` call `move_seam` / `split_at_seam` with upstream's arguments (the
+  face properties' classifications, seam problems and the properties). Classification
+  handles have no B-rep meaning there, so the resolver is `&|_| None`: a merge that makes
+  topology is `InvalidInput`. **Caveat:** the healer ignores both statuses as upstream
+  (`ignore_soft`), so that `InvalidInput` is swallowed there and the split reports no new
+  faces. It is unreachable today (`MergeInterval` makes no topology until
+  `intersect.curve_class_p2`); that unit's porter must give the healer a typed resolver.
