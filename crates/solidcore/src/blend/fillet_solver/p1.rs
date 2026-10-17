@@ -40,7 +40,8 @@
 //! | [`test_manifold_tangent_rollover`]                     | `sm_TestManifoldTangentRollover`                      |
 //! | [`test_side_edge_convexity`]                           | `sm_TestSideEdgeConvexity`                            |
 //! | [`find_next_good_interval`]                            | `sm_FindNextGoodInterval`                             |
-//! | [`trim_rail`], [`split_rail`], [`compute_support_edge`] | `sm_TrimRail`, `sm_SplitRail`, `sm_ComputeSupportEdge` |
+//! | [`trim_rail`]                                          | `sm_TrimRail` (a rail edge of a [`Brep`])             |
+//! | [`split_rail`], [`compute_support_edge`]               | `sm_SplitRail`, `sm_ComputeSupportEdge`               |
 //! | (`Drop`)                                               | `~SmSelfIntersectionHandler`, `~SmMakeCurveBlendSIH`, `SmMakeSurfaceBlendSIH` constructor and destructor (no data) |
 //!
 //! Deviations:
@@ -57,7 +58,7 @@
 //!   handles. The constructor's `new SmFilletGeom(this)` runs while the solver has no
 //!   offset surfaces, so that geometry carries only defaults and is a bare
 //!   [`FilletGeomRef`]. Every read of their data returns [`SolidError::Unported`]
-//!   naming the owning unit; `SplitFilletGeomAtSideEdge`, `TrimRails`, `sm_TrimRail`,
+//!   naming the owning unit; `SplitFilletGeomAtSideEdge`, `TrimRails`,
 //!   `sm_SplitRail` and `sm_ComputeSupportEdge` stop at their first such call (their
 //!   remaining bodies need those types and are completed with them).
 //! - **Arguments.** Out-params become return values; `SmContext` arguments become the
@@ -72,10 +73,10 @@
 //! - **Iteration.** No loop here depends on more than the caller's array sizes; there
 //!   is no recursion.
 
-use crate::blend::fillet_custom_solver::{JacobianLoad, OffsetSurface, SurfaceId};
+use crate::blend::fillet_custom_solver::{InitialValues, JacobianLoad, OffsetSurface, SurfaceId};
 use crate::curve::curve::Curve;
 use crate::error::{ignore_status, ignored, Result, SolidError};
-use crate::geom::extent1d::Extent1d;
+use crate::geom::extent1d::{Extent1d, ExtentNd};
 use crate::geom::extent2d::Extent2d;
 use crate::geom::matrix::Matrix;
 use crate::geom::object::OBJECT_TYPE;
@@ -108,11 +109,12 @@ fn invalid(reason: &'static str) -> SolidError {
     SolidError::invalid_input(OP, reason)
 }
 
-/// Upstream `if (call != SM_SUCCESS) return SM_ERR;`: any failure becomes `SM_ERR`,
-/// [`SolidError::Unported`] passes through.
+/// Upstream `if (call != SM_SUCCESS) return SM_ERR;`: any failure becomes `SM_ERR`;
+/// [`SolidError::Unported`] and [`SolidError::InvalidInput`] (a path that is undefined
+/// upstream, not a status) pass through.
 fn as_sm_err(e: SolidError, op: &'static str) -> SolidError {
     match e {
-        SolidError::Unported { .. } => e,
+        SolidError::Unported { .. } | SolidError::InvalidInput { .. } => e,
         _ => SolidError::sm_err(op),
     }
 }
@@ -184,6 +186,8 @@ pub enum FilletSurfaceGenerator {
         /// `m_bComplement`.
         complement: bool,
     },
+    /// `SmEiffelTowerCrossSectionFSG` (unit `blend.fillet_custom_solver`).
+    EiffelTower,
     /// `SmBlendCurveCrossSectionFSG`.
     BlendCurve {
         /// `m_lContinuity`: 1, 2 or 3 for G1, G2 or G3.
@@ -219,7 +223,7 @@ impl FilletSurfaceGenerator {
     #[must_use]
     pub const fn fillet_surface_generator_type(&self) -> FilletSurfaceGeneratorType {
         match self {
-            Self::Base => FilletSurfaceGeneratorType::Unknown,
+            Self::Base | Self::EiffelTower => FilletSurfaceGeneratorType::Unknown,
             Self::Linear => FilletSurfaceGeneratorType::Linear,
             Self::Circular { .. } => FilletSurfaceGeneratorType::Circular,
             Self::BlendCurve { .. } => FilletSurfaceGeneratorType::BlendCurve,
@@ -244,20 +248,43 @@ impl FilletSurfaceGenerator {
         }
     }
 
-    /// `SmFilletSurfaceGenerator::CreateSurface`, the base version: `SM_ERR`.
+    /// `CreateSurface` (virtual) on the rails and fillet points: `SM_ERR` for the base,
+    /// the Eiffel tower surface for [`FilletSurfaceGenerator::EiffelTower`] (it reads
+    /// only the solver's `GetThisApproxTol3d()`, passed as `approx_tol_3d`).
     ///
     /// # Errors
     ///
-    /// `SM_ERR` for [`FilletSurfaceGenerator::Base`]; [`SolidError::Unported`] for the
-    /// derived generators (`SmLinearCrossSectionFSG::CreateSurface` and the others
-    /// belong to `blend.fillet_standard_solver_p1`).
-    pub fn create_surface(&self) -> Result<crate::nurbs::b_spline_surface::BSplineSurface> {
+    /// `SM_ERR` for [`FilletSurfaceGenerator::Base`]; those of
+    /// `SmEiffelTowerCrossSectionFSG::CreateSurface`; [`SolidError::Unported`] for the
+    /// linear, circular and blend-curve generators.
+    pub fn create_surface(
+        &self,
+        k: &Kernel,
+        approx_tol_3d: f64,
+        rail1: &mut BSplineCurve,
+        rail2: &mut BSplineCurve,
+        points: &[TsectPnt],
+    ) -> Result<crate::nurbs::b_spline_surface::BSplineSurface> {
         match self {
             Self::Base => Err(SolidError::sm_err(OP)),
+            Self::EiffelTower => {
+                crate::blend::fillet_custom_solver::EiffelTowerCrossSectionFsg::new()
+                    .create_surface(k, approx_tol_3d, rail1, rail2, points)
+            }
             // UNPORTED(blend.fillet_standard_solver_p1): SmLinearCrossSectionFSG::CreateSurface
-            _ => Err(SolidError::unported(
+            Self::Linear => Err(SolidError::unported(
                 "SmLinearCrossSectionFSG::CreateSurface",
                 "blend.fillet_standard_solver_p1",
+            )),
+            // UNPORTED(blend.fillet_standard_solver_p2): SmCircularCrossSectionFSG::CreateSurface
+            Self::Circular { .. } => Err(SolidError::unported(
+                "SmCircularCrossSectionFSG::CreateSurface",
+                "blend.fillet_standard_solver_p2",
+            )),
+            // UNPORTED(blend.fillet_standard_solver_p2): SmBlendCurveCrossSectionFSG::CreateSurface
+            Self::BlendCurve { .. } => Err(SolidError::unported(
+                "SmBlendCurveCrossSectionFSG::CreateSurface",
+                "blend.fillet_standard_solver_p2",
             )),
         }
     }
@@ -587,9 +614,9 @@ impl FilletSolver {
         if self.executive.is_none() {
             return Err(invalid("no fillet executive"));
         }
-        // UNPORTED(blend.fillet_executive_p1): SmFilletExecutive::GetSelfIntersectionHandler
+        // UNPORTED(blend.fillet_executive_p1): SmFilletExecutive::m_pSelfIntersectionHandler (member read)
         Err(SolidError::unported(
-            "SmFilletExecutive::GetSelfIntersectionHandler",
+            "SmFilletExecutive::m_pSelfIntersectionHandler",
             "blend.fillet_executive_p1",
         ))
     }
@@ -616,7 +643,7 @@ impl FilletSolver {
             .ok_or_else(|| invalid("rail index out of range"))
     }
 
-    fn surface_mut(&mut self, rail: usize) -> Result<Option<&mut OffsetSurfaceSlot>> {
+    pub(crate) fn surface_mut(&mut self, rail: usize) -> Result<Option<&mut OffsetSurfaceSlot>> {
         if self.fg_for_surfaces.is_some() {
             // UNPORTED(blend.fillet_geom_p1): SmFilletGeom::GetOffsetSurface
             return Err(SolidError::unported(
@@ -889,12 +916,12 @@ impl FilletSolver {
         // Extend by a smaller amount if periodic.
         let periodic_extension_factor = 0.2;
         let linear_extension_factor = 50.0;
-        if surface.is_periodic(domain, SurfParamType::U)? {
+        if bool_status(surface.is_periodic(domain, SurfParamType::U))? {
             size.x *= periodic_extension_factor;
         } else if CBI_LINEAR > 0 && surface.degree(SurfParamType::U) == 1 {
             size.x *= linear_extension_factor;
         }
-        if surface.is_periodic(domain, SurfParamType::V)? {
+        if bool_status(surface.is_periodic(domain, SurfParamType::V))? {
             size.y *= periodic_extension_factor;
         } else if CBI_LINEAR > 0 && surface.degree(SurfParamType::V) == 1 {
             size.y *= linear_extension_factor;
@@ -902,7 +929,7 @@ impl FilletSolver {
 
         // process the min domain boundaries
         let min = domain.min;
-        let sing = surface.is_singularity(k, min, EFF_ZERO, false)?;
+        let sing = singularity_status(surface.is_singularity(k, min, EFF_ZERO, false))?;
         if !sing.singular {
             // when surface is not singular - extend the min domain boundary
             domain.add_point(Point2::new(min.x - size.x, min.y - size.y));
@@ -920,7 +947,7 @@ impl FilletSolver {
 
         // process the max domain boundaries
         let max = domain.max;
-        let sing = surface.is_singularity(k, max, EFF_ZERO, false)?;
+        let sing = singularity_status(surface.is_singularity(k, max, EFF_ZERO, false))?;
         if !sing.singular {
             domain.add_point(Point2::new(max.x + size.x, max.y + size.y));
         } else if sing.direction == SurfParamType::U {
@@ -1018,6 +1045,31 @@ impl FilletSolver {
     }
 }
 
+/// An `SmBoolean` query whose failed evaluation upstream returns the status, read as
+/// `TRUE` (`SER` inside a boolean function); [`SolidError::Unported`] propagates.
+fn bool_status(r: Result<bool>) -> Result<bool> {
+    match r {
+        Ok(v) => Ok(v),
+        Err(e @ SolidError::Unported { .. }) => Err(e),
+        Err(_) => Ok(true),
+    }
+}
+
+/// [`bool_status`] for `IsSingularity`: a failure reads as singular, direction
+/// unknown (the V branch).
+fn singularity_status(
+    r: Result<crate::surface::surface::p5::Singularity>,
+) -> Result<crate::surface::surface::p5::Singularity> {
+    match r {
+        Ok(v) => Ok(v),
+        Err(e @ SolidError::Unported { .. }) => Err(e),
+        Err(_) => Ok(crate::surface::surface::p5::Singularity {
+            singular: true,
+            direction: SurfParamType::Neither,
+        }),
+    }
+}
+
 fn vertex_of_edgeuse(b: &Brep, e: EdgeuseId) -> Result<Option<VertexId>> {
     let vu = eu::vertexuse(b, e)?.ok_or_else(|| invalid("edge use without vertex use"))?;
     vertexuse::vertex(b, vu)
@@ -1072,20 +1124,54 @@ pub trait FilletSolverOps {
         &mut self,
         _num_equations: &mut usize,
         _num_parameters: &mut usize,
-        _load: &JacobianLoad<'_>,
+        _load: &mut JacobianLoad<'_>,
         _f: &mut [f64],
         _jacobian: Option<&mut Matrix>,
     ) -> Result<bool> {
         Err(SolidError::sm_err(OP))
     }
 
-    /// `LoadInitialValues`: the base returns `SM_ERR` and touches nothing.
+    /// `LoadInitialValues(rbDoSurf2Calcs, lRailIndex, crSurface1, lSurface1Index,
+    /// rpSurface2, rlSurface2Index, rExtents, rPeriodicities, rGuessT)`: the base
+    /// returns `SM_ERR` and touches nothing.
     ///
     /// # Errors
     ///
     /// `SM_ERR` for the base.
-    fn load_initial_values(&mut self, _rail_index: usize) -> Result<()> {
+    fn load_initial_values(
+        &mut self,
+        _k: &Kernel,
+        _brep: Option<&Brep>,
+        _do_surf2_calcs: bool,
+        _rail_index: usize,
+        _surface1: &OffsetSurface,
+        _surface1_index: usize,
+        _intervals: &mut ExtentNd,
+        _periodicities: &mut Vec<bool>,
+        _guess_t: &mut Vec<f64>,
+    ) -> Result<Option<InitialValues>> {
         Err(SolidError::sm_err(OP))
+    }
+
+    /// `SetExtensionFlags` (virtual): the base version
+    /// [`FilletSolver::set_extension_flags`].
+    ///
+    /// # Errors
+    ///
+    /// Those of [`FilletSolver::set_extension_flags`].
+    fn set_extension_flags(&mut self, b: &Brep) -> Result<()> {
+        self.solver_mut().set_extension_flags(b)
+    }
+
+    /// `GetType` (virtual): `SmFilletSolver_TYPE` for the base (each derived solver's
+    /// `SM_COMMON` type belongs to its unit).
+    fn type_code(&self) -> i64 {
+        FilletSolver::TYPE
+    }
+
+    /// `IsKindOf` (virtual): the base's `SmFilletSolver_TYPE` / `SmObject_TYPE`.
+    fn is_kind_of(&self, t: i64) -> bool {
+        FilletSolver::is_kind_of(t)
     }
 }
 
@@ -1232,7 +1318,7 @@ impl<'a> FilletSphereSolveEnfo<'a> {
         let mut num_equations = 1;
         let mut num_parameters = 2;
         let surface1 = base_id(self.solver.solver(), 0)?;
-        let load = JacobianLoad {
+        let mut load = JacobianLoad {
             rail_index: 0,
             surface1,
             surf1_offset: 0,
@@ -1245,11 +1331,13 @@ impl<'a> FilletSphereSolveEnfo<'a> {
             .load_jacobian(
                 &mut num_equations,
                 &mut num_parameters,
-                &load,
+                &mut load,
                 f,
                 jacobian.as_deref_mut(),
             )
             .map_err(|e| as_sm_err(e, OP_E))?;
+        // rlSurf2Offset as LoadJacobian left it
+        let surf2_offset = load.surf2_offset;
 
         // calc OffsetSurface0 current solution surface values
         let uv = Point2::new(x_at(x, 0)?, x_at(x, 1)?);
@@ -1270,8 +1358,7 @@ impl<'a> FilletSphereSolveEnfo<'a> {
             }
             let norm1 = norm1.unitize()?;
 
-            // lSurf2Offset stays 0 (no second surface was passed to LoadJacobian)
-            let uv2 = Point2::new(x_at(x, 0)?, x_at(x, 1)?);
+            let uv2 = Point2::new(x_at(x, surf2_offset)?, x_at(x, surf2_offset + 1)?);
             let s1 = self
                 .solver
                 .solver()
@@ -1397,7 +1484,7 @@ impl<'a> RailUvCurveIntersectEnfo<'a> {
         let mut num_equations = 2;
         let mut num_parameters = 3;
         let surface1 = base_id(self.solver.solver(), self.rail_index)?;
-        let load = JacobianLoad {
+        let mut load = JacobianLoad {
             rail_index: self.rail_index,
             surface1,
             surf1_offset: 1,
@@ -1407,7 +1494,13 @@ impl<'a> RailUvCurveIntersectEnfo<'a> {
         };
         let found_answer = self
             .solver
-            .load_jacobian(&mut num_equations, &mut num_parameters, &load, f, jacobian)
+            .load_jacobian(
+                &mut num_equations,
+                &mut num_parameters,
+                &mut load,
+                f,
+                jacobian,
+            )
             .map_err(|e| as_sm_err(e, OP_E))?;
 
         let mut found = false;
@@ -1477,7 +1570,7 @@ impl<'a> RailRailIntersectEnfo<'a> {
         let mut num_equations = 0;
         let mut num_parameters = 2;
         let surface1 = base_id(self.solver.solver(), self.rail_index)?;
-        let load = JacobianLoad {
+        let mut load = JacobianLoad {
             rail_index: self.rail_index,
             surface1,
             surf1_offset: 0,
@@ -1490,24 +1583,31 @@ impl<'a> RailRailIntersectEnfo<'a> {
             .load_jacobian(
                 &mut num_equations,
                 &mut num_parameters,
-                &load,
+                &mut load,
                 f,
                 jacobian.as_deref_mut(),
             )
             .map_err(|e| as_sm_err(e, OP_E))?;
 
-        // pSurface (still this solver's surface) and lSurf1Offset are passed again
-        let load2 = JacobianLoad {
+        // pSurface, lSurf1Offset and lSurf2Offset as the first call left them;
+        // pSurface2 is reset to NULL
+        let mut load2 = JacobianLoad {
             rail_index: self.other_rail_index,
-            surface1,
-            surf1_offset: 0,
+            surface1: load.surface1,
+            surf1_offset: load.surf1_offset,
             surface2: None,
-            surf2_offset: 0,
+            surf2_offset: load.surf2_offset,
             x,
         };
         let found2 = self
             .other_solver
-            .load_jacobian(&mut num_equations, &mut num_parameters, &load2, f, jacobian)
+            .load_jacobian(
+                &mut num_equations,
+                &mut num_parameters,
+                &mut load2,
+                f,
+                jacobian,
+            )
             .map_err(|e| as_sm_err(e, OP_E))?;
         Ok(found1 && found2)
     }
@@ -1929,32 +2029,65 @@ pub fn find_next_good_interval<O: ClassObject>(
         .map(|(i, _)| i)
 }
 
-/// `sm_TrimRail(pRail, crTrimInterval)`.
+/// `sm_TrimRail(pRail, crTrimInterval)`: trims the rail's 3D curve and the UV trim
+/// curves of its primary edge use and of the mate (`SmEdgeuse::GetUVTrimCurve`, which
+/// reads the mate's curve when the edge use holds none), each to the interval the
+/// previous trim may have snapped.
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: the rail is a pseudo-B-rep `SmFilletEdge`.
-pub fn trim_rail(_rail: FilletTopologyRef, _trim_interval: &Extent1d) -> Result<()> {
-    // UNPORTED(blend.fillet_geom_p1): SmFilletEdge::GetOriginalUVCurve
-    Err(SolidError::unported(
-        "SmFilletEdge::GetOriginalUVCurve",
-        "blend.fillet_geom_p1",
-    ))
+/// [`SolidError::InvalidInput`] for a rail without primary edge use or mate (upstream
+/// dereferences `NULL`); `SM_ERR_NULL_POINTER` for a curve that is not an
+/// `SmBSplineCurve` or a missing UV curve (`NER`); those of the trims.
+pub fn trim_rail(k: &Kernel, b: &mut Brep, rail: EdgeId, trim_interval: &Extent1d) -> Result<()> {
+    const OP_T: &str = "blend::fillet_solver::p1::trim_rail";
+    let prim = eu::primary_edgeuse(b, rail)?.ok_or_else(|| invalid("rail without edge use"))?;
+    let mate = eu::mate(b, prim)?.ok_or_else(|| invalid("rail edge use without mate"))?;
+    let is_bspline = edge::curve(b, rail)?.is_some_and(|c| c.is_kind_of(BSplineCurve::TYPE));
+    if !is_bspline {
+        return Err(SolidError::null_pointer(OP_T));
+    }
+    let (uv, uv_owner) = eu::uv_trim_curve(b, prim)?;
+    let uv_owner = uv_owner
+        .filter(|_| uv.is_some())
+        .ok_or(SolidError::null_pointer(OP_T))?;
+    let (orig, orig_owner) = eu::uv_trim_curve(b, mate)?;
+    let orig_owner = orig_owner
+        .filter(|_| orig.is_some())
+        .ok_or(SolidError::null_pointer(OP_T))?;
+    let mut trim = *trim_interval;
+    let missing = || SolidError::null_pointer(OP_T);
+    b.edge_mut(rail)?
+        .curve
+        .as_mut()
+        .ok_or_else(missing)?
+        .trim(k, &mut trim, TrimMode::Notify)?;
+    b.edgeuse_mut(uv_owner)?
+        .uv_trim_curve
+        .as_mut()
+        .ok_or_else(missing)?
+        .trim(k, &mut trim, TrimMode::Notify)?;
+    b.edgeuse_mut(orig_owner)?
+        .uv_trim_curve
+        .as_mut()
+        .ok_or_else(missing)?
+        .trim(k, &mut trim, TrimMode::Notify)?;
+    Ok(())
 }
 
 /// `sm_SplitRail(pFG, pRailToSplit, rpNewVert, rpNewRail)`.
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: the pseudo-B-rep (`SmFilletExecutive::GetPseudoBrep`).
+/// [`SolidError::Unported`]: its first call (`SmFilletGeom::GetFilletSolver`).
 pub fn split_rail(
     _fillet_geom: FilletGeomRef,
     _rail: FilletTopologyRef,
 ) -> Result<(FilletTopologyRef, FilletTopologyRef)> {
-    // UNPORTED(blend.fillet_executive_p1): SmFilletExecutive::GetPseudoBrep
+    // UNPORTED(blend.fillet_geom_p1): SmFilletGeom::GetFilletSolver
     Err(SolidError::unported(
-        "SmFilletExecutive::GetPseudoBrep",
-        "blend.fillet_executive_p1",
+        "SmFilletGeom::GetFilletSolver",
+        "blend.fillet_geom_p1",
     ))
 }
 

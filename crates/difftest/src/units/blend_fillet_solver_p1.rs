@@ -22,7 +22,8 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use solidcore::blend::fillet_custom_solver::{OffsetSurface, SurfaceId};
+use solidcore::blend::fillet_custom_solver::{JacobianLoad, OffsetSurface, SurfaceId};
+use solidcore::nurbs::math::NOW;
 use solidcore::blend::fillet_solver::p1::{
     compute_uv_vectors, FilStatus, FilletSolver, FilletSolverOffsetsData, FilletSolverOps,
     FilletSphereSolveEnfo, OffsetSurfaceSlot, RailUvCurveIntersectEnfo,
@@ -84,6 +85,10 @@ enum Inputs {
     },
     RailUv {
         rail: usize,
+        #[serde(default)]
+        load: bool,
+        #[serde(default)]
+        found: bool,
         curve: CrvIn,
         ivl: [f64; 2],
         arrays: Arrays,
@@ -171,11 +176,15 @@ fn cpp_input(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
         }
         Inputs::RailUv {
             rail,
+            load,
+            found,
             curve,
             ivl,
             arrays,
         } => {
             o.push(*rail as f64);
+            o.push(b(*load));
+            o.push(b(*found));
             push_curve(&mut o, curve)?;
             o.extend_from_slice(ivl);
             push_arrays(&mut o, arrays);
@@ -390,12 +399,18 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         }
         Inputs::RailUv {
             rail,
+            load,
+            found,
             curve,
             ivl,
             arrays,
         } => {
             let crv = bspline_of(curve)?;
-            let mut fs = FilletSolver::new(1.0e-6, 0.1, 0.01);
+            let mut fs = ShimSolver {
+                base: FilletSolver::new(1.0e-6, 0.1, 0.01),
+                load: *load,
+                found: *found,
+            };
             let mut f = arrays.f.clone();
             let mut j = arrays.jac.map(|[r, c]| Matrix::new(r, c));
             let mut e = RailUvCurveIntersectEnfo::new(
@@ -497,6 +512,57 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             }
             Ok(Output::new().values("flat", o))
         }
+    }
+}
+
+/// The shim's solver: the base, or with `load` the deterministic `LoadJacobian` of
+/// `ShimFS` (row `ne` = `x[surf1_offset] - 0.5 x[0] + rail` and its partials, written
+/// only inside `f` and the Jacobian; `surf2_offset = np`; `ne += 1`, `np += 2`).
+struct ShimSolver {
+    base: FilletSolver,
+    load: bool,
+    found: bool,
+}
+
+impl FilletSolverOps for ShimSolver {
+    fn solver(&self) -> &FilletSolver {
+        &self.base
+    }
+
+    fn solver_mut(&mut self) -> &mut FilletSolver {
+        &mut self.base
+    }
+
+    fn load_jacobian(
+        &mut self,
+        num_equations: &mut usize,
+        num_parameters: &mut usize,
+        load: &mut JacobianLoad<'_>,
+        f: &mut [f64],
+        jacobian: Option<&mut Matrix>,
+    ) -> Result<bool, SolidError> {
+        if !self.load {
+            return self.base.load_jacobian(num_equations, num_parameters, load, f, jacobian);
+        }
+        let ne = *num_equations;
+        let o1 = load.surf1_offset;
+        if let (Some(slot), Some(&xo), Some(&x0)) = (f.get_mut(ne), load.x.get(o1), load.x.first()) {
+            *slot = xo - 0.5 * x0 + load.rail_index as f64;
+        }
+        if let Some(j) = jacobian {
+            if ne < j.num_rows() {
+                if o1 < j.num_columns() {
+                    j.set_at(ne, o1, 1.0)?;
+                }
+                if j.num_columns() > 0 {
+                    j.set_at(ne, 0, -0.5)?;
+                }
+            }
+        }
+        load.surf2_offset = *num_parameters;
+        *num_equations += 1;
+        *num_parameters += 2;
+        Ok(self.found)
     }
 }
 
@@ -639,10 +705,24 @@ fn gen_case(rng: &mut Rng) -> Inputs {
             let a = curve.u.first().copied().unwrap_or(0.0);
             let z = curve.u.last().copied().unwrap_or(1.0);
             let mut arrays = gen_arrays(rng, 3, 2, 2, 3);
+            let load = rng.chance(0.7);
             if let Some(x0) = arrays.x.first_mut() {
                 *x0 = a + (z - a) * rng.uniform(-0.2, 1.2);
             }
+            // half the loading cases start on the curve's first point (a clamped
+            // non-rational curve passes through it): the converged branch
+            if let (true, Some([px, py, _, w])) = (load && rng.chance(0.5), curve.cpts.first().copied()) {
+                if w == NOW {
+                    if let [x0, x1, x2, ..] = arrays.x.as_mut_slice() {
+                        *x0 = a;
+                        *x1 = px;
+                        *x2 = py;
+                    }
+                }
+            }
             Inputs::RailUv {
+                load,
+                found: rng.chance(0.6),
                 rail: rng.below(2) as usize,
                 curve,
                 ivl: [a, z],

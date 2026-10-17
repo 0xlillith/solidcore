@@ -64,6 +64,33 @@ struct ShimFS : SmFilletSolver
         if (n > 0)
             pc[0] = 0;
     }
+    // A deterministic LoadJacobian (mirrored by the runner's ShimSolver) when `load`:
+    // row rlNumEquations is x[rlSurf1Offset] - 0.5 x[0] + lRailIndex with its two
+    // partials (written only inside rF and the Jacobian), rlSurf2Offset = rlNumParameters,
+    // then rlNumEquations += 1, rlNumParameters += 2, rbFoundAnswer = `found`.
+    bool load = false;
+    bool found = false;
+    virtual SmStatus LoadJacobian(ULONG& ne, ULONG& np, ULONG rail, SmSurface*& s1, ULONG& o1, SmSurface*& s2,
+                                  ULONG& o2, const SmTArray<double>& x, SmTArray<double>& f, SmMatrix* j,
+                                  SmBoolean& rbFound)
+    {
+        if (!load)
+            return SmFilletSolver::LoadJacobian(ne, np, rail, s1, o1, s2, o2, x, f, j, rbFound);
+        if (ne < f.GetSize() && o1 < x.GetSize() && x.GetSize() > 0)
+            f[ne] = x[o1] - 0.5 * x[0] + (double)rail;
+        if (j && ne < j->GetNumRows())
+        {
+            if (o1 < j->GetNumColumns())
+                (*j)[ne][o1] = 1.0;
+            if (j->GetNumColumns() > 0)
+                (*j)[ne][0] = -0.5;
+        }
+        o2 = np;
+        ne += 1;
+        np += 2;
+        rbFound = found ? TRUE : FALSE;
+        return SM_SUCCESS;
+    }
     double saved(int i) const { return m_dSavedOffsets[i]; }
     void set_orientation(int i, double o) { m_dOrientations[i] = o; }
     SmStatus finish() { return FinishConstruction(); }
@@ -292,12 +319,16 @@ int32_t run_sphere(Rd& rd, const SmContext& ctx, std::vector<double>& o)
 int32_t run_rail_uv(Rd& rd, const SmContext& ctx, std::vector<double>& o)
 {
     ULONG rail = (ULONG)rd.idx();
+    bool load = rd.flag();
+    bool found = rd.flag();
     SmBSplineCurve* crv = read_curve(rd, ctx);
     double t0 = rd.num();
     double t1 = rd.num();
     Arrays a;
     a.read(rd);
     ShimFS fs(ctx, 1.0e-6, 0.1, 0.01);
+    fs.load = load;
+    fs.found = found;
     SmPlane plane(SmPoint3d(0.0, 0.0, 0.0), SmVector3d(0.0, 0.0, 1.0), &ctx);
     {
         SmRailUVCurveIntersectENFO e(*crv, SmExtent1d(t0, t1), plane, rail, fs);
