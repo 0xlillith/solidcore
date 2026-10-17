@@ -6705,15 +6705,18 @@ with owner-tagged `Unported` errors and documented continuations.
   records are unchanged; no tolerance is relaxed. Regression tests verify that
   normalization does not hide those differences. The deterministic kernel's
   actual sorting algorithm is unchanged.
-- **Normal aggregate validation.** The corrected runner completes without the
-  isolated-case selector: 691 cases (91 fixtures and 600 fixed-seed generated),
-  633 passed, 0 failed, 17 deferred and 41 native fixture-construction rejections.
-  Maximum relative error is `2.5139756042650037e-14`, within `1e-9` with no
-  absolute floors. Sensitivity detects all 633 perturbations. The standard report
-  is `reports/difftest/offset.offset_executive_p1.json`; the obsolete Markdown
-  investigation is removed. Rejected inputs and deferred paths are not passes.
-  Validation uses pinned upstream `c9c5979`, GNU g++ 16.2.1 and Rust 1.98.0 on
-  Linux x86_64.
+- **Final aggregate validation after the non-blocking follow-ups.** The corrected
+  runner completes without an isolated-case selector: 693 cases (93 fixtures and
+  600 fixed-seed generated), 675 passed, 0 failed, 17 deferred and one explicit
+  analytic-line constructor rejection. Every pass compares numerical values.
+  Maximum relative error is `2.9158035700250084e-14`, within unchanged `1e-9`
+  relative tolerance with no absolute floors. Sensitivity detects all 675
+  perturbations. The standard report is
+  `reports/difftest/offset.offset_executive_p1.json`; the obsolete Markdown
+  investigation is removed. These results supersede the initial 691 / 633 / 17 /
+  41 aggregate. Rejected inputs and deferred paths are not passes. Final validation
+  uses pinned upstream `c9c5979`, GNU g++ 12.2.0 and Rust 1.98.0 on Linux ARM64
+  in local Docker, not the retired network builder.
 - **Remaining dependencies and coverage.** Twelve cases need
   `topology.brep_p9::SmBrep::MakeVertexSplitEdge`; one each needs
   `heal.stitch_p2::SmStitch::StitchIntoSolid`,
@@ -6727,14 +6730,51 @@ with owner-tagged `Unported` errors and documented continuations.
   snapshots, orientation-sensitive endpoint notifications, cache identity, strict
   length filtering, gap order, actual topology-solver dispatch and both retained
   equal-minimum regressions.
-- **Broader checks and limitation.** Formatting and C++-enabled workspace Clippy
-  (all targets, warnings denied) pass. All 1299 kernel tests, 20 runner tests and
+- **Earlier broader checks and limitation.** Formatting and C++-enabled workspace Clippy
+  (all targets, warnings denied) passed. All 1299 kernel tests, 20 runner tests and
   14 FFI tests pass, including execution of the direct native negative-distance
   guard test; the wasm check passes. A full `--green --no-report` run selected
   198 units but hit its 1200-second limit after 107 PASS and 67 PARTIAL summaries,
   with no reported failures. It last completed `query.edge` and did not reach
   this unit at position 196. The standalone offset run above passed the partial
   gate; no completed full-suite baseline pass is claimed.
+- **Non-blocking review follow-ups (2026-10-18).** `RemoveExcessFaces` now tags the
+  arena-order edge walk with `UNPORTED(topology.brep_p1): SmBrep::GetEdges` and
+  explicitly does not certify linked-list/deletion order; nonempty paths still
+  stop at `NormalizedEvaluate` before removal. UV conversion and bounding-box
+  calls preserve the ordinary statuses upstream ignores, without hiding
+  `Unported`; tests check conversion side effects and the initialized empty
+  extent on ordinary failure. The strut vertex's missing-mate lookup now yields
+  an empty relation list, preserving primary-map precedence, rather than a null
+  error. Five kernel regressions cover these changes.
+- **Rejected-fixture coverage repaired without changing measured geometry.** The
+  previous adapter used `SmBSplineCurve::CreateLineSegment` to close each measured
+  loop, but that constructor rejects coincident endpoints. Only for exactly
+  coincident support endpoints, a real nonzero closed cubic B-spline now closes
+  the loop on both engines. The measured curve/interval, actual `MakeWireEdge`
+  calls, measured traversal and normalization policy are unchanged. Both original
+  zero-trim cases and the collapsed quadratic case now perform real comparisons;
+  generated constant/zero-trim cases do too. Two positive near-degenerate cases
+  exercise the short-but-positive length branch. The coincident analytic-line
+  fixture intentionally remains a native constructor rejection (`1007`), not a
+  fabricated parity result. Rejections fall from 41 to one. Native runner
+  regressions verify all five zero/near-degenerate comparisons and the separate
+  analytic rejection.
+- **Current follow-up checks and upstream limitation.** Formatting, C++-enabled
+  workspace/all-target Clippy with warnings denied, 36 p1 kernel tests, 22 p1
+  runner tests, 14 p1 FFI tests and wasm checking pass. The newly merged sphere
+  module omitted the existing `OffsetSurface` variant from its fallback match;
+  the integration fix routes it to the same generic boundary, with a regression
+  and an unchanged 800/800 sphere differential result. The full kernel run is
+  **not green**: 1352 tests pass and the unchanged upstream
+  `surface::surface::p2::tests::read_from_db_unported_types` test fails because it
+  still expects the now-ported `OFFSET_SURFACE_TYPE` reader to return `Unported`.
+  That unrelated assertion is not changed or skipped, and no full-suite pass is
+  claimed. Local compilation now shares 10 Cargo jobserver slots, uses the
+  upstream `cc/parallel` feature, persistent compiler caching and Linux-native
+  target/cache volumes. A forced 204-shim cached rebuild measured 61.65 seconds
+  on the host bind mount versus 5.38 seconds on the Linux volumes; this is a
+  warmed FFI rebuild measurement, not an end-to-end cold-suite speedup.
 
 ## topology.face_p1 (`SmFace.cpp` part 1: `MoveSeam`, `SplitAtSeam`, `CreateOrientedTrimBoundary`, `CalculateUVDomainFromUVTrimCurves`, ...; PR #148, 2026-10-16; partial, no disagreements)
 
