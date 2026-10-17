@@ -122,7 +122,6 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-
 /// Most faces the working lists of [`TopologyIntersector::face_face_intersect`] may
 /// hold (the inputs plus the faces split off); a bound of the port.
 pub const MAX_FACE_LIST: usize = 1 << 16;
