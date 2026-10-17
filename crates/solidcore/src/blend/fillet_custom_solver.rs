@@ -43,9 +43,8 @@
 //!   (`GetSurface(i)`), which then keeps that extension after the call; here it is the
 //!   caller's surface (the solver is borrowed shared), so the solver's copy does not.
 //!   For the same reason `rpSurface2->LocalPointSolve` runs on a copy of the other
-//!   rail's offset and drops an extension it makes; its `MINIMIZE` solve
-//!   (`LocalPointSolve_1`, `surface.surface_point_solve_p3`) returns
-//!   [`SolidError::Unported`].
+//!   rail's offset and drops an extension it makes (its `MINIMIZE` solve is
+//!   `LocalPointSolve_1`).
 //! - **Arguments.** Out-params become return values; `SmContext` arguments are dropped.
 //!   `LoadJacobian` takes the base-surface identities of `rpSurface1` / `rpSurface2`
 //!   (the only use of those pointers) and their offsets by value (never written);
@@ -218,17 +217,22 @@ fn offset_compute_inward_vector(s: &mut OffsetSurface, uv: Point2) -> Result<Vec
 /// is borrowed shared), so a base extension it makes is not kept (see the module
 /// deviations).
 fn offset_local_point_solve(
+    k: &Kernel,
     s: &OffsetSurface,
     domain: &Extent2d,
     point: Point3,
     guess: Point2,
 ) -> Result<Option<(Point2, f64)>> {
     // SmSurface::LocalPointSolve on the offset: its evaluations dispatch to
-    // SmOffsetSurface (a MINIMIZE solve runs LocalPointSolve_1, unit
-    // surface.surface_point_solve_p3, which returns Unported until it is ported)
+    // SmOffsetSurface (a MINIMIZE solve runs LocalPointSolve_1)
     let surface = Surface::from(s.surface.clone());
-    let r =
-        surface.local_point_solve::<NoObject>(domain, SolverOperation::Minimize, point, guess)?;
+    let r = surface.local_point_solve::<NoObject>(
+        k,
+        domain,
+        SolverOperation::Minimize,
+        point,
+        guess,
+    )?;
     if !r.found {
         return Ok(None);
     }
@@ -624,7 +628,8 @@ fn initial_setup(
         let mut guess2 = Point2::new(p2d.x, p2d.y);
 
         // Before we add it drop point to other surface to get a better guess
-        if let Some((sol_uv, dist)) = offset_local_point_solve(surface2, &domain2, pnt, guess2)? {
+        if let Some((sol_uv, dist)) = offset_local_point_solve(k, surface2, &domain2, pnt, guess2)?
+        {
             if dist < (fs.radius(0)?.abs() + fs.radius(1)?.abs()) {
                 guess2 = sol_uv;
             }

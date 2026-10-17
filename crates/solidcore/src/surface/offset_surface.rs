@@ -35,13 +35,15 @@
 //! - **Base surfaces.** `m_pSurface` and `m_pExtendedSurface` are owned boxes; a base
 //!   upstream shares (`bOwnsSurface == FALSE`) is a copy here, and `m_bOwnsSurface` is
 //!   kept as a flag because `Transform`, `SwapUV` and `TrimWithDomain` fail without it.
-//!   The offset does not become its base's owner (`SetOwner(this)`): the box is the
-//!   ownership, so the base's [`Surface::face`] does not follow the offset's owner
-//!   chain. Its only consumer, the zone tolerance a B-spline base's box asks its face
-//!   for, is handled in [`OffsetSurface::calculate_bounding_box`], which passes down
-//!   whether a face owns the outermost offset and returns `SmFace::GetTolerance`'s
-//!   [`SolidError::Unported`] (as a face-owned B-spline does) instead of the default
-//!   zone tolerance. The `SetBaseSurface` setter, the
+//!   An owning offset sets its base's owner to [`BASE_OWNER`] wherever upstream calls
+//!   `m_pSurface->SetOwner(this)` (the constructor, `Copy`, the copy constructor and
+//!   `ReadFromDB`); the extended surface has none. Upstream reads that owner: the
+//!   point solver's loose tolerance (`LocalPointSolve_1`: `GetZoneTol3d(GetOwner())`
+//!   when there is one) and every `GetFace()` walk (zone and approximation tolerances of
+//!   the base, its expanded boxes). The base, held by value, cannot walk up, so the
+//!   offset hands down the face its own owner chain reaches ([`Surface::set_owner`]
+//!   keeps it in step) and [`Surface::face`] of the base returns it. A non-owned base
+//!   keeps its caller's owner, as upstream's shared base does. The `SetBaseSurface` setter, the
 //!   unused copy constructor, `CreateMirrorSurface`, `GetMemoryUsed`, `WriteToDB`,
 //!   `Draw`, `DrawUV`, `Dump` and `AssertValid` are not ported (unused upstream).
 //! - **Context.** Every surface has a context here, so the clamp-instead-of-extend
@@ -94,11 +96,13 @@ use core::ptr;
 
 use crate::curve::curve::Curve;
 use crate::error::{ignored, Result, SolidError};
+use crate::geom::attribute::ObjectKey;
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::{Extent2d, SS_UMAX, SS_UMIN, SS_VMAX, SS_VMIN};
 use crate::geom::extent3d::Extent3d;
 use crate::geom::geom_utility::p2::ContinuityType;
+use crate::geom::object::ObjectRef;
 use crate::geom::polar_box::{PolarBox, PolarBoxState};
 use crate::geom::pseudo_box::PseudoBox;
 use crate::geom::tol::{are_same, is_zero};
@@ -150,7 +154,7 @@ const MAT_LEN: usize = (2 * MAX_DERIVS + 1) * (2 * MAX_DERIVS + 1);
 /// When extension is allowed, points outside the base domain are evaluated on a
 /// B-spline base extended to contain them (`m_pExtendedSurface`); otherwise they are
 /// clamped to the domain.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct OffsetSurface {
     /// `m_dOffsetDistance`.
     offset_distance: f64,
@@ -170,6 +174,40 @@ pub struct OffsetSurface {
     /// `SS_VMAX`.
     singularities: u32,
 }
+
+/// A field-wise copy (the Rust `Clone`, also standing for the same object in a
+/// temporary): [`Surface`]'s `Clone` resets an owner, so the base's owner state (owned
+/// by this offset or kept from its caller) is copied explicitly.
+impl Clone for OffsetSurface {
+    fn clone(&self) -> Self {
+        let copy_with_owner = |s: &Surface| {
+            let mut c = s.clone();
+            c.restore_owner_state(s);
+            c
+        };
+        Self {
+            offset_distance: self.offset_distance,
+            allow_extension: self.allow_extension,
+            owns_surface: self.owns_surface,
+            surface: Box::new(copy_with_owner(&self.surface)),
+            extended_surface: self
+                .extended_surface
+                .as_deref()
+                .map(|e| Box::new(copy_with_owner(e))),
+            is_periodic_on_u: self.is_periodic_on_u,
+            is_periodic_on_v: self.is_periodic_on_v,
+            singularities: self.singularities,
+        }
+    }
+}
+
+/// The owner an owning offset gives its base (`m_pSurface->SetOwner(this)`): an
+/// `SmOffsetSurface`. Rust objects have no address identity; every owning offset uses
+/// this key (only the type and the face reached through it are read upstream).
+pub const BASE_OWNER: ObjectRef = ObjectRef {
+    type_code: OFFSET_SURFACE_TYPE,
+    key: ObjectKey(0),
+};
 
 impl From<OffsetSurface> for Surface {
     fn from(s: OffsetSurface) -> Self {
@@ -307,7 +345,7 @@ impl OffsetSurface {
                 };
                 (u, v, s)
             };
-        Ok(Self {
+        let mut off = Self {
             offset_distance,
             allow_extension: false,
             owns_surface,
@@ -316,7 +354,22 @@ impl OffsetSurface {
             is_periodic_on_u,
             is_periodic_on_v,
             singularities,
-        })
+        };
+        // if( m_bOwnsSurface == TRUE) { m_pSurface->SetOwner(this) ; } (a new offset has
+        // no owner, so its base reaches no face yet)
+        if off.owns_surface {
+            off.surface.set_surface_owner(BASE_OWNER, None);
+        }
+        Ok(off)
+    }
+
+    /// The base surface when this offset owns it (whose owner it then is).
+    pub(crate) fn owned_base_mut(&mut self) -> Option<&mut Surface> {
+        if self.owns_surface {
+            Some(&mut self.surface)
+        } else {
+            None
+        }
     }
 
     // ---- type queries -------------------------------------------------------------------
@@ -457,16 +510,15 @@ impl OffsetSurface {
             let new_sur = self.surface.copy(k)?;
             let mut s = Self::new(k, self.offset_distance, new_sur, false, SS_UNKNOWN)?;
             s.owns_surface = true;
+            // pNewSur->SetOwner(pSur)
+            s.surface.set_surface_owner(BASE_OWNER, None);
             s
         } else {
             // when BaseSurface is not owned (shared upstream: the same base surface)
-            let mut s = Self::new(
-                k,
-                self.offset_distance,
-                (*self.surface).clone(),
-                false,
-                SS_UNKNOWN,
-            )?;
+            // (the same object upstream: its owner is unchanged)
+            let mut shared = (*self.surface).clone();
+            shared.restore_owner_state(&self.surface);
+            let mut s = Self::new(k, self.offset_distance, shared, false, SS_UNKNOWN)?;
             s.owns_surface = false;
             s
         };
@@ -558,6 +610,32 @@ impl OffsetSurface {
         )?))
     }
 
+    /// A copy for evaluation (`Surface::clone_for_evaluation`): the members as they
+    /// are, the base and extended surfaces copied exactly (no knot fix-up), `depth`
+    /// the wrapper nesting already walked.
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` past the evaluation copy's nesting bound.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        let surface = Box::new(self.surface.clone_for_evaluation_depth(depth)?);
+        let extended_surface = self
+            .extended_surface
+            .as_deref()
+            .map(|e| e.clone_for_evaluation_depth(depth).map(Box::new))
+            .transpose()?;
+        Ok(Self {
+            offset_distance: self.offset_distance,
+            allow_extension: self.allow_extension,
+            owns_surface: self.owns_surface,
+            surface,
+            extended_surface,
+            is_periodic_on_u: self.is_periodic_on_u,
+            is_periodic_on_v: self.is_periodic_on_v,
+            singularities: self.singularities,
+        })
+    }
+
     /// The offset of this surface by `signed_offset_distance` more
     /// (`CreateOffsetSurface`; the approximation tolerance is not used): a copy of the
     /// base surface when the compound distance is below `SM_EFF_ZERO`, else an offset
@@ -630,10 +708,9 @@ impl OffsetSurface {
     /// # Errors
     ///
     /// Those of the base surface's [`Surface::calculate_bounding_box`] and of
-    /// [`Surface::base_calculate_bounding_box`]; [`SolidError::Unported`]:
-    /// `SmFace::GetTolerance` (`topology.face_p2`) when a face owns `this` and the
-    /// expanded box of a B-spline, plane or surface of revolution base would ask that
-    /// face for its tolerance.
+    /// [`Surface::base_calculate_bounding_box`] (an owned base reaches this offset's face
+    /// through its owner, so a face-owned B-spline-kind base's expanded box returns
+    /// `SmFace::GetTolerance`'s [`SolidError::Unported`], as upstream asks that face).
     pub fn calculate_bounding_box(
         &self,
         k: &Kernel,
@@ -641,29 +718,6 @@ impl OffsetSurface {
         uv_domain: &Extent2d,
         want: [bool; 3],
         expand_pos_boxes_by_zone_tol_3d: bool,
-    ) -> Result<SurfaceBoxes> {
-        let face_owned = this.face()?.is_some();
-        self.bounding_box_with(
-            k,
-            this,
-            uv_domain,
-            want,
-            expand_pos_boxes_by_zone_tol_3d,
-            face_owned,
-        )
-    }
-
-    /// [`OffsetSurface::calculate_bounding_box`] with `face_owned` telling whether a face
-    /// owns the outermost offset: upstream's base surfaces reach it through `GetFace()`'s
-    /// owner chain, which the boxed bases here do not have (see the module deviations).
-    fn bounding_box_with(
-        &self,
-        k: &Kernel,
-        this: &Surface,
-        uv_domain: &Extent2d,
-        want: [bool; 3],
-        expand_pos_boxes_by_zone_tol_3d: bool,
-        face_owned: bool,
     ) -> Result<SurfaceBoxes> {
         if !uv_domain.is_contained_by(&self.surface.natural_uv_domain(), EFF_ZERO) {
             return this.base_calculate_bounding_box(k, want, expand_pos_boxes_by_zone_tol_3d);
@@ -686,34 +740,13 @@ impl OffsetSurface {
             b
         });
 
-        // bound the base surface
-        let base = match self.surface.kind() {
-            SurfaceKind::OffsetSurface(inner) => inner.bounding_box_with(
-                k,
-                &self.surface,
-                uv_domain,
-                [true, true, true],
-                expand_pos_boxes_by_zone_tol_3d,
-                face_owned,
-            )?,
-            // the SmBSplineSurface override expands by GetZoneTol3d(this), which asks the
-            // face found through the owner chain for its tolerance
-            SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_)
-                if face_owned && expand_pos_boxes_by_zone_tol_3d =>
-            {
-                // UNPORTED(topology.face_p2): SmFace::GetTolerance
-                return Err(SolidError::unported(
-                    "SmFace::GetTolerance",
-                    "topology.face_p2",
-                ));
-            }
-            _ => self.surface.calculate_bounding_box(
-                k,
-                uv_domain,
-                [true, true, true],
-                expand_pos_boxes_by_zone_tol_3d,
-            )?,
-        };
+        // bound the base surface (pass the call along to the base surface)
+        let base = self.surface.calculate_bounding_box(
+            k,
+            uv_domain,
+            [true, true, true],
+            expand_pos_boxes_by_zone_tol_3d,
+        )?;
         let missing = || SolidError::invalid_input(OP, "base surface box not computed");
         let base_normal = base.normal_box.ok_or_else(missing)?;
         let base_pseudo = base.pseudo_box.ok_or_else(missing)?;
@@ -1754,6 +1787,9 @@ fn read_body(k: &Kernel, db: &mut DatabaseReader, version: u64) -> Result<Offset
     if let Some(extended) = extended_surface.as_deref() {
         check_surface_nesting(extended, 1, OP_READ)?;
     }
+    // pOffsetSurface->m_pSurface->SetOwner(pOffsetSurface) (before the singularities)
+    let mut base_surface = base_surface;
+    base_surface.set_surface_owner(BASE_OWNER, None);
     // regen here - this data is not persistent
     let singularities = base_singularities(k, &base_surface)?;
 
@@ -2001,22 +2037,24 @@ impl<'a> OffsetEval<'a> {
 impl SurfaceEvaluate for OffsetEval<'_> {
     fn local_point_solve_minimize(
         &self,
+        k: &Kernel,
         domain: &Extent2d,
         point: Point3,
         guess: Point2,
     ) -> Result<(bool, f64, Point2)> {
         self.surface_snapshot()
-            .local_point_solve_minimize(domain, point, guess)
+            .local_point_solve_minimize(k, domain, point, guess)
     }
 
     fn drop_point_minimize(
         &self,
+        k: &Kernel,
         point: Point3,
         domain: &Extent2d,
         guess: Option<Point2>,
     ) -> Result<Option<(Point2, f64)>> {
         self.surface_snapshot()
-            .drop_point_minimize(point, domain, guess)
+            .drop_point_minimize(k, point, domain, guess)
     }
 
     fn local_curve_maximize(
@@ -2186,9 +2224,9 @@ mod tests {
 
     fn face_owned(s: Surface) -> Surface {
         let mut s = s;
-        s.set_owner(Some(crate::geom::object::ObjectRef {
+        s.set_owner(Some(ObjectRef {
             type_code: crate::geom::assert_array::labels::FACE_TYPE,
-            key: crate::geom::attribute::ObjectKey(0),
+            key: ObjectKey(0),
         }));
         s
     }

@@ -23,7 +23,7 @@
 //! | [`Plane::evaluate_point`], [`Plane::evaluate_point_fast`] | `EvaluatePoint`, `EvaluatePointFast`  |
 //! | [`Plane::evaluate`], [`Plane::evaluate_simple`] | `Evaluate`, `EvaluateSimple` (inline)           |
 //! | [`Plane::evaluate_normal`]                    | `EvaluateNormal`                                  |
-//! | [`Plane::global_line_intersect`]              | `GlobalLineIntersect`                             |
+//! | [`Plane::global_line_intersect`], [`Plane::global_line_intersect_in`] | `GlobalLineIntersect`                             |
 //! | [`Plane::trim_plane_line_to_plane_domain`]    | `TrimPlaneLineToPlaneDomain`                      |
 //! | [`is_grazing_intersection`]                   | `sm_IsGrazingIntersection` (static)               |
 //! | [`Plane::is_bounded`]                         | `IsBounded`                                       |
@@ -90,9 +90,9 @@
 //!   `CalculateBoundingBox`, `surface.surface_p1`), `DropPoint` (`surface.surface_p5`),
 //!   the iso curves of `CreateNaturalUVTrimCurves` for kinds without a ported override
 //!   (`surface.surface_p5`), the general
-//!   `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`) and the general
-//!   `SmSurface::GlobalLineIntersect` (`surface.surface_p8`) return
-//!   [`SolidError::Unported`]. Statuses upstream ignores are propagated where
+//!   `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`) return
+//!   [`SolidError::Unported`]. The general `SmSurface::GlobalLineIntersect` is
+//!   [`Surface::base_global_line_intersect`]. Statuses upstream ignores are propagated where
 //!   upstream would go on with uninitialised values.
 
 use std::borrow::Cow;
@@ -131,6 +131,7 @@ use crate::nurbs::knots::Side;
 use crate::nurbs::math::MAX_DERIVATIVE;
 use crate::surface::surface::p1::{self as surface_p1, SecondDerivatives};
 use crate::surface::surface::p2::{Surface, SurfaceKind, PLANE_TYPE};
+use crate::surface::surface_cache::p1::SurfaceCache;
 
 const OP_EVAL: &str = "surface::plane::p1::Plane::evaluate";
 const OP_DROP: &str = "surface::plane::p1::Plane::drop_point_fast";
@@ -287,6 +288,16 @@ impl Plane {
         Self {
             base: src.base.copy(),
             ..src
+        }
+    }
+
+    /// A private solver copy without constructing or fixing the NURBS representation.
+    pub(crate) fn clone_exact(&self) -> Self {
+        Self {
+            base: self.base.clone_exact(),
+            position: self.position,
+            anal_uv_domain: self.anal_uv_domain,
+            uv_scale: self.uv_scale,
         }
     }
 
@@ -1008,16 +1019,53 @@ impl Plane {
     /// `line_interval`, or a ray from `t = 0` (`fire_ray`). A line not parallel to
     /// the plane gives at most one single-value solution `(t, u, v)` (Cramer's rule,
     /// `uv` clamped to the domain, within `distance_tolerance`); a line in the plane
-    /// gives the range of its part over the domain. Solutions name no objects.
+    /// gives the range of its part over the domain. Solutions name no objects, except
+    /// those of the general intersector (a line in the plane meeting the domain in
+    /// a single line parameter), which name `surface`, this plane's handle.
     ///
     /// # Errors
     ///
     /// `InvalidInput` for a zero line vector; `SM_ERR` for a vanishing determinant;
-    /// [`SolidError::Unported`] when a line in the plane meets the domain in a single
-    /// line parameter (upstream then runs the general `SmSurface::GlobalLineIntersect`,
-    /// unit `surface.surface_p8`).
+    /// [`SolidError::Unported`] from the unported callees of the general
+    /// `SmSurface::GlobalLineIntersect` (a line in the plane meeting the domain in a
+    /// single line parameter).
     pub fn global_line_intersect<O: SolutionObject>(
         &self,
+        k: &Kernel,
+        surface: O,
+        uv_domain: &Extent2d,
+        line_point: Point3,
+        line_vector: Vec3,
+        line_interval: Option<&Extent1d>,
+        fire_ray: bool,
+        distance_tolerance: f64,
+    ) -> Result<SolutionArray<O>> {
+        self.global_line_intersect_in(
+            k,
+            Some(surface),
+            None,
+            uv_domain,
+            line_point,
+            line_vector,
+            line_interval,
+            fire_ray,
+            distance_tolerance,
+        )
+    }
+
+    /// [`Plane::global_line_intersect`] whose general intersector runs over `cache`,
+    /// this plane's surface cache when the caller holds it (see
+    /// [`Surface::global_line_intersect_in`]); `surface` (optional) is the plane's
+    /// handle.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Plane::global_line_intersect`].
+    pub fn global_line_intersect_in<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: Option<O>,
+        cache: Option<&mut SurfaceCache<O>>,
         uv_domain: &Extent2d,
         line_point: Point3,
         line_vector: Vec3,
@@ -1120,8 +1168,23 @@ impl Plane {
 
             // when line parameters are the same
             if are_same(t_start, t_end) {
-                // try global surface/curve solver
-                return surface_global_line_intersect();
+                // the interval is [tStart - 1, tEnd + 1], or the caller's interval
+                let sub_interval = line_interval
+                    .copied()
+                    .unwrap_or(Extent1d::from_min_max(t_start - 1.0, t_end + 1.0));
+                // try global surface/curve solver (SmSurface::GlobalLineIntersect: the
+                // solutions name `surface`)
+                return Surface::from(self.clone()).base_global_line_intersect_in(
+                    k,
+                    surface,
+                    cache,
+                    uv_domain,
+                    line_point,
+                    line_vector,
+                    Some(&sub_interval),
+                    fire_ray,
+                    distance_tolerance,
+                );
             }
 
             // test that 3D Points project to UVDomain
@@ -1923,7 +1986,8 @@ impl Plane {
         // Drop to this first because planes are easy.
         let uv1 = domain1.mid();
         let pt1 = other.evaluate_point(uv1)?;
-        let (success, _uv0, dist) = surface_drop_point(&Surface::from(self.clone()), pt1, domain0)?;
+        let (success, _uv0, dist) =
+            surface_drop_point(k, &Surface::from(self.clone()), pt1, domain0)?;
 
         // Also set output argument:
         if dist > res.max_distance {
@@ -1941,7 +2005,7 @@ impl Plane {
         // Repeat the other way around.
         let uv0 = domain0.mid();
         let pt0 = self.evaluate_point(uv0);
-        let (success, uv1, dist) = surface_drop_point(other, pt0, domain1)?;
+        let (success, uv1, dist) = surface_drop_point(k, other, pt0, domain1)?;
 
         // Also set output argument:
         if dist > res.max_distance {
@@ -2101,12 +2165,17 @@ fn create_natural_uv_trim_curves(
 
 /// `SmSurface::DropPoint(pt, domain, NULL, bSuccess, uv, dist, bIsMulti,
 /// SM_SO_NORMALIZE)`: success, uv and distance.
-fn surface_drop_point(s: &Surface, pt: Point3, domain: &Extent2d) -> Result<(bool, Point2, f64)> {
+fn surface_drop_point(
+    k: &Kernel,
+    s: &Surface,
+    pt: Point3,
+    domain: &Extent2d,
+) -> Result<(bool, Point2, f64)> {
     let opts = crate::surface::surface::p5::DropPointOptions {
         operation: SolverOperation::Normalize,
         ..Default::default()
     };
-    let r = s.drop_point::<crate::surface::surface::p4::NoObject>(pt, domain, &opts)?;
+    let r = s.drop_point::<crate::surface::surface::p4::NoObject>(k, pt, domain, &opts)?;
     Ok((r.success, r.result_uv, r.gap))
 }
 
@@ -2116,15 +2185,6 @@ fn surface_drop_curve() -> Result<PlaneDropCurve> {
     Err(SolidError::unported(
         "SmSurface::DropCurve",
         "intersect.surface_drop_lib_p3",
-    ))
-}
-
-/// The general `SmSurface::GlobalLineIntersect` (through the surface cache).
-fn surface_global_line_intersect<O: SolutionObject>() -> Result<SolutionArray<O>> {
-    // UNPORTED(surface.surface_p8): SmSurface::GlobalLineIntersect
-    Err(SolidError::unported(
-        "SmSurface::GlobalLineIntersect",
-        "surface.surface_p8",
     ))
 }
 
@@ -2196,6 +2256,8 @@ mod tests {
         assert_eq!(sols.as_slice()[0].start.solution_value, 2.0);
         let sols = p
             .global_line_intersect::<NoObject>(
+                &Kernel::default(),
+                NoObject,
                 &dom,
                 Point3::new(2.0, 3.5, 5.0),
                 Vec3::new(0.0, 0.0, -1.0),

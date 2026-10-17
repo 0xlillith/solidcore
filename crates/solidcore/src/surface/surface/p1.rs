@@ -7,6 +7,8 @@
 //! few standalone helpers (`smsurf_EvaluateNormalSection`, `sm_CrossedSeamOrPole`, the
 //! tree node validity tests).
 //!
+//! Deviations: compound evaluation copies carry a depth counter capped at 64 by Surface.
+//!
 //! Upstream: `source/SMLib/src/SmSurface.cpp`, `source/SMLib/inc/SmSurface.h`,
 //! `source/SMLib/src/SmSTEPSurface.cpp`, `source/SMLib/inc/SmSTEPSurface.h`.
 //!
@@ -52,7 +54,8 @@
 //!   constructor's null pointer, where upstream would crash the methods return
 //!   [`SolidError::InvalidInput`] (or an uninitialised domain). `GetMemoryUsed` and
 //!   `WriteToDB` have no counterpart. Nested STEP surfaces read from a database are
-//!   bounded by the reader's nesting limit.
+//!   bounded by the reader's nesting limit. Temporary evaluation copies retain
+//!   exact nested geometry and share `Surface`'s 64-level owned-geometry bound.
 //! - **Caches.** Upstream keeps a surface's cache on the surface and reuses it until it
 //!   changes. [`make_surface_cache`] and [`make_trim_srf_cache`] build a fresh cache for
 //!   the caller (the build is deterministic); [`validate_surface_cache`] is the rest of
@@ -135,7 +138,6 @@ use super::p7::{SpGlobalSolver, SsGlobalSolver};
 use super::{Surface, SurfaceKind};
 
 const OP_STEP: &str = "surface::surface::p1::StepSurface";
-const OP_FACE: &str = "surface::surface::p1::Surface::face";
 const OP_CACHE: &str = "surface::surface::p1::validate_surface_cache";
 const OP_IVL: &str = "surface::surface::p1::find_uv_curve_ivl_in_domain";
 const OP_BOX: &str = "surface::surface::p1::Surface::calculate_bounding_box";
@@ -333,6 +335,19 @@ pub struct StepSurface {
 }
 
 impl StepSurface {
+    /// A bounded, exact evaluation copy; the nesting limit is checked by Surface.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        let surface = self
+            .surface
+            .as_deref()
+            .map(|s| s.clone_for_evaluation_depth(depth).map(Box::new))
+            .transpose()?;
+        Ok(Self {
+            surface,
+            owns_surface: self.owns_surface,
+        })
+    }
+
     /// `GetTypeString()`.
     pub const TYPE_STRING: &'static str = "SmSTEPSurface_TYPE";
     /// `GetClassString()`.
@@ -646,6 +661,7 @@ pub fn map_to_2d(tol_3d: f64, uv: Point2, surface: &Surface) -> Result<f64> {
 ///
 /// [`SolidError::Unported`] for a curve on surface, and from the evaluations and the drop.
 pub fn map_to_2d_on_curve(
+    k: &Kernel,
     tol_3d: f64,
     param: f64,
     trim_curve: &Curve,
@@ -678,6 +694,7 @@ pub fn map_to_2d_on_curve(
         // general 3 dim Curve: drop its point and tangent to the surface's UV space
         // (statuses ignored upstream: the UV stays undefined when the drop fails)
         let drop = ignored(surface.drop_point::<crate::surface::surface::p4::NoObject>(
+            k,
             p0,
             &surface.natural_uv_domain(),
             &crate::surface::surface::p5::DropPointOptions::default(),
@@ -935,6 +952,9 @@ impl Surface {
             (SurfaceKind::BSpline(a), SurfaceKind::BSpline(b)) => Ok(a.approx_eq(b)),
             // SmPlane::operator==: SmBSplineSurface::operator== first
             (SurfaceKind::Plane(a), SurfaceKind::Plane(b)) => Ok(a.approx_eq(b)),
+            (SurfaceKind::SurfOfRevolution(a), SurfaceKind::SurfOfRevolution(b)) => {
+                a.approx_eq(&Kernel::default(), b)
+            }
             (SurfaceKind::SrfInVolume(a), SurfaceKind::SrfInVolume(b)) => a.approx_eq(b),
             _ => Ok(false),
         }
@@ -943,18 +963,21 @@ impl Surface {
     /// Sets the owner and returns the previous one (`SetOwner`).
     pub fn set_owner(&mut self, new_owner: Option<ObjectRef>) -> Option<ObjectRef> {
         // (notify when pNewOwner is NULL or a Face: the object layer's notify)
-        core::mem::replace(self.owner_mut(), new_owner)
+        let old = core::mem::replace(self.owner_mut(), new_owner);
+        // the bases this surface owns reach the face through it
+        self.update_owned_bases();
+        old
     }
 
     /// The face whose shape this surface defines (`GetFace`): the owner when it is a
-    /// face, `None` without owner or for a curve owner.
+    /// face; for a surface owner (the base of an owning `SmOffsetSurface`) the face that
+    /// owner's own owner chain reaches, which the owning surface hands down (it holds
+    /// this surface by value, see [`Surface::set_owner`]); `None` without owner or for a
+    /// curve owner.
     ///
     /// # Errors
     ///
-    /// `InvalidInput` for a surface owner: the owning surfaces (`SmOffsetSurface`,
-    /// `SmSrfInVolume`) hold their base by value and do not become its owner, so the
-    /// chain cannot be followed from the base (an offset's box passes its face down
-    /// instead, see [`OffsetSurface::calculate_bounding_box`]).
+    /// None at present (kept fallible for the owner kinds still to come).
     pub fn face(&self) -> Result<Option<ObjectRef>> {
         // when the surface has an owner
         let Some(owner) = self.owner() else {
@@ -967,13 +990,9 @@ impl Surface {
         // GenSurface owners can be another Surface (SmSrfInVolume, SmOffsetSurface -
         // continue looking for a Face owner) or a Curve (stop looking)
         if is_surface_type(owner.type_code) {
-            // An owning surface holds its base surface by value and does not become its
-            // owner (see OffsetSurface), so the owner chain cannot be followed from
-            // here: only a caller-set surface owner reaches this branch.
-            return Err(SolidError::invalid_input(
-                OP_FACE,
-                "a surface owner's own owner cannot be followed (owning surfaces hold their base by value)",
-            ));
+            // the owning surface holds this one by value and keeps the face its own
+            // owner chain reaches here
+            return Ok(self.owner_chain_face());
         }
         Ok(None)
     }
@@ -1600,8 +1619,8 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// Those of the surface cache; [`SolidError::Unported`]: `SmSurfaceSilhouette`
-    /// (`intersect.surface_silhouette`).
+    /// Those of the surface cache; [`SolidError::Unported`]: `SmSurfaceTracer::DoTrace`
+    /// (`intersect.surface_tracer`).
     pub fn create_silhouette_curves(
         &self,
         k: &Kernel,
@@ -1615,10 +1634,10 @@ impl Surface {
         // check only signals upstream)
         let _ = (cache.surface_continuity(uv_domain)? as i32) <= (ContinuityType::C0 as i32);
 
-        // UNPORTED(intersect.surface_silhouette): SmSurfaceSilhouette::DoTrace
+        // UNPORTED(intersect.surface_tracer): SmSurfaceTracer::DoTrace (inherited by SmSurfaceSilhouette)
         Err(SolidError::unported(
-            "SmSurfaceSilhouette::DoTrace",
-            "intersect.surface_silhouette",
+            "SmSurfaceTracer::DoTrace",
+            "intersect.surface_tracer",
         ))
     }
 
@@ -1943,7 +1962,7 @@ fn unreachable_kind<T>() -> Result<T> {
 
 /// Whether `t` is the type code of a surface class (`IsKindOf(SmSurface_TYPE)`):
 /// the codes from `SURF_BASE_TYPE + 1` below the topology codes.
-const fn is_surface_type(t: i64) -> bool {
+pub(crate) const fn is_surface_type(t: i64) -> bool {
     t > 15000 && t < 16000
 }
 
@@ -2740,6 +2759,14 @@ pub struct CsGlobalSolver<'t, 's, O> {
     pub interval: Extent1d,
     /// `m_crUVDomain`.
     pub uv_domain: Extent2d,
+    /// The curve of the curve tree (its owner object), for the leaf solve (part 11).
+    pub curve: Option<&'s Curve>,
+    /// The cache holding the patches of the surface tree's nodes, for the leaf solve
+    /// (part 11; upstream reaches it through the node's tree owner).
+    pub surface_cache: Option<&'s SurfaceCache<O>>,
+    /// The kernel (upstream's `SmContext`) the leaf solve's evaluations and solves run
+    /// with (part 11).
+    pub kernel: Option<&'s Kernel>,
 }
 
 impl<'t, 's, O: SolutionObject> CsGlobalSolver<'t, 's, O> {
@@ -2757,12 +2784,16 @@ impl<'t, 's, O: SolutionObject> CsGlobalSolver<'t, 's, O> {
             surface,
             interval,
             uv_domain,
+            curve: None,
+            surface_cache: None,
+            kernel: None,
         }
     }
 
     /// `BranchMayContainAnswers`: when normalizing, false if the surface node's
-    /// normals provably miss the curve node ([`cs_are_perpen_disjoint`]); then the
-    /// base test.
+    /// normals provably miss the curve node ([`cs_are_perpen_disjoint`], or
+    /// [`super::p2::cs_are_perpen_disjoint_in`] when `surface_cache` holds the
+    /// patches); then the base test.
     ///
     /// # Errors
     ///
@@ -2774,7 +2805,19 @@ impl<'t, 's, O: SolutionObject> CsGlobalSolver<'t, 's, O> {
             let curve_node = self.base.branch_node(branch, 0)?;
             let surface_node = self.base.branch_node(branch, 1)?;
             let curve_tree = self.base.tree(0)?;
-            if cs_are_perpen_disjoint(curve_tree, curve_node, surface_node)? {
+            // with the solve's surface cache (unit surface.surface_p11 hands it over)
+            // the patch's polar box is reachable
+            let disjoint = match (self.surface_cache, branch.get(1).copied().flatten()) {
+                (Some(cache), Some(surface_id)) => super::p2::cs_are_perpen_disjoint_in(
+                    curve_tree,
+                    curve_node,
+                    surface_node,
+                    cache,
+                    surface_id,
+                )?,
+                _ => cs_are_perpen_disjoint(curve_tree, curve_node, surface_node)?,
+            };
+            if disjoint {
                 return Ok(false);
             }
         }
@@ -2825,6 +2868,8 @@ impl<'t, 's, O: SolutionObject> SpGlobalSolver<'t, 's, O> {
             base: GlobalSolver::with_trees(point_tree, surface_tree, 2),
             surface,
             uv_domain,
+            surface_cache: None,
+            kernel: None,
         }
     }
 }
@@ -2847,6 +2892,7 @@ impl<'t, 's, O: SolutionObject> SsGlobalSolver<'t, 's, O> {
             uv_domain1,
             uv_domain2,
             kernel,
+            caches: [None, None],
         }
     }
 }

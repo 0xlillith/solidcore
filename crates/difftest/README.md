@@ -75,6 +75,16 @@ The report records `status`, `cases_passed`/`cases_failed`/`cases_deferred`,
 blocking unit lands and its stubs are wired, re-run: the deferred count drops
 and the unit can move from `partial` to `green`.
 
+## Rejected native fixtures
+
+When a native fixture constructor rejects geometry before the operation under test
+runs, its runner may return `Output::rejected(reason)` from `run_cpp`. The harness
+records the inputs and reason with `outcome: "rejected"`, skips the Rust call and
+excludes the case from parity passes, failures and sensitivity counts. Reports and
+summaries include a rejected count when nonzero. A run containing only rejected
+fixtures fails the gate: rejection cannot establish parity. Layout errors, native
+exceptions and errors from the operation itself must not be classified this way.
+
 ## Offset reference isolation
 
 `surface.offset_surface` runs its C++ calls, including generation-time database
@@ -86,15 +96,15 @@ On Linux (where CI runs) the worker is linked with GNU ld `--wrap` around
 `N_CrvExtendByDist`, `N_CrvArcLength`, `N_SrfExtendByDist` and `N_SrfCopy`. The
 wrappers forward unchanged on finite, progressing paths. During an extension only,
 they reject a successful nonfinite arc length or an initial G2 step that cannot move
-its endpoint (HANG-6/HANG-15), an arc-length search past 20,000 calls (HANG-6's
+its endpoint (HANG-6/HANG-18), an arc-length search past 20,000 calls (HANG-6's
 crawl for distances tiny against the curve; normal searches take at most 45), and a
 read of a surface a failed in-place extension half-wrote (UB-107). They do not change
 numerical tolerances or turn the rejection into an SMLib status. On other targets
 the worker is built without them (`SC_OFFSET_NO_LINK_WRAP`, with a build warning) and
 the shim refuses `CreateExtendedSurface` steps instead. The shim also validates, on
 the actual surfaces after preceding edits, box domains at every level of the offset
-chain (UB-118/HANG-14), writes past the caller's array for the actual compound
-distance (UB-116) and zero-offset plane delegation (UB-117).
+chain (UB-164/HANG-17), writes past the caller's array for the actual compound
+distance (UB-162) and zero-offset plane delegation (UB-163).
 
 The generator preflights state-dependent guards. An explicit unsafe-input
 rejection excludes that candidate; it is not a pass or a deferred comparison.

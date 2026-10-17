@@ -71,10 +71,7 @@
 //! - **Surface calls.** `SmSurface::IsClosed`, `SmSurface::EvaluateNormal` and
 //!   `SmSurface::Evaluate1stDerivatives` go through `surface::surface::p7` (the
 //!   last co-ported there from unit `surface.surface_p1`).
-//! - **Unported callees.** `SmSurface::LocalPointSolve` and `SmSurface::DropPoint` (`surface.surface_p5`),
-//!   `SmSurface::GlobalPointSolve` (`surface.surface_p4`),
-//!   `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`),
-//!   `SmFilletLaw::Evaluate` (`blend.fillet_executive_p1`) and
+//! - **Unported callees.** `SmFilletLaw::Evaluate` (`blend.fillet_executive_p1`) and
 //!   `SmOffsetSurface::SetOffsetDistance` through the intersector's shared surfaces
 //!   (a dispatch gap left to `blend.fillet_executive_p1`) return
 //!   [`SolidError::Unported`]. Statuses upstream ignores are ignored, except
@@ -889,7 +886,7 @@ impl<'s> SurfaceIntersector<'s> {
         let surface = self.surface(srf);
         let domain = *pick(&self.uv_domains, srf);
         let (mut found_answer, mut solution) =
-            surface_local_point_solve(surface, &domain, pnt, prev.uv_pos(srf))?;
+            surface_local_point_solve(k, surface, &domain, pnt, prev.uv_pos(srf))?;
         if !found_answer {
             let solutions =
                 surface_global_point_solve(k, surface, &domain, pnt, self.this_approx_tol_3d)?;
@@ -1353,16 +1350,18 @@ impl<'s> SurfaceIntersector<'s> {
                     let dom1 = srf1.natural_uv_domain();
                     let dom2 = srf2.natural_uv_domain();
 
-                    let (int_pt_uv1, int_pt_gap1) = surface_drop_point(srf1, point, &dom1, None)?;
-                    let (int_pt_uv2, int_pt_gap2) = surface_drop_point(srf2, point, &dom2, None)?;
+                    let (int_pt_uv1, int_pt_gap1) =
+                        surface_drop_point(k, srf1, point, &dom1, None)?;
+                    let (int_pt_uv2, int_pt_gap2) =
+                        surface_drop_point(k, srf2, point, &dom2, None)?;
 
                     // status ignored upstream: an uninitialised point on failure
                     let crv_pt = or_keep(curve.evaluate_point(crv_param), Vec3::UNDEF)?;
 
                     let (crv_pt_uv1, crv_pt_gap1) =
-                        surface_drop_point(srf1, crv_pt, &dom1, Some(int_pt_uv1))?;
+                        surface_drop_point(k, srf1, crv_pt, &dom1, Some(int_pt_uv1))?;
                     let (crv_pt_uv2, crv_pt_gap2) =
-                        surface_drop_point(srf2, crv_pt, &dom2, Some(int_pt_uv2))?;
+                        surface_drop_point(k, srf2, crv_pt, &dom2, Some(int_pt_uv2))?;
 
                     let mid_pt_uv1 = (int_pt_uv1 + crv_pt_uv1) / 2.0;
                     let mid_pt_uv2 = (int_pt_uv2 + crv_pt_uv2) / 2.0;
@@ -1777,12 +1776,14 @@ fn evaluate_normal_section(eval: &[[Vec3; 3]; 3], direction: Vec3) -> Result<f64
 /// `crSurface.LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, ..)`: found flag
 /// and the solution's start parameters.
 fn surface_local_point_solve(
+    k: &Kernel,
     surface: &Surface,
     domain: &Extent2d,
     point: Point3,
     guess: Point2,
 ) -> Result<(bool, [f64; 2])> {
     let r = surface.local_point_solve::<crate::surface::surface::p4::NoObject>(
+        k,
         domain,
         SolverOperation::Minimize,
         point,
@@ -1820,6 +1821,7 @@ fn surface_global_point_solve(
 
 /// `crSurface.DropPoint(point, domain, guess, ..)`: the UV point and its gap.
 fn surface_drop_point(
+    k: &Kernel,
     surface: &Surface,
     point: Point3,
     domain: &Extent2d,
@@ -1829,29 +1831,39 @@ fn surface_drop_point(
         guess_uv: guess,
         ..Default::default()
     };
-    let r = surface.drop_point::<crate::surface::surface::p4::NoObject>(point, domain, &opts)?;
+    let r = surface.drop_point::<crate::surface::surface::p4::NoObject>(k, point, domain, &opts)?;
     Ok((r.result_uv, r.gap))
 }
 
 /// `m_cpSurface[0]->LocalSurfaceIntersect(..)`: found flag and the solution's start
-/// parameters `[u0, v0, u1, v1]`.
+/// parameters `[u0, v0, u1, v1]` (`surface::surface::p11`; `cpOptPreviousUV` is the
+/// first point of `previous_uv`, upstream's `&rPrevTSP.UVPos(0)`). The status is
+/// checked (`SER`) by every caller; `LocalSurfaceIntersect` is not virtual and
+/// evaluates each surface through its own kind.
 pub(crate) fn surface_local_surface_intersect(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _other: &Surface,
-    _other_domain: &Extent2d,
-    _tol: f64,
-    _uv0: Point2,
-    _uv1: Point2,
-    _plane_normal: Option<Vec3>,
-    _previous_uv: Option<&[Point2]>,
-    _do_boundary_testing: bool,
+    surface: &Surface,
+    domain: &Extent2d,
+    other: &Surface,
+    other_domain: &Extent2d,
+    tol: f64,
+    uv0: Point2,
+    uv1: Point2,
+    plane_normal: Option<Vec3>,
+    previous_uv: Option<&[Point2]>,
+    do_boundary_testing: bool,
 ) -> Result<(bool, [f64; 4])> {
-    // UNPORTED(surface.surface_p11): SmSurface::LocalSurfaceIntersect
-    Err(SolidError::unported(
-        "SmSurface::LocalSurfaceIntersect",
-        "surface.surface_p11",
-    ))
+    let opts = crate::surface::surface::p11::LocalSurfaceIntersectOptions {
+        plane_normal,
+        previous_uv: previous_uv.and_then(|p| p.first().copied()),
+        do_boundary_testing,
+    };
+    // (the solution is only written when found; upstream callers read it then only)
+    Ok(
+        match surface.local_surface_intersect(domain, other, other_domain, tol, uv0, uv1, &opts)? {
+            Some(r) => (true, [r.uv.x, r.uv.y, r.other_uv.x, r.other_uv.y]),
+            None => (false, [0.0; 4]),
+        },
+    )
 }
 
 /// `pOffSet1->LocalPlaneSurfaceIntersect(..)`: found flag and the solution's start

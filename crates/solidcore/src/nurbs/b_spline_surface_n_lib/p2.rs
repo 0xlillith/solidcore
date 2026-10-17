@@ -36,6 +36,8 @@
 //!   derivatives) instead of writing the caller's array; entries upstream leaves
 //!   untouched (the lower half with `bOnlyUpperHalf`) are zero. Its flags are an
 //!   [`EvaluateFlags`] value; the internal `bDoZeroSampling` argument is private.
+//!   `SmSurfaceEval` retains the matrix written before a zero-tangent correction
+//!   failure, because upstream accessors ignore that failure and read the output.
 //! - **Tangent fields** are [`TangentField`]s of `SmCurve` views of the B-spline
 //!   curves (the same data, not a copy-constructed curve).
 //! - **Unported callees** return [`SolidError::Unported`]:
@@ -975,14 +977,28 @@ impl BSplineSurface {
         highest_v_deriv: usize,
         flags: EvaluateFlags,
     ) -> Result<Vec<Vec<Vec3>>> {
-        self.evaluate_impl(uv, highest_u_deriv, highest_v_deriv, flags, true)
+        self.evaluate_impl(uv, highest_u_deriv, highest_v_deriv, flags, true, None)
+    }
+
+    /// Preserve the output written before zero-tangent correction reports failure.
+    /// `SmSurfaceEval` accessors deliberately read that output after a failed eval.
+    pub(crate) fn evaluate_with_partial_output(
+        &self,
+        uv: Point2,
+        flags: EvaluateFlags,
+    ) -> (Result<()>, Vec<Vec<Vec3>>) {
+        let mut partial = Vec::new();
+        match self.evaluate_impl(uv, 2, 2, flags, true, Some(&mut partial)) {
+            Ok(values) => (Ok(()), values),
+            Err(error) => (Err(error), partial),
+        }
     }
 
     /// `Evaluate` for a caller that ignores its status (as `SmSurface::IsPeriodic`
     /// does): the derivative array as upstream leaves it in `aDerivatives`, also when
     /// the zero-tangent repair fails after the NLib evaluation wrote it (the raw or
-    /// partly repaired derivatives); `None` when the call fails before writing it
-    /// (bad orders, no NURB), leaving the caller's array as it was.
+    /// partly repaired derivatives); `None` when the call fails before writing it (bad
+    /// orders, no NURB), leaving the caller's array as it was.
     ///
     /// # Errors
     ///
@@ -995,12 +1011,27 @@ impl BSplineSurface {
         highest_v_deriv: usize,
         flags: EvaluateFlags,
     ) -> Result<Option<Vec<Vec<Vec3>>>> {
-        Ok(
-            match self.evaluate_written(uv, highest_u_deriv, highest_v_deriv, flags, true)? {
-                Evaluated::Unwritten(_) => None,
-                Evaluated::Written(d, _) => Some(d),
-            },
-        )
+        // the checks `Evaluate` fails on before anything is written
+        if (flags.only_upper_half && highest_u_deriv != highest_v_deriv)
+            || highest_u_deriv > MAX_DERIVATIVE
+            || highest_v_deriv > MAX_DERIVATIVE
+            || self.nurb.is_none()
+        {
+            return Ok(None);
+        }
+        let mut written = Vec::new();
+        match self.evaluate_impl(
+            uv,
+            highest_u_deriv,
+            highest_v_deriv,
+            flags,
+            true,
+            Some(&mut written),
+        ) {
+            Ok(d) => Ok(Some(d)),
+            Err(_) if !written.is_empty() => Ok(Some(written)),
+            Err(e) => Err(e),
+        }
     }
 
     /// `Evaluate` with its internal `bDoZeroSampling` argument.
@@ -1011,29 +1042,8 @@ impl BSplineSurface {
         highest_v_deriv: usize,
         flags: EvaluateFlags,
         do_zero_sampling: bool,
+        failed_output: Option<&mut Vec<Vec<Vec3>>>,
     ) -> Result<Vec<Vec<Vec3>>> {
-        match self.evaluate_written(
-            cr_uv,
-            highest_u_deriv,
-            highest_v_deriv,
-            flags,
-            do_zero_sampling,
-        )? {
-            Evaluated::Unwritten(e) => Err(e),
-            Evaluated::Written(d, status) => status.map(|()| d),
-        }
-    }
-
-    /// The body of `Evaluate`: an error only when NLib fails; otherwise whether the
-    /// derivative array was written and, if so, the status of the zero-tangent repair.
-    fn evaluate_written(
-        &self,
-        cr_uv: Point2,
-        highest_u_deriv: usize,
-        highest_v_deriv: usize,
-        flags: EvaluateFlags,
-        do_zero_sampling: bool,
-    ) -> Result<Evaluated> {
         const OP: &str = OP_EVAL;
         let EvaluateFlags {
             u_side,
@@ -1044,16 +1054,16 @@ impl BSplineSurface {
 
         // check input - bOnlyUpperHalf can be TRUE only if deriv requests are equal.
         if only_upper_half && highest_u_deriv != highest_v_deriv {
-            return Ok(Evaluated::Unwritten(SolidError::invalid_input(
+            return Err(SolidError::invalid_input(
                 OP,
                 "only upper half with different orders",
-            )));
+            ));
         }
         if highest_u_deriv > MAX_DERIVATIVE || highest_v_deriv > MAX_DERIVATIVE {
-            return Ok(Evaluated::Unwritten(SolidError::invalid_input(
+            return Err(SolidError::invalid_input(
                 OP,
                 "derivative order above NL_MAXDER",
-            )));
+            ));
         }
 
         // When appropriate, clamp input parameters to surface domain
@@ -1069,9 +1079,7 @@ impl BSplineSurface {
         // Setup for NLib call
         let (uflg, vflg) = (u_side, v_side);
 
-        let Some(sur) = self.nurb.as_ref() else {
-            return Ok(Evaluated::Unwritten(SolidError::sm_err(OP)));
-        };
+        let sur = self.nurb.as_ref().ok_or_else(|| SolidError::sm_err(OP))?;
         let mut d = if self.form == BSplineSurfaceForm::Polynomial {
             srf_power_basis_eval_derivs(
                 &sur.cpts(),
@@ -1096,8 +1104,9 @@ impl BSplineSurface {
         }
         .map_err(SolidError::nl_ser(OP))?;
 
-        // (the repair below writes into the array; upstream returns its status with
-        // the array as far as it got)
+        // The zero-tangent repair below works on the matrix NLib wrote; upstream's
+        // caller array keeps it (raw or partly repaired) whatever the repair's status,
+        // including a failed recursive re-evaluation.
         let status = (|| -> Result<()> {
             let d = &mut d;
             // If we don't have to check for zero first derivatives, we're done.
@@ -1166,6 +1175,7 @@ impl BSplineSurface {
                         non_zero_tangents: true,
                     },
                     true,
+                    None,
                 )?;
                 let re_at = |i: usize, j: usize| -> Result<Vec3> {
                     re.get(i)
@@ -1259,6 +1269,7 @@ impl BSplineSurface {
                             non_zero_tangents: false,
                         },
                         false,
+                        None,
                     ) else {
                         continue;
                     };
@@ -1298,17 +1309,17 @@ impl BSplineSurface {
             // a non-zero size.
             Err(SolidError::sm_err(OP))
         })();
-        Ok(Evaluated::Written(d, status))
+        match status {
+            Ok(()) => Ok(d),
+            Err(e) => {
+                // C++ has already written the matrix to the caller's array.
+                if let Some(output) = failed_output {
+                    *output = d;
+                }
+                Err(e)
+            }
+        }
     }
-}
-
-/// What `Evaluate` leaves in its derivative array (see
-/// [`BSplineSurface::evaluate_ignoring_status`]).
-enum Evaluated {
-    /// It failed before writing the array.
-    Unwritten(SolidError),
-    /// The array as written, with the status of the zero-tangent repair.
-    Written(Vec<Vec<Vec3>>, Result<()>),
 }
 
 // ---- CreateCornerBlend: four curves -----------------------------------------------------
