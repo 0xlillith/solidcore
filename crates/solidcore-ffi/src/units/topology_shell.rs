@@ -243,7 +243,9 @@ pub fn degeneracy(path: &str, block: &[f64], tolerance: Option<f64>) -> Result<V
 /// Execute native shell ray queries, retaining output writes on ordinary errors.
 ///
 /// # Errors
-/// Non-finite input, malformed fixtures, failed native setup or unsafe references.
+/// Malformed fixtures, failed native setup, or a status of `SC_ERR_ARG` for inputs
+/// that would crash native code (non-finite ray values once a shell has boundary
+/// faces, which reach the intersection solver).
 pub fn ray_fire(
     path: &str,
     block: &[f64],
@@ -252,12 +254,6 @@ pub fn ray_fire(
     tolerance: f64,
     radius: Option<f64>,
 ) -> Result<Vec<f64>, FfiError> {
-    if start.iter().chain(direction.iter()).any(|v| !v.is_finite())
-        || !tolerance.is_finite()
-        || radius.is_some_and(|r| !r.is_finite())
-    {
-        return Err(invalid("non-finite ray input"));
-    }
     let export = fixture::eval(Op::Export, path, block)?;
     if fixture::counts(&export).is_none() {
         return Err(invalid("native ray fixture build failed"));

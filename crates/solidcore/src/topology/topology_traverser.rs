@@ -56,6 +56,8 @@ pub enum Entity {
     Faceuse(FaceuseId),
     /// A vertex use.
     Vertexuse(VertexuseId),
+    /// A shell (`SmShell::Mark`, as `SmShell::GetMatedShells` uses it).
+    Shell(ShellId),
 }
 
 /// Topology mark records for one B-rep; retain across calls using the same context.
@@ -322,8 +324,8 @@ pub fn closure_traversal(
 ///
 /// # Errors
 /// Those of [`shell::transfer_children`].
-pub fn remove_shell(b: &mut Brep, remove: ShellId, replace: ShellId) -> Result<()> {
-    shell::transfer_children(b, remove, replace, None)
+pub fn remove_shell(k: &mut Kernel, b: &mut Brep, remove: ShellId, replace: ShellId) -> Result<()> {
+    shell::transfer_children(k, b, remove, replace, None)
 }
 
 /// Traverse connected face uses, then move each to `new_shell` in visit order

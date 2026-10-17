@@ -3035,8 +3035,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_147",
@@ -3047,8 +3047,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_148",
@@ -3059,8 +3059,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_149",
@@ -3071,8 +3071,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_150",
@@ -3083,8 +3083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_151",
@@ -3095,8 +3095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_152",
@@ -3107,8 +3107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_153",
@@ -3119,8 +3119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_154",
@@ -7381,8 +7381,8 @@
   "cases_passed": 892,
   "cases_total": 911,
   "deferred_by_unit": {
-    "query.brep": 3,
-    "query.face_p1": 12,
+    "query.brep": 11,
+    "query.face_p1": 4,
     "topology.face_p1": 4
   },
   "max_rel_err": 0.0,

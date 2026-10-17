@@ -42,6 +42,7 @@ use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::kernel::Kernel;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::topology::edgeuse::p1 as eu;
+use crate::topology::shell;
 use crate::topology::topology::{self as topo, Topology};
 use crate::topology::topology_traverser::face_edges;
 use crate::topology::{edge, vertex, Brep, EdgeId, FaceId, FaceuseId, RegionId, ShellId, VertexId};

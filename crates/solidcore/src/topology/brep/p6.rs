@@ -306,7 +306,7 @@ fn split_closed(
     let old_region = split_link(brep.shell(old_shell)?.region)?;
     // Keep these native list queries in their upstream order; arena iteration
     // would include detached objects and change the traversal.
-    let _wires = shell::wire_edges(brep, old_shell)?;
+    let _wires = shell::wire_edges(k, brep, old_shell)?;
     let _faceuses = brep.shell(old_shell)?.get_faceuses()?;
     let _shells = brep.region(old_region)?.shells.clone();
     let mut replaced = Vec::new();
