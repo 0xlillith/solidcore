@@ -354,6 +354,10 @@ pub struct FilletSolver {
     pub status: FilStatus,
     /// `m_vG1Knots`.
     pub g1_knots: Vec<f64>,
+    /// Offset surfaces [`FilletSolver::set_surface`] displaced: upstream does not
+    /// delete them, so a saved [`FilletSolverOffsetsData`] still points at them (with
+    /// any change made while they were the solver's).
+    pub detached: Vec<OffsetSurfaceSlot>,
 }
 
 impl FilletSolver {
@@ -387,6 +391,7 @@ impl FilletSolver {
             fillet_geoms: vec![FilletGeomRef { index: 0 }],
             status: FilStatus::Unprocessed,
             g1_knots: Vec::new(),
+            detached: Vec::new(),
         }
     }
 
@@ -643,7 +648,9 @@ impl FilletSolver {
             .surfaces
             .get_mut(rail)
             .ok_or_else(|| invalid("rail index out of range"))?;
-        *slot = surface;
+        if let Some(old) = std::mem::replace(slot, surface) {
+            self.detached.push(old);
+        }
         Ok(())
     }
 
@@ -820,7 +827,19 @@ impl FilletSolver {
             let orig = data.surfaces.get(i).and_then(Option::as_ref);
             let current_key = self.surface(i)?.map(|s| s.key);
             if current_key != orig.map(|s| s.key) {
-                self.set_surface(i, orig.cloned())?;
+                // the current surface is deleted; the saved one is the live object
+                // (detached since the save) when there is one
+                let restored = orig.map(|o| {
+                    self.detached
+                        .iter()
+                        .position(|d| d.key == o.key)
+                        .map_or_else(|| o.clone(), |pos| self.detached.remove(pos))
+                });
+                let slot = self
+                    .surfaces
+                    .get_mut(i)
+                    .ok_or_else(|| invalid("rail index out of range"))?;
+                *slot = restored;
             }
         }
         Ok(())
