@@ -438,7 +438,24 @@ int32_t run_surf_values(Rd& rd, const SmContext& ctx, std::vector<double>& o)
         uv[0] = rd.uv();
         uv[1] = rd.uv();
         SmTsectPnt t;
-        o.push_back(st(fs.ComputeSurfaceValues(uv, t)));
+        SmStatus s = fs.ComputeSurfaceValues(uv, t);
+        o.push_back(st(s));
+        // on success: per surface position, du, dv, unit normal and UV; then the curve
+        // position and the tangent plane angle
+        if (s == SM_SUCCESS)
+        {
+            for (ULONG i = 0; i < 2; i++)
+            {
+                put_pt(o, t.SrfPos(i));
+                put_pt(o, t.SrfDu(i));
+                put_pt(o, t.SrfDv(i));
+                put_pt(o, t.SrfNorm(i));
+                o.push_back(t.UVPos(i).x);
+                o.push_back(t.UVPos(i).y);
+            }
+            put_pt(o, t.CrvPos());
+            o.push_back(t.m_dTangentPlaneAngleRad);
+        }
     }
     delete base;
     return 0;

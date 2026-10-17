@@ -57,6 +57,8 @@ use solidcore::geom::axis2_placement::Axis2Placement;
 use solidcore::intersect::point_class::{ClassGeometry, ClassObject, ClassObjectKind, PointClassType};
 use solidcore::math::Point3;
 use solidcore::surface::cone::Cone;
+use solidcore::surface::offset_surface::SS_UNKNOWN;
+use solidcore::surface::sphere::Sphere;
 use solidcore::surface::surface::Surface;
 use solidcore::surface::torus::{Torus, TorusOptions};
 use solidcore::surface::volume::Volume;
@@ -602,7 +604,7 @@ fn put_state(o: &mut Vec<f64>, fs: &FilletSolver) -> Result<(), SolidError> {
         let s = fs.surface(i)?;
         o.push(b(s.is_some()));
         o.push(s.map_or(-1.0, |s| s.key as f64));
-        o.push(s.map_or(0.0, |s| s.surface.offset_distance));
+        o.push(s.map_or(0.0, |s| s.surface.offset_distance()));
         o.push(fs.orientation(i)?);
         o.push(fs.saved_offsets.get(i).copied().unwrap_or(0.0));
     }
@@ -622,21 +624,22 @@ fn rust_state(
     o: &mut Vec<f64>,
 ) -> Result<Result<(), SolidError>, HarnessError> {
     let bases = [surface_of(&base[0])?, surface_of(&base[1])?];
+    let kern = Kernel::default();
     let mut fs = FilletSolver::new(tols[0], tols[1], tols[2]);
     let mut next_key = 0u64;
-    let mut make = |rail: usize, d: f64| {
+    let mut make = |rail: usize, d: f64| -> Result<OffsetSurfaceSlot, SolidError> {
         let key = next_key;
         next_key += 1;
         let base = if rail == 0 { &bases[0] } else { &bases[1] };
-        OffsetSurfaceSlot {
+        Ok(OffsetSurfaceSlot {
             key,
-            surface: OffsetSurface::new(d, base.clone(), SurfaceId::Free(rail as u32)),
-        }
+            surface: OffsetSurface::new(&kern, d, base.clone(), SurfaceId::Free(rail as u32), SS_UNKNOWN)?,
+        })
     };
     let r = (|| -> Result<(), SolidError> {
         for (k, (h, d)) in has.iter().zip(off).enumerate() {
             if *h {
-                fs.set_surface(k, Some(make(k, *d)))?;
+                fs.set_surface(k, Some(make(k, *d)?))?;
             }
         }
         fs.orientations = *orient;
@@ -672,7 +675,7 @@ fn rust_state(
                 3 => fs.set_offsets_data(&saved)?,
                 4 => {
                     let rail = c[1] as usize;
-                    fs.set_surface(rail, Some(make(rail, c[2])))?;
+                    fs.set_surface(rail, Some(make(rail, c[2])?))?;
                 }
                 5 => fs.set_extension_factor(c[1]),
                 6 => fs.set_reverse_trim(c[1] != 0.0),
@@ -700,6 +703,7 @@ fn put_arrays(o: &mut Vec<f64>, f: &[f64], j: Option<&Matrix>) {
 /// A [`ShimSolver`] with the case's offset surfaces (keys 0 and 1).
 fn shim_with(s: &Surfs, load: bool, found: bool, setup: bool) -> Result<ShimSolver, HarnessError> {
     let base = surface_of(&s.base)?;
+    let kern = Kernel::default();
     let mut fs = ShimSolver {
         base: FilletSolver::new(1.0e-6, 0.1, 0.01),
         load,
@@ -708,9 +712,11 @@ fn shim_with(s: &Surfs, load: bool, found: bool, setup: bool) -> Result<ShimSolv
     };
     for (k, (h, d)) in s.has.iter().zip(&s.off).enumerate() {
         if *h {
+            let surface = OffsetSurface::new(&kern, *d, base.clone(), SurfaceId::Free(0), SS_UNKNOWN)
+                .map_err(|e| harness(e.to_string()))?;
             let slot = OffsetSurfaceSlot {
                 key: k as u64,
-                surface: OffsetSurface::new(*d, base.clone(), SurfaceId::Free(0)),
+                surface,
             };
             fs.base.set_surface(k, Some(slot)).map_err(|e| harness(e.to_string()))?;
         }
@@ -879,8 +885,7 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
                     );
                     c.make_nurb(&k).map(|()| Rev::Cone(c))
                 }
-                // UNPORTED(surface.sphere): SmSphere::CreateCanonical
-                2 => Err(SolidError::unported("SmSphere::CreateCanonical", "surface.sphere")),
+                2 => Sphere::create_canonical(&k, &a2p, p[0]).map(Rev::Sphere),
                 _ => Torus::create_canonical(&k, &a2p, p[0], p[1], TorusOptions::default(), None)
                     .map(Rev::Torus),
             };
@@ -891,6 +896,7 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
                     Ok(())
                 }
                 Ok(Rev::Cone(c)) => tested(AnalyticTestSurface::Cone(&c), o),
+                Ok(Rev::Sphere(s)) => tested(AnalyticTestSurface::Sphere(&s), o),
                 Ok(Rev::Torus(t)) => tested(AnalyticTestSurface::Torus(&t), o),
             }
         }
@@ -929,11 +935,12 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
         } => {
             let plane = Surfs::default();
             let base = surface_of(&plane.base)?;
+            let kern = Kernel::default();
             let mut fs = FilletSolver::new(*tol, 0.1, 0.01);
             let r = (|| -> Result<(), SolidError> {
                 for (k, (h, d)) in has.iter().zip(off).enumerate() {
                     if *h {
-                        let s = OffsetSurface::new(*d, base.clone(), SurfaceId::Free(0));
+                        let s = OffsetSurface::new(&kern, *d, base.clone(), SurfaceId::Free(0), SS_UNKNOWN)?;
                         fs.set_surface(k, Some(OffsetSurfaceSlot { key: k as u64, surface: s }))?;
                     }
                 }
@@ -1094,6 +1101,17 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             );
             if r.is_ok() {
                 o.push(0.0);
+                // as the shim: per surface P, du, dv, unit normal, UV; curve point, angle
+                for srf in 0..2 {
+                    let pv = &t.surface_pv[srf];
+                    for p in [pv[0][0], pv[1][0], pv[0][1], pv[2][2]] {
+                        o.extend_from_slice(&[p.x, p.y, p.z]);
+                    }
+                    let uv = t.uv_curve_pv[srf][0];
+                    o.extend_from_slice(&[uv.x, uv.y]);
+                }
+                let c = t.curve_pv[0];
+                o.extend_from_slice(&[c.x, c.y, c.z, t.tangent_plane_angle_rad]);
             }
             r
         }
@@ -1135,17 +1153,18 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         }
         Inputs::Finish { surface, has, off } => {
             let base = surface_of(surface)?;
+            let k = Kernel::default();
             let mut fs = FilletSolver::new(1.0e-6, 0.1, 0.01);
             let r = (|| -> Result<(), SolidError> {
                 if has[0] {
-                    let s = OffsetSurface::new(*off, base.clone(), SurfaceId::Free(0));
+                    let s = OffsetSurface::new(&k, *off, base.clone(), SurfaceId::Free(0), SS_UNKNOWN)?;
                     fs.set_surface(0, Some(OffsetSurfaceSlot { key: 0, surface: s }))?;
                 }
                 if has[1] {
-                    let s = OffsetSurface::new(-*off, base.clone(), SurfaceId::Free(0));
+                    let s = OffsetSurface::new(&k, -*off, base.clone(), SurfaceId::Free(0), SS_UNKNOWN)?;
                     fs.set_surface(1, Some(OffsetSurfaceSlot { key: 1, surface: s }))?;
                 }
-                fs.finish_construction()
+                fs.finish_construction(&k)
             })();
             if r.is_ok() {
                 o.push(0.0);
@@ -1204,11 +1223,12 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let k = Kernel::default();
             let mut fs = FilletSolver::new(1.0e-6, 0.1, 0.01);
             let plane = surface_of(&Surfs::default().base)?;
-            let s1 = OffsetSurface::new(0.0, plane, SurfaceId::Free(0));
+            let mut s1 = OffsetSurface::new(&k, 0.0, plane, SurfaceId::Free(0), SS_UNKNOWN)
+                .map_err(|e| harness(e.to_string()))?;
             let mut ext = ExtentNd::new(3);
             let mut per = Vec::new();
             let mut guess = Vec::new();
-            let r = fs.load_initial_values(&k, None, *do2 != 0, *rail, &s1, 0, &mut ext, &mut per, &mut guess);
+            let r = fs.load_initial_values(&k, None, *do2 != 0, *rail, &mut s1, 0, &mut ext, &mut per, &mut guess);
             match r {
                 Ok(_) => o.push(0.0),
                 Err(e @ SolidError::Unported { .. }) => return Ok(Output::unported(&e).unwrap_or_default()),
@@ -1336,6 +1356,7 @@ impl ClassGeometry<H> for NoGeometry {
 /// A built analytic surface of [`Inputs::AnalyticRev`].
 enum Rev {
     Cone(Cone),
+    Sphere(Sphere),
     Torus(Torus),
 }
 

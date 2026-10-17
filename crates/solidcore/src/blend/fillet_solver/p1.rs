@@ -47,12 +47,16 @@
 //!
 //! Deviations:
 //! - **Object model.** Virtual methods of the solver are the [`FilletSolverOps`] trait;
-//!   [`FilletSolver`] implements the base versions. Offset surfaces are the co-ported
-//!   [`OffsetSurface`] of `blend::fillet_custom_solver` held in an
+//!   [`FilletSolver`] implements the base versions. Offset surfaces are the
+//!   [`OffsetSurface`] rails of `blend::fillet_custom_solver` (the ported
+//!   `SmOffsetSurface` with the identity of its base) held in an
 //!   [`OffsetSurfaceSlot`] whose `key` stands for the `SmOffsetSurface*` upstream
 //!   compares (`SetOffsetsData`); [`FilletSolverOffsetsData`] holds copies of the slots,
 //!   so restoring a slot with a different key puts the saved surface back (upstream
-//!   deletes the current surface and stores the saved pointer).
+//!   deletes the current surface and stores the saved pointer). Evaluations of the
+//!   solver's own offsets keep a base extension they make, as upstream's `const`
+//!   evaluators do; `SmFindClippedRadiusEFO` evaluates copies (its iso curve and
+//!   `LocalCurveIntersect`), which drop such an extension.
 //! - **Fillet geometries, executive, corners.** `SmFilletGeom`, `SmFilletExecutive`,
 //!   the pseudo-B-rep (`SmFilletEdge`/`SmFilletVertex`) and the fillet corners belong to
 //!   unported units: the solver holds opaque [`FilletGeomRef`] / [`FilletExecutiveRef`]
@@ -73,8 +77,8 @@
 //!   overrides of the custom solvers) returns [`SolidError::Unported`]; the
 //!   [`FilletSolverOps`] methods are fallible for that reason.
 //! - **Analytic surfaces.** `sm_TestAnalyticSurface` takes an [`AnalyticTestSurface`]:
-//!   a [`Surface`], a [`Cone`] (cone or cylinder) or a [`Torus`], since no [`Surface`]
-//!   kind holds the last two yet.
+//!   a [`Surface`], a [`Cone`] (cone or cylinder), a [`Sphere`] or a [`Torus`], since
+//!   no [`Surface`] kind holds the last three yet.
 //! - **Arguments.** Out-params become return values; `SmContext` arguments become the
 //!   [`Kernel`]. `SmFindClippedRadiusEFO` takes the target distance its constructor
 //!   reads from the `SmConstantDistanceFS` (`GetDistance`, unit
@@ -89,6 +93,7 @@
 
 use crate::blend::fillet_custom_solver::{InitialValues, JacobianLoad, OffsetSurface, SurfaceId};
 use crate::curve::curve::Curve;
+use crate::curve::iso_curve::IsoCurve;
 use crate::error::{ignore_status, ignored, Result, SolidError};
 use crate::geom::extent1d::{Extent1d, ExtentNd};
 use crate::geom::extent2d::Extent2d;
@@ -108,7 +113,11 @@ use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
+use crate::nurbs::knots::Side;
 use crate::surface::cone::Cone;
+use crate::surface::offset_surface::SS_UNKNOWN;
+use crate::surface::sphere::Sphere;
+use crate::surface::surface::p1::evaluate_1st_derivatives;
 use crate::surface::surface::p2::drop_vectors;
 use crate::surface::surface::Surface;
 use crate::surface::torus::Torus;
@@ -491,20 +500,25 @@ impl FilletSolver {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] as soon as there is a surface to copy
-    /// (`SmOffsetSurface::Copy`, then `SmFilletGeom::SetOffsetSurface`), or from
-    /// [`FilletSolver::surface`].
-    pub fn finish_construction(&self) -> Result<()> {
-        for _fg in &self.fillet_geoms {
+    /// [`SolidError::Unported`] as soon as a surface copy is to be installed
+    /// (`SmFilletGeom::SetOffsetSurface`, unit `blend.fillet_geom_p1`), or from
+    /// [`FilletSolver::surface`] and the copy. A failed copy is skipped, as upstream
+    /// (its status is ignored and a `NULL` copy is not installed).
+    pub fn finish_construction(&self, k: &Kernel) -> Result<()> {
+        for fg in &self.fillet_geoms {
             for which in 0..2 {
-                if self.surface(which)?.is_none() {
+                let Some(ours) = self.surface(which)? else {
                     continue;
+                };
+                // SmOffsetSurface::Copy() returns an SmSurface*, not SmOffsetSurface*
+                if let Some(copy) = copy_offset_surface(k, Some(ours))? {
+                    // UNPORTED(blend.fillet_geom_p1): SmFilletGeom::SetOffsetSurface
+                    unported_on::<_, ()>(
+                        (*fg, which, copy),
+                        "SmFilletGeom::SetOffsetSurface",
+                        "blend.fillet_geom_p1",
+                    )?;
                 }
-                // UNPORTED(surface.offset_surface): SmOffsetSurface::Copy
-                return Err(SolidError::unported(
-                    "SmOffsetSurface::Copy",
-                    "surface.offset_surface",
-                ));
             }
         }
         Ok(())
@@ -823,7 +837,7 @@ impl FilletSolver {
         for i in 0..2 {
             let saved = match self.surface_mut(i)? {
                 Some(s) => {
-                    let d = s.surface.offset_distance;
+                    let d = s.surface.offset_distance();
                     s.surface.set_offset_distance(0.0);
                     Some(d)
                 }
@@ -1026,13 +1040,14 @@ impl FilletSolver {
     /// # Errors
     ///
     /// [`SolidError::Unported`] from its first call (`SmFilletGeom::GetRailIndexOfVertexuse`,
-    /// unit `blend.fillet_geom_p6`) and the fillet geometry, fillet vertex and offset
-    /// surface calls after it; `SM_ERR_NULL_POINTER` (`NER`) for a missing fillet
-    /// vertex, side edge use, original face or adjacent face; [`SolidError::InvalidInput`]
-    /// when the faces across the side edge are not tangent (`SM_ERR_INVALID_INPUT`) and
-    /// where upstream dereferences `NULL`.
+    /// unit `blend.fillet_geom_p6`) and the fillet geometry and fillet vertex calls
+    /// after it; `SM_ERR_NULL_POINTER` (`NER`) for a missing fillet vertex, side edge
+    /// use, original face or adjacent face; [`SolidError::InvalidInput`] when the faces
+    /// across the side edge are not tangent (`SM_ERR_INVALID_INPUT`) and where upstream
+    /// dereferences `NULL`; those of the offset surface constructor and copies.
     pub fn split_fillet_geom_at_side_edge(
         &mut self,
+        k: &Kernel,
         b: &Brep,
         pseudo: &mut Brep,
         fillet_geom: FilletGeomRef,
@@ -1110,7 +1125,7 @@ impl FilletSolver {
             .surface(rail_idx)?
             .ok_or_else(|| invalid("no offset surface"))?
             .surface
-            .offset_distance;
+            .offset_distance();
 
         // Same normals?  This routine will tell us that:
         let mut opposite_normals = false;
@@ -1129,8 +1144,14 @@ impl FilletSolver {
         if opposite_normals {
             offset_dist *= -1.0;
         }
-        let mut adj_off_surf =
-            OffsetSurface::new(offset_dist, adj_surface, SurfaceId::Face(adj_face));
+        // new SmOffsetSurface(offsetDist, *adjSurface): default lSingularities
+        let mut adj_off_surf = OffsetSurface::new(
+            k,
+            offset_dist,
+            adj_surface,
+            SurfaceId::Face(adj_face),
+            SS_UNKNOWN,
+        )?;
         adj_off_surf.set_allow_extension(true);
 
         // If the base part is the rollover part, set its type before call to split:
@@ -1162,15 +1183,7 @@ impl FilletSolver {
             "SmFilletGeom::GetOffsetSurface",
             "blend.fillet_geom_p1",
         )?;
-        let off_surf: Option<OffsetSurfaceSlot> = match orig_off_surf {
-            // UNPORTED(surface.offset_surface): SmOffsetSurface::Copy
-            Some(s) => Some(unported_on(
-                s,
-                "SmOffsetSurface::Copy",
-                "surface.offset_surface",
-            )?),
-            None => None,
-        };
+        let off_surf = copy_offset_surface(k, orig_off_surf.as_ref())?;
         // UNPORTED(blend.fillet_geom_p1): SmFilletGeom::SetOffsetSurface
         unported_on::<_, ()>(
             (new_fillet_geom, other_idx, off_surf),
@@ -1197,15 +1210,7 @@ impl FilletSolver {
                 "SmFilletGeom::GetOffsetSurface",
                 "blend.fillet_geom_p1",
             )?;
-            let off_surf: Option<OffsetSurfaceSlot> = match orig_off_surf {
-                // UNPORTED(surface.offset_surface): SmOffsetSurface::Copy
-                Some(s) => Some(unported_on(
-                    s,
-                    "SmOffsetSurface::Copy",
-                    "surface.offset_surface",
-                )?),
-                None => None,
-            };
+            let off_surf = copy_offset_surface(k, orig_off_surf.as_ref())?;
             // UNPORTED(blend.fillet_geom_p1): SmFilletGeom::SetOffsetSurface
             unported_on::<_, ()>(
                 (new_fillet_geom, rail_idx, off_surf),
@@ -1646,7 +1651,7 @@ pub trait FilletSolverOps {
         _brep: Option<&Brep>,
         _do_surf2_calcs: bool,
         _rail_index: usize,
-        _surface1: &OffsetSurface,
+        _surface1: &mut OffsetSurface,
         _surface1_index: usize,
         _intervals: &mut ExtentNd,
         _periodicities: &mut Vec<bool>,
@@ -1700,22 +1705,41 @@ fn base_id(s: &FilletSolver, rail: usize) -> Result<Option<SurfaceId>> {
     Ok(s.surface(rail)?.map(|slot| slot.surface.base_id))
 }
 
-/// `Evaluate1stDerivatives(uv, TRUE, TRUE, ..)` of an offset surface.
-fn offset_evaluate_1st(_s: &OffsetSurface, _uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::Evaluate
-    Err(SolidError::unported(
-        "SmOffsetSurface::Evaluate",
-        "surface.offset_surface",
-    ))
+/// `pOffSurf->Copy(ctx, pSurf)` with its status ignored, as upstream: `None` for no
+/// surface or a failed copy (`pSurf` stays `NULL`). The copy shares the base surface
+/// (the solvers' offsets do not own theirs), so it keeps the base identity.
+fn copy_offset_surface(k: &Kernel, s: Option<&OffsetSurfaceSlot>) -> Result<Option<OffsetSurface>> {
+    let Some(slot) = s else {
+        return Ok(None);
+    };
+    Ok(
+        ignored(slot.surface.surface.copy(k))?.map(|surface| OffsetSurface {
+            surface,
+            base_id: slot.surface.base_id,
+        }),
+    )
 }
 
-/// `EvaluateNormal(uv, TRUE, TRUE, ..)` of an offset surface.
-fn offset_evaluate_normal(_s: &OffsetSurface, _uv: Point2) -> Result<Vec3> {
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::Evaluate
-    Err(SolidError::unported(
-        "SmOffsetSurface::Evaluate",
-        "surface.offset_surface",
-    ))
+/// `Evaluate1stDerivatives(uv, TRUE, TRUE, ..)` of an offset surface (the inherited
+/// `SmSurface` body over `SmOffsetSurface::Evaluate`); an extension of the base it
+/// makes is kept, as upstream's `const` evaluators do.
+fn offset_evaluate_1st(s: &mut OffsetSurface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
+    s.surface
+        .with_evaluator(|e| evaluate_1st_derivatives(e, uv, Side::Left, Side::Left))
+}
+
+/// `EvaluateNormal(uv, TRUE, TRUE, ..)` of an offset surface
+/// (`SmOffsetSurface::EvaluateNormal`), keeping an extension it makes.
+fn offset_evaluate_normal(s: &mut OffsetSurface, uv: Point2) -> Result<Vec3> {
+    s.surface
+        .evaluate_normal_extending(uv, Side::Left, Side::Left)
+}
+
+/// The solver's offset surface of `rail` (`GetSurface(rail)`), for evaluation.
+fn solver_surface_mut(s: &mut FilletSolver, rail: usize) -> Result<&mut OffsetSurface> {
+    s.surface_mut(rail)?
+        .map(|slot| &mut slot.surface)
+        .ok_or_else(|| invalid("no offset surface"))
 }
 
 fn x_at(x: &[f64], i: usize) -> Result<f64> {
@@ -1851,35 +1875,25 @@ impl<'a> FilletSphereSolveEnfo<'a> {
 
         // calc OffsetSurface0 current solution surface values
         let uv = Point2::new(x_at(x, 0)?, x_at(x, 1)?);
-        let s0 = self
-            .solver
-            .solver()
-            .surface(0)?
-            .ok_or_else(|| invalid("no first offset surface"))?
-            .surface
-            .clone();
-        let (sf, sduf, sdvf) = offset_evaluate_1st(&s0, uv)?;
+        let (sf, sduf, sdvf) =
+            offset_evaluate_1st(solver_surface_mut(self.solver.solver_mut(), 0)?, uv)?;
 
         // update the plane to fit the current solution
         if self.plane_adjusts {
             let mut norm1 = sduf.cross(sdvf);
             if norm1.length_squared() < EFF_ZERO_SQ {
-                norm1 = offset_evaluate_normal(&s0, uv)?;
+                norm1 =
+                    offset_evaluate_normal(solver_surface_mut(self.solver.solver_mut(), 0)?, uv)?;
             }
             let norm1 = norm1.unitize()?;
 
             let uv2 = Point2::new(x_at(x, surf2_offset)?, x_at(x, surf2_offset + 1)?);
-            let s1 = self
-                .solver
-                .solver()
-                .surface(1)?
-                .ok_or_else(|| invalid("no second offset surface"))?
-                .surface
-                .clone();
-            let (sg, sdug, sdvg) = offset_evaluate_1st(&s1, uv2)?;
+            let (sg, sdug, sdvg) =
+                offset_evaluate_1st(solver_surface_mut(self.solver.solver_mut(), 1)?, uv2)?;
             let mut norm2 = sdug.cross(sdvg);
             if norm2.length_squared() < EFF_ZERO_SQ {
-                norm2 = offset_evaluate_normal(&s1, uv2)?;
+                norm2 =
+                    offset_evaluate_normal(solver_surface_mut(self.solver.solver_mut(), 1)?, uv2)?;
             }
             let norm2 = norm2.unitize()?;
 
@@ -2218,35 +2232,57 @@ impl<'a> FindClippedRadiusEfo<'a> {
     }
 
     /// `m_pOtherSurface->LocalCurveIntersect(m_OtherDomain, sIsoCurve, ...)` with the
-    /// iso curve of the offset surface.
+    /// iso curve of the offset surface (`SmIsoCurve(*m_pSurface, m_eSurfParam,
+    /// m_dIsoParam, TRUE, FALSE)`, unclamped): the other surface's UV point and the
+    /// curve parameter, `None` when no good point was found. Both surfaces are
+    /// evaluated through copies, so a base extension the evaluations make is not kept
+    /// (upstream's `const` evaluators store it in the solver's offsets).
     fn intersect_iso(&self) -> Result<Option<(Point2, f64)>> {
-        let _ = (
-            self.other_domain,
+        let (i, o) = (self.surf_index, 1 - self.surf_index);
+        let surface = Surface::from(
+            self.solver
+                .surface(i)?
+                .ok_or_else(|| invalid("no offset surface"))?
+                .surface
+                .surface
+                .clone(),
+        );
+        let other = Surface::from(
+            self.solver
+                .surface(o)?
+                .ok_or_else(|| invalid("no other offset surface"))?
+                .surface
+                .surface
+                .clone(),
+        );
+        let iso = IsoCurve::from_surface(surface, self.surf_param, self.iso_param, true, false)?;
+        let curve = Curve::from(iso);
+        let interval = curve.natural_interval();
+        let found = other.local_curve_intersect(
+            &self.other_domain,
+            &curve,
+            &interval,
             self.approx_tol_3d,
             self.other_uv,
             self.guess_t,
-        );
-        // UNPORTED(surface.offset_surface): SmOffsetSurface::Evaluate (SmIsoCurve of an offset surface)
-        Err(SolidError::unported(
-            "SmOffsetSurface::Evaluate",
-            "surface.offset_surface",
-        ))
+        )?;
+        Ok(found.map(|c| (c.uv, c.t)))
     }
 
     fn base_points(&self, uv: Point2, other_uv: Point2) -> Result<f64> {
         let (i, o) = (self.surf_index, 1 - self.surf_index);
-        let base = &self
+        let base = self
             .solver
             .surface(i)?
             .ok_or_else(|| invalid("no offset surface"))?
             .surface
-            .base;
-        let other_base = &self
+            .base_surface();
+        let other_base = self
             .solver
             .surface(o)?
             .ok_or_else(|| invalid("no other offset surface"))?
             .surface
-            .base;
+            .base_surface();
         let p = evaluate_point_out_of_bounds(base, uv)?;
         let op = evaluate_point_out_of_bounds(other_base, other_uv)?;
         Ok(p.distance(op))
@@ -2338,13 +2374,8 @@ impl FilletSolver {
         let snapshot = tsect.clone();
         ops.setup_offset_values(&snapshot, None)?;
         for (srf, uv) in uv_values.iter().enumerate() {
-            let s = ops
-                .solver()
-                .surface(srf)?
-                .ok_or_else(|| invalid("no offset surface"))?
-                .surface
-                .clone();
-            let (p, du, dv) = offset_evaluate_1st(&s, *uv)?;
+            let s = solver_surface_mut(ops.solver_mut(), srf)?;
+            let (p, du, dv) = offset_evaluate_1st(s, *uv)?;
             let pv = tsect
                 .surface_pv
                 .get_mut(srf)
@@ -2357,7 +2388,7 @@ impl FilletSolver {
             pv[0][2] = Vec3::new(0.0, 0.0, 0.0);
             let mut norm = du.cross(dv);
             if norm.length_squared() < EFF_ZERO_SQ {
-                norm = offset_evaluate_normal(&s, *uv)?;
+                norm = offset_evaluate_normal(s, *uv)?;
                 if norm.length_squared() < EFF_ZERO_SQ {
                     return Err(SolidError::sm_err(OP));
                 }
@@ -2462,13 +2493,16 @@ pub fn check_edge_curve_domains(
 }
 
 /// The `SmBSplineSurface*` [`test_analytic_surface`] tests: a [`Surface`], or an
-/// `SmCone` / `SmCylinder` or `SmTorus`, which no [`Surface`] kind holds yet.
+/// `SmCone` / `SmCylinder`, `SmSphere` or `SmTorus`, which no [`Surface`] kind holds
+/// yet.
 #[derive(Debug, Clone, Copy)]
 pub enum AnalyticTestSurface<'a> {
     /// A surface of one of the [`Surface`] kinds.
     Surface(&'a Surface),
     /// A cone or cylinder (`SmCone_TYPE` / `SmCylinder_TYPE`).
     Cone(&'a Cone),
+    /// A sphere.
+    Sphere(&'a Sphere),
     /// A torus.
     Torus(&'a Torus),
 }
@@ -2486,6 +2520,7 @@ pub fn test_analytic_surface(surface: AnalyticTestSurface<'_>) -> Result<bool> {
     let type_code = match surface {
         AnalyticTestSurface::Surface(s) => s.type_code(),
         AnalyticTestSurface::Cone(c) => c.type_code(),
+        AnalyticTestSurface::Sphere(s) => s.type_code(),
         AnalyticTestSurface::Torus(t) => t.type_code(),
     };
     // return TRUE when surface type is Plane or Cone
@@ -2494,11 +2529,12 @@ pub fn test_analytic_surface(surface: AnalyticTestSurface<'_>) -> Result<bool> {
     }
 
     // test NurbSurface to see if its a canonical Plane (SmSurface::IsPlanar: cones,
-    // cylinders and tori inherit it and the SmBSplineSurface bounding box, which is
-    // that of their SmSurfOfRevolution base)
+    // cylinders, spheres and tori inherit it and the SmBSplineSurface bounding box,
+    // which is that of their SmSurfOfRevolution base)
     let planar = match surface {
         AnalyticTestSurface::Surface(s) => s.is_planar(EFF_ZERO)?,
         AnalyticTestSurface::Cone(c) => Surface::from(c.rev().clone()).is_planar(EFF_ZERO)?,
+        AnalyticTestSurface::Sphere(s) => Surface::from(s.base().clone()).is_planar(EFF_ZERO)?,
         AnalyticTestSurface::Torus(t) => Surface::from(t.base.clone()).is_planar(EFF_ZERO)?,
     };
     if planar.is_planar {
