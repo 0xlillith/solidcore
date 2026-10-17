@@ -55,7 +55,7 @@
 //!   `IsDegenerate` name the curves by a handle carrying their natural interval; the
 //!   objects are then switched to the edges, as upstream. All returned curves are owned
 //!   (upstream hands out deleted ones through `pOptCC3DCrvs` without classification
-//!   arrays, UB-163). Outputs are return values, so upstream's quirk that
+//!   arrays, UB-165). Outputs are return values, so upstream's quirk that
 //!   `pOptThisCCUVCrvs` / `pOptOtherCCUVCrvs` are never reset (they append to the
 //!   caller's arrays) has no counterpart; in the coincident branch the failing-copy
 //!   path replaces all four vectors with the intersector's.
@@ -1297,6 +1297,10 @@ pub enum IntersectObject {
     UvCurve(usize, bool),
     /// The surface of a face.
     Surface(FaceId),
+    /// The 3D curve of an edge.
+    EdgeCurve(EdgeId),
+    /// The UV trim curve stored on an edge use.
+    Trim(EdgeuseId),
     /// A topology entity of the B-rep.
     Topology(EntityRef),
 }
@@ -1304,7 +1308,9 @@ pub enum IntersectObject {
 impl ClassObject for IntersectObject {
     fn class_kind(&self) -> ClassObjectKind {
         match self {
-            Self::Curve(_) | Self::UvCurve(..) => ClassObjectKind::Curve,
+            Self::Curve(_) | Self::UvCurve(..) | Self::EdgeCurve(_) | Self::Trim(_) => {
+                ClassObjectKind::Curve
+            }
             Self::Surface(_) => ClassObjectKind::Surface,
             Self::Topology(e) => e.class_kind(),
         }
@@ -1373,11 +1379,23 @@ impl qf2::CurveOnClassifyObjects<IntersectObject> for IntersectObjects<'_> {
     fn vertex(&self, v: VertexId) -> IntersectObject {
         IntersectObject::Topology(EntityRef::Vertex(v))
     }
-    fn surface(&self, f: FaceId) -> Option<IntersectObject> {
-        Some(IntersectObject::Surface(f))
+    fn edge(&self, e: EdgeId) -> IntersectObject {
+        IntersectObject::Topology(EntityRef::Edge(e))
     }
-    fn curve(&self, curve: IntersectObject) -> Option<&Curve> {
-        ClassGeometry::curve(self, curve)
+    fn vertexuse(&self, vu: VertexuseId) -> IntersectObject {
+        IntersectObject::Topology(EntityRef::Vertexuse(vu))
+    }
+    fn edgeuse(&self, eu: EdgeuseId) -> IntersectObject {
+        IntersectObject::Topology(EntityRef::Edgeuse(eu))
+    }
+    fn edge_curve(&self, e: EdgeId) -> IntersectObject {
+        IntersectObject::EdgeCurve(e)
+    }
+    fn trim_curve(&self, eu: EdgeuseId) -> IntersectObject {
+        IntersectObject::Trim(eu)
+    }
+    fn face_surface(&self, f: FaceId) -> Option<IntersectObject> {
+        Some(IntersectObject::Surface(f))
     }
     fn loop_id(&self, tgt_loop: IntersectObject) -> Option<LoopId> {
         match tgt_loop {
@@ -1412,6 +1430,8 @@ impl ClassGeometry<IntersectObject> for IntersectObjects<'_> {
             IntersectObject::Curve(i) => self.curves_3d.get(i),
             IntersectObject::UvCurve(i, false) => self.uv1.get(i)?.as_ref(),
             IntersectObject::UvCurve(i, true) => self.uv2.get(i)?.as_ref(),
+            IntersectObject::EdgeCurve(e) => self.b.edge(e).ok()?.curve.as_ref(),
+            IntersectObject::Trim(eu) => eu1::uv_trim_curve(self.b, eu).ok()?.0,
             IntersectObject::Surface(_) | IntersectObject::Topology(_) => None,
         }
     }

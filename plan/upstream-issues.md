@@ -440,10 +440,10 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Location:** `SmHashTable.h:2360`, `SmObjsInVoxels<TYPE>::FindCoincidentPairs`.
 - **What happens:** An empty `pOptBucketIndices` is read at index 0.
 - **Trigger:** `FindCoincidentPairs` with an empty, non-NULL bucket index array.
-- **How found:** read during porting.
-- **Confirmed:** no.
+- **How found:** read during porting; PR #164 maintainer review reproduced the path through healer target catch-up.
+- **Confirmed:** yes by the maintainer's release-C++ SIGSEGV in `FindCoincidentPairs <- Cache_CoinVertices <- HealTgts <- UpdateTargetLists` (PR #164). A box with cached edge/vertex/face-gap props, forged done op 6/8/9/16/26, no initial coincidence cache, and an existing vertex added to its targets reaches the empty incremental bucket list.
 - **Severity:** crash/UB.
-- **Rust port:** Checks no bucket.
+- **Rust port:** Checks no bucket. The healer FFI shim also refuses incremental catch-up with remaining old vertices and an uninitialized voxel extent. No prior vertices, a real initial coincidence cache, catch-up below step 6, and removal of all prior vertices remain accepted (direct FFI regressions in PR #164).
 
 #### UB-37. `SmPolarBox::Union` loops over an unset count
 - **Location:** `SmPolarBox.cpp:1031` `SmPolarBox::Union`; `:930` `GetBoundaryVectors`.
@@ -1290,7 +1290,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (out-of-bounds read).
 - **Rust port:** `SolidError::InvalidInput` for a loop use without edge uses. (The other `ComputeLoopOrientation` reads that looked undefined, `sVeryFirstUV`, are defined: `SmVector2d` has default member initialisers `SM_UNDEF_DOUBLE`, `SmVector2d.h:56`-`58`; the port starts from `Point2::UNDEF` and computes the closing span with it.)
 
-#### UB-163. `SmFace::FaceIntersect` hands out deleted curves through `pOptCC3DCrvs` when called without classification arrays
+#### UB-165. `SmFace::FaceIntersect` hands out deleted curves through `pOptCC3DCrvs` when called without classification arrays
 - **Location:** `source/SMLib/src/SmFace.cpp:11669` `SmFace::FaceIntersect` (`pOptCC3DCrvs->Append( s3DCurves )`, `pOptThisCCUVCrvs`, `pOptOtherCCUVCrvs`), init block `:11325`-`11333`.
 - **What happens:** the surface/surface curves are owned by the cleaners `sClean1`..`sClean3`, which are cleared only when `pOptThisCrvClasses` or `pOptOtherCrvClasses` is given. With `pOptCC3DCrvs` (or the UV arrays) but neither classification array, the caller receives pointers the cleaners delete at return; with the classification arrays but without `pOptCC3DCrvs`, the curves the classifications reference leak. In the coincident branch a failing edge curve `Copy` makes the inner `sClean` delete the copies in `s3DCurves`; `SmObjsDelete::Delete` NULLs each slot and resets the array (`SmTArray.h:2107`-`2115`), so there is no double free, but `sUVCurves1`/`sUVCurves2` keep NULL entries and `sCurveTypes` keeps stale `SM_TC_REGION_BOUNDARY` entries when they reach the intersector (a wrong result at most).
 - **Quirk:** the init block resets `pOptThisUVCurves` and `pOptOtherUVCurves` twice and never resets `pOptThisCCUVCrvs` / `pOptOtherCCUVCrvs`, so those outputs append to whatever the caller passed.
@@ -1308,6 +1308,16 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes, the maintainer reproduced SIGSEGV for all five curve kinds in full and vertices-only modes (13 crashing probes in total), plus the one-interval out-of-range read.
 - **Severity:** crash / out-of-range read.
 - **Rust port:** Kernel topology mutation remains deferred. Both the safe FFI validator and the C++ shim require equally sized partners for op 3 with fillets. Six `rejected_fillets_*` fixtures check rejection; 660 isolated probes independently exercise both guards at first and last indices of 1/2/3/32 intervals. Valid equal-sized pairs and non-fillet calls remain accepted.
+
+### Healer target management
+
+#### UB-163. Uncached healer props removal leaves targets that resize into NULL props holes
+- **Location:** `source/SMLib/src/SmHealData.cpp:1332-1333` (`RemoveVertexProps_FromLists` and analogous edge/face helpers), `:1224-1226` (`UpdateTargetLists`); later `Cache_CoinVertices` / `Cache_DegenFaces`.
+- **What happens:** removing a props record whose topology pointer has never been cached removes the props but not its target. A later nonempty add list resizes every props array from the target count and initializes only the new-target tail, leaving NULL holes for the unmatched old targets. Native coincidence/degeneracy caching can then dereference invalid state. Even a null add causes that resize. A later `Get*Props_ForTgts` can also index past a props list shortened by an uncached removal.
+- **Trigger:** box with all targets, no caches: set done=9, update through 6, remove vertices 0/1 and add vertex 0 twice. Another trigger: remove uncached face 0 and add NULL. With edge/vertex caches, done=12 and update through 9, removing/adding uncached face 0 reaches `Cache_DegenFaces`. A prior `Remove*Props_FromLists` can introduce the same drift.
+- **How found:** crash in the C++ reference run during the maintainer's step-33 sequence fuzzing ([PR #164, round 2](https://github.com/tangency-labs/solidcore/pull/164#pullrequestreview-5554396459)); source inspection confirmed the mismatched list sizes and resize boundary.
+- **Confirmed:** yes by that reference run: 31 crashing scripts (7 coincidence-cache, 21 harness reads of NULL props, 3 degeneracy-cache). Requires inconsistent caller-controlled healer state; ordinary end-to-end healing was not the trigger.
+- **Severity:** crash/UB.
 
 ## Hang
 
