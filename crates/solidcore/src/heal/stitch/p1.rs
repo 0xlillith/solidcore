@@ -54,7 +54,7 @@
 //!   (`topology.brep_p2`), `CalculateBoundingBox` (`query.brep`), `SmFace::GetBrep`,
 //!   `GetVertices`, `GetEdges` (`topology.face_p4`), `SmEdgeuse::NormalizedEvaluate`,
 //!   `EvaluateBinormal` (`topology.edgeuse_p3`), `SmTol::UpdateObjectTolerance`
-//!   (`SmTopology*` overload, see [`update_object_tolerance`]), `SmMerge::MergeAddedFace`
+//!   (`SmTopology*` overload, unported in `geom.tol`; co-ported by open PR #146), `SmMerge::MergeAddedFace`
 //!   (`boolean.merge_p2`) and `SmStitch::DoStitching`, `StitchIntoSolid`,
 //!   `StitchIntoShell` (`heal.stitch_p2`) return [`SolidError::Unported`].
 
@@ -83,6 +83,8 @@ use crate::topology::{edge, vertex, vertexuse, Brep, EdgeId, EdgeuseId, FaceId, 
 use crate::{Result, SolidError};
 
 const OP: &str = "heal::stitch::p1";
+/// The operation of the `SM_API` entry points' `SM_ERR_INVALID_INPUT` (null arguments).
+const API_OP: &str = "heal::stitch::p1::api";
 
 /// `smos_Max` of two doubles (`a > b ? a : b`).
 fn smos_max(a: f64, b: f64) -> f64 {
@@ -102,9 +104,15 @@ fn smos_min(a: f64, b: f64) -> f64 {
     }
 }
 
-fn null(what: &'static str) -> SolidError {
+/// Upstream `NER(ptr)` on a null pointer: `SM_ERR_NULL_POINTER`.
+fn ner(what: &'static str) -> SolidError {
     let _ = what;
     SolidError::null_pointer(OP)
+}
+
+/// A null pointer upstream dereferences (undefined behaviour there).
+fn deref(what: &'static str) -> SolidError {
+    SolidError::invalid_input(OP, what)
 }
 
 fn sm_err() -> SolidError {
@@ -117,12 +125,12 @@ fn sm_err() -> SolidError {
 
 /// The edge's curve; upstream dereferences a null curve pointer.
 fn curve_of(b: &Brep, e: EdgeId) -> Result<&Curve> {
-    edge::curve(b, e)?.ok_or_else(|| null("edge without curve"))
+    edge::curve(b, e)?.ok_or_else(|| deref("edge without curve"))
 }
 
 /// The edge's (non-null) vertex `GetVertex` / `GetOtherVertex` result.
 fn vertex_of(v: Option<VertexId>) -> Result<VertexId> {
-    v.ok_or_else(|| null("edge without vertex"))
+    v.ok_or_else(|| deref("edge without vertex"))
 }
 
 // ---- the stitch callback -------------------------------------------------------------
@@ -203,7 +211,7 @@ pub fn select_topology_to_keep<C: StitchCallback + ?Sized>(
     if let EntityRef::Vertex(vertex1) = first {
         // 2nd element is expected to be a vertex
         let EntityRef::Vertex(vertex2) = second else {
-            return Err(null("second element is not a vertex"));
+            return Err(ner("second element is not a vertex"));
         };
 
         // get edges connected to each vertex
@@ -213,7 +221,7 @@ pub fn select_topology_to_keep<C: StitchCallback + ?Sized>(
         let mut count2: u64 = 0;
 
         // get Brep
-        let brep = vertex::brep(b, vertex1)?.ok_or_else(|| null("vertex without B-rep"))?;
+        let brep = vertex::brep(b, vertex1)?.ok_or_else(|| deref("vertex without B-rep"))?;
 
         // when distance between vertices is much larger than Brep Tolerance
         if dist_between > brep.tolerance() * 10.0 {
@@ -351,7 +359,7 @@ pub fn select_topology_to_keep<C: StitchCallback + ?Sized>(
     if let EntityRef::Edge(edge1) = first {
         // 2nd element is expected to be an edge
         let EntityRef::Edge(edge2) = second else {
-            return Err(null("second element is not an edge"));
+            return Err(ner("second element is not an edge"));
         };
 
         let faces1 = edge::faces(b, edge1, None)?;
@@ -368,7 +376,7 @@ pub fn select_topology_to_keep<C: StitchCallback + ?Sized>(
             // Find the distance from pEdge1->Curve to each face in sEFaces2.
             for &face2 in &faces2 {
                 let surface2 =
-                    fp2::surface(b, face2)?.ok_or_else(|| null("face without surface"))?;
+                    fp2::surface(b, face2)?.ok_or_else(|| deref("face without surface"))?;
                 let Some(curve1) = edge::curve(b, edge1)? else {
                     break;
                 };
@@ -394,7 +402,7 @@ pub fn select_topology_to_keep<C: StitchCallback + ?Sized>(
             // Find the distance from pEdge2->Curve to each face in sEFaces1.
             for &face1 in &faces1 {
                 let surface1 =
-                    fp2::surface(b, face1)?.ok_or_else(|| null("face without surface"))?;
+                    fp2::surface(b, face1)?.ok_or_else(|| deref("face without surface"))?;
                 let Some(curve2) = edge::curve(b, edge2)? else {
                     break;
                 };
@@ -547,7 +555,7 @@ pub fn test_and_split_edge(
         new_edge: None,
     };
 
-    let curve = edge::curve(b, e)?.ok_or_else(|| null("edge without curve"))?;
+    let curve = edge::curve(b, e)?.ok_or_else(|| ner("edge without curve"))?;
     let domain = edge::interval(b, e)?;
     // This can't be too big. [B448]
     let dropped = curve.drop_point(
@@ -586,7 +594,7 @@ pub fn test_and_split_edge(
             return Ok(out);
         }
     };
-    out.new_vertex = Some(new_v.ok_or_else(|| null("split without vertex"))?);
+    out.new_vertex = Some(new_v.ok_or_else(|| ner("split without vertex"))?);
     out.new_edge = if e2 == Some(e) { e1 } else { e2 };
     Ok(out)
 }
@@ -896,7 +904,7 @@ impl<'c> Stitch<'c> {
         let making_manifold_solid = self.making_manifold_solid;
         let fast_edge_compare = self.fast_edge_compare;
         let stitch_tol_3d = self.tol_3d;
-        let callback = &mut *self.callback;
+        let callback = self.callback();
         with_mark_lock(k, ALL_MARKS, |k, mark| -> Result<SimpleFaceStitch> {
             let mut marks = Marks::default();
             for (&kv, &dv) in k_vertices.iter().zip(&d_vertices) {
@@ -1126,15 +1134,16 @@ impl<'c> Stitch<'c> {
             marks.mark(k, Entity::Face(start_face), mark);
 
             while let Some(f) = f_stack.pop() {
-                let fu = fp2::upward_faceuse(b, f)?.ok_or_else(|| null("face without faceuse"))?;
+                let fu = fp2::upward_faceuse(b, f)?.ok_or_else(|| deref("face without faceuse"))?;
                 for eu in eu1::faceuse_edgeuses(b, fu, false, None)? {
-                    let eu_edge = eu1::edge(b, eu)?.ok_or_else(|| null("edge use without edge"))?;
+                    let eu_edge =
+                        eu1::edge(b, eu)?.ok_or_else(|| deref("edge use without edge"))?;
                     if edge::is_manifold(b, eu_edge)? {
                         // we are already stitched just orient it the easy way.
-                        let radial = eu1::radial(b, eu)?.ok_or_else(|| null("no radial"))?;
-                        let fuse = eu1::faceuse(b, radial)?.ok_or_else(|| null("no faceuse"))?;
+                        let radial = eu1::radial(b, eu)?.ok_or_else(|| deref("no radial"))?;
+                        let fuse = eu1::faceuse(b, radial)?.ok_or_else(|| deref("no faceuse"))?;
                         let rad_f = eu1::faceuse_face(b, fuse)?
-                            .ok_or_else(|| null("faceuse without face"))?;
+                            .ok_or_else(|| deref("faceuse without face"))?;
                         if marks.is_marked(k, Entity::Face(rad_f), mark) {
                             continue;
                         }
@@ -1158,15 +1167,15 @@ impl<'c> Stitch<'c> {
                         vbox.expand_absolute(stitch_tol_3d);
                         let objects = edge_tree.objects_in_box(&vbox)?;
                         for object in objects {
-                            let other = object.ok_or_else(|| null("tree object"))?;
+                            let other = object.ok_or_else(|| deref("tree object"))?;
                             if !edge::is_lamina(b, other)? {
                                 continue;
                             }
                             let mut prim_eu = edge::primary_edgeuse(b, other)?
-                                .ok_or_else(|| null("edge without edge use"))?;
+                                .ok_or_else(|| deref("edge without edge use"))?;
                             // If already processed this face continue
                             let prim_face = eu1::face(b, prim_eu)?
-                                .ok_or_else(|| null("edge use without face"))?;
+                                .ok_or_else(|| deref("edge use without face"))?;
                             if marks.is_marked(k, Entity::Face(prim_face), mark) {
                                 continue;
                             }
@@ -1201,7 +1210,7 @@ impl<'c> Stitch<'c> {
                                 continue;
                             }
                             if tangent(&pv)?.dot(dir) > 0.0 {
-                                prim_eu = eu1::mate(b, prim_eu)?.ok_or_else(|| null("no mate"))?;
+                                prim_eu = eu1::mate(b, prim_eu)?.ok_or_else(|| deref("no mate"))?;
                             }
                             // Here we should have opposite oriented edgeuses; pPrimEU's
                             // faceuse should be on side of positive normal. Only stitch
@@ -1212,9 +1221,9 @@ impl<'c> Stitch<'c> {
                                 continue;
                             }
                             let prim_fu =
-                                eu1::faceuse(b, prim_eu)?.ok_or_else(|| null("no faceuse"))?;
+                                eu1::faceuse(b, prim_eu)?.ok_or_else(|| deref("no faceuse"))?;
                             let f_other = eu1::faceuse_face(b, prim_fu)?
-                                .ok_or_else(|| null("faceuse without face"))?;
+                                .ok_or_else(|| deref("faceuse without face"))?;
                             if eu1::faceuse_orientation(b, prim_fu)? == OrientType::Opposite {
                                 flipped.push(f_other);
                                 fp1::swap_uv(k, b, f_other)?;
@@ -1862,7 +1871,7 @@ pub(crate) fn set_point(k: &mut Kernel, b: &mut Brep, v: VertexId, point: Point3
 // ---- unported callees ----------------------------------------------------------------
 
 /// `SmTol::UpdateObjectTolerance(SmTopology*, dThisGap, dThisTol, bCheckGaps)`.
-fn update_object_tolerance(
+pub(crate) fn update_object_tolerance(
     b: &mut Brep,
     object: EntityRef,
     gap: f64,
@@ -1870,10 +1879,13 @@ fn update_object_tolerance(
     check_gaps: bool,
 ) -> Result<()> {
     let _ = (b, object, gap, tol, check_gaps);
-    // UNPORTED(topology.face_p3): SmFace::SetTolerance (SmTol::UpdateObjectTolerance)
+    // UNPORTED(geom.tol): SmTol::UpdateObjectTolerance (the SmTopology* overload, left
+    // unported by geom.tol; co-ported by open PR #146 boolean.topology_intersector_p1 as
+    // geom::tol::update_object_tolerance: wire it when #146 lands). Only reached after a
+    // successful glue.
     Err(SolidError::unported(
         "SmTol::UpdateObjectTolerance",
-        "topology.face_p3",
+        "geom.tol",
     ))
 }
 
@@ -1893,7 +1905,7 @@ pub(crate) fn glue_vertices(
 }
 
 /// `SmBrep::RemoveFaces` (unit `topology.brep_p5`).
-fn remove_faces(k: &mut Kernel, b: &mut Brep, faces: &[FaceId]) -> Result<()> {
+pub(crate) fn remove_faces(k: &mut Kernel, b: &mut Brep, faces: &[FaceId]) -> Result<()> {
     let _ = (k, b, faces);
     // UNPORTED(topology.brep_p5): SmBrep::RemoveFaces
     Err(SolidError::unported(
@@ -1941,7 +1953,7 @@ pub(crate) fn squeeze_edge_to(b: &mut Brep, e: Option<EdgeId>, keep: VertexId) -
 }
 
 /// `SmBrep::MakeVertexSplitEdge(edge, t, rpE1, rpE2, rpNewV)` (unit `topology.brep_p9`).
-fn make_vertex_split_edge(
+pub(crate) fn make_vertex_split_edge(
     b: &mut Brep,
     e: EdgeId,
     t: f64,
@@ -2025,7 +2037,7 @@ fn evaluate_binormal(b: &Brep, eu: EdgeuseId, t: f64) -> Result<Vec3> {
 ///
 /// [`SolidError::InvalidInput`] for a null B-rep.
 pub fn api_stitch(k: &mut Kernel, b: Option<&mut Brep>) -> Result<()> {
-    let b = b.ok_or_else(|| SolidError::invalid_input(OP, "SmApiStitch: null B-rep"))?;
+    let b = b.ok_or_else(|| SolidError::invalid_input(API_OP, "SmApiStitch: null B-rep"))?;
     ignore_status(stitch_and_orient(k, b))?;
     // Check manifold?
     Ok(())
@@ -2040,7 +2052,7 @@ pub fn api_stitch(k: &mut Kernel, b: Option<&mut Brep>) -> Result<()> {
 pub fn api_stitch_face(k: &mut Kernel, b: Option<&mut Brep>, face: Option<FaceId>) -> Result<()> {
     let (Some(b), Some(face)) = (b, face) else {
         return Err(SolidError::invalid_input(
-            OP,
+            API_OP,
             "SmApiStitch: null B-rep or face",
         ));
     };
@@ -2074,7 +2086,8 @@ pub struct AdvancedStitch {
 ///
 /// [`SolidError::InvalidInput`] for a null B-rep; those of the stitch.
 pub fn api_stitch_into_solid(k: &mut Kernel, b: Option<&mut Brep>) -> Result<AdvancedStitch> {
-    let b = b.ok_or_else(|| SolidError::invalid_input(OP, "SmApiStitchIntoSolid: null B-rep"))?;
+    let b =
+        b.ok_or_else(|| SolidError::invalid_input(API_OP, "SmApiStitchIntoSolid: null B-rep"))?;
     let _ = (k, b);
     // UNPORTED(heal.stitch_p2): SmStitch::StitchIntoSolid
     Err(SolidError::unported(
@@ -2094,7 +2107,8 @@ pub fn api_stitch_into_shell(
     shell_is_well_formed: bool,
     max_stitching_ratio: f64,
 ) -> Result<AdvancedStitch> {
-    let b = b.ok_or_else(|| SolidError::invalid_input(OP, "SmApiStitchIntoShell: null B-rep"))?;
+    let b =
+        b.ok_or_else(|| SolidError::invalid_input(API_OP, "SmApiStitchIntoShell: null B-rep"))?;
     let _ = (k, b, shell_is_well_formed, max_stitching_ratio);
     // UNPORTED(heal.stitch_p2): SmStitch::StitchIntoShell
     Err(SolidError::unported(
@@ -2118,7 +2132,7 @@ pub fn api_unify_normals(
 ) -> Result<Vec<FaceId>> {
     let (Some(b), Some(start_face)) = (b, start_face) else {
         return Err(SolidError::invalid_input(
-            OP,
+            API_OP,
             "SmApiUnifyNormals: null B-rep or face",
         ));
     };
@@ -2141,7 +2155,8 @@ pub fn api_simple_face_stitch(
     faces_to_keep: &[FaceId],
     faces_to_delete: &[FaceId],
 ) -> Result<SimpleFaceStitch> {
-    let b = b.ok_or_else(|| SolidError::invalid_input(OP, "SmApiSimpleFaceStitch: null B-rep"))?;
+    let b =
+        b.ok_or_else(|| SolidError::invalid_input(API_OP, "SmApiSimpleFaceStitch: null B-rep"))?;
     let tol = b.tolerance();
     let mut callback = DefaultStitchCallback::new();
     let mut stitch = Stitch::new(&mut callback, tol, true, true);
@@ -2174,7 +2189,8 @@ pub fn api_stitch_advanced(
     stitch_tol_3d: f64,
     options: AdvancedStitchOptions,
 ) -> Result<AdvancedStitch> {
-    let b = b.ok_or_else(|| SolidError::invalid_input(OP, "SmApiStitchAdvanced: null B-rep"))?;
+    let b =
+        b.ok_or_else(|| SolidError::invalid_input(API_OP, "SmApiStitchAdvanced: null B-rep"))?;
     let mut callback = DefaultStitchCallback::new();
     let mut stitch = Stitch::new(&mut callback, stitch_tol_3d, true, true);
     stitch.squeeze_small_edges = options.squeeze_small_edges;
