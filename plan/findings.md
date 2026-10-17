@@ -5928,52 +5928,64 @@ independent p6 integration.
   relation state must become mutable and preserve updates for later iterations;
   this integration requirement is also recorded in the module's Deviations.
 
-## offset.offset_executive_p1 (blocked, PR #175, 2026-10-17)
+## offset.offset_executive_p1 (partial, PR #175, 2026-10-17)
 
-The safe Rust implementation, C++ shim, FFI wrapper, 91 fixtures and 600-case
-fixed-seed generator are preserved in
-[WIP commit e173a722](https://github.com/altvnk/solidcore/commit/e173a72239c661892c167523528eb5301bfaee29)
-on `altvnk/solidcore:wip/offset.offset_executive_p1-pr175`. The blocked-unit PR
-contains findings only, not an implementation certified against the C++.
+The implementation, native adapter, FFI wrapper, fixtures and differential runner
+are included directly in the PR rather than depending on a personal WIP branch.
+Settings, correspondence, synchronization and extended-surface caching are
+implemented; higher construction paths stop at their actual unavailable callees,
+with owner-tagged `Unported` errors and documented continuations.
 
-- **Observable equal-minimum ordering disagreement (ND-2).** Inputs
-  `equal_minima_public_order_tie` and `equal_minima_matched_order_tie` in the WIP
-  `fixtures/offset.offset_executive_p1/synchronize.json` both give the first
-  original edgeuse two mapped offset edgeuses with interval `[0,1]`. The first
-  fixture uses real analytic lines from `(0,0,0)` to `(1,0,0)` and `(2,0,0)`,
-  with no second-side mappings. Both survive the strict 10% length filter; no
-  interior split is needed. C++ returns measured traversal IDs `[2,0]` in
-  `matched_first`; Rust returns `[0,2]`. The second fixture uses two real
-  quadratic B-splines and a matching second-side range and has the same mismatch.
-  `SmRelation::GetSeconds` (`SmRelation.h:108-120`) iterates pointer-hashed
-  `unordered_set` values (`SmMapPtrToPtr.h:112-125`). The bubble sort at
-  `SmOffsetExecutive.cpp:2485-2506` swaps only for strictly greater minima, so
-  ties retain that unspecified order. This is an observed order disagreement,
-  not a claim that allocation-sensitive variation was measured in one binary.
-  Do not sort the public outputs, reject ties, emulate addresses or loosen the
-  identical-topology gate to make this pass. Maintainers must resolve the
-  reference-order policy before promotion.
-- **Negative-distance extension timeout (HANG-16).**
-  `GetCreateExtendedSurface` passes `5 * offset_distance` to the G1R extension
-  (`SmOffsetExecutive.cpp:2120,2148-2151`). With `offset_distance = -0.125`,
-  the named plane, bilinear, quadratic and rational quadratic fixtures each
-  exceeded eight seconds inside C++, before the Rust comparison started.
-  All 104 additional generated timeouts also had negative distances, including
-  `-1e-12` and `-1e7`. A concrete generated reproducer is `gen0004`, seed
-  `13762035380551339612`, distance `-1e7`. In
-  `SmBSplineSurfaceNLib.cpp:4583-4591`, doubling a negative `dExtDist` while
-  `dExtDist < dDist/2.0` moves away from the exit condition; equivalent loops
-  occur at `:4645`, `:4712` and `:4773`. The experiment establishes bounded
-  native timeouts, not infinite execution. Valid signed inputs remain in the
-  WIP fixtures rather than being reclassified as setup rejections or deferrals.
-- **Validation, not certification.** Linux x86_64, GNU g++ 16.2.1, Rust 1.98.0;
-  upstream `c9c5979`. All 691 cases were executed in separate processes using
-  the existing runner and comparator with an eight-second limit per case:
-  523 passed, 2 failed ordering, 17 deferred, 41 rejected native fixture
-  construction, and 108 timed out in C++. No completed case had a
-  floating-point mismatch; there are no absolute floors. Timed-out, deferred
-  and rejected cases establish no parity. Formatting, C++-enabled workspace
-  Clippy, all 1288 kernel tests and the wasm check passed on the preserved WIP.
-  The optional `--green` baseline exceeded 300 seconds after 101 PASS and 32
-  PARTIAL summaries; no full baseline pass is claimed. See the validation
-  report for commands and recovery instructions.
+- **Extension input contract corrected after review.** The first investigation
+  incorrectly treated signed geometry-creator distances as reachable executive
+  inputs. `OffsetBrep` (`SmOffsetExecutive.cpp:114-120`) and `ShellBrep`
+  (`:206-223`) use `fabs(dOffsetDistance)` for the creator and carry the sign
+  through `SetInset`; the local-operation caller (`SmBrep.cpp:12004-12008`)
+  uses half a bounding-sphere radius. The executive's internal extension
+  magnitude is therefore nonnegative. The FFI and native adapter reject
+  negative extension magnitudes before entering C++, with dedicated guard tests.
+  Signed zero and positive tiny/large magnitudes remain covered. Signed
+  constructor/getter probes and inset flags remain valid separate coverage;
+  negative public offset distances are not rejected. HANG-16 records the
+  underlying surface routine's direct negative-distance hazard, not a blocker
+  reachable through the real executive entry points.
+- **Equal-minimum relation order follows the established convention (ND-2).**
+  `SmRelation::GetSeconds` iterates pointer-hashed unordered membership, and
+  `sm_SortEdgeuses` swaps only for strictly greater minima. Following this
+  file's existing `geom.tol` convention, both comparison snapshots sort only
+  contiguous groups with exactly equal measured minimum parameters by traversal
+  id. The original two tie regressions remain. Distinct-minimum ordering,
+  membership, multiplicity, null padding, geometry, statuses and traversal
+  records are unchanged; no tolerance is relaxed. Regression tests verify that
+  normalization does not hide those differences. The deterministic kernel's
+  actual sorting algorithm is unchanged.
+- **Normal aggregate validation.** The corrected runner completes without the
+  isolated-case selector: 691 cases (91 fixtures and 600 fixed-seed generated),
+  633 passed, 0 failed, 17 deferred and 41 native fixture-construction rejections.
+  Maximum relative error is `2.5139756042650037e-14`, within `1e-9` with no
+  absolute floors. Sensitivity detects all 633 perturbations. The standard report
+  is `reports/difftest/offset.offset_executive_p1.json`; the obsolete Markdown
+  investigation is removed. Rejected inputs and deferred paths are not passes.
+  Validation uses pinned upstream `c9c5979`, GNU g++ 16.2.1 and Rust 1.98.0 on
+  Linux x86_64.
+- **Remaining dependencies and coverage.** Twelve cases need
+  `topology.brep_p9::SmBrep::MakeVertexSplitEdge`; one each needs
+  `heal.stitch_p2::SmStitch::StitchIntoSolid`,
+  `offset.offset_geometry_creation::SmOffsetGeometryCreation::VertexOffset`,
+  `topology.brep_p4::SmBrep::ShrinkGeometry`,
+  `topology.brep_p5::SmBrep::RemoveFaces`, and
+  `topology.edgeuse_p3::SmEdgeuse::NormalizedEvaluate`. Construction continuations
+  behind these actual calls remain documented rather than reported as completed.
+  Other unavailable construction branches have owner-tagged adapters but are not
+  certified by empty/no-op cases. Review corrections also cover custom tangency
+  snapshots, orientation-sensitive endpoint notifications, cache identity, strict
+  length filtering, gap order, actual topology-solver dispatch and both retained
+  equal-minimum regressions.
+- **Broader checks and limitation.** Formatting and C++-enabled workspace Clippy
+  (all targets, warnings denied) pass. All 1299 kernel tests, 20 runner tests and
+  14 FFI tests pass, including execution of the direct native negative-distance
+  guard test; the wasm check passes. A full `--green --no-report` run selected
+  198 units but hit its 1200-second limit after 107 PASS and 67 PARTIAL summaries,
+  with no reported failures. It last completed `query.edge` and did not reach
+  this unit at position 196. The standalone offset run above passed the partial
+  gate; no completed full-suite baseline pass is claimed.
