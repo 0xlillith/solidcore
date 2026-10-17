@@ -39,7 +39,7 @@
 //! | `CornerBlend`  | `n eu*n has_tan nt tan*nt tol ang`               | `status n_surfaces` (`-3` for two or more edge uses) |
 //! | `EdgeEdgeBlend`| `flag eu1 eu2 dir`                               | `status [surface block]` (ruled surfaces; `-3` for a blend) |
 //! | `ParallelProj` | `curve V[3] has_dist dist has_tol tol has_ang ang want_3d want_uv want_faces` | `status [n3d (curve id)*n3d nuv (curve id)*nuv nf face*nf]` |
-//! | `Heal`         | `op make_uv`                                     | `-3` (the Rust side defers) |
+//! | `Heal`         | `op make_uv`                                     | `status [healed B-rep]` (`SmBrep::HealBrep` always returns `SM_SUCCESS`; the healed B-rep follows: the `Export` extras, then the shim's `put_healed` fields) |
 //!
 //! A curve id is `-1` (none) or `1 t0 t1 P(t0) P(mid) P(t1)`; an edge use state is `-1`
 //! or `1 curve_id owner has_fail fail_status fail_brep vu_face_gap_init`.
@@ -214,6 +214,10 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             rd.index(2)?;
             rd.below_or_none(n_r)?;
             rd.index(2)?;
+            // `ResetInfiniteRegion(region, SM_VS_INFINITEREGION_SWAP)` dereferences the
+            // old infinite region (`SmBrep.cpp:8630`) when it is null (set -1, or -2 on a
+            // B-rep without one): the shim stops before that call and reports `-2`, as
+            // the Rust port does, so the input stays comparable here.
         }
         Op::Degenerate => {
             rd.finite()?;
@@ -224,7 +228,8 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
         Op::Vote => {
             let n = rd.index(MAX_LIST)?;
             for _ in 0..n {
-                rd.below(n_r)?;
+                // a null region (-1) is a valid vote upstream
+                rd.below_or_none(n_r)?;
             }
         }
         Op::ObjMap => {
@@ -299,7 +304,8 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
         Op::Redistribute => {
             rd.below(n_e)?;
             rd.flag()?;
-            // SmSurfParamType: SM_SP_U .. SM_SP_NEITHER
+            // SmSurfParamType: SM_SP_U (0) .. SM_SP_VMAX (8); SM_SP_OUT (9) is not a seam
+            // kind the Rust runner maps
             rd.index(8)?;
             rd.finites(4)?;
         }
@@ -322,10 +328,14 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             for _ in 0..n {
                 rd.below(n_eu)?;
             }
-            rd.flag()?;
+            let has_tan = rd.flag()?;
             let nt = rd.index(MAX_LIST)?;
             for _ in 0..nt {
                 rd.flag()?;
+            }
+            // upstream indexes pOptIsTangent[ii] per edge use
+            if has_tan && nt < n {
+                return Err(bad("fewer tangency flags than edge uses"));
             }
             rd.finite()?;
             rd.finite()?;
@@ -355,7 +365,8 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             rd.flag()?;
         }
         Op::Heal => {
-            rd.index(40)?;
+            // SmHealerOpType: SM_HO_NONE (0) ..= SM_HO_ALL (26)
+            rd.index(26)?;
             rd.flag()?;
         }
     }

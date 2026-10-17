@@ -43,7 +43,7 @@
 //! | [`add_attributes`]                                | `sm_AddAttributes`                            |
 //! | [`PendingTopologyDelete`]                         | `SmPendingTopologyDelete` (`Clear`)           |
 //! | [`make_vertex_split_uv_trim_curve`]               | `sm_MakeVertexSplitUVTrimCurve`               |
-//! | [`ObjectMap`], [`set_object_map`], [`get_object_map`] | `sm_SetObjectMap`, `sm_GetObjectMap`      |
+//! | [`ObjectMap`], [`set_object_map`], [`get_object_map`] | `sm_SetObjectMap`, `sm_GetObjectMap` (the copy maps are `topology.proto_topology_p1`'s [`CopyBrepMap`]) |
 //! | [`reverse_reflection_edgeuses`]                   | `sm_ReverseReflectionEdgeuses`                |
 //! | [`swap_reflection_shells`]                        | `sm_SwapReflectionShells`                     |
 //! | [`find_side_of_curve`]                            | `sm_FindSideOfCurve`                          |
@@ -57,23 +57,27 @@
 //!   traversal order rotated to [`Brep::region_list_head`]; `ResetInfiniteRegion`
 //!   only moves the head. Regions not on the list (`Region::in_brep` false) are not
 //!   reported by [`regions`].
-//! - [`surfaces`] / [`curves`]: a surface or curve stored in a face or edge record is
-//!   owned by it (`GetOwner() == pFace` / `pEdge`), so every present geometry is
-//!   reported; the attribute filter looks the geometry up under its face's or edge's
-//!   entity (the caller's `key_of` maps it).
+//! - [`surfaces`] / [`curves`]: upstream's `GetOwner() == pFace` / `pEdge` test compares
+//!   the geometry's owner with the face's / edge's
+//!   [`arena_identity`](crate::topology::brep_cache::arena_identity) (the kernel's
+//!   identity of arena entities; a B-rep whose geometry carries no owner reports no
+//!   surfaces or curves, as upstream for unowned geometry); the attribute filter
+//!   ([`GeometryAttributeFilter`]) looks the geometry up under its own keys.
 //! - `SetThisModelSizeEstimate` / `SetThisLargeSmallSizeRatio` also write the B-rep's
 //!   context (`m_cpContext`): the kernel's [`Context`](crate::geom::context::Context).
 //! - Marks (`sm_SwapFaceUV`) are caller-owned
 //!   [`Marks`](crate::topology::topology_traverser::Marks) records, as the traverser.
-//! - `sm_MarkLoopsToDelete` recurses once per nesting level of the loops; the port
-//!   stops with [`SolidError::InvalidInput`] past [`MAX_LOOP_NESTING`] levels (upstream
-//!   overflows its stack on a cyclic radial walk; real loop nestings are a handful).
+//! - `sm_MarkLoopsToDelete` recurses once per nesting level of the loops and branches
+//!   at every other loop of a face; the port stops with [`SolidError::InvalidInput`]
+//!   past [`MAX_LOOP_NESTING`] levels and past [`MAX_LOOP_MARK_CALLS`] calls in all
+//!   (upstream overflows its stack or hangs on a cyclic radial walk; real loop
+//!   nestings are a handful).
 //! - `sm_RmAndDel_OldLoopVertices` deletes two vertex uses: the port unlinks them from
 //!   their vertex and resets their records (an arena record cannot be freed).
-//! - `sm_SetObjectMap` / `sm_GetObjectMap` keep [`EntityRef`] maps ([`ObjectMap`] and
-//!   the optional copy maps are `BTreeMap`s) instead of pointer hash maps (plan hazard
-//!   `ptr-hash`: upstream `SmMapPtrToPtr` iteration order is pointer order; only
-//!   lookups are used here).
+//! - `sm_SetObjectMap` / `sm_GetObjectMap` keep an [`EntityRef`] `BTreeMap`
+//!   ([`ObjectMap`]) instead of the pointer hash map (plan hazard `ptr-hash`: upstream
+//!   `SmMapPtrToPtr` iteration order is pointer order; only lookups are used here) and
+//!   the ported [`CopyBrepMap`] for the optional copy maps.
 //! - `SmPendingTopologyDelete`'s destructor work (detaching the pending object's
 //!   attributes and deleting it) runs in `MakeTopologyFromData` (unit
 //!   `topology.brep_p10`); this unit owns only `Clear`.
@@ -92,8 +96,7 @@
 //!   `NormalizedEvaluate`, `EvaluateBinormal` (`topology.edgeuse_p3`),
 //!   `SmFace::SwapUV` (`topology.face_p1`), `SmFace::FaceIntersect`
 //!   (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
-//!   `UnLockBoundingBox` (`query.brep`), `SmHealData::HealBrep` (`heal.heal_data_p1`),
-//!   `SmSurface::CreateBlendSurface` (`surface.surface_p8`).
+//!   `UnLockBoundingBox` (`query.brep`).
 
 use std::collections::BTreeMap;
 
@@ -105,12 +108,15 @@ use crate::error::{ignored, EntityRef, Result, SolidError};
 use crate::geom::a_object::sag_is_kind_of;
 use crate::geom::attribute::{AttributeHandle, AttributeStore, ObjectKey};
 use crate::geom::context::MarkType;
-use crate::geom::extent1d::Extent1d;
+use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent2d::Extent2d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::tol;
-use crate::heal::face_props::HealerOpType;
+use crate::heal::face_props::{HealerOpType, LoopObject};
+use crate::heal::heal_data::p1::HealBrepTargets;
+use crate::heal::heal_data::p2::HealData;
+use crate::intersect::point_class::{ClassObject, ClassObjectKind};
 use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec3, EFF_ZERO, EFF_ZERO_RAD, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_curve::BSplineCurve;
@@ -121,10 +127,12 @@ use crate::nurbs::knots::Side;
 use crate::surface::surface::p2::{BlendEndType, CurvatureType, DerivSurfDefinition, SurfaceKind};
 use crate::surface::surface::p4::NoObject;
 use crate::surface::surface::Surface;
+use crate::topology::brep_cache::{arena_identity, CacheObject};
 use crate::topology::edge::{self, AttributeFilter};
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::face::p2 as face2;
 use crate::topology::loopuse;
+use crate::topology::proto_topology::p1::CopyBrepMap;
 use crate::topology::topology_traverser::{Entity, Marks};
 use crate::topology::vertex;
 use crate::topology::vertexuse;
@@ -379,7 +387,11 @@ pub fn regions(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<
         None => 0,
         Some(head) => {
             b.region(head)?;
-            on_list.iter().position(|&r| r == head).unwrap_or(0)
+            // (upstream's head is on the list by construction)
+            on_list
+                .iter()
+                .position(|&r| r == head)
+                .ok_or_else(|| null("GetRegions: region list head not on the list"))?
         }
     };
     let rotated = on_list
@@ -434,15 +446,23 @@ pub fn vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: `SmRegion::GetShells` is unit `topology.shell`.
+/// [`SolidError::Unported`]: `SmRegion::GetShells` is unit `topology.shell`; a B-rep
+/// without regions returns the empty list, as upstream (the per-region loop never runs).
+///
+/// Takes `&Kernel` until `topology.shell` lands: upstream opens `SmNewMarkAndLock` on the
+/// context here, so that port widens this (and `boolean::merge::p1::boolean_post_process`)
+/// to `&mut Kernel`.
 pub fn shells(
-    k: &mut Kernel,
+    k: &Kernel,
     b: &Brep,
     attribute: Option<&AttributeFilter<'_>>,
 ) -> Result<Vec<ShellId>> {
     let _ = (k, attribute);
     // get regions
-    let _regions = regions(b, None)?;
+    let regions = regions(b, None)?;
+    if regions.is_empty() {
+        return Ok(Vec::new());
+    }
     // UNPORTED(topology.shell): SmRegion::GetShells
     Err(SolidError::unported(
         "SmRegion::GetShells",
@@ -499,8 +519,31 @@ pub fn topological_vertices(k: &Kernel, b: &mut Brep) -> Result<Vec<VertexId>> {
     Ok(out)
 }
 
-/// `GetSurfaces`: the surfaces owned by the faces, in face order (every face's surface
-/// here, see the module docs), those whose face carries `attribute` when given.
+/// The attribute filter of [`surfaces`] and [`curves`]: upstream tests the geometry's
+/// own attributes (`pSurface->FindAttribute`, `pCurve->FindAttribute`), so the keys
+/// name a face's surface and an edge's curve in `attributes`.
+pub struct GeometryAttributeFilter<'a> {
+    /// The attribute store.
+    pub attributes: &'a AttributeStore,
+    /// `*pOptAttributeId`.
+    pub attribute_id: u64,
+    /// The key of face `f`'s surface.
+    pub surface_key_of: &'a dyn Fn(FaceId) -> ObjectKey,
+    /// The key of edge `e`'s curve.
+    pub curve_key_of: &'a dyn Fn(EdgeId) -> ObjectKey,
+}
+
+impl core::fmt::Debug for GeometryAttributeFilter<'_> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("GeometryAttributeFilter")
+            .field("attribute_id", &self.attribute_id)
+            .finish_non_exhaustive()
+    }
+}
+
+/// `GetSurfaces`: the surfaces owned by their faces (`pSurface->GetOwner() == pFace`,
+/// the owner being the face's [`arena_identity`]), in face order, those carrying
+/// `attribute` when given.
 ///
 /// # Errors
 ///
@@ -508,7 +551,7 @@ pub fn topological_vertices(k: &Kernel, b: &mut Brep) -> Result<Vec<VertexId>> {
 /// it).
 pub fn surfaces<'b>(
     b: &'b Brep,
-    attribute: Option<&AttributeFilter<'_>>,
+    attribute: Option<&GeometryAttributeFilter<'_>>,
 ) -> Result<Vec<&'b Surface>> {
     let mut out = Vec::new();
     // for every face
@@ -519,20 +562,31 @@ pub fn surfaces<'b>(
             .as_ref()
             .ok_or_else(|| null("GetSurfaces: face without surface"))?;
         // add all standalone face->Surfaces to the list
-        if attribute.is_none_or(|filter| filter.matches(EntityRef::Face(f))) {
+        if surface.owner() == Some(arena_identity(CacheObject::Face(f)))
+            && attribute.is_none_or(|filter| {
+                filter
+                    .attributes
+                    .find_attribute((filter.surface_key_of)(f), filter.attribute_id)
+                    .is_some()
+            })
+        {
             out.push(surface);
         }
     }
     Ok(out)
 }
 
-/// `GetCurves`: the 3D curves owned by the edges, in edge order (every edge's curve
-/// here, see the module docs), those whose edge carries `attribute` when given.
+/// `GetCurves`: the 3D curves owned by their edges (`pCurve->GetOwner() == pEdge`, the
+/// owner being the edge's [`arena_identity`]), in edge order, those carrying
+/// `attribute` when given.
 ///
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] for an edge without curve (upstream dereferences it).
-pub fn curves<'b>(b: &'b Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<&'b Curve>> {
+pub fn curves<'b>(
+    b: &'b Brep,
+    attribute: Option<&GeometryAttributeFilter<'_>>,
+) -> Result<Vec<&'b Curve>> {
     let mut out = Vec::new();
     for e in edges(b, None)? {
         let curve = b
@@ -540,7 +594,14 @@ pub fn curves<'b>(b: &'b Brep, attribute: Option<&AttributeFilter<'_>>) -> Resul
             .curve
             .as_ref()
             .ok_or_else(|| null("GetCurves: edge without curve"))?;
-        if attribute.is_none_or(|filter| filter.matches(EntityRef::Edge(e))) {
+        if curve.owner() == Some(arena_identity(CacheObject::Edge(e)))
+            && attribute.is_none_or(|filter| {
+                filter
+                    .attributes
+                    .find_attribute((filter.curve_key_of)(e), filter.attribute_id)
+                    .is_some()
+            })
+        {
             out.push(curve);
         }
     }
@@ -619,13 +680,19 @@ pub fn reset_infinite_region(
     }
 
     // Reset the infinite region, and make sure that the first in list is infinite region.
-    let _old_infinite_region = b.infinite_region();
+    let old_infinite_region = b.infinite_region();
     b.set_infinite_region(Some(new_infinite_region));
     b.set_region_list_head(Some(new_infinite_region));
 
     // manage IsVoid region bits
     match void_setting {
         SetRegionVoidType::NestedSolid => set_region_is_void_flags_for_nested_solids(k, b),
+        SetRegionVoidType::InfiniteRegionSwap if old_infinite_region.is_none() => {
+            // upstream dereferences the (null) old infinite region here
+            Err(null(
+                "ResetInfiniteRegion swap without an old infinite region",
+            ))
+        }
         SetRegionVoidType::InfiniteRegionOnly | SetRegionVoidType::InfiniteRegionSwap => {
             // UNPORTED(topology.shell): SmRegion::SetIsVoid, SmRegion::IsVoid
             Err(SolidError::unported(
@@ -664,8 +731,13 @@ pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) 
 // ---- region votes (sm_VoteForRegion, sm_FindHighestVote) -------------------------------
 
 /// `sm_VoteForRegion`: adds a vote for `new_region` (appending it with one vote when
-/// it is not listed yet).
-pub fn vote_for_region(regions: &mut Vec<RegionId>, votes: &mut Vec<u64>, new_region: RegionId) {
+/// it is not listed yet). A null region (`None`, the result of a failed
+/// `sm_FindSectorOfFace`) is a region of its own, as upstream.
+pub fn vote_for_region(
+    regions: &mut Vec<Option<RegionId>>,
+    votes: &mut Vec<u64>,
+    new_region: Option<RegionId>,
+) {
     for (i, r) in regions.iter().enumerate() {
         if *r == new_region {
             if let Some(v) = votes.get_mut(i) {
@@ -678,14 +750,14 @@ pub fn vote_for_region(regions: &mut Vec<RegionId>, votes: &mut Vec<u64>, new_re
     votes.push(1);
 }
 
-/// `sm_FindHighestVote`: the first region with the most votes, `None` for no
-/// regions.
+/// `sm_FindHighestVote`: the first region with the most votes; `None` for no regions
+/// and when the null region wins (upstream returns `NULL` in both cases).
 ///
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] when `votes` is shorter than `regions` (upstream reads
 /// past the array).
-pub fn find_highest_vote(regions: &[RegionId], votes: &[u64]) -> Result<Option<RegionId>> {
+pub fn find_highest_vote(regions: &[Option<RegionId>], votes: &[u64]) -> Result<Option<RegionId>> {
     if votes.len() < regions.len() {
         return Err(null("sm_FindHighestVote: fewer votes than regions"));
     }
@@ -695,7 +767,7 @@ pub fn find_highest_vote(regions: &[RegionId], votes: &[u64]) -> Result<Option<R
             highest = i;
         }
     }
-    Ok(regions.get(highest).copied())
+    Ok(regions.get(highest).copied().flatten())
 }
 
 // ---- copy maps (sm_SetObjectMap, sm_GetObjectMap) ---------------------------------------
@@ -704,26 +776,24 @@ pub fn find_highest_vote(regions: &[RegionId], votes: &[u64]) -> Result<Option<R
 /// its copy (`None` is a null copy).
 pub type ObjectMap = BTreeMap<EntityRef, Option<EntityRef>>;
 
-/// An `SmCopyBrepMap` (copy to original, or original to copy).
-pub type CopyBrepMap = BTreeMap<EntityRef, EntityRef>;
-
-/// `sm_SetObjectMap`: records `orig -> copy`, and in the optional copy maps `copy ->
-/// orig` and `orig -> copy` (a null copy is recorded only in `map`, as upstream keys
-/// the copy map by the null pointer; the port skips that entry).
+/// `sm_SetObjectMap`: records `orig -> copy`, and in the optional `SmCopyBrepMap`s
+/// ([`CopyBrepMap`], unit `topology.proto_topology_p1`) `copy -> orig` and `orig ->
+/// copy`. A null copy is recorded only in `map`: upstream passes it to
+/// `SmCopyBrepMap::SetAt`, which dereferences it (UB-98).
 pub fn set_object_map(
     orig: EntityRef,
     copy: Option<EntityRef>,
     map: &mut ObjectMap,
-    copy_brep_map: Option<&mut CopyBrepMap>,
-    reverse_map: Option<&mut CopyBrepMap>,
+    copy_brep_map: Option<&mut CopyBrepMap<EntityRef>>,
+    reverse_map: Option<&mut CopyBrepMap<EntityRef>>,
 ) {
     // Use a map object track relationships.
     map.insert(orig, copy);
     if let (Some(m), Some(c)) = (copy_brep_map, copy) {
-        m.insert(c, orig);
+        m.set_at(c, orig);
     }
     if let (Some(m), Some(c)) = (reverse_map, copy) {
-        m.insert(orig, c);
+        m.set_at(orig, c);
     }
 }
 
@@ -888,7 +958,8 @@ pub fn rm_and_del_old_loop_vertices(b: &mut Brep, vu: VertexuseId) -> Result<()>
     };
 
     let other = vertexuse_neighbour(b, vu, true)?.ok_or_else(|| SolidError::null_pointer(OP))?; // NER
-                                                                                                // When OtherVU is a LoopVertexuse attached to the same Loop as input VU
+
+    // When OtherVU is a LoopVertexuse attached to the same Loop as input VU
     let del = if partner(b, other)? {
         other
     } else {
@@ -927,15 +998,37 @@ pub fn rm_and_del_old_loop_vertices(b: &mut Brep, vu: VertexuseId) -> Result<()>
 ///
 /// `SM_ERR` for an edge that is a wire, lamina or not manifold; [`SolidError::NotFound`]
 /// for a dangling id; [`SolidError::InvalidInput`] where upstream dereferences null or
-/// reads an empty edge list, and past [`MAX_LOOP_NESTING`] levels.
+/// reads an empty edge list, past [`MAX_LOOP_NESTING`] levels and past
+/// [`MAX_LOOP_MARK_CALLS`] calls in all (the breadth bound).
 pub fn mark_loops_to_delete(
     b: &Brep,
     loops_to_delete: &mut Vec<LoopId>,
     loop_: LoopId,
     rec_level: u64,
 ) -> Result<()> {
+    let mut calls = 0u64;
+    mark_loops_to_delete_bounded(b, loops_to_delete, loop_, rec_level, &mut calls)
+}
+
+/// The bound on the total number of `sm_MarkLoopsToDelete` calls of one marking: the
+/// recursion is bounded in depth by [`MAX_LOOP_NESTING`] but branches at every other
+/// loop of a face, so a radial chain that cycles through faces with three or more
+/// loops would otherwise branch without bound (upstream hangs there).
+pub const MAX_LOOP_MARK_CALLS: u64 = 1 << 20;
+
+fn mark_loops_to_delete_bounded(
+    b: &Brep,
+    loops_to_delete: &mut Vec<LoopId>,
+    loop_: LoopId,
+    rec_level: u64,
+    calls: &mut u64,
+) -> Result<()> {
     if rec_level > MAX_LOOP_NESTING {
         return Err(null("sm_MarkLoopsToDelete: loop nesting too deep"));
+    }
+    *calls += 1;
+    if *calls > MAX_LOOP_MARK_CALLS {
+        return Err(null("sm_MarkLoopsToDelete: too many loop visits"));
     }
     let face = loopuse::loop_face(b, loop_)?
         .ok_or_else(|| null("sm_MarkLoopsToDelete: loop without face"))?;
@@ -975,7 +1068,8 @@ pub fn mark_loops_to_delete(
         if loopuse::loop_face(b, rad_l)? == Some(face) {
             rad_l = loop_of(eu)?;
         }
-        mark_loops_to_delete(b, loops_to_delete, rad_l, rec_level + 1)?; // recursion level
+        mark_loops_to_delete_bounded(b, loops_to_delete, rad_l, rec_level + 1, calls)?;
+        // recursion level
     }
 
     if even_level {
@@ -1286,7 +1380,11 @@ fn face_surface(b: &Brep, face: FaceId) -> Result<&Surface> {
 /// `SM_ERR` when the global drop finds nothing or the test point is on the surface;
 /// [`SolidError::InvalidInput`] where upstream dereferences null (no surface, face
 /// use, mate or shell; a shell without region returns `None`, as upstream); those of
-/// the surface evaluations and solves.
+/// the surface evaluations and solves. Deviation: without a guess upstream turns the
+/// surface cache's point test off (`SmTemporaryChangeValue` on `m_bPointTestEnabled`)
+/// around `GlobalPointSolve`; the Rust cache has no such switch, so for a face-owned
+/// surface the solve defers on `SmFace::PointClassify` (unit `query.face_p2`, see
+/// `surface::surface::p4`) where upstream keeps every solution.
 pub fn find_sector_of_face(
     k: &Kernel,
     b: &Brep,
@@ -1370,7 +1468,9 @@ pub fn find_sector_of_face(
     // classify testPoint based on angle between FacePointNormal and TestVec
     let mut fu = face2::upward_faceuse(b, face)?
         .ok_or_else(|| null("sm_FindSectorOfFace: face without face use"))?;
-    if norm.dot(test_vec) <= 0.0 {
+    // (upstream: `if (dot > 0.0) up else mate`, so a NaN dot product takes the mate)
+    let up = norm.dot(test_vec) > 0.0;
+    if !up {
         fu = eu1::faceuse_mate(b, fu)?
             .ok_or_else(|| null("sm_FindSectorOfFace: face use without mate"))?;
     }
@@ -1526,8 +1626,9 @@ pub fn update_vertex_edge_intervals(
 ///
 /// [`SolidError::InvalidInput`] where upstream reads past the edge use list (fewer
 /// than four edge uses) or dereferences null; [`SolidError::Unported`] from
-/// `SmEdgeuse::GetOrCreateUVTrimCurve` (unit `topology.edgeuse_p3`), reached for every
-/// seam edge with a trim curve.
+/// `SmEdgeuse::GetOrCreateUVTrimCurve` / `NormalizedEvaluate` / `EvaluateBinormal`
+/// (unit `topology.edgeuse_p3`), reached for every seam edge with a trim curve; those
+/// of the singularity test and the trim curve swap.
 pub fn redistribute_seam_uv_trim_curves(
     k: &Kernel,
     b: &mut Brep,
@@ -1536,7 +1637,6 @@ pub fn redistribute_seam_uv_trim_curves(
     seam_edge: SurfParamType,
     srf_domain: &Extent2d,
 ) -> Result<bool> {
-    let _ = srf_domain;
     // when NewEdge has UVTrimCurves and NewEdge is a SeamEdge - see if UVTrimCurves on either
     // side of seam are properly distributed
     if uv_trim_curve.is_none() || seam_edge == SurfParamType::Neither {
@@ -1556,14 +1656,124 @@ pub fn redistribute_seam_uv_trim_curves(
         .ok_or_else(|| null("sm_RedistributeSeamUVTrimCurves: edge use without CW"))?;
 
     // GWC: Check if we need to make sure the PrevEdgeuses have UVTrimCurves for this to work?
-    get_or_create_uv_trim_curve(k, b, prev_this)?;
-    get_or_create_uv_trim_curve(k, b, prev_other)?;
-    // (the NormalizedEvaluate comparison of the four UV points, the pole test and the
-    // SetMemberUVTrimCurve swap follow once the calls above are wired)
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+    // (the statuses and curves are only SM_ASSERTed upstream)
+    ignored(get_or_create_uv_trim_curve(k, b, prev_this))?;
+    ignored(get_or_create_uv_trim_curve(k, b, prev_other))?;
+
+    // Find the UV point for the two new starting Vertexuses (statuses not checked
+    // upstream: a failed evaluation leaves the point unset; undefined here)
+    // NewE Start UV values from UVTrimCurves
+    let this_point_uv =
+        ignored(normalized_evaluate(b, this_eu, 0.0, true))?.unwrap_or(Point3::UNDEF);
+    let other_point_uv =
+        ignored(normalized_evaluate(b, other_eu, 0.0, true))?.unwrap_or(Point3::UNDEF);
+    // Prev Start UV values from PrevUVtrimCurves
+    let prev_this_point_uv =
+        ignored(normalized_evaluate(b, prev_this, 1.0, true))?.unwrap_or(Point3::UNDEF);
+    let prev_other_point_uv =
+        ignored(normalized_evaluate(b, prev_other, 1.0, true))?.unwrap_or(Point3::UNDEF);
+
+    // make sure sThisPointUV == sPrevThisPointUV, sOtherPointUV == sPrevOtherPointUV are
+    // the same to tol by switching the UVTrimCurves if needed. Expect all 4 PointUVs to
+    // lie on one side or the other of the Seam.
+    // pick large bndry search tolerance - just need to know which side of the seam the
+    // UVPoints lie.
+    let tol_u = srf_domain.x_length() / 4.0;
+    let tol_v = srf_domain.y_length() / 4.0;
+    // switch to SmPoint2d objs - yuk
+    let this_point_2d = Point2::new(this_point_uv.x, this_point_uv.y);
+    let prev_this_point_2d = Point2::new(prev_this_point_uv.x, prev_this_point_uv.y);
+    let other_point_2d = Point2::new(other_point_uv.x, other_point_uv.y);
+    let prev_other_point_2d = Point2::new(prev_other_point_uv.x, prev_other_point_uv.y);
+    // classify the 4 UVPoints
+    let (this_u, this_v) = srf_domain.classify_point(this_point_2d, tol_u, Some(tol_v));
+    let (prev_this_u, prev_this_v) =
+        srf_domain.classify_point(prev_this_point_2d, tol_u, Some(tol_v));
+    let (_other_u, _other_v) = srf_domain.classify_point(other_point_2d, tol_u, Some(tol_v)); // (debug asserts only)
+    let (prev_other_u, prev_other_v) =
+        srf_domain.classify_point(prev_other_point_2d, tol_u, Some(tol_v));
+    let this_seam_edge = match seam_edge {
+        SurfParamType::UMin | SurfParamType::UMax => SurfParamType::U,
+        SurfParamType::VMin | SurfParamType::VMax => SurfParamType::V,
+        other => other,
+    };
+    let face = eu1::face(b, this_eu)?
+        .ok_or_else(|| null("sm_RedistributeSeamUVTrimCurves: edge use without face"))?;
+    let surface = face2::surface(b, face)?
+        .ok_or_else(|| null("sm_RedistributeSeamUVTrimCurves: face without surface"))?;
+    // (IsSingularity is a boolean: a failing evaluation reads TRUE upstream)
+    let this_pole = ignored(surface.is_singularity(k, this_point_2d, EFF_ZERO, false))?
+        .is_none_or(|sg| sg.singular);
+    let other_pole = ignored(surface.is_singularity(k, other_point_2d, EFF_ZERO, false))?
+        .is_none_or(|sg| sg.singular);
+
+    // decide if we have to swap UV curves
+    let mut swap = (this_seam_edge == SurfParamType::U
+        && this_u != prev_this_u
+        && this_u == prev_other_u)
+        || (this_seam_edge == SurfParamType::V && this_v != prev_this_v && this_v == prev_other_v);
+
+    // A pole maps to an entire UV boundary. Its neighboring trim endpoint cannot select
+    // the seam side. As in CreateUVTrimCurve, compare the inward binormal with the
+    // cross-boundary derivative away from the poles.
+    if this_pole || other_pole {
+        let parameter = edge::interval(b, new_edge)?.evaluate(0.48765); // perturb off midpoint for evaluation
+        let this_uv_trim_curve = eu1::uv_trim_curve(b, this_eu)?.0.ok_or_else(|| {
+            null("sm_RedistributeSeamUVTrimCurves: edge use without UV trim curve")
+        })?;
+        // (the three statuses are tested, not propagated)
+        let uv = ignored(this_uv_trim_curve.evaluate_point(parameter))?;
+        let binormal = match uv {
+            Some(_) => ignored(evaluate_binormal(k, b, this_eu, parameter))?,
+            None => None,
+        };
+        if let (Some(uv), Some((_edge_point, binormal, _, _))) = (uv, binormal) {
+            if let Some((_surface_point, du, dv)) =
+                ignored(surface.evaluate_1st_derivatives(Point2::new(uv.x, uv.y), true, true))?
+            {
+                let across = if this_seam_edge == SurfParamType::U {
+                    du
+                } else {
+                    dv
+                };
+                let side = if this_seam_edge == SurfParamType::U {
+                    this_u
+                } else {
+                    this_v
+                };
+                let inward = across.dot(binormal);
+                // The derivative points into the domain at its minimum and out at its
+                // maximum. The edgeuse's binormal must point inside.
+                swap = (side == ExtentPointType::Start && inward < 0.0)
+                    || (side == ExtentPointType::End && inward > 0.0);
+            }
+        }
+    }
+
+    // When we need to swap the UVCurves to get the connected UVPoints on the same side
+    // of the Seam
+    if swap {
+        // note: SetUVTrimCurve sets EU->m_pUVTrimCurve and m_pUVTrimCurve->Owner
+        // (`set_member_uv_trim_curve` takes the curve by value: a mated pair without
+        // one, which upstream would clear with NULL, is reported as a null dereference)
+        let this_uv_trim_curve = eu1::uv_trim_curve(b, this_eu)?.0.cloned().ok_or_else(|| {
+            null("sm_RedistributeSeamUVTrimCurves: edge use without UV trim curve")
+        })?;
+        let other_uv_trim_curve = eu1::uv_trim_curve(b, other_eu)?.0.cloned().ok_or_else(|| {
+            null("sm_RedistributeSeamUVTrimCurves: edge use without UV trim curve")
+        })?;
+        let this_drop_curve_fail = eu1::drop_curve_fail(b, this_eu)?.0.cloned();
+        let other_drop_curve_fail = eu1::drop_curve_fail(b, other_eu)?.0.cloned();
+        // connect ThisEdgeuse MatedPair set with OtherUVTrimCurve
+        eu1::set_member_uv_trim_curve(b, this_eu, other_uv_trim_curve, other_drop_curve_fail)?;
+        // connect OtherEdgeuse MatedPair set with ThisUVTrimCurve
+        eu1::set_member_uv_trim_curve(b, other_eu, this_uv_trim_curve, this_drop_curve_fail)?;
+        // inform the public
+        return Ok(true);
+    }
+
+    // all done
+    Ok(false)
 }
 
 // ---- vertex split UV trim curves (sm_MakeVertexSplitUVTrimCurve) -------------------------
@@ -1725,9 +1935,10 @@ pub fn make_vertex_split_uv_trim_curve(
     //    sIvl1,   sIvl2   = UVTrimCurve [start,SplitParamUV], [SplitParamUV, end]
     //    sIvl13D, sIvl23D = 3DCurve     [start,SplitParam],   [SplitParam,   end]
     let mut ivl2 = ivl1;
-    ivl1.set_min_max(ivl1.min(), edge_split_parameter_uv)?;
+    // (the SetMinMax statuses are not checked upstream)
+    ignored(ivl1.set_min_max(ivl1.min(), edge_split_parameter_uv))?;
     let ivl1_3d = Extent1d::from_min_max(ivl1.min(), edge_split_parameter);
-    ivl2.set_min_max(edge_split_parameter_uv, ivl2.max())?;
+    ignored(ivl2.set_min_max(edge_split_parameter_uv, ivl2.max()))?;
     let ivl2_3d = Extent1d::from_min_max(edge_split_parameter, ivl2.max());
 
     // trim and bind UVTrimCurves to Edgeuses (the attached curve is edited in place)
@@ -1769,9 +1980,9 @@ pub fn make_vertex_split_uv_trim_curve(
 ///
 /// # Errors
 ///
-/// `SM_ERR_NULL_POINTER` for a null face (`NER`; never from arenas);
 /// [`SolidError::Unported`] from `SmFace::FaceIntersect` (unit `topology.face_p3`) when
-/// both B-reps have faces; those of the duplicate removal.
+/// both B-reps have faces (upstream's `NER` on the faces never fires from arenas);
+/// those of the duplicate removal.
 pub fn brep_intersect(
     k: &Kernel,
     b: &Brep,
@@ -1780,7 +1991,6 @@ pub fn brep_intersect(
     crv_angle_tolerance_deg: f64,
     want_points: bool,
 ) -> Result<(Vec<Curve>, Option<Vec<Point3>>)> {
-    let _ = k;
     // init output
     let mut curves_3d: Vec<Option<Curve>> = Vec::new();
     let mut points: Option<Vec<Point3>> = want_points.then(Vec::new);
@@ -1789,25 +1999,61 @@ pub fn brep_intersect(
     let this_faces = faces(b, None)?;
     let other_faces = faces(other, None)?;
 
-    // for every thisBrep Face, for every otherBrep Face: intersect the faces and
-    // accumulate the outputs (the pairwise loop runs once FaceIntersect is wired)
-    if let (Some(this_face), Some(other_face)) = (this_faces.first(), other_faces.first()) {
-        let _ = (
-            this_face,
-            other_face,
-            approx_tol_3d,
-            crv_angle_tolerance_deg,
-            &mut points,
-        );
-        // UNPORTED(topology.face_p3): SmFace::FaceIntersect
-        return Err(SolidError::unported(
-            "SmFace::FaceIntersect",
-            "topology.face_p3",
-        ));
+    // for every thisBrep Face
+    for &this_face in &this_faces {
+        // (NER: arena ids are never null)
+        // for every otherBrep Face
+        for &other_face in &other_faces {
+            // intersect the faces
+            let (mut curves, mut pts) = face_intersect(
+                k,
+                b,
+                this_face,
+                other,
+                other_face,
+                approx_tol_3d,
+                crv_angle_tolerance_deg,
+            )?;
+
+            // accumulate the outputs
+            curves_3d.append(&mut curves);
+            if let Some(points) = points.as_mut() {
+                points.append(&mut pts);
+            }
+        }
     }
 
     crate::curve::curve::p5::remove_duplicate_curves(&mut curves_3d)?;
     Ok((curves_3d.into_iter().flatten().collect(), points))
+}
+
+/// `SmFace::FaceIntersect(crContext, pOtherFace, dApproxTol3d, dCrvAngTolDeg, r3DCurves,
+/// NULL, NULL, &sPoints)`: the 3D intersection curves and single-point intersections of
+/// two faces.
+#[allow(clippy::too_many_arguments)]
+fn face_intersect(
+    k: &Kernel,
+    b: &Brep,
+    this_face: FaceId,
+    other: &Brep,
+    other_face: FaceId,
+    approx_tol_3d: f64,
+    crv_angle_tolerance_deg: f64,
+) -> Result<(Vec<Option<Curve>>, Vec<Point3>)> {
+    let _ = (
+        k,
+        b,
+        this_face,
+        other,
+        other_face,
+        approx_tol_3d,
+        crv_angle_tolerance_deg,
+    );
+    // UNPORTED(topology.face_p3): SmFace::FaceIntersect
+    Err(SolidError::unported(
+        "SmFace::FaceIntersect",
+        "topology.face_p3",
+    ))
 }
 
 // ---- corner blends (SmBrep::CreateCornerBlend) ------------------------------------------
@@ -2016,10 +2262,11 @@ pub fn create_corner_blend(
         if ii == 2 {
             param = 1.0 - param; // Beginning of curve second time (never: ii < 2, as upstream)
         }
-        let ivl = curve_3d.natural_interval();
+        // (upstream fetches the natural interval here and leaves it unused: the
+        // evaluation below takes the raw 0/1 parameter)
 
         // Curve EndPoint
-        let pnt = curve_3d.evaluate_point(ivl.evaluate(param))?;
+        let pnt = curve_3d.evaluate_point(param)?;
 
         // create a degenerate 'point' curve at the second curve's endPoint (parameterized from 0 to 1)
         let top_curve = BSplineCurve::create_point_curve(pnt)?;
@@ -2212,8 +2459,9 @@ pub fn create_edge_edge_blend(
 
             let nat = rail2.natural_interval();
             let mut new_ivl = nat;
-            new_ivl.set_min_max(nat.min() * scale + offset, nat.max() * scale + offset)?;
-            ignored(rail2.edit_parameterization(&new_ivl))?; // (status not checked upstream)
+            // (neither status is checked upstream)
+            ignored(new_ivl.set_min_max(nat.min() * scale + offset, nat.max() * scale + offset))?;
+            ignored(rail2.edit_parameterization(&new_ivl))?;
             *ivl2 = ivl1;
         }
         Ok(())
@@ -2241,19 +2489,20 @@ pub fn create_edge_edge_blend(
     rescale(&mut rail2, &mut ivl2)?;
 
     // build blend surface
-    let _ = (
-        surface1,
-        surface2,
-        tolerance,
+    let curve1 = Curve::from(rail1);
+    let curve2 = Curve::from(rail2);
+    surface1.create_blend_surface(
+        k,
+        &curve1,
+        &ivl1,
         off_to_the_right,
+        surface2,
+        &curve2,
+        &ivl2,
         in_from_the_left,
-        ds_def,
-    );
-    // UNPORTED(surface.surface_p8): SmSurface::CreateBlendSurface
-    Err(SolidError::unported(
-        "SmSurface::CreateBlendSurface",
-        "surface.surface_p8",
-    ))
+        tolerance,
+        ds_def.as_deref(),
+    )
 }
 
 // ---- parallel projections (SmBrep::CreateParallelProjectionCurves) ----------------------
@@ -2363,13 +2612,32 @@ pub fn create_parallel_projection_curves(
 
 // ---- healing (SmBrep::HealBrep) ---------------------------------------------------------
 
-/// `HealBrep`: runs the healer sequence (`SmHealData::HealBrep`) up to and including
-/// `healer_op` on the given vertices, edges and faces (default: all), optionally making
-/// the UV trim curves. Upstream returns `SM_SUCCESS` whatever the healer reports.
+/// The loop handle of the healer `SmBrep::HealBrep` creates locally (`SmHealData
+/// sHealData`): a loop id, as the healer's classification objects are loops.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct HealLoopHandle(pub LoopId);
+
+impl ClassObject for HealLoopHandle {
+    fn class_kind(&self) -> ClassObjectKind {
+        ClassObjectKind::Loop
+    }
+}
+
+impl LoopObject for HealLoopHandle {
+    fn from_loop(l: LoopId) -> Self {
+        Self(l)
+    }
+}
+
+/// `HealBrep`: runs the healer sequence (`SmHealData::HealBrep`, on a fresh
+/// [`HealData`]) up to and including `healer_op` on the given vertices, edges and
+/// faces (default: all), optionally making the UV trim curves. Upstream returns
+/// `SM_SUCCESS` whatever the healer reports: only [`SolidError::Unported`] (from the
+/// healer's own stubs, `heal.heal_data_p3` and later) propagates.
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: `SmHealData::HealBrep` is unit `heal.heal_data_p1`.
+/// [`SolidError::Unported`] from the healer.
 pub fn heal_brep(
     k: &mut Kernel,
     b: &mut Brep,
@@ -2379,21 +2647,20 @@ pub fn heal_brep(
     opt_faces: Option<&[FaceId]>,
     make_uv_trim_curves: bool,
 ) -> Result<()> {
-    let _ = (
+    let mut heal_data = HealData::<HealLoopHandle>::default();
+    // pass the call along (status ignored upstream)
+    ignored(heal_data.heal_brep(
         k,
-        &*b,
+        Some(b),
         healer_op,
-        opt_vertices,
-        opt_edges,
-        opt_faces,
+        HealBrepTargets {
+            vertices: opt_vertices,
+            edges: opt_edges,
+            faces: opt_faces,
+        },
         make_uv_trim_curves,
-    );
-    // pass the call along
-    // UNPORTED(heal.heal_data_p1): SmHealData::HealBrep
-    Err(SolidError::unported(
-        "SmHealData::HealBrep",
-        "heal.heal_data_p1",
-    ))
+    ))?;
+    Ok(())
 }
 
 #[cfg(test)]
@@ -2429,16 +2696,22 @@ mod tests {
     fn votes() {
         let mut rs = Vec::new();
         let mut vs = Vec::new();
-        let (a, c) = (RegionId::from_index(0), RegionId::from_index(1));
+        let (a, c) = (Some(RegionId::from_index(0)), Some(RegionId::from_index(1)));
         assert_eq!(find_highest_vote(&rs, &vs).unwrap(), None);
         vote_for_region(&mut rs, &mut vs, a);
         vote_for_region(&mut rs, &mut vs, c);
         vote_for_region(&mut rs, &mut vs, c);
         assert_eq!((rs.clone(), vs.clone()), (vec![a, c], vec![1, 2]));
-        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), Some(c));
+        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), c);
         vote_for_region(&mut rs, &mut vs, a);
         // ties keep the first
-        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), Some(a));
+        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), a);
+        // the null region is a region of its own; a null winner reads None, as upstream
+        vote_for_region(&mut rs, &mut vs, None);
+        vote_for_region(&mut rs, &mut vs, None);
+        vote_for_region(&mut rs, &mut vs, None);
+        assert_eq!((rs.clone(), vs.clone()), (vec![a, c, None], vec![2, 2, 3]));
+        assert_eq!(find_highest_vote(&rs, &vs).unwrap(), None);
         assert!(find_highest_vote(&rs, &[1]).is_err());
     }
 
@@ -2472,7 +2745,8 @@ mod tests {
         set_object_map(c, None, &mut map, Some(&mut copy), None);
         assert_eq!(get_object_map(a, &map), Some(c));
         assert_eq!(get_object_map(c, &map), None);
-        assert_eq!(copy.get(&c), Some(&a));
-        assert_eq!(rev.get(&a), Some(&c));
+        assert_eq!(copy.get_at(Some(c)).unwrap(), Some(a));
+        assert_eq!(rev.get_at(Some(a)).unwrap(), Some(c));
+        assert_eq!(copy.len(), 1);
     }
 }

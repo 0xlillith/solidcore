@@ -43,9 +43,6 @@
 //! points and scans the intersection curves once.
 //!
 //! Smaller deviations, none reachable as a difference today:
-//! - `LocalCurveSector`'s vertex vote: a found sector whose shell has no region is an
-//!   error ([`SolidError::InvalidInput`]); upstream votes for a `NULL` region and may
-//!   return it.
 //! - `MakeShellVertexTopology` / `MakeEdgeVertexTopology` / `MakeEdgeTopology` add their
 //!   records to the arenas before the shell calls (`topology.shell`), so a failure there
 //!   leaves those records in the B-rep; upstream's `SmObjDelete` guards delete them.
@@ -77,7 +74,6 @@ use crate::geom::solution_array::Solution;
 use crate::geom::tol::ZONE_TOL_3D;
 use crate::geom::tree::NodeGeomType;
 use crate::intersect::curve_class::p1::{CurveClassification, IntervalPosition};
-use crate::intersect::curve_class::p5::MergedTopology;
 use crate::intersect::curve_class::p7::CoincidentMaybe;
 use crate::intersect::point_class::{
     ClassGeometry, ClassObject, PointClassType, PointClassification,
@@ -1089,7 +1085,7 @@ pub fn local_curve_sector(
 
             // Find the local sectoring of all of the faces around
             // this vertex and use the one which is closest to the point.
-            let mut regions: Vec<RegionId> = Vec::new();
+            let mut regions: Vec<Option<RegionId>> = Vec::new();
             let mut votes: Vec<u64> = Vec::new();
 
             // for every vertexuse
@@ -1124,8 +1120,7 @@ pub fn local_curve_sector(
                     let Some(found) = sector.radial_edgeuse else {
                         continue;
                     };
-                    let region =
-                        edgeuse_region(b, found)?.ok_or(null_deref("shell without region"))?;
+                    let region = edgeuse_region(b, found)?;
                     p1::vote_for_region(&mut regions, &mut votes, region);
                 } else {
                     // when vertex DOES NOT connect to an edge
@@ -1139,8 +1134,6 @@ pub fn local_curve_sector(
                             .ok_or(null_deref("face use without face"))?;
                         let (_dist, found) =
                             p1::find_sector_of_face(k, b, f, None, test_pnt, test_dir)?;
-                        // (upstream would vote for a NULL region: a shell without region)
-                        let found = found.ok_or(null_deref("sector shell without region"))?;
                         p1::vote_for_region(&mut regions, &mut votes, found);
                     } else {
                         return Err(SolidError::sm_err(OP));
@@ -1952,8 +1945,10 @@ fn merge_intervals<O: ClassObject + Copy>(
     objects: &impl MergeCurvesObjects<O>,
     cc: &mut CurveClassification<O>,
 ) -> Result<(Vec<FaceId>, Result<()>)> {
-    let mut merged = MergedTopology::default();
-    let r = cc.merge_intervals_into(false, &mut merged);
+    let (merged, r) = match cc.merge_intervals_with_partial(false) {
+        Ok(m) => (m, Ok(())),
+        Err(e) => (*e.merged, Err(e.error)),
+    };
     let faces = merged
         .faces
         .into_iter()

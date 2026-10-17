@@ -348,26 +348,14 @@ fn face_box(_b: &Brep, _f: FaceId) -> Result<Extent3d> {
         "query.face_p1",
     ))
 }
-fn faces(_b: &Brep) -> Result<Vec<FaceId>> {
-    // UNPORTED(mass.integrator): SmBrep::GetFaces (ported: topology::brep::p1::faces; not wired here: with the
-    // collections in reach this unit's face query 4 disagrees with upstream; see
-    // plan/findings.md, topology.brep_p1)
-    Err(SolidError::unported("SmBrep::GetFaces", "mass.integrator"))
+fn faces(b: &Brep) -> Result<Vec<FaceId>> {
+    crate::topology::brep::p1::faces(b, None)
 }
-fn edges(_b: &Brep) -> Result<Vec<EdgeId>> {
-    // UNPORTED(mass.integrator): SmBrep::GetEdges (ported: topology::brep::p1::edges; not wired here: with the
-    // collections in reach this unit's face query 4 disagrees with upstream; see
-    // plan/findings.md, topology.brep_p1)
-    Err(SolidError::unported("SmBrep::GetEdges", "mass.integrator"))
+fn edges(b: &Brep) -> Result<Vec<EdgeId>> {
+    crate::topology::brep::p1::edges(b, None)
 }
-fn vertices(_b: &Brep) -> Result<Vec<VertexId>> {
-    // UNPORTED(mass.integrator): SmBrep::GetVertices (ported: topology::brep::p1::vertices; not wired here: with the
-    // collections in reach this unit's face query 4 disagrees with upstream; see
-    // plan/findings.md, topology.brep_p1)
-    Err(SolidError::unported(
-        "SmBrep::GetVertices",
-        "mass.integrator",
-    ))
+fn vertices(b: &Brep) -> Result<Vec<VertexId>> {
+    crate::topology::brep::p1::vertices(b, None)
 }
 fn region_void(_b: &Brep, _r: RegionId) -> Result<bool> {
     // UNPORTED(topology.shell): SmRegion::IsVoid
