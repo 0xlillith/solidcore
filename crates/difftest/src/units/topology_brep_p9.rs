@@ -46,14 +46,14 @@ struct Inputs {
 fn yes() -> bool {
     true
 }
-fn error(e: impl ToString) -> HarnessError {
+fn error(e: &(impl ToString + ?Sized)) -> HarnessError {
     HarnessError::new(e.to_string())
 }
 fn id<I: ArenaId>(v: Option<I>) -> f64 {
     v.map_or(-1.0, |v| f64::from(v.index()))
 }
-fn status(e: SolidError) -> Result<Output, HarnessError> {
-    if let Some(out) = Output::unported(&e) {
+fn status(e: &SolidError) -> Result<Output, HarnessError> {
+    if let Some(out) = Output::unported(e) {
         return Ok(out);
     }
     Err(error(e))
@@ -269,7 +269,7 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
             record.insert(0, f64::from(code));
             Ok(graph(&b, record))
         }
-        Err(e) => status(e),
+        Err(e) => status(&e),
     }
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -310,7 +310,7 @@ impl UnitDiff for Runner {
         let i: Inputs = case.parse()?;
         let path = spec::path_of(Some(&i.brep))?;
         let block = spec::brep_block_of(Some(&i.brep), false, false)?;
-        let raw = ffi::eval(request(&i, &path, &block), false).map_err(error)?;
+        let raw = ffi::eval(request(&i, &path, &block), false).map_err(|e| error(&e))?;
         let n = *raw.get(1).ok_or_else(|| error("short native output"))? as usize;
         let mut record = vec![*raw.first().ok_or_else(|| error("missing native status"))?];
         record.extend(
@@ -327,7 +327,7 @@ impl UnitDiff for Runner {
         let i: Inputs = case.parse()?;
         let path = spec::path_of(Some(&i.brep))?;
         let block = spec::brep_block_of(Some(&i.brep), false, false)?;
-        let initial = ffi::eval(request(&i, &path, &block), true).map_err(error)?;
+        let initial = ffi::eval(request(&i, &path, &block), true).map_err(|e| error(&e))?;
         rust(&i, &initial)
     }
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
