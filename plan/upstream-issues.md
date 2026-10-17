@@ -2462,7 +2462,6 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (`ProtoTopologyManager::proto_edge_split`).
 
-
 #### WR-103. `CreateSphereFromArcs`' centre check compares a frame with itself
 - **Location:** `source/SMLib/src/SmBSplineSurface.cpp:2044`-`2065`, `SmBSplineSurface::CreateSphereFromArcs`: `const SmPoint3d & rOrigin = sRefFrame.GetOriginRef();` then, for each other arc, `IsArc(5, d3DTol, sRefFrame, ...)` and `sDiff = sRefFrame.GetOriginRef() - rOrigin`.
 - **What happens:** `rOrigin` is a reference into `sRefFrame`, which the later `IsArc` calls overwrite, so `sDiff` is always zero: arcs about different centres pass the "OtherCurve center is not the same as 1st Curve cent" test, and every later use of `rOrigin` (the sphere centre) sees the centre of whichever arc `IsArc` examined last.

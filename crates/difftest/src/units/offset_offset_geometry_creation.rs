@@ -34,7 +34,8 @@
 //!
 //! **Deferred.** `SmOffsetGeometryCreation::FaceuseOffset` (`SmSurface::CreateOffsetSurface`,
 //! `surface.offset_surface`), `UpdateFaceSurfaceDomain`
-//! (`SmFace::CalculateUVDomainFromUVTrimCurves`, `topology.face_p1`),
+//! (`SmFace::CreateUVTrimCurves` inside `CalculateUVDomainFromUVTrimCurves`,
+//! `topology.face_p3`),
 //! `ExtendTrimEdges` / `MateEdges` with non-null edge uses
 //! (`SmOffsetExecutive::GetCreateExtendedSurface`, `offset.offset_executive_p1`),
 //! `HaveTangentGaps` and the vertex moves of `ReplaceEdgeCurves` with a new 3D curve
@@ -71,12 +72,13 @@ use solidcore::offset::offset_geometry_creation::{
 };
 use solidcore::query::edge::ClosestPoint;
 use solidcore::surface::plane::Plane;
-use solidcore::surface::surface::p2::{SurfaceKind, TsectCurveType};
+use solidcore::surface::surface::p2::{SurfaceKind, TsectCurveType, SPHERE_TYPE};
 use solidcore::surface::surface::Surface;
 use solidcore::surface::volume::Volume;
 use solidcore::topology::edge as ed;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::edgeuse::p2 as eu2;
+use solidcore::topology::face::p1 as fp1;
 use solidcore::topology::face::p2 as fp2;
 use solidcore::topology::proto_topology::ProtoGeometry;
 use solidcore::topology::topology::Topology;
@@ -85,7 +87,7 @@ use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, FaceuseId, VertexId, 
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::offset_offset_geometry_creation::{self as ffi, Op};
 
-use super::topology_vertexuse::import;
+use super::topology_vertexuse::import_with_types;
 use crate::case::{CaseContext, CaseSource};
 use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -587,6 +589,9 @@ struct Two {
     /// exactly. An `SmBSplineSurface` subclass other than `SmPlane` (surface of
     /// revolution or extrusion, cone, sphere, torus) arrives as its B-spline part.
     exact: [Vec<bool>; 2],
+    /// Per B-rep, per face: the exported surface subclass type code (`None` for a plane
+    /// or no surface).
+    types: [Vec<Option<i64>>; 2],
     curves: Vec<SmCurve>,
     surfaces: Vec<Option<Surface>>,
     extra: Vec<SmCurve>,
@@ -616,11 +621,12 @@ const fn fuid(h: H) -> FaceuseId {
 }
 
 impl Two {
-    fn new(a: Brep, b: Option<Brep>, exact: [Vec<bool>; 2]) -> Self {
+    fn new(a: Brep, b: Option<Brep>, exact: [Vec<bool>; 2], types: [Vec<Option<i64>>; 2]) -> Self {
         let env = [NotifyEnv::new(Some(&a)), NotifyEnv::new(b.as_ref())];
         Self {
             breps: [Some(a), b],
             exact,
+            types,
             curves: Vec::new(),
             surfaces: Vec::new(),
             extra: Vec::new(),
@@ -642,6 +648,17 @@ impl Two {
             .and_then(|v| v.get(usize::try_from(face.i).ok()?))
             .copied()
             .unwrap_or(true)
+    }
+
+    /// Whether `face`'s surface is an `SmSphere` (see `types`).
+    fn face_is_sphere(&self, face: H) -> bool {
+        usize::try_from(face.b)
+            .ok()
+            .and_then(|b| self.types.get(b))
+            .and_then(|v| v.get(usize::try_from(face.i).ok()?))
+            .copied()
+            .flatten()
+            == Some(SPHERE_TYPE)
     }
 
     fn brep_mut(&mut self, h: H) -> Option<&mut Brep> {
@@ -875,6 +892,10 @@ impl OffsetBrep<H> for Two {
     fn set_face_uv_domain(&mut self, face: H, domain: Extent2d) -> solidcore::Result<()> {
         fp2::set_uv_domain(self.brep_m(face)?, fid(face), &domain)
     }
+    fn face_uv_domain_from_uv_trim_curves(&mut self, k: &Kernel, face: H) -> solidcore::Result<Extent2d> {
+        let b = self.brep_m(face)?;
+        Ok(fp1::calculate_uv_domain_from_uv_trim_curves(k, b, fid(face), true, false, false)?.domain)
+    }
     fn edge_curve(&self, edge: H) -> solidcore::Result<Option<H>> {
         self.edge_curve_h(edge)
     }
@@ -917,11 +938,11 @@ impl OffsetBrep<H> for Two {
         if face.b != edge.b || face.kind != K_FACE {
             return Err(invalid("face of another B-rep"));
         }
-        if !self.face_exact(face) {
-            // SmEdge::IsSeam calls the surface's virtual IsClosed, which SmSphere
-            // overrides; the importer does not keep the subclass (see `exact`)
+        if self.face_is_sphere(face) {
+            // SmEdge::IsSeam calls the surface's virtual IsClosed, which only SmSphere
+            // (of the subclasses imported as their B-spline part) overrides
             return Err(SolidError::Unported {
-                upstream: "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+                upstream: "SmSphere::IsClosed (face surface imported as its B-spline part)",
                 unit: ANALYTIC_EXPORT,
             });
         }
@@ -1622,13 +1643,13 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
     let Some((a, b)) = ffi::split_exports(&ex) else {
         return Err(Box::new(Ok(build_failure(&ex))));
     };
-    let (brep_a, exact_a) = import(&a).map_err(|e| Box::new(Err(e)))?;
-    let (brep_b, exact_b) = match &b {
+    let (brep_a, exact_a, types_a) = import_with_types(&a).map_err(|e| Box::new(Err(e)))?;
+    let (brep_b, exact_b, types_b) = match &b {
         Some(b) => {
-            let (brep, exact) = import(b).map_err(|e| Box::new(Err(e)))?;
-            (Some(brep), exact)
+            let (brep, exact, types) = import_with_types(b).map_err(|e| Box::new(Err(e)))?;
+            (Some(brep), exact, types)
         }
-        None => (None, Vec::new()),
+        None => (None, Vec::new(), Vec::new()),
     };
     let count5 = |b: &Brep| {
         [
@@ -1644,7 +1665,7 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
         curves: [Vec::new(), Vec::new()],
         surfaces: 0,
     };
-    let two = Two::new(brep_a, brep_b, [exact_a, exact_b]);
+    let two = Two::new(brep_a, brep_b, [exact_a, exact_b], [types_a, types_b]);
     let (hdr, ops) = match resolve(i, &mut counts, &two) {
         Ok(r) => r,
         Err(name) => return Err(Box::new(Ok(Output::err(name)))),

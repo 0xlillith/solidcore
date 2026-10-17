@@ -5987,8 +5987,8 @@ exactly and 48 defer deeper to p2 (plus the 12 new wr155 fixtures).
 are generic over caller handles (`O: ClassObject + SolutionObject`), as the proto
 topology and the topology intersector: the two B-reps are reached through the
 `OffsetBrep<O>` trait (each method names the ported topology function it stands for)
-and the executive's stored data (`GetInset`, `GetExtendConvexEdges`,
-`GetTangencyTolDegrees`, `GetShellFaces`, `GetOffsetEdgeuse`) through
+and the executive's stored data (`GetInset`, `GetExtendConvexEdges`, `GetShellFaces`,
+`GetOffsetEdgeuse`; the tangency tolerance is the creation's own) through
 `OffsetExecutive<O>`, a co-port of the accessor surface of `offset.offset_executive_p1`
 (no open PR owns that unit; logged in the swarm COORD file). `SmSSIData` (no owning
 unit) is `SsiData<O>`. The curves and surfaces the unit makes go to the owner's stores.
@@ -6100,7 +6100,8 @@ and refuses only then. These refusals are C++ crash guards, not `UNPORTED` defer
 **Deferred (Rust `Unported`, never compared).** `SmSurface::CreateOffsetSurface`
 (`surface.offset_surface`, PR #62: `FaceuseOffset` of the base class, the
 offset-surface rails of `EdgeuseOffset` without an offset edge use);
-`SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`, `UpdateFaceSurfaceDomain`);
+`SmFace::CreateUVTrimCurves` (`topology.face_p3`, inside `UpdateFaceSurfaceDomain`'s
+`CalculateUVDomainFromUVTrimCurves`, which is wired since `topology.face_p1` merged);
 `SmOffsetExecutive::GetCreateExtendedSurface` (`offset.offset_executive_p1`:
 `ExtendTrimEdges`, `MateEdges` with non-null edge uses, the extended-surface candidates of
 `TrimExtendedEdge`); `SmEdgeuse::NormalizedEvaluate` and `CreateUVTrimCurve`

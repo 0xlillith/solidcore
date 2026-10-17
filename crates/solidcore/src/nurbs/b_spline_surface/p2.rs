@@ -1455,8 +1455,8 @@ mod tests {
         SmCurve::from(BSplineCurve::from_nurb(cur, 3, false))
     }
 
-    /// WR-103: arcs about two centres that meet end to end build a sphere, as upstream's
-    /// aliased (dead) centre check lets them.
+    /// WR-103: arcs about two centres (the first two sharing their start point) build a
+    /// sphere, as upstream's aliased (dead) centre check lets them.
     #[test]
     fn sphere_from_arcs_about_two_centres() {
         let arcs = [

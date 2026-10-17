@@ -27,8 +27,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cylinder_seam_vertex_and_edge_caps",
@@ -51,8 +51,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_local_operation_faceuse_offset",
@@ -559,8 +559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0047",
@@ -943,8 +943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0084",
@@ -955,8 +955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0085",
@@ -1107,8 +1107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0100",
@@ -1263,8 +1263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0115",
@@ -1335,8 +1335,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0122",
@@ -2095,8 +2095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0194",
@@ -2143,8 +2143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0198",
@@ -2386,16 +2386,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
-      },
       "max_rel_err": 0.0,
       "name": "gen0224",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762980",
-      "values_compared": 0
+      "values_compared": 178
     },
     {
       "deferred": {
@@ -2575,8 +2571,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0241",
@@ -2619,7 +2615,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "symbol": "SmSphere::IsClosed (face surface imported as its B-spline part)",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -2683,8 +2679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0252",
@@ -2739,8 +2735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0257",
@@ -2971,8 +2967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0279",
@@ -2983,8 +2979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0280",
@@ -3071,8 +3067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0289",
@@ -3083,7 +3079,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "symbol": "SmSphere::IsClosed (face surface imported as its B-spline part)",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -3190,16 +3186,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
-      },
       "max_rel_err": 0.0,
       "name": "gen0300",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763056",
-      "values_compared": 0
+      "values_compared": 219
     },
     {
       "deferred": {
@@ -3551,8 +3543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0335",
@@ -3619,8 +3611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0341",
@@ -4035,8 +4027,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0380",
@@ -4287,8 +4279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0403",
@@ -4455,8 +4447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0419",
@@ -4563,8 +4555,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0431",
@@ -4599,8 +4591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0434",
@@ -4622,16 +4614,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
-      },
       "max_rel_err": 0.0,
       "name": "gen0436",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763192",
-      "values_compared": 0
+      "values_compared": 234
     },
     {
       "max_rel_err": 0.0,
@@ -4667,8 +4655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0440",
@@ -4815,8 +4803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0455",
@@ -4863,8 +4851,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0459",
@@ -5183,8 +5171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0490",
@@ -5375,8 +5363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0508",
@@ -5434,16 +5422,12 @@
       "values_compared": 179
     },
     {
-      "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
-      },
       "max_rel_err": 0.0,
       "name": "gen0514",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763270",
-      "values_compared": 0
+      "values_compared": 178
     },
     {
       "deferred": {
@@ -5479,8 +5463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0518",
@@ -5699,8 +5683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0539",
@@ -5719,8 +5703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0541",
@@ -5855,8 +5839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0554",
@@ -5987,8 +5971,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0567",
@@ -6071,8 +6055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0574",
@@ -6083,8 +6067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0575",
@@ -6199,8 +6183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0586",
@@ -6503,8 +6487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0617",
@@ -6515,8 +6499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0618",
@@ -6567,8 +6551,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0623",
@@ -7275,8 +7259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0690",
@@ -7731,8 +7715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0735",
@@ -7855,8 +7839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0746",
@@ -7959,8 +7943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0756",
@@ -8022,16 +8006,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
-      },
       "max_rel_err": 0.0,
       "name": "gen0762",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763518",
-      "values_compared": 0
+      "values_compared": 356
     },
     {
       "deferred": {
@@ -8215,8 +8195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0780",
@@ -8327,8 +8307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0792",
@@ -8363,8 +8343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0796",
@@ -8475,8 +8455,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_vertex_offset",
@@ -8495,7 +8475,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
+        "symbol": "SmSphere::IsClosed (face surface imported as its B-spline part)",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -8507,8 +8487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_vertex_offset",
@@ -8519,8 +8499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::IsClosed (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmEdgeuse::NormalizedEvaluate",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_vertex_offset",
@@ -9047,19 +9027,19 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 539,
+  "cases_deferred": 534,
   "cases_failed": 0,
-  "cases_passed": 322,
+  "cases_passed": 327,
   "cases_total": 861,
   "deferred_by_unit": {
     "blend.fillet_standard_solver_p1": 4,
-    "harness:analytic-geometry-export": 79,
+    "harness:analytic-geometry-export": 62,
     "offset.offset_executive_p1": 138,
     "surface.cone_p2": 1,
     "surface.offset_surface": 31,
-    "topology.brep_p2": 116,
-    "topology.edgeuse_p3": 133,
-    "topology.face_p1": 37
+    "topology.brep_p2": 119,
+    "topology.edgeuse_p3": 142,
+    "topology.face_p3": 37
   },
   "max_rel_err": 0.0,
   "pass": true,

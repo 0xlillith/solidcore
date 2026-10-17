@@ -51,8 +51,7 @@
 //!   (`offset.offset_executive_p1`), `SmOffsetSurface` and the result of
 //!   `SmSurface::CreateOffsetSurface` (`surface.offset_surface`),
 //!   `SmEdgeuse::NormalizedEvaluate` / `CreateUVTrimCurve` (`topology.edgeuse_p3`),
-//!   `SmBrep::MateLaminaEdgeToSurface` / `ReplaceSurface` (`topology.brep_p2`),
-//!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`) and
+//!   `SmBrep::MateLaminaEdgeToSurface` / `ReplaceSurface` (`topology.brep_p2`) and
 //!   `SmCircularCrossSectionFSG` (`blend.fillet_solver_p1`,
 //!   `blend.fillet_standard_solver_p1`). The code after a stub is ported in full;
 //!   `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`) is a real call.
@@ -292,6 +291,11 @@ pub trait OffsetBrep<O>: ProtoGeometry<O> {
     fn face_uv_domain(&self, face: O) -> Result<Extent2d>;
     /// `SmFace::SetUVDomain` (`topology::face::p2::set_uv_domain`).
     fn set_face_uv_domain(&mut self, face: O, domain: Extent2d) -> Result<()>;
+    /// `SmFace::CalculateUVDomainFromUVTrimCurves(rDomain)` with upstream's defaults
+    /// (`bLimitDomain = TRUE`, no loop gaps;
+    /// `topology::face::p1::calculate_uv_domain_from_uv_trim_curves`). It makes the face's
+    /// UV trim curves.
+    fn face_uv_domain_from_uv_trim_curves(&mut self, k: &Kernel, face: O) -> Result<Extent2d>;
     /// `SmEdge::GetCurve` (`topology::edge::curve`).
     fn edge_curve(&self, edge: O) -> Result<Option<O>>;
     /// `SmEdge::GetInterval` (`topology::edge::interval`).
@@ -422,15 +426,6 @@ fn brep_replace_surface<O>(_face: O, _surface: O) -> Result<()> {
     Err(SolidError::unported(
         "SmBrep::ReplaceSurface",
         "topology.brep_p2",
-    ))
-}
-
-/// `SmFace::CalculateUVDomainFromUVTrimCurves(rDomain)`.
-fn face_uv_domain_from_uv_trim_curves<O>(_face: O) -> Result<Extent2d> {
-    // UNPORTED(topology.face_p1): SmFace::CalculateUVDomainFromUVTrimCurves
-    Err(SolidError::unported(
-        "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "topology.face_p1",
     ))
 }
 
@@ -1190,8 +1185,9 @@ impl OffsetGeometryCreation {
     /// # Errors
     ///
     /// `SM_ERR` when the trim curve domain cannot be computed;
-    /// [`SolidError::Unported`] for `SmFace::CalculateUVDomainFromUVTrimCurves`
-    /// (`topology.face_p1`) and `SmBrep::ReplaceSurface` (`topology.brep_p2`).
+    /// [`SolidError::Unported`] from `SmFace::CalculateUVDomainFromUVTrimCurves`' callees
+    /// (`CreateUVTrimCurves`, `topology.face_p3`) and for `SmBrep::ReplaceSurface`
+    /// (`topology.brep_p2`).
     pub fn update_face_surface_domain<O: ClassObject + SolutionObject>(
         &self,
         k: &Kernel,
@@ -1199,9 +1195,15 @@ impl OffsetGeometryCreation {
         face: O,
         extended_surface: O,
     ) -> Result<()> {
-        let _ = k;
-        let face_domain = match face_uv_domain_from_uv_trim_curves(face) {
+        let face_domain = match brep.face_uv_domain_from_uv_trim_curves(k, face) {
             Ok(d) => d,
+            // `SmExtent2d::Intersect`'s `SM_ERR_INVALID_INPUT` (disjoint domains) is a real
+            // status upstream, which `!= SM_SUCCESS` turns into `SM_ERR`; every other
+            // `InvalidInput` is a null dereference upstream.
+            Err(SolidError::InvalidInput {
+                operation: "geom::extent2d::Extent2d::intersect",
+                ..
+            }) => return Err(sm_err(OP_UPDATE)),
             Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
                 return Err(e)
             }
