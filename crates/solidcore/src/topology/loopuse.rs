@@ -907,23 +907,34 @@ fn notify_ref(e: EntityRef) -> ObjectRef {
 /// carries no attribute store, topology records, context callbacks or trimmed surface
 /// caches, so the notification runs with empty ones (upstream on a face and uses
 /// without attributes or cache).
-fn face_notify_edit(b: &mut Brep, f: FaceId, operation: NotifyOperation) -> Result<()> {
+pub(crate) fn face_notify_edit(b: &mut Brep, f: FaceId, operation: NotifyOperation) -> Result<()> {
+    face_notify_as(b, f, notify_ref(EntityRef::Face(f)), operation)
+}
+
+/// [`face_notify_edit`] for a face notified under the identity `this` (the caller's
+/// `this` pointer, which is the notification's first data argument).
+pub(crate) fn face_notify_as(
+    b: &mut Brep,
+    f: FaceId,
+    this: ObjectRef,
+    operation: NotifyOperation,
+) -> Result<()> {
     let mut records = BTreeMap::new();
     let mut attributes = AttributeStore::default();
+    let key_of = |e: EntityRef| {
+        if e == EntityRef::Face(f) {
+            this
+        } else {
+            notify_ref(e)
+        }
+    };
     let mut env = NotifyEnv {
         records: &mut records,
         attributes: &mut attributes,
         context: None,
-        key_of: &notify_ref,
+        key_of: &key_of,
     };
-    face3::notify(
-        b,
-        f,
-        &mut env,
-        None,
-        operation,
-        [Some(notify_ref(EntityRef::Face(f))), None, None],
-    )
+    face3::notify(b, f, &mut env, None, operation, [Some(this), None, None])
 }
 
 /// `FlipLoopOrientation`: swaps the starts of the loop's two loop uses (the vertex

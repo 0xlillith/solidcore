@@ -88,8 +88,14 @@
 //!   failure of the port other than [`SolidError::Unported`] (or, for
 //!   `HasNearMisses`, [`SolidError::InvalidInput`] for a handle `geometry` cannot
 //!   resolve) reads as `FALSE`.
-//! - **Unported callees** return [`SolidError::Unported`]: `SmFace::Notify` and
-//!   `CreateUVTrimCurves` (`topology.face_p3`); `SmFace::GetUpwardLoopuses`,
+//! - **Notifications** (`SmFace::Notify`, `topology.face_p3`) run with the empty
+//!   notification environment a B-rep face carries (as `topology::loopuse`'s do):
+//!   `SM_NO_PRE_EDIT` / `SM_NO_POST_EDIT` / `SM_NO_DESTRUCTION` with the face as the
+//!   first data argument. Only `SetSurface`'s `SM_NO_CHANGE_GEOMETRY` (its data are the
+//!   new and the old surface, which have no identity in the B-rep model) stays
+//!   [`SolidError::Unported`], justified in `plan/findings.md` (`topology.face_p3`).
+//!   `CreateUVTrimCurves` is `topology::face::p3::create_uv_trim_curves`.
+//! - **Unported callees** return [`SolidError::Unported`]: `SmFace::GetUpwardLoopuses`,
 //!   `GetUpwardVertexuses`, `GetEdges`, `GetBrep` and `HasSeamProblem`
 //!   (`topology.face_p4`); `SmEdgeuse::NormalizedEvaluate` and
 //!   `GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`); `SmBrep::ReplaceSurface`
@@ -110,7 +116,7 @@ use crate::error::{ignore_status, ignored, EntityRef, Result, SolidError};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent2d::Extent2d;
-use crate::geom::object::ObjectRef;
+use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::periodic_extent1d::PeriodicExtent1d;
 use crate::geom::tol::are_same_to_tol;
 use crate::geom::vector2d::{Point2, Vec2};
@@ -131,6 +137,7 @@ use crate::surface::surface::p7::drop_vectors_at;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::face::p2 as fp2;
+use crate::topology::face::p3 as fp3;
 use crate::topology::loopuse as lu1;
 use crate::topology::trimming_tools as tt;
 use crate::topology::vertex as vx;
@@ -167,19 +174,27 @@ pub enum FixSeamPlanType {
 
 // ---- unported callees ---------------------------------------------------------------------
 
-/// `SmFace::Notify(op, ..)` (any edit notification).
-fn face_notify(_b: &mut Brep, _f: FaceId) -> Result<()> {
-    // UNPORTED(topology.face_p3): SmFace::Notify
+/// `Notify(SM_NO_PRE_EDIT / SM_NO_POST_EDIT, this, SM_NO_GET_BREP(this) (0), NULL)`:
+/// the face itself is the first argument. Runs [`fp3::notify`] with the empty
+/// notification environment the B-rep model allows (as the loop use code does).
+fn face_notify(b: &mut Brep, f: FaceId, operation: NotifyOperation) -> Result<()> {
+    lu1::face_notify_edit(b, f, operation)
+}
+
+/// `Notify(SM_NO_CHANGE_GEOMETRY, pSurface, SM_NO_GET_BREP(this), m_pSurface)`: the
+/// notification carries the new and the old surface as its first and third data
+/// arguments.
+fn face_notify_change_geometry(_b: &mut Brep, _f: FaceId) -> Result<()> {
+    // UNPORTED(topology.face_p3): SmFace::Notify -- justified: findings.md topology.face_p3 "Stubs left for this unit"
+    // (a surface owned by a face has no object identity in the B-rep model, so the
+    // data arguments cannot be formed)
     Err(SolidError::unported("SmFace::Notify", "topology.face_p3"))
 }
 
 /// `SmFace::CreateUVTrimCurves(FALSE, NULL, NULL, ..)`.
-fn create_uv_trim_curves(_k: &Kernel, _b: &mut Brep, _f: FaceId) -> Result<()> {
-    // UNPORTED(topology.face_p3): SmFace::CreateUVTrimCurves
-    Err(SolidError::unported(
-        "SmFace::CreateUVTrimCurves",
-        "topology.face_p3",
-    ))
+fn create_uv_trim_curves(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<()> {
+    // the gap statistics (the NULL out-parameters) are not read
+    fp3::create_uv_trim_curves(k, b, f, false, None).map(|_| ())
 }
 
 /// `SmFace::GetUpwardLoopuses(rLoopuses)` (default arguments).
@@ -386,8 +401,8 @@ fn uv_curve_box(k: &Kernel, curve: &Curve) -> Result<crate::geom::extent3d::Exte
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::Unported`] for the
 /// notification (`SmFace::Notify`, `topology.face_p3`).
 pub fn destroy(b: &mut Brep, f: FaceId, this: ObjectRef) -> Result<()> {
-    // Notify DESTRUCTION behavior
-    face_notify(b, f)?;
+    // Notify DESTRUCTION behavior: Notify(SM_NO_DESTRUCTION, this, NULL, NULL)
+    lu1::face_notify_as(b, f, this, NotifyOperation::Destruction)?;
     let face = b.face_mut(f)?;
     face.faceuse = None;
 
@@ -800,7 +815,7 @@ pub fn find_if_rectangular_trim(
 /// `SM_ERR_NULL_POINTER` without face use, mate, or loop uses (`NER`); those of
 /// [`fp2::loops`]; [`SolidError::Unported`] (`SmFace::Notify`).
 pub fn flip_face_orientation(b: &mut Brep, f: FaceId) -> Result<()> {
-    face_notify(b, f)?;
+    face_notify(b, f, NotifyOperation::PreEdit)?;
     let top = fp2::upward_faceuse(b, f)?.ok_or_else(|| SolidError::null_pointer(OP))?;
     let bot = eu1::faceuse_mate(b, top)?.ok_or_else(|| SolidError::null_pointer(OP))?;
 
@@ -822,7 +837,7 @@ pub fn flip_face_orientation(b: &mut Brep, f: FaceId) -> Result<()> {
     b.faceuse_mut(top)?.orientation = OrientType::Opposite;
     b.faceuse_mut(bot)?.orientation = OrientType::Same;
 
-    face_notify(b, f)?;
+    face_notify(b, f, NotifyOperation::PostEdit)?;
     Ok(())
 }
 
@@ -841,7 +856,7 @@ pub fn set_surface(
     delete_current: bool,
 ) -> Result<Option<Surface>> {
     // inform the public
-    face_notify(b, f)?;
+    face_notify_change_geometry(b, f)?;
 
     // when asked - delete current surface
     let face = b.face_mut(f)?;
@@ -889,7 +904,7 @@ fn faceuse_remove(b: &mut Brep, fu: FaceuseId, lu: LoopuseId) -> Result<()> {
 /// both face uses (upstream dereferences null); [`SolidError::Unported`]
 /// (`SmFace::Notify`).
 pub fn insert_loop(b: &mut Brep, f: FaceId, l: LoopId) -> Result<()> {
-    face_notify(b, f)?;
+    face_notify(b, f, NotifyOperation::PreEdit)?;
     let (lu_1, lu_2) = lu1::loop_loopuses(b, l)?;
     let lu_2 = lu_2.ok_or_else(|| null("loop without second loop use"))?;
     let (fu_1, fu_2) = fp2::faceuses(b, f)?;
@@ -897,7 +912,7 @@ pub fn insert_loop(b: &mut Brep, f: FaceId, l: LoopId) -> Result<()> {
     let fu_2 = fu_2.ok_or_else(|| null("face use without mate"))?;
     faceuse_post_insert(b, fu_1, lu_1)?;
     faceuse_post_insert(b, fu_2, lu_2)?;
-    face_notify(b, f)?;
+    face_notify(b, f, NotifyOperation::PostEdit)?;
     Ok(())
 }
 
@@ -910,14 +925,14 @@ pub fn insert_loop(b: &mut Brep, f: FaceId, l: LoopId) -> Result<()> {
 /// list removal; [`SolidError::InvalidInput`] for a loop without both loop uses;
 /// [`SolidError::Unported`] (`SmFace::Notify`).
 pub fn remove_loop(b: &mut Brep, f: FaceId, l: LoopId) -> Result<()> {
-    face_notify(b, f)?;
+    face_notify(b, f, NotifyOperation::PreEdit)?;
     let (lu_1, lu_2) = lu1::loop_loopuses(b, l)?;
     let lu_2 = lu_2.ok_or_else(|| null("loop without second loop use"))?;
     let fu_1 = lu1::faceuse(b, lu_1)?.ok_or_else(|| SolidError::null_pointer(OP))?;
     let fu_2 = lu1::faceuse(b, lu_2)?.ok_or_else(|| SolidError::null_pointer(OP))?;
     faceuse_remove(b, fu_1, lu_1)?;
     faceuse_remove(b, fu_2, lu_2)?;
-    face_notify(b, f)?;
+    face_notify(b, f, NotifyOperation::PostEdit)?;
     Ok(())
 }
 
@@ -929,7 +944,7 @@ pub fn remove_loop(b: &mut Brep, f: FaceId, l: LoopId) -> Result<()> {
 /// `SM_ERR_NULL_POINTER` without face use; those of [`eu1::faceuse_edgeuses`];
 /// [`SolidError::Unported`] (`SmFace::Notify`).
 pub fn remove_uv_trim_curves(b: &mut Brep, f: FaceId) -> Result<()> {
-    face_notify(b, f)?;
+    face_notify(b, f, NotifyOperation::PreEdit)?;
     let fu = fp2::upward_faceuse(b, f)?.ok_or_else(|| SolidError::null_pointer(OP))?;
     for eu in eu1::faceuse_edgeuses(b, fu, false, None)? {
         // status ignored upstream
@@ -974,7 +989,7 @@ pub fn swap_uv(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<()> {
     let upward = upward_loopuses(b, f)?;
 
     // prepare to Edit
-    face_notify(b, f)?;
+    face_notify(b, f, NotifyOperation::PreEdit)?;
 
     let mut to_set: Vec<(EdgeuseId, Curve)> = Vec::new();
     for lu in upward {
@@ -1057,7 +1072,7 @@ pub fn swap_uv(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<()> {
     b.faceuse_mut(fu_mate)?.orientation = OrientType::Same;
     b.face_mut(f)?.faceuse = Some(fu_mate);
 
-    face_notify(b, f)?;
+    face_notify(b, f, NotifyOperation::PostEdit)?;
     Ok(())
 }
 

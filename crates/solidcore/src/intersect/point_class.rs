@@ -337,6 +337,32 @@ pub struct PointClassification<O> {
 }
 
 impl<O: ClassObject> PointClassification<O> {
+    /// The same classification with every object handle (`m_pObject`, `m_cpFace`)
+    /// replaced by `f` of it: a change of handle type, no new state.
+    ///
+    /// # Errors
+    ///
+    /// Those of `f`.
+    pub fn map_objects<P: ClassObject>(
+        &self,
+        f: &mut dyn FnMut(O) -> Result<P>,
+    ) -> Result<PointClassification<P>> {
+        Ok(PointClassification {
+            src_zone_tol_3d: self.src_zone_tol_3d,
+            point_class: self.point_class,
+            object: self.object.map(&mut *f).transpose()?,
+            face: self.face.map(&mut *f).transpose()?,
+            gap_3d: self.gap_3d,
+            t_param: self.t_param,
+            uv_param: self.uv_param,
+            uvw_param: self.uvw_param,
+            param_set: self.param_set,
+            pre_snap_param: self.pre_snap_param,
+            sss_point_flag: self.sss_point_flag,
+            sss_point: self.sss_point,
+        })
+    }
+
     /// A cleared classification of something with zone tolerance `src_zone_tol_3d`
     /// (`SmPointClassification(SmZoneTol3d, const SmContext*)`). The argument is
     /// already an `SmZoneTol3d` and is stored as is; upstream's default,

@@ -5734,7 +5734,19 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   handle `O`, and the preceding `SmBrep::m_bEditingEnabled` stub, `topology.brep_p1`,
   returns first). Both need a B-rep handle in those types. The
   `MarkFaceContainment` dispatch note of `surface.trim_srf_cache` above still applies once
-  that call is wired.
+  that call is wired. Also `topology.face_p1` `set_surface`
+  (`Notify(SM_NO_CHANGE_GEOMETRY, pSurface, SM_NO_GET_BREP(this), m_pSurface)`): the
+  notification's data arguments are the new and the old surface, and a face-owned
+  surface has no object identity in the B-rep model to form them from (the other ten
+  `SmFace::Notify` calls of `topology.face_p1` are wired, with the empty environment of
+  `topology.loopuse`'s `face_notify_edit`).
+- **Wired elsewhere (merge with main, #148 / #146).** `topology.face_p1` (`CreateUVTrimCurves`;
+  ten of its eleven `SmFace::Notify` calls), `geom.tol` (`SmFace::SetTolerance` in
+  `UpdateObjectTolerance`) and `boolean.topology_intersector_p1` (`SmFace::FaceIntersect`
+  through the new `IntersectorBrep::face_intersect`, which hands the curves and
+  classifications of `topology::face::p3::face_intersect` out under the runner's handles;
+  `CurveClassification::map_objects` / `PointClassification::map_objects` change the handle
+  type).
 - **Wired elsewhere.** `topology.vertex` (`RefreshTolerance` -> `SmFace::SetTolerance`;
   the vertex shim now exports each face's tolerance, which the cascade reads; 76 cases
   that deferred now pass), `topology.trimming_tools` (`CreateUVTrimCurves`,

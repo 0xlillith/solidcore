@@ -1162,17 +1162,19 @@ fn ignore_soft<T>(r: Result<T>) -> Result<Option<T>> {
 
 /// `SmFace::SetTolerance(tol)`.
 fn face_set_tolerance(
-    _b: &mut Brep,
-    _f: FaceId,
-    _tol: f64,
-    _update_only_if_larger: bool,
-    _cascade_to_boundaries: bool,
+    b: &mut Brep,
+    f: FaceId,
+    tol: f64,
+    update_only_if_larger: bool,
+    cascade_to_boundaries: bool,
 ) -> Result<()> {
-    // UNPORTED(topology.face_p3): SmFace::SetTolerance
-    Err(SolidError::unported(
-        "SmFace::SetTolerance",
-        "topology.face_p3",
-    ))
+    crate::topology::face::p3::set_tolerance(
+        b,
+        f,
+        tol,
+        update_only_if_larger,
+        cascade_to_boundaries,
+    )
 }
 
 /// `SmFace::GetEdges(rEdges)`.
