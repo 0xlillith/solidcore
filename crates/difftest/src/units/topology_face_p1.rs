@@ -475,11 +475,12 @@ fn surf_param(code: u8) -> Result<SurfParamType, Fail> {
     SurfParamType::from_code(u64::from(code)).ok_or_else(|| Fail::Harness(harness("SmSurfParamType")))
 }
 
-fn tri(code: u8) -> Tri {
+fn tri(code: u8) -> Result<Tri, Fail> {
     match code {
-        0 => Tri::False,
-        1 => Tri::True,
-        _ => Tri::Unsure,
+        0 => Ok(Tri::False),
+        1 => Ok(Tri::True),
+        2 => Ok(Tri::Unsure),
+        _ => Err(Fail::Harness(harness("SmBoolean"))),
     }
 }
 
@@ -492,8 +493,8 @@ fn face_props(p: Option<PropsIn>) -> Result<Option<FaceProps<H>>, Fail> {
     fp.bad_crossed_seam_dir = surf_param(p.crossed)?;
     fp.bad_missing_seam_dir = surf_param(p.missing)?;
     fp.bad_near_miss_seam_dir = surf_param(p.near_miss)?;
-    fp.closed_u = tri(p.closed_u);
-    fp.closed_v = tri(p.closed_v);
+    fp.closed_u = tri(p.closed_u)?;
+    fp.closed_v = tri(p.closed_v)?;
     Ok(Some(fp))
 }
 
