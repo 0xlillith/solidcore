@@ -61,6 +61,8 @@
 //!   through a `const` cast. The `&self` evaluators carry the extension through the
 //!   call (recursion and repeated base-body evaluations see it as upstream) and drop it
 //!   at the end; the `*_extending` (`&mut self`) evaluators store it, as upstream.
+//!   [`OffsetSurface::step_inversion_extending`] also stores the one an offset base's
+//!   inversion makes (its `EvaluatePoint`), as upstream's base offset does.
 //!   [`OffsetSurface::with_evaluator`] runs an inherited `SmSurface` body on the
 //!   offset (as [`OffsetEval`]) and stores an extension its evaluations make.
 //!   [`OffsetSurface::trim_with_domain`] uses the storing evaluator. The `SM_NO_PRE_EDIT`,
@@ -1485,11 +1487,25 @@ impl OffsetSurface {
         tol_3d: f64,
         uv_guess: Option<Point2>,
     ) -> Result<(Point2, LocationType)> {
+        let offset_tol = tol_3d + self.offset_distance.abs();
+        let base = self
+            .surface
+            .step_inversion(k, anal_domain, point_on_surf, offset_tol, uv_guess);
         let mut ext = Extension::new(self.extended_surface.as_deref());
-        self.step_inversion_with(&mut ext, k, anal_domain, point_on_surf, tol_3d, uv_guess)
+        self.step_inversion_with(
+            &mut ext,
+            base,
+            k,
+            anal_domain,
+            point_on_surf,
+            tol_3d,
+            uv_guess,
+        )
     }
 
-    /// [`OffsetSurface::step_inversion`], storing an extension its `EvaluatePoint` makes.
+    /// [`OffsetSurface::step_inversion`], storing an extension its `EvaluatePoint` makes,
+    /// and, for an offset base, the one the base's inversion makes (upstream's `const`
+    /// evaluators store it in the base offset).
     ///
     /// # Errors
     ///
@@ -1502,10 +1518,26 @@ impl OffsetSurface {
         tol_3d: f64,
         uv_guess: Option<Point2>,
     ) -> Result<(Point2, LocationType)> {
+        let offset_tol = tol_3d + self.offset_distance.abs();
+        let base = match self.surface.kind_mut() {
+            SurfaceKind::OffsetSurface(inner) => {
+                inner.step_inversion_extending(k, anal_domain, point_on_surf, offset_tol, uv_guess)
+            }
+            _ => self
+                .surface
+                .step_inversion(k, anal_domain, point_on_surf, offset_tol, uv_guess),
+        };
         let (r, made) = {
             let mut ext = Extension::new(self.extended_surface.as_deref());
-            let r =
-                self.step_inversion_with(&mut ext, k, anal_domain, point_on_surf, tol_3d, uv_guess);
+            let r = self.step_inversion_with(
+                &mut ext,
+                base,
+                k,
+                anal_domain,
+                point_on_surf,
+                tol_3d,
+                uv_guess,
+            );
             (r, ext.made)
         };
         if let Some(m) = made {
@@ -1514,20 +1546,19 @@ impl OffsetSurface {
         r
     }
 
-    /// The body of [`OffsetSurface::step_inversion`] with the extension of the call.
+    /// The body of [`OffsetSurface::step_inversion`] after the base surface's
+    /// inversion (`base`), with the extension of the call.
     fn step_inversion_with(
         &self,
         ext: &mut Extension<'_>,
+        base: Result<(Point2, LocationType)>,
         k: &Kernel,
         anal_domain: &Extent2d,
         point_on_surf: Point3,
         tol_3d: f64,
         uv_guess: Option<Point2>,
     ) -> Result<(Point2, LocationType)> {
-        let offset_tol = tol_3d + self.offset_distance.abs();
-        let mut result =
-            self.surface
-                .step_inversion(k, anal_domain, point_on_surf, offset_tol, uv_guess);
+        let mut result = base;
         let retry = match &result {
             Ok((_, location)) => *location == LocationType::Exterior,
             Err(e) if e.is_unported() => return result,

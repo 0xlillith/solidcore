@@ -750,14 +750,26 @@ impl Surface {
 
     /// [`Surface::evaluate`] for a caller that ignores its status: the derivative array
     /// the evaluation leaves, `None` when it fails before writing it (the caller's
-    /// array is unchanged). The `SmBSplineSurface` evaluation (B-splines and surfaces
-    /// of revolution) keeps what it wrote when its zero-tangent repair fails; the other
-    /// kinds' failures are returned (they do not leave a known partial array).
+    /// array is unchanged).
+    ///
+    /// - The `SmBSplineSurface` evaluation (B-splines and surfaces of revolution) keeps
+    ///   what it wrote when its zero-tangent repair fails.
+    /// - A curve bounded surface passes the caller's array on to its basis surface's
+    ///   `Evaluate`, and a STEP surface to its base's `EvaluateSTEP`
+    ///   ([`Surface::evaluate_step_ignoring_status`]).
+    /// - A surface in a volume fails before writing: `None`.
+    /// - A plane never fails upstream; the port's errors are its guards where upstream
+    ///   writes outside the array, and are returned.
+    /// - An offset surface's failure is `None`. Upstream fails before writing except
+    ///   for a zero distance (the base's partial array) and a pole's extrapolated
+    ///   tangent (the entries before it); there the port keeps the previous values.
+    ///   [`Surface::is_periodic`] reaches an offset only through a wrapper, since an
+    ///   offset's flags are copied from an offset base.
     ///
     /// # Errors
     ///
-    /// Those of [`BSplineSurface::evaluate_ignoring_status`]; those of the other
-    /// kinds' evaluations.
+    /// Those of [`BSplineSurface::evaluate_ignoring_status`]; `InvalidInput` for a STEP
+    /// surface without base surface; a plane's guards; [`SolidError::Unported`].
     pub fn evaluate_ignoring_status(
         &self,
         uv: Point2,
@@ -774,13 +786,23 @@ impl Surface {
                 s.base()
                     .evaluate_ignoring_status(uv, highest_u_deriv, highest_v_deriv, flags)
             }
-            SurfaceKind::CurveBounded(_)
-            | SurfaceKind::Step(_)
-            | SurfaceKind::SrfInVolume(_)
-            | SurfaceKind::Plane(_)
-            | SurfaceKind::OffsetSurface(_) => self
+            // pass the call along
+            SurfaceKind::CurveBounded(s) => {
+                s.basis()
+                    .evaluate_ignoring_status(uv, highest_u_deriv, highest_v_deriv, flags)
+            }
+            SurfaceKind::Step(s) => {
+                s.evaluate_ignoring_status(uv, highest_u_deriv, highest_v_deriv, flags)
+            }
+            SurfaceKind::SrfInVolume(s) => {
+                crate::error::ignored(s.evaluate(uv, highest_u_deriv, highest_v_deriv, flags))
+            }
+            SurfaceKind::Plane(_) => self
                 .evaluate(uv, highest_u_deriv, highest_v_deriv, flags)
                 .map(Some),
+            SurfaceKind::OffsetSurface(s) => {
+                crate::error::ignored(s.evaluate(uv, highest_u_deriv, highest_v_deriv, flags))
+            }
         }
     }
 

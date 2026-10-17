@@ -74,8 +74,10 @@
 //!   `IsFlatCorner` ignore `Evaluate`'s status upstream and read stale or undefined
 //!   values on failure; the port returns the error. `IsPeriodic` ignores it as upstream
 //!   ([`Surface::evaluate_ignoring_status`]: a B-spline keeps the derivatives it wrote
-//!   before its zero-tangent repair failed) and keeps upstream's `SER` inside a boolean
-//!   function: a failing `Unitize` returns `TRUE`.
+//!   before its zero-tangent repair failed, and curve bounded and STEP surfaces pass
+//!   the array on to their basis; an offset's failure after a partial write keeps the
+//!   previous values) and keeps upstream's `SER` inside a boolean function: a failing
+//!   `Unitize` returns `TRUE`.
 //! - **Unported callees.** `CreateSilhouetteCurves` needs `SmSurfaceSilhouette`
 //!   (`intersect.surface_silhouette`), `ApproximateSize` of kinds other than B-splines needs
 //!   `SmIsoCurve` over any surface (the ported iso curve holds a B-spline), the zone
@@ -449,6 +451,25 @@ impl StepSurface {
     ) -> Result<Vec<Vec<Vec3>>> {
         self.base()?
             .evaluate_step(uv, highest_u_deriv, highest_v_deriv, flags)
+    }
+
+    /// [`StepSurface::evaluate`] for a caller that ignores its status: what the base
+    /// surface's `EvaluateSTEP` leaves in the caller's array
+    /// ([`Surface::evaluate_step_ignoring_status`]).
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` without base surface; those of
+    /// [`Surface::evaluate_step_ignoring_status`].
+    pub fn evaluate_ignoring_status(
+        &self,
+        uv: Point2,
+        highest_u_deriv: usize,
+        highest_v_deriv: usize,
+        flags: EvaluateFlags,
+    ) -> Result<Option<Vec<Vec<Vec3>>>> {
+        self.base()?
+            .evaluate_step_ignoring_status(uv, highest_u_deriv, highest_v_deriv, flags)
     }
 
     /// The base surface's STEP domain (`GetDomainWithContinuity`: the continuity, the
@@ -1072,6 +1093,46 @@ impl Surface {
                     },
                 )
             }
+        }
+    }
+
+    /// [`Surface::evaluate_step`] for a caller that ignores its status: the derivative
+    /// array it leaves, `None` when it fails before writing it. A curve bounded surface
+    /// passes the caller's array on to its basis surface; the `SmSurfOfRevolution`
+    /// override fails before writing; the base default is
+    /// [`Surface::evaluate_ignoring_status`] with non-zero tangents.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Surface::evaluate_ignoring_status`]; [`SolidError::Unported`].
+    pub fn evaluate_step_ignoring_status(
+        &self,
+        uv: Point2,
+        highest_u_deriv: usize,
+        highest_v_deriv: usize,
+        flags: EvaluateFlags,
+    ) -> Result<Option<Vec<Vec<Vec3>>>> {
+        match self.kind() {
+            SurfaceKind::CurveBounded(s) => {
+                s.basis()
+                    .evaluate_step_ignoring_status(uv, highest_u_deriv, highest_v_deriv, flags)
+            }
+            SurfaceKind::SurfOfRevolution(_) => {
+                ignored(self.evaluate_step(uv, highest_u_deriv, highest_v_deriv, flags))
+            }
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::Plane(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::OffsetSurface(_)
+            | SurfaceKind::SrfInVolume(_) => self.evaluate_ignoring_status(
+                uv,
+                highest_u_deriv,
+                highest_v_deriv,
+                EvaluateFlags {
+                    non_zero_tangents: true,
+                    ..flags
+                },
+            ),
         }
     }
 
