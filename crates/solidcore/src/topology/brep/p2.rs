@@ -94,6 +94,7 @@ use crate::topology::brep_cache::{self, BrepCache, BrepObjects, CacheObject, Cac
 use crate::topology::edge::{self, AttributeFilter, NotifyEnv, SetCurveOptions};
 use crate::topology::edgeuse::p1::{self as eu1, UvTrimCurveArg};
 use crate::topology::edgeuse::p2 as eu2;
+use crate::topology::face::p1 as face1;
 use crate::topology::face::p2 as face2;
 use crate::topology::topology_traverser::Marks;
 use crate::topology::vertexuse as vu1;
@@ -1316,8 +1317,8 @@ pub enum OldSurface {
 ///
 /// [`SolidError::InvalidInput`] for a face without surface (upstream dereferences it);
 /// [`SolidError::Unported`] for `SmFace::Notify`, `SmFace::CreateUVTrimCurves`
-/// (`topology.face_p3`), `SmFace::SetSurface`, `SmFace::RemoveUVTrimCurves`
-/// (`topology.face_p1`).
+/// (`topology.face_p3`), also reached through [`face1::set_surface`] and
+/// [`face1::remove_uv_trim_curves`].
 pub fn replace_surface(
     k: &Kernel,
     b: &mut Brep,
@@ -1341,13 +1342,13 @@ pub fn replace_surface(
     let _ = new_surface.set_owner(Some(face_ref));
     // calls SmFace::Notify(SM_NO_CHANGE_GEOMETRY, ..) which tells all Face SmEdgeuses
     // and SmVertexuses to delete all their cached data
-    let old_surface = face_set_surface(b, top_face, new_surface)?;
+    let old_surface = face1::set_surface(b, top_face, face_ref, new_surface, false)?;
 
     // default faceDomain to NewSurface Domain
     face2::set_uv_domain(b, top_face, &new_domain)?;
 
     // remove the isoparameter curves
-    face_remove_uv_trim_curves(b, top_face)?;
+    face1::remove_uv_trim_curves(b, top_face)?;
 
     // when asked - remember the modified faces
     let modified = vec![f];
@@ -1609,26 +1610,6 @@ fn face_create_uv_trim_curves(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<()>
     Err(SolidError::unported(
         "SmFace::CreateUVTrimCurves",
         "topology.face_p3",
-    ))
-}
-
-/// `SmFace::SetSurface` (unit `topology.face_p1`): the replaced surface.
-fn face_set_surface(b: &mut Brep, f: FaceId, s: Surface) -> Result<Option<Surface>> {
-    let _ = (b, f, s);
-    // UNPORTED(topology.face_p1): SmFace::SetSurface
-    Err(SolidError::unported(
-        "SmFace::SetSurface",
-        "topology.face_p1",
-    ))
-}
-
-/// `SmFace::RemoveUVTrimCurves` (unit `topology.face_p1`).
-fn face_remove_uv_trim_curves(b: &mut Brep, f: FaceId) -> Result<()> {
-    let _ = (b, f);
-    // UNPORTED(topology.face_p1): SmFace::RemoveUVTrimCurves
-    Err(SolidError::unported(
-        "SmFace::RemoveUVTrimCurves",
-        "topology.face_p1",
     ))
 }
 
