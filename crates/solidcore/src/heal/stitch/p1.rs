@@ -53,8 +53,7 @@
 //!   (`topology.brep_p3`), `MakeVertexSplitEdge` (`topology.brep_p9`), `Notify`
 //!   (`topology.brep_p2`), `CalculateBoundingBox` (`query.brep`), `SmFace::GetBrep`,
 //!   `GetVertices`, `GetEdges` (`topology.face_p4`), `SmEdgeuse::NormalizedEvaluate`,
-//!   `EvaluateBinormal` (`topology.edgeuse_p3`), `SmTol::UpdateObjectTolerance`
-//!   (`SmTopology*` overload, unported in `geom.tol`; co-ported by open PR #146), `SmMerge::MergeAddedFace`
+//!   `EvaluateBinormal` (`topology.edgeuse_p3`), `SmMerge::MergeAddedFace`
 //!   (`boolean.merge_p2`) and `SmStitch::DoStitching`, `StitchIntoSolid`,
 //!   `StitchIntoShell` (`heal.stitch_p2`) return [`SolidError::Unported`].
 
@@ -67,6 +66,7 @@ use crate::geom::context::{with_mark_lock, ALL_MARKS};
 use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::SolverOperation;
 use crate::geom::object::ObjectRef;
+use crate::geom::tol::{self, TopologyToUpdate};
 use crate::geom::tree::{NodeGeomType, Tree};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, BIG_DOUBLE, EFF_ZERO, PI};
@@ -1545,6 +1545,7 @@ impl<'c> Stitch<'c> {
 
             // status ignored
             ignore_status(update_object_tolerance(
+                k,
                 b,
                 EntityRef::Vertex(vtx1),
                 min_dist,
@@ -1755,6 +1756,7 @@ impl<'c> Stitch<'c> {
                             out.glued.push(e);
                             out.deleted.push(test_e);
                             ignore_status(update_object_tolerance(
+                                k,
                                 b,
                                 EntityRef::Edge(e),
                                 dist_to_curve,
@@ -1870,23 +1872,24 @@ pub(crate) fn set_point(k: &mut Kernel, b: &mut Brep, v: VertexId, point: Point3
 
 // ---- unported callees ----------------------------------------------------------------
 
-/// `SmTol::UpdateObjectTolerance(SmTopology*, dThisGap, dThisTol, bCheckGaps)`.
+/// `SmTol::UpdateObjectTolerance(SmTopology*, dThisGap, dThisTol, bCheckGaps)`:
+/// [`tol::update_object_tolerance`] (co-ported by `boolean.topology_intersector_p1`)
+/// on a vertex, edge or face; any other object is passed as `None` (no work).
 pub(crate) fn update_object_tolerance(
+    k: &Kernel,
     b: &mut Brep,
     object: EntityRef,
     gap: f64,
-    tol: f64,
+    this_tol: f64,
     check_gaps: bool,
 ) -> Result<()> {
-    let _ = (b, object, gap, tol, check_gaps);
-    // UNPORTED(geom.tol): SmTol::UpdateObjectTolerance (the SmTopology* overload, left
-    // unported by geom.tol; co-ported by open PR #146 boolean.topology_intersector_p1 as
-    // geom::tol::update_object_tolerance: wire it when #146 lands). Only reached after a
-    // successful glue.
-    Err(SolidError::unported(
-        "SmTol::UpdateObjectTolerance",
-        "geom.tol",
-    ))
+    let topo = match object {
+        EntityRef::Vertex(v) => Some(TopologyToUpdate::Vertex(v)),
+        EntityRef::Edge(e) => Some(TopologyToUpdate::Edge(e)),
+        EntityRef::Face(f) => Some(TopologyToUpdate::Face(f)),
+        _ => None,
+    };
+    tol::update_object_tolerance(k, b, topo, gap, this_tol, check_gaps)
 }
 
 /// `SmBrep::GlueVertices(keep, delete, pOptWireEdges)` (unit `topology.brep_p5`).
