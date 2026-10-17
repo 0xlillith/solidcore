@@ -75,6 +75,13 @@
 //!   valid CW/CCW neighbors. Auxiliary closing edges are excluded from measured
 //!   edge/EU traversals; all measured split descendants remain in the snapshot.
 //!   No UV trims are requested, so arbitrary 3D B-splines remain admissible.
+//!   Exactly coincident measured endpoints need a nonzero closed cubic support
+//!   instead of `SmBSplineCurve::CreateLineSegment` (which rejects such endpoints).
+//!   Its native constructor takes four unit-weight points: end, (1,0,0), (0,1,0),
+//!   start, with knots [0,0,0,0,1,1,1,1]. This changes only unmeasured scaffolding;
+//!   zero trimming intervals and constant measured B-splines are not substituted.
+//!   Coincident analytic `SmLine::CreateLineSegment` inputs still reach the real
+//!   constructor rejection, recorded separately from parity.
 //!   Each final EU record is `eu_id, edge_id, min, max, ApproximateLength(10),
 //!   start_status, start_xyz[3], end_status, end_xyz[3]` (13 entries).
 //! * `extend`: `0, action_count`; Get records are `0, status, was_cached,

@@ -12,7 +12,10 @@
 //! synchronization lists are canonicalized by traversal ID on both engines.
 //! Distinct-minimum order, membership, null padding and all geometry stay unchanged.
 //! Measured traversal excludes the closing support edges and visits each measured
-//! edge's primary then mate use.
+//! edge's primary then mate use. Exactly coincident measured endpoints use a
+//! nonzero closed cubic as unmeasured support: the native closing-segment factory
+//! rejects coincident endpoints. Measured zero trims and constant B-splines stay
+//! unchanged; coincident analytic-line constructor rejection is not parity.
 //! Extension scripts use real Get calls only: the public Rust API has no nullable
 //! Get, Forget or Clear. Collapsed two-point isocurves are not parity fixtures:
 //! the native safety preflight rejects them as adapter errors before extension.
@@ -927,11 +930,27 @@ fn plane_face(brep: &mut Brep, z: f64) -> HResult<(FaceId, FaceuseId)> {
 fn loop_fixture(brep: &mut Brep, input: &EdgeIn) -> HResult<(EdgeId, EdgeId)> {
     let edge = add_wire(brep, input.curve.rust()?, ivl(input.interval))?;
     let [a, b] = brep.edge(edge).map_err(setup)?.vertices;
-    let closing = BSplineCurve::create_line_segment(
-        3,
-        brep.vertex(b).map_err(setup)?.point,
-        brep.vertex(a).map_err(setup)?.point,
-    )
+    let start = brep.vertex(b).map_err(setup)?.point;
+    let end = brep.vertex(a).map_err(setup)?.point;
+    let closing = if start.x == end.x && start.y == end.y && start.z == end.z {
+        // Same nonzero closed cubic support as the shim; the measured curve and
+        // interval are untouched, including zero width and constant control nets.
+        BSplineCurve::from_data(
+            3,
+            3,
+            7,
+            3,
+            &[
+                cpoint([start.x, start.y, start.z, 1.0]),
+                cpoint([1.0, 0.0, 0.0, 1.0]),
+                cpoint([0.0, 1.0, 0.0, 1.0]),
+                cpoint([end.x, end.y, end.z, 1.0]),
+            ],
+            &[0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+        )
+    } else {
+        BSplineCurve::create_line_segment(3, start, end)
+    }
     .map_err(setup)?;
     let interval = closing.natural_interval();
     let support = add_wire_with_vertices(brep, Curve::from(closing), interval, Some([b, a]))?;
@@ -1669,7 +1688,7 @@ mod tests {
             .iter()
             .filter(|case| matches!(case.source, CaseSource::Fixture { .. }))
             .collect();
-        assert_eq!(fixtures.len(), 91);
+        assert_eq!(fixtures.len(), 93);
         for case in fixtures {
             case.parse::<Inputs>().unwrap();
         }
@@ -1787,6 +1806,125 @@ mod tests {
                 brep.edge(edge).unwrap().vertices[0]
             ]
         );
+    }
+
+    #[test]
+    fn zero_length_and_near_degenerate_fixtures_keep_their_actual_filter_branches() {
+        let context = CaseContext {
+            root: crate::case::repo_root(),
+            seeds: 0,
+        };
+        let fixtures = context.fixture_cases(Runner.id()).unwrap();
+        for (name, matched_first, matched_second, zero_use) in [
+            (
+                "zero_trim_first_leaves_second_unfiltered",
+                vec![-1, -1],
+                vec![4, 2],
+                Some(0),
+            ),
+            (
+                "zero_trim_second_filtered_to_null_padding",
+                vec![0],
+                vec![-1],
+                Some(2),
+            ),
+            (
+                "collapsed_quadratic_spline_length_filter",
+                vec![-1],
+                vec![2],
+                Some(0),
+            ),
+            (
+                "near_degenerate_analytic_line_positive_length_survives",
+                vec![0],
+                vec![-1],
+                None,
+            ),
+            (
+                "near_degenerate_quadratic_spline_positive_length_survives",
+                vec![0],
+                vec![-1],
+                None,
+            ),
+        ] {
+            let fixture = fixtures.iter().find(|case| case.name == name).unwrap();
+            let actual = Runner.run_rust(fixture).unwrap();
+            assert!(actual.error.is_none() && actual.deferred.is_none());
+            assert!(actual.rejected.is_none());
+            assert_eq!(actual.ints["operation"][0], i64::from(ffi::NATIVE_SUCCESS));
+            assert_eq!(actual.ints["matched_first"], matched_first, "{name}");
+            assert_eq!(actual.ints["matched_second"], matched_second, "{name}");
+            assert!(actual.ints["gaps_first"].is_empty());
+            assert!(actual.ints["gaps_second"].is_empty());
+            if let Some(index) = zero_use {
+                assert_eq!(actual.values[&format!("edgeuse.{index}.geometry")][2], 0.0);
+            } else {
+                // A positive singleton is kept even though it is very short:
+                // length > total / 10, unlike a genuinely zero-length singleton.
+                let length = actual.values["edgeuse.0.geometry"][2];
+                assert!(length > 0.0 && length < 1e-9, "{name}: {length}");
+            }
+            let Inputs::Synchronize(input) = fixture.parse().unwrap() else {
+                unreachable!()
+            };
+            let mut brep = Brep::new();
+            for edge in input.first.iter().chain(&input.second) {
+                let (measured, support) = loop_fixture(&mut brep, edge).unwrap();
+                let measured = brep.edge(measured).unwrap();
+                let support = brep.edge(support).unwrap();
+                let closing = support.curve.as_ref().unwrap();
+                assert_eq!(
+                    support.vertices,
+                    [measured.vertices[1], measured.vertices[0]]
+                );
+                assert!(
+                    closing
+                        .approximate_length(&support.interval, 10, false)
+                        .unwrap()
+                        .0
+                        > 0.0
+                );
+                assert_eq!(
+                    closing.evaluate_point(support.interval.min()).unwrap(),
+                    brep.vertex(measured.vertices[1]).unwrap().point,
+                );
+                assert_eq!(
+                    closing.evaluate_point(support.interval.max()).unwrap(),
+                    brep.vertex(measured.vertices[0]).unwrap().point,
+                );
+            }
+            #[cfg(feature = "cpp")]
+            {
+                let native = Runner.run_cpp(fixture).unwrap();
+                assert!(native.rejected.is_none(), "{name}: {:?}", native.rejected);
+                assert!(
+                    native.error.is_none() && native.deferred.is_none(),
+                    "{name}"
+                );
+                assert!(compare(&native, &actual, &[]).pass(), "{name}");
+            }
+        }
+    }
+
+    #[cfg(feature = "cpp")]
+    #[test]
+    fn coincident_analytic_line_remains_a_native_rejection_not_parity() {
+        let context = CaseContext {
+            root: crate::case::repo_root(),
+            seeds: 0,
+        };
+        let fixtures = context.fixture_cases(Runner.id()).unwrap();
+        let fixture = fixtures
+            .iter()
+            .find(|case| case.name == "coincident_analytic_line_constructor_rejection")
+            .unwrap();
+        let native = Runner.run_cpp(fixture).unwrap();
+        assert_eq!(
+            native.rejected.as_deref(),
+            Some("native fixture constructor status_1007"),
+        );
+        assert!(native.ints.is_empty() && native.values.is_empty());
+        assert!(native.error.is_none() && native.deferred.is_none());
     }
 
     #[test]

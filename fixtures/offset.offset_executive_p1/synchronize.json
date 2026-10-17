@@ -2404,6 +2404,89 @@
       }
     },
     {
+      "name": "near_degenerate_analytic_line_positive_length_survives",
+      "inputs": {
+        "op": "synchronize",
+        "first": [
+          {
+            "curve": {
+              "kind": "line",
+              "start": [
+                0,
+                0,
+                0
+              ],
+              "end": [
+                1e-10,
+                0,
+                0
+              ],
+              "domain": [
+                0,
+                1
+              ]
+            },
+            "interval": [
+              0,
+              1
+            ]
+          }
+        ],
+        "second": [],
+        "null_original": false,
+        "null_other": false
+      }
+    },
+    {
+      "name": "near_degenerate_quadratic_spline_positive_length_survives",
+      "inputs": {
+        "op": "synchronize",
+        "first": [
+          {
+            "curve": {
+              "kind": "bspline",
+              "degree": 2,
+              "control_points": [
+                [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                [
+                  5e-11,
+                  2.5e-11,
+                  0,
+                  1
+                ],
+                [
+                  1e-10,
+                  0,
+                  0,
+                  1
+                ]
+              ],
+              "knots": [
+                0,
+                0,
+                0,
+                1,
+                1,
+                1
+              ]
+            },
+            "interval": [
+              0,
+              1
+            ]
+          }
+        ],
+        "second": [],
+        "null_original": false,
+        "null_other": false
+      }
+    },
+    {
       "name": "collapsed_quadratic_spline_length_filter",
       "inputs": {
         "op": "synchronize",

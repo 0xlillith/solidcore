@@ -31,6 +31,8 @@
 //! `RemoveExcessFaces` borrows the original B-rep immutably (its arenas have no editing flag)
 //! and uses the existing canonical arena-identity cache adapter; custom geometry owner keys
 //! or indirect owner chains are explicitly unsupported rather than silently skipped.
+//! Result-edge enumeration uses arena order, not `SmBrep::GetEdges` linked-list order
+//! (owned by `topology.brep_p1`); nonempty queries still defer at `NormalizedEvaluate`.
 //! No new input-driven recursion; existing topology walks are cycle-bounded.
 
 use std::collections::BTreeMap;
@@ -40,6 +42,7 @@ use crate::error::{ignore_status, ignored, EntityRef, Result, SolidError};
 use crate::geom::context::MarkType;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
+use crate::geom::extent3d::Extent3d;
 use crate::geom::geom_utility::p2::ContinuityType;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{NotifyOperation, ObjectRef};
@@ -405,7 +408,9 @@ impl OffsetExecutive {
     /// reset to `TRUE` (or leaving it `FALSE` on a solver error) cannot be represented.
     /// Geometry owners must use [`arena_identity`] directly; custom keys or indirect
     /// owner chains return [`SolidError::Unsupported`] rather than omitting geometry.
-    /// Evaluation, cache and solver errors propagate before any result-face removal.
+    /// Cache and solver errors propagate before any result-face removal. Ordinary
+    /// evaluation statuses are ignored, but an unported evaluator still defers.
+    /// Result edges currently use arena order, not upstream linked-list order.
     pub fn remove_excess_faces(
         &self,
         kernel: &Kernel,
@@ -418,6 +423,10 @@ impl OffsetExecutive {
         let min_distance = self.offset_distance * 0.95;
         let mut delete_faces = Vec::new();
         let mut original_cache = None;
+        // UNPORTED(topology.brep_p1): SmBrep::GetEdges
+        // This arena-order adapter does not reproduce m_pEdgeListHead->GetAll order.
+        // Nonempty queries still defer at NormalizedEvaluate; wire the ordered
+        // traversal before completing that path or claiming deletion-order parity.
         for (id, _) in result.edges().iter() {
             let primary = required(eu::primary_edgeuse(result, id)?)?;
             // Upstream ignores the evaluation status and keeps the initialized point.
@@ -595,8 +604,11 @@ impl OffsetExecutive {
                 let faceuse = required(eu::faceuse(original, edgeuse)?)?;
                 let mut faces = self.faceuse_to_faces.seconds(faceuse);
                 if faces.is_empty() {
-                    let mate = required(original.faceuse(faceuse)?.mate)?;
-                    faces = self.faceuse_to_faces.seconds(mate);
+                    // GetSeconds accepts a null key and returns an empty list upstream.
+                    faces = original
+                        .faceuse(faceuse)?
+                        .mate
+                        .map_or_else(Vec::new, |mate| self.faceuse_to_faces.seconds(mate));
                 }
                 for face in faces {
                     // Upstream reuses sEdges; on this strut branch it returns below.
@@ -815,24 +827,11 @@ impl OffsetExecutive {
         // topology construction can run before CreatePlanarFaceWith3DCurves.
         let mut planar_brep = Brep::new();
         planar_brep.set_tolerance(1.0e-6);
-        let mut total_bbox = crate::geom::extent3d::Extent3d::new();
+        let mut total_bbox = Extent3d::new();
         if let Some(uv_curves) = curves.uv_curves.as_mut() {
             for curve in uv_curves {
-                // CreateCurvesFromFace supplied B-spline slicing copies or lines.
-                convert_uv_curve_to_3d(curve)?;
-                let boxes = curve.calculate_bounding_box(
-                    kernel,
-                    &curve.natural_interval(),
-                    crate::nurbs::b_spline_curve::BoundingBoxRequest {
-                        normal: true,
-                        pseudo: false,
-                        polar: false,
-                    },
-                    true,
-                )?;
-                if let Some(bbox) = boxes.normal {
-                    total_bbox = total_bbox.union(&bbox);
-                }
+                let bbox = uv_curve_bounding_box(kernel, curve)?;
+                total_bbox = total_bbox.union(&bbox);
             }
         }
         let min = offset_domain.min();
@@ -939,17 +938,34 @@ fn relate_surface_pair(
     relation.relate_pair(b, a)
 }
 
-fn convert_uv_curve_to_3d(curve: &mut Curve) -> Result<()> {
+fn uv_curve_bounding_box(kernel: &Kernel, curve: &mut Curve) -> Result<Extent3d> {
+    // CreateCurvesFromFace supplied B-spline slicing copies or lines.
     match curve.kind_mut() {
-        CurveKind::BSpline(curve) => ignore_status(curve.convert_to_3d()),
-        CurveKind::Line(curve) => ignore_status(curve.convert_to_3d()),
+        CurveKind::BSpline(curve) => ignore_status(curve.convert_to_3d())?,
+        CurveKind::Line(curve) => ignore_status(curve.convert_to_3d())?,
         // UV curves from CreateCurvesFromFace are slicing copies, never analytic
         // non-line kinds. Reject malformed values rather than silently changing them.
-        _ => Err(SolidError::invalid_input(
-            OP,
-            "UV copy is not a B-spline or line",
-        )),
+        _ => {
+            return Err(SolidError::invalid_input(
+                OP,
+                "UV copy is not a B-spline or line",
+            ));
+        }
     }
+    // cpp:3777–3780 ignores both statuses. An ordinary bounding-box failure leaves
+    // the initialized extent, while a genuinely missing dependency must still defer.
+    Ok(ignored(curve.calculate_bounding_box(
+        kernel,
+        &curve.natural_interval(),
+        crate::nurbs::b_spline_curve::BoundingBoxRequest {
+            normal: true,
+            pseudo: false,
+            polar: false,
+        },
+        true,
+    ))?
+    .and_then(|boxes| boxes.normal)
+    .unwrap_or_else(Extent3d::new))
 }
 
 fn required<T>(value: Option<T>) -> Result<T> {
@@ -1224,7 +1240,9 @@ mod tests {
     use super::*;
     use crate::curve::line::Line;
     use crate::geom::attribute::{AttributeStore, ObjectKey};
+    use crate::geom::axis2_placement::Axis2Placement;
     use crate::geom::vector2d::Vec2;
+    use crate::nurbs::b_spline_curve::{BSplineCurve, NurbCircleParam};
     use crate::nurbs::b_spline_surface::BSplineSurface;
     use crate::surface::plane::Plane;
     use crate::topology::{Edge, Edgeuse, Face, Faceuse, ShellId, Vertex, Vertexuse};
@@ -1734,11 +1752,17 @@ mod tests {
             "topology.brep_p5",
         );
         add_use(&mut result, 0.0, 1.0, 1.0);
+        add_use(&mut result, 0.0, 1.0, 2.0);
+        // Multiple arena entries do not establish linked-list order parity: this
+        // prefix must still defer before collecting or removing any result faces.
         assert_dependency(
             executive.remove_excess_faces(&kernel, &original, &mut result),
             "SmEdgeuse::NormalizedEvaluate",
             "topology.edgeuse_p3",
         );
+        assert_eq!(result.edges().len(), 2);
+        assert_eq!(result.edgeuses().len(), 2);
+        assert!(result.faces().is_empty());
         assert_dependency(
             OffsetExecutive::replace_implicit_offsets(&kernel, &mut result, 1.0e-6),
             "SmBrep::ShrinkGeometry",
@@ -1966,6 +1990,37 @@ mod tests {
     }
 
     #[test]
+    fn uv_boolean_bounds_ignore_ordinary_failures_and_keep_conversion_side_effects() {
+        let kernel = Kernel::default();
+        // Rust-only error-path input: upstream ConvertTo3D dereferences the missing NURB.
+        let mut curve = Curve::from(BSplineCurve::new(2));
+        let bbox = uv_curve_bounding_box(&kernel, &mut curve).unwrap();
+        assert_eq!(bbox.min(), Extent3d::new().min());
+        assert_eq!(bbox.max(), Extent3d::new().max());
+        let CurveKind::BSpline(curve) = curve.kind() else {
+            panic!("expected the original B-spline kind");
+        };
+        assert_eq!(curve.dim(), 3);
+    }
+
+    #[test]
+    fn uv_boolean_bounds_compute_converted_bspline_and_line_copies() {
+        let kernel = Kernel::default();
+        let spline = BSplineCurve::create_line_segment(
+            3,
+            Vec3::new(-2.0, 1.0, 8.0),
+            Vec3::new(6.0, 1.0, 9.0),
+        )
+        .unwrap();
+        let line = Line::from_points(Vec3::new(-2.0, 1.0, 0.0), Vec3::new(6.0, 1.0, 0.0), 2);
+        for mut curve in [Curve::from(spline), Curve::from(line)] {
+            let bbox = uv_curve_bounding_box(&kernel, &mut curve).unwrap();
+            assert_eq!(bbox.min(), Vec3::new(-2.0, 1.0, 0.0));
+            assert_eq!(bbox.max(), Vec3::new(6.0, 1.0, 0.0));
+        }
+    }
+
+    #[test]
     fn face_prefix_handles_null_surface_and_selects_domain_constructor() {
         let kernel = Kernel::default();
         let mut executive = executive();
@@ -2008,6 +2063,22 @@ mod tests {
     }
 
     #[test]
+    fn face_prefix_preserves_unported_uv_evaluation_before_domain_boolean() {
+        let kernel = Kernel::default();
+        let mut executive = executive();
+        let (mut original, _, face, _) = excess_face_fixture();
+        let faceuse = original.face(face).unwrap().faceuse;
+        original.face_mut(face).unwrap().uv_domain = Extent2d::from_bounds(-1.0, -1.0, 2.0, 2.0);
+        executive.set_offset_brep(Brep::new());
+        let mut offset = Some(plane(1.0));
+        assert_dependency(
+            executive.build_offset_of_faceuse(&kernel, &original, faceuse, &mut offset),
+            "SmEdgeuse::NormalizedEvaluate",
+            "topology.edgeuse_p3",
+        );
+    }
+
+    #[test]
     fn mapping_empty_faces_completes_orientation_selection() {
         let kernel = Kernel::default();
         let mut executive = executive();
@@ -2019,6 +2090,102 @@ mod tests {
         executive
             .map_edgeuses(&kernel, &original, original_use, face)
             .unwrap();
+    }
+
+    fn strut_vertex_fixture() -> (Brep, VertexId, FaceuseId) {
+        let mut original = Brep::new();
+        let vertex = original.add_vertex_record(Vertex::default()).unwrap();
+        let (_, faceuse) = add_face(&mut original, plane(0.0));
+        let edgeuse = add_use(&mut original, 0.0, 1.0, 1.0);
+        let vertexuse = original
+            .add_vertexuse_record(Vertexuse {
+                vertex: Some(vertex),
+                owner: crate::topology::VertexuseOwner::Edgeuse(Some(edgeuse)),
+                ..Vertexuse::default()
+            })
+            .unwrap();
+        original
+            .vertex_mut(vertex)
+            .unwrap()
+            .vertexuses
+            .push(vertexuse);
+        let loopuse = original
+            .add_loopuse_record(crate::topology::Loopuse {
+                faceuse: Some(faceuse),
+                start: crate::topology::LoopuseStart::Edgeuse(Some(edgeuse)),
+                ..crate::topology::Loopuse::default()
+            })
+            .unwrap();
+        original
+            .faceuse_mut(faceuse)
+            .unwrap()
+            .loopuses
+            .push(loopuse);
+        let record = original.edgeuse_mut(edgeuse).unwrap();
+        record.owner = crate::topology::EdgeuseOwner::Loopuse(Some(loopuse));
+        record.vertexuse = Some(vertexuse);
+        record.ccw = Some(edgeuse);
+        record.cw = Some(edgeuse);
+        record.orientation = OrientType::Same;
+        assert!(eu::is_strut(&original, edgeuse).unwrap());
+        (original, vertex, faceuse)
+    }
+
+    #[test]
+    fn vertex_strut_missing_or_unmapped_mate_returns_empty_geometry() {
+        let kernel = Kernel::default();
+        let mut executive = executive();
+        let (mut original, vertex, faceuse) = strut_vertex_fixture();
+        let (_, mate) = add_face(&mut original, plane(0.0));
+        executive.set_offset_brep(Brep::new());
+        for mate in [None, Some(mate)] {
+            original.faceuse_mut(faceuse).unwrap().mate = mate;
+            let offset = executive
+                .build_offset_of_vertex(&kernel, &original, Some(vertex))
+                .unwrap();
+            assert!(offset.surface.is_none());
+            assert!(offset.trim_curves.is_empty());
+            assert!(offset.curve_orientations.is_empty());
+        }
+    }
+
+    #[test]
+    fn vertex_strut_mate_mapping_preserves_vertex_offset_dependency_and_primary_precedence() {
+        let kernel = Kernel::default();
+        let mut executive = executive();
+        let (mut original, vertex, faceuse) = strut_vertex_fixture();
+        let (_, mate) = add_face(&mut original, plane(0.0));
+        original.faceuse_mut(faceuse).unwrap().mate = Some(mate);
+        let (mut result, edge, cap_face, _) = excess_face_fixture();
+        result.set_tolerance(1.0e-6);
+        let curve = Curve::from(
+            BSplineCurve::create_circle_segment(
+                3,
+                &Axis2Placement::default(),
+                executive.offset_distance() * 0.5,
+                0.0,
+                90.0,
+                NurbCircleParam::Quadratic,
+            )
+            .unwrap(),
+        );
+        assert!(curve.is_arc(10, result.tolerance()).unwrap().is_some());
+        result.edge_mut(edge).unwrap().curve = Some(curve);
+        let (empty_face, _) = add_face(&mut result, plane(0.0));
+        executive.set_offset_brep(result);
+        executive.relate_faceuse(mate, cap_face);
+        assert_dependency(
+            executive.build_offset_of_vertex(&kernel, &original, Some(vertex)),
+            "SmOffsetGeometryCreation::VertexOffset",
+            "offset.offset_geometry_creation",
+        );
+        executive.relate_faceuse(faceuse, empty_face);
+        let offset = executive
+            .build_offset_of_vertex(&kernel, &original, Some(vertex))
+            .unwrap();
+        assert!(offset.surface.is_none());
+        assert!(offset.trim_curves.is_empty());
+        assert!(offset.curve_orientations.is_empty());
     }
 
     #[test]

@@ -322,6 +322,34 @@ void config(Reader& rd, std::vector<double>& out) {
     out.insert(out.end(), statuses.begin(), statuses.end());
 }
 
+// A closing segment requires distinct endpoints (SmBSplineCurve.cpp's SAME_PNT_ER).
+// For exactly coincident endpoints, use a nonzero closed cubic instead; only this
+// unmeasured support changes kind. Its fixed unit weights and clamped [0,1] knots
+// are valid native constructor data, not a replacement for any measured geometry.
+std::unique_ptr<SmCurve> closing_curve(SmContext& ctx, const SmPoint3d& start,
+                                       const SmPoint3d& end) {
+    if (start.x == end.x && start.y == end.y && start.z == end.z) {
+        std::unique_ptr<gw_CURVE, decltype(&sm_FreeNurbCurve)> raw(
+            sm_AllocateNurbCurve(3, 3, 7), &sm_FreeNurbCurve);
+        if (!raw) throw std::bad_alloc();
+        const SmPoint3d points[] = {start, SmPoint3d(1,0,0), SmPoint3d(0,1,0), end};
+        for (gw_INDEX i=0; i<4; ++i) {
+            raw->pol->Pw[i].x = points[i].x; raw->pol->Pw[i].y = points[i].y;
+            raw->pol->Pw[i].z = points[i].z; raw->pol->Pw[i].w = 1;
+        }
+        for (gw_INDEX i=0; i<8; ++i) raw->knt->U[i] = i < 4 ? 0 : 1;
+        std::unique_ptr<SmCurve> result(new (ctx) SmBSplineCurve(raw.get(), 3, FALSE, &ctx));
+        raw.release();
+        return result;
+    }
+    SmBSplineCurve* closing = nullptr;
+    SmStatus status = SmBSplineCurve::CreateLineSegment(ctx, 3, start, end, closing);
+    std::unique_ptr<SmCurve> result(closing);
+    constructed(status);
+    if (!result) throw std::bad_alloc();
+    return result;
+}
+
 // Give each mapped wire a genuine two-edge loop. The second edge closes the
 // loop and is fixture scaffolding only. No UV trims are requested: synchronization
 // concerns the 3D edge ranges and must also accept nonplanar B-spline curves.
@@ -330,14 +358,8 @@ SmEdge* loop_fixture(SmContext& ctx, SmBrep* target, std::unique_ptr<SmCurve> cu
     SmEdge* edge = make_wire(ctx, target, std::move(curve), interval);
     SmVertex* a = edge->GetStartVertex();
     SmVertex* b = edge->GetOtherVertex(a);
-    // A B-spline closing segment also represents coincident endpoints without
-    // requiring analytic-line direction normalization (zero-width inputs stay valid).
-    SmBSplineCurve* closing = nullptr;
-    SmStatus status = SmBSplineCurve::CreateLineSegment(ctx, 3, b->GetPoint(), a->GetPoint(), closing);
-    std::unique_ptr<SmCurve> closing_owner(closing);
-    constructed(status);
-    if (!closing) throw std::bad_alloc();
-    SmExtent1d unit = closing->GetNaturalInterval();
+    auto closing_owner = closing_curve(ctx, b->GetPoint(), a->GetPoint());
+    SmExtent1d unit = closing_owner->GetNaturalInterval();
     struct PendingCurve {
         SmCurve* p;
         ~PendingCurve() { if (p && !p->GetOwner()) delete p; }
