@@ -215,14 +215,11 @@ fn is_nurb_surface_cone(_srf: &BSplineSurface) -> Result<Option<Surface>> {
     })
 }
 
-/// `SmCurve::IsArc(lNumberOfSamplePoints, d3DTol, ..)` of a B-spline curve.
-fn curve_is_arc(c: &BSplineCurve, num_samples: u64, tol: f64) -> Result<Option<ArcData>> {
-    let arc = crate::curve::curve::p5::is_arc_base(
-        c,
-        |c, tol| c.is_degenerate(tol, None),
-        num_samples,
-        tol,
-    )?;
+/// `pArc->IsArc(lNumberOfSamplePoints, d3DTol, ..)`: the virtual call on an
+/// `SmBSplineCurve *` whose real kind may be a circle (`SmCircle::IsArc`, exact) or a
+/// line (never an arc); [`SmCurve::is_arc`].
+fn curve_is_arc(c: &SmCurve, num_samples: u64, tol: f64) -> Result<Option<ArcData>> {
+    let arc = c.is_arc(num_samples, tol)?;
     Ok(arc.map(|(frame, radius, start_deg, end_deg)| ArcData {
         frame,
         radius,
@@ -449,7 +446,7 @@ impl BSplineSurface {
     ///
     /// `SM_ERR` unless there are exactly three arcs of a common center and radius
     /// meeting at their ends; [`SolidError::Unported`] (`SmCurve::IsArc`).
-    pub fn create_sphere_from_arcs(arcs: &[BSplineCurve], tol_3d: f64) -> Result<SphereFromArcs> {
+    pub fn create_sphere_from_arcs(arcs: &[SmCurve], tol_3d: f64) -> Result<SphereFromArcs> {
         let total_curves = arcs.len();
 
         // no work - not given exactly 3 curves
@@ -531,7 +528,7 @@ impl BSplineSurface {
         }
 
         // Now find the non common point between the second largest and the gen curve
-        let ends = |c: &BSplineCurve| -> Result<(Point3, Point3)> {
+        let ends = |c: &SmCurve| -> Result<(Point3, Point3)> {
             let ivl = c.natural_interval();
             Ok((c.evaluate_point(ivl.min())?, c.evaluate_point(ivl.max())?))
         };
@@ -597,11 +594,17 @@ impl BSplineSurface {
         }
         let z_axis = z_axis.unitize_or_z();
 
-        // Make the Sphere as a SurfOfRevolution
-        // (no sweep circle is given, so the kernel is not used)
+        // Make the Sphere as a SurfOfRevolution (of the generator's NURB data: a B-spline
+        // or a circle, the only kinds IsArc accepts; no sweep circle is given, so the
+        // kernel is not used)
+        let gen_nurb = match gen_curve.kind() {
+            CurveKind::BSpline(b) => b,
+            CurveKind::Ellipse(e) => e.base(),
+            _ => return Err(SolidError::sm_err(OP_SPHERE)),
+        };
         let sphere = Self::create_surf_of_revolution(
             &Kernel::default(),
-            gen_curve,
+            gen_nurb,
             ref_frame.origin(),
             z_axis,
             angle_span,

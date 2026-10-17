@@ -5763,31 +5763,25 @@ torus, cylinder, "raise the tolerances" and "non-synchronised" branches of
 `EdgeuseOffset`; three rational arcs through an offset corner reach the sphere of
 `VertexOffset`.
 
-**Upstream hangs (HANG-17, HANG-19).** `SmOffsetExecutive::GetCreateExtendedSurface` extends
-the face's surface by five offset distances (`SmBSplineSurface::CreateExtendedSurface`,
-`SM_CT_G1R`). Two things make that call not return. (1) HANG-19: with a negative offset
-distance the per-side loop `while (dExtDist < dDist/2.0) { dExtDist *= 2.0; ... }` holds
-from the start and keeps holding while the extensions succeed, so the distance doubles
-without bound on any face, planes included (three generated cases at -0.25 ran past 60 s,
-gdb backtraces in `ST_surxsdr` under `CreateExtendedSurface`; `plan/upstream-issues.md`).
-(2) HANG-17: with a positive distance `ST_surxsdr` splits a large extension and recurses
-twice per level to depth 10, so a surface whose iso-curves are short relative to the
-distance runs through up to `2^11` extensions (28 minutes, killed). The port never reaches
-either (`UNPORTED(offset.offset_executive_p1)`), so the shim and the runner refuse, with the
-hang-guard status `-5` on both sides, exactly the calls that would extend a surface:
-`ExtendTrimEdges` always, `MateEdges` with four edge uses, `EdgeuseOffset` with
-`GetExtendConvexEdges` on a tangent or lamina edge or with four edge uses, and
-`TrimExtendedEdge` when a non-tangent neighbour has a mapped offset edge use (the neighbour
-classification is replicated on both sides) -- when the offset distance is negative (the
-exact HANG-19 trigger, no over-rejection) or an offset face's surface is closed in U or V
-(the HANG-17 proxy). The proxy was measured with `SC_OG_NO_HANG_GUARD=1` (a shim/runner
-switch the difftest never sets): `ExtendTrimEdges` on each of the first eight faces of the
-15 `pt_TestFiles` B-reps at offset 0.5 completes within 45 s on every file but Endcap (8 of
-8 faces hang); the proxy refuses Endcap, cone, sphere, torus, toruswvy and vase_rev, i.e.
-48 of the 120 probe faces, of which 40 (five files) would have completed: an over-rejection
-of one third of the probe, stated here rather than replicated (the exact trigger is the
-depth-0 recursion test of `ST_surxsdr`, five iso-curve extensions per side). These are hang
-guards, not deferrals.
+**Upstream hangs (HANG-17; #175's negative-distance HANG-16).** `SmOffsetExecutive::GetCreateExtendedSurface`
+extends the face's surface by five offset distances (`SmBSplineSurface::CreateExtendedSurface`,
+`SM_CT_G1R`) unless its `m_vSurfExtSurf` cache already holds the surface, in which case it
+returns the cached one without extending (`SmOffsetExecutive.cpp:2123`). Two things make the
+extension not return. (1) With a negative offset distance the per-side loop `while (dExtDist <
+dDist/2.0) { dExtDist *= 2.0; ... }` holds from the start and keeps holding while the extensions
+succeed, so the distance doubles without bound on any face, planes included (three generated
+cases at -0.25 ran past 60 s, gdb backtraces in `ST_surxsdr` under `CreateExtendedSurface`); PR
+#175 (`offset.offset_executive_p1`) records this as its "HANG-16. Negative-distance surface
+extension", which the HANG-17 entry in `plan/upstream-issues.md` references. (2) HANG-17: with a
+positive distance `ST_surxsdr` splits a large extension and recurses twice per level to depth
+10, so a surface whose iso-curves are short relative to the distance runs through up to `2^11`
+extensions (28 minutes, killed). The port never reaches the extension
+(`UNPORTED(offset.offset_executive_p1)`), so the shim seeds the cache before every op with every
+face surface of both B-reps and every store surface mapped to itself: the C++ then never extends,
+the Rust defers at the same call, and every op is compared up to that call with no guard status
+and no over-rejection (an earlier version refused these calls with a `-5` status on both sides,
+which turned 21 would-be deferrals into constant-status passes and refused, through a
+closed-surface proxy, a third of the probe faces that complete; the pre-review removed it).
 
 **Local creation.** `SmLocalOperationGeometryCreation(dist, approx, faces, surfaces)`
 copies its two lists at construction and its `FaceuseOffset` returns the surface listed
@@ -5805,20 +5799,52 @@ the fixed cases `local_offset_*` cover the listed, unlisted and not-yet-added su
 **Fixes the first run forced.** The 12 disagreements of the first complete run were:
 `values.state.len` differences from the shim emitting an op's out-parameters after an
 error status (the rule above), a library `InvalidInput` reported as the runner's `-2`
-where upstream returned status 1007, UV trim curves of a line or conic kind refused by a
+where upstream returned status 1007 (the module's own null dereferences now carry the
+`UNDEFINED_UPSTREAM` operation, which the runner reports as `-2`; a callee's
+`SM_ERR_INVALID_INPUT` stays 1007), UV trim curves of a line or conic kind refused by a
 `CurveKind::BSpline`-only match (`SM_CAST_PTR(SmBSplineCurve, ..)` accepts every
-subclass; now `b_spline_part`), the ruled-plane call of `EdgeuseOffset` propagating the
+subclass and the curve keeps its kind), the ruled-plane call of `EdgeuseOffset` propagating the
 `SM_ERR` of a zero `Unitize` instead of taking upstream's `!= SM_SUCCESS` fallback,
 `VertexOffset` re-reading a replaced arc inside its plane loop (upstream keeps `pArc`),
 and WR-103 below. Three segfaults and three stalls of that run are the local-pair and
 hang-guard items above.
 
-**Fixes outside the unit.** `nurbs::b_spline_surface::p2::create_sphere_from_arcs` (green,
+**Changes outside the unit.** `nurbs::b_spline_surface::p2::create_sphere_from_arcs` (green,
 #13) captured the first arc's centre by value; upstream's `rOrigin` is a reference into the
 frame every later `IsArc` overwrites, so its centre check is dead and its sphere centre is
 the last arc's (WR-103). A generated `VertexOffset` on circles about two centres exposed it
-(the C++ builds the sphere, the port said `SM_ERR`); the port now reads the current frame's
-origin at each use and that unit's difftest stays green.
+(the C++ builds the sphere, the port said `SM_ERR`); the port now reproduces the aliasing
+(reads the current frame's origin at each use), takes its arcs as `Curve`s so that
+`IsArc` dispatches on each arc's kind (`SmCircle::IsArc` is exact; the sphere is revolved
+from the arc's NURB part), and that unit gains a fixture case with three equal-radius arcs
+about two centres; its difftest stays green.
+
+**Solutions need an object.** `TrimExtendedEdge` intersects each tangent UV curve with
+the extended copy of the edge use's UV trim curve, and `EdgeuseOffset` ray-fires the
+self-intersecting torus arc; both curves are temporaries upstream but still objects, and
+the solver's duplicate comparison (`SmSolution::GetParameterInterval`) dereferences every
+solution's object for its natural interval. The port first gave those solutions no
+object (`None`), and `Solution::parameter_interval` then reported `InvalidInput` (as 1007)
+where the C++ found a trim interval (the 4000-seed case gen2353, 1 of the 4 the
+pre-review found; the other 3 were deferrals once the hang guards went). The temporaries
+now go to the owner's curve store and the solutions name them.
+
+**Pre-review fixes (1156d7fe -> this push).** The reviewer's must-fix list, all applied:
+`FaceuseOffset` dispatches `CreateOffsetSurface` on the surface kind (plane, surface of
+revolution and B-spline overrides, else the base) and passes `m_dThisApproxTol3d / 10`, so
+plane faces are offset and self-intersected instead of deferred under `surface.offset_surface`;
+the edge curves `SM_CAST_PTR(SmBSplineCurve, ..)` casts keep their kind (a line's
+`IsArc`/`IsLine`/`CalculateBoundingBox`/`Trim`, a circle's `IsArc`, take the override; only
+`new SmBSplineCurve(*p)` and the static B-spline routines see the NURB part);
+`CreateSphereFromArcs`' `Unported` propagates instead of becoming `SM_ERR`; every
+`Trim(SmExtent1d &)` sequence shares one interval so a knot snap reaches the next trim;
+the rail evaluations use `SmBSplineCurve::Evaluate`'s `bNonZeroTangents = FALSE`; the hang
+guards are gone (above); `GetOffsetEdgeuse` gives an offset edge use only when exactly
+one is related (the relation is many-to-many: the generator keeps repeated pairs and the
+runner's adapter holds a list per original); the surface outputs carry the NURB of a
+plain B-spline surface or a surface of revolution beside the 3x3 sample; and
+`ExtendTrimEdges` takes the offset edge use as upstream does (null is undefined only
+where upstream dereferences it).
 
 **Guards.** The topology-walking functions dereference edge, curve, vertex use, mate,
 CW/CCW neighbour, face use, face and surface pointers without checking, so the shim
@@ -5853,25 +5879,22 @@ offset surface until `surface.offset_surface` lands), so the `SetAllowExtension(
 branch of both `FaceuseOffset`s is dead in the port.
 
 **Results.** 861 cases (5 upstream-derived fixtures, 56 cases built in code, 800 generated
-two-B-rep scripts): 331 pass bit for bit (`max_rel_err 0`), 0 fail, 530 deferred, 0 cases
-where both sides reject the script. Every pass compares real values (315 of the 331
-compare more than six, 141 more than fifty); none is a status-only comparison. Deferred
-by owner: `topology.edgeuse_p3` 145 (`NormalizedEvaluate`, `CreateUVTrimCurve`),
-`topology.brep_p2` 125 (`MateLaminaEdgeToSurface`, `ReplaceSurface`),
-`surface.offset_surface` 121 (the offset surface constructor), `offset.offset_executive_p1`
-94 (`GetCreateExtendedSurface`), `topology.face_p1` 40 (`CalculateUVDomainFromUVTrimCurves`),
-`blend.fillet_standard_solver_p1` 4 (`SmCircularCrossSectionFSG`), `surface.cone_p2` 1.
-Compared green paths: the getters, edge state and tolerance ops, `ReplaceEdgeCurves` (same
-ends with its delete flags, reversed copies, UV only, the null-UV shape test),
-`VertexOffset` (seam edge, coincident bounding curves, the end caps of one and two edges,
-the three-arc sphere incl. the plane tests), `TrimExtendedEdge` on planar neighbours,
-`ExtendTrimEdges` / `MateEdges` / `EdgeuseOffset` up to their first extension or offset
-surface (statuses, edge states, the ruled-plane and ruled-surface branches with shell
-faces), `UpdateFaceSurfaceDomain`, both `FaceuseOffset`s (the local one on listed,
-unlisted and not-yet-added store surfaces) and the refusals (-2, -5) of every op. The
-first difftest run of these 861 cases found 12 disagreements, all fixed in this PR (listed
-under "Fixes" below) and none left. Perturb: `SENSITIVE 331/331` (every perturbed case fails). All green/partial units:
-`green-par: 198 units, failed=0` on the tree merged with `main` at `52ab9e2f`.
+two-B-rep scripts): 327 pass bit for bit (`max_rel_err 0`), 0 fail, 534 deferred, 0 cases
+where both sides reject the script. Every pass compares real values (311 of the 327
+compare more than six, 152 more than fifty; none is a constant-status compare, the
+hang-guard passes of the pre-review version having become deferrals). Deferred, by the
+unit that blocks: `topology.edgeuse_p3` 144, `offset.offset_executive_p1` 138 (the
+extended surface, now reached by every op that used to be refused), `topology.brep_p2`
+120, `surface.offset_surface` 90 (B-spline faces only; plane faces are offset here),
+`topology.face_p1` 37, `blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 1. Ops with
+no successful pass (compared only through matching refusals or upstream statuses):
+`UpdateFaceSurfaceDomain` (42 refusals), `ExtendTrimEdges` (32), `MateEdges` (18 refusals,
+32 matching upstream statuses), `HaveTangentGaps` (28); the others have 5
+(`LocalFaceuseOffset`) to 43 (`FaceuseOffset`) successes among the passing cases. A
+4000-seed sweep (4061 cases) passes 1599, fails 0, defers 2462, with no C++ crash or
+stall. Perturb: `SENSITIVE 327/327`. `nurbs.b_spline_surface_p2` (touched): 764 cases,
+759 pass, 5 deferred. All green/partial units: `green-par: 198 units, failed=0` on
+the tree merged with `main` at `54522f50`.
 
 ## intersect.curve_class_p5: independent port
 

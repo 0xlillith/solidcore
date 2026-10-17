@@ -60,7 +60,6 @@ use solidcore::intersect::point_class::{ClassGeometry, ClassObject, ClassObjectK
 use solidcore::kernel::Kernel;
 use solidcore::math::{Point2, Point3, Vec3};
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
-use solidcore::nurbs::b_spline_surface::p1::SurfParamType;
 use solidcore::nurbs::b_spline_surface::{BSplineSurface, BSplineSurfaceForm};
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::nurbs::crv_basic::Curve as NlCurve;
@@ -68,10 +67,11 @@ use solidcore::nurbs::math::{CPoint, NOW, NOZ};
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::offset::offset_geometry_creation::{
     LocalOperationGeometryCreation, OffsetBrep, OffsetExecutive, OffsetGeometryCreation, SsiData,
+    UNDEFINED_UPSTREAM,
 };
 use solidcore::query::edge::ClosestPoint;
 use solidcore::surface::plane::Plane;
-use solidcore::surface::surface::p2::TsectCurveType;
+use solidcore::surface::surface::p2::{SurfaceKind, TsectCurveType};
 use solidcore::surface::surface::Surface;
 use solidcore::surface::volume::Volume;
 use solidcore::topology::edge as ed;
@@ -104,9 +104,6 @@ const NULL_DEREF: f64 = -2.0;
 /// Upstream's `SM_ERR_INVALID_INPUT` status (`SmMessages.h`), the status a library
 /// `SolidError::InvalidInput` stands for.
 const SM_ERR_INVALID_INPUT: f64 = 1007.0;
-/// The shim's "upstream would not return" status (HANG-17: the extended surface of
-/// `SmOffsetExecutive::GetCreateExtendedSurface`).
-const HANG: f64 = -5.0;
 
 // ---- inputs ---------------------------------------------------------------------------------
 
@@ -1010,13 +1007,13 @@ impl OffsetBrep<H> for Two {
     }
 }
 
-/// The executive's data: flags, shell faces and the original-to-offset edge-use map.
+/// The executive's data: flags, shell faces and the original-to-offset edge-use relation
+/// (many-to-many, as `m_vEUToEU`: the offset edge uses of an original in pair order).
 struct Exec {
     inset: bool,
     extend: bool,
-    tol_deg: f64,
     shell: Vec<H>,
-    map: BTreeMap<H, H>,
+    map: BTreeMap<H, Vec<H>>,
 }
 
 impl OffsetExecutive<H> for Exec {
@@ -1026,14 +1023,15 @@ impl OffsetExecutive<H> for Exec {
     fn extend_convex_edges(&self) -> bool {
         self.extend
     }
-    fn tangency_tol_degrees(&self) -> f64 {
-        self.tol_deg
-    }
     fn shell_faces(&self) -> Vec<H> {
         self.shell.clone()
     }
+    /// `GetOffsetEdgeuse`: the related offset edge use only when there is exactly one.
     fn offset_edgeuse(&self, original: H) -> Option<H> {
-        self.map.get(&original).copied()
+        match self.map.get(&original).map(Vec::as_slice) {
+            Some([one]) => Some(*one),
+            _ => None,
+        }
     }
 }
 
@@ -1101,7 +1099,9 @@ fn status_code(e: &SolidError) -> f64 {
     }
 }
 
-/// The shim's `put_srf`: type, natural domain and a 3x3 point sample.
+/// The shim's `put_srf`: type, natural domain, a 3x3 point sample and, for a plain
+/// B-spline surface or a surface of revolution, the NURB (`has_nurb [n m p q r s net
+/// u_knots v_knots]`).
 fn put_srf(o: &mut Vec<f64>, s: Option<&Surface>) {
     let Some(s) = s else {
         o.push(-1.0);
@@ -1125,6 +1125,25 @@ fn put_srf(o: &mut Vec<f64>, s: Option<&Surface>) {
             }
         }
     }
+    let nurb = match s.kind() {
+        SurfaceKind::BSpline(b) => b.gw_nurb(),
+        SurfaceKind::SurfOfRevolution(r) => r.base().gw_nurb(),
+        _ => return,
+    };
+    let Some(sur) = nurb else {
+        o.push(0.0);
+        return;
+    };
+    o.push(1.0);
+    let ix = sur.indices();
+    o.extend([ix.n, ix.m, ix.p, ix.q, ix.r, ix.s].map(|x| x as f64));
+    for row in sur.rows() {
+        for p in row {
+            o.extend([p.x, p.y, p.z, p.w]);
+        }
+    }
+    o.extend_from_slice(sur.u_knots());
+    o.extend_from_slice(sur.v_knots());
 }
 
 fn orient_code(o: OrientType) -> f64 {
@@ -1280,19 +1299,13 @@ fn resolve(i: &Inputs, c: &mut Counts, two: &Two) -> Result<(RHeader, Vec<ROp>),
     for (j, f) in i.shell.iter().enumerate() {
         shell.push(hk(c, *f, &[K_FACE], true, 3, &format!("shell{j}"))?);
     }
+    // (the relation is many-to-many: an edge use mapped twice is kept, and
+    // GetOffsetEdgeuse then gives null for it)
     let mut pairs = Vec::new();
-    let mut firsts = BTreeSet::new();
-    let mut seconds = BTreeSet::new();
     for (j, [a, b]) in i.pairs.iter().enumerate() {
         let what = format!("pair{j}");
         let a = hk(c, *a, &[K_EDGEUSE], false, 3, &what)?;
         let b = hk(c, *b, &[K_EDGEUSE], false, 3, &what)?;
-        // an edge use mapped twice would make RelatePair fail: skip the pair
-        if firsts.contains(&a) || seconds.contains(&b) {
-            continue;
-        }
-        firsts.insert(a);
-        seconds.insert(b);
         pairs.push([a, b]);
     }
     // ops
@@ -1655,9 +1668,18 @@ fn status<T>(r: Result<T, SolidError>, o: &mut Vec<f64>) -> Result<Option<T>, Fa
             o.push(f64::from(code));
             Ok(None)
         }
+        Err(SolidError::InvalidInput {
+            operation: UNDEFINED_UPSTREAM,
+            ..
+        }) => {
+            // the library met a null dereference or failed cast upstream would make
+            // (undefined): the shim's refusal status, so that it never passes as a
+            // real SM_ERR_INVALID_INPUT; a shim that did not refuse the same op fails
+            o.push(NULL_DEREF);
+            Ok(None)
+        }
         Err(SolidError::InvalidInput { .. }) => {
-            // upstream's SM_ERR_INVALID_INPUT status (a null dereference upstream is refused
-            // by the runner before the call, with NULL_DEREF)
+            // upstream's SM_ERR_INVALID_INPUT status of a callee
             o.push(SM_ERR_INVALID_INPUT);
             Ok(None)
         }
@@ -1726,107 +1748,6 @@ fn would_reverse(two: &Two, eu: H, c3: H, orig: Option<H>) -> Result<bool, Fail>
     Ok(t1.dot(t2) < 0.0)
 }
 
-/// Whether the hang guard is active (`SC_OG_NO_HANG_GUARD=1` disables it on both sides:
-/// a measurement switch for the over-rejection figures in `plan/findings.md`).
-fn hang_guard_on() -> bool {
-    std::env::var_os("SC_OG_NO_HANG_GUARD").is_none()
-}
-
-/// The HANG-17 trigger: the face's surface is closed in U or V.
-fn closed_face_surface(two: &Two, face: Option<H>) -> Result<bool, Fail> {
-    let Some(face) = face else {
-        return Ok(false);
-    };
-    let Some(sh) = two.face_surface(face)? else {
-        return Ok(false);
-    };
-    let s = ClassGeometry::surface(two, sh).ok_or_else(|| invalid("surface"))?;
-    let d = s.natural_uv_domain();
-    if s.is_closed(&d, SurfParamType::U, None, false)?.0 {
-        return Ok(true);
-    }
-    Ok(s.is_closed(&d, SurfParamType::V, None, false)?.0)
-}
-
-/// `closed_face_surface` of an edge use's face (`false` for a null edge use).
-fn closed_offset_face(two: &Two, eu: Option<H>) -> Result<bool, Fail> {
-    match eu {
-        Some(eu) => closed_face_surface(two, two.edgeuse_face(eu)?),
-        None => Ok(false),
-    }
-}
-
-/// Whether `TrimExtendedEdge` would extend a closed neighbouring face's surface (the
-/// shim's `would_extend_closed_neighbour`, HANG-17) or any neighbour's with a negative
-/// offset distance (HANG-19): the neighbour classification of its two ends.
-fn would_extend_closed_neighbour(
-    k: &Kernel,
-    two: &Two,
-    exec: &Exec,
-    dist: f64,
-    base: H,
-    other_base: Option<H>,
-) -> Result<bool, Fail> {
-    let tol_deg = exec.tangency_tol_degrees();
-    let base_edge = two.edgeuse_edge(base)?.ok_or_else(|| invalid("edge"))?;
-    for i in 0..2 {
-        let base_vertex = if i == 0 {
-            two.edgeuse_vertex(base)?
-        } else {
-            let mate = two.edgeuse_mate(base)?.ok_or_else(|| invalid("mate"))?;
-            two.edgeuse_vertex(mate)?
-        }
-        .ok_or_else(|| invalid("vertex"))?;
-        let n0 = if i == 0 { two.edgeuse_cw(base)? } else { two.edgeuse_ccw(base)? };
-        let n1 = match other_base {
-            Some(ob) => {
-                if i == 0 {
-                    two.edgeuse_ccw(ob)?
-                } else {
-                    two.edgeuse_cw(ob)?
-                }
-            }
-            None => None,
-        };
-        for (kk, (n, owner)) in [(n0, Some(base)), (n1, other_base)].into_iter().enumerate() {
-            let Some(n) = n else {
-                continue;
-            };
-            if Some(n) == owner {
-                continue;
-            }
-            let n_edge = two.edgeuse_edge(n)?.ok_or_else(|| invalid("edge"))?;
-            if two.edge_is_lamina(n_edge)? || two.edgeuse_is_tangent_sector(k, n, tol_deg)? {
-                continue;
-            }
-            let v = if kk == 0 {
-                Some(base_vertex)
-            } else {
-                two.edge_other_vertex(base_edge, base_vertex)?
-            };
-            let Some(v) = v else {
-                continue;
-            };
-            let e = if kk == 0 {
-                base_edge
-            } else {
-                let ob = other_base.ok_or_else(|| invalid("other base"))?;
-                two.edgeuse_edge(ob)?.ok_or_else(|| invalid("edge"))?
-            };
-            if !two.vertex_are_edges_tangent(v, e, n_edge, 1.0)? {
-                if let Some(adj) = two.edgeuse_radial(n)? {
-                    if let Some(off_adj) = exec.offset_edgeuse(adj) {
-                        if dist < 0.0 || closed_offset_face(two, Some(off_adj))? {
-                            return Ok(true);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    Ok(false)
-}
-
 /// Whether the curve is of a B-spline kind (`IsKindOf(SmBSplineCurve_TYPE)`).
 fn is_bspline_kind(c: &SmCurve) -> bool {
     c.is_kind_of(BSPLINE_CURVE_TYPE)
@@ -1865,13 +1786,13 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
     let exec = Exec {
         inset: i.inset,
         extend: i.extend,
-        tol_deg: geom.tangency_tol_degrees(),
         shell: hdr.shell.iter().filter_map(|h| triple_to_h(*h)).collect(),
-        map: hdr
-            .pairs
-            .iter()
-            .filter_map(|[a, b]| Some((triple_to_h(*a)?, triple_to_h(*b)?)))
-            .collect(),
+        map: hdr.pairs.iter().fold(BTreeMap::new(), |mut m: BTreeMap<H, Vec<H>>, [a, b]| {
+            if let (Some(a), Some(b)) = (triple_to_h(*a), triple_to_h(*b)) {
+                m.entry(a).or_default().push(b);
+            }
+            m
+        }),
     };
     let all_ok = two.all_ok();
     let mark = MarkType::Mark;
@@ -1946,7 +1867,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     local.base.this_approx_tol_3d(),
                     local.base.tangency_tol_degrees(),
                     local.base.offset_distance(),
-                    exec.tangency_tol_degrees(),
+                    geom.tangency_tol_degrees(), // the executive's GetTangencyTolDegrees reads the creation's
                     flag(exec.inset()),
                     flag(exec.extend_convex_edges()),
                     shell_count as f64,
@@ -2125,10 +2046,6 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     o.push(NULL_DEREF);
                     continue;
                 }
-                if hang_guard_on() && would_extend_closed_neighbour(&k, &two, &exec, i.dist, base, triple_to_h(*other_base))? {
-                    o.push(HANG);
-                    continue;
-                }
                 let c3 = match c3.kind {
                     K_EDGE_CURVE => two.edge_curve_h(c3)?.ok_or_else(|| invalid("edge curve"))?,
                     _ => curve_h(c3.b, c3.kind, c3.i, ClassGeometry::curve(&two, c3).ok_or_else(|| invalid("curve"))?),
@@ -2180,11 +2097,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     o.push(NULL_DEREF);
                     continue;
                 }
-                if hang_guard_on() && (i.dist < 0.0 || closed_offset_face(&two, Some(off))? || closed_offset_face(&two, other_off)?) {
-                    o.push(HANG); // HANG-17: the offset faces' surfaces are extended
-                    continue;
-                }
-                let r = geom.extend_trim_edges(&k, &mut two, &exec, eu, other, off, other_off, mark);
+                let r = geom.extend_trim_edges(&k, &mut two, &exec, eu, other, Some(off), other_off, mark);
                 status(r, &mut o)?; // the edges' states: after every status
                 let off_edge = two.edgeuse_edge(off)?.ok_or_else(|| invalid("edge"))?;
                 two.put_edge_state(&mut o, off_edge)?;
@@ -2202,16 +2115,6 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 }
                 let (eu, other, off, other_off) =
                     (triple_to_h(*eu), triple_to_h(*other), triple_to_h(*off), triple_to_h(*other_off));
-                if hang_guard_on()
-                    && eu.is_some()
-                    && other.is_some()
-                    && off.is_some()
-                    && other_off.is_some()
-                    && (i.dist < 0.0 || closed_offset_face(&two, off)? || closed_offset_face(&two, other_off)?)
-                {
-                    o.push(HANG); // HANG-17: both faces' surfaces are extended
-                    continue;
-                }
                 let r = geom.mate_edges(&k, &mut two, &exec, eu, other, off, other_off, mark);
                 status(r, &mut o)?; // the edges' states: after every status
                 o.push(flag(off.is_some()));
@@ -2253,14 +2156,12 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     continue;
                 }
                 if exec.extend_convex_edges() {
-                    // HANG-17: a tangent or lamina edge goes to ExtendTrimEdges, the others
-                    // to MateEdges (extends unless an edge use is null)
+                    // a tangent or lamina edge goes to ExtendTrimEdges, which dereferences
+                    // the offset edge use (null is refused) and its UV trim curves
                     let orig_edge = two.edgeuse_edge(orig)?.ok_or_else(|| invalid("edge"))?;
                     let lamina = two.edge_is_lamina(orig_edge)?;
-                    let tangent = two.edgeuse_is_tangent_sector(&k, orig, exec.tangency_tol_degrees())?;
+                    let tangent = two.edgeuse_is_tangent_sector(&k, orig, geom.tangency_tol_degrees())?;
                     if tangent || lamina {
-                        // ExtendTrimEdges: null offset edge use, its UV trim curves, then the
-                        // extension of the offset faces' surfaces
                         let mut bad = off.is_none() || two.edgeuse_uv_trim_curve(orig)?.is_none();
                         if !bad && !lamina {
                             bad = match two.edgeuse_radial(orig)? {
@@ -2272,18 +2173,6 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                             o.push(NULL_DEREF);
                             continue;
                         }
-                        if hang_guard_on() && (i.dist < 0.0 || closed_offset_face(&two, off)? || closed_offset_face(&two, other_off)?) {
-                            o.push(HANG);
-                            continue;
-                        }
-                    } else if hang_guard_on()
-                        && other_orig.is_some()
-                        && off.is_some()
-                        && other_off.is_some()
-                        && (i.dist < 0.0 || closed_offset_face(&two, off)? || closed_offset_face(&two, other_off)?)
-                    {
-                        o.push(HANG); // MateEdges extends both faces' surfaces
-                        continue;
                     }
                 }
                 let r = geom.edgeuse_offset(&k, &mut two, &exec, orig, other_orig, off, other_off, mark);

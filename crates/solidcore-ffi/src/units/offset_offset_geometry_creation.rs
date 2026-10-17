@@ -20,24 +20,23 @@
 //! `SetMakeAnalytics`), `SmLocalOperationGeometryCreation(dist, approx, faces,
 //! surfaces)` from the `n_local` pairs, and an `SmOffsetExecutive` over the first
 //! B-rep with `SetInset`, `SetExtendConvexEdges`, `SetShellFaces` (when `n_shell > 0`)
-//! and its original-to-offset edge-use relation filled with the `n_pairs` pairs (each
-//! first and each second edge use at most once, so every `RelatePair` succeeds). A mark
-//! is locked for the run (`SmNewMarkAndLock`).
+//! and its original-to-offset edge-use relation filled with the `n_pairs` pairs (a
+//! many-to-many relation: an edge use may be mapped more than once, and
+//! `GetOffsetEdgeuse` then returns null for it). A mark is locked for the run
+//! (`SmNewMarkAndLock`). Before every op the executive's extended-surface cache is
+//! seeded with every face surface of both B-reps and every store surface mapped to
+//! itself, so `GetCreateExtendedSurface` returns the base surface unextended and the
+//! non-returning `CreateExtendedSurface` loops (HANG-16 of PR #175, HANG-17) never run;
+//! the Rust side defers at that call.
 //!
 //! An object handle is a triple `brep kind index`: `kind` 0 vertex, 1 edge, 2 face, 9
 //! edge use, 10 face use (of B-rep `brep`, `index` in its export's traversal order), 3
 //! an edge's curve, 4 a face's surface, 11 the UV trim curve stored on an edge use, 5 a
 //! curve of the script's store, 7 a surface of the script's store (both in `add` order),
 //! 6 a B-rep (`index` 0 or 1), 8 null. A status is `0` (success), the upstream `SmStatus`
-//! code, `-2` when the shim refused the op because upstream would dereference null
+//! code, or `-2` when the shim refused the op because upstream would dereference null
 //! (an op that walks the topology needs every edge use of both B-reps to be a loop edge
-//! use with edge, curve, vertex, mate, neighbours and a face with surface), or `-5` when
-//! it refused the op because upstream would not return (the extended surface of
-//! `SmOffsetExecutive::GetCreateExtendedSurface`, reached by `ExtendTrimEdges`,
-//! `MateEdges` with four edge uses, `EdgeuseOffset` with `GetExtendConvexEdges` on a
-//! tangent or lamina edge or with four edge uses, and `TrimExtendedEdge` when a
-//! non-tangent neighbour has a mapped offset edge use: HANG-19 whenever the offset
-//! distance is negative, HANG-17 when an offset face's surface is closed in U or V).
+//! use with edge, curve, vertex, mate, neighbours and a face with surface).
 //!
 //! The `n_local` pairs name store surfaces only (kind 7): `SmLocalOperationGeometryCreation`
 //! owns its listed surfaces (with `make_analytics` it reparameterises and deletes each one
@@ -77,7 +76,6 @@
 //! store curves given as UV curves are 2D and as 3D curves are 3D (what the functions
 //! assume of their inputs); the null-dereference guards are the shim's.
 
-use std::collections::BTreeSet;
 use std::path::Path;
 
 use crate::{call_with_buffer, FfiError};
@@ -660,14 +658,10 @@ fn script(rd: &mut Reader<'_>, mut c: Counts) -> Result<(), FfiError> {
         c.kinded(rd, &[HandleKind::Face], true)?;
     }
     let n_pairs = rd.index(MAX_LIST)?;
-    let mut firsts = BTreeSet::new();
-    let mut seconds = BTreeSet::new();
     for _ in 0..n_pairs {
-        let a = c.edgeuse(rd, false)?.ok_or_else(|| bad("null pair"))?;
-        let b = c.edgeuse(rd, false)?.ok_or_else(|| bad("null pair"))?;
-        if !firsts.insert((a.brep, a.index)) || !seconds.insert((b.brep, b.index)) {
-            return Err(bad("edge use mapped twice"));
-        }
+        // (the relation is many-to-many: a repeated edge use is a valid pair)
+        c.edgeuse(rd, false)?.ok_or_else(|| bad("null pair"))?;
+        c.edgeuse(rd, false)?.ok_or_else(|| bad("null pair"))?;
     }
 
     let n_ops = rd.index(MAX_OPS)?;

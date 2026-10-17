@@ -12,14 +12,23 @@
 //
 // A RUN call makes an SmOffsetGeometryCreation (and, with a face/surface list, an
 // SmLocalOperationGeometryCreation), an SmOffsetExecutive over the first B-rep whose
-// flags, shell faces and original->offset edge-use relation (`m_vEUToEU`, filled through
-// pointer-to-member access with the pairs given) come from the input, locks a mark, and
-// runs a script: fixture edits (store curves/surfaces, replace an edge's curve, set an
-// edge use's UV trim curve, mark an edge use) and the unit's functions. Each op emits its
-// code, a status (0 success, the SmStatus code, or -2 when the shim refused the op
-// because upstream would dereference null) and its outputs; the objects the unit makes
-// are emitted as geometry (`put_curve` of the fixture header, surfaces as their type, UV
-// domain and a 3x3 point sample), the B-rep edits as edge / edge-use state blocks.
+// flags, shell faces and original->offset edge-use relation (`m_vEUToEU`, a protected
+// member reached through a derived class, filled with the pairs given) come from the
+// input, locks a mark, and runs a script: fixture edits (store curves/surfaces, replace an
+// edge's curve, set an edge use's UV trim curve, mark an edge use) and the unit's
+// functions. Each op emits its code, a status (0 success, the SmStatus code, or -2 when
+// the shim refused the op because upstream would dereference null) and its outputs; the
+// objects the unit makes are emitted as geometry (`put_curve` of the fixture header,
+// surfaces as their type, UV domain, a 3x3 point sample and, for a plain B-spline surface
+// or a surface of revolution, their NURB), the B-rep edits as edge / edge-use state blocks.
+//
+// Before every op the executive's extended-surface cache (`m_vSurfExtSurf`) is seeded
+// with every face surface of both B-reps and every store surface mapped to itself, so
+// `SmOffsetExecutive::GetCreateExtendedSurface` returns the base surface unextended and
+// `CreateExtendedSurface` never runs here (its loops do not return for a negative offset
+// distance, HANG-16 of PR #175, nor for a closed surface short against the extension,
+// HANG-17). The Rust side defers at `UNPORTED(offset.offset_executive_p1)` at the same
+// call, so no output that follows a seeded lookup is compared.
 #include "sc_topology_fixture.h"
 
 #include <SmOffsetExecutive.h>
@@ -35,18 +44,17 @@ namespace
 {
 // ---- private member access (pointer-to-member through explicit instantiation) -------------
 
-template <typename Tag, typename Tag::type M>
-struct ExRob
+// The executive with its protected relation and extended-surface cache reachable.
+struct ExecAccess : SmOffsetExecutive
 {
-    friend typename Tag::type ex_get(Tag) { return M; }
+    using SmOffsetExecutive::SmOffsetExecutive;
+    void relate(SmEdgeuse* a, SmEdgeuse* b) { m_vEUToEU.RelatePair(a, b); }
+    void seed_extended(SmSurface* s)
+    {
+        if (s != nullptr)
+            m_vSurfExtSurf.Insert(s, s);
+    }
 };
-
-struct ExMap
-{
-    typedef SmRelation<SmEdgeuse, SmEdgeuse> SmOffsetExecutive::*type;
-    friend type ex_get(ExMap);
-};
-template struct ExRob<ExMap, &SmOffsetExecutive::m_vEUToEU>;
 
 enum OgOp : int32_t
 {
@@ -143,78 +151,6 @@ struct Two
 };
 
 const double ST_OK = 0.0;
-// Status of an op the shim refuses because upstream would not return (HANG-17): the
-// extended surface of SmOffsetExecutive::GetCreateExtendedSurface (ST_surxsdr's
-// exponential split for surfaces whose iso-curves are short relative to 5 * offset).
-const double ST_HANG = -5.0;
-
-// Whether the hang guard is active (SC_OG_NO_HANG_GUARD=1 disables it: a measurement
-// switch for the over-rejection figures in plan/findings.md, never set by the runner).
-bool hang_guard_on()
-{
-    static int v = -1;
-    if (v < 0)
-        v = getenv("SC_OG_NO_HANG_GUARD") ? 0 : 1;
-    return v == 1;
-}
-
-// The HANG-17 trigger: a face surface closed in U or V (its iso-curves are short relative
-// to the five-offset extension distance).
-bool closed_face_surface(const SmFace* f)
-{
-    if (f == nullptr || f->GetSurface() == nullptr)
-        return false;
-    const SmSurface* s = f->GetSurface();
-    SmExtent2d d = s->GetNaturalUVDomain();
-    return s->IsClosed(d, SM_SP_U) || s->IsClosed(d, SM_SP_V);
-}
-
-bool closed_offset_face(const SmEdgeuse* eu) { return eu != nullptr && closed_face_surface(eu->GetFace()); }
-// The HANG-19 trigger: a negative offset distance (dDist = 5 * offset < 0) makes
-// SmBSplineSurface::CreateExtendedSurface's doubling loop (`while (dExtDist < dDist / 2.0)`)
-// unbounded on any surface, planes included; `dist < 0.0` is tested beside the closed-face
-// test at every site that would extend a surface.
-
-// Whether TrimExtendedEdge would extend a closed neighbouring face's surface (HANG-17) or
-// any neighbour's with a negative offset distance (HANG-19): the neighbour classification
-// of its two ends, replicated.
-bool would_extend_closed_neighbour(SmOffsetExecutive& exec, double dist, const SmEdgeuse* base, const SmEdgeuse* other_base)
-{
-    double tol_deg = exec.GetTangencyTolDegrees();
-    SmEdge* base_edge = base->GetEdge();
-    for (int i = 0; i < 2; i++)
-    {
-        SmVertex* base_vertex = (i == 0) ? base->GetVertexuse()->GetVertex() : base->GetMate()->GetVertexuse()->GetVertex();
-        const SmEdgeuse* nbrs[2];
-        const SmEdgeuse* owners[2];
-        nbrs[0] = (i == 0) ? base->GetCWEdgeuse() : base->GetCCWEdgeuse();
-        owners[0] = base;
-        nbrs[1] = other_base ? ((i == 0) ? other_base->GetCCWEdgeuse() : other_base->GetCWEdgeuse()) : nullptr;
-        owners[1] = other_base;
-        for (int k = 0; k < 2; k++)
-        {
-            const SmEdgeuse* n = nbrs[k];
-            if (n == nullptr || n == owners[k])
-                continue;
-            SmEdge* n_edge = n->GetEdge();
-            if (n_edge->IsLamina() || n->IsTangentSector(tol_deg))
-                continue; // the tangent lists: no extension
-            SmVertex* v = (k == 0) ? base_vertex : base_edge->GetOtherVertex(base_vertex);
-            SmEdge* e = (k == 0) ? base_edge : other_base->GetEdge();
-            if (v == nullptr)
-                continue;
-            if (!v->AreEdgesTangent(e, n_edge, 1.0))
-            {
-                SmEdgeuse* adj = n->GetRadial();
-                SmEdgeuse* off_adj = adj ? exec.GetOffsetEdgeuse(adj) : nullptr;
-                if (off_adj && (dist < 0.0 || closed_offset_face(off_adj)))
-                    return true;
-            }
-        }
-    }
-    return false;
-}
-
 bool eu_ok(SmEdgeuse* eu)
 {
     if (eu == nullptr || eu->GetEdge() == nullptr || eu->GetEdge()->GetCurve() == nullptr)
@@ -282,6 +218,39 @@ void put_srf(std::vector<double>& o, const SmSurface* s)
             else
                 o.push_back(st(st_e));
         }
+    // the NURB of a plain B-spline surface or a surface of revolution (the kinds this
+    // unit builds whose sample does not pin degree, knots or net): `has_nurb [n m p q r s
+    // net (x y z w)* u_knots* v_knots*]`
+    long ty = s->GetType();
+    if (ty == SmBSplineSurface_TYPE || ty == SmSurfOfRevolution_TYPE)
+    {
+        const gw_SURFACE* sur = ((const SmBSplineSurface*)s)->GetGwNurbPointer();
+        o.push_back(sur != nullptr ? 1.0 : 0.0);
+        if (sur == nullptr)
+            return;
+        gw_INDEX n = sur->net->n;
+        gw_INDEX m = sur->net->m;
+        gw_INDEX r = sur->knu->m;
+        gw_INDEX ss = sur->knv->m;
+        o.push_back((double)n);
+        o.push_back((double)m);
+        o.push_back((double)sur->p);
+        o.push_back((double)sur->q);
+        o.push_back((double)r);
+        o.push_back((double)ss);
+        for (gw_INDEX i = 0; i <= n; i++)
+            for (gw_INDEX j = 0; j <= m; j++)
+            {
+                o.push_back(sur->net->Pw[i][j].x);
+                o.push_back(sur->net->Pw[i][j].y);
+                o.push_back(sur->net->Pw[i][j].z);
+                o.push_back(sur->net->Pw[i][j].w);
+            }
+        for (gw_INDEX i = 0; i <= r; i++)
+            o.push_back(sur->knu->U[i]);
+        for (gw_INDEX i = 0; i <= ss; i++)
+            o.push_back(sur->knv->U[i]);
+    }
 }
 
 void put_orients(std::vector<double>& o, const SmTArray<SmOrientType>& v)
@@ -436,7 +405,7 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
     SmLocalOperationGeometryCreation local(dist, approx, local_faces, local_surfaces);
 
     // the executive
-    SmOffsetExecutive exec(ctx, SM_OO_SOLID_OFFSET, geom, t.brep[0]);
+    ExecAccess exec(ctx, SM_OO_SOLID_OFFSET, geom, t.brep[0]);
     exec.SetInset(rd.bflag());
     exec.SetExtendConvexEdges(rd.bflag());
     int64_t n_shell = rd.idx();
@@ -452,7 +421,7 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
     {
         SmEdgeuse* a = (SmEdgeuse*)rd_h(rd, t);
         SmEdgeuse* b = (SmEdgeuse*)rd_h(rd, t);
-        (exec.*ex_get(ExMap())).RelatePair(a, b);
+        exec.relate(a, b);
     }
 
     // the mark the trim uses
@@ -467,6 +436,18 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
     {
         int64_t op = rd.idx();
         o.push_back((double)op);
+        // seed the extended-surface cache with the surfaces as they stand now (see the
+        // header): every face surface of both B-reps and every store surface
+        for (int b = 0; b < 2; b++)
+        {
+            if (t.brep[b] == nullptr)
+                continue;
+            for (size_t q = 0; q < t.g[b].faces.size(); q++)
+                if (t.g[b].faces[q] != nullptr)
+                    exec.seed_extended(t.g[b].faces[q]->GetSurface());
+        }
+        for (size_t q = 0; q < t.surfaces.size(); q++)
+            exec.seed_extended(t.surfaces[q]);
         switch (op)
         {
         case S_ADD_CURVE:
@@ -730,11 +711,6 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                 o.push_back(ST_NULL_DEREF);
                 break;
             }
-            if (hang_guard_on() && would_extend_closed_neighbour(exec, dist, base, other_base))
-            {
-                o.push_back(ST_HANG);
-                break;
-            }
             SmBoolean good = FALSE;
             SmExtent1d ivl;
             SmStatus s = geom.TrimExtendedEdge(ctx, &exec, base, other_base, off, other_off, c3, uv_base, uv_other, good,
@@ -768,11 +744,6 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                 o.push_back(ST_NULL_DEREF);
                 break;
             }
-            if (hang_guard_on() && (dist < 0.0 || closed_offset_face(off) || closed_offset_face(other_off)))
-            {
-                o.push_back(ST_HANG); // HANG-17: the offset faces' surfaces are extended
-                break;
-            }
             SmStatus s = geom.ExtendTrimEdges(ctx, &exec, eu, other, off, other_off, mark);
             o.push_back(st(s));
             put_edge_state(o, off->GetEdge());
@@ -790,11 +761,6 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             if (!all_ok)
             {
                 o.push_back(ST_NULL_DEREF);
-                break;
-            }
-            if (hang_guard_on() && eu && other && off && other_off && (dist < 0.0 || closed_offset_face(off) || closed_offset_face(other_off)))
-            {
-                o.push_back(ST_HANG); // HANG-17: both faces' surfaces are extended
                 break;
             }
             SmStatus s = geom.MateEdges(ctx, &exec, eu, other, off, other_off, mark);
@@ -834,14 +800,12 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             }
             if (exec.GetExtendConvexEdges())
             {
-                // HANG-17: a tangent or lamina edge goes to ExtendTrimEdges (always extends),
-                // the others to MateEdges (extends unless an edge use is null)
+                // a tangent or lamina edge goes to ExtendTrimEdges, which dereferences the
+                // offset edge use (null is refused) and its UV trim curves
                 bool lamina = orig->GetEdge()->IsLamina();
-                bool tangent = orig->IsTangentSector(exec.GetTangencyTolDegrees());
+                bool tangent = orig->IsTangentSector(geom.GetTangencyTolDegrees());
                 if (tangent || lamina)
                 {
-                    // ExtendTrimEdges: null offset edge use (upstream dereferences it), its UV
-                    // trim curves, then the extension of the offset faces' surfaces
                     bool bad = off == nullptr || orig->GetUVTrimCurve() == nullptr;
                     if (!bad && !lamina && (orig->GetRadial() == nullptr || orig->GetRadial()->GetUVTrimCurve() == nullptr))
                         bad = true;
@@ -850,16 +814,6 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
                         o.push_back(ST_NULL_DEREF);
                         break;
                     }
-                    if (hang_guard_on() && (dist < 0.0 || closed_offset_face(off) || closed_offset_face(other_off)))
-                    {
-                        o.push_back(ST_HANG);
-                        break;
-                    }
-                }
-                else if (hang_guard_on() && other_orig && off && other_off && (dist < 0.0 || closed_offset_face(off) || closed_offset_face(other_off)))
-                {
-                    o.push_back(ST_HANG); // MateEdges extends both faces' surfaces
-                    break;
                 }
             }
             SmSurface* ns = nullptr;
