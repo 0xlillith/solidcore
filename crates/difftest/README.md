@@ -82,7 +82,7 @@ case gets one verdict:
 |---|---|
 | `rejected` | the C++ runner returned a harness error: the guard refused the input (fine) |
 | `malformed` | the mutated inputs no longer parse into the runner's input type (fine; not a guard probe) |
-| `ran` | both sides ran (fine). `differs` counts those where they disagree: a note only, since fuzz inputs may be outside the generator's domain |
+| `ran` | both sides ran (fine). `differs` counts those where they disagree: a note only (not a failure), since fuzz inputs may be outside the generator's domain; each is still written as a reproduction file, like a failure |
 | `crash` | the child died from a signal or an abnormal exit (C++ crash, Rust stack overflow or failed allocation): **FAIL** |
 | `panic` | a runner panicked on either side: **FAIL** |
 | `timeout` | no result within 20 s: **FAIL** |
@@ -97,7 +97,8 @@ its inputs are written as a fixture file, `bin/fuzz/<unit>/fuzzNNNNN.json`
 earlier cases of its batch keeps those cases, in order). Fix the guard (or the
 Rust port), then copy the case into `fixtures/<unit>/` as a regression case
 (fixture paths from `$upstream_file` appear expanded). Exit status `1` on any
-failure.
+failure. A `differs` case is printed as a `note (differs)` line with its file and
+is written the same way (so it can be re-run), but does not fail the run.
 
 ## Deferred cases, `partial` units
 

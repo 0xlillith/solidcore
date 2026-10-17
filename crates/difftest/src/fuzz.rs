@@ -599,7 +599,7 @@ pub struct FuzzResult {
     pub verdicts: Vec<Verdict>,
     /// The crash, panic and timeout cases.
     pub failures: Vec<Failure>,
-    /// `<case>: <first difference>` of the `differs` cases.
+    /// `<case>: <first difference> -> <reproduction file>` of the `differs` cases.
     pub notes: Vec<String>,
     /// Failure to build or run the cases.
     pub harness_error: Option<String>,
@@ -754,7 +754,17 @@ fn run_all(
         for ((v, detail), c) in b.done.iter().zip(batch) {
             res.verdicts.push(*v);
             if *v == Verdict::Differs {
-                res.notes.push(format!("{}: {detail}", c.case.name));
+                // A note, not a failure, but reproducible like one.
+                let f = Failure {
+                    case: c.case.name.clone(),
+                    verdict: *v,
+                    detail: detail.clone(),
+                    file: None,
+                };
+                let path = write_repro(dir, &f, std::slice::from_ref(c), "")?;
+                let shown = path.display();
+                res.notes
+                    .push(format!("{}: {detail} -> {shown}", c.case.name));
             } else if v.is_failure() {
                 let f = Failure {
                     case: c.case.name.clone(),
