@@ -64,7 +64,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p10` (1890 lines) — in progress: #130 @bherbruck (ready for review)
 - [ ] 🔨 `topology.face_p3` (1881 lines) — in progress: #139 @froglemonade2 (ready for review)
 - [ ] 🔨 `query.face_p3` (1620 lines) — in progress: #132 @bherbruck (ready for review)
-- [ ] 🔨 `topology.brep_p7` (2503 lines) — in progress: #155 @bluecmd (draft)
+- [ ] 🔨 `topology.brep_p7` (2503 lines) — in progress: #155 @bluecmd (ready for review)
 - [ ] 🔨 `topology.face_p1` (2171 lines) — in progress: #148 @bluecmd (ready for review)
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (ready for review)
@@ -259,7 +259,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p10` (1890 lines) — in progress: #130 @bherbruck (ready for review)
 - [ ] 🔨 `topology.face_p3` (1881 lines) — in progress: #139 @froglemonade2 (ready for review)
 - [ ] 🟡 `topology.topology_traverser` (784 lines) — partial, 909 cases
-- [ ] 🔨 `topology.brep_p7` (2503 lines) — in progress: #155 @bluecmd (draft)
+- [ ] 🔨 `topology.brep_p7` (2503 lines) — in progress: #155 @bluecmd (ready for review)
 - [ ] 🔨 `topology.face_p1` (2171 lines) — in progress: #148 @bluecmd (ready for review)
 - [ ] 🔨 `topology.brep_p1` (2454 lines) — in progress: #145 @bluecmd (draft)
 - [ ] 🔨 `topology.brep_p6` (1479 lines) — in progress: #169 @damgru (ready for review)
