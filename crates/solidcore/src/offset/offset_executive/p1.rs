@@ -362,7 +362,7 @@ impl OffsetExecutive {
     /// Distinct source identities must use distinct keys. Failed extensions are not cached.
     pub fn get_create_extended_surface(
         &mut self,
-        _kernel: &Kernel,
+        kernel: &Kernel,
         base_key: u64,
         base: &Surface,
     ) -> Result<&Surface> {
@@ -371,8 +371,11 @@ impl OffsetExecutive {
             std::collections::btree_map::Entry::Vacant(entry) => {
                 // The obsolete offset-specific `else` at cpp:2158 is unreachable:
                 // NER(pBase) already established pOrigSurf == pBase != NULL.
-                let extension =
-                    base.create_extended_surface(self.offset_distance * 5.0, ContinuityType::G1R)?;
+                let extension = base.create_extended_surface(
+                    kernel,
+                    self.offset_distance * 5.0,
+                    ContinuityType::G1R,
+                )?;
                 Ok(entry.insert(extension))
             }
         }
@@ -1642,7 +1645,7 @@ mod tests {
         let mut executive = executive();
         let base = plane(0.0);
         let expected = base
-            .create_extended_surface(0.125 * 5.0, ContinuityType::G1R)
+            .create_extended_surface(&kernel, 0.125 * 5.0, ContinuityType::G1R)
             .unwrap();
         let first = executive
             .get_create_extended_surface(&kernel, 41, &base)
