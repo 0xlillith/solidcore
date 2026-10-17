@@ -455,7 +455,10 @@ pub fn calculate_uv_domain_from_uv_trim_curves(
 
     // limit ThisDomain to XSect(Face->UVDomain, Face->Surface->UVDomain) (a fix for a
     // common problem); its status is ignored: disjoint domains give an Init()-ed extent
-    out.domain = out.domain.intersect(&surf_domain).unwrap_or_else(|_| Extent2d::new());
+    out.domain = out
+        .domain
+        .intersect(&surf_domain)
+        .unwrap_or_else(|_| Extent2d::new());
 
     // place a UVTrimCurve on each Face->Edgeuse
     match create_uv_trim_curves(k, b, f) {
