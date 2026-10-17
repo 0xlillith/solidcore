@@ -1004,9 +1004,11 @@ fn gen_face_brep(rng: &mut Rng) -> BrepIn {
     }
 }
 
+/// A generated op: a damaged read, a glue, a merge-self, a face from curves, a copy or a
+/// `MakeFace`, each under the same guards as the built-in cases.
 fn gen_inputs(rng: &mut Rng) -> Inputs {
     let file = (*rng.choose(&FILES).unwrap_or(&"disk.smb")).to_string();
-    match rng.below(4) {
+    match rng.below(6) {
         0 => {
             // damaged streams the B-rep data guard accepts (a rejected one would be a
             // case both sides refuse; give up after a few tries)
@@ -1046,6 +1048,48 @@ fn gen_inputs(rng: &mut Rng) -> Inputs {
             brep: gen_face_brep(rng),
             face: rng.below(1 << 10) as i64,
             tol: rng.uniform(1.0e-6, 1.0e-2),
+        },
+        3 => {
+            // a square outer loop on a plane or a patch over [0, 10]^2, closed or open
+            // (2 or 3 sides: a gap target), sometimes with a square hole; 3D, UV or both
+            let s = rng.uniform(0.5, 8.0);
+            let (x, y) = (rng.uniform(0.0, 10.0 - s), rng.uniform(0.0, 10.0 - s));
+            let sides = 2 + rng.below(3) as usize;
+            let mut curves = square(x, y, s, true);
+            curves.truncate(sides);
+            let mut loops = vec![sides];
+            if sides == 4 && rng.chance(0.3) {
+                curves.extend(square(x + s / 4.0, y + s / 4.0, s / 2.0, false));
+                loops.push(4);
+            }
+            let (has3d, has_uv) = *rng
+                .choose(&[(true, false), (false, true), (true, true)])
+                .unwrap_or(&(true, true));
+            let surface = if rng.chance(0.5) {
+                SrfIn::Plane {
+                    o: [0.0, 0.0, 0.0],
+                    n: [0.0, 0.0, 1.0],
+                }
+            } else {
+                patch(10.0)
+            };
+            Inputs::MakeFaceWithCurves {
+                surface,
+                dom: [0.0, 0.0, 10.0, 10.0],
+                orient: if rng.chance(0.5) { 1 } else { 2 },
+                region_null: rng.chance(0.5),
+                crv_on_surf: rng.below(3) as u8,
+                loops,
+                has3d,
+                has_uv,
+                curves,
+                points: Vec::new(),
+            }
+        }
+        4 => Inputs::Copy {
+            brep: shared::gen_brep(rng),
+            n: rng.below(8),
+            merge: rng.chance(0.5),
         },
         _ => Inputs::MakeFace {
             kind: rng.below(2) as u8,
