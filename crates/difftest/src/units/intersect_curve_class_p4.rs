@@ -2105,30 +2105,39 @@ fn edge_cases() -> Vec<(String, Value)> {
 /// Scripts undefined upstream that the shim must reject: the squeeze of an empty
 /// classification, the bounding edge use without face, of an interval past the intervals and
 /// of an edge end without classification curve, the loop crossings over a loop without
-/// classification curve (UB-124).
+/// classification curve (UB-124). The flag is true for a script the ffi guard itself rejects
+/// (the seeded face props of UB-131: `SetProps_Stage2` after `SetProps_Gaps` returned early
+/// dereferences the null `m_pFace`), false for one the shim rejects at run time.
 #[cfg(test)]
-fn rejected_cases() -> Vec<(String, Script)> {
+fn rejected_cases() -> Vec<(String, Script, bool)> {
     let objs = edge_objects(1.0);
     let face = edge_faces(1.0).first().map(|(_, f)| f.clone());
     let bounds = [0.0, 0.5, 1.0];
     let script = |ops: Vec<OpIn>| Script { face: face.clone(), objects: objs.clone(), ops };
-    let mut out = Vec::new();
-    out.push(("squeeze_empty".into(), script(vec![OpIn::Squeeze { t: 0 }])));
+    let mut out: Vec<(String, Script, bool)> = Vec::new();
+    out.push(("squeeze_empty".into(), script(vec![OpIn::Squeeze { t: 0 }]), false));
     let mut ops = edge_setup(0, Some(0), &bounds, 1e-5);
     ops.push(OpIn::IvlBound { t: 0, j: 0, do_min: true });
-    out.push(("ivl_bound_no_face".into(), script(ops)));
+    out.push(("ivl_bound_no_face".into(), script(ops), false));
     let mut ops = edge_setup(0, Some(0), &bounds, 1e-5);
     ops.push(OpIn::SetFace { t: 0, obj: Some(EDGE_FACE) });
     ops.push(OpIn::IvlBound { t: 0, j: 2, do_min: false });
-    out.push(("ivl_bound_past_end".into(), script(ops)));
+    out.push(("ivl_bound_past_end".into(), script(ops), false));
     let mut ops = edge_setup(0, None, &bounds, 1e-5);
     ops.push(OpIn::SetFace { t: 0, obj: Some(EDGE_FACE) });
     ops.push(OpIn::PcSetClass { t: 0, j: 0, w: 0, class: 103, obj: Some(EDGE_EDGE) });
     ops.push(OpIn::IvlBound { t: 0, j: 0, do_min: true });
-    out.push(("ivl_bound_edge_no_curve".into(), script(ops)));
+    out.push(("ivl_bound_edge_no_curve".into(), script(ops), false));
     let mut ops = edge_setup(0, None, &bounds, 1e-5);
     ops.push(crossings(0, vec![EDGE_LOOP], false, Vec::new()));
-    out.push(("loop_crossings_no_curve".into(), script(ops)));
+    out.push(("loop_crossings_no_curve".into(), script(ops), false));
+    // UB-131: a props seed at stage GAPSa/GAPS without the face pointer (field 24)
+    for stage in [1.0, 2.0] {
+        let mut ops = edge_setup(0, Some(0), &bounds, 1e-5);
+        ops.push(OpIn::SetFace { t: 0, obj: Some(EDGE_FACE) });
+        ops.push(crossings(0, vec![EDGE_LOOP], true, vec![[0.0, 0.0, stage]]));
+        out.push((format!("loop_crossings_props_null_face_{stage}"), script(ops), true));
+    }
     out
 }
 
@@ -2211,8 +2220,15 @@ mod tests {
     /// error (or defers) instead of reading past its data.
     #[test]
     fn undefined_scripts_are_rejected() {
-        for (name, s) in rejected_cases() {
-            assert!(ffi::validate(ffi_face(&s).as_ref(), &cpp_input(&s)).is_ok(), "{name}");
+        for (name, s, guard) in rejected_cases() {
+            let valid = ffi::validate(ffi_face(&s).as_ref(), &cpp_input(&s)).is_ok();
+            if guard {
+                assert!(!valid, "{name}");
+                // Rust reports the null dereference instead of carrying on
+                assert!(matches!(rust_run(&s), Err(Fail::Harness(_))), "{name}");
+                continue;
+            }
+            assert!(valid, "{name}");
             assert!(!shim_accepts(&s), "{name}");
             assert!(rust_run(&s).is_ok() || matches!(rust_run(&s), Err(Fail::Deferred(_))), "{name}");
         }

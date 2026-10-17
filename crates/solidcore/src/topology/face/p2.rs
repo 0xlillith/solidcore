@@ -399,6 +399,10 @@ enum ClassHandle {
     Vertexuse(VertexuseId),
     /// The surface of a face.
     Surface(FaceId),
+    /// The 3D curve of an edge.
+    EdgeCurve(EdgeId),
+    /// The trim curve stored on an edge use.
+    Trim(EdgeuseId),
     /// The classified curve (and its UV curve: upstream passes the same curve for both).
     Curve,
 }
@@ -414,7 +418,7 @@ impl ClassObject for ClassHandle {
             Self::Edgeuse(_) => ClassObjectKind::Edgeuse,
             Self::Vertexuse(_) => ClassObjectKind::Vertexuse,
             Self::Surface(_) => ClassObjectKind::Surface,
-            Self::Curve => ClassObjectKind::Curve,
+            Self::EdgeCurve(_) | Self::Trim(_) | Self::Curve => ClassObjectKind::Curve,
         }
     }
 }
@@ -434,15 +438,27 @@ impl CurveOnClassifyObjects<ClassHandle> for FaceClassifyObjects<'_> {
     fn vertex(&self, v: VertexId) -> ClassHandle {
         ClassHandle::Vertex(v)
     }
-    fn surface(&self, f: FaceId) -> Option<ClassHandle> {
+    fn face_surface(&self, f: FaceId) -> Option<ClassHandle> {
         self.brep
             .face(f)
             .ok()
             .and_then(|r| r.surface.as_ref())
             .map(|_| ClassHandle::Surface(f))
     }
-    fn curve(&self, curve: ClassHandle) -> Option<&Curve> {
-        (curve == ClassHandle::Curve).then_some(self.curve)
+    fn edge(&self, e: EdgeId) -> ClassHandle {
+        ClassHandle::Edge(e)
+    }
+    fn vertexuse(&self, vu: VertexuseId) -> ClassHandle {
+        ClassHandle::Vertexuse(vu)
+    }
+    fn edgeuse(&self, eu: EdgeuseId) -> ClassHandle {
+        ClassHandle::Edgeuse(eu)
+    }
+    fn edge_curve(&self, e: EdgeId) -> ClassHandle {
+        ClassHandle::EdgeCurve(e)
+    }
+    fn trim_curve(&self, eu: EdgeuseId) -> ClassHandle {
+        ClassHandle::Trim(eu)
     }
     fn loop_id(&self, tgt_loop: ClassHandle) -> Option<LoopId> {
         match tgt_loop {
@@ -463,11 +479,17 @@ impl ClassGeometry<ClassHandle> for FaceClassifyObjects<'_> {
         match o {
             ClassHandle::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.tolerance),
             ClassHandle::Face(f) => self.brep.face(f).ok().map(|f| f.tolerance),
+            ClassHandle::Edge(e) => self.brep.edge(e).ok().map(|e| e.tolerance),
             _ => None,
         }
     }
     fn curve(&self, o: ClassHandle) -> Option<&Curve> {
-        (o == ClassHandle::Curve).then_some(self.curve)
+        match o {
+            ClassHandle::Curve => Some(self.curve),
+            ClassHandle::EdgeCurve(e) => self.brep.edge(e).ok()?.curve.as_ref(),
+            ClassHandle::Trim(eu) => eu1::uv_trim_curve(self.brep, eu).ok()?.0,
+            _ => None,
+        }
     }
     fn surface(&self, o: ClassHandle) -> Option<&Surface> {
         match o {
@@ -490,7 +512,10 @@ impl ClassGeometry<ClassHandle> for FaceClassifyObjects<'_> {
             ClassHandle::Faceuse(fu) => EntityRef::Faceuse(fu),
             ClassHandle::Edgeuse(eu) => EntityRef::Edgeuse(eu),
             ClassHandle::Vertexuse(vu) => EntityRef::Vertexuse(vu),
-            ClassHandle::Surface(_) | ClassHandle::Curve => return None,
+            ClassHandle::Surface(_)
+            | ClassHandle::EdgeCurve(_)
+            | ClassHandle::Trim(_)
+            | ClassHandle::Curve => return None,
         };
         Some((self.brep, e))
     }
@@ -532,7 +557,7 @@ fn classify_curve_on_face(
         is_curve_owned: false,
         is_curve_current: true,
         // this->GetSurface()
-        surface1: CurveOnClassifyObjects::surface(&objects, f),
+        surface1: CurveOnClassifyObjects::face_surface(&objects, f),
         surface2: None,
         uv_curve2: None,
         ti: None,

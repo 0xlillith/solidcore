@@ -523,8 +523,9 @@ pub fn validate(face: Option<&FaceSpec>, input: &[f64]) -> Result<(), FfiError> 
                 for _ in 0..n {
                     obj(&mut rd)?;
                 }
-                rd.flag()?;
+                let with_props = rd.flag()?;
                 let n_seeds = rd.index(MAX_SEEDS)?;
+                let mut seeds = Vec::new();
                 for _ in 0..n_seeds {
                     let field = rd.index(heal_face_props::SEED_FIELDS as usize - 1)?;
                     rd.index(3)?;
@@ -532,6 +533,15 @@ pub fn validate(face: Option<&FaceSpec>, input: &[f64]) -> Result<(), FfiError> 
                     if v.abs() > 1e9 || !heal_face_props::seed_ok(field as i64, v) {
                         return Err(bad("face props seed out of range"));
                     }
+                    seeds.push((field as i64, v));
+                }
+                // UB-131: SetProps_Stage2 (run when the props passed are not at stage 2a
+                // yet) dereferences the null m_pFace that SetProps_Gaps leaves for a stage
+                // at or past GAPSa; the seeds apply to the props only when they are passed
+                if with_props && heal_face_props::stage2_derefs_null_face(&seeds) {
+                    return Err(bad(
+                        "seeded props would dereference the null face of SetProps_Stage2 (UB-131)",
+                    ));
                 }
             }
             op::CONSTRUCT => {

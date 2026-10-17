@@ -431,6 +431,23 @@ fn simulate(ops: &[Op]) -> Result<(), FfiError> {
     Ok(())
 }
 
+/// Whether `SetProps_Stage2(face, index, SM_HO_ALL)` on an `SmFaceProps` seeded with `seeds`
+/// (`(field, value)` in order, as the op `5` seeds) would dereference a null `m_pFace`
+/// (UB-131). Only the stage (field `0`) and the face pointer (field `24`) matter.
+#[must_use]
+pub fn stage2_derefs_null_face(seeds: &[(i64, f64)]) -> bool {
+    let mut s: State = (0, false);
+    for &(field, v) in seeds {
+        match field {
+            0 => s.0 = v as i64,
+            24 => s.1 = v != 0.0,
+            _ => {}
+        }
+    }
+    // SM_HO_ALL is past every threshold the simulation tests
+    sim_stage2(s, 1000.0).is_none()
+}
+
 /// The range check of one seed (op `5`) value of field `field` (the field id is checked by
 /// the caller: `0..SEED_FIELDS`).
 #[must_use]

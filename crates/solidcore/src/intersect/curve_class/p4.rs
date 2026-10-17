@@ -44,6 +44,9 @@
 //!   except `ConnectIntervals` (`SER`); they are ignored here (`Unported` still
 //!   propagates), and an output a failed call leaves unwritten keeps its initial value
 //!   (`UNDEF` for points and vectors).
+//! - **Uninitialised angle.** `Vec2(1, 0).CCWAngleBetween(tangent)` for a zero-length UV
+//!   tangent fails upstream and leaves the caller's `double` angle uninitialised; the
+//!   port reads it as [`UNDEF_DOUBLE`] (`ccw_angle`).
 //! - **Undefined behaviour upstream** is an error here: a classification without a face,
 //!   or a face without a surface or classification curve, where the code dereferences them
 //!   before its own `NULL` checks (UB-124); an empty classification in
@@ -53,8 +56,7 @@
 //!   messages and the `SM_DEBUG_CODE` blocks (the release build compiles them out).
 //! - **Callees in units not ported yet** return [`SolidError::Unported`]:
 //!   `intersect.curve_class_p2` (`ReSet`, `ConnectIntervals`, `SmCurveInterval::GetMinUV`
-//!   / `GetMaxUV`), `intersect.curve_class_p7` (`GetPointClassifiesConnectedTo`) and
-//!   `topology.edgeuse_p3` (`SmEdgeuse::EvaluateBinormal`, the stub in `topology::edge`).
+//!   / `GetMaxUV`) and `topology.edgeuse_p3` (`SmEdgeuse::EvaluateBinormal`, the stub in `topology::edge`).
 //! - **Recursion.** None.
 
 use crate::curve::curve::p2::Curve;
@@ -222,25 +224,20 @@ fn interval_end_uv<O: ClassObject>(
     index: usize,
     do_min: bool,
 ) -> Result<Point2> {
-    let _ = (cc, index, do_min);
-    // UNPORTED(intersect.curve_class_p2): SmCurveInterval::GetMinUV
-    Err(SolidError::unported(
-        "SmCurveInterval::GetMinUV",
-        "intersect.curve_class_p2",
-    ))
-}
-
-/// `SmCurveClassification::GetPointClassifiesConnectedTo(loops, touches)`.
-fn point_classifies_connected_to<O: ClassObject>(
-    cc: &CurveClassification<O>,
-    loops: &[O],
-) -> Result<Vec<TouchData<O>>> {
-    let _ = (cc, loops);
-    // UNPORTED(intersect.curve_class_p7): SmCurveClassification::GetPointClassifiesConnectedTo
-    Err(SolidError::unported(
-        "SmCurveClassification::GetPointClassifiesConnectedTo",
-        "intersect.curve_class_p7",
-    ))
+    let _ = (cc, index);
+    if do_min {
+        // UNPORTED(intersect.curve_class_p2): SmCurveInterval::GetMinUV
+        Err(SolidError::unported(
+            "SmCurveInterval::GetMinUV",
+            "intersect.curve_class_p2",
+        ))
+    } else {
+        // UNPORTED(intersect.curve_class_p2): SmCurveInterval::GetMaxUV
+        Err(SolidError::unported(
+            "SmCurveInterval::GetMaxUV",
+            "intersect.curve_class_p2",
+        ))
+    }
 }
 
 // ---- topology members, through the handle hooks ------------------------------------------
@@ -333,7 +330,12 @@ fn set_props_stage_2<O: LoopObject, G: ClassGeometry<O>>(
     let face =
         face.ok_or_else(|| SolidError::invalid_input(OP_CROSS, "loop without a face (UB-131)"))?;
     let (b, f) = face_id(geometry, face, OP_CROSS)?;
-    ignore_status(props.set_props_stage2(k, b, f, face_index, HealerOpType::All))
+    // an `InvalidInput` of `FaceProps` is an upstream null dereference (UB-131 for the
+    // face pointer `SetProps_Gaps` left unset): it propagates instead of being ignored
+    match props.set_props_stage2(k, b, f, face_index, HealerOpType::All) {
+        Err(e @ SolidError::InvalidInput { .. }) => Err(e),
+        r => ignore_status(r),
+    }
 }
 
 /// `SmLoop::GetFace` (unit `topology.loopuse`).
@@ -865,8 +867,8 @@ impl<O: ClassObject> CurveClassification<O> {
     /// [`SolidError::InvalidInput`] for a face without surface or a classification without
     /// curve (upstream dereferences them before its `NULL` checks, UB-124), a loop without
     /// face when stage 2 is computed (UB-131) and a topology handle `geometry` does not
-    /// resolve; those of `SetProps_Stage2`; [`SolidError::Unported`] for
-    /// `GetPointClassifiesConnectedTo` (`intersect.curve_class_p7`) and
+    /// resolve; those of `SetProps_Stage2` and
+    /// [`CurveClassification::point_classifies_connected_to`]; [`SolidError::Unported`] for
     /// `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`).
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn get_loop_crossings<G: ClassGeometry<O>>(
@@ -990,7 +992,7 @@ impl<O: ClassObject> CurveClassification<O> {
         }
 
         // ---- Build Raw Touch List
-        let mut raw = point_classifies_connected_to(self, loops)?;
+        let mut raw = self.point_classifies_connected_to(loops)?;
 
         // no work - ClassifyCrv does not touch any TgtLoop
         if raw.is_empty() {
