@@ -5927,3 +5927,53 @@ independent p6 integration.
   `MergeEdge` / `MergeVertex`'s `Relate` updates. When those adapters are wired,
   relation state must become mutable and preserve updates for later iterations;
   this integration requirement is also recorded in the module's Deviations.
+
+## offset.offset_executive_p1 (blocked, PR #175, 2026-10-17)
+
+The safe Rust implementation, C++ shim, FFI wrapper, 91 fixtures and 600-case
+fixed-seed generator are preserved in
+[WIP commit e173a722](https://github.com/altvnk/solidcore/commit/e173a72239c661892c167523528eb5301bfaee29)
+on `altvnk/solidcore:wip/offset.offset_executive_p1-pr175`. The blocked-unit PR
+contains findings only, not an implementation certified against the C++.
+
+- **Observable equal-minimum ordering disagreement (ND-2).** Inputs
+  `equal_minima_public_order_tie` and `equal_minima_matched_order_tie` in the WIP
+  `fixtures/offset.offset_executive_p1/synchronize.json` both give the first
+  original edgeuse two mapped offset edgeuses with interval `[0,1]`. The first
+  fixture uses real analytic lines from `(0,0,0)` to `(1,0,0)` and `(2,0,0)`,
+  with no second-side mappings. Both survive the strict 10% length filter; no
+  interior split is needed. C++ returns measured traversal IDs `[2,0]` in
+  `matched_first`; Rust returns `[0,2]`. The second fixture uses two real
+  quadratic B-splines and a matching second-side range and has the same mismatch.
+  `SmRelation::GetSeconds` (`SmRelation.h:108-120`) iterates pointer-hashed
+  `unordered_set` values (`SmMapPtrToPtr.h:112-125`). The bubble sort at
+  `SmOffsetExecutive.cpp:2485-2506` swaps only for strictly greater minima, so
+  ties retain that unspecified order. This is an observed order disagreement,
+  not a claim that allocation-sensitive variation was measured in one binary.
+  Do not sort the public outputs, reject ties, emulate addresses or loosen the
+  identical-topology gate to make this pass. Maintainers must resolve the
+  reference-order policy before promotion.
+- **Negative-distance extension timeout (HANG-16).**
+  `GetCreateExtendedSurface` passes `5 * offset_distance` to the G1R extension
+  (`SmOffsetExecutive.cpp:2120,2148-2151`). With `offset_distance = -0.125`,
+  the named plane, bilinear, quadratic and rational quadratic fixtures each
+  exceeded eight seconds inside C++, before the Rust comparison started.
+  All 104 additional generated timeouts also had negative distances, including
+  `-1e-12` and `-1e7`. A concrete generated reproducer is `gen0004`, seed
+  `13762035380551339612`, distance `-1e7`. In
+  `SmBSplineSurfaceNLib.cpp:4583-4591`, doubling a negative `dExtDist` while
+  `dExtDist < dDist/2.0` moves away from the exit condition; equivalent loops
+  occur at `:4645`, `:4712` and `:4773`. The experiment establishes bounded
+  native timeouts, not infinite execution. Valid signed inputs remain in the
+  WIP fixtures rather than being reclassified as setup rejections or deferrals.
+- **Validation, not certification.** Linux x86_64, GNU g++ 16.2.1, Rust 1.98.0;
+  upstream `c9c5979`. All 691 cases were executed in separate processes using
+  the existing runner and comparator with an eight-second limit per case:
+  523 passed, 2 failed ordering, 17 deferred, 41 rejected native fixture
+  construction, and 108 timed out in C++. No completed case had a
+  floating-point mismatch; there are no absolute floors. Timed-out, deferred
+  and rejected cases establish no parity. Formatting, C++-enabled workspace
+  Clippy, all 1288 kernel tests and the wasm check passed on the preserved WIP.
+  The optional `--green` baseline exceeded 300 seconds after 101 PASS and 32
+  PARTIAL summaries; no full baseline pass is claimed. See the validation
+  report for commands and recovery instructions.

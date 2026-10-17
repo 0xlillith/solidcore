@@ -3455,10 +3455,10 @@ soft_depends_on = ["boolean.merge_p2", "boolean.merge_p3", "boolean.topology_int
 est_lines = 2107
 layer = 59
 tests = ["SM_API_test:TestSmOffsetBrepFull", "SM_API_test:TestSmShellBrepFull", "prog_test:airfoil_offset", "prog_test:my_local_op", "prog_test:my_local_op_regression", "prog_test:my_test_offset", "pt_TestFiles/Fillet/nurb_box.smb", "pt_TestFiles/Solids/box.smb", "pt_TestFiles/Solids/cylinder.smb", "pt_TestFiles/offset_nurb.sms"]
-status = "todo"
+status = "blocked"
 claimed_by = ""
 claimed_at = ""
-notes = "29 fns; largest: SmOffsetExecutive::BuildOffsetOfFaceuse, SmOffsetExecutive::BuildOffsetOfEdgeuses, SmOffsetExecutive::PiecewiseMerge, SmOffsetExecutive::BuildOffsetOfVertex; unit-SCC #26 (2 units); hazards: ptr-hash; 11 upstream test entry points reach this unit"
+notes = "29 fns; largest: SmOffsetExecutive::BuildOffsetOfFaceuse, SmOffsetExecutive::BuildOffsetOfEdgeuses, SmOffsetExecutive::PiecewiseMerge, SmOffsetExecutive::BuildOffsetOfVertex; unit-SCC #26 (2 units); hazards: ptr-hash; 11 upstream test entry points reach this unit; PR #175 BLOCKED: native equal-minimum synchronization order disagrees (ND-2), and negative-distance surface extensions time out (HANG-16). WIP preserved at altvnk/solidcore branch wip/offset.offset_executive_p1-pr175, commit e173a722. Isolated Linux validation: 691 cases, 523 pass, 2 order failures, 17 deferred, 41 rejected, 108 C++ timeouts; no green/partial claim. See plan/findings.md and reports/difftest/offset.offset_executive_p1.validation.md."
 
 [[unit]]
 id = "primitive.api_primitives"

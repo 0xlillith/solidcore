@@ -1437,6 +1437,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** hang.
 - **Rust port:** Ordinary squeeze statuses are ignored through `ignore_status`, preserving `Unported` propagation; a documented no-progress check returns an error if the interval count did not decrease.
 
+#### HANG-16. Negative-distance surface extension moves away from its loop's exit
+- **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:4583-4591`, with equivalent loops at `:4645`, `:4712`, `:4773`; reached from `SmOffsetExecutive::GetCreateExtendedSurface` (`SmOffsetExecutive.cpp:2120,2148-2151`) with distance `5 * offset_distance`.
+- **What happens:** After a successful extension, `while (dExtDist < dDist/2.0)` doubles `dExtDist`. For a negative request, the doubled negative value moves away from the exit condition. The lower-level G1 path can accept a negative request, so success does not necessarily prevent entry into this loop.
+- **Trigger:** Plane, bilinear, quadratic and rational quadratic extensions through `GetCreateExtendedSurface` with offset distance `-0.125` (extension distance `-0.625`). Negative tiny and large generated distances also reproduce the timeout.
+- **How found:** adversarial fixtures and fixed-seed native differential cases for `offset.offset_executive_p1`, PR #175; WIP commit `altvnk/solidcore@e173a722`.
+- **Confirmed:** yes for eight-second native timeouts: four named fixtures and 104 generated cases failed to return from C++ before the per-case limit on Linux x86_64 / GNU g++ 16.2.1. Infinite execution and the exact stuck instruction were not experimentally established; the divergent loop condition was confirmed by source inspection.
+- **Severity:** hang / non-converging extension.
+- **Rust port:** The executive and fixtures are preserved on the WIP branch; the unit remains blocked. Signed inputs were not silently rejected or removed from coverage. See `plan/findings.md` and `reports/difftest/offset.offset_executive_p1.validation.md`.
+
 ## Nondeterminism
 
 #### ND-1. `srand(time(NULL))` in face sampling and shell classification
@@ -1453,9 +1462,9 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **What happens:** Iteration order is pointer-hash order, so it can change from run to run with heap layout. So can anything order-dependent downstream (created topology order, tie-breaks).
 - **Trigger:** Any of these paths on the same input under different allocators or ASLR.
 - **How found:** read during porting (static scan, `plan/closure.md`).
-- **Confirmed:** no. The shims sort upstream results before comparing.
-- **Severity:** nondeterminism.
-- **Rust port:** Uses ordered maps / insertion order on arena ids.
+- **Confirmed:** most paths remain source-inspection findings; the original relation shims sort unordered membership before comparing. PR #175 observed the order leaking into `SmOffsetExecutive::SyncronizeOffsetEdgeuses`: two equal-minimum fixtures returned public `matched_first` IDs `[2,0]` in C++ versus `[0,2]` in deterministic Rust. The strict bubble sort (`SmOffsetExecutive.cpp:2485-2506`) preserves the unspecified `GetSeconds` tie order. Allocation-sensitive variation within the same executable was not measured.
+- **Severity:** nondeterminism / unspecified order exposed as result order.
+- **Rust port:** Uses ordered maps / insertion order on arena ids. `offset.offset_executive_p1` stays blocked rather than canonicalizing its public synchronization results; WIP and reproduction instructions are recorded in `plan/findings.md`.
 
 #### ND-3. A function-local static fixed by the first call
 - **Location:** `SmFilletSolver.cpp:3604`, `SmFilletSolver::ComputePointValues` (def. `:3544`).
