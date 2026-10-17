@@ -13,6 +13,7 @@ use solidcore::curve::curve::Curve;
 use solidcore::curve::line::Line;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::tol::zone_tol3d;
+use solidcore::geom::vector2d::Point2;
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
@@ -304,7 +305,11 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                     (-1.0, 2.0)
                 };
                 let interval = Extent1d::from_min_max(-3.0, 7.0);
-                let mut line = Line::from_points(Vec3::new(x0, y, 0.0), Vec3::new(x1, y, 0.0), 3);
+                let mut line = Line::from_points(
+                    surface.evaluate_point(Point2::new(x0, y))?,
+                    surface.evaluate_point(Point2::new(x1, y))?,
+                    3,
+                );
                 line.edit_parameterization(&interval)?;
                 let dropped = port::drop_edge_curve(
                     &k,

@@ -67,7 +67,10 @@ SC_EXPORT int32_t sc_topology_brep_p9_eval(int32_t op, int32_t export_only,
         double y=variant == 1 ? 2.0 : 0.5;
         double x0=variant == 2 ? 0.25 : -1.0;
         double x1=variant == 2 ? 0.75 : 2.0;
-        SmLine curve(SmPoint3d(x0,y,0),SmPoint3d(x1,y,0),3,&the_context());
+        SmPoint3d p0,p1;
+        if (surface->EvaluatePoint(SmPoint2d(x0,y),p0) != SM_SUCCESS ||
+            surface->EvaluatePoint(SmPoint2d(x1,y),p1) != SM_SUCCESS) return SC_ERR_ARG;
+        SmLine curve(p0,p1,3,&the_context());
         SmExtent1d interval(-3.0,7.0);
         status=curve.EditParameterization(interval,FALSE);
         if (status != SM_SUCCESS) return SC_ERR_ARG;
