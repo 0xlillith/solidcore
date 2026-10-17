@@ -237,25 +237,16 @@ pub fn delete_topological_vertex(
     missing("SmBrep::Notify", "topology.brep_p2")
 }
 
-/// The three native infinite-region void-setting policies.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub enum RegionVoidSetting {
-    /// `SM_VS_NESTEDSOLID` (the default).
-    #[default]
-    NestedSolid,
-    /// `SM_VS_INFINITEREGION_ONLY`.
-    InfiniteRegionOnly,
-    /// `SM_VS_INFINITEREGION_SWAP`.
-    InfiniteRegionSwap,
-}
-
 /// Finds the infinite region, then resets its void state. The ray-selection
 /// operation belongs to part 9; its optional shell and bounding box are retained
-/// in the interface for that integration.
+/// in the interface for that integration. `void_setting_code` is the native
+/// `SmSetRegionVoidType` code (0 nested-solid, 1 infinite-only, 2 swap). Its common
+/// enum is being ported in part 1's independent PR; this deferred boundary does
+/// not duplicate that type.
 pub fn find_and_set_infinite_region(
     _b: &mut Brep,
     _shell: Option<ShellId>,
-    _void_setting: RegionVoidSetting,
+    _void_setting_code: i32,
     _bbox: Option<&mut Extent3d>,
 ) -> Result<()> {
     // UNPORTED(topology.brep_p9): SmBrep::FindInfiniteRegion

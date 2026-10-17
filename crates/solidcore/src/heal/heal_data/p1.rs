@@ -118,9 +118,7 @@ fn brep_regions_from_infinite(_b: &Brep) -> Result<Vec<RegionId>> {
 /// it to the head of the region list.
 fn brep_find_and_set_infinite_region(b: &mut Brep) -> Result<()> {
     crate::topology::brep::p5::find_and_set_infinite_region(
-        b,
-        None,
-        crate::topology::brep::p5::RegionVoidSetting::default(),
+        b, None, 0, // SM_VS_NESTEDSOLID: the native default.
         None,
     )
 }

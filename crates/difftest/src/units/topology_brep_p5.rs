@@ -178,11 +178,7 @@ fn rust_record(k: &mut Kernel, b: &mut Brep, i: &Inputs) -> SolidResult<Vec<f64>
         4 => vec![status(p5::find_and_set_infinite_region(
             b,
             None,
-            match i.mode {
-                0 => p5::RegionVoidSetting::NestedSolid,
-                1 => p5::RegionVoidSetting::InfiniteRegionOnly,
-                _ => p5::RegionVoidSetting::InfiniteRegionSwap,
-            },
+            i32::from(i.mode),
             None,
         ))?],
         5 => vec![status(p5::glue_vertices(
