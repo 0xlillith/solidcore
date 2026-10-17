@@ -27,6 +27,7 @@
 //! | `Swap`     |            | `status` (`SwapUV`) |
 //! | `Replace`  | `face surface keep create` (`keep`: `0` delete, `1` deleted list, `2` keep) | `status modified` (`ReplaceSurface`) |
 //! | `RayFire`  | `P V tol has_limit limit` | `status region class` (`RayFire`) |
+//! | `MateProbe` | as `Mate` | `status max_dist`: `MateLaminaEdgeToSurface`'s `dMaxDist` (`SmBrep.cpp:22200-22229`), nothing changed |
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: valid
 //! B-rep blocks, indices inside the B-rep (it exports the B-rep once more to count),
@@ -37,7 +38,10 @@
 //! restrictions: a `Sector` interval must have `t0 < t1` (an empty one makes the step
 //! `0 / 0`, a NaN parameter for the curve evaluator); a `Mate` extension factor must not
 //! be negative (a negative extension distance hangs the C++ in `N_SrfExtendByDist`,
-//! `plan/upstream-issues.md` HANG-18); a reference `type -1` is not accepted (the null
+//! `plan/upstream-issues.md` HANG-18), and a `Mate` is refused when the `MateProbe`
+//! distance is at least `SM_EFF_ZERO` and its product with the factor is not finite
+//! (an edge whose squared distance to the mating surface overflows: `dMaxDist` is
+//! infinite and `CreateExtendedSurface` never stops halving, HANG-9); a reference `type -1` is not accepted (the null
 //! reference is `-1 -1`). `Merge` and `Mate` with editing enabled run the whole upstream
 //! algorithm: the callers keep their curves short of the tolerance (`Merge`) and pick
 //! lamina edges of upstream files (`Mate`).
@@ -67,6 +71,7 @@ pub enum Op {
     Swap = 11,
     Replace = 12,
     RayFire = 13,
+    MateProbe = 14,
 }
 
 mod sys {
@@ -210,7 +215,7 @@ fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Res
                 vu::curve(rd)?;
             }
         }
-        Op::Mate => {
+        Op::Mate | Op::MateProbe => {
             rd.below(n_e)?;
             vu::surface(rd)?;
             // a negative factor is a negative extension distance for
@@ -289,5 +294,26 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     let has_infinite = extras.get(2).is_some_and(|&r| r >= 0.0);
     args(op, &mut rd, &c, has_infinite)?;
     rd.done()?;
+    if op == Op::Mate {
+        mate_guard(path, input)?;
+    }
     raw(op, path, input)
+}
+
+/// Refuses a `Mate` whose extension distance `dMaxDist * dSurfaceExtensionFactor`
+/// would not be finite (upstream returns before extending when `dMaxDist <
+/// SM_EFF_ZERO` or the distance computation fails, so those run).
+fn mate_guard(path: &str, input: &[f64]) -> Result<(), FfiError> {
+    let probe = raw(Op::MateProbe, path, input)?;
+    let (Some(&status), Some(&max_dist)) = (probe.get(1), probe.get(2)) else {
+        return Err(bad("short MateProbe output"));
+    };
+    let factor = input
+        .get(input.len().wrapping_sub(2))
+        .copied()
+        .ok_or_else(|| bad("input too short"))?;
+    if status == 0.0 && max_dist >= 1e-12 && !(max_dist * factor).is_finite() {
+        return Err(bad("non-finite surface extension distance"));
+    }
+    Ok(())
 }

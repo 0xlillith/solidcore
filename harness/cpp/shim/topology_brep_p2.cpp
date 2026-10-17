@@ -39,6 +39,7 @@ enum P2Op : int32_t
     P2_SWAP = 11,
     P2_REPLACE = 12,
     P2_RAYFIRE = 13,
+    P2_MATE_PROBE = 14,
 };
 
 struct EdgePeek : SmEdge
@@ -304,6 +305,55 @@ void run(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         double f1 = rd.num(), f2 = rd.num();
         o.push_back(st(brep->MateLaminaEdgeToSurface(e, *s, f1, f2)));
         delete s;
+        break;
+    }
+    case P2_MATE_PROBE:
+    {
+        // The Mate guard's probe (no B-rep change): MateLaminaEdgeToSurface's dMaxDist,
+        // computed as SmBrep.cpp:22200-22229 does (extended copy of the mating surface,
+        // 21 GlobalPointSolve distances). Outputs `status dMaxDist`. A distance whose
+        // square overflows makes dMaxDist infinite, and CreateExtendedSurface then never
+        // stops halving (plan/upstream-issues.md HANG-9).
+        SmEdge* e = at(g.edges, rd.idx());
+        SmSurface* s = read_surface(rd, ctx);
+        double f1 = rd.num();
+        rd.num();
+        SmSurface* pExtendedMating = NULL;
+        SmStatus ps = s->Copy(ctx, pExtendedMating);
+        SmObjDelete sCleanExtended(pExtendedMating);
+        double dMaxDist = 0;
+        SmCurve* pECurve = e->GetCurve();
+        if (ps == SM_SUCCESS && pECurve == NULL)
+            ps = SM_ERR_NULL_POINTER;
+        if (ps == SM_SUCCESS)
+        {
+            SmPlane* pPlane = SM_CAST_PTR(SmPlane, pExtendedMating);
+            if (pPlane)
+            {
+                SmExtent2d sDomain = pPlane->GetSTEPUVDomain();
+                sDomain.ExpandAbsolute(sDomain.GetSize().Length() * f1);
+                pPlane->AdjustSTEPUVDomain(sDomain);
+            }
+            SmExtent1d sIvl = e->GetInterval();
+            SmSolution sSData[8];
+            SmSolutionArray sSolutions(8, sSData);
+            for (ULONG j = 0; j <= 20 && ps == SM_SUCCESS; j++)
+            {
+                SmPoint3d sEdgePnt;
+                ps = pECurve->EvaluatePoint(sIvl.Evaluate(j / 20.0), sEdgePnt);
+                if (ps != SM_SUCCESS)
+                    break;
+                ps = pExtendedMating->GlobalPointSolve(pExtendedMating->GetNaturalUVDomain(), SM_SO_MINIMIZE,
+                                                       sEdgePnt, SM_EFF_ZERO_SQRT, NULL, SM_SR_ALL, sSolutions);
+                if (ps != SM_SUCCESS || sSolutions.GetSize() < 1)
+                    break;
+                if (sSolutions[0].m_vStart.m_dSolutionValue > dMaxDist)
+                    dMaxDist = sSolutions[0].m_vStart.m_dSolutionValue;
+            }
+        }
+        delete s;
+        o.push_back(st(ps));
+        o.push_back(dMaxDist);
         break;
     }
     case P2_NOTIFY:

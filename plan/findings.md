@@ -6208,7 +6208,10 @@ independent p6 integration.
   the B-rep. Not this unit's stubs; left as they are.
 - **FFI restrictions.** `MateLaminaEdgeToSurface` rejects a negative extension factor
   (`HANG-18` in `plan/upstream-issues.md`: the C++ never returns; the Rust returns
-  `InvalidInput` there too). `LocalCurveSector` requires `t0 < t1` (finite; extrapolated
+  `InvalidInput` there too), and a `Mate` whose extension distance `dMaxDist * factor`
+  is not finite (`HANG-9`: a mating surface so far from the edge that the squared point
+  distance overflows, found by `--fuzz`; the FFI first runs a `MateProbe` op that computes
+  upstream's `dMaxDist` with the same calls; the Rust stops there with `NotConverged`). `LocalCurveSector` requires `t0 < t1` (finite; extrapolated
   intervals are allowed) and an integer point class 100..=110; the object kind must match only
   for face/edge/vertex classes (102/103/104), every other class takes upstream's default
   `SM_ERR` arm with a null or vertex object. The orientation is an `SmOrientType` code 0..=2

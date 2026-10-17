@@ -756,7 +756,7 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
                 f64::from(x.intersection.point_class() as i32)
             }));
         }
-        Op::Export | Op::Extras => return Err(Fail::Harness(harness("not an op"))),
+        Op::Export | Op::Extras | Op::MateProbe => return Err(Fail::Harness(harness("not an op"))),
     }
     Ok(out)
 }
@@ -1162,6 +1162,46 @@ mod tests {
         assert!(run_cpp(&case(-1e-300)).is_err());
         for ext in [0.0, 1.5] {
             assert!(run_cpp(&case(ext)).is_ok(), "ext {ext}");
+        }
+    }
+
+    /// A mating surface so far from the lamina edge that the squared distance overflows
+    /// makes upstream's `dMaxDist` infinite, and `CreateExtendedSurface` then halves an
+    /// infinite distance forever (HANG-9; `--fuzz` cases fuzz00745 / 01418 / 01659): the
+    /// FFI's `MateProbe` refuses exactly the non-finite extension distances.
+    #[test]
+    fn mate_rejects_a_non_finite_extension_distance() {
+        let case = |z: f64, ext: f64| -> Inputs {
+            let v = serde_json::json!({
+                "brep": {"kind": "face", "surface": {"plane": {"o": [0, 0, 0], "n": [0, 0, 1]}},
+                         "dom": [0, 0, 10, 10]},
+                "editing": 1, "op": "mate", "edge": 0,
+                "surface": {"plane": {"o": [0, 0, z], "n": [0, 0, 1]}},
+                "ext": ext, "uv_ext": 10.0
+            });
+            serde_json::from_value(v).unwrap()
+        };
+        for (z, ext) in [
+            (1e300, 1.5),
+            (-1e300, 1.5),
+            (1e160, 1.5),
+            (1e160, 0.0),
+            (1e154, 1e300),
+        ] {
+            let err = run_cpp(&case(z, ext)).unwrap_err().to_string();
+            assert!(
+                err.contains("non-finite surface extension distance"),
+                "{z} {ext}: {err}"
+            );
+        }
+        for (z, ext) in [
+            (0.5, 1.5),
+            (1e10, 1.5),
+            (1e154, 1.5),
+            (1e154, 0.0),
+            (0.0, 1e300),
+        ] {
+            assert!(run_cpp(&case(z, ext)).is_ok(), "{z} {ext}");
         }
     }
 }
