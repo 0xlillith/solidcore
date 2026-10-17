@@ -19,7 +19,9 @@
 //!
 //! Deferred on the Rust side (unported callees): `two_pnts` past its point drops
 //! (`intersect.surface_intersector_p4`), `classify_face_point` and `fb` `split_face` of
-//! a vertex classified to the split face (`topology.face_p1`), and `fb` `cliff`
+//! a vertex classified to the split face (`SmFace::CreateUVTrimCurves` of
+//! `topology.face_p3`, inside the wired `CalculateUVDomainFromUVTrimCurves` of
+//! `topology.face_p1`), and `fb` `cliff`
 //! (`intersect.surface_drop_lib_p1`'s own unwired `SmSurfaceDropCurve::DoTrace`, whose
 //! stub prints `intersect.surface_drop_curve`). `fb` `examine` past its pre-checks is
 //! refused by the shim (no `SmFilletSolver`; see the FFI module). Fixtures flagged
@@ -1860,7 +1862,7 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
                 *faces.first().ok_or_else(|| harness("face"))?,
                 *faces.get(1).ok_or_else(|| harness("face"))?,
             );
-            match try_status!(fg::classify_face_point(&k, &b, v3(*pos), f1, f2)) {
+            match try_status!(fg::classify_face_point(&k, &mut b, v3(*pos), f1, f2)) {
                 Ok(w) => o.extend([0.0, f64::from(w)]),
                 Err(st) => o.extend([st, 0.0]),
             }
@@ -2022,7 +2024,7 @@ fn rust_pseudo(model: &Model, q: &Query) -> Result<Rec, HarnessError> {
             let v = m.vertex(*v)?;
             let f1 = *m.target_faces.get(*f1).ok_or_else(|| harness("face"))?;
             let f2 = *m.target_faces.get(*f2).ok_or_else(|| harness("face"))?;
-            let r = m.fb.update_split_face(&m.k, v, &m.target, f1, f2);
+            let r = m.fb.update_split_face(&m.k, v, &mut m.target, f1, f2);
             match try_status!(r) {
                 Ok(()) => o.push(0.0),
                 Err(st) => o.push(st),
@@ -2962,19 +2964,21 @@ mod tests {
         eprintln!("fuzz_guards: {calls} calls, {accepted} ran, {rejected} rejected by the wrapper");
     }
 
-    /// Runs chosen cases through the C++ side only, for memory checking: `cargo test -p
-    /// difftest --features cpp --no-run`, then the test binary under valgrind with
-    /// `--ignored cpp_case_sample --nocapture`. `CASE_SEEDS` (default 2000) sizes the
-    /// case list as `--seeds` does; `CASE_INDICES=<i>,..` picks cases by their index in
-    /// it, otherwise `CASE_OPS=<op>,..` picks every case of those ops (default the
-    /// pseudo-B-rep ops 30, 31 and 32), up to `CASE_LIMIT` (default all).
+    /// Runs chosen cases through one side, for memory checking: `cargo test -p difftest
+    /// --features cpp --lib --no-run`, then the test binary under valgrind with
+    /// `--ignored case_sample --nocapture`. `CASE_SIDE` is `cpp` (default) or `rust`;
+    /// `CASE_SEEDS` (default 2000) sizes the case list as `--seeds` does;
+    /// `CASE_INDICES=<i>,..` picks cases by their index in it, otherwise
+    /// `CASE_OPS=<op>,..` picks the cases of those ops (default the pseudo-B-rep ops 20 to
+    /// 39), at most `CASE_PER_OP` of each (default all).
     #[test]
-    #[ignore = "runs C++ cases for valgrind; run on demand"]
-    fn cpp_case_sample() {
+    #[ignore = "runs cases for valgrind; run on demand"]
+    fn case_sample() {
         let env = |name: &str| std::env::var(name).ok();
         let list = |text: String| -> Vec<i64> {
             text.split(',').map(|t| t.trim().parse().unwrap()).collect()
         };
+        let rust_side = env("CASE_SIDE").is_some_and(|s| s == "rust");
         let ctx = CaseContext {
             root: crate::case::repo_root(),
             seeds: env("CASE_SEEDS").map_or(2000, |s| s.parse().unwrap()),
@@ -2983,25 +2987,39 @@ mod tests {
         let indices: Vec<usize> = match env("CASE_INDICES") {
             Some(t) => list(t).into_iter().map(|i| i as usize).collect(),
             None => {
-                let ops = list(env("CASE_OPS").unwrap_or_else(|| "30,31,32".into()));
-                let limit = env("CASE_LIMIT").map_or(usize::MAX, |s| s.parse().unwrap());
+                let ops = env("CASE_OPS").map_or_else(|| (20..40).collect(), list);
+                let per_op = env("CASE_PER_OP").map_or(usize::MAX, |s| s.parse().unwrap());
+                let mut taken = std::collections::BTreeMap::<i64, usize>::new();
                 (0..cases.len())
                     .filter(|&i| {
-                        cases[i]
-                            .parse::<Inputs>()
-                            .is_ok_and(|inp| ops.contains(&(inp.op() as i64)))
+                        let Ok(inp) = cases[i].parse::<Inputs>() else {
+                            return false;
+                        };
+                        let op = inp.op() as i64;
+                        let n = taken.entry(op).or_default();
+                        if !ops.contains(&op) || *n >= per_op {
+                            return false;
+                        }
+                        *n += 1;
+                        true
                     })
-                    .take(limit)
                     .collect()
             }
         };
         for i in indices {
             let case = &cases[i];
             let inputs: Inputs = case.parse().unwrap();
-            let r = cpp_input(&inputs).map(|flat| {
-                ffi::eval(inputs.op(), &flat).map(|r| r.into_iter().take(2).collect::<Vec<_>>())
-            });
-            eprintln!("cpp_case_sample: {i} {} op {} -> {r:?}", case.name, inputs.op() as i32);
+            let r = if rust_side {
+                format!("{:?}", Runner.run_rust(case).map(|o| (o.error, o.deferred.map(|d| d.unit))))
+            } else {
+                format!(
+                    "{:?}",
+                    cpp_input(&inputs).map(|flat| {
+                        ffi::eval(inputs.op(), &flat).map(|r| r.into_iter().take(2).collect::<Vec<_>>())
+                    })
+                )
+            };
+            eprintln!("case_sample: {i} {} op {} -> {r}", case.name, inputs.op() as i32);
         }
     }
 

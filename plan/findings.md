@@ -6059,9 +6059,12 @@ Gate: `PARTIAL blend.fillet_geom_p1 cases=461 passed=429 failed=0 deferred=19 ma
 regression inputs below; 2000-seed sweep 2037 pass / 111 deferred / 0 failed / 13 rejected; `--perturb` 429/429 detected).
 
 - **Deferred (unported callees, no stub of this unit's own code).**
-  `sm_ClassifyFacePoint` defers on `SmFace::CalculateUVDomainFromUVTrimCurves`
-  (`topology.face_p1`, sibling PR #148; then `SmFace::Point3DClassify` of
-  `query.face_p1`, PR #105): 14 cases (one is the 1e50 boundary input below), so `SmFilletVertex::UpdateSplitFace` defers only
+  `sm_ClassifyFacePoint` calls `SmFace::CalculateUVDomainFromUVTrimCurves`, wired to
+  `topology.face_p1` (PR #148) with upstream's defaults (`bLimitDomain = TRUE`, no gap
+  outputs) and its status ignored except `Unported`; that port's first callee,
+  `SmFace::CreateUVTrimCurves`, is `UNPORTED(topology.face_p3)`, so every face with a
+  surface still defers there (then `SmFace::Point3DClassify` of `query.face_p1`):
+  14 cases (one is the 1e50 boundary input below), so `SmFilletVertex::UpdateSplitFace` defers only
   for a vertex classified to the split face and other vertices compare.
   `sm_TwoPntsIntersection` defers past its point drops in
   `SmSurface::PointBasedSurfaceIntersect` (3 cases): `surface.surface_p2`'s port stops
@@ -6147,7 +6150,7 @@ regression inputs below; 2000-seed sweep 2037 pass / 111 deferred / 0 failed / 1
   finite value. Rejected regression cases (`expected_rejection`): the original 1e154
   shape, the pre-review's slow input moved to -1e151, a 1e-120 weight under a
   homogeneous 1e40 (Euclidean 1e160); the -1e50 input is an accepted case (the C++
-  returns in 0.3 s). The Rust side still defers that op on `topology.face_p1`. The
+  returns in 0.3 s). The Rust side still defers that op (on `topology.face_p3`). The
   sweep itself runs one thread per call with a 30 s timeout, 180 s for those two ops
   (`FUZZ_SEED` / `FUZZ_CALLS` override the seed and length); its specials include the
   bound, 1e15, 1e30, the UB-166 knot gaps (both fixup stages) and the HANG-20 bound;

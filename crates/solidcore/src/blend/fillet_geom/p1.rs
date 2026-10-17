@@ -151,7 +151,8 @@
 //!   [`FilletBrep::calc_cliff_rail_int_edge`]) stops at the unwired
 //!   `SmSurfaceDropCurve::DoTrace` call of `intersect.surface_drop_lib_p1` (its stub
 //!   carries the label `intersect.surface_drop_curve`);
-//!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`) and
+//!   `SmFace::CreateUVTrimCurves` (`topology.face_p3`, reached through the wired
+//!   `SmFace::CalculateUVDomainFromUVTrimCurves` of `topology.face_p1`) and
 //!   `SmFace::Point3DClassify` (`query.face_p1`) in `sm_ClassifyFacePoint`;
 //!   `SmFilletSolver::FindIndexOfRailOnFace` (`blend.fillet_solver_p1`) and
 //!   `SmFilletSolver::RailRailIntersect` (`blend.fillet_solver_p2`) in
@@ -198,6 +199,7 @@ use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::edge::{self as edge_unit, set_interval};
 use crate::topology::edgeuse::p1::{self as eu1, face as edgeuse_face, mate, primary_edgeuse};
 use crate::topology::edgeuse::p2::{evaluate_binormal_step_off, StepOffOptions};
+use crate::topology::face::p1::calculate_uv_domain_from_uv_trim_curves;
 use crate::topology::face::p2 as face2;
 use crate::topology::vertex::vertexuses;
 use crate::topology::{Brep, EdgeId, EdgeuseId, FaceId, VertexId, VertexuseId, VertexuseOwner};
@@ -1654,13 +1656,13 @@ impl FilletBrep {
     ///
     /// # Errors
     ///
-    /// Those of [`classify_face_point`] (deferred: `topology.face_p1`);
+    /// Those of [`classify_face_point`] (deferred: `topology.face_p3`, `query.face_p1`);
     /// [`SolidError::NotFound`] for dangling ids.
     pub fn update_split_face(
         &mut self,
         k: &Kernel,
         v: VertexId,
-        target: &Brep,
+        target: &mut Brep,
         orig_face: FaceId,
         new_face: FaceId,
     ) -> Result<()> {
@@ -2487,24 +2489,17 @@ pub fn find_stepoff_uv(
     Ok(uvs)
 }
 
-/// `SmFace::CalculateUVDomainFromUVTrimCurves` (unit `topology.face_p1`).
-fn calculate_uv_domain_from_uv_trim_curves(
-    _brep: &Brep,
-    _face: FaceId,
-    _domain: Extent2d,
-) -> Result<Extent2d> {
-    // UNPORTED(topology.face_p1): SmFace::CalculateUVDomainFromUVTrimCurves
-    Err(SolidError::unported(
-        "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "topology.face_p1",
-    ))
-}
-
-/// `CalculateUVDomainFromUVTrimCurves` with its status ignored, as upstream does: on
+/// `CalculateUVDomainFromUVTrimCurves(rNewFaceDomain)` with upstream's defaults
+/// (`bLimitDomain = TRUE`, no loop gaps) and its status ignored, as upstream does: on
 /// any error but an unported callee the input domain stands.
-fn uv_domain_from_uv_trim_curves(brep: &Brep, face: FaceId, domain: Extent2d) -> Result<Extent2d> {
-    match calculate_uv_domain_from_uv_trim_curves(brep, face, domain) {
-        Ok(d) => Ok(d),
+fn uv_domain_from_uv_trim_curves(
+    k: &Kernel,
+    brep: &mut Brep,
+    face: FaceId,
+    domain: Extent2d,
+) -> Result<Extent2d> {
+    match calculate_uv_domain_from_uv_trim_curves(k, brep, face, true, false, false) {
+        Ok(d) => Ok(d.domain),
         Err(e) if e.is_unported() => Err(e),
         Err(_) => Ok(domain),
     }
@@ -2541,18 +2536,19 @@ fn point_3d_classify(
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: `SmFace::CalculateUVDomainFromUVTrimCurves`
-/// (`topology.face_p1`), `SmFace::Point3DClassify` (`query.face_p1`);
+/// [`SolidError::Unported`]: `SmFace::CreateUVTrimCurves` (`topology.face_p3`, through
+/// `SmFace::CalculateUVDomainFromUVTrimCurves`), `SmFace::Point3DClassify`
+/// (`query.face_p1`);
 /// [`SolidError::Upstream`] (`SM_ERR_NULL_POINTER`) for a face without a surface.
 pub fn classify_face_point(
     k: &Kernel,
-    brep: &Brep,
+    brep: &mut Brep,
     pos: Point3,
     orig_face: FaceId,
     new_face: FaceId,
 ) -> Result<i32> {
     let face_domain1 = face2::uv_domain(brep, orig_face)?;
-    let face_domain1 = uv_domain_from_uv_trim_curves(brep, orig_face, face_domain1)?;
+    let face_domain1 = uv_domain_from_uv_trim_curves(k, brep, orig_face, face_domain1)?;
 
     // Use Normalize: it should be over the Face it's in, and don't bother finding the
     // closest approach if it's not.
@@ -2562,7 +2558,7 @@ pub fn classify_face_point(
     }
 
     let face_domain2 = face2::uv_domain(brep, new_face)?;
-    let face_domain2 = uv_domain_from_uv_trim_curves(brep, new_face, face_domain2)?;
+    let face_domain2 = uv_domain_from_uv_trim_curves(k, brep, new_face, face_domain2)?;
 
     let (stat2, mut success2, uv2, gap2) = normalized_drop(k, brep, new_face, pos, &face_domain2)?;
     if success2 && !face_domain2.contains_point(uv2, 0.0) {
