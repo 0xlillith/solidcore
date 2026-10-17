@@ -212,6 +212,8 @@ fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
             if b.net.iter().any(|r| r.len() != m + 1) {
                 return Err(harness("ragged net"));
             }
+            let mu = b.u.len().checked_sub(1).ok_or_else(|| harness("surface without u knots"))?;
+            let mv = b.v.len().checked_sub(1).ok_or_else(|| harness("surface without v knots"))?;
             v.extend([
                 0.0,
                 f64::from(u8::from(b.oob)),
@@ -220,8 +222,8 @@ fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
                 m as f64,
                 b.p as f64,
                 b.q as f64,
-                (b.u.len() - 1) as f64,
-                (b.v.len() - 1) as f64,
+                mu as f64,
+                mv as f64,
             ]);
             for row in &b.net {
                 for p in row {
