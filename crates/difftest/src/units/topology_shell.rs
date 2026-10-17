@@ -89,6 +89,7 @@ fn number_json(value: f64) -> Value {
     }
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)] // serde `with` signature
 mod ray_num {
     use super::{json_number, number_json, Value};
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -101,6 +102,7 @@ mod ray_num {
     }
 }
 
+#[allow(clippy::ref_option)] // serde `with` signature
 mod ray_opt_num {
     use super::{json_number, number_json, Value};
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -117,6 +119,7 @@ mod ray_opt_num {
     }
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)] // serde `with` signature
 mod ray_num3 {
     use super::{json_number, number_json, Value};
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -252,13 +255,11 @@ fn mark_counters(k: &solidcore::kernel::Kernel) -> [u64; 5] {
 /// (the shim's `MarkSnap::put`): upstream's `SmNewMarkAndLock` side effects.
 fn mark_delta(k: &solidcore::kernel::Kernel, before: [u64; 5]) -> [i64; 10] {
     let mut out = [0; 10];
-    for (i, mark) in MARK_TYPES.into_iter().enumerate() {
-        if let Some(slot) = out.get_mut(i) {
-            *slot = k.context.current_mark(mark).wrapping_sub(before[i]) as i64;
-        }
-        if let Some(slot) = out.get_mut(5 + i) {
-            *slot = i64::from(k.context.is_mark_locked(mark));
-        }
+    for ((mark, was), slot) in MARK_TYPES.into_iter().zip(before).zip(out.iter_mut()) {
+        *slot = k.context.current_mark(mark).wrapping_sub(was) as i64;
+    }
+    for (mark, slot) in MARK_TYPES.into_iter().zip(out.iter_mut().skip(5)) {
+        *slot = i64::from(k.context.is_mark_locked(mark));
     }
     out
 }
@@ -1223,11 +1224,18 @@ impl UnitDiff for Runner {
                     // Non-finite ray inputs: C++ only crashes on them once boundary
                     // faces reach the solver, so empty-shape runs compare them.
                     let special = ["nan", "inf", "-inf"].get(rng.below(3) as usize).copied()?;
-                    match rng.below(4) {
-                        0 => ray["start"][rng.below(3) as usize] = json!(special),
-                        1 => ray["direction"][rng.below(3) as usize] = json!(special),
-                        2 => ray["tolerance"] = json!(special),
-                        _ => ray["radius"] = json!(special),
+                    let slot = match rng.below(4) {
+                        0 => ray
+                            .get_mut("start")
+                            .and_then(|v| v.get_mut(rng.below(3) as usize)),
+                        1 => ray
+                            .get_mut("direction")
+                            .and_then(|v| v.get_mut(rng.below(3) as usize)),
+                        2 => ray.get_mut("tolerance"),
+                        _ => ray.get_mut("radius"),
+                    };
+                    if let Some(slot) = slot {
+                        *slot = json!(special);
                     }
                 }
                 case.insert("ray".into(), ray);

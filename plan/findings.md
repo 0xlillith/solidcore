@@ -4586,20 +4586,30 @@ shell traversal; PR #88's cache-reset scans keep their existing behavior.
   final per-shell snapshot) on a wire shell without list head (`GetWireEdge()` NULL). That last
   state cannot be built with native constructors, so it has no regression fixture (the other
   guard has the 9 `*_null_candidate` cases).
-- **RayFire is compared on the empty-shape branch only.** `EmptyRayWorld` represents no geometry,
-  so every compared ray case takes the no-solution branch (144 `ray_empty_boundary`, 4 Endcap).
-  Solution selection, negative / too-close parameter branches, `LoadFromIntersection` and the
-  line-segment + `LocalCurveSector` path are not compared. The 8 deferred `ray_closed_*` cases
-  need a real `TopologyObjects` world over the imported B-rep: when `query.face_p1` lands they
-  will FAIL with `EmptyRayWorld`, not pass. Whoever ports `query.face_p1` builds that world.
-- **Void / infinite-region branches of `geom.attribute` / `geom.a_object` (not covered).**
-  `geom_attribute.cpp` and `geom_a_object.cpp` never call `SmRegion::SetIsVoid`, and
-  `RegionScene` holds only `Region::new()`, so `region_type::VOID` / `INFINITE` (attribute.rs
-  `add_region` classification) and `other_solid = false` (a_object.rs; `SmAObject.cpp:310`) are
-  compared only on the solid side. Closing it: a script op `SetIsVoid(TRUE/UNSURE)` on the native
-  region mirrored by a `RegionScene` setter, and a case with a B-rep-owned infinite region.
+- **RayFire is compared on the empty-shape branch only (harness-limited).** `EmptyRayWorld`
+  represents no geometry, so every compared ray case takes the no-solution branch (144
+  `ray_empty_boundary`, 4 Endcap). Solution selection, negative / too-close parameter branches,
+  `LoadFromIntersection` and the line-segment + `LocalCurveSector` path are not compared. The 8
+  `ray_closed_*` cases need `topology::brep_cache::BrepObjects` over a built `BrepCache`
+  (`query.brep`) and `SmBrep::LocalCurveSector` (`topology.brep_p2`); until then
+  `EmptyRayWorld::shell_ray_shape` defers any non-empty boundary-face shape as
+  `UNPORTED(query.brep)`, so they stay deferred instead of failing when `query.face_p1` lands.
+  Whoever ports `query.brep` / `topology.brep_p2` replaces `EmptyRayWorld` by a `BrepObjects` world.
+- **Mark counters (review round 2).** `SmShell::GetWireEdges`, `GetMatedShells` and `RayFire` take
+  `SmNewMarkAndLock`, which advances and locks a context mark; the Rust functions do the same
+  (`geom::context::with_mark_lock`, `ALL_MARKS`) and take `&mut Kernel`. The difftest shim compares
+  the advance of the 5 context mark counters per call (the shim context is shared, so deltas) and
+  that no mark stays locked. `SmShape::SmShape` also locks a mark for non-empty inputs: that part is
+  `geom.object`'s (`Shape::new` is Unported for non-empty shapes), so RayFire's real path will have
+  to be re-checked for the combined counter advance when it lands.
+- **Void / infinite-region branches of `geom.attribute` / `geom.a_object`.** `geom.attribute` now
+  covers them (ops `SetIsVoid` and `MakeInfinite` in `geom_attribute.cpp`, mirrored by
+  `RegionScene::set_is_void` / `make_infinite`; mutating the INFINITE arm of `add_region` fails
+  generated cases). `geom_a_object.cpp` still never calls `SmRegion::SetIsVoid`, so
+  `other_solid = false` (a_object.rs; `SmAObject.cpp:310`) is compared only on the solid side;
+  `geom.a_object` is `partial` (131 deferred on `query.brep`), not promoted.
 - **Library region lookup.** `RegionLookup` has no library implementation; region handlers reached
-  without a context fail with `InvalidInput("region lookup context required")`. Both sites are
+  without a context return `Unported` (`topology.shell`, with `justified:`). Both sites are
   tagged `REGION-LOOKUP(#86)` (grep it) and justified by the "borrowed region context" section.
 
 ## topology.loopuse (`SmLoop` / `SmLoopuse`, 2026-10-15; partial, no disagreements)

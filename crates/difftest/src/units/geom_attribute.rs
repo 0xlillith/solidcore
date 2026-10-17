@@ -1355,11 +1355,11 @@ fn generate_case(rng: &mut Rng) -> Value {
     // object), so merge-region attributes meet infinite and void regions as well as
     // plain solid ones.
     if allow_mr {
-        for _ in 0..g.rng.below(3) {
+        for _ in 0..=g.rng.below(2) {
             let o = g.obj();
             g.push(serde_json::json!(["make_infinite", o]));
         }
-        for _ in 0..g.rng.below(4) {
+        for _ in 0..=g.rng.below(3) {
             let (o, v) = (g.obj(), g.rng.below(3) as i64);
             g.push(serde_json::json!(["set_is_void", o, v]));
         }

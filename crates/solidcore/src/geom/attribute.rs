@@ -1504,12 +1504,11 @@ fn resolve_region<'a>(
     regions: Option<&'a dyn crate::topology::shell::RegionLookup>,
     symbol: &'static str,
 ) -> Result<crate::topology::shell::RegionRef<'a>> {
-    // UNPORTED(topology.shell): SmRegion::GetBrep / IsInfiniteRegion / IsVoid
-    // (REGION-LOOKUP(#86): no library `RegionLookup` exists yet, so a region handler
+    // UNPORTED(topology.shell): SmRegion::GetBrep / IsInfiniteRegion / IsVoid (justified: plan/findings.md "topology.shell: borrowed region context for attribute backedges")
+    // REGION-LOOKUP(#86): no library `RegionLookup` exists yet, so a region handler
     // reached without a caller-supplied context defers here instead of inferring
-    // region state; justified: plan/findings.md "borrowed region context for
-    // attribute backedges". The owner of issue #86 replaces this with the real
-    // lookup (grep REGION-LOOKUP).)
+    // region state. The owner of issue #86 replaces this with the real lookup
+    // (grep REGION-LOOKUP).
     regions
         .ok_or_else(|| SolidError::unported(symbol, "topology.shell"))?
         .resolve_region(region)
