@@ -92,8 +92,8 @@
 //!   (upstream hands back the shell's region pointer unchecked).
 //! - Calls into units not ported yet return [`SolidError::Unported`] (every site is
 //!   tagged `UNPORTED(<unit>)`, one stub per call site with the code after it ported):
-//!   `SmRegion::GetShells`, `SetIsVoid`, `IsVoid`, `SetList`, `SmShell::GetRegion`,
-//!   `GetMatedShells` (`topology.shell`), `SmEdgeuse::GetOrCreateUVTrimCurve`,
+//!   `SmRegion::GetShells`, `SetIsVoid`, `IsVoid`, `SetList`, `SmShell::GetMatedShells`
+//!   (`topology.shell`), `SmEdgeuse::GetOrCreateUVTrimCurve`,
 //!   `NormalizedEvaluate`, `EvaluateBinormal` (`topology.edgeuse_p3`),
 //!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
 //!   `UnLockBoundingBox` (`query.brep`), `SmBSplineSurface::CreateCornerBlend` with a
@@ -456,7 +456,7 @@ pub fn vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec
 ///
 /// [`SolidError::Unported`] from `SmRegion::GetShells` (unit `topology.shell`) for a
 /// B-rep with regions; a B-rep without regions returns the empty list, as upstream
-/// (the per-region loop never runs). Those of the mark lock.
+/// (the per-region loop never runs); the errors of the mark lock.
 pub fn shells(
     k: &mut Kernel,
     b: &Brep,
@@ -647,7 +647,9 @@ pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
 
     // If Brep might be degenerate - Do expensive full check (CalculateBoundingBox's
     // status is ignored: a failure leaves the default box)
-    let bbox = ignored(brep_bounding_box(b))?.unwrap_or_default();
+    // CalculateBoundingBox(sBBox): header defaults bApprox = FALSE, bTight = FALSE,
+    // bExpandByZoneTol3d = TRUE
+    let bbox = ignored(brep_bounding_box(b, false, false, true))?.unwrap_or_default();
     Ok(bbox.is_point_sized(tol_3d))
 }
 
@@ -734,7 +736,7 @@ pub fn reset_infinite_region(
 ///
 /// `SM_ERR` when the infinite region is not identified or not the list head;
 /// [`SolidError::Unported`] from the region and shell calls (`SmRegion::SetIsVoid`,
-/// `IsVoid`, `GetShells`, `SetList`, `SmShell::GetRegion`, `GetMatedShells`: their data
+/// `IsVoid`, `GetShells`, `SetList`, `SmShell::GetMatedShells`: their data
 /// is unit `topology.shell`'s); [`SolidError::InvalidInput`] where upstream
 /// dereferences null, and past `4 * shells + 16` queue passes.
 pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) -> Result<()> {
@@ -771,7 +773,8 @@ pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) 
         let nested_is_void = !region_is_void(b, region)?;
 
         // the shells mated to this one (increments an unused mark value)
-        for mated in shell_mated_shells(k, b, shell)? {
+        // (status ignored upstream: a failed call is read as no mated shells)
+        for mated in ignored(shell_mated_shells(k, b, shell))?.unwrap_or_default() {
             let nested = shell_region(b, mated)?.ok_or_else(|| {
                 null("SetRegionIsVoidFlagsForNestedSolids: mated shell without region")
             })?;
@@ -782,13 +785,11 @@ pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) 
 
             // add all inner shells to the queue (the 1st shell is the outer shell)
             let mut nested_shells = region_shells(b, nested, None)?;
-            if nested_shells.is_empty() {
-                // upstream RemoveAt(0) on an empty array
-                return Err(null(
-                    "SetRegionIsVoidFlagsForNestedSolids: nested region without shells",
-                ));
+            // RemoveAt(0) of an empty array leaves it empty in the release build
+            // (SM_ASSERT_BREAK is a no-op)
+            if !nested_shells.is_empty() {
+                nested_shells.remove(0);
             }
-            nested_shells.remove(0);
             queue.extend(nested_shells);
         }
     }
@@ -1179,7 +1180,12 @@ pub fn swap_face_uv(
     // a null pointer upstream's SwapUV dereferences (undefined there, not a status): it
     // propagates, as this unit's own null dereferences.
     match face1::swap_uv(k, b, face) {
-        Err(SolidError::InvalidInput { .. }) => {
+        // face_p1's own InvalidInput is its null-dereference marker; a callee's
+        // InvalidInput is that callee's SM_ERR_INVALID_INPUT status, ignored as SE
+        Err(SolidError::InvalidInput {
+            operation: "topology::face::p1",
+            ..
+        }) => {
             return Err(SolidError::invalid_input(
                 OP,
                 "sm_SwapFaceUV: SmFace::SwapUV dereferences a null pointer",
@@ -1360,7 +1366,8 @@ fn region_shells(
     ))
 }
 
-/// `SmRegion::SetIsVoid(flag)` (unit `topology.shell`).
+/// `SmRegion::SetIsVoid(flag)` (unit `topology.shell`; the Rust `Region` record carries no
+/// void flag yet).
 fn region_set_is_void(b: &mut Brep, region: RegionId, is_void: bool) -> Result<()> {
     let _ = (b, region, is_void);
     // UNPORTED(topology.shell): SmRegion::SetIsVoid
@@ -1370,7 +1377,8 @@ fn region_set_is_void(b: &mut Brep, region: RegionId, is_void: bool) -> Result<(
     ))
 }
 
-/// `SmRegion::IsVoid()` (unit `topology.shell`).
+/// `SmRegion::IsVoid()` (unit `topology.shell`; a header inline upstream, stubbed because the
+/// Rust `Region` record carries no void flag yet).
 fn region_is_void(b: &Brep, region: RegionId) -> Result<bool> {
     let _ = (b, region);
     // UNPORTED(topology.shell): SmRegion::IsVoid
@@ -1378,18 +1386,17 @@ fn region_is_void(b: &Brep, region: RegionId) -> Result<bool> {
 }
 
 /// `SmRegion::SetList(shell)`: the region's shell list head (the generic
-/// `SmOwningTopology::SetList`; the region's shell list is unit `topology.shell`'s data).
+/// `SmOwningTopology::SetList`, a header inline upstream; stubbed because the Rust `Region`
+/// record carries no shell list yet, unit `topology.shell`'s data).
 fn region_set_list(b: &mut Brep, region: RegionId, shell: ShellId) -> Result<()> {
     let _ = (b, region, shell);
     // UNPORTED(topology.shell): SmRegion::SetList (the region's shell list)
     Err(SolidError::unported("SmRegion::SetList", "topology.shell"))
 }
 
-/// `SmShell::GetRegion()` (unit `topology.shell`).
+/// `SmShell::GetRegion()`: the shell's `m_pListOwner` (co-ported as `Shell::region`).
 fn shell_region(b: &Brep, shell: ShellId) -> Result<Option<RegionId>> {
-    let _ = (b, shell);
-    // UNPORTED(topology.shell): SmShell::GetRegion
-    Err(SolidError::unported("SmShell::GetRegion", "topology.shell"))
+    Ok(b.shell(shell)?.region)
 }
 
 /// `SmShell::GetMatedShells(rShells)` (unit `topology.shell`).
@@ -1402,9 +1409,15 @@ fn shell_mated_shells(k: &mut Kernel, b: &Brep, shell: ShellId) -> Result<Vec<Sh
     ))
 }
 
-/// `SmBrep::CalculateBoundingBox(rBox)` (unit `query.brep`).
-fn brep_bounding_box(b: &Brep) -> Result<Extent3d> {
-    let _ = b;
+/// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
+/// `query.brep`).
+fn brep_bounding_box(
+    b: &Brep,
+    approx: bool,
+    tight: bool,
+    expand_by_zone_tol_3d: bool,
+) -> Result<Extent3d> {
+    let _ = (b, approx, tight, expand_by_zone_tol_3d);
     // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
     Err(SolidError::unported(
         "SmBrep::CalculateBoundingBox",
@@ -1412,9 +1425,28 @@ fn brep_bounding_box(b: &Brep) -> Result<Extent3d> {
     ))
 }
 
-/// `SmEdgeuse::GetOrCreateUVTrimCurve(curve)` (unit `topology.edgeuse_p3`).
-fn get_or_create_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<Curve> {
-    let _ = k;
+/// The outcome of `SmEdgeuse::GetOrCreateUVTrimCurve`: its status and, apart from it, the
+/// curve it hands back (upstream returns an existing UV trim curve together with the
+/// failure status of an earlier drop).
+struct UvTrimCurveResult {
+    /// `None` for `SM_SUCCESS`.
+    status: Option<SolidError>,
+    /// `rpUVTrimCurve`.
+    curve: Option<Curve>,
+}
+
+/// `SmEdgeuse::GetOrCreateUVTrimCurve(rpUVTrimCurve, pdOptDistToSurf, pdOptDeviation,
+/// bUVSpaceOkay)` (unit `topology.edgeuse_p3`; header defaults `NULL`, `NULL`, `TRUE`).
+/// `Err` only for [`SolidError::Unported`].
+fn get_or_create_uv_trim_curve(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    opt_dist_to_surf: Option<&mut f64>,
+    opt_deviation: Option<&mut f64>,
+    uv_space_okay: bool,
+) -> Result<UvTrimCurveResult> {
+    let _ = (k, opt_dist_to_surf, opt_deviation, uv_space_okay);
     b.edgeuse(eu)?;
     // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
     Err(SolidError::unported(
@@ -1756,7 +1788,8 @@ pub fn update_vertex_edge_intervals(
                         true,
                         None,
                     ))?;
-                    ignored(get_or_create_uv_trim_curve(k, b, eu))?;
+                    let _ignored_status =
+                        get_or_create_uv_trim_curve(k, b, eu, None, None, true)?.status;
                 }
             }
         }
@@ -1810,8 +1843,8 @@ pub fn redistribute_seam_uv_trim_curves(
 
     // GWC: Check if we need to make sure the PrevEdgeuses have UVTrimCurves for this to work?
     // (the statuses and curves are only SM_ASSERTed upstream)
-    ignored(get_or_create_uv_trim_curve(k, b, prev_this))?;
-    ignored(get_or_create_uv_trim_curve(k, b, prev_other))?;
+    let _this_status = get_or_create_uv_trim_curve(k, b, prev_this, None, None, true)?.status;
+    let _other_status = get_or_create_uv_trim_curve(k, b, prev_other, None, None, true)?.status;
 
     // Find the UV point for the two new starting Vertexuses (statuses not checked
     // upstream: a failed evaluation leaves the point unset; undefined here)
@@ -2388,9 +2421,12 @@ pub fn create_corner_blend(
         if tangent {
             // get Edgeuse->UVTrimCurve (status ignored upstream; SM_ASSERT(pUVCurve != NULL)
             // is a release no-op and the copy dereferences it), copy UVTrimCurve
-            let uv_curve = ignored(get_or_create_uv_trim_curve(k, b, eu))?.ok_or_else(|| {
-                null("CreateCornerBlend: GetOrCreateUVTrimCurve left no UV trim curve")
-            })?;
+            // (the status is ignored: upstream copies whatever curve it returns)
+            let uv_curve = get_or_create_uv_trim_curve(k, b, eu, None, None, true)?
+                .curve
+                .ok_or_else(|| {
+                    null("CreateCornerBlend: GetOrCreateUVTrimCurve left no UV trim curve")
+                })?;
             let uv_copy = uv_curve.copy(k)?;
             let Some(uv_bspline) = bspline_part(&uv_copy) else {
                 return Err(sm_err());

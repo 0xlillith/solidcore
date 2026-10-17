@@ -11,7 +11,7 @@
 //! where upstream dereferences null), traversal indices, flags and values.
 //!
 //! Selectors are taken modulo the entity count (`-1` selecting null where allowed); an
-//! op needing an entity the B-rep lacks is `no_entity` on both sides.
+//! op needing an entity the B-rep lacks is rejected (nothing runs on either side).
 //!
 //! **Inexact geometry.** The export carries plain B-spline curves and `SmLine`s and
 //! B-spline surfaces and `SmPlane`s exactly; other analytic kinds arrive as their
@@ -357,10 +357,9 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
             premark,
         } => OpIn::SwapFaceUv {
             face: need(n_f, face)?,
-            mark: [1u8, 2, 4, 8, 16]
-                .get(usize::from(mark) % 5)
-                .copied()
-                .unwrap_or(1),
+            // the raw SmMarkType code: the FFI refuses anything but 1/2/4/8/16 and the
+            // Rust decode (mark_type) errors on it, so an unknown code never runs
+            mark,
             premark,
         },
         OpIn::CheckUv { eu } => OpIn::CheckUv {
@@ -445,8 +444,10 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
     })
 }
 
+/// An op naming an entity kind the B-rep lacks (e.g. a face op on a wire B-rep): no code
+/// runs on either side, so the case is rejected (not counted as a pass).
 fn no_entity() -> Output {
-    Output::err("no_entity")
+    Output::rejected("no entity of the op's kind in this B-rep: nothing runs on either side")
 }
 
 fn ints_of(v: &[i64]) -> Vec<f64> {
@@ -2063,7 +2064,7 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         },
         14 => OpIn::SwapFaceUv {
             face: gen_sel(rng),
-            mark: rng.below(5) as u8,
+            mark: *rng.choose(&[1u8, 2, 4, 8, 16]).unwrap_or(&1),
             premark: rng.chance(0.7),
         },
         15 => OpIn::CheckUv { eu: gen_sel(rng) },

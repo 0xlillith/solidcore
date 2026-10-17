@@ -6421,13 +6421,14 @@ independent p6 integration.
 ## topology.brep_p1 (`SmBrep` members, collections, `sm_*` helpers of `SmBrep.cpp`, PR #145, 2026-10-16; partial, no disagreements)
 
 Difftest (`fixtures/topology.brep_p1/`: 2095 cases on the 15 upstream `.smb` files read by
-`SmBrep::ReadFromFile`, 232 on constructed B-reps (wire edges, plane and B-spline faces, the
-`prog_test` wire network, 10 `sm_FindSideOfCurve` cases among them), 16 generated): 2343 cases,
-1717 pass, 0 failed, 626 deferred (`harness:analytic-geometry-export` 217, `topology.shell` 151,
+`SmBrep::ReadFromFile`, 238 on constructed B-reps (wire edges, plane and B-spline faces, the
+`prog_test` wire network, 10 `sm_FindSideOfCurve` cases among them), 16 generated): 2349 cases,
+1708 pass (1663 compare values, 45 both-errored null-dereference guards), 15 rejected (no entity of the op's kind; nothing runs), 0 failed, 626 deferred (`harness:analytic-geometry-export` 217, `topology.shell` 151,
 `topology.edgeuse_p3` 93, `query.brep` 71, `topology.face_p2` 44, `topology.face_p3` 18,
 `topology.face_p4` 16, `query.face_p2` 9, `curve.crv_on_surf` 4, `surface.surface_cache_p1` 3);
-`--perturb` detects 1717/1717; a 1000-seed generated sweep (3327 cases) passes 2408 with 0
-failed and 919 deferred; `--green` runs 200 units with 0 failed (main merged through #148 and #152).
+`--perturb` detects 1708/1708; `--fuzz 2000` FUZZ-PASS; a 1000-seed generated sweep (3333 cases)
+passes 2399 with 0 failed, 919 deferred and 15 rejected; green runs 201 units (main's 200 + this unit) with
+0 failed (main merged through a28e0f06).
 `sm_SwapFaceUV` calls `topology.face_p1`'s `SmFace::SwapUV` (#148, wired after the merge; status ignored as upstream's release `SE`, `Unported` still propagates): on an unmarked face the shim now runs the C++ swap and both sides compare the swapped B-rep digest (the heal digest: surfaces, trim-curve fingerprints, loop-use links), but every such case defers at `SmFace::GetBrep` (`topology.face_p4`), the first call of face_p1's `swap_uv`, so none compares yet (the 16 former `topology.face_p1` deferrals are now `topology.face_p4` 16; no deferral flipped to pass).
 Every compared value is bit-identical; no absolute floors. 60 of the 1717 passes compare no value
 because both sides report the same error (`both_errored` in the report): 15 `no_entity` lookups
@@ -6671,6 +6672,6 @@ infinite region); the other 1657 compare values.
 
 Raised by oursland's review of #145. The B-rep graph export of `harness/cpp/shim/sc_edgeuse_graph.h` (shared by topology.edgeuse_p1/p2, topology.vertexuse, topology.brep_p1 and every runner that imports through them, e.g. heal.stitch_p1) carries `SmBSplineSurface`/`SmPlane` faces and `SmBSplineCurve`/`SmLine` edges exactly. `SmCone`, `SmCylinder`, `SmSphere`, `SmTorus`, `SmSurfOfExtrusion`, `SmSurfOfRevolution` faces and `SmEllipse`/`SmCircle`/other analytic edges arrive as their B-spline part, so the Rust side would evaluate different geometry. Runners therefore defer every op that evaluates such geometry under `harness:analytic-geometry-export` (topology.brep_p1: 217 of 2343 cases; heal.stitch_p1: 12). Those analytic branches are never compared (AGENTS.md §4 step 5 item 5). Closing it needs the export to carry the analytic kinds (type code + defining data) and the importers to rebuild them; it is a harness task, not a unit's, and every topology unit that exports faces inherits it until then.
 
-## harness: boolean.topology_intersector_p1's adapter builds no B-rep cache (exposed by topology.brep_p1)
+## boolean.topology_intersector_p1: B-rep cache of the difftest adapter (exposed by topology.brep_p1)
 
-Wiring #146's `UNPORTED(topology.brep_p1)` stubs `SmBrep::GetEdges` / `GetVertices` (#145; `IntersectorBrep::brep_edges` / `brep_vertices`) lets the wire/lamina pass reach `TopologySolver::brep_curve_solve`, which reads the B-rep's cache trees through `TopologyObjects::brep_cache`. The difftest adapter `Two` (crates/difftest/src/units/boolean_topology_intersector_p1.rs) never built caches (the trait default returns `InvalidInput`), so 16 cases reported the null-dereference guard where the C++ (which builds the cache on demand) succeeds. The adapter now returns `Unported` under the harness label `harness:intersector-brep-cache`, so those cases defer truthfully. Closing it needs the adapter to build a `BrepCache<H>` per B-rep (as query.api_queries' runner does) at the state the C++ builds it (on demand, after any earlier mutating op of the script). A harness task for the intersector's runner (boolean.topology_intersector_p2, #203, builds on it).
+Wiring #146's `UNPORTED(topology.brep_p1)` stubs `SmBrep::GetEdges` / `GetVertices` (#145; `IntersectorBrep::brep_edges` / `brep_vertices`) lets the wire/lamina pass reach `TopologySolver::brep_curve_solve`, which reads the B-rep's cache trees through `TopologyObjects::brep_cache`. The difftest adapter `Two` (crates/difftest/src/units/boolean_topology_intersector_p1.rs) had no cache mapping (the trait default returns `InvalidInput`), so 16 cases reported the null-dereference guard where the C++ (which builds the cache on demand) succeeds. The adapter now builds each B-rep's `BrepCache<H>` on first use (a `OnceCell`, the adapter's own handles, as query.api_queries' runner maps its objects), never an empty cache. Building it starts with `SmBrep::CalculateBoundingBox` (`topology/brep_cache.rs`, `UNPORTED(query.brep)`), so these cases now defer under `query.brep`, the real blocker; they compare once query.brep lands. The cache is built at the state of the first solve that needs it, as upstream; mutating ops before it are not re-reflected (upstream invalidates stale caches through B-rep notifications, `DeleteStaleCaches`, unit topology.brep_p2).

@@ -34,12 +34,12 @@
 //! Partial lists from completed merge intervals survive ignored failures.
 //! `Fix_SplitFaceAtSeams` updates the split-*edge* tried list, as upstream.
 
-use crate::topology::brep::p1 as bp1;
 use crate::error::{ignored as ignore_soft, EntityRef, Result, SolidError, SM_ERR};
 use crate::geom::attribute::ObjectKey;
 use crate::geom::context::{MarkLock, ALL_MARKS};
 use crate::heal::face_props::{HealerOpType, LoopObject};
 use crate::kernel::Kernel;
+use crate::topology::brep::p1 as bp1;
 use crate::topology::topology::TrackTopologyChanges;
 use crate::topology::topology_traverser::{Entity, Marks};
 use crate::topology::{edge, Brep, EdgeId, FaceId, VertexId};
@@ -701,7 +701,9 @@ impl<O: LoopObject> HealData<O> {
             let Some(f) = p.face else {
                 continue; // IsLiveTopologyMember(NULL) is false upstream.
             };
-            if !bp1::is_live_topology_member(b, Some(EntityRef::Face(f))) || p.bad_crossed_seam.is_false() {
+            if !bp1::is_live_topology_member(b, Some(EntityRef::Face(f)))
+                || p.bad_crossed_seam.is_false()
+            {
                 continue;
             }
             if classification_has_dead_topology(b, p.crv_class_u.as_ref())?
@@ -826,7 +828,9 @@ impl<O: LoopObject> HealData<O> {
             let Some(f) = p.face else {
                 continue; // IsLiveTopologyMember(NULL) is false upstream.
             };
-            if !bp1::is_live_topology_member(b, Some(EntityRef::Face(f))) || p.bad_missing_seam.is_false() {
+            if !bp1::is_live_topology_member(b, Some(EntityRef::Face(f)))
+                || p.bad_missing_seam.is_false()
+            {
                 continue;
             }
             if classification_has_dead_topology(b, p.crv_class_u.as_ref())?

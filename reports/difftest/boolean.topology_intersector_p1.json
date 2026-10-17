@@ -735,8 +735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0077",
@@ -1416,8 +1416,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0155",
@@ -1756,8 +1756,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0195",
@@ -2292,8 +2292,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0258",
@@ -2404,8 +2404,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0271",
@@ -2960,8 +2960,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0335",
@@ -4276,8 +4276,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0490",
@@ -5105,8 +5105,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0589",
@@ -5241,8 +5241,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0605",
@@ -5421,8 +5421,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0626",
@@ -5609,8 +5609,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0647",
@@ -5913,8 +5913,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0681",
@@ -6594,8 +6594,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0758",
@@ -6686,8 +6686,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0768",
@@ -6730,8 +6730,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0773",
@@ -7098,8 +7098,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
-        "unit": "harness:intersector-brep-cache"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "files_manager_shell_vertices",
@@ -7175,7 +7175,7 @@
   "cases_passed": 690,
   "cases_total": 827,
   "deferred_by_unit": {
-    "harness:intersector-brep-cache": 16,
+    "query.brep": 16,
     "query.face_p1": 7,
     "topology.brep_p2": 21,
     "topology.face_p2": 82,

@@ -242,11 +242,29 @@
       "values_compared": 4
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 1,
+            "u": [0, 0, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.0,
+          "t1": 1.0
+        },
+        "face": 0,
+        "op": "reflect_shell"
+      },
       "max_rel_err": 0.0,
       "name": "wire_line_reflect_shell_0",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#28 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
@@ -267,20 +285,59 @@
       "values_compared": 4
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 1,
+            "u": [0, 0, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.0,
+          "t1": 1.0
+        },
+        "level": 0,
+        "loop": 0,
+        "op": "mark_loops"
+      },
       "max_rel_err": 0.0,
       "name": "wire_line_mark_loops_0",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#31 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 1,
+            "u": [0, 0, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.0,
+          "t1": 1.0
+        },
+        "face": 0,
+        "mark": 1,
+        "op": "swap_face_uv",
+        "premark": true
+      },
       "max_rel_err": 0.0,
       "name": "wire_line_swap_face_uv",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#32 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
@@ -321,20 +378,62 @@
       "values_compared": 4
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 1,
+            "u": [0, 0, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.0,
+          "t1": 1.0
+        },
+        "dir": [0, 0, 1],
+        "face": 0,
+        "guess": [0.5, 0.5],
+        "op": "find_sector",
+        "p": [0.5, 0.5, 2.0]
+      },
       "max_rel_err": 0.0,
       "name": "wire_line_find_sector",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#37 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 1,
+            "u": [0, 0, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.0,
+          "t1": 1.0
+        },
+        "dir": [0, 0, 1],
+        "face": 0,
+        "guess": null,
+        "op": "find_sector",
+        "p": [0.2, 0.3, -1.0]
+      },
       "max_rel_err": 0.0,
       "name": "wire_line_find_sector_global",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#38 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
@@ -563,11 +662,31 @@
       "values_compared": 4
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 2, 0, -1.7976931348623157e+308],
+              [2, -1, 1, -1.7976931348623157e+308],
+              [3, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 3,
+            "u": [0, 0, 0, 0, 1, 1, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.2,
+          "t1": 0.9
+        },
+        "face": 0,
+        "op": "reflect_shell"
+      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_reflect_shell_0",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#65 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
@@ -588,20 +707,63 @@
       "values_compared": 4
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 2, 0, -1.7976931348623157e+308],
+              [2, -1, 1, -1.7976931348623157e+308],
+              [3, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 3,
+            "u": [0, 0, 0, 0, 1, 1, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.2,
+          "t1": 0.9
+        },
+        "level": 0,
+        "loop": 0,
+        "op": "mark_loops"
+      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_mark_loops_0",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#68 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 2, 0, -1.7976931348623157e+308],
+              [2, -1, 1, -1.7976931348623157e+308],
+              [3, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 3,
+            "u": [0, 0, 0, 0, 1, 1, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.2,
+          "t1": 0.9
+        },
+        "face": 0,
+        "mark": 1,
+        "op": "swap_face_uv",
+        "premark": true
+      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_swap_face_uv",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#69 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
@@ -642,20 +804,66 @@
       "values_compared": 4
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 2, 0, -1.7976931348623157e+308],
+              [2, -1, 1, -1.7976931348623157e+308],
+              [3, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 3,
+            "u": [0, 0, 0, 0, 1, 1, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.2,
+          "t1": 0.9
+        },
+        "dir": [0, 0, 1],
+        "face": 0,
+        "guess": [0.5, 0.5],
+        "op": "find_sector",
+        "p": [0.5, 0.5, 2.0]
+      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_find_sector",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#74 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "curve": {
+            "cpts": [
+              [0, 0, 0, -1.7976931348623157e+308],
+              [1, 2, 0, -1.7976931348623157e+308],
+              [2, -1, 1, -1.7976931348623157e+308],
+              [3, 0, 0, -1.7976931348623157e+308]
+            ],
+            "dim": 3,
+            "p": 3,
+            "u": [0, 0, 0, 0, 1, 1, 1, 1]
+          },
+          "kind": "wire",
+          "t0": 0.2,
+          "t1": 0.9
+        },
+        "dir": [0, 0, 1],
+        "face": 0,
+        "guess": null,
+        "op": "find_sector",
+        "p": [0.2, 0.3, -1.0]
+      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_find_sector_global",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#75 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
@@ -1880,11 +2088,18 @@
       "values_compared": 4
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "kind": "network"
+        },
+        "face": 0,
+        "op": "reflect_shell"
+      },
       "max_rel_err": 0.0,
       "name": "network_reflect_shell_0",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#213 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
@@ -1905,20 +2120,37 @@
       "values_compared": 5
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "kind": "network"
+        },
+        "level": 0,
+        "loop": 0,
+        "op": "mark_loops"
+      },
       "max_rel_err": 0.0,
       "name": "network_mark_loops_0",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#216 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "kind": "network"
+        },
+        "face": 0,
+        "mark": 1,
+        "op": "swap_face_uv",
+        "premark": true
+      },
       "max_rel_err": 0.0,
       "name": "network_swap_face_uv",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#217 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
@@ -1959,20 +2191,40 @@
       "values_compared": 4
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "kind": "network"
+        },
+        "dir": [0, 0, 1],
+        "face": 0,
+        "guess": [0.5, 0.5],
+        "op": "find_sector",
+        "p": [0.5, 0.5, 2.0]
+      },
       "max_rel_err": 0.0,
       "name": "network_find_sector",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#222 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "inputs": {
+        "brep": {
+          "kind": "network"
+        },
+        "dir": [0, 0, 1],
+        "face": 0,
+        "guess": null,
+        "op": "find_sector",
+        "p": [0.2, 0.3, -1.0]
+      },
       "max_rel_err": 0.0,
       "name": "network_find_sector_global",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "no entity of the op's kind in this B-rep: nothing runs on either side",
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#223 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
       "values_compared": 0
     },
@@ -21358,10 +21610,11 @@
       "values_compared": 0
     }
   ],
-  "cases_both_errored": 60,
+  "cases_both_errored": 45,
   "cases_deferred": 626,
   "cases_failed": 0,
-  "cases_passed": 1723,
+  "cases_passed": 1708,
+  "cases_rejected": 15,
   "cases_total": 2349,
   "deferred_by_unit": {
     "curve.crv_on_surf": 4,
