@@ -6254,9 +6254,11 @@ independent p6 integration.
   streams the brep_data guard accepts (pinned by a deterministic search: an overwritten
   digit of an integer token), the face makers' input errors, `MakeFace`'s null-surface
   status, the glue no-ops (compared as the B-rep's counts after the op) and
-  `MergeSelfIntersectionCurves` without curves. Of the 198 passes, 175 compare B-rep values
-  (111 glue B-rep counts after the op, 64 `MergeSelfIntersectionCurves` records) and 23 a
-  status only (`with_values` counts both: 198, `no_values=0`); the shim's `-2` guards are deferrals, not passes. Before the pre-review of
+  `MergeSelfIntersectionCurves` without curves. All 198 passes are no-ops, empty inputs or error statuses; none
+  completes a path that builds topology: 111 glue no-ops (null, identical or wrapped-to-identical
+  edges; compared as the B-rep's counts and sorted edge and vertex tolerances after the op), 64
+  `MergeSelfIntersectionCurves` without curves and 23 statuses (`with_values=198`,
+  `no_values=0`); the shim's `-2` guards are deferrals, not passes. Before the pre-review of
   PR #155 no `ReadFromFile` case compared anything.
 - **C++ guards.** A damaged `.smb` stream goes through `topology.brep_data`'s stream guard
   on both sides (rejected streams are not generated). A damaged stream whose C++
@@ -6297,4 +6299,42 @@ independent p6 integration.
 - **UB-165.** `MakeFaceWithCurves` with `pbOptCrvOnSurf` TRUE, 3D curves and no UV curves
   dereferences the null UV array once `MakeFace` succeeds; the shim returns `-2` for such
   calls and the Rust side defers them (`cpp-guard:ub-165`; the port itself returns
-  `InvalidInput`).
+  `InvalidInput`). Upstream's own input checks (`SmBrep.cpp:15722-15741`: no loops, a
+  surface degenerate to a curve or a point) return before it and are run and compared.
+- **Reviews of PR #155 (maintainer at a5359b48; cross-model and oursland at bbdb8bf1),
+  all verified against upstream and fixed:**
+  - With `pbOptCrvOnSurf` the port built the `CrvOnSurf` over a plane's or a surface of
+    revolution's B-spline base; upstream keeps the real surface (`SmPlane::EvaluatePoint`,
+    `SmSurfOfRevolution::EvaluateSTEP` are overrides). Those kinds now defer to
+    `curve.crv_on_surf` like every other non-B-spline kind; `face_curves_cos_open_loop`
+    moved to a B-spline patch so it still reaches the `curve.curve_p6` deferral.
+  - `MergeSelfIntersectionCurves` keeps upstream's loop: the classification is a stub
+    (`intersect.curve_class_p4`), then a second classification of fewer or more than one
+    interval is skipped before its merge, is `SM_ERR` after it, and one whose middle is
+    off an edge is skipped (`SE(SM_ERR)`).
+  - The `topology.edgeuse_p1`, `topology.edgeuse_p2` and `topology.loopuse` runners
+    deferred inexact `.smb` imports to `topology.brep_p7` `ReadFromFile`; the blocker is
+    `MakeTopologyFromData` (`topology.brep_p10`), so they are relabelled.
+  - The `SmBrep::Notify` and `MakeTopologyFromData` stubs now take upstream's arguments
+    (the merged edges; `FALSE, TRUE, TRUE`).
+  - The FFI ran the native read without the B-rep data check whenever a public flag said
+    the bytes were a test file. It now decides this itself: only bytes equal to one of
+    the 15 shipped ASCII test files (compiled in) skip the check.
+  - `GlueEdgesGeneral` called `SetTolerance(r, FALSE, FALSE)`; upstream's
+    `SetTolerance(dEnclosingRadius)` takes the defaults `TRUE, TRUE` (`SmEdge.h:431`),
+    which also raise the vertex tolerances. Glue records now carry the sorted edge and
+    vertex tolerances.
+  - Two edges without curve are the same geometry upstream (`pSurvCurve == pDelCurve`,
+    `NULL == NULL`, `SmBrep.cpp:9875-9879`); the port demanded both curves.
+  - The runner decoded orientation code 0 (`SM_OT_UNKNOWN`) as `Opposite`; upstream
+    tests `== SM_OT_SAME` / `== SM_OT_OPPOSITE`, so UNKNOWN takes neither branch. Codes
+    0..2 decode exactly, others are refused, and the generator draws 0.
+  - `CopyFaces` reports `SM_ERR` when a face fails (copies kept); the runner now
+    records that status. `MakeFaceWithCurves` converts the caller's UV curves to 2D in
+    place, so the later UV trim curves are copies of the converted ones (the port
+    converted a clone). The FFI plane-normal check is upstream's precondition
+    (`LengthSquared() > SM_EFF_ZERO_SQ`) and `MakeFace` kind 0 no longer checks the
+    unused side. The `MergeIntervals` and `SmFace::Notify` stubs now take upstream's
+    arguments (the face, its surface through it, the 3D curve; the notify operation
+    and data).
+  All but the read check and the orientation decoding are behind unported stubs today.

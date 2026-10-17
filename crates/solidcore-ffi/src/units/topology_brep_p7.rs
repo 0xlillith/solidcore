@@ -14,7 +14,7 @@
 //! | `Read`              | `n byte*n file_type rebuild` | `status [counts]` (`SmBrep::ReadFromFile` of the bytes) |
 //! | `MakeFaceWithCurves`| `surface u0 v0 u1 v1 orient region_null crv_on_surf nloops count* has3d has_uv ncurves (curve3d? curveuv? orient)* npts pt[3]*` | `-2 \| status [face shell region counts]` (`-2`: `crv_on_surf` TRUE with 3D but no UV curves, where upstream dereferences the null UV array) |
 //! | `MakeFace`          | `kind side orient region_null` (`kind` 0: null surface, 1: a square wire loop on `z = 0`) | `-3 \| status [face shell region counts]` (`-3`: the square's lines cannot be made) |
-//! | `Glue`              | `e1 e2 orient gap nesting`, B-rep block | `0 (-2 \| status counts)` (`-2`: `SM_OT_SAME`, equal intervals and one edge without curve) (`-1 status` when the B-rep build fails) |
+//! | `Glue`              | `e1 e2 orient gap nesting`, B-rep block | `0 (-2 \| status counts edge_tols vertex_tols)` (tolerances sorted) (`-2`: `SM_OT_SAME`, equal intervals and one edge without curve) (`-1 status` when the B-rep build fails) |
 //! | `Copy`              | `n use_merge`, B-rep block | `0 status nfaces counts` |
 //! | `MergeSelf`         | `face tol`, B-rep block | `0 (-2 \| status nedges)` |
 //!
@@ -25,10 +25,10 @@
 //! weights and finite values, planes with a non-zero normal, loop counts that add up to
 //! the curves, indices inside the B-rep's export. For `Read` it applies the guard of
 //! unit `topology.brep_data` to the bytes (a rejected stream is
-//! [`FfiError::InvalidArgument`]) and, for bytes that are not an unmodified upstream test
-//! file, runs `SmBrepData::ReadFromFile` first: when that read succeeds the topology it
-//! read is not known to be safe for `MakeTopologyFromData`, and `[-3]` is returned
-//! without calling the shim.
+//! [`FfiError::InvalidArgument`]) and, for bytes that are not exactly one of the shipped
+//! ASCII test files, runs `SmBrepData::ReadFromFile` first: when that read succeeds the
+//! topology it read is not known to be safe for `MakeTopologyFromData`, and `[-3]` is
+//! returned without calling the shim.
 
 use super::topology_brep_data as bd;
 use super::topology_vertexuse as fixture;
@@ -204,7 +204,8 @@ fn surface(rd: &mut Reader<'_>) -> Result<(), FfiError> {
             rd.finite()?;
         }
         let n = [rd.finite()?, rd.finite()?, rd.finite()?];
-        if n.iter().map(|c| c * c).sum::<f64>() < 1e-12 {
+        // (SmPlane's precondition: LengthSquared() > SM_EFF_ZERO_SQ, SmPlane.cpp)
+        if n.iter().map(|c| c * c).sum::<f64>() <= 1.0e-24 {
             return Err(bad("zero plane normal"));
         }
         return Ok(());
@@ -233,13 +234,40 @@ fn surface(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     check_knots(&v, q)
 }
 
-/// The arguments of [`eval`] for [`Op::Read`]: the bytes are an unmodified upstream test
-/// file (`SmBrep::ReadFromFile` is run on them whatever the stream guard of the B-rep
-/// data simulation stops at).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct ReadOptions {
-    /// The bytes are an unmodified upstream test file.
-    pub upstream_file: bool,
+/// The shipped ASCII test files (`upstream/TestFiles/pt_TestFiles`) whose exact bytes the
+/// native read is run on without the B-rep data check.
+macro_rules! test_file {
+    ($f:literal) => {
+        include_bytes!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../upstream/TestFiles/pt_TestFiles/",
+            $f
+        ))
+        .as_slice()
+    };
+}
+
+const TRUSTED_FILES: [&[u8]; 15] = [
+    test_file!("Mouse.smb"),
+    test_file!("Endcap.smb"),
+    test_file!("box_with_large_fillet.smb"),
+    test_file!("cone.smb"),
+    test_file!("disk.smb"),
+    test_file!("ellips_ts2.smb"),
+    test_file!("plane_circ.smb"),
+    test_file!("plane_square.smb"),
+    test_file!("sphere.smb"),
+    test_file!("surf_extrude.smb"),
+    test_file!("surf_rev.smb"),
+    test_file!("surf_sphere150.smb"),
+    test_file!("torus.smb"),
+    test_file!("toruswvy.smb"),
+    test_file!("vase_rev.smb"),
+];
+
+/// Whether `bytes`, read as `binary` or not, are exactly one of [`TRUSTED_FILES`].
+fn trusted(bytes: &[u8], binary: bool) -> bool {
+    !binary && TRUSTED_FILES.contains(&bytes)
 }
 
 /// Runs `op` on `input` (see the module docs); `path` is the `.smb` file of a file
@@ -249,7 +277,7 @@ pub struct ReadOptions {
 ///
 /// [`FfiError::InvalidArgument`] for a malformed input or an index outside the B-rep;
 /// [`FfiError::Status`] for a shim failure.
-pub fn eval(op: Op, path: &str, input: &[f64], read: ReadOptions) -> Result<Vec<f64>, FfiError> {
+pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     let mut rd = Reader { input, at: 0 };
     match op {
         Op::Read => {
@@ -261,6 +289,7 @@ pub fn eval(op: Op, path: &str, input: &[f64], read: ReadOptions) -> Result<Vec<
             let binary = rd.flag()?;
             rd.flag()?;
             rd.done()?;
+            let trust = trusted(&bytes, binary);
             // the B-rep data guard (and, for a modified stream, its read status)
             let req = bd::Request {
                 mode: bd::Mode::ReadFile,
@@ -271,10 +300,10 @@ pub fn eval(op: Op, path: &str, input: &[f64], read: ReadOptions) -> Result<Vec<
                 source: 0,
                 pre: 0,
                 data: bytes,
-                upstream_file: read.upstream_file,
+                upstream_file: trust,
             };
             let items = bd::run(&req)?;
-            if !read.upstream_file && items.first() == Some(&bd::Item::Int(0)) {
+            if !trust && items.first() == Some(&bd::Item::Int(0)) {
                 return Ok(vec![NOT_RUN]);
             }
         }
@@ -315,10 +344,11 @@ pub fn eval(op: Op, path: &str, input: &[f64], read: ReadOptions) -> Result<Vec<
             rd.done()?;
         }
         Op::MakeFace => {
-            rd.index(1)?;
-            // (the shim builds the square's lines: they need distinct ends)
+            let kind = rd.index(1)?;
+            // (kind 1: the shim builds the square's lines, which need distinct ends; kind 0
+            // does not use the side)
             let side = rd.finite()?;
-            if side.partial_cmp(&0.0) != Some(core::cmp::Ordering::Greater) {
+            if kind == 1 && side.partial_cmp(&0.0) != Some(core::cmp::Ordering::Greater) {
                 return Err(bad("square side must be positive"));
             }
             rd.orient()?;

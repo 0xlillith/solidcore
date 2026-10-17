@@ -45,8 +45,9 @@
 //!   `SmCurve::DeformToEndPointTargets` (unit `curve.curve_p6`) has no `pOptSurfCrvOnSurf`,
 //!   so deforming a curve on surface to a gap target (upstream edits its UV curve) returns
 //!   [`SolidError::Unported`] for `curve.curve_p6`; other curves, and curves on surface
-//!   without targets, call the port. A curve on surface of a surface that is not a
-//!   B-spline kind (the port's `CrvOnSurf` holds an `SmBSplineSurface`) returns
+//!   without targets, call the port. A curve on surface of any surface but a plain
+//!   `SmBSplineSurface` (the port's `CrvOnSurf` holds one; a plane's or a surface of
+//!   revolution's B-spline base would lose the kind's evaluation overrides) returns
 //!   [`SolidError::Unported`] for `curve.crv_on_surf`, as at that gap's other sites.
 //! - **Statuses ignored upstream** (`LiftCurve`, `DeformToEndPointTargets`, `ConvertTo2D`
 //!   of the UV curves, `GetEnds`, `CopyAndAddAnalytics`, `FindRadialSector`,
@@ -75,8 +76,8 @@
 //! - **`MakeFace`** returns nothing when `MakeFaceTopology` fails; upstream still hands
 //!   back the region and shell it may have made (`MakeFaceWithCurves` warns about it).
 //! - **`GlueEdgesGeneral`**: the arena cannot share one curve between two edges, so
-//!   upstream's `pSurvCurve == pDelCurve` short cut (no `CurveMaxDistanceBetween`) is never
-//!   taken. The glued-away edge stays in the edge arena as an orphan without edge uses;
+//!   upstream's `pSurvCurve == pDelCurve` short cut (no `CurveMaxDistanceBetween`) is taken
+//!   only for two edges without curve (`NULL == NULL`). The glued-away edge stays in the edge arena as an orphan without edge uses;
 //!   enumerations of the B-rep's edges must skip edges without edge uses (upstream removes
 //!   it from `m_pEdgeListHead`).
 //! - **Bounds.** No recursion; every loop is over input arrays or B-rep lists.
@@ -133,8 +134,9 @@ fn reset_infinite_region(_b: &mut Brep) -> Result<()> {
     ))
 }
 
-/// `SmBrep::Notify(op, ..)`.
-fn brep_notify(_b: &mut Brep, _op: NotifyOperation) -> Result<()> {
+/// `SmBrep::Notify(op, data1, data2, data3)` (`None` for a null datum or for the B-rep,
+/// which has no identity here).
+fn brep_notify(_b: &mut Brep, _op: NotifyOperation, _data: [Option<EntityRef>; 3]) -> Result<()> {
     // UNPORTED(topology.brep_p2): SmBrep::Notify
     Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
 }
@@ -273,8 +275,17 @@ fn make_shell_vertex(
     ))
 }
 
-/// `MakeTopologyFromData(pBrepData, sAttributes, FALSE, TRUE, TRUE)`.
-fn make_topology_from_data(_k: &Kernel, _b: &mut Brep, _data: &mut BrepData) -> Result<()> {
+/// `MakeTopologyFromData(pBrepData, sAttributes, bMakeUVTrimCurves, bAddAnalytics,
+/// bForceSameTol)` with the defaults `bCheckUVCurves = FALSE`, `bAlwaysHeal = FALSE`,
+/// `bHealerIsEnabled = TRUE` (`ReadFromFile` passes an empty local `sAttributes`).
+fn make_topology_from_data(
+    _k: &Kernel,
+    _b: &mut Brep,
+    _data: &mut BrepData,
+    _make_uv_trim_curves: bool,
+    _add_analytics: bool,
+    _force_same_tol: bool,
+) -> Result<()> {
     // UNPORTED(topology.brep_p10): SmBrep::MakeTopologyFromData
     Err(SolidError::unported(
         "SmBrep::MakeTopologyFromData",
@@ -291,8 +302,14 @@ fn is_inner_shell(_b: &Brep, _s: ShellId) -> Result<bool> {
     ))
 }
 
-/// `SmFace::Notify(op, ..)`.
-fn face_notify(_b: &mut Brep, _f: FaceId) -> Result<()> {
+/// `SmFace::Notify(op, data1, data2, data3)` on face `f` (`None` for a null datum or for
+/// the B-rep, which has no identity here).
+fn face_notify(
+    _b: &mut Brep,
+    _f: FaceId,
+    _op: NotifyOperation,
+    _data: [Option<EntityRef>; 3],
+) -> Result<()> {
     // UNPORTED(topology.face_p3): SmFace::Notify
     Err(SolidError::unported("SmFace::Notify", "topology.face_p3"))
 }
@@ -345,24 +362,43 @@ fn merge_copy_faces(
     Err(SolidError::unported("SmMerge::SmMerge", "boolean.merge_p2"))
 }
 
-/// The faces a classification merge made and its intervals classified to an edge.
-type ClassifiedMerge = (Vec<FaceId>, Vec<(EdgeId, Extent1d)>);
+/// One interval of a self-intersection curve's classification: its parameter interval
+/// and the edge its middle is classified to (`None`: the middle is not on an edge).
+type ClassifiedInterval = (Extent1d, Option<EdgeId>);
 
-/// `SmCurveClassification(uvCurve, ivl, uvCurve, tol, 16, data, FALSE, TRUE, &surface)`,
-/// `CurveOnClassify` against the faces and `MergeIntervals`: the edges the merge made
-/// (the interval middles classified to an edge).
-fn classify_and_merge(
-    _b: &mut Brep,
+/// `SmCurveClassification sCC(uvCurve, ivl, uvCurve, tol, 16, data, FALSE, TRUE,
+/// &surface)` with `surface` the surface of `face`, then `CurveOnClassify(TRUE, sCC)` on
+/// each of `faces`: the classification's intervals.
+fn classify_on_faces(
+    _b: &Brep,
     _faces: &[FaceId],
+    _face: FaceId,
     _uv_curve: &Curve,
     _ivl: Extent1d,
     _tol: f64,
-) -> Result<ClassifiedMerge> {
+) -> Result<Vec<ClassifiedInterval>> {
     // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
-    // (then SmFace::CurveOnClassify, unit query.face_p2, and
-    // CurveClassification::merge_intervals, unit intersect.curve_class_p5)
+    // (then SmFace::CurveOnClassify, unit query.face_p2)
     Err(SolidError::unported(
         "SmCurveClassification::SmCurveClassification",
+        "intersect.curve_class_p4",
+    ))
+}
+
+/// `sCC.SetCurve(curve_3d)` and `sCC.MergeIntervals(&newFaces, NULL, NULL, face)` on a
+/// classification of [`classify_on_faces`]: the faces the merge made; `intervals` become
+/// the merged classification's.
+fn set_curve_and_merge(
+    _b: &mut Brep,
+    _intervals: &mut Vec<ClassifiedInterval>,
+    _curve_3d: &Curve,
+    _face: FaceId,
+) -> Result<Vec<FaceId>> {
+    // UNPORTED(intersect.curve_class_p4): SmCurveClassification::MergeIntervals over a
+    // classification of B-rep faces (the ported MergeIntervals needs the classification
+    // the unported constructor makes)
+    Err(SolidError::unported(
+        "SmCurveClassification::MergeIntervals (B-rep classification)",
         "intersect.curve_class_p4",
     ))
 }
@@ -441,7 +477,8 @@ pub fn read_from_file(
     rebuild_uv_trim_curves_flag: bool,
 ) -> Result<()> {
     let mut brep_data = BrepData::read_from_file(k, data, file_type)?;
-    make_topology_from_data(k, b, &mut brep_data)?;
+    // MakeTopologyFromData(pBrepData, sAttributes, FALSE, TRUE, TRUE)
+    make_topology_from_data(k, b, &mut brep_data, false, true, true)?;
     drop(brep_data);
 
     // check the UV trim curves unless they are rebuilt (statuses ignored)
@@ -613,7 +650,7 @@ pub fn make_face_with_curves(
     let FaceCurvesInput {
         loops,
         curves_3d,
-        uv_curves,
+        mut uv_curves,
         orientations,
         loop_points,
     } = input;
@@ -658,7 +695,7 @@ pub fn make_face_with_curves(
         c
     } else {
         {
-            let uv = uv_curves.as_deref().ok_or_else(|| null("no curves"))?;
+            let uv = uv_curves.as_deref_mut().ok_or_else(|| null("no curves"))?;
             if total > uv.len() || total > orientations.len() {
                 return Err(null("loop counts exceed the curves"));
             }
@@ -668,13 +705,18 @@ pub fn make_face_with_curves(
                 // (index into s3d, curve) of the non-degenerate 3D curves of this loop
                 let mut to_check: Vec<usize> = Vec::new();
                 for jj in 0..n {
-                    let mut uv_curve = at(uv, index + jj)?.clone();
-                    ignore_status(uv_curve.convert_to_2d(k))?;
+                    // (upstream converts the caller's curve: the copies made for the UV
+                    // trim curves later are the converted ones)
+                    let entry = uv
+                        .get_mut(index + jj)
+                        .ok_or_else(|| null("loop counts exceed the curves"))?;
+                    ignore_status(entry.convert_to_2d(k))?;
+                    let uv_curve = entry.clone();
                     let new3d = if crv_on_surf {
                         let base = match surface.kind() {
                             SurfaceKind::BSpline(s) => s.clone(),
-                            SurfaceKind::Plane(p) => p.base_for_query().into_owned(),
-                            SurfaceKind::SurfOfRevolution(s) => s.base().clone(),
+                            // (a plane's or a surface of revolution's B-spline base would drop
+                            // the kind's evaluation overrides, as every other kind's would)
                             _ => {
                                 // UNPORTED(curve.crv_on_surf): SmCrvOnSurf over a non-B-spline
                                 // surface (the Rust CrvOnSurf holds only B-spline surfaces)
@@ -1014,7 +1056,8 @@ pub fn glue_edges_general(
         return Ok(());
     }
 
-    brep_notify(b, NotifyOperation::PreEdit)?;
+    // Notify(SM_NO_PRE_EDIT, this, NULL, NULL)
+    brep_notify(b, NotifyOperation::PreEdit, [None, None, None])?;
 
     // a wire edge is just deleted
     if ed::is_wire(b, del)? {
@@ -1032,9 +1075,24 @@ pub fn glue_edges_general(
         // and PreEdit does not read it)
         [Some(surv_ref), None, None],
     )?;
-    brep_notify(b, NotifyOperation::MergeInBrep)?;
+    // Notify(SM_NO_MERGE_IN_BREP, pSurvivingEdge, pEdgeToDelete, this)
+    brep_notify(
+        b,
+        NotifyOperation::MergeInBrep,
+        [
+            Some(EntityRef::Edge(surv)),
+            Some(EntityRef::Edge(del)),
+            None,
+        ],
+    )?;
     for f in ed::faces(b, del, None)? {
-        face_notify(b, f)?;
+        // SmFace::Notify(SM_NO_PRE_EDIT, pFace, this, NULL)
+        face_notify(
+            b,
+            f,
+            NotifyOperation::PreEdit,
+            [Some(EntityRef::Face(f)), None, None],
+        )?;
     }
 
     // the same geometry: the same curve over the same interval, or curves within a
@@ -1046,36 +1104,36 @@ pub fn glue_edges_general(
         if crate::geom::tol::are_same(surv_ivl.min(), del_ivl.min())
             && crate::geom::tol::are_same(surv_ivl.max(), del_ivl.max())
         {
-            let sc = b
-                .edge(surv)?
-                .curve
-                .as_ref()
-                .ok_or_else(|| null("edge without curve"))?;
-            let dc = b
-                .edge(del)?
-                .curve
-                .as_ref()
-                .ok_or_else(|| null("edge without curve"))?;
-            let surv_tol = b.edge(surv)?.tolerance;
-            let tol = surv_tol / 100.0;
-            let dn = dc.natural_interval();
-            let md = sc.curve_max_distance_between(
-                k,
-                &sc.natural_interval(),
-                dc,
-                dn.min(),
-                dn.max(),
-                4,
-                Some(tol),
-            )?;
-            if md.distance < surv_tol / 1000.00 {
-                let t_mid = surv_ivl.evaluate(0.45678);
-                let sp = sc.evaluate_point(t_mid)?;
-                let dp = dc.evaluate_point(t_mid)?;
-                let tolerance = EFF_ZERO * (1.0 + sp.max_dimension());
-                if sp.distance(dp) < tolerance {
-                    same_geometry = true;
+            match (&b.edge(surv)?.curve, &b.edge(del)?.curve) {
+                // when curves are the same (upstream's pointer test; in the arena only two
+                // edges without curve)
+                (None, None) => same_geometry = true,
+                // test the geometry
+                (Some(sc), Some(dc)) => {
+                    let surv_tol = b.edge(surv)?.tolerance;
+                    let tol = surv_tol / 100.0;
+                    let dn = dc.natural_interval();
+                    let md = sc.curve_max_distance_between(
+                        k,
+                        &sc.natural_interval(),
+                        dc,
+                        dn.min(),
+                        dn.max(),
+                        4,
+                        Some(tol),
+                    )?;
+                    if md.distance < surv_tol / 1000.00 {
+                        let t_mid = surv_ivl.evaluate(0.45678);
+                        let sp = sc.evaluate_point(t_mid)?;
+                        let dp = dc.evaluate_point(t_mid)?;
+                        let tolerance = EFF_ZERO * (1.0 + sp.max_dimension());
+                        if sp.distance(dp) < tolerance {
+                            same_geometry = true;
+                        }
+                    }
                 }
+                // (upstream dereferences the null curve)
+                _ => return Err(null("edge without curve")),
             }
         }
     }
@@ -1249,7 +1307,7 @@ pub fn glue_edges_general(
             radius = edge_gap * 2.0;
         }
         if radius > surv_tol * 1.1 {
-            ed::set_tolerance(b, surv, radius, false, false)?;
+            ed::set_tolerance(b, surv, radius, true, true)?;
         }
 
         jj -= 2;
@@ -1364,7 +1422,12 @@ pub fn copy_faces(
                     new_faces.push(nf);
                 }
                 // SmFace::Notify(SM_NO_COPY, pNewFace, pDestinationBrep, this)
-                face_notify(src, f)?;
+                face_notify(
+                    src,
+                    f,
+                    NotifyOperation::Copy,
+                    [made.face.map(EntityRef::Face), None, None],
+                )?;
             }
             Err(e) if e.is_unported() => return Err(e),
             Err(_) => all_ok = false,
@@ -1413,17 +1476,33 @@ pub fn merge_self_intersection_curves(
     };
     for c in curves {
         let tol = tol_3d;
-        let ivl1 = c.uv_curve_1.natural_interval();
-        let (faces1, edges1) = classify_and_merge(b, &all_faces, &c.uv_curve_1, ivl1, tol)?;
-        all_faces.extend(faces1);
-        for (e1, ivl) in edges1 {
-            let (faces2, edges2) = classify_and_merge(b, &all_faces, &c.uv_curve_2, ivl, tol)?;
-            all_faces.extend(faces2);
-            let [(e2, _)] = edges2.as_slice() else {
-                // (one interval classified to an edge is expected)
+        let mut cc1 = classify_on_faces(
+            b,
+            &all_faces,
+            face,
+            &c.uv_curve_1,
+            c.uv_curve_1.natural_interval(),
+            tol,
+        )?;
+        let new_faces = set_curve_and_merge(b, &mut cc1, &c.curve_3d, face)?;
+        all_faces.extend(new_faces);
+        for &(ivl, mid_edge) in &cc1 {
+            let Some(e1) = mid_edge else {
                 continue;
             };
-            let e2 = *e2;
+            let mut cc2 = classify_on_faces(b, &all_faces, face, &c.uv_curve_2, ivl, tol)?;
+            if cc2.len() != 1 {
+                continue;
+            }
+            let new_faces = set_curve_and_merge(b, &mut cc2, &c.curve_3d, face)?;
+            all_faces.extend(new_faces);
+            let [(_, mid2)] = cc2.as_slice() else {
+                return Err(SolidError::sm_err(OP));
+            };
+            // (SE(SM_ERR): the error is signalled, not returned)
+            let Some(e2) = *mid2 else {
+                continue;
+            };
             let st1 = ed::start_vertex(b, e1)?;
             let end1 = ed::other_vertex(b, e1, st1)?;
             let st2 = ed::start_vertex(b, e2)?;
@@ -1451,7 +1530,6 @@ pub fn merge_self_intersection_curves(
             new_edges.push(e1);
         }
     }
-    let _ = face;
     Ok(new_edges)
 }
 

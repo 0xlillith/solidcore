@@ -62,7 +62,7 @@ use solidcore::topology::edge as ed;
 use solidcore::topology::{Brep, EdgeId, FaceId, Region};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_data as bd;
-use solidcore_ffi::units::topology_brep_p7::{self as ffi, Op, ReadOptions};
+use solidcore_ffi::units::topology_brep_p7::{self as ffi, Op};
 use solidcore_ffi::units::topology_vertexuse as fixture;
 use solidcore_ffi::FfiError;
 
@@ -277,6 +277,12 @@ fn brep_block(b: &BrepIn) -> Result<Vec<f64>, HarnessError> {
     Ok(out)
 }
 
+/// Whether `bytes` are exactly the test file `file` (a damage that changed nothing): the
+/// FFI runs the native read without the B-rep data check on exactly the shipped files.
+fn is_test_file(file: &str, bytes: &[u8]) -> Result<bool, HarnessError> {
+    Ok(read_bytes(file, None)? == bytes)
+}
+
 /// The bytes of a read case.
 fn read_bytes(file: &str, damage: Option<Damage>) -> Result<Vec<u8>, HarnessError> {
     let p = crate::fixtures::upstream_test_file(&crate::case::repo_root(), file)?;
@@ -402,10 +408,9 @@ fn resolve(i: &Inputs) -> Result<Result<(Inputs, Option<Rc<Vec<f64>>>), Output>,
 
 // ---- C++ side ---------------------------------------------------------------------------
 
-fn encode(i: &Inputs) -> Result<(Op, String, Vec<f64>, ReadOptions), HarnessError> {
+fn encode(i: &Inputs) -> Result<(Op, String, Vec<f64>), HarnessError> {
     let mut v = Vec::new();
     let mut path = String::new();
-    let mut read = ReadOptions::default();
     let op = match i {
         Inputs::Read {
             file,
@@ -416,7 +421,6 @@ fn encode(i: &Inputs) -> Result<(Op, String, Vec<f64>, ReadOptions), HarnessErro
             v.push(bytes.len() as f64);
             v.extend(bytes.iter().map(|&b| f64::from(b)));
             v.extend([0.0, flag(*rebuild)]);
-            read.upstream_file = damage.is_none();
             Op::Read
         }
         Inputs::MakeFaceWithCurves {
@@ -508,12 +512,13 @@ fn encode(i: &Inputs) -> Result<(Op, String, Vec<f64>, ReadOptions), HarnessErro
             Op::MergeSelf
         }
     };
-    Ok((op, path, v, read))
+    Ok((op, path, v))
 }
 
 fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     if let Inputs::Read { file, damage, .. } = i {
-        if !guard_accepts(&read_bytes(file, *damage)?, damage.is_none())? {
+        let bytes = read_bytes(file, *damage)?;
+        if !guard_accepts(&bytes, is_test_file(file, &bytes)?)? {
             return Ok(Output::err("guard"));
         }
     }
@@ -521,8 +526,8 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
         Ok(x) => x,
         Err(o) => return Ok(o),
     };
-    let (op, path, input, read) = encode(&r)?;
-    let out = ffi::eval(op, &path, &input, read).map_err(|e| harness(format!("c++: {e}")))?;
+    let (op, path, input) = encode(&r)?;
+    let out = ffi::eval(op, &path, &input).map_err(|e| harness(format!("c++: {e}")))?;
     Ok(Output::new().values("out", out))
 }
 
@@ -600,11 +605,13 @@ fn rust_surface(s: &SrfIn) -> Result<Surface, HarnessError> {
     }
 }
 
-fn orient_of(code: u8) -> OrientType {
-    if code == 1 {
-        OrientType::Same
-    } else {
-        OrientType::Opposite
+/// `SmOrientType` codes `SM_OT_UNKNOWN` (0), `SM_OT_SAME` (1), `SM_OT_OPPOSITE` (2).
+fn orient_of(code: u8) -> Result<OrientType, Fail> {
+    match code {
+        0 => Ok(OrientType::Unknown),
+        1 => Ok(OrientType::Same),
+        2 => Ok(OrientType::Opposite),
+        _ => Err(hfail("SmOrientType code")),
     }
 }
 
@@ -661,6 +668,50 @@ fn brep_counts(b: &Brep) -> [f64; 6] {
     ]
 }
 
+/// The tolerances of the edges and vertices [`brep_counts`] counts, each sorted ascending.
+fn brep_tolerances(b: &Brep) -> Vec<f64> {
+    let mut te: Vec<f64> = b
+        .edges()
+        .iter()
+        .filter(|(_, e)| !e.edgeuses.is_empty())
+        .map(|(_, e)| e.tolerance)
+        .collect();
+    let mut tv: Vec<f64> = b
+        .vertices()
+        .iter()
+        .filter(|(_, v)| !v.vertexuses.is_empty())
+        .map(|(_, v)| v.tolerance)
+        .collect();
+    te.sort_by(f64::total_cmp);
+    tv.sort_by(f64::total_cmp);
+    te.extend(tv);
+    te
+}
+
+/// Whether `MakeFaceWithCurves` fails its input checks (`SmBrep.cpp:15722-15741`) on a
+/// face with 3D curves: no loops, or a surface degenerate to a curve or a point (the
+/// port's tests, which fail soft as upstream's flags).
+fn mfwc_input_error(surface: &SrfIn, loops: &[usize]) -> Result<bool, Fail> {
+    if loops.is_empty() {
+        return Ok(true);
+    }
+    let srf = rust_surface(surface)?;
+    let flag = |r: solidcore::Result<bool>| -> Result<bool, Fail> {
+        match r {
+            Ok(x) => Ok(x),
+            Err(e) => match Output::unported(&e) {
+                Some(o) => Err(Fail::Deferred(Box::new(o))),
+                None => Ok(false),
+            },
+        }
+    };
+    let tol = solidcore::surface::surface::p1::DEGENERATE_TOL_3D;
+    Ok(
+        flag(srf.is_degenerate_curve(solidcore::math::EFF_ZERO_DEG, None, tol))?
+            || flag(srf.is_degenerate_point(tol, None))?,
+    )
+}
+
 /// The record of a face maker: `status [face shell region counts]`.
 fn new_face_record(b: &Brep, r: &Result<p7::NewFace, SolidError>) -> Record {
     let mut o = vec![status(r)?];
@@ -687,7 +738,7 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             // the C++ side does not run a modified stream its SmBrepData read accepts
             // (MakeTopologyFromData does not validate the topology: UB-164); decided with
             // the same C++ reader as the FFI
-            if damage.is_some() && cpp_brep_data_reads(&bytes)? {
+            if !is_test_file(file, &bytes)? && cpp_brep_data_reads(&bytes)? {
                 return Err(Fail::Deferred(Box::new(Output::deferred(
                     "cpp-guard:unvalidated-topology",
                     "SmBrep::MakeTopologyFromData",
@@ -714,8 +765,9 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             points,
         } => {
             // the shim's guard: upstream dereferences the null UV curve array once MakeFace
-            // succeeds (the port returns InvalidInput there)
-            if *crv_on_surf == 2 && !*has_uv && *has3d {
+            // succeeds (the port returns InvalidInput there); its own input checks (no
+            // loops, a degenerate surface) return first
+            if *crv_on_surf == 2 && !*has_uv && *has3d && !mfwc_input_error(surface, loops)? {
                 return Err(cpp_null_deref(
                     "cpp-guard:ub-165",
                     "SmBrep::MakeFaceWithCurves",
@@ -746,7 +798,10 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 loops: loops.clone(),
                 curves_3d: has3d.then_some(c3),
                 uv_curves: has_uv.then_some(uv),
-                orientations: curves.iter().map(|c| orient_of(c.orient)).collect(),
+                orientations: curves
+                    .iter()
+                    .map(|c| orient_of(c.orient))
+                    .collect::<Result<_, _>>()?,
                 loop_points: points.iter().map(|p| Vec3::new(p[0], p[1], p[2])).collect(),
             };
             let srf = rust_surface(surface)?;
@@ -765,7 +820,7 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 input,
                 srf,
                 &domain,
-                orient_of(*orient),
+                orient_of(*orient)?,
                 cos,
                 &this_face,
             );
@@ -822,7 +877,7 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 &[],
                 surface,
                 &dom,
-                orient_of(*orient),
+                orient_of(*orient)?,
                 &p7::MakeFaceOptions::default(),
                 &this_face,
             );
@@ -871,7 +926,7 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 k,
                 &mut b,
                 eid(*e1),
-                orient_of(*orient),
+                orient_of(*orient)?,
                 *gap,
                 *nesting,
                 eid(*e2),
@@ -879,9 +934,11 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 &mut env,
             );
             let s = status(&r)?;
-            // the B-rep's counts after the op (the shim walks the C++ B-rep afterwards)
+            // the B-rep's counts and tolerances after the op (the shim walks the C++ B-rep
+            // afterwards)
             let mut o = vec![0.0, s];
             o.extend(brep_counts(&b));
+            o.extend(brep_tolerances(&b));
             Ok(o)
         }
         Inputs::Copy { n, merge, .. } => {
@@ -890,7 +947,12 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             let faces: Vec<FaceId> = b.faces().ids().take(*n as usize).collect();
             let mut dest = Brep::new();
             let r = p7::copy_faces(k, &mut b, &faces, &mut dest, *merge, &this_face);
-            let s = status(&r)?;
+            // (a face that could not be copied makes upstream's status SM_ERR; the copies
+            // made are kept)
+            let s = match &r {
+                Ok((_, false)) => f64::from(solidcore::error::SM_ERR),
+                _ => status(&r)?,
+            };
             let mut o = vec![0.0, s, r.as_ref().map_or(0, |(f, _)| f.len()) as f64];
             o.extend(brep_counts(&dest));
             Ok(o)
@@ -923,7 +985,8 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
 
 fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     if let Inputs::Read { file, damage, .. } = i {
-        if !guard_accepts(&read_bytes(file, *damage)?, damage.is_none())? {
+        let bytes = read_bytes(file, *damage)?;
+        if !guard_accepts(&bytes, is_test_file(file, &bytes)?)? {
             return Ok(Output::err("guard"));
         }
     }
@@ -1126,7 +1189,7 @@ fn gen_inputs(rng: &mut Rng) -> Inputs {
             brep: shared::gen_brep(rng),
             e1: rng.range_i64(-1, 1 << 10),
             e2: rng.range_i64(-1, 1 << 10),
-            orient: if rng.chance(0.5) { 1 } else { 2 },
+            orient: rng.below(3) as u8,
             gap: rng.uniform(0.0, 1.0e-3),
             nesting: rng.chance(0.5),
         },
@@ -1148,6 +1211,12 @@ fn gen_inputs(rng: &mut Rng) -> Inputs {
                 curves.extend(square(x + s / 4.0, y + s / 4.0, s / 2.0, false));
                 loops.push(4);
             }
+            // sometimes every SmOrientType code on the curves
+            if rng.chance(0.3) {
+                for c in &mut curves {
+                    c.orient = rng.below(3) as u8;
+                }
+            }
             let (has3d, has_uv) = *rng
                 .choose(&[(true, false), (false, true), (true, true)])
                 .unwrap_or(&(true, true));
@@ -1162,7 +1231,7 @@ fn gen_inputs(rng: &mut Rng) -> Inputs {
             Inputs::MakeFaceWithCurves {
                 surface,
                 dom: [0.0, 0.0, 10.0, 10.0],
-                orient: if rng.chance(0.5) { 1 } else { 2 },
+                orient: rng.below(3) as u8,
                 region_null: rng.chance(0.5),
                 crv_on_surf: rng.below(3) as u8,
                 loops,
@@ -1180,7 +1249,7 @@ fn gen_inputs(rng: &mut Rng) -> Inputs {
         _ => Inputs::MakeFace {
             kind: rng.below(2) as u8,
             side: rng.uniform(0.1, 10.0),
-            orient: if rng.chance(0.5) { 1 } else { 2 },
+            orient: rng.below(3) as u8,
             region_null: rng.chance(0.5),
         },
     }
@@ -1338,7 +1407,9 @@ impl UnitDiff for Runner {
             &mut v,
             "face_curves_cos_open_loop".to_string(),
             &Inputs::MakeFaceWithCurves {
-                surface: plane.clone(),
+                // (a B-spline patch: a curve on surface over a plane defers earlier, to
+                // curve.crv_on_surf)
+                surface: patch(10.0),
                 dom: [0.0, 0.0, 10.0, 10.0],
                 orient: 1,
                 region_null: false,

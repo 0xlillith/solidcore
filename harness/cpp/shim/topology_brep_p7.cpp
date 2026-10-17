@@ -15,6 +15,7 @@
 
 #include <SmLine.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
@@ -44,6 +45,23 @@ void p7_put_counts(std::vector<double>& o, SmBrep* b)
     o.push_back((double)g.loops.size());
     o.push_back((double)g.edges.size());
     o.push_back((double)g.vertices.size());
+}
+
+// The B-rep's edge tolerances, then its vertex tolerances, each sorted ascending (a fresh
+// walk: the op may have deleted edges and vertices).
+void p7_put_tolerances(std::vector<double>& o, SmBrep* b)
+{
+    Graph g;
+    walk(b, g);
+    std::vector<double> te, tv;
+    for (SmEdge* e : g.edges)
+        te.push_back((double)e->GetTolerance());
+    for (SmVertex* v : g.vertices)
+        tv.push_back((double)v->GetTolerance());
+    std::sort(te.begin(), te.end());
+    std::sort(tv.begin(), tv.end());
+    o.insert(o.end(), te.begin(), te.end());
+    o.insert(o.end(), tv.begin(), tv.end());
 }
 
 // `n byte*n file_type rebuild`: the bytes go to a temporary file read by
@@ -117,10 +135,11 @@ void p7_make_face_with_curves(Rd& rd, std::vector<double>& o)
         pts.Add(rd.vec());
     // pbOptCrvOnSurf TRUE without UV curves: once MakeFace succeeds upstream loops over the
     // null UV curve array (SmBrep.cpp:16600) and crashes; with 3D curves given it gets
-    // that far (without any curves it fails first with SM_ERR_INVALID_INPUT). Over-wide but
-    // harmless: it also fires for no loops and for inputs upstream rejects with 1007
-    // before MakeFace; the Rust side defers every such case.
-    if (cos == 2 && !hasuv && has3d)
+    // that far. Its own input checks (SmBrep.cpp:15722-15741: no loops, a degenerate
+    // surface) return first and run. Still over-wide for inputs upstream rejects later,
+    // before MakeFace; the Rust side defers those cases (it reaches MakeShellVertex).
+    bool input_error = loops.GetSize() == 0 || srf->IsDegenerateCurve() || srf->IsDegeneratePoint();
+    if (cos == 2 && !hasuv && has3d && !input_error)
     {
         o.push_back(P7_NULL_DEREF);
         return;
@@ -240,7 +259,8 @@ void p7_make_face(Rd& rd, std::vector<double>& o)
 // `e1 e2 orient gap nesting`, B-rep block (edge indices, `-1` null). Two distinct edges,
 // the second not a wire, SM_OT_SAME, the same intervals and exactly one curve: `-2`
 // (upstream dereferences the null curve in CurveMaxDistanceBetween, SmBrep.cpp:9875-9896;
-// two null curves compare equal). Output `status counts` (or `-2`).
+// two null curves compare equal). Output `status counts edge_tols vertex_tols` (each
+// sorted; or `-2`).
 void p7_glue(SmBrep* b, Graph& g, Rd& rd, std::vector<double>& o)
 {
     int64_t i1 = rd.idx(), i2 = rd.idx();
@@ -261,6 +281,7 @@ void p7_glue(SmBrep* b, Graph& g, Rd& rd, std::vector<double>& o)
     }
     o.push_back(st(b->GlueEdgesGeneral(e1, orient, gap, nesting, e2)));
     p7_put_counts(o, b);
+    p7_put_tolerances(o, b);
 }
 
 // `n use_merge`, B-rep block: the first `n` faces (in traversal order) copied into a new
