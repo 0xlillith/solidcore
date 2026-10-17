@@ -222,7 +222,10 @@ fn call(i: &Inputs, scene_only: bool) -> Result<Result<(Resolved, Vec<f64>), Str
 }
 
 /// `(status, record, edge curve types, scene box, scene export)` of a shim output.
-fn split(v: &[f64]) -> Result<(f64, &[f64], &[f64], Extent3d, &[f64]), HarnessError> {
+/// A split shim output.
+type Split<'a> = (f64, &'a [f64], &'a [f64], Extent3d, &'a [f64]);
+
+fn split(v: &[f64]) -> Result<Split<'_>, HarnessError> {
     let short = || harness("short output");
     let status = *v.first().ok_or_else(short)?;
     let len = *v.get(1).ok_or_else(short)? as usize;
@@ -230,8 +233,10 @@ fn split(v: &[f64]) -> Result<(f64, &[f64], &[f64], Extent3d, &[f64]), HarnessEr
     let n_e = *v.get(2 + len).ok_or_else(short)? as usize;
     let at = 3 + len;
     let types = v.get(at..at + n_e).ok_or_else(short)?;
-    let b = v.get(at + n_e..at + n_e + 6).ok_or_else(short)?;
-    let (lo, hi) = (Vec3::new(b[0], b[1], b[2]), Vec3::new(b[3], b[4], b[5]));
+    let &[x0, y0, z0, x1, y1, z1] = v.get(at + n_e..at + n_e + 6).ok_or_else(short)? else {
+        return Err(short());
+    };
+    let (lo, hi) = (Vec3::new(x0, y0, z0), Vec3::new(x1, y1, z1));
     let scene_box = if lo.x <= hi.x && lo.y <= hi.y && lo.z <= hi.z {
         Extent3d::from_points(lo, hi)
     } else if Extent3d::new().min() == lo && Extent3d::new().max() == hi {
@@ -522,10 +527,10 @@ fn gen_case(rng: &mut Rng) -> Value {
         "sil": sil,
         "back": back,
     });
-    if let Some(p) = placement {
-        v["placement"] = json!(p);
-    }
     if let (Some(o), Some(map)) = (op.as_object(), v.as_object_mut()) {
+        if let Some(p) = placement {
+            map.insert("placement".into(), json!(p));
+        }
         for (key, val) in o {
             map.insert(key.clone(), val.clone());
         }
