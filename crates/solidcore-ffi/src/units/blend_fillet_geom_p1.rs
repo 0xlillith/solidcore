@@ -88,7 +88,11 @@
 //! `degree + 1`, because `sm_DecomposeSrf` writes past the cache's v-patch array for it.
 //! The u direction fails cleanly there (upstream's B262 guard), non-monotone constructed
 //! vectors run (defined behaviour), and the other ops never decompose, so all of those
-//! are compared. For
+//! are compared. The refusal is the crash precondition, not an exact crash predicate:
+//! some paths return before building the cache for the snapped surface and would
+//! complete (the round-5 review measured 28 of 169 such programs, `TwoPnts` returning
+//! 1001 and `FbVertOnVert`/`FbCliff`/`FbSplitFace` exits ahead of the cache fetch);
+//! telling them apart would mean replicating upstream's control flow. For
 //! `ClassifyFacePoint` and `FbSplitFace`, the
 //! ops that reach `sm_ClassifyFacePoint`, every value (control points as Euclidean
 //! `Pw / w`) is bounded by [`MAX_MAGNITUDE`], the overflow regime of HANG-16; inputs

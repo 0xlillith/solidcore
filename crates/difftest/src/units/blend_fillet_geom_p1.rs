@@ -2962,6 +2962,49 @@ mod tests {
         eprintln!("fuzz_guards: {calls} calls, {accepted} ran, {rejected} rejected by the wrapper");
     }
 
+    /// Runs chosen cases through the C++ side only, for memory checking: `cargo test -p
+    /// difftest --features cpp --no-run`, then the test binary under valgrind with
+    /// `--ignored cpp_case_sample --nocapture`. `CASE_SEEDS` (default 2000) sizes the
+    /// case list as `--seeds` does; `CASE_INDICES=<i>,..` picks cases by their index in
+    /// it, otherwise `CASE_OPS=<op>,..` picks every case of those ops (default the
+    /// pseudo-B-rep ops 30, 31 and 32), up to `CASE_LIMIT` (default all).
+    #[test]
+    #[ignore = "runs C++ cases for valgrind; run on demand"]
+    fn cpp_case_sample() {
+        let env = |name: &str| std::env::var(name).ok();
+        let list = |text: String| -> Vec<i64> {
+            text.split(',').map(|t| t.trim().parse().unwrap()).collect()
+        };
+        let ctx = CaseContext {
+            root: crate::case::repo_root(),
+            seeds: env("CASE_SEEDS").map_or(2000, |s| s.parse().unwrap()),
+        };
+        let cases = Runner.cases(&ctx).unwrap();
+        let indices: Vec<usize> = match env("CASE_INDICES") {
+            Some(t) => list(t).into_iter().map(|i| i as usize).collect(),
+            None => {
+                let ops = list(env("CASE_OPS").unwrap_or_else(|| "30,31,32".into()));
+                let limit = env("CASE_LIMIT").map_or(usize::MAX, |s| s.parse().unwrap());
+                (0..cases.len())
+                    .filter(|&i| {
+                        cases[i]
+                            .parse::<Inputs>()
+                            .is_ok_and(|inp| ops.contains(&(inp.op() as i64)))
+                    })
+                    .take(limit)
+                    .collect()
+            }
+        };
+        for i in indices {
+            let case = &cases[i];
+            let inputs: Inputs = case.parse().unwrap();
+            let r = cpp_input(&inputs).map(|flat| {
+                ffi::eval(inputs.op(), &flat).map(|r| r.into_iter().take(2).collect::<Vec<_>>())
+            });
+            eprintln!("cpp_case_sample: {i} {} op {} -> {r:?}", case.name, inputs.op() as i32);
+        }
+    }
+
     /// Replays one flat program against the FFI with a timing: `REPLAY_FILE` names a
     /// JSON `{"op": <Op as i32>, "input": [..]}` (the shape `fuzz_guards` prints for a
     /// hang or crash, plus the op); `REPLAY_SUBST=<old>=<new>` first replaces every

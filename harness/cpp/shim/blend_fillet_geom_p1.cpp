@@ -201,6 +201,10 @@ SmBSplineSurface* read_surface(Rd& rd, const SmContext& ctx)
     // its patch array when the surface cache is built. Read the knot vector the
     // constructor really left and refuse such a surface for the ops that build the
     // cache (in u the decomposition fails cleanly, and the other ops never decompose).
+    // This refuses the precondition, not exactly the crashing runs: some paths return
+    // before the cache for this surface is built (measured 28 of 169 such programs:
+    // TwoPnts 1001 and Fb exits ahead of the cache fetch), and predicting them would
+    // replicate upstream's control flow.
     if (rd.cache_op && !rd.bad)
     {
         const gw_SURFACE* g = srf->GetGwNurbPointer();
@@ -405,6 +409,15 @@ struct Model
             for (ULONG i = 0; i < edges.GetSize(); i++)
                 delete (SmFilletEdge*)edges[i];
             delete pseudo;
+        }
+        // ~SmFilletVertex unlinks itself from its mates, assuming upstream's symmetric
+        // pairing; the model input may pair asymmetrically, which would leave a mate
+        // pointing at an already-deleted vertex. Clear every mate first so no destructor
+        // follows one.
+        for (size_t i = 0; i < verts.size(); ++i)
+        {
+            verts[i]->SetMate(0, NULL);
+            verts[i]->SetMate(1, NULL);
         }
         for (size_t i = 0; i < verts.size(); ++i)
             delete verts[i];

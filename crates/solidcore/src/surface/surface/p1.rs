@@ -10,7 +10,9 @@
 //! Deviations: compound evaluation copies carry a depth counter capped at 64 by Surface. The caches
 //! hold an exact copy of their surface (`clone_for_evaluation`) where upstream holds a
 //! pointer to it: `Clone` is the copy constructor, whose second knot fixup changed a
-//! knot vector the first fixup had left non-monotone (PR #147 round 4).
+//! knot vector the first fixup had left non-monotone (PR #147 round 4). Unlike `Clone`
+//! the copy keeps the surface's owner, so the cache sees the owning face as upstream's
+//! pointer does.
 //!
 //! Upstream: `source/SMLib/src/SmSurface.cpp`, `source/SMLib/inc/SmSurface.h`,
 //! `source/SMLib/src/SmSTEPSurface.cpp`, `source/SMLib/inc/SmSTEPSurface.h`.

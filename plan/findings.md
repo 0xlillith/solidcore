@@ -5939,7 +5939,14 @@ regression inputs below; 2000-seed sweep 2037 pass / 111 deferred / 0 failed / 1
   (`SurfaceDropPoint`, `TwoPnts`, `ClassifyFacePoint`, `FbSplitFace`, `FbVertOnVert`
   through `SmSurfaceIntersector::DoIntersection`, `FbCliff` through
   `SmSurface::GlobalCurveIntersect`), refuses (`SC_ERR_ARG`) a surface whose v start
-  multiplicity exceeds `degree + 1`. That is exact by construction. Every other op, the
+  multiplicity exceeds `degree + 1`. That condition is exact by construction, but it is
+  the crash precondition rather than a per-path prediction: the round-5 review put every
+  surface of 169 cache-op programs at start multiplicity `q + 2` with the guard
+  bypassed; 141 crashed in `sm_DecomposeSrf` and 28 completed because their path
+  returns before building the cache for that surface (`TwoPnts` 4 with 1001,
+  `FbVertOnVert` 9, `FbCliff` 2, `FbSplitFace` 13; valgrind showed nothing new on 10 of
+  them, and the Rust ran all 10). Those 28 are refused anyway; telling them apart would
+  mean replicating upstream's control flow. Every other op, the
   u over-multiplicity and curves are compared as given (the round-3 review ran the
   snapped inputs through every other op without a crash). The rejected regression
   cases are the reviewers' reproducers: `*_near_zero_v_knot*_rejected`,
