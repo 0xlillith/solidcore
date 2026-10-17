@@ -89,7 +89,7 @@ enum OpIn {
     Make { which: u8, region: i64, v1: i64, v2: i64 },
     /// `class`: an `SmPointClassificationType` code (`102` face, `103` edge, `104`
     /// vertex: the object's kind; any other with a null (`object < 0`) or vertex
-    /// object); `orient` `1` same, anything else opposite (`0` is `SM_OT_UNKNOWN`).
+    /// object); `orient` an `SmOrientType` code (`0` unknown, `1` same, `2` opposite).
     Sector {
         curve: CrvIn,
         t0: f64,
@@ -543,10 +543,13 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
             })?);
             let at = at + m + 1;
             let ivl = Extent1d::from_raw(arg(at)?, arg(at + 1)?);
-            let orient = if arg(at + 2)? == 1.0 {
-                OrientType::Same
-            } else {
-                OrientType::Opposite
+            // `SmOrientType`: exactly the three codes (`SM_OT_UNKNOWN` is neither
+            // `SAME` nor `OPPOSITE`; upstream tests both per site)
+            let orient = match arg(at + 2)? {
+                0.0 => OrientType::Unknown,
+                1.0 => OrientType::Same,
+                2.0 => OrientType::Opposite,
+                _ => return Err(Fail::Harness(harness("bad orientation"))),
             };
             let class = PointClassType::from_code(arg(at + 3)? as i32)
                 .ok_or_else(|| Fail::Harness(harness("bad point class")))?;
@@ -816,11 +819,23 @@ impl solidcore::query::face::p2::CurveOnClassifyObjects<H> for MergeObjects<'_> 
     fn vertex(&self, _v: VertexId) -> H {
         H(usize::MAX)
     }
-    fn surface(&self, _f: FaceId) -> Option<H> {
-        None
+    fn edge(&self, _e: EdgeId) -> H {
+        H(usize::MAX)
     }
-    fn curve(&self, curve: H) -> Option<&SmCurve> {
-        self.curves.get(curve.0)
+    fn vertexuse(&self, _vu: VertexuseId) -> H {
+        H(usize::MAX)
+    }
+    fn edgeuse(&self, _eu: EdgeuseId) -> H {
+        H(usize::MAX)
+    }
+    fn edge_curve(&self, _e: EdgeId) -> H {
+        H(usize::MAX)
+    }
+    fn trim_curve(&self, _eu: EdgeuseId) -> H {
+        H(usize::MAX)
+    }
+    fn face_surface(&self, _f: FaceId) -> Option<H> {
+        None
     }
     fn loop_id(&self, _tgt_loop: H) -> Option<LoopId> {
         None
@@ -843,7 +858,7 @@ impl solidcore::intersect::point_class::ClassGeometry<H> for MergeObjects<'_> {
 }
 
 impl bp2::MergeCurvesObjects<H> for MergeObjects<'_> {
-    fn edge(&self, _object: H) -> Option<EdgeId> {
+    fn edge_of(&self, _object: H) -> Option<EdgeId> {
         None
     }
     fn face_of(&self, _object: H) -> Option<FaceId> {

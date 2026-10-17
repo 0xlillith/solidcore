@@ -1715,10 +1715,10 @@ fn shell_transfer_children(b: &mut Brep, from: ShellId, to: ShellId) -> Result<(
 // ---- merging curves into faces ------------------------------------------------------------
 
 /// What [`merge_curves_on_surface`] needs of the caller's classification handles, on
-/// top of [`CurveOnClassifyObjects`] and [`ClassGeometry`].
-pub trait MergeCurvesObjects<O>: CurveOnClassifyObjects<O> + ClassGeometry<O> {
+/// top of [`CurveOnClassifyObjects`] (which includes [`ClassGeometry`]).
+pub trait MergeCurvesObjects<O: ClassObject>: CurveOnClassifyObjects<O> {
     /// The edge behind an edge handle (an interval's `m_vMid.GetObject()`).
-    fn edge(&self, object: O) -> Option<EdgeId>;
+    fn edge_of(&self, object: O) -> Option<EdgeId>;
     /// The face behind a face handle (a new face of `MergeIntervals`).
     fn face_of(&self, object: O) -> Option<FaceId>;
 }
@@ -1808,7 +1808,7 @@ fn merge_curves_body<O: ClassObject + Copy>(
     options: MergeCurvesOptions<O>,
 ) -> Result<MergedCurves> {
     let mut out = MergedCurves::default();
-    let surface = CurveOnClassifyObjects::surface(objects, face);
+    let surface = objects.face_surface(face);
 
     // init queue of Faces to be merged with curves - later, gets children faces when
     // pFace is split
@@ -1816,8 +1816,8 @@ fn merge_curves_body<O: ClassObject + Copy>(
 
     // iter every input curve - check to see if the curves need to be split
     for (ii, &curve_h) in curves.iter().enumerate() {
-        let curve = CurveOnClassifyObjects::curve(objects, curve_h)
-            .ok_or(null_deref("unresolved curve handle"))?;
+        let curve =
+            ClassGeometry::curve(objects, curve_h).ok_or(null_deref("unresolved curve handle"))?;
 
         // skip very short curves (gwc:this is tolerance bug waiting to happen)
         let natural = curve.natural_interval();
@@ -1893,7 +1893,7 @@ fn merge_curves_body<O: ClassObject + Copy>(
                     let e = ivl
                         .mid
                         .object()
-                        .and_then(|o| objects.edge(o))
+                        .and_then(|o| objects.edge_of(o))
                         .ok_or(null_deref("edge interval without edge"))?;
                     out.edges.push(e);
                 }

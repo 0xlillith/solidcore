@@ -5969,7 +5969,17 @@ independent p6 integration.
   `InvalidInput` there too). `LocalCurveSector` requires `t0 < t1` (finite; extrapolated
   intervals are allowed) and an integer point class 100..=110; the object kind must match only
   for face/edge/vertex classes (102/103/104), every other class takes upstream's default
-  `SM_ERR` arm with a null or vertex object.
+  `SM_ERR` arm with a null or vertex object. The orientation is an `SmOrientType` code 0..=2
+  decoded exactly (lesson 22): `SM_OT_UNKNOWN` is neither `SAME` nor `OPPOSITE` upstream
+  (`LocalCurveSector` and the start parameter of `RadialSectorOfCurveClassify` test
+  `== SM_OT_SAME`, its tangent flip at `SmEdge.cpp:2110` tests `== SM_OT_OPPOSITE`); the runner
+  first decoded every code other than 1 as `Opposite`. With the exact decode the 52
+  orientation-0 fixtures give 19 passes comparing status and region and 33 deferrals, as
+  before (unit counts unchanged).
+- **`heal.heal_data_p1` box cases.** Wiring `SetTolerance` let `SmApiHealBrep` run past
+  `Fix_TolSizes` on the heal_data_p1 runner's stand-in: an empty Rust `Brep` against the C++
+  `SmApiCreateBox` box (7 cases, C++ status 1000 vs Rust success). The runner now defers those
+  cases to `primitive.api_primitives` (`SmApiCreateBox`) instead of comparing different inputs.
 - **List order.** The port's `GetFaces` / `GetEdges` / `GetVertices` order is the B-rep's list
   (`topology.brep_p1`); the shim registers those lists before its walk so the import order is
   upstream's list order (without that, `GetEdgeuses` disagreed on `Mouse.smb` and

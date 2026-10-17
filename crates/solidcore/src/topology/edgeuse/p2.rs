@@ -317,7 +317,9 @@ pub fn evaluate_binormal_step_off(
 /// [`evaluate_binormal_step_off`] writing its outputs in place as upstream's
 /// out-params: a failing call leaves what it wrote before the failure (the outputs at
 /// the edge once `EvaluateBinormal` succeeded; the binormal unitized, or `(0, 0, 1)` when
-/// that fails; the step-off binormal when the final point evaluation fails).
+/// that fails; the step-off binormal when the final point evaluation fails). Nothing is
+/// written when `EvaluateBinormal` itself fails (deferred to `topology.edgeuse_p3`,
+/// whose port decides which outputs upstream's partial evaluation leaves).
 ///
 /// # Errors
 ///

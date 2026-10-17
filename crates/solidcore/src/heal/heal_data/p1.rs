@@ -843,7 +843,7 @@ fn no_face() -> SolidError {
 mod tests {
     use super::*;
     use crate::intersect::point_class::{ClassObject, ClassObjectKind};
-    use crate::topology::LoopId;
+    use crate::topology::{Face, LoopId};
 
     #[derive(Debug, Clone, Copy, PartialEq)]
     struct H;
@@ -986,16 +986,20 @@ mod tests {
             api_heal_brep(&mut k, None),
             Err(SolidError::InvalidInput { .. })
         ));
-        // on a B-rep the whole-B-rep target lists are gathered (empty here) and the
+        // on a B-rep the whole-B-rep target lists are gathered (its one face) and the
         // heal sequence of heal_data_p3 runs up to Fix_TolSizes, whose
-        // SmBrep::SetTolerance is unit topology.brep_p2 (SmBrep::HealBrep passes
-        // Unported through, ignoring every other status)
+        // SmBrep::SetTolerance raises the face's tolerance through SmFace::SetTolerance
+        // (unit topology.face_p3; SmBrep::HealBrep passes Unported through, ignoring
+        // every other status)
         let mut b = Brep::default();
+        let face = b
+            .add_face_record(Face::new(ShellId::from_index(0)))
+            .unwrap();
         assert!(matches!(
             api_heal_brep(&mut k, Some(&mut b)),
             Err(SolidError::Unported {
-                upstream: "SmBrep::SetTolerance",
-                unit: "topology.brep_p2",
+                upstream: "SmFace::SetTolerance",
+                unit: "topology.face_p3",
                 ..
             })
         ));
@@ -1009,12 +1013,12 @@ mod tests {
         assert!(matches!(
             r,
             Err(SolidError::Unported {
-                upstream: "SmBrep::SetTolerance",
-                unit: "topology.brep_p2",
+                upstream: "SmFace::SetTolerance",
+                unit: "topology.face_p3",
                 ..
             })
         ));
-        assert!(h.tgt_faces.is_empty());
+        assert_eq!(h.tgt_faces, vec![face]);
         let (v, e, f) = ids();
         let t = HealBrepTargets {
             vertices: Some(&v),
