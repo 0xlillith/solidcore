@@ -1426,7 +1426,9 @@ fn rust_surface_op(op: &OpIn, t: &This) -> Result<Run, HarnessError> {
             let dir = param_of(*dir)?;
             record(|o| {
                 let e = match &s {
-                    Some(x) => x.create_extended_surface_dir(&Kernel::default(), dir, *dist, cont)?,
+                    Some(x) => {
+                        x.create_extended_surface_dir(&Kernel::default(), dir, *dist, cont)?
+                    }
                     None => sp2::base_create_extended_surface()?,
                 };
                 dump_state(o, Some(&e));
