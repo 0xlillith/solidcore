@@ -26,18 +26,9 @@ mod sys {
     }
 }
 
-/// Rejects a frame axis whose squared length overflows: `SmVector3d::Unitize` then divides
-/// by an infinite length and silently yields a zero vector (upstream-issues WR-159).
-fn axis_squared_length_finite(v: &[f64]) -> bool {
-    [v.get(0..3), v.get(3..6)]
-        .into_iter()
-        .all(|a| a.is_some_and(|a| a.iter().map(|x| x * x).sum::<f64>().is_finite()))
-}
-
 fn cone_valid(v: &[f64]) -> bool {
     v.len() == 17
         && v.iter().all(|x| x.is_finite())
-        && v.get(3..9).is_some_and(axis_squared_length_finite)
         && v.get(14..)
             .unwrap_or(&[])
             .iter()
@@ -106,24 +97,6 @@ mod tests {
         ]
     }
     const DOMAINS: [f64; 8] = [0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0];
-
-    #[test]
-    fn rejects_axis_whose_squared_length_overflows() {
-        // fuzz01093: Y axis (0, -1e300, 1) unitizes to a zero vector in the native code.
-        let mut other = cone();
-        other[6..9].copy_from_slice(&[0.0, -1e300, 1.0]);
-        assert!(matches!(
-            intersect(0, &cone(), &other, &DOMAINS, Some(0.1), false),
-            Err(FfiError::InvalidArgument(_))
-        ));
-        assert!(matches!(
-            intersect(3, &other, &cone(), &DOMAINS, Some(0.1), false),
-            Err(FfiError::InvalidArgument(_))
-        ));
-        // 1e150 still unitizes correctly and a literal zero axis is accepted.
-        other[6..9].copy_from_slice(&[0.0, -1e150, 1.0]);
-        assert!(intersect(0, &cone(), &other, &DOMAINS, Some(0.1), false).is_ok());
-    }
 
     #[test]
     fn rejects_malformed_record_before_entering_cpp() {

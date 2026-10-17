@@ -5544,11 +5544,19 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   a line in Rust and none in C++. Fixed to use the raw angles; the periodic mapping keeps
   the sweep. Fixture `fuzz_reversed_angle_range`.
 - `fuzz01093`: a frame axis with a component of about 1e154 or more makes `Unitize`
-  overflow to a zero vector (upstream-issues WR-159). C++ still returns two lines; Rust
-  failed 1001 in the ellipse `PolarConversion::convert_to_nurbs_parameter`. Why the Rust
-  polar table differs for a zero-Y frame was not isolated. It is unreachable once the FFI
-  guard rejects axes whose squared length is not finite, which is exactly the overflowing
-  inputs (a literal zero axis agrees).
+  overflow to a zero vector (upstream-issues WR-159; faithful in Rust). With such a Y
+  axis the cone's polar circle cannot convert some angles on either side: the point
+  inversion in `ConvertToNURBSParameter` finds no answer (`SmEllipse.cpp:587-596`,
+  status 1001 in both). The disagreement was the caller: `SmCone::IntersectWithCone`
+  ignores the `ConvertUVFromSTEPToNURBS` status (`SmCone.cpp:2966-2967`) and tests the
+  partly written `SmPoint2d` against the domains (2970-2972), while the Rust used `?` and
+  failed the whole intersection. A default `SmPoint2d` is `SM_UNDEF_DOUBLE`, so the output
+  is defined: U is the polar table's guess (0.9167 and 0.8333 in the reduced case), V is
+  `SM_UNDEF_DOUBLE`. Rust now mirrors that (`nurbs_uv_status_ignored` in
+  `surface/cone/p3.rs`); no FFI guard (the input is not UB in C++). Fixtures
+  `fuzz_axis_overflow_zero_y` (two lines), `fuzz_axis_overflow_zero_y_trimmed` (the
+  written U falls outside a trimmed domain for one line) and `_swapped` (swap UV: the
+  failed conversion returns before the exchange).
 
 ## surface.surface_p11 (`LocalSurfaceIntersect`, `SmCSGlobalSolver` / `SmSSGlobalSolver::LocalSolve`, `IntersectSurfaceBoundaries`, `LiftCurve`, PR #120, 2026-10-15; partial)
 
