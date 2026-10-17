@@ -290,10 +290,11 @@ pub struct VertexCopy<'a> {
 /// `region = None` forwards the infinite-region default of `MakeShellVertex`.
 /// `SM_NO_GET_BREP` expands to null in the pinned source, so both B-rep
 /// notification arguments remain `None`. The reference enables `SM_USE_OLDTOL`:
-/// a larger source tolerance is copied before notification.
+/// a larger source tolerance is copied before notification. `other` is mutable
+/// because `Relate` of a new vertex may raise the source vertex's tolerance.
 pub fn merge_vertex(
     brep: &mut Brep,
-    other: &Brep,
+    other: &mut Brep,
     source: Option<VertexId>,
     region: Option<RegionId>,
     relations: &mut Relations,
@@ -308,7 +309,7 @@ pub fn merge_vertex(
         dest
     } else {
         let dest = make_shell_vertex(brep, other, source, region)?;
-        relate_new_vertex(brep, other, dest, source, relations)?;
+        relations.relate_vertices(brep, dest, other, source)?;
         dest
     };
     brep.vertex(dest)?;
@@ -343,20 +344,6 @@ fn make_shell_vertex(
     unavailable("SmBrep::MakeShellVertex", "topology.brep_p9")
 }
 
-fn relate_new_vertex(
-    _brep: &mut Brep,
-    _other: &Brep,
-    _dest: VertexId,
-    _source: VertexId,
-    _relations: &mut Relations,
-) -> Result<()> {
-    // UNPORTED(boolean.topology_intersector_p1): SmTopologyIntersector::Relate
-    unavailable(
-        "SmTopologyIntersector::Relate",
-        "boolean.topology_intersector_p1",
-    )
-}
-
 /// The intersection lists and live primary-to-other mate lookups used by cleanup.
 #[derive(Debug, Default)]
 pub struct CleanupRelations {
@@ -371,6 +358,11 @@ pub struct CleanupRelations {
 fn brep_edges(_brep: &Brep) -> Result<Vec<EdgeId>> {
     // UNPORTED(topology.brep_p1): SmBrep::GetEdges
     unavailable("SmBrep::GetEdges", "topology.brep_p1")
+}
+
+fn brep_vertices(_brep: &Brep) -> Result<Vec<VertexId>> {
+    // UNPORTED(topology.brep_p1): SmBrep::GetVertices
+    unavailable("SmBrep::GetVertices", "topology.brep_p1")
 }
 
 fn brep_shells(_brep: &Brep) -> Result<Vec<ShellId>> {
@@ -388,7 +380,7 @@ fn set_face_tolerance(_brep: &mut Brep, _face: FaceId, _tolerance: f64) -> Resul
 /// mates. In both modes the vertex list is the intersection list plus the deleted
 /// edges' endpoints, rather than every vertex in the B-rep.
 pub fn boolean_post_process(
-    k: &Kernel,
+    k: &mut Kernel,
     brep: &mut Brep,
     relations: &CleanupRelations,
     check_all_edges: bool,
@@ -493,13 +485,30 @@ pub fn boolean_post_process(
                 face_shell = Some(shell0);
             }
         }
-        if let (Some(_), Some(_)) = (wire_shell, face_shell) {
-            // UNPORTED(boolean.topology_intersector_p1): SmTopologyIntersector::GetCommonVertices
-            // (then SmShell::TransferChildrenTo and SmRegion::Remove, statuses ignored)
-            return unavailable(
-                "SmTopologyIntersector::GetCommonVertices",
-                "boolean.topology_intersector_p1",
-            );
+        if let (Some(wire_shell), Some(face_shell)) = (wire_shell, face_shell) {
+            // `m_vTI.GetCommonVertices(m_vVertices, m_vOtherVertices)`
+            // (`boolean.topology_intersector_p1`, `TopologyIntersector::common_vertices`
+            // on the arena mates of `relations`): the B-rep's vertices with an other mate.
+            let mut common = false;
+            for v in brep_vertices(brep)? {
+                if relations.mates.vertices.other(v).is_some() {
+                    common = true;
+                }
+            }
+            // If Brep and Other share a vertex then combine shells
+            if common {
+                // Transfer the wire shell to the face shell
+                let wire_region = brep
+                    .shell(wire_shell)?
+                    .region
+                    .ok_or_else(|| SolidError::null_pointer(OP))?;
+                // `pWShell->TransferChildrenTo(pFShell, NULL)` and
+                // `pWR->Remove(pWShell)`: both statuses are ignored upstream.
+                ignore_failure(shell::transfer_children(
+                    k, brep, wire_shell, face_shell, None,
+                ))?;
+                ignore_failure(shell::region_remove_shell(brep, wire_region, wire_shell))?;
+            }
         }
     }
     Ok(())
@@ -598,7 +607,7 @@ mod tests {
             vertices: vec![VertexId::from_index(u32::MAX)],
             ..CleanupRelations::default()
         };
-        let error = boolean_post_process(&Kernel::default(), &mut b, &r, false).unwrap_err();
+        let error = boolean_post_process(&mut Kernel::default(), &mut b, &r, false).unwrap_err();
         assert!(matches!(
             error,
             SolidError::Unported {
