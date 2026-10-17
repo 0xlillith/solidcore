@@ -972,6 +972,21 @@ impl IntersectorBrep<H> for Two {
         )?;
         boxes.normal.ok_or_else(|| invalid("no normal box"))
     }
+    fn face_uv_domain_from_uv_trim_curves(&mut self, k: &Kernel, face: H) -> solidcore::Result<Extent2d> {
+        if face.kind != K_FACE {
+            return Err(invalid("not a face handle"));
+        }
+        let b = self.brep_m(face)?;
+        Ok(solidcore::topology::face::p1::calculate_uv_domain_from_uv_trim_curves(
+            k,
+            b,
+            fid(face),
+            true,
+            false,
+            false,
+        )?
+        .domain)
+    }
     fn face_point_classify(
         &mut self,
         k: &Kernel,
