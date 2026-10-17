@@ -66,7 +66,7 @@
 //!   (`pseudo`) and the target B-rep's are ids of `b`. Writes to pseudo-B-rep vertices
 //!   and edges that need the pseudo-B-rep's notification records (`SmVertex::SetPoint`,
 //!   `SmEdge::SetCurve`, `SmOwningTopology::Remove` / `PostInsert` of a vertex use)
-//!   are stubs (`plan/findings.md`, "blend.fillet_solver_p1: pseudo-B-rep
+//!   are stubs (`plan/findings.md`, "`blend.fillet_solver_p1`: pseudo-B-rep
 //!   mutations"); every one is after an unported fillet geometry call.
 //! - **Virtual overrides of unported units.** A derived solver's override owned by a
 //!   unit that is not ported (the `SmConstantRadiusFS` / `SmConstantRadiusAssistedFS`
