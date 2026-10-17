@@ -20,7 +20,10 @@
 #include <SmHealData.h>
 #include <SmPrimitiveCreation.h>
 #include <SmSphere.h>
+#include <SmBrepData.h>
+#include <SmTrackTopologyChanges.h>
 
+#include <algorithm>
 #include <set>
 
 namespace
@@ -107,7 +110,7 @@ void init_cached_gaps(SmBrep* brep)
 SmBrep* build_any(Rd& rd, const char* path, SmStatus& status)
 {
     int64_t kind = (int64_t)rd.in[rd.at];
-    if (kind != 4 && kind != 5)
+    if (kind != 4 && kind != 5 && kind != 6)
         return build(rd, path, status);
     rd.idx();
     const SmContext& ctx = the_context();
@@ -129,12 +132,36 @@ SmBrep* build_any(Rd& rd, const char* path, SmStatus& status)
             status = sphere->SwapUV();
         if (status == SM_SUCCESS)
         {
-            SmShell* shell = nullptr;
-            SmFace* face = nullptr;
-            status = brep->CreateFaceInRegionFromSurface(brep->GetInfiniteRegion(), sphere,
-                                                         sphere->GetNaturalUVDomain(), shell, face);
+            if (kind == 6)
+            {
+                delete brep;
+                SmBrepConstructor builder;
+                brep = builder.StartBrep(ctx);
+                if (brep) brep->SetTolerance(1e-7, FALSE);
+                if (!brep || !builder.StartRegion(TRUE, NULL)) { status = SM_ERR; }
+                else
+                {
+                    SmShell *outer = NULL, *inner = NULL;
+                    status = builder.StartShell(outer, inner);
+                    if (status == SM_SUCCESS && !builder.StartFace(SM_OT_SAME)) status = SM_ERR;
+                    if (status == SM_SUCCESS) status = builder.SetFaceSurface(sphere, sphere->GetNaturalUVDomain());
+                    if (status == SM_SUCCESS && !builder.StartAndEndSingleVertexLoop(SmPoint3d(0, 0, r))) status = SM_ERR;
+                    if (status == SM_SUCCESS) status = builder.EndFace();
+                    if (status == SM_SUCCESS) status = builder.EndShell(TRUE);
+                    if (status == SM_SUCCESS) status = builder.EndRegion();
+                    if (status == SM_SUCCESS) status = builder.EndBrep();
+                }
+            }
+            else
+            {
+                SmShell* shell = nullptr;
+                SmFace* face = nullptr;
+                status = brep->CreateFaceInRegionFromSurface(brep->GetInfiniteRegion(), sphere,
+                                                             sphere->GetNaturalUVDomain(), shell, face);
+            }
         }
     }
+    if (!brep) { status = SM_ERR; return nullptr; }
     brep->m_bValidateOnly = rd.bflag();
     rd.flag(); // init_gaps: done by prepare()
     if (status != SM_SUCCESS)
@@ -458,31 +485,39 @@ struct Registry
     void note(SmHealData& h)
     {
         for (ULONG i = 0; i < h.m_sTgtVertexProps.GetSize(); i++)
-            if (iv.find(h.m_sTgtVertexProps[i]) == iv.end())
+            if (iv.find(h.m_sTgtVertexProps[i]) == iv.end() || dead.count(h.m_sTgtVertexProps[i]))
             {
+                dead.erase(h.m_sTgtVertexProps[i]);
                 iv[h.m_sTgtVertexProps[i]] = (int64_t)v.size();
                 v.push_back(h.m_sTgtVertexProps[i]);
             }
         for (ULONG i = 0; i < h.m_sTgtEdgeProps.GetSize(); i++)
-            if (ie.find(h.m_sTgtEdgeProps[i]) == ie.end())
+            if (ie.find(h.m_sTgtEdgeProps[i]) == ie.end() || dead.count(h.m_sTgtEdgeProps[i]))
             {
+                dead.erase(h.m_sTgtEdgeProps[i]);
                 ie[h.m_sTgtEdgeProps[i]] = (int64_t)e.size();
                 e.push_back(h.m_sTgtEdgeProps[i]);
             }
         for (ULONG i = 0; i < h.m_sTgtFaceProps.GetSize(); i++)
-            if (iff.find(h.m_sTgtFaceProps[i]) == iff.end())
+            if (iff.find(h.m_sTgtFaceProps[i]) == iff.end() || dead.count(h.m_sTgtFaceProps[i]))
             {
+                dead.erase(h.m_sTgtFaceProps[i]);
                 iff[h.m_sTgtFaceProps[i]] = (int64_t)f.size();
                 f.push_back(h.m_sTgtFaceProps[i]);
             }
     }
     bool alive(const void* p) const { return dead.find(p) == dead.end(); }
-    template <class T> T* pick(std::vector<T*>& all, int64_t sel)
+    template <class T> bool alive_at(T* p, size_t i, const std::map<const void*, int64_t>& ids) const
+    {
+        auto it = ids.find(p);
+        return alive(p) && it != ids.end() && it->second == (int64_t)i;
+    }
+    template <class T> T* pick(std::vector<T*>& all, const std::map<const void*, int64_t>& ids, int64_t sel)
     {
         std::vector<T*> live;
-        for (T* p : all)
-            if (alive(p))
-                live.push_back(p);
+        for (size_t i = 0; i < all.size(); ++i)
+            if (alive_at(all[i], i, ids))
+                live.push_back(all[i]);
         if (live.empty())
             return nullptr;
         return live[(size_t)(sel % (int64_t)live.size())];
@@ -512,6 +547,35 @@ struct VxPeek : SmObjsInVoxels<SmVertexProps*>
 {
     static SmExtent3d SmObjsInVoxels<SmVertexProps*>::*box() { return &VxPeek::m_sBBox; }
 };
+
+// Get*Props_ForTgts indexes props by the matching target's position.
+template<class T, class P>
+bool removal_lookup_is_ub(const SmTArray<T*>& targets, const SmTArray<P*>& props,
+                          const SmTArray<SmTopology*>& removed)
+{
+    for (ULONG i = 0; i < removed.GetSize(); ++i)
+        for (ULONG j = 0; j < targets.GetSize(); ++j)
+            if ((SmTopology*)targets[j] == removed[i])
+            {
+                if (j >= props.GetSize()) return true;
+                break;
+            }
+    return false;
+}
+
+// Remove*Props removes a target only when its props already names that target.
+template<class T, class P, class F>
+size_t target_count_after_removals(const SmTArray<T*>& targets, const SmTArray<P*>& removed, F object)
+{
+    std::vector<T*> remaining;
+    for (ULONG i = 0; i < targets.GetSize(); ++i) remaining.push_back(targets[i]);
+    for (ULONG i = 0; i < removed.GetSize(); ++i)
+    {
+        auto it = std::find(remaining.begin(), remaining.end(), object(removed[i]));
+        if (it != remaining.end()) remaining.erase(it);
+    }
+    return remaining.size();
+}
 
 // The edge use owning a gap member (traversal index), -3 when none does.
 int64_t eu_of_gap(Graph& g, const void* gap, bool ccw)
@@ -603,9 +667,10 @@ void dump(SmHealData& h, Graph& g, Registry& r, std::vector<double>& o)
     o.push_back((double)h.m_lRecursionCount);
 
     o.push_back((double)r.v.size());
-    for (SmVertexProps* p : r.v)
+    for (size_t ri = 0; ri < r.v.size(); ++ri)
     {
-        if (!r.alive(p))
+        SmVertexProps* p = r.v[ri];
+        if (!r.alive_at(p, ri, r.iv))
         {
             o.push_back(0.0);
             continue;
@@ -628,9 +693,10 @@ void dump(SmHealData& h, Graph& g, Registry& r, std::vector<double>& o)
         o.push_back(flg(p->HasProblems()));
     }
     o.push_back((double)r.e.size());
-    for (SmEdgeProps* p : r.e)
+    for (size_t ri = 0; ri < r.e.size(); ++ri)
     {
-        if (!r.alive(p))
+        SmEdgeProps* p = r.e[ri];
+        if (!r.alive_at(p, ri, r.ie))
         {
             o.push_back(0.0);
             continue;
@@ -661,9 +727,10 @@ void dump(SmHealData& h, Graph& g, Registry& r, std::vector<double>& o)
         o.push_back(flg(p->HasProblems()));
     }
     o.push_back((double)r.f.size());
-    for (SmFaceProps* p : r.f)
+    for (size_t ri = 0; ri < r.f.size(); ++ri)
     {
-        if (!r.alive(p))
+        SmFaceProps* p = r.f[ri];
+        if (!r.alive_at(p, ri, r.iff))
         {
             o.push_back(0.0);
             continue;
@@ -789,6 +856,206 @@ template <class P, class T, class Pred> bool lists_drift(const SmTArray<P*>& pro
     return false;
 }
 
+// ---- steps of unit heal.heal_data_p1 ---------------------------------------------------
+//
+// 23 flag            ReSet(flag) (last step only)
+// 24 sel             MoveToNotYetProblems(alive face props sel), outputs its index (-3 none)
+// 25                 Cache_FaceProps_Stage2
+// 26                 Cache_FaceProps_Stage3
+// 27                 Fix_BadSheets (with a fresh SmNewMarkAndLock of the B-rep's context)
+// 28 flag            Make_UVTrimCurves(flag)
+// 29                 Fix_InfiniteRegion (last step only)
+// 30 mode op flag .. HealBrep(mode 0: NULL B-rep; 1: every target; 2: `targets`
+//                    follow), op, bMakeUVTrimCurves; modes 1, 2 last step only, no state
+// 31                 the stage 2/3 snapshot of every registered face props record
+
+enum P1Kind
+{
+    P1_STATUS = 0,  // `status new_probs` follows (the case stops on a failure)
+    P1_REFUSED = 1, // `-2` written, the case stops
+    P1_WRITTEN = 2, // outputs written, no status
+    P1_LAST = 3,    // `status new_probs`, then the case stops without the state
+};
+
+struct P1Out
+{
+    P1Kind kind;
+    SmStatus stat;
+    SmBoolean bNew;
+};
+
+void mark_all_dead(SmHealData& h, Registry& r)
+{
+    for (ULONG i = 0; i < h.m_sTgtVertexProps.GetSize(); i++)
+        r.dead.insert(h.m_sTgtVertexProps[i]);
+    for (ULONG i = 0; i < h.m_sTgtEdgeProps.GetSize(); i++)
+        r.dead.insert(h.m_sTgtEdgeProps[i]);
+    for (ULONG i = 0; i < h.m_sTgtFaceProps.GetSize(); i++)
+        r.dead.insert(h.m_sTgtFaceProps[i]);
+    for (ULONG i = 0; i < h.m_sNotYetFaceProps.GetSize(); i++)
+        r.dead.insert(h.m_sNotYetFaceProps[i]);
+}
+
+// Whether a Cache_FaceProps_Stage2/3 or Make_UVTrimCurves step would use the null
+// face of a props record (only before Cache_FaceProps_Gaps); the Rust port refuses it.
+bool step_meets_null_face(SmHealData& h, SmPropStageType stage, bool any)
+{
+    ULONG n = h.m_sTgtFaceProps.GetSize();
+    if (n == 0 || n == h.m_lOldFaceCnt)
+        return false;
+    for (ULONG ii = h.m_lOldFaceCnt; ii < n; ii++)
+    {
+        SmFaceProps* p = h.m_sTgtFaceProps[ii];
+        if (p->m_pFace == NULL && (any || !p->HasProps(stage, p->m_pFace)))
+            return true;
+    }
+    return false;
+}
+
+void put_face_snapshot(std::vector<double>& o, Graph& g, SmFaceProps& p)
+{
+    o.push_back((double)g.find(3, p.m_pFace));
+    o.push_back((double)p.m_lFaceIndx);
+    o.push_back((double)p.m_ePropStage);
+    o.push_back((double)p.m_eNotYetFaceType);
+    o.push_back(p.m_cpSurface != NULL ? 1.0 : 0.0);
+    o.push_back(p.m_sNaturalUVDomain.GetUMin());
+    o.push_back(p.m_sNaturalUVDomain.GetVMin());
+    o.push_back(p.m_sNaturalUVDomain.GetUMax());
+    o.push_back(p.m_sNaturalUVDomain.GetVMax());
+    o.push_back((double)p.m_bClosedU);
+    o.push_back((double)p.m_bClosedV);
+    o.push_back((double)p.m_bClosedSurf);
+    o.push_back((double)p.m_eClosedValU);
+    o.push_back((double)p.m_eClosedValV);
+    o.push_back((double)p.m_lPoles);
+    o.push_back((double)p.m_lApproxPoles);
+    o.push_back((double)p.m_lNoVertexPoles);
+    o.push_back((double)p.m_sPolePoints.GetSize());
+    for (ULONG i = 0; i < p.m_sPolePoints.GetSize(); i++)
+        put_vec(o, p.m_sPolePoints[i]);
+    o.push_back((double)p.m_sPoleNormals.GetSize());
+    for (ULONG i = 0; i < p.m_sPoleNormals.GetSize(); i++)
+        put_vec(o, p.m_sPoleNormals[i]);
+    o.push_back((double)p.m_sFlatCornerPoints.GetSize());
+    for (ULONG i = 0; i < p.m_sFlatCornerPoints.GetSize(); i++)
+        put_vec(o, p.m_sFlatCornerPoints[i]);
+    o.push_back(p.m_pCrvClassU != NULL ? 1.0 : 0.0);
+    o.push_back(p.m_pCrvClassV != NULL ? 1.0 : 0.0);
+    o.push_back((double)p.m_eBadCrossedSeam);
+    o.push_back((double)p.m_eBadMissingSeam);
+    o.push_back((double)p.m_eBadNearMissSeam);
+    o.push_back((double)p.m_lClosedLoopCnt);
+    o.push_back((double)p.m_sLoopProps.GetSize());
+}
+
+P1Out p1_step(int64_t code, Rd& rd, SmHealData& h, SmBrep* brep, Graph& g, Registry& r, std::vector<double>& o)
+{
+    P1Out res{P1_STATUS, SM_SUCCESS, FALSE};
+    switch (code)
+    {
+    case 23:
+    {
+        SmBoolean flag = rd.bflag();
+        mark_all_dead(h, r);
+        h.ReSet(flag);
+        break;
+    }
+    case 24:
+    {
+        int64_t sel = rd.idx();
+        SmFaceProps* p = r.pick(r.f, r.iff, sel);
+        res.kind = P1_WRITTEN;
+        if (p == nullptr)
+        {
+            o.push_back(-3.0);
+            break;
+        }
+        h.MoveToNotYetProblems(p);
+        o.push_back((double)idx_of(r.iff, p));
+        break;
+    }
+    case 25:
+    case 26:
+    {
+        SmPropStageType stage = code == 25 ? SM_PROPSTAGE_2 : SM_PROPSTAGE_3;
+        if (step_meets_null_face(h, stage, false))
+        {
+            o.push_back(ST_NULL_DEREF);
+            res.kind = P1_REFUSED;
+            break;
+        }
+        res.stat = code == 25 ? h.Cache_FaceProps_Stage2(brep, &res.bNew, SM_HO_CACHE_FACEPROPS_2)
+                              : h.Cache_FaceProps_Stage3(brep, &res.bNew, SM_HO_CACHE_FACEPROPS_3);
+        break;
+    }
+    case 27:
+    {
+        for (ULONG i = 0; i < h.m_sFaceProps_Sheets.GetSize(); i++)
+            if (h.m_sFaceProps_Sheets[i]->m_pFace == NULL)
+            {
+                o.push_back(ST_NULL_DEREF);
+                res.kind = P1_REFUSED;
+                return res;
+            }
+        SmNewMarkAndLock lock(brep->GetContext());
+        res.stat = h.Fix_BadSheets(brep, lock, SM_HO_FIX_BADSHEETS);
+        break;
+    }
+    case 28:
+    {
+        SmBoolean flag = rd.bflag();
+        if (flag && step_meets_null_face(h, SM_PROPSTAGE_GAPS, true))
+        {
+            o.push_back(ST_NULL_DEREF);
+            res.kind = P1_REFUSED;
+            break;
+        }
+        res.stat = h.Make_UVTrimCurves(brep, flag, SM_HO_MAKE_UVTRIMCURVES);
+        break;
+    }
+    case 29: res.stat = h.Fix_InfiniteRegion(brep, SM_HO_FIX_INFINITE_REGIONS); break;
+    case 30:
+    {
+        int64_t mode = rd.idx();
+        SmHealerOpType op = (SmHealerOpType)rd.idx();
+        SmBoolean make = rd.bflag();
+        if (mode == 0)
+        {
+            res.stat = h.HealBrep(NULL, op, NULL, NULL, NULL, make);
+            break;
+        }
+        SmTArray<SmVertex*> vs;
+        SmTArray<SmEdge*> es;
+        SmTArray<SmFace*> fs;
+        if (mode == 2)
+            read_targets(rd, g, vs, es, fs);
+        mark_all_dead(h, r);
+        res.stat = mode == 2 ? h.HealBrep(brep, op, &vs, &es, &fs, make) : h.HealBrep(brep, op, NULL, NULL, NULL, make);
+        res.kind = P1_LAST;
+        break;
+    }
+    default: // 31
+    {
+        o.push_back((double)r.f.size());
+        for (size_t ri = 0; ri < r.f.size(); ++ri)
+        {
+            SmFaceProps* p = r.f[ri];
+            if (!r.alive_at(p, ri, r.iff))
+            {
+                o.push_back(0.0);
+                continue;
+            }
+            o.push_back(1.0);
+            put_face_snapshot(o, g, *p);
+        }
+        res.kind = P1_WRITTEN;
+        break;
+    }
+    }
+    return res;
+}
+
 void run_heal(Rd& rd, const char* path, std::vector<double>& o)
 {
     Graph g;
@@ -815,6 +1082,16 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
         o.push_back((double)code);
         SmBoolean bNew = FALSE;
         SmStatus stat = SM_SUCCESS;
+        // Mutation can invalidate the fixture graph and retired props. Preserve
+        // complete state dumps on empty-queue paths; terminate actual repair
+        // attempts after their status (Rust defers unavailable mutating callees).
+        bool repair = (code == 34 && h->m_sBadVertexProps_CoinVertices.m_sProbArray.GetSize() >= 2)
+                   || (code == 35 && h->m_sBadFaceProps_DegenFaces.GetSize() != 0)
+                   || (code == 36 && h->m_sBadEdgeProps_DegenEdges.GetSize() != 0)
+                   || (code == 37 && (h->m_sBadFaceProps_MissingSeam.GetSize() != 0 || h->m_sBadFaceProps_CrossedSeam.GetSize() != 0 || h->m_sBadFaceProps_NearMissSeam.GetSize() != 0))
+                   || (code == 38 && h->m_sBadFaceProps_CrossedSeam.GetSize() != 0)
+                   || (code == 39 && h->m_sBadFaceProps_MissingSeam.GetSize() != 0);
+        if (repair) mark_all_dead(*h, r);
         switch (code)
         {
         case 0:
@@ -924,7 +1201,7 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
             SmBoolean b1 = UNSURE, b2 = UNSURE;
             if (code == 12)
             {
-                SmVertexProps* p = r.pick(r.v, sel);
+                SmVertexProps* p = r.pick(r.v, r.iv, sel);
                 if (p == nullptr)
                 {
                     o.push_back(-3.0);
@@ -941,7 +1218,7 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
             }
             else if (code == 13)
             {
-                SmEdgeProps* p = r.pick(r.e, sel);
+                SmEdgeProps* p = r.pick(r.e, r.ie, sel);
                 if (p == nullptr)
                 {
                     o.push_back(-3.0);
@@ -959,7 +1236,7 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
             }
             else
             {
-                SmFaceProps* p = r.pick(r.f, sel);
+                SmFaceProps* p = r.pick(r.f, r.iff, sel);
                 if (p == nullptr)
                 {
                     o.push_back(-3.0);
@@ -1044,7 +1321,7 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
         {
             int64_t sel = rd.idx();
             bool meta = rd.flag();
-            SmEdgeProps* p = r.pick(r.e, sel);
+            SmEdgeProps* p = r.pick(r.e, r.ie, sel);
             if (p != nullptr)
                 p->ReSet(meta ? TRUE : FALSE);
             break;
@@ -1052,14 +1329,205 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
         case 21:
         {
             int64_t sel = rd.idx();
-            SmVertexProps* p = r.pick(r.v, sel);
+            SmVertexProps* p = r.pick(r.v, r.iv, sel);
             if (p != nullptr)
                 p->ReSet();
             break;
         }
         case 22: h->SetupEmptyProbArrays(); break;
+        // ---- steps of unit heal.heal_data_p1 (see p1_step) ----
+        case 23:
+        case 24:
+        case 25:
+        case 26:
+        case 27:
+        case 28:
+        case 29:
+        case 30:
+        case 31:
+        {
+            P1Out res = p1_step(code, rd, *h, brep, g, r, o);
+            if (res.kind == P1_REFUSED)
+            {
+                stop = true;
+                continue;
+            }
+            if (res.kind == P1_WRITTEN)
+                continue;
+            stat = res.stat;
+            bNew = res.bNew;
+            if (res.kind == P1_LAST)
+            {
+                o.push_back(st(stat));
+                o.push_back(flg(bNew));
+                stop = true;
+                continue;
+            }
+            break;
+        }
+        case 32:
+        {
+            SmHealerOpType op = (SmHealerOpType)rd.idx();
+            bool make = rd.flag();
+            mark_all_dead(*h, r);
+            stat = h->HealTgts(op, make ? TRUE : FALSE);
+            r.note(*h);
+            o.push_back((double)h->m_eStopHealOp);
+            o.push_back((double)h->m_eDoneHealOp);
+            o.push_back((double)h->m_lRecursionCount);
+            o.push_back((double)h->m_sTgtVertices.GetSize());
+            o.push_back((double)h->m_sTgtEdges.GetSize());
+            o.push_back((double)h->m_sTgtFaces.GetSize());
+            stop = true; // full healing may destroy the original fixture graph
+            break;
+        }
+        case 33:
+        {
+            SmHealerOpType op = (SmHealerOpType)rd.idx();
+            SmTArray<SmTopology*> removed, added;
+            for (int pass = 0; pass < 2; ++pass)
+            {
+                int64_t n = rd.idx();
+                for (int64_t i = 0; i < n; ++i)
+                {
+                    int kind = (int)rd.idx();
+                    int64_t sel = rd.idx();
+                    SmTopology* t = kind == 10 ? NULL : topo_of(g, kind, sel);
+                    (pass == 0 ? removed : added).Add(t);
+                }
+            }
+            if (stop) continue;
+            if (removal_lookup_is_ub(h->m_sTgtFaces, h->m_sTgtFaceProps, removed) ||
+                removal_lookup_is_ub(h->m_sTgtEdges, h->m_sTgtEdgeProps, removed) ||
+                removal_lookup_is_ub(h->m_sTgtVertices, h->m_sTgtVertexProps, removed))
+            {
+                o.push_back(ST_NULL_DEREF);
+                stop = true;
+                continue;
+            }
+            SmTArray<SmFaceProps*> rf;
+            SmTArray<SmEdgeProps*> re;
+            SmTArray<SmVertexProps*> rv;
+            h->GetFaceProps_ForTgts(&removed, &rf, TRUE);
+            h->GetEdgeProps_ForTgts(&removed, &re, TRUE);
+            h->GetVertexProps_ForTgts(&removed, &rv, TRUE);
+            // Resolve first: duplicates not present in a target list, and
+            // repeated unrelated topology entries, are safe native inputs.
+            std::set<const void*> deleting;
+            bool unsafe_remove = false;
+            for (ULONG i = 0; i < rf.GetSize(); ++i)
+                unsafe_remove |= !deleting.insert(rf[i]).second;
+            for (ULONG i = 0; i < re.GetSize(); ++i)
+                unsafe_remove |= !deleting.insert(re[i]).second || pair_remove_is_ub(h->m_sBadEdgeProps_CoinEdges, re[i]) || pair_remove_is_ub(h->m_sBadEdgeProps_MissedEdgeXSects, re[i]);
+            for (ULONG i = 0; i < rv.GetSize(); ++i)
+                unsafe_remove |= !deleting.insert(rv[i]).second || pair_remove_is_ub(h->m_sBadVertexProps_CoinVertices, rv[i]);
+            if (unsafe_remove)
+            {
+                o.push_back(ST_NULL_DEREF);
+                stop = true;
+                continue;
+            }
+            // Native UpdateTargetLists sizes every props list to its TARGET
+            // count. Reject holes left by removing an uncached props record,
+            // including drift already introduced by a prior Remove*Props step.
+            size_t faces_after = target_count_after_removals(h->m_sTgtFaces, rf, [](SmFaceProps* p) { return p->m_pFace; });
+            size_t edges_after = target_count_after_removals(h->m_sTgtEdges, re, [](SmEdgeProps* p) { return (SmEdge*)p->m_pEdge; });
+            size_t vertices_after = target_count_after_removals(h->m_sTgtVertices, rv, [](SmVertexProps* p) { return (SmVertex*)p->m_pVertex; });
+            bool drift = faces_after != h->m_sTgtFaceProps.GetSize() - rf.GetSize() ||
+                         edges_after != h->m_sTgtEdgeProps.GetSize() - re.GetSize() ||
+                         vertices_after != h->m_sTgtVertexProps.GetSize() - rv.GetSize();
+            if (added.GetSize() != 0 && drift)
+            {
+                o.push_back(ST_NULL_DEREF);
+                stop = true;
+                continue;
+            }
+            ULONG new_vertices = 0;
+            for (ULONG i = 0; i < added.GetSize(); ++i)
+                if (added[i] != NULL && brep->IsLiveTopologyMember(added[i]) && added[i]->IsKindOf(SmVertex_TYPE))
+                    ++new_vertices;
+            SmHealerOpType through = op < h->m_eDoneHealOp ? op : h->m_eDoneHealOp;
+            if (added.GetSize() != 0 && through >= SM_HO_CACHE_COIN_VERTICES &&
+                vertices_after > 0 && new_vertices > 0 &&
+                (h->m_pVerticesInVoxels->*VxPeek::box()).IsInit())
+            {
+                o.push_back(ST_NULL_DEREF);
+                stop = true;
+                continue;
+            }
+            // Catch-up from Fix_CoinVertices onward can invalidate fixture
+            // topology and recycle props addresses, just like HealTgts.
+            if (added.GetSize() != 0 && through >= SM_HO_FIX_COIN_VERTICES)
+            {
+                mark_all_dead(*h, r);
+                stop = true;
+            }
+            for (ULONG i = 0; i < rf.GetSize(); ++i) r.dead.insert(rf[i]);
+            for (ULONG i = 0; i < re.GetSize(); ++i) r.dead.insert(re[i]);
+            for (ULONG i = 0; i < rv.GetSize(); ++i) r.dead.insert(rv[i]);
+            stat = h->UpdateTargetLists(&removed, &added, op);
+            r.note(*h);
+            break;
+        }
+        case 42:
+        {
+            bool null_face = rd.flag();
+            for (ULONG i = 0; i < h->m_sTgtFaceProps.GetSize(); ++i)
+            {
+                SmFaceProps* p = h->m_sTgtFaceProps[i];
+                p->m_pFace = null_face || i >= h->m_sTgtFaces.GetSize() ? NULL : h->m_sTgtFaces[i];
+                p->m_lFaceIndx = i;
+                p->m_eBadCrossedSeam = SM_SP_NEITHER;
+                h->m_sBadFaceProps_DegenFaces.Add(p);
+                h->m_sBadFaceProps_CrossedSeam.Add(p);
+                h->m_sBadFaceProps_MissingSeam.Add(p);
+            }
+            break;
+        }
+        case 41:
+            for (ULONG i = 0; i < h->m_sTgtFaceProps.GetSize(); ++i)
+            {
+                SmFaceProps* p = h->m_sTgtFaceProps[i];
+                p->m_pFace = h->m_sTgtFaces[i];
+                p->m_lFaceIndx = i;
+                h->m_sBadFaceProps_DegenFaces.Add(p);
+            }
+            break;
+        case 34: stat = h->Fix_CoinVertices(brep, SM_HO_FIX_COIN_VERTICES); break;
+        case 35: stat = h->Fix_DegenFaces(brep, SM_HO_FIX_DEGEN_FACES); break;
+        case 36: stat = h->Fix_DegenEdges(brep, SM_HO_FIX_DEGEN_EDGES); break;
+        case 37:
+        case 38:
+        {
+            SmNewMarkAndLock lock(brep->GetContext());
+            stat = code == 37 ? h->Fix_MoveSeam(brep, lock, SM_HO_FIX_MOVESEAM)
+                              : h->Fix_SplitEdgesAtSeam(brep, lock, SM_HO_FIX_SPLITEDGE_ATSEAM);
+            break;
+        }
+        case 39: stat = h->Fix_SplitFaceAtSeams(brep, SM_HO_FIX_SPLITFACE_ATSEAMS); break;
+        case 40:
+        {
+            bool active = rd.flag();
+            SmHealerOpType op = (SmHealerOpType)rd.idx();
+            SmTrackTopologyChanges tracker(brep, active ? TRUE : FALSE);
+            stat = h->UpdateTargetLists(tracker, op);
+            tracker.StopTracking();
+            break;
+        }
         default: stat = SC_ERR_ARG; break;
         }
+        if (code == 38 && stat == SM_SUCCESS)
+        {
+            o.push_back((double)h->m_sTgtFaceProps.GetSize());
+            for (ULONG i = 0; i < h->m_sTgtFaceProps.GetSize(); ++i)
+            {
+                SmFaceProps* p = h->m_sTgtFaceProps[i];
+                o.push_back((double)p->m_eBadCrossedSeam);
+                o.push_back((double)p->m_bBadCrossedSeam);
+                o.push_back((double)p->m_eBeenThroughSplitEdgesAtSeam);
+            }
+        }
+        if (repair) { r.note(*h); stop = true; }
         o.push_back(st(stat));
         o.push_back(flg(bNew));
         if (stat != SM_SUCCESS)
@@ -1078,15 +1546,15 @@ void run_heal(Rd& rd, const char* path, std::vector<double>& o)
         owned.insert(h->m_sTgtFaceProps[i]);
     for (ULONG i = 0; i < h->m_sNotYetFaceProps.GetSize(); i++)
         owned.insert(h->m_sNotYetFaceProps[i]);
-    for (SmVertexProps* p : r.v)
-        if (r.alive(p) && owned.find(p) == owned.end())
-            delete p;
-    for (SmEdgeProps* p : r.e)
-        if (r.alive(p) && owned.find(p) == owned.end())
-            delete p;
-    for (SmFaceProps* p : r.f)
-        if (r.alive(p) && owned.find(p) == owned.end())
-            delete p;
+    for (size_t ri = 0; ri < r.v.size(); ++ri)
+        if (r.alive_at(r.v[ri], ri, r.iv) && owned.find(r.v[ri]) == owned.end())
+            delete r.v[ri];
+    for (size_t ri = 0; ri < r.e.size(); ++ri)
+        if (r.alive_at(r.e[ri], ri, r.ie) && owned.find(r.e[ri]) == owned.end())
+            delete r.e[ri];
+    for (size_t ri = 0; ri < r.f.size(); ++ri)
+        if (r.alive_at(r.f[ri], ri, r.iff) && owned.find(r.f[ri]) == owned.end())
+            delete r.f[ri];
     delete h;
     delete brep;
 }
