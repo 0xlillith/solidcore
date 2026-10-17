@@ -271,7 +271,7 @@ def parse_issues():
 
 # ---------------------------------------------------------------- page shell
 
-def page(title, body, depth, nav, head_sha, head_date, description=""):
+def page(title, body, depth, nav, head_sha, head_date, description="", path=""):
     up = "../" * depth
     links = [("index.html", "Overview", "overview"), ("units/index.html", "Units", "units"),
              ("issues.html", "Upstream issues", "issues"), ("ssi.html", "SSI corpus", "ssi")]
@@ -280,6 +280,7 @@ def page(title, body, depth, nav, head_sha, head_date, description=""):
         for href, label, key in links)
     short = head_sha[:8]
     site_url = f"https://{REPO.split('/')[0]}.github.io/{REPO.split('/')[1]}/"
+    canon_url = f"{site_url}{path}" if path else site_url
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -290,7 +291,7 @@ def page(title, body, depth, nav, head_sha, head_date, description=""):
 <meta name="theme-color" content="#141413">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="solidcore">
-<meta property="og:url" content="{site_url}">
+<meta property="og:url" content="{canon_url}">
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(description or title)}">
 <meta property="og:image" content="{site_url}assets/og-image.png">
@@ -570,7 +571,7 @@ counts). Click a column heading to sort.</p>
 <th data-sort="num">Deferred</th><th data-sort="num">Failed</th><th>Top blockers</th></tr></thead>
 <tbody>{''.join(rows)}</tbody></table></div>
 """
-    write("units/index.html", P("Units · solidcore", body, 1, "units"))
+    write("units/index.html", P("Units · solidcore", body, 1, "units", path="units/index.html"))
 
     # ---- unit pages
     def unit_links(ids):
@@ -662,7 +663,7 @@ counts). Click a column heading to sort.</p>
 <h2>Upstream tests reaching this unit</h2>
 <p class="tests">{tests}</p>
 """
-        write(f"units/{uid}.html", P(f"{uid} · solidcore", body, 1, "units"))
+        write(f"units/{uid}.html", P(f"{uid} · solidcore", body, 1, "units", path=f"units/{uid}.html"))
 
     # ---- issues
     sc = collections.Counter(e["series"] for e in issues)
@@ -701,7 +702,7 @@ rendered as written: {', '.join(f'{sc[k]} {k}' for k in SERIES if sc[k])}; {cc['
 </div>
 <div id="issues">{''.join(arts)}</div>
 """
-    write("issues.html", P("Upstream issues · solidcore", body, 0, "issues"))
+    write("issues.html", P("Upstream issues · solidcore", body, 0, "issues", path="issues.html"))
 
     # ---- ssi corpus
     cases = sorted(ssi.get("cases", []), key=lambda c: c["id"])
@@ -756,7 +757,7 @@ the C++ result's.</p>
 <th data-sort="text">Surfaces</th><th data-sort="text">C++</th><th data-sort="text">Rust</th><th data-sort="text">Parity</th><th>Flags</th></tr></thead>
 <tbody>{''.join(crow)}</tbody></table></div>
 """
-    write("ssi.html", P("SSI corpus · solidcore", body, 0, "ssi"))
+    write("ssi.html", P("SSI corpus · solidcore", body, 0, "ssi", path="ssi.html"))
     return {"units": len(units), "issues": len(issues), "ssi": len(cases), "timeline": len(points),
             "seconds": time.time() - t_start}
 

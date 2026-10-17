@@ -9,7 +9,9 @@ site/assets/og-image.png. Run from the repo root:
 The card uses the site's own design tokens (site/assets/style.css) and the
 repo's brand mark (assets/logo.svg): dark #141413 ground, light #f0efec text,
 brand steel/ice quads (#5B6B82, #2E3B50, #E6ECF3, #C7D2E0) with the orange
-#F97316 progress polyline, green #7fdcb6 KPIs, and the muted #9c9b92 caption.
+#F97316 progress polyline and the muted #9c9b92 caption. Intentionally
+number-free: live progress percentages go stale and preview caches hold old
+images, so the card carries only logo, name, taglines, and URL.
 """
 import pathlib
 
@@ -94,26 +96,17 @@ def main():
     # Text block on the right
     f_title = font(78, bold=True)
     f_sub = font(33)
-    f_stat = font(64, bold=True)
-    f_lbl = font(26)
     f_url = font(27)
 
-    d.text((470, 165), "solidcore", font=f_title, fill=TEXT)
-    d.text((472, 280), "Rust port of NVIDIA's SMLib B-rep kernel", font=f_sub, fill=MUTED)
-    d.text((472, 322), "safe · deterministic · WASM-compatible", font=f_sub, fill=MUTED)
+    d.text((470, 170), "solidcore", font=f_title, fill=TEXT)
+    d.text((472, 292), "Rust port of NVIDIA's SMLib B-rep kernel", font=f_sub, fill=MUTED)
+    d.text((472, 338), "safe · deterministic · WASM-compatible", font=f_sub, fill=MUTED)
 
-    # KPI chips
-    rrect(d, [472, 386, 666, 500], 12, "#1a1a19")
-    rrect(d, [692, 386, 886, 500], 12, "#1a1a19")
-    d.text((494, 392), "68.8%", font=f_stat, fill=GREEN)
-    d.text((494, 452), "upstream lines", font=f_lbl, fill=MUTED)
-    d.text((494, 474), "ported", font=f_lbl, fill=MUTED)
-    d.text((714, 392), "36.0%", font=f_stat, fill=GREEN)
-    d.text((714, 452), "units fully", font=f_lbl, fill=MUTED)
-    d.text((714, 474), "green", font=f_lbl, fill=MUTED)
+    # Accent rule
+    d.line([(472, 476), (886, 476)], fill=ACCENT, width=3)
 
     # URL footer
-    d.text((472, 556), "tangency-labs.github.io/solidcore", font=f_url, fill=LINK)
+    d.text((472, 530), "tangency-labs.github.io/solidcore", font=f_url, fill=LINK)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, "PNG")
