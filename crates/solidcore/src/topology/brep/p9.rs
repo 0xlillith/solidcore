@@ -266,12 +266,27 @@ pub struct EdgeInFaceInput {
     pub editing_enabled: bool,
 }
 
+/// The edge created by `MakeEdgeInFaceWithVU`, and the optional split loop/face.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EdgeInFaceOutput {
+    /// Newly created manifold edge.
+    pub edge: EdgeId,
+    /// Newly created loop when both vertices belong to the same loop.
+    pub loop_: Option<LoopId>,
+    /// Newly created face when insertion splits the original face.
+    pub face: Option<FaceId>,
+}
+
 /// `MakeEdgeInFaceWithVU`'s defined null/editing/VU-compatibility failures.
 ///
 /// # Errors
 /// Null face/curve, disabled editing or incompatible VUs, then dependency errors
 /// from curve projection/face editing. No topology success is simulated.
-pub fn make_edge_in_face_with_vu(k: &Kernel, b: &mut Brep, input: EdgeInFaceInput) -> Result<()> {
+pub fn make_edge_in_face_with_vu(
+    k: &Kernel,
+    b: &mut Brep,
+    input: EdgeInFaceInput,
+) -> Result<EdgeInFaceOutput> {
     let face = input.face.ok_or_else(|| SolidError::null_pointer(OP))?;
     let curve = input.curve.ok_or_else(|| SolidError::null_pointer(OP))?;
     if !input.editing_enabled {

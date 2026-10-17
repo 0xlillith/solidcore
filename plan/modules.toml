@@ -2867,10 +2867,10 @@ soft_depends_on = ["curve.curve_p5", "geom.axis2_placement", "geom.vector2d", "i
 est_lines = 2443
 layer = 46
 tests = ["prog_test:my_test_tsurf_cyl_creation_2d", "prog_test:my_test_tsurf_cyl_creation_3d", "prog_test:my_test_tsurf_cyl_creation_fast", "prog_test:my_test_tsurf_creation", "SM_API_test:TestSmCreatePlanarCircle", "SM_API_test:TestIntersectionOutputStatus"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "6 fns; largest: SmBrep::MakeEdgeInFaceWithVU, SmBrep::FindInfiniteRegion, SmBrep::MakeVertexSplitEdge, SmBrep::MakeVertexLoop; cycle back-edges (call into later units; stub or co-port): topology.brep_p2(9), query.brep(1), query.face_p1(1); unit-SCC #22 (220 units); 200 upstream test entry points reach this unit"
+notes = "PR #183: PARTIAL, independent implementation from official main. Checkpoint 970a29f4 native differential: 602 cases, 495 bit-identical comparisons, 0 failed, 107 deferred (topology.brep_p1 96, topology.brep_p2 3, topology.face_p3 7, intersect.surface_drop_lib_p3 1), no absolute floors. Implements split-refusal decisions and retained endpoint/status, insertion validation/projection prefix and typed point-classification integration. Owning-list traversal, shell/loop construction, ray selection, sheet orientation and successful topology mutation continuations remain unimplemented behind owned dependency barriers; these are not certified. Defers interior allocation/notifications atomically. Final revision and full-suite reruns pending. 6 fns; largest: SmBrep::MakeEdgeInFaceWithVU, SmBrep::FindInfiniteRegion, SmBrep::MakeVertexSplitEdge, SmBrep::MakeVertexLoop; cycle back-edges (call into later units; stub or co-port): topology.brep_p2(9), query.brep(1), query.face_p1(1); unit-SCC #22 (220 units); 200 upstream test entry points reach this unit"
 
 [[unit]]
 id = "topology.brep_p2"
