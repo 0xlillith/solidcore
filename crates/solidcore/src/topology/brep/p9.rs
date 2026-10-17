@@ -81,7 +81,7 @@ pub fn find_infinite_region(
     bbox: Option<&crate::geom::extent3d::Extent3d>,
 ) -> Result<Option<RegionId>> {
     let _ = (b, shell, bbox);
-    // OMITTED SmBrep.cpp:8020-8581: region selection, ray tests and shell retry.
+    // OMITTED SmBrep.cpp:8018-8581: region selection, ray tests and shell retry.
     // Wiring GetRegions alone does not complete this function.
     // UNPORTED(topology.brep_p1): SmBrep::GetRegions
     Err(SolidError::unported(
@@ -114,7 +114,7 @@ pub fn make_shell_vertex(
     point: Point3,
 ) -> Result<(ShellId, VertexId)> {
     let Some(region) = region else {
-        // OMITTED SmBrep.cpp:19080-19088: construction, point and notifications.
+        // OMITTED SmBrep.cpp:19077-19088: construction, point and notifications.
         // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
         return Err(SolidError::unported(
             "SmBrep::GetInfiniteRegion",
@@ -123,7 +123,7 @@ pub fn make_shell_vertex(
     };
     b.region(region)?;
     let _ = point;
-    // OMITTED SmBrep.cpp:19080-19088: construction, point and notifications.
+    // OMITTED SmBrep.cpp:19077-19088: construction, point and notifications.
     // UNPORTED(topology.brep_p2): SmBrep::MakeShellVertexTopology
     Err(SolidError::unported(
         "SmBrep::MakeShellVertexTopology",
@@ -237,7 +237,7 @@ pub fn make_vertex_split_edge(
     // faces, the next operation is their PRE_EDIT; stop before changing geometry.
     let faces = edge::faces(b, edge_id, None)?;
     if !faces.is_empty() {
-        // OMITTED SmBrep.cpp:21319-21611: edit notifications, allocation, split
+        // OMITTED SmBrep.cpp:21331-21611: edit notifications, allocation, split
         // geometry/topology, UV splitting, tolerance/attribute updates and outputs.
         return face_pre_edit();
     }
@@ -245,7 +245,7 @@ pub fn make_vertex_split_edge(
     // Interior wire splitting reaches the file-local UV-trim splitter, owned by
     // part 1, before the B-rep ADD/SPLIT notifications in part 2. Its wire no-op
     // branch must be supplied by its owner too, rather than silently bypassed.
-    // OMITTED SmBrep.cpp:21319-21611: the complete interior-split body (including
+    // OMITTED SmBrep.cpp:21331-21611: the complete interior-split body (including
     // native work before this dependency) remains unimplemented, not just this call.
     // UNPORTED(topology.brep_p1): sm_MakeVertexSplitUVTrimCurve
     Err(SolidError::unported(
@@ -384,7 +384,7 @@ pub fn make_edge_in_face_with_vu(
         input.orientation,
         input.curve_zone_tol_3d,
     );
-    // OMITTED SmBrep.cpp:12403-12413,12513-12617,12676-13484: native allocations,
+    // OMITTED SmBrep.cpp:12404-12412,12513-12517,12582-12627,12633-12634,12676-13484: native allocations,
     // edge/use/trim ownership and assignment, insertion, loop/face splitting,
     // tolerances, notifications and outputs. The seam-copy calculation above is
     // ported, but its copy is not attached to topology. This is not a complete
@@ -486,6 +486,27 @@ mod tests {
         let v1 = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
         let e = b.add_edge(v0, v1).unwrap();
         b.edge_mut(e).unwrap().interval = Extent1d::from_min_max(0.0, 1.0);
+        // Endpoint outputs walk the primary/mate edge uses, as native does.
+        for (vertex, orientation) in [(v0, OrientType::Same), (v1, OrientType::Opposite)] {
+            let vu = b
+                .add_vertexuse_record(crate::topology::Vertexuse {
+                    vertex: Some(vertex),
+                    ..crate::topology::Vertexuse::default()
+                })
+                .unwrap();
+            let eu = b
+                .add_edgeuse_record(crate::topology::Edgeuse {
+                    edge: Some(e),
+                    owner: crate::topology::EdgeuseOwner::Shell(None),
+                    vertexuse: Some(vu),
+                    orientation,
+                    ..crate::topology::Edgeuse::default()
+                })
+                .unwrap();
+            b.vertexuse_mut(vu).unwrap().owner = VertexuseOwner::Edgeuse(Some(eu));
+            b.vertex_mut(vertex).unwrap().vertexuses.push(vu);
+            b.edge_mut(e).unwrap().edgeuses.push(eu);
+        }
         for (p, vertex) in [
             (f64::NAN, None),
             (f64::INFINITY, Some(v1)),
