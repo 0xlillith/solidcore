@@ -73,7 +73,7 @@ enum OpIn {
     IsSilhouette { edge: i64 },
     IsBackFacing { edge: i64 },
     Intersect { edge: i64, fa: f64, fb: f64 },
-    CurveVisibility { edge: i64, fa: f64, fb: f64, start_hint: u8, end_hint: u8 },
+    CurveVisibility { edge: i64, fa: f64, fb: f64, start_hint: f64, end_hint: f64 },
     EdgeVisibility { edge: i64, vertex: i64, visible: bool, premark: bool },
     SilhouetteEdges,
     PointVisible { p: [f64; 3] },
@@ -208,7 +208,7 @@ fn op_args(op: &OpIn) -> (u8, Vec<f64>) {
         OpIn::IsBackFacing { edge } => (2, vec![edge as f64]),
         OpIn::Intersect { edge, fa, fb } => (3, vec![edge as f64, fa, fb, 0.0, 0.0]),
         OpIn::CurveVisibility { edge, fa, fb, start_hint, end_hint } => {
-            (4, vec![edge as f64, fa, fb, f64::from(start_hint), f64::from(end_hint)])
+            (4, vec![edge as f64, fa, fb, start_hint, end_hint])
         }
         OpIn::EdgeVisibility { edge, vertex, visible, premark } => {
             (5, vec![edge as f64, vertex as f64, flag(visible), flag(premark)])
@@ -360,6 +360,12 @@ impl UnitDiff for Runner {
     }
 }
 
+/// `(ULONG)(int64_t)hint`: the shim's conversion of a hint (truncates toward zero, wraps
+/// negative values).
+fn hint_ulong(h: f64) -> u64 {
+    h as i64 as u64
+}
+
 fn eid(i: i64) -> EdgeId {
     EdgeId::from_index(i as u32)
 }
@@ -465,7 +471,7 @@ fn run_rust(i: &Inputs, r: &Resolved, scene: Brep, scene_box: Extent3d) -> Resul
             let mut cc = new_curve_classification(&k, HcrObject::Curve(e), ivl, tol);
             let res = match r.op {
                 OpIn::CurveVisibility { start_hint, end_hint, .. } => {
-                    h.compute_curve_visibility(&k, &mut cc, u64::from(start_hint), u64::from(end_hint))
+                    h.compute_curve_visibility(&k, &mut cc, hint_ulong(start_hint), hint_ulong(end_hint))
                 }
                 _ => h.intersect_curve_with_silhouettes(&k, &mut cc),
             };

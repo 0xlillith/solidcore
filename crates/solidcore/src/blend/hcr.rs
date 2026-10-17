@@ -50,6 +50,10 @@
 //!   (display colours) is not ported: curves carry no attribute list here.
 //! - `m_pFrontFaceTree`, `m_pVisiblePoints` and `m_pInvisiblePoints` (unused upstream)
 //!   are not kept.
+//! - **Surface identity.** `ComputeSilhouettes` tests whether the two faces of a split are
+//!   on the same surface object (`SmHCR.cpp:1264-1266`, pointer equality). A port face
+//!   owns its surface record, so the object is identified by the surface's owner
+//!   (`SmSurface::m_pOwner`); see `same_surface`. Surface data is never compared.
 //! - `IsPointVisible` keeps the ray tracer's surface set and grid and rebuilds the
 //!   tracer (which borrows the surfaces) for each ray.
 //! - `DrawVisibleCurves`, `IsConcaveSilhouette` and `IsFrontFacingFace` are not owned by
@@ -68,7 +72,7 @@ use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::grid::Grid;
 use crate::geom::object::ObjectRef;
 use crate::geom::solution_array::{ObjectKind, SolutionObject, SolutionType};
-use crate::geom::tol::{are_same, xsect_tol_3d_from_zones, UNINIT_TOL};
+use crate::geom::tol::{are_same, xsect_tol_3d_from_zones, zone_tol3d, UNINIT_TOL};
 use crate::geom::tree::{NodeGeomType, Tree};
 use crate::intersect::curve_class::p1::CurveClassification;
 use crate::intersect::curve_class::p1::IntervalPosition;
@@ -263,16 +267,6 @@ fn add_deleted_surface(brep: &mut Brep) -> Result<()> {
     ))
 }
 
-/// `SmBrep::m_bEditingEnabled` (unit `topology.brep_p1`).
-fn set_editing_enabled(brep: &mut Brep, enabled: bool) -> Result<()> {
-    let _ = (brep, enabled);
-    // UNPORTED(topology.brep_p1): SmBrep::m_bEditingEnabled
-    Err(SolidError::unported(
-        "SmBrep::m_bEditingEnabled",
-        "topology.brep_p1",
-    ))
-}
-
 /// `SmBrep::MergeCurvesOnSurface` (unit `topology.brep_p2`): the new faces and the
 /// edges of the curves.
 fn merge_curves_on_surface(
@@ -325,8 +319,9 @@ fn find_if_rectangular_trim(
 /// (`SmCurveClassification(cpCurve, crInterval, NULL, tol, 64, pData)`, unit
 /// `intersect.curve_class_p4`, whose body is `ReSet`, unit `intersect.curve_class_p2`;
 /// CO-PORTED here on [`CurveClassification::with_curve_interval`]): one unclassified
-/// interval; the source zone tolerance is `src_zone_tol_3d` when positive, else
-/// `SM_UNINIT_TOL`, and the three point classifications keep `src_zone_tol_3d`. The
+/// interval; the argument converts to `SmZoneTol3d` (`fabs`, `SM_USE_DEFAULT` -> the
+/// system zone tolerance, [`zone_tol3d`]), the source zone tolerance is that value when
+/// positive, else `SM_UNINIT_TOL`, and the three point classifications keep it. The
 /// borrowed 64-interval buffer only bounds when the array reallocates.
 #[must_use]
 pub fn new_curve_classification(
@@ -335,6 +330,9 @@ pub fn new_curve_classification(
     interval: Extent1d,
     src_zone_tol_3d: f64,
 ) -> CurveClassification<HcrObject> {
+    // The `double` becomes the `SmZoneTol3d` parameter of the constructor: `fabs`, and
+    // `SM_USE_DEFAULT` -> the system zone tolerance.
+    let src_zone_tol_3d = zone_tol3d(k, src_zone_tol_3d);
     let mut cc = CurveClassification::with_curve_interval(k, curve, interval, src_zone_tol_3d);
     // `tol > 0.0 ? tol : SM_UNINIT_TOL` (NaN included)
     if src_zone_tol_3d.partial_cmp(&0.0) != Some(core::cmp::Ordering::Greater) {
@@ -367,25 +365,21 @@ fn b_spline_part(surface: &Surface) -> Option<&BSplineSurface> {
     }
 }
 
-/// `sNewFaces[0]->GetSurface() == sNewFaces[1]->GetSurface()`. Upstream the two faces
-/// of a split share one surface object; here each face owns its surface record, and a
-/// split leaves equal copies, so the surfaces are compared by value: the same kind and
-/// the same NURBS data (control net, degrees, knots) of their B-spline part.
+/// `sNewFaces[0]->GetSurface() == sNewFaces[1]->GetSurface()`: pointer identity of the two
+/// faces' surface objects. A port face owns its surface record, so there is no pointer;
+/// the identity of an upstream surface object is its owner (`SmSurface::m_pOwner`, the
+/// face it was attached to), which every record standing for the same upstream object
+/// carries. Two surfaces are the same when both faces have none (`NULL == NULL`), when
+/// they are the same face's surface, or when both carry the same owner; equal surface
+/// data with different (or no) owners is a different object, as upstream.
 fn same_surface(brep: &Brep, a: FaceId, b: FaceId) -> Result<bool> {
     let (sa, sb) = (
         brep.face(a)?.surface.as_ref(),
         brep.face(b)?.surface.as_ref(),
     );
     Ok(match (sa, sb) {
-        (Some(x), Some(y)) => {
-            core::mem::discriminant(x.kind()) == core::mem::discriminant(y.kind())
-                && match (b_spline_part(x), b_spline_part(y)) {
-                    (Some(p), Some(q)) => {
-                        format!("{:?}", p.gw_nurb()) == format!("{:?}", q.gw_nurb())
-                    }
-                    _ => false,
-                }
-        }
+        (None, None) => true,
+        (Some(x), Some(y)) => a == b || x.owner().is_some_and(|o| Some(o) == y.owner()),
         _ => false,
     })
 }
@@ -507,7 +501,7 @@ impl Hcr {
         let (vt, _) = prepare_transform(view_transform);
         // copy the original Brep
         let mut scene = copy_brep(brep)?;
-        set_editing_enabled(&mut scene, true)?;
+        scene.set_editing_enabled(true);
         // transform the copied Brep to place the eye looking up the Z axis
         ignore_status(transform_brep(&mut scene, &vt))?;
         ignore_status(find_and_set_infinite_region(&mut scene))?; // [B23]
@@ -743,7 +737,7 @@ impl Hcr {
         let edges = brep_edges(&self.scene)?;
 
         // Disable editing now
-        set_editing_enabled(&mut self.scene, false)?;
+        self.scene.set_editing_enabled(false);
 
         // increment and lock an unlocked mark
         let mut marked: BTreeSet<EdgeId> = BTreeSet::new();
@@ -1567,5 +1561,73 @@ mod tests {
         assert!((h.ray_offset_tolerance() - 0.004).abs() < 1e-15);
         assert_eq!(h.proj_bbox().max().z, 6.0);
         assert!(h.silhouette_edges().is_empty());
+    }
+
+    fn face_with_surface(b: &mut Brep, owner: Option<ObjectRef>) -> FaceId {
+        let shell = b
+            .add_shell_record(crate::topology::Shell::default())
+            .unwrap();
+        let f = b.add_face(shell).unwrap();
+        let mut s = Surface::new(SurfaceKind::Plane(
+            crate::surface::plane::Plane::from_normal(
+                Point3::new(0.0, 0.0, 0.0),
+                Vec3::new(0.0, 0.0, 1.0),
+            ),
+        ));
+        *s.owner_mut() = owner;
+        b.face_mut(f).unwrap().surface = Some(s);
+        f
+    }
+
+    #[test]
+    fn new_curve_classification_converts_the_zone_tolerance() {
+        use crate::geom::tol::{USE_DEFAULT, ZONE_TOL_3D};
+        let k = Kernel::default();
+        let make = |t: f64| {
+            new_curve_classification(
+                &k,
+                HcrObject::Curve(EdgeId::from_index(0)),
+                Extent1d::from_min_max(0.0, 1.0),
+                t,
+            )
+        };
+        // (given, source zone tolerance, tolerance of the interval's point classes)
+        for (given, src, pts) in [
+            (1e-4, 1e-4, 1e-4),
+            (-1e-4, 1e-4, 1e-4),
+            (USE_DEFAULT, ZONE_TOL_3D, ZONE_TOL_3D),
+            (0.0, UNINIT_TOL, 0.0),
+            (f64::NAN, UNINIT_TOL, f64::NAN),
+        ] {
+            let cc = make(given);
+            assert_eq!(cc.src_zone_tol_3d().to_bits(), src.to_bits(), "{given}");
+            let ivl = cc.at(0).unwrap();
+            for pc in [&ivl.start, &ivl.mid, &ivl.end] {
+                assert_eq!(pc.src_zone_tol_3d().to_bits(), pts.to_bits(), "{given}");
+            }
+        }
+    }
+
+    #[test]
+    fn same_surface_is_object_identity() {
+        let o = |n: u64| {
+            Some(ObjectRef {
+                type_code: 0,
+                key: ObjectKey(n),
+            })
+        };
+        let mut b = Brep::new();
+        let shared1 = face_with_surface(&mut b, o(1));
+        let shared2 = face_with_surface(&mut b, o(1));
+        let other = face_with_surface(&mut b, o(2));
+        let unowned1 = face_with_surface(&mut b, None);
+        let unowned2 = face_with_surface(&mut b, None);
+        assert!(same_surface(&b, shared1, shared2).unwrap());
+        assert!(same_surface(&b, shared1, shared1).unwrap());
+        // equal data (all are the default plane), different objects
+        assert!(!same_surface(&b, shared1, other).unwrap());
+        assert!(!same_surface(&b, unowned1, unowned2).unwrap());
+        assert!(!same_surface(&b, unowned1, shared1).unwrap());
+        assert!(same_surface(&b, unowned1, unowned1).unwrap());
     }
 }

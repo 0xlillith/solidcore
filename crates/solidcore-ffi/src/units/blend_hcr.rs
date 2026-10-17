@@ -14,7 +14,7 @@
 //!   - 1 `IsSilhouetteEdge`, 2 `IsBackFacingEdge`: `edge`;
 //!   - 3 `IntersectCurveWithSilhouettes`, 4 `ComputeCurveVisibility`: `edge fa fb
 //!     start_hint end_hint` (the classified interval is the edge interval evaluated at
-//!     `0 <= fa < fb <= 1`; hints 0..=2);
+//!     `0 <= fa, fb <= 1` in either order; any hint in the `int64_t` range);
 //!   - 5 `ComputeEdgeVisibility`: `edge vertex(-1 none) visible premark`;
 //!   - 7 `IsPointVisible`: `P[3]`.
 //!
@@ -194,12 +194,16 @@ pub fn validate(op: u8, scene: &[f64], ops: &[f64]) -> Result<(), FfiError> {
         3 | 4 => {
             rd.index(n_e, false)?;
             let (fa, fb) = (rd.num()?, rd.num()?);
-            if !(0.0 <= fa && fa < fb && fb <= 1.0) {
+            // `SmExtent1d(Evaluate(fa), Evaluate(fb))` swaps an inverted pair (defined for
+            // `fa >= fb`); fractions outside [0, 1] evaluate the curve off its edge interval
+            if !(0.0..=1.0).contains(&fa) || !(0.0..=1.0).contains(&fb) {
                 return Err(bad("interval fractions"));
             }
+            // `(ULONG)(int64_t)hint`: C++ reads 0 as "no hint", 1 as visible and any other
+            // value as invisible; only a hint outside the `int64_t` range is undefined
             for _ in 0..2 {
                 let h = rd.num()?;
-                if h != 0.0 && h != 1.0 && h != 2.0 {
+                if !(-9.223_372_036_854_775_808e18..9.223_372_036_854_775_808e18).contains(&h) {
                     return Err(bad("hint"));
                 }
             }
