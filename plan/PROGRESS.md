@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**197 / 261 units ported** (108 green, 89 partial), **269,906 / 387,903 upstream lines (69.6%)**. 33 claimed, 0 blocked, 31 todo.
+**197 / 261 units ported** (108 green, 89 partial), **269,906 / 387,903 upstream lines (69.6%)**. 34 claimed, 0 blocked, 30 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -14,7 +14,6 @@ _None right now; see the next section._
 
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
-- [ ] `topology.brep_p5` (2193 lines) — missing: `topology.brep_p1`, `topology.brep_p4`, `topology.face_p4`, `topology.shell`
 - [ ] `topology.brep_p3` (2503 lines) — missing: `topology.brep_p1`, `topology.brep_p2`, `topology.brep_p4`, `topology.brep_p9` +2 more
 - [ ] `heal.stitch_p1` (2037 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.face_p4`
 - [ ] `primitive.primitive_creation_p1` (2322 lines) — missing: `topology.brep_p1`, `topology.brep_p5`, `topology.brep_p8`
@@ -71,6 +70,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (draft)
 - [ ] 🔨 `topology.brep_p9` (2443 lines) — in progress: #183 @Karl-VonRichter (ready for review)
 - [ ] 🔨 `topology.brep_p2` (2443 lines) — in progress: #149 @bluecmd (draft)
+- [ ] 🔨 `topology.brep_p5` (2193 lines) — in progress: #194 @Karl-VonRichter (draft)
 - [ ] 🔨 `blend.fillet_geom_p1` (2113 lines) — in progress: #147 @bluecmd (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `blend.fillet_solver_p1` (1861 lines) — in progress: #192 @froglemonade2 (draft)
@@ -267,7 +267,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (draft)
 - [ ] 🔨 `topology.brep_p9` (2443 lines) — in progress: #183 @Karl-VonRichter (ready for review)
 - [ ] 🔨 `topology.brep_p2` (2443 lines) — in progress: #149 @bluecmd (draft)
-- [ ] ⏳ `topology.brep_p5` (2193 lines) — waiting
+- [ ] 🔨 `topology.brep_p5` (2193 lines) — in progress: #194 @Karl-VonRichter (draft)
 - [ ] ⏳ `topology.brep_p3` (2503 lines) — waiting
 - [ ] 🟡 `topology.proto_topology_p2` (2091 lines) — partial, 1533 cases
 - [ ] 🟡 `topology.proto_topology_p3` (1577 lines) — partial, 3013 cases
