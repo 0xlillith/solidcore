@@ -120,7 +120,11 @@
 //!   `Surface::global_point_solve` returns `Unported(query.face_p2)` at the point test
 //!   itself (`surface::surface::p4`, where the switch is noted for that porter: once it
 //!   exists, these two callers must disable the test or their solutions will be
-//!   classified against the trim boundaries, unlike upstream).
+//!   classified against the trim boundaries, unlike upstream). `sm_SurfaceDropPoint`'s
+//!   own cache fetch (`smsurf_GetSurfaceCache` + `NER`) is ported: a surface whose
+//!   cache cannot be built (its Bezier decomposition fails, as for UB-166's u direction)
+//!   returns `SM_ERR_NULL_POINTER` before any solve; the solve then fetches the cache
+//!   again (there is no cache manager yet), which costs time, not results.
 //! - **Statuses.** Ignored upstream statuses (`Unitize` in
 //!   `sm_InterpolateEndptsAndTangents`, `Trim` and `Intersect` in `SmFilletGeom::Trim`)
 //!   are ignored here too (`Unitize` of a zero vector yields `(0, 0, 1)`, a failed
@@ -185,6 +189,7 @@ use crate::nurbs::b_spline_surface::BSplineSurface;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::nurbs::knots::Side;
 use crate::nurbs::math::CPoint;
+use crate::surface::surface::p1::get_surface_cache;
 use crate::surface::surface::p2::PointIntersection;
 use crate::surface::surface::p4::NoObject;
 use crate::surface::surface::p5::DropPointOptions;
@@ -2228,6 +2233,15 @@ pub fn surface_drop_point<O: SolutionObject>(
     pnt: Point3,
     approx_tol: f64,
 ) -> Result<SolutionArray<O>> {
+    // the surface cache the solves below use; a surface whose cache cannot be built
+    // (its Bezier decomposition fails, UB-166's u direction) is a null pointer here
+    if let Err(e) = get_surface_cache(k, surface, handle) {
+        return Err(if e.is_unported() {
+            e
+        } else {
+            SolidError::null_pointer(OP_SURFACE_DROP_POINT)
+        });
+    }
     let domain = surface.natural_uv_domain();
 
     // for a sequence of intersection tolerance distances

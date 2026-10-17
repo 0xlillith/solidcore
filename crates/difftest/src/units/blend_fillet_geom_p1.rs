@@ -2831,8 +2831,9 @@ mod tests {
             -f64::INFINITY, 1e20, -1e20, 1e-12, 13.0, 999.0,
             // the guard boundaries: the magnitude cap, tiny positive weights, counts
             ffi::MAX_MAGNITUDE, -ffi::MAX_MAGNITUDE, 1e149, 1e-150, 1e-6, 1e-9, 64.0, 63.0, -0.0,
-            // the HANG-16 slow range and the UB-166 knot snap (scaled zero 2e-12 on [0, 1])
-            1e15, -1e15, 1e30, 1e-13, 2e-12, 3e-12, 1e-11,
+            // the HANG-16 slow range and the UB-166 knot fixup (scaled zero 2e-12 on [0, 1],
+            // spread tolerance 1.2e-8 and its 1.01 increment)
+            1e15, -1e15, 1e30, 1e-13, 2e-12, 3e-12, 1e-11, 5e-9, 1e-8, 1.2e-8, 1.2e-8 * 1.01, 2.4e-8,
             // the HANG-20 bound of the global-solver ops and the measured hangs above it
             ffi::MAX_SOLVER_MAGNITUDE, -ffi::MAX_SOLVER_MAGNITUDE, 3e307, -7e307, 8e307,
         ];
@@ -2849,7 +2850,7 @@ mod tests {
             let mut input = base.clone();
             let n_mut = rng.below(6);
             for _ in 0..n_mut {
-                match rng.below(7) {
+                match rng.below(8) {
                     0 if !input.is_empty() => {
                         let at = rng.below(input.len() as u64) as usize;
                         input[at] = specials[rng.below(specials.len() as u64) as usize];
@@ -2870,10 +2871,25 @@ mod tests {
                     }
                     5 if input.len() > 1 => {
                         // a value a hair above its predecessor: inside a knot vector this
-                        // is the near-coincident pair the constructor snaps (UB-166)
+                        // is the near-coincident pair the constructor snaps or spreads
+                        // (UB-166, both stages)
                         let at = 1 + rng.below(input.len() as u64 - 1) as usize;
-                        let gap = [1e-13, 1e-12, 2e-12, 1e-11, 1e-9][rng.below(5) as usize];
+                        let gap = [1e-13, 1e-12, 2e-12, 1e-11, 1e-9, 5e-9, 1e-8, 1.2e-8 * 1.01]
+                            [rng.below(8) as usize];
                         input[at] = input[at - 1] + gap;
+                    }
+                    6 if input.len() > 1 => {
+                        // a run of values compressed towards its predecessor: a knot
+                        // vector whose whole range drops under the spread tolerance, the
+                        // regime where the constructor's second stage moves knots onto
+                        // the start knot (UB-166)
+                        let at = 1 + rng.below(input.len() as u64 - 1) as usize;
+                        let end = (at + 1 + rng.below(8) as usize).min(input.len());
+                        let factor = [1e-7, 1e-8, 1e-9][rng.below(3) as usize];
+                        let base = input[at - 1];
+                        for x in input.iter_mut().take(end).skip(at) {
+                            *x = base + (*x - base) * factor;
+                        }
                     }
                     _ if !input.is_empty() => {
                         let at = rng.below(input.len() as u64) as usize;
@@ -2937,7 +2953,8 @@ mod tests {
     /// JSON `{"op": <Op as i32>, "input": [..]}` (the shape `fuzz_guards` prints for a
     /// hang or crash, plus the op); `REPLAY_SUBST=<old>=<new>` first replaces every
     /// value equal to `old` by `new`, `REPLAY_SET=<index>=<value>,..` sets single slots;
-    /// `REPLAY_TIMEOUT` (s, default 300) bounds the call.
+    /// `REPLAY_TIMEOUT` (s, default 300) bounds the call. A crash kills the test
+    /// process, so a crashing program prints nothing (the runner reports the signal).
     /// `cargo test -p difftest --features cpp -- --ignored replay_program --nocapture`.
     #[test]
     #[ignore = "replays a program named by REPLAY_FILE"]
