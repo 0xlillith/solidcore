@@ -34,6 +34,7 @@
 //! | [`RailUvCurveIntersectEnfo`]                           | `SmRailUVCurveIntersectENFO` (constructor, `Evaluate`) |
 //! | [`RailRailIntersectEnfo`]                              | `SmRailRailIntersectENFO` (constructor, `Evaluate`)   |
 //! | [`FindClippedRadiusEfo`]                               | `SmFindClippedRadiusEFO` (constructor, `Evaluate`)    |
+//! | [`tol_ang_tol_rad`]                                  | `SmTol::GetAngTolRad(const SmFilletSolver*)` |
 //! | [`check_edge_curve_domains`]                           | `sm_CheckEdgeCurveDomains`                            |
 //! | [`test_analytic_surface`]                              | `sm_TestAnalyticSurface`                              |
 //! | [`test_manifold_tangent_rollover`]                     | `sm_TestManifoldTangentRollover`                      |
@@ -1787,6 +1788,16 @@ pub fn compute_uv_vectors(tsect: &mut TsectPnt) -> Result<()> {
         }
     }
     Ok(())
+}
+
+/// `SmTol::GetAngTolRad(const SmFilletSolver*)`: the solver's angle tolerance, the
+/// system one without a solver.
+#[must_use]
+pub fn tol_ang_tol_rad(solver: Option<&FilletSolver>) -> f64 {
+    solver.map_or_else(
+        crate::geom::tol::ang_tol_rad,
+        FilletSolver::this_ang_tol_rad,
+    )
 }
 
 // ---- static helpers --------------------------------------------------------------------

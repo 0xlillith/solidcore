@@ -36,7 +36,6 @@ use solidcore::intersect::curve_class::p1::CurveClassification;
 use solidcore::intersect::point_class::{ClassObject, ClassObjectKind};
 use solidcore::intersect::surface_intersector::p1::TsectPnt;
 use solidcore::kernel::Kernel;
-use solidcore::surface::surface::Surface;
 use solidcore::topology::Brep;
 use solidcore::SolidError;
 use solidcore_ffi::units::blend_fillet_solver_p1::{self as ffi, Op};
@@ -632,7 +631,8 @@ fn gen_case(rng: &mut Rng) -> Inputs {
         },
         12..=14 => {
             let scale = *rng.choose(&[1e-3, 1.0, 1e3]).unwrap_or(&1.0);
-            let curve = gen_curve(rng, 2 + rng.below(2), scale);
+            let dim = 2 + rng.below(2);
+            let curve = gen_curve(rng, dim, scale);
             let a = curve.u.first().copied().unwrap_or(0.0);
             let z = curve.u.last().copied().unwrap_or(1.0);
             let mut arrays = gen_arrays(rng, 3, 2, 2, 3);
