@@ -41,7 +41,9 @@
 //!   layer's).
 //! - **Caches.** Upstream keeps the cache on the curve and reuses it until the curve
 //!   changes; [`make_curve_cache`] builds a fresh one for the caller (the build is
-//!   deterministic, so it holds the same spans and tree). [`validate_curve_cache`]
+//!   deterministic, so it holds the same spans and tree). A caller that solves on one
+//!   unchanged curve repeatedly can keep the result
+//!   (`Curve::global_point_solve_cached`, used by `GlobalCoincidenceChecker`). [`validate_curve_cache`]
 //!   is the rest of `CacheMakeOrValidate`: the `SM_OC_CURVE` type check and the reuse
 //!   of an existing cache; the context check has no counterpart (a [`Curve`] always
 //!   has the kernel's context).
