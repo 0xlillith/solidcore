@@ -156,7 +156,7 @@ impl ClassGeometry<HcrObject> for Geometry<'_> {
         match o {
             HcrObject::Vertex(v) => vertex::tolerance(self.brep, v).ok(),
             HcrObject::Edge(e) | HcrObject::Curve(e) => edge::tolerance(self.brep, e).ok(),
-            _ => None,
+            HcrObject::Region(_) => None,
         }
     }
 }
@@ -324,7 +324,8 @@ pub fn new_curve_classification(
     src_zone_tol_3d: f64,
 ) -> CurveClassification<HcrObject> {
     let mut cc = CurveClassification::with_curve_interval(k, curve, interval, src_zone_tol_3d);
-    if !(src_zone_tol_3d > 0.0) {
+    // `tol > 0.0 ? tol : SM_UNINIT_TOL` (NaN included)
+    if src_zone_tol_3d.partial_cmp(&0.0) != Some(core::cmp::Ordering::Greater) {
         cc.set_src_zone_tol_3d(UNINIT_TOL);
     }
     cc

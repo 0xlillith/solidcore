@@ -656,11 +656,11 @@ fn gen_crossing(rng: &mut Rng) -> Value {
         "approx_tol": *rng.choose(&[1e-6, 1e-3]).unwrap_or(&1e-3), "ang_tol": 0.2,
         "seams": true, "smooth": true, "sil": sil, "back": [],
     });
-    merge(&mut v, gen_op(rng, edge, true));
+    merge(&mut v, &gen_op(rng, edge, true));
     v
 }
 
-fn merge(v: &mut Value, extra: Value) {
+fn merge(v: &mut Value, extra: &Value) {
     if let (Some(o), Some(map)) = (extra.as_object(), v.as_object_mut()) {
         for (key, val) in o {
             map.insert(key.clone(), val.clone());
@@ -702,6 +702,6 @@ fn gen_case(rng: &mut Rng) -> Value {
     if let (Some(p), Some(map)) = (placement, v.as_object_mut()) {
         map.insert("placement".into(), p);
     }
-    merge(&mut v, gen_op(rng, edge, false));
+    merge(&mut v, &gen_op(rng, edge, false));
     v
 }
