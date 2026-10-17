@@ -59,12 +59,14 @@ use std::collections::BTreeSet;
 
 use crate::curve::curve::Curve;
 use crate::error::{ignore_status, ignored, Result, SolidError};
+use crate::geom::attribute::ObjectKey;
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::grid::Grid;
+use crate::geom::object::ObjectRef;
 use crate::geom::solution_array::{ObjectKind, SolutionObject, SolutionType};
 use crate::geom::tol::{are_same, xsect_tol_3d_from_zones, UNINIT_TOL};
 use crate::geom::tree::{NodeGeomType, Tree};
@@ -84,6 +86,7 @@ use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::volume::Volume;
 use crate::topology::{edge, edgeuse, vertex, vertexuse};
 use crate::topology::{Brep, EdgeId, EdgeuseId, FaceId, RegionId, VertexId};
+use crate::EntityRef;
 
 const OP: &str = "blend::hcr";
 
@@ -299,14 +302,23 @@ fn evaluate_binormal(brep: &Brep, eu: EdgeuseId, t: f64) -> Result<(Vec3, Vec3, 
 }
 
 /// `SmFace::FindIfRectangularTrim` (unit `topology.face_p1`): domain, rectangular,
-/// natural.
-fn find_if_rectangular_trim(brep: &Brep, face: FaceId) -> Result<(Extent2d, bool, bool)> {
-    let _ = (brep, face);
-    // UNPORTED(topology.face_p1): SmFace::FindIfRectangularTrim
-    Err(SolidError::unported(
-        "SmFace::FindIfRectangularTrim",
-        "topology.face_p1",
-    ))
+/// natural. It works on the scene itself: the UV trim curves it makes stay on the
+/// scene's faces, as upstream. The UV trim curves it copies are owned by their edge
+/// use, keyed by the edge use's arena index.
+fn find_if_rectangular_trim(
+    k: &Kernel,
+    brep: &mut Brep,
+    face: FaceId,
+) -> Result<(Extent2d, bool, bool)> {
+    let key_of = |e: EntityRef| ObjectRef {
+        type_code: 0,
+        key: ObjectKey(match e {
+            EntityRef::Edgeuse(eu) => u64::from(eu.index()),
+            _ => 0,
+        }),
+    };
+    let r = crate::topology::face::p1::find_if_rectangular_trim(k, brep, face, &key_of)?;
+    Ok((r.uv_domain, r.rectangular, r.natural))
 }
 
 /// The classification of `curve` over `interval` that `ComputeEdgeVisibility` builds
@@ -1262,18 +1274,25 @@ impl Hcr {
             };
             let z_vector = Vec3::new(0.0, 0.0, -1.0);
             for f in surfaces {
+                // skip surfaces parallel to viewing vector
+                if self
+                    .scene
+                    .face(f)?
+                    .surface
+                    .as_ref()
+                    .ok_or(undefined("face without surface"))?
+                    .is_parallel_to_vector(z_vector)?
+                {
+                    continue;
+                }
+                let (domain, rectangular, natural) =
+                    ignored(find_if_rectangular_trim(k, &mut self.scene, f))?.unwrap_or_default();
                 let surface = self
                     .scene
                     .face(f)?
                     .surface
                     .as_ref()
                     .ok_or(undefined("face without surface"))?;
-                // skip surfaces parallel to viewing vector
-                if surface.is_parallel_to_vector(z_vector)? {
-                    continue;
-                }
-                let (domain, rectangular, natural) =
-                    ignored(find_if_rectangular_trim(&self.scene, f))?.unwrap_or_default();
                 let mut entry = RaySurface::Face(f);
                 if rectangular {
                     if natural {
