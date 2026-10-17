@@ -39,9 +39,9 @@
 //! use with edge, curve, vertex, mate, neighbours and a face with surface). `-6` ends
 //! the script at an op the Rust side defers at without comparing anything: a non-local
 //! `FaceuseOffset` of a face whose surface is neither an `SmPlane` nor a plain
-//! `SmBSplineSurface` (HANG-21: an `SmSurfOfRevolution`'s offset self-intersection takes
+//! `SmBSplineSurface` (HANG-26: an `SmSurfOfRevolution`'s offset self-intersection takes
 //! 20 s to minutes, or never returns at large distances), and an `EdgeuseOffset` with
-//! `|offset distance| > 1e6` (HANG-22).
+//! `|offset distance| > 1e6` (HANG-27).
 //!
 //! The `n_local` pairs name store surfaces only (kind 7): `SmLocalOperationGeometryCreation`
 //! owns its listed surfaces (with `make_analytics` it reparameterises and deletes each one

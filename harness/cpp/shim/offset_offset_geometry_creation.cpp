@@ -155,10 +155,10 @@ const double ST_OK = 0.0;
 // The op the Rust side defers at without running anything comparable, so the script
 // stops here (the runner mirrors each predicate): a non-local FaceuseOffset of a face
 // whose surface the export brings in as its B-spline part (an SmSurfOfRevolution's
-// offset self-intersection takes 20 s to minutes, HANG-21), and an EdgeuseOffset with
-// |offset distance| above MAX_EDGEUSE_OFFSET_DISTANCE (HANG-22).
+// offset self-intersection takes 20 s to minutes, HANG-26), and an EdgeuseOffset with
+// |offset distance| above MAX_EDGEUSE_OFFSET_DISTANCE (HANG-27).
 const double ST_NOT_RUN = -6.0;
-// HANG-22: SmCrvOnSurf::ApproximateCurve of an EdgeuseOffset rail grows with the
+// HANG-27: SmCrvOnSurf::ApproximateCurve of an EdgeuseOffset rail grows with the
 // offset distance (Mouse.smb: 1 s at 1e4, 10 s at 1e6, 28 s at 1e8, no return within
 // 90 s at 1e250 and 1e300); the bound keeps every script under the fuzz's 20 s.
 const double MAX_EDGEUSE_OFFSET_DISTANCE = 1.0e6;
@@ -820,7 +820,7 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
             }
             if (fabs(dist) > MAX_EDGEUSE_OFFSET_DISTANCE)
             {
-                o.push_back(ST_NOT_RUN); // HANG-22: the Rust defers here
+                o.push_back(ST_NOT_RUN); // HANG-27: the Rust defers here
                 return;
             }
             if (exec.GetExtendConvexEdges())

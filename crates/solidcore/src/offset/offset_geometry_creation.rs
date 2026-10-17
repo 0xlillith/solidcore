@@ -48,16 +48,19 @@
 //!   reports the `rbDelete*` flags).
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
 //!   each tagged `UNPORTED(<unit>)`: `SmOffsetExecutive::GetCreateExtendedSurface`
-//!   (`offset.offset_executive_p1`), `SmOffsetSurface` and the result of
-//!   `SmSurface::CreateOffsetSurface` (`surface.offset_surface`),
+//!   (`offset.offset_executive_p1`),
 //!   `SmEdgeuse::NormalizedEvaluate` / `CreateUVTrimCurve` (`topology.edgeuse_p3`),
 //!   `SmBrep::MateLaminaEdgeToSurface` / `ReplaceSurface` (`topology.brep_p2`) and
 //!   `SmCircularCrossSectionFSG` (`blend.fillet_solver_p1`,
 //!   `blend.fillet_standard_solver_p1`). The code after a stub is ported in full;
-//!   `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`) is a real call.
-//! - `SM_CAST_PTR(SmOffsetSurface, ..)` on an analytic copy is always null here (no
-//!   surface kind is an offset surface until `surface.offset_surface` lands), so
-//!   `SetAllowExtension(FALSE)` is never reached.
+//!   `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`) and
+//!   `SmSurface::CreateOffsetSurface` / the `SmOffsetSurface` constructor
+//!   (`surface.offset_surface`) are real calls. The offset-surface rail of
+//!   `EdgeuseOffset` defers at `SmCrvOnSurf` over that offset surface
+//!   (`UNPORTED(curve.crv_on_surf)`, main's label for the ported curve on surface
+//!   holding B-spline surfaces only).
+//! - `SM_CAST_PTR(SmOffsetSurface, ..)` on an analytic copy: an offset surface gets
+//!   `SetAllowExtension(FALSE)`, as upstream.
 //! - **Undefined behaviour upstream** (null objects dereferenced, a curve that is
 //!   not an `SmBSplineCurve` cast as one and used, a null curve extension used, the
 //!   stale `sSolutions2[0]` of `TrimExtendedEdge` read when the second drop finds
@@ -123,6 +126,7 @@ use crate::nurbs::b_spline_surface::BSplineSurface;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::nurbs::knots::Side;
 use crate::query::edge::ClosestPoint;
+use crate::surface::offset_surface::{OffsetSurface, SS_UNKNOWN as OFFSET_SS_UNKNOWN};
 use crate::surface::surface::p2::{SurfaceKind, TsectCurveType};
 use crate::surface::surface::Surface;
 use crate::topology::proto_topology::ProtoGeometry;
@@ -496,34 +500,43 @@ fn surface_global_curve_intersect<O: ClassObject + SolutionObject>(
     s.global_curve_intersect(k, [curve, surface], domain, c, interval, tol)
 }
 
-/// `SmOffsetSurface(dSign * dist, *pSurface, FALSE)` followed by `SmCrvOnSurf(*pUVCurve,
-/// sOffset, NULL, 0, NULL)` and `ApproximateCurve(ctx, knots, tol, dAchievedTol, pRail,
-/// TRUE, FALSE, FALSE)`: the rail curve made by approximating the offset of an edge
-/// use's UV trim curve. The stub covers the curve on surface and its approximation too:
-/// the port has no surface kind for an `SmOffsetSurface` to put a curve on, so when
-/// `surface.offset_surface` lands this becomes its constructor followed by
-/// `CrvOnSurf::new` and `approximate_curve` with those arguments.
+/// `SmOffsetSurface sOffset(dSign * dist, *pSurface, FALSE)` followed by
+/// `SmCrvOnSurf sOffCurve(*pUVCurve, sOffset, NULL, 0, NULL)` and
+/// `sOffCurve.ApproximateCurve(ctx, sKnots, tol, dAchievedTol, pRail, TRUE, FALSE,
+/// FALSE)`: the rail curve made by approximating the offset of an edge use's UV trim
+/// curve. The offset surface is built (a base upstream shares is a copy here, see
+/// [`OffsetSurface::new`]); the curve on it is not: the ported `SmCrvOnSurf` holds a
+/// B-spline surface only, so the call defers at its constructor with main's label for
+/// that gap, and the approximation after it is reached once it is lifted.
 fn offset_surface_rail<O>(
-    _k: &Kernel,
-    _brep: &mut impl OffsetBrep<O>,
-    _surface: O,
-    _uv_curve: O,
-    _signed_distance: f64,
-    _owns_surface: bool,
-    _knots: &[f64],
-    _tol: f64,
+    k: &Kernel,
+    brep: &mut impl OffsetBrep<O>,
+    surface: O,
+    uv_curve: O,
+    signed_distance: f64,
+    owns_surface: bool,
+    knots: &[f64],
+    tol: f64,
     approximation: ApproximateCurveFlags,
 ) -> Result<O> {
-    // (the arguments the wired call will pass on)
+    let base = surface_of(brep, surface)?.clone();
+    let offset = OffsetSurface::new(k, signed_distance, base, owns_surface, OFFSET_SS_UNKNOWN)?;
+    // (the arguments the curve on surface and its approximation will take)
     let _ = (
+        offset,
+        uv_curve,
+        knots,
+        tol,
         approximation.create_analytics,
         approximation.match_parameterization,
         approximation.just_copy_b_splines,
     );
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::SmOffsetSurface
+    // DISPATCH GAP: SmCrvOnSurf over a surface that is not a B-spline (the ported
+    // CrvOnSurf holds an SmBSplineSurface).
+    // UNPORTED(curve.crv_on_surf): SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)
     Err(SolidError::unported(
-        "SmOffsetSurface::SmOffsetSurface",
-        "surface.offset_surface",
+        "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "curve.crv_on_surf",
     ))
 }
 
@@ -688,30 +701,22 @@ fn distance(a: Point3, b: Point3) -> f64 {
 }
 
 /// `pSur->CreateOffsetSurface(ctx, signed_distance, approx_tol_3d, rNewSurface)`: the
-/// virtual call, dispatched on the surface kind as upstream's table does. The ported
-/// overrides are `SmPlane` (a moved copy; no tolerance), `SmSurfOfRevolution` and
-/// `SmBSplineSurface` (which builds the `SmOffsetSurface` of `SmSurface`); the other
-/// kinds take `SmSurface::CreateOffsetSurface`. `None` is upstream's success with
-/// `rNewSurface == NULL` (the `SmTorus` override, whose minor radius vanishes; no
-/// [`SurfaceKind`] is a torus yet, so it is not reached).
+/// virtual call ([`Surface::create_offset_surface`] dispatches on the kind: the plane,
+/// surface of revolution and offset surface overrides, else `SmSurface`'s, which
+/// `SmBSplineSurface`'s calls: an `SmOffsetSurface` owning a copy). `None` is
+/// upstream's success with `rNewSurface == NULL` (the `SmTorus` override, whose minor
+/// radius vanishes; no [`SurfaceKind`] is a torus yet, so it is not reached).
 fn create_offset_surface(
     k: &Kernel,
     s: &Surface,
     signed_distance: f64,
     approx_tol_3d: f64,
 ) -> Result<Option<Surface>> {
-    Ok(Some(match s.kind() {
-        SurfaceKind::Plane(p) => Surface::from(p.create_offset_surface(signed_distance)?),
-        SurfaceKind::SurfOfRevolution(r) => {
-            Surface::from(r.create_offset_surface(k, signed_distance, approx_tol_3d)?)
-        }
-        SurfaceKind::BSpline(b) => {
-            Surface::from(b.create_offset_surface(signed_distance, approx_tol_3d)?)
-        }
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
-            s.create_offset_surface(signed_distance)?
-        }
-    }))
+    Ok(Some(s.create_offset_surface(
+        k,
+        signed_distance,
+        approx_tol_3d,
+    )?))
 }
 
 /// `IsArc(samples, tol, ..)` of a plain B-spline curve (a rail or an arc this module
@@ -836,8 +841,11 @@ impl OffsetGeometryCreation {
             // skip surfaces which are already analytics
             if !surface_of(brep, offset_h)?.is_analytic()? {
                 // see if this surface is secretly an analytic - Copy pS, when possible as an analytic surface
-                let analytic = surface_of(brep, offset_h)?.copy_and_add_analytics()?;
-                // SM_CAST_PTR(SmOffsetSurface, pAnalyticS): no surface kind is an offset surface
+                let mut analytic = surface_of(brep, offset_h)?.copy_and_add_analytics()?;
+                if let SurfaceKind::OffsetSurface(offset) = analytic.kind_mut() {
+                    // SM_CAST_PTR(SmOffsetSurface, pAnalyticS)
+                    offset.set_allow_extension(false);
+                }
                 // store the copy
                 new_surface = Some(store_surface(brep, analytic)?);
             }
@@ -3338,8 +3346,11 @@ impl<O: ClassObject + SolutionObject> LocalOperationGeometryCreation<O> {
                 let _ = ignore_soft(s.reparameterize(k, &old_domain))?;
             }
             // Copy pS, when possible as an analytic surface (the listed surface is deleted)
-            let analytic = surface_of(brep, new_surface)?.copy_and_add_analytics()?;
-            // SM_CAST_PTR(SmOffsetSurface, pAnalyticS): no surface kind is an offset surface
+            let mut analytic = surface_of(brep, new_surface)?.copy_and_add_analytics()?;
+            if let SurfaceKind::OffsetSurface(offset) = analytic.kind_mut() {
+                // SM_CAST_PTR(SmOffsetSurface, pAnalyticS)
+                offset.set_allow_extension(false);
+            }
             new_surface = store_surface(brep, analytic)?;
         }
 

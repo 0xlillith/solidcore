@@ -35,9 +35,9 @@
 //! **Hang guards (`-6`, the script stops; the case defers).** The shim does not run two
 //! ops the Rust side defers at anyway, as they can take minutes or not return (the
 //! fuzz allows 20 s a side): a non-local `FaceuseOffset` of a face imported as its
-//! B-spline part (deferred under `harness:analytic-geometry-export`; HANG-21, the offset
+//! B-spline part (deferred under `harness:analytic-geometry-export`; HANG-26, the offset
 //! self-intersection of an `SmSurfOfRevolution`), and an `EdgeuseOffset` with
-//! `|offset distance| > 1e6` (deferred under `upstream:HANG-22`, the rail's
+//! `|offset distance| > 1e6` (deferred under `upstream:HANG-27`, the rail's
 //! `SmCrvOnSurf::ApproximateCurve`). The generator's distances (0.001 to 100) never
 //! reach the second bound; the first stops no compared case (the Rust defers there).
 //!
@@ -118,10 +118,12 @@ const NULL_DEREF: f64 = -2.0;
 /// unblock it, an exact import would.
 const ANALYTIC_EXPORT: &str = "harness:analytic-geometry-export";
 /// The deferral label of an `EdgeuseOffset` whose offset distance is beyond the
-/// shim's HANG-22 bound (`plan/upstream-issues.md`): upstream's rail approximation does
+/// shim's HANG-27 bound (`plan/upstream-issues.md`): upstream's rail approximation does
 /// not return in time there, so neither side runs the op.
-const HANG_22: &str = "upstream:HANG-22";
-/// The shim's `MAX_EDGEUSE_OFFSET_DISTANCE` (HANG-22).
+const HANG_27: &str = "upstream:HANG-27";
+/// The shim's `MAX_EDGEUSE_OFFSET_DISTANCE` (HANG-27): a bound chosen for the fuzz
+/// time budget (20 s a side; 10 s measured at 1e6), not the termination boundary
+/// (~1e250).
 const MAX_EDGEUSE_OFFSET_DISTANCE: f64 = 1.0e6;
 /// Upstream's `SM_ERR_INVALID_INPUT` status (`SmMessages.h`), the status a library
 /// `SolidError::InvalidInput` stands for.
@@ -2184,7 +2186,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     // CreateOffsetSurface is virtual and every SmBSplineSurface subclass
                     // the importer reduces to its B-spline part overrides it: the Rust
                     // would dispatch the B-spline override instead (the shim stops the
-                    // script here, as nothing after it is compared; HANG-21)
+                    // script here, as nothing after it is compared; HANG-26)
                     return Err(Fail::Solid(SolidError::Unported {
                         upstream: "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
                         unit: ANALYTIC_EXPORT,
@@ -2500,10 +2502,10 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     continue;
                 }
                 if i.dist.abs() > MAX_EDGEUSE_OFFSET_DISTANCE {
-                    // the shim stops the script here (HANG-22)
+                    // the shim stops the script here (HANG-27)
                     return Err(Fail::Solid(SolidError::Unported {
-                        upstream: "SmCrvOnSurf::ApproximateCurve (EdgeuseOffset rail; HANG-22 distance bound)",
-                        unit: HANG_22,
+                        upstream: "SmCrvOnSurf::ApproximateCurve (EdgeuseOffset rail; HANG-27 distance bound)",
+                        unit: HANG_27,
                     }));
                 }
                 if exec.extend_convex_edges() {
