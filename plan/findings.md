@@ -5989,3 +5989,9 @@ independent p6 integration.
   regressions compare that conversion for a B-spline and real line.
   Later source edits only clarify comments; reports/notes record the tested
   numerical checkpoint.
+- **Final integration gate (PR #183).** The complete native `--green` run passes:
+  `difftest: 198 unit(s), 108 passed, 90 partial, 0 failed`. The final
+  `--status-of topology.brep_p9` reports `partial`. All eight affected reports
+  regenerate byte-identical to the committed focused reports. This gate uses the
+  independent branch through official main `b4765734` and the functional source
+  checkpoint above; the final commit adds validation documentation only.
