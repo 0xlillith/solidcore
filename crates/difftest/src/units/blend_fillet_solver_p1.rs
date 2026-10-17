@@ -1302,17 +1302,13 @@ fn pinched(rng: &mut Rng, sides: u8) -> SrfIn {
         if sides & 1 != 0 {
             let a = apex(rng);
             if let Some(row) = bs.net.first_mut() {
-                for q in row {
-                    *q = a;
-                }
+                row.fill(a);
             }
         }
         if sides & 2 != 0 && n > 0 {
             let a = apex(rng);
             if let Some(row) = bs.net.last_mut() {
-                for q in row {
-                    *q = a;
-                }
+                row.fill(a);
             }
         }
         if sides & 4 != 0 && m > 0 {
