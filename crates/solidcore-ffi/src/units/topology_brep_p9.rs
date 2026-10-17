@@ -6,6 +6,7 @@
 use super::topology_vertexuse::{self as fixture, Op};
 use crate::{call_with_buffer, FfiError};
 use std::ffi::CString;
+use std::io::Read;
 
 mod sys {
     extern "C" {
@@ -34,7 +35,8 @@ mod sys {
 #[derive(Debug, Clone, Copy)]
 pub struct Request<'a> {
     /// 0 infinite region, 1 orient sheet, 2 shell vertex, 3 vertex loop,
-    /// 4 split edge, 5 insert edge in face, 6/7 point-class merge into edge/vertex.
+    /// 4 split edge, 5 insert edge in face, 6/7 point-class merge into edge/vertex,
+    /// 8 insertion projection prefix (without topology editing).
     pub op: u8,
     /// Entity selector, resolved modulo the actual count.
     pub selector: u8,
@@ -58,25 +60,34 @@ pub struct Request<'a> {
 
 /// Export the initial graph (with its prepared VU indices) or run the operation.
 /// Refuses only invalid layouts, missing required fixture entities and nonfinite
-/// scalars before native dereferences. Safe NULL refusal branches remain callable.
+/// point/tolerance scalars before native dereferences. Nonfinite split parameters
+/// and safe NULL refusal branches remain callable. Part-container streams (UB-1)
+/// are rejected before the shared native fixture validator reads them.
 pub fn eval(request: Request<'_>, export_only: bool) -> Result<Vec<f64>, FfiError> {
     let bad = || FfiError::InvalidArgument("brep_p9 request or fixture".into());
-    if request.op > 7
+    if request.op > 8
         || request.variant > 5
-        || !request.parameter.is_finite()
         || request.point.iter().any(|v| !v.is_finite())
-        || request
-            .tolerances
-            .iter()
-            .any(|v| !v.is_finite())
+        || request.tolerances.iter().any(|v| !v.is_finite())
     {
         return Err(bad());
+    }
+    if request.block.first() == Some(&0.0) {
+        // UB-1: ReadFromFile expects a B-rep stream, not a part container. The
+        // latter's summary header crashes SmTopologyData::ReadFromDB. Check it
+        // before fixture::eval, which itself enters the native reader.
+        let file = std::fs::File::open(request.path).map_err(|_| bad())?;
+        let mut prefix = Vec::new();
+        file.take(256).read_to_end(&mut prefix).map_err(|_| bad())?;
+        if prefix.trim_ascii_start().starts_with(b"//[Output Summary]") {
+            return Err(bad());
+        }
     }
     let raw = fixture::eval(Op::Export, request.path, request.block)?;
     let counts = fixture::counts(&raw).ok_or_else(bad)?;
     let required = match request.op {
         2 => counts[0] > 0,
-        3 => counts[3] > 0,
+        3 | 8 => counts[3] > 0,
         4 | 6 | 7 => counts[7] > 0,
         5 if request.variant == 0 && request.editing => counts[3] > 0,
         _ => true,
@@ -111,4 +122,33 @@ pub fn eval(request: Request<'_>, export_only: bool) -> Result<Vec<f64>, FfiErro
             )
         }
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part_container_is_rejected_before_native_fixture_loading() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../upstream/TestFiles/pt_TestFiles/SmallBox.smb");
+        let request = Request {
+            op: 4,
+            selector: 0,
+            variant: 0,
+            editing: true,
+            same: true,
+            path: path.to_str().unwrap(),
+            block: &[0.0, 0.0, 0.0, 0.0],
+            parameter: 0.5,
+            point: [0.0; 3],
+            tolerances: [0.0; 2],
+        };
+        for export_only in [false, true] {
+            assert!(matches!(
+                eval(request, export_only),
+                Err(FfiError::InvalidArgument(_))
+            ));
+        }
+    }
 }

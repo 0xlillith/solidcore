@@ -1,4 +1,4 @@
-//! Dependency-limited B-rep construction and split-edge endpoint decisions.
+//! Incomplete B-rep construction work and ported split-edge refusal decisions.
 //!
 //! Upstream: `source/SMLib/src/SmBrep.cpp`, `source/SMLib/inc/SmBrep.h`.
 //!
@@ -9,7 +9,7 @@
 //! | [`make_shell_vertex`] | `SmBrep::MakeShellVertex` |
 //! | [`make_vertex_loop`] | `SmBrep::MakeVertexLoop` |
 //! | [`make_vertex_split_edge`] | `SmBrep::MakeVertexSplitEdge` |
-//! | [`make_edge_in_face_with_vu`] | `SmBrep::MakeEdgeInFaceWithVU` |
+//! | [`make_edge_in_face_with_vu`], [`drop_edge_curve`] | `SmBrep::MakeEdgeInFaceWithVU` |
 //!
 //! Deviations: typed ids replace pointers; editing state is an explicit argument
 //! (upstream defaults to enabled). Split failures retain the nearby vertex in
@@ -20,7 +20,11 @@
 //! native pre-barrier allocations/notifications are not replayed on deferral.
 //! Owned geometry arguments are dropped on Rust errors. No input-driven recursion
 //! is reachable: `FindInfiniteRegion` stops before its single shell-to-no-shell retry.
-//! Native null dereferences and nonfinite split parameters return `InvalidInput`.
+//! Native null dereferences return `InvalidInput`; nonfinite split parameters
+//! retain the defined native refusal/output behavior. This unit stays `todo` until
+//! the omitted bodies identified by `OMITTED` comments are ported. Editing state
+//! must move to `Brep::editing_enabled` when its owner (part 1, PR #145) lands;
+//! this module index must then retain the other independently ported parts.
 
 use crate::curve::curve::Curve;
 use crate::error::{Result, SolidError, SM_ERR};
@@ -77,6 +81,8 @@ pub fn find_infinite_region(
     bbox: Option<&crate::geom::extent3d::Extent3d>,
 ) -> Result<Option<RegionId>> {
     let _ = (b, shell, bbox);
+    // OMITTED SmBrep.cpp:8020-8581: region selection, ray tests and shell retry.
+    // Wiring GetRegions alone does not complete this function.
     // UNPORTED(topology.brep_p1): SmBrep::GetRegions
     Err(SolidError::unported(
         "SmBrep::GetRegions",
@@ -91,6 +97,7 @@ pub fn find_infinite_region(
 /// precedes the part-2 sheet/oriented-sheet predicates and all UV swaps.
 pub fn orient_sheet_surfaces(b: &mut Brep, face: Option<FaceId>, same: bool) -> Result<()> {
     let _ = (b, face, same);
+    // OMITTED SmBrep.cpp:11632-11703: membership/sheet tests, UV swaps and walk.
     // UNPORTED(topology.brep_p1): SmBrep::GetFaces
     Err(SolidError::unported("SmBrep::GetFaces", "topology.brep_p1"))
 }
@@ -107,6 +114,7 @@ pub fn make_shell_vertex(
     point: Point3,
 ) -> Result<(ShellId, VertexId)> {
     let Some(region) = region else {
+        // OMITTED SmBrep.cpp:19080-19088: construction, point and notifications.
         // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
         return Err(SolidError::unported(
             "SmBrep::GetInfiniteRegion",
@@ -115,6 +123,7 @@ pub fn make_shell_vertex(
     };
     b.region(region)?;
     let _ = point;
+    // OMITTED SmBrep.cpp:19080-19088: construction, point and notifications.
     // UNPORTED(topology.brep_p2): SmBrep::MakeShellVertexTopology
     Err(SolidError::unported(
         "SmBrep::MakeShellVertexTopology",
@@ -136,6 +145,8 @@ pub fn make_vertex_loop(
 ) -> Result<(LoopId, VertexId)> {
     b.face(face)?;
     let _ = (point, orientation);
+    // OMITTED SmBrep.cpp:19115-19198: loop/use/vertex construction, owning-list
+    // insertion, tolerances and notifications. PRE_EDIT alone cannot unblock it.
     face_pre_edit()
 }
 
@@ -158,7 +169,7 @@ fn required<T>(v: Option<T>, reason: &'static str) -> Result<T> {
 /// consume despite that status. Dependency/invalid-graph errors remain `Err`.
 ///
 /// # Errors
-/// Invalid graph/nonfinite parameter; evaluator errors; face notifications or the
+/// Invalid graph; evaluator errors; face notifications or the
 /// unported UV-split helper reached by an interior split.
 pub fn make_vertex_split_edge(
     k: &Kernel,
@@ -170,9 +181,6 @@ pub fn make_vertex_split_edge(
     let out = SplitEdgeOutput::default();
     if !editing_enabled {
         return Ok(out);
-    }
-    if !parameter.is_finite() {
-        return Err(SolidError::invalid_input(OP, "nonfinite split parameter"));
     }
     let scaled_zero = EFF_ZERO_PARAM * (1.0 + parameter.abs());
     let interval = b.edge(edge_id)?.interval;
@@ -229,12 +237,16 @@ pub fn make_vertex_split_edge(
     // faces, the next operation is their PRE_EDIT; stop before changing geometry.
     let faces = edge::faces(b, edge_id, None)?;
     if !faces.is_empty() {
+        // OMITTED SmBrep.cpp:21319-21611: edit notifications, allocation, split
+        // geometry/topology, UV splitting, tolerance/attribute updates and outputs.
         return face_pre_edit();
     }
     let _ = k;
     // Interior wire splitting reaches the file-local UV-trim splitter, owned by
     // part 1, before the B-rep ADD/SPLIT notifications in part 2. Its wire no-op
     // branch must be supplied by its owner too, rather than silently bypassed.
+    // OMITTED SmBrep.cpp:21319-21611: the complete interior-split body (including
+    // native work before this dependency) remains unimplemented, not just this call.
     // UNPORTED(topology.brep_p1): sm_MakeVertexSplitUVTrimCurve
     Err(SolidError::unported(
         "sm_MakeVertexSplitUVTrimCurve",
@@ -325,30 +337,17 @@ pub fn make_edge_in_face_with_vu(
     let mut deviation = 0.0;
     if uv_trim.is_none() {
         drop_fail = None;
-        let mut uv_curves = Vec::new();
-        for factor in [1.0, 10.0, 300.0] {
-            let dropped = drop_curve(
-                k,
-                surface,
-                &record.uv_domain,
-                &curve,
-                &input.interval,
-                record.tolerance * factor,
-            )?;
-            uv_curves = dropped.0;
-            max_dist = dropped.1;
-            deviation = dropped.2;
-            if !uv_curves.is_empty() {
-                break;
-            }
-        }
-        if uv_curves.is_empty() {
-            // UNPORTED(intersect.surface_drop_lib_p1): SmSurface::DropAndTrimCurve
-            return Err(SolidError::unported(
-                "SmSurface::DropAndTrimCurve",
-                "intersect.surface_drop_lib_p1",
-            ));
-        }
+        let dropped = drop_edge_curve(
+            k,
+            surface,
+            &record.uv_domain,
+            &curve,
+            &input.interval,
+            record.tolerance,
+        )?;
+        let mut uv_curves = dropped.uv_curves;
+        max_dist = dropped.max_drop_to_surf;
+        deviation = dropped.max_approx_dev;
         if uv_curves.len() == 1 {
             uv_trim = uv_curves.pop();
         }
@@ -385,7 +384,68 @@ pub fn make_edge_in_face_with_vu(
         input.orientation,
         input.curve_zone_tol_3d,
     );
+    // OMITTED SmBrep.cpp:12403-12413,12513-12617,12676-13484: native allocations,
+    // edge/use/trim ownership and assignment, insertion, loop/face splitting,
+    // tolerances, notifications and outputs. The seam-copy calculation above is
+    // ported, but its copy is not attached to topology. This is not a complete
+    // function whose body can be enabled by replacing face_pre_edit alone.
     face_pre_edit()
+}
+
+/// Geometry-only projection sequence used by `MakeEdgeInFaceWithVU`.
+///
+/// Tries face tolerance, then 10 and 300 times that tolerance, followed by
+/// `DropAndTrimCurve` with 100 times the tolerance and both flags true. This
+/// prefix is exposed independently so it can be compared before topology editing
+/// dependencies become available. It does not create or insert an edge.
+///
+/// # Errors
+/// Propagates projection errors and the actual missing callee's deferral.
+pub fn drop_edge_curve(
+    k: &Kernel,
+    surface: &Surface,
+    domain: &crate::geom::extent2d::Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    face_tolerance: f64,
+) -> Result<EdgeCurveDrop> {
+    for factor in [1.0, 10.0, 300.0] {
+        let (uv_curves, max_drop_to_surf, max_approx_dev) =
+            drop_curve(k, surface, domain, curve, interval, face_tolerance * factor)?;
+        if !uv_curves.is_empty() {
+            return Ok(EdgeCurveDrop {
+                uv_curves,
+                max_drop_to_surf,
+                max_approx_dev,
+            });
+        }
+    }
+    let dropped = surface.drop_and_trim_curve::<crate::topology::ObjectHandle>(
+        k,
+        domain,
+        curve,
+        interval,
+        face_tolerance * 100.0,
+        true,
+        true,
+        None,
+    )?;
+    Ok(EdgeCurveDrop {
+        uv_curves: dropped.uv_curves.into_iter().map(Curve::from).collect(),
+        max_drop_to_surf: dropped.max_drop_to_surf,
+        max_approx_dev: dropped.max_approx_dev,
+    })
+}
+
+/// Projection prefix outputs, without any topology mutation.
+#[derive(Debug)]
+pub struct EdgeCurveDrop {
+    /// Projected UV curves; only a single result is adopted by the insertion body.
+    pub uv_curves: Vec<Curve>,
+    /// Largest distance of a dropped point from the curve.
+    pub max_drop_to_surf: f64,
+    /// Largest approximation deviation from the surface normal line.
+    pub max_approx_dev: f64,
 }
 
 fn drop_curve(
@@ -398,13 +458,15 @@ fn drop_curve(
 ) -> Result<(Vec<Curve>, f64, f64)> {
     if let SurfaceKind::Plane(plane) = surface.kind() {
         // The real SmPlane override; its generic fallback retains the p3 deferral.
-        let dropped = plane.drop_curve(k, domain, curve, interval, tolerance, true, false)?;
+        let dropped = plane.drop_curve(k, domain, curve, interval, tolerance, true, true)?;
         return Ok((
             dropped.uv_curves,
             dropped.max_drop_to_surf,
             dropped.max_approx_dev,
         ));
     }
+    // OMITTED caller continuation: SmBrep.cpp:12444-13484; the insertion body
+    // after projection is incomplete even when this dependency is available.
     // UNPORTED(intersect.surface_drop_lib_p3): SmSurface::DropCurve
     Err(SolidError::unported(
         "SmSurface::DropCurve",
@@ -424,11 +486,16 @@ mod tests {
         let v1 = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
         let e = b.add_edge(v0, v1).unwrap();
         b.edge_mut(e).unwrap().interval = Extent1d::from_min_max(0.0, 1.0);
-        for p in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
-            assert!(matches!(
-                make_vertex_split_edge(&k, &mut b, e, p, true),
-                Err(SolidError::InvalidInput { .. })
-            ));
+        for (p, vertex) in [
+            (f64::NAN, None),
+            (f64::INFINITY, Some(v1)),
+            (f64::NEG_INFINITY, Some(v0)),
+        ] {
+            let result = make_vertex_split_edge(&k, &mut b, e, p, true).unwrap();
+            assert_eq!(
+                (result.status(), result.edges, result.vertex),
+                (SM_ERR, None, vertex)
+            );
             let disabled = make_vertex_split_edge(&k, &mut b, e, p, false).unwrap();
             assert_eq!(disabled.status(), SM_ERR);
             assert_eq!((disabled.edges, disabled.vertex), (None, None));

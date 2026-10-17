@@ -70,8 +70,8 @@
 //! - **Mutable topology.** [`BrepMerge`] supplies an arena, resolved target,
 //!   handle mapping and notification environment for [`PointClassification::merge_into_brep`].
 //!   The older opaque-handle entrypoint cannot resolve an edge's arena and returns
-//!   `InvalidInput` for that missing caller data, rather than tagging the ported
-//!   edge-owner walk as unported. Region/face owner queries retain their own blockers.
+//!   an `Unported(topology.brep_p9)` deferral until the caller supplies that
+//!   context. Region/face owner queries retain their own blockers.
 //! - **Object handles.** `m_pObject` and `m_cpFace` are caller-chosen handles `O`
 //!   ([`ClassObject`]): equal handles are the same object, and
 //!   [`ClassObject::class_kind`] answers `GetType` / `IsKindOf`. The geometry behind a
@@ -1195,7 +1195,7 @@ impl<O: ClassObject> PointClassification<O> {
     /// `SM_ERR_NULL_POINTER` for no object (upstream's `NER`); `SM_ERR` for an object
     /// that is not a region, face, edge or vertex; unresolved region/face owners
     /// return `Unported`. An opaque edge needs [`Self::merge_into_brep`] to supply
-    /// its mutable arena and returns `InvalidInput` here.
+    /// its mutable arena and defers the split here until it is supplied.
     pub fn merge_into_object(&mut self, k: &Kernel, src_point: Point3) -> Result<MergeOutputs<O>> {
         let _ = k;
         let object = self.object.ok_or_else(|| null_object(OP_MERGE))?;
@@ -1216,11 +1216,13 @@ impl<O: ClassObject> PointClassification<O> {
                 return Err(SolidError::unported("SmFace::GetBrep", "topology.face_p4"));
             }
             ClassObjectKind::Edge => {
-                // The edge's owner walk is ported. An opaque handle without its
-                // arena is missing caller data, not an unported edge algorithm.
-                return Err(SolidError::invalid_input(
-                    OP_MERGE,
-                    "opaque edge handle requires merge_into_brep",
+                // A valid upstream edge can have a B-rep even though this API's
+                // opaque handle cannot resolve it. Keep that integration gap a
+                // deferral; do not misreport it as invalid caller input.
+                // UNPORTED(topology.brep_p9): SmBrep::MakeVertexSplitEdge
+                return Err(SolidError::unported(
+                    "SmBrep::MakeVertexSplitEdge",
+                    "topology.brep_p9",
                 ));
             }
             // Almost no work to do. There is already a vertex here.
@@ -1892,6 +1894,24 @@ mod tests {
         p.set_class_object(PointClassType::Curve, Some(H(ClassObjectKind::Curve, 4)));
         let e = p.merge_into_object(&Kernel::default(), Point3::new(0.0, 0.0, 0.0));
         assert!(matches!(e, Err(SolidError::Upstream { code: SM_ERR, .. })));
+    }
+
+    #[test]
+    fn merge_opaque_edge_defers_without_mutable_arena_context() {
+        let mut p = pc();
+        let object = H(ClassObjectKind::Edge, 2);
+        p.set_class_object(PointClassType::Edge, Some(object));
+        p.set_t_param(0.25, false);
+        assert!(matches!(
+            p.merge_into_object(&Kernel::default(), Point3::new(0.25, 0.0, 0.0)),
+            Err(SolidError::Unported {
+                upstream: "SmBrep::MakeVertexSplitEdge",
+                unit: "topology.brep_p9"
+            })
+        ));
+        assert_eq!(p.object(), Some(object));
+        assert_eq!(p.point_class(), PointClassType::Edge);
+        assert_eq!(p.t_param(), 0.25);
     }
 
     #[test]

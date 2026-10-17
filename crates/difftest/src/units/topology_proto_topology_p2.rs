@@ -30,7 +30,7 @@
 //! `topology.face_p1`), the B-rep walks of `sm_AreConnected` and point classifications on
 //! bare topology (units `topology.edge`, `topology.vertex`, `topology.face_p2`), and
 //! `SmProtoVertex::ContainsPoint` (unit `query.face_p2`). Bare-edge merges without
-//! an arena match the native guard refusal; they do not certify topology mutation.
+//! an arena defer to topology.brep_p9 until mutable arena context is supplied.
 
 use serde_json::{json, Value};
 

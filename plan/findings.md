@@ -6748,6 +6748,39 @@ independent p6 integration.
 
 ## topology.brep_p9: dependency-limited independent port (PR #183)
 
+- **Review status correction (2026-10-18).** The following `47758e96` /
+  `c482d6fc` evidence is historical. The unit is now `todo`, because the code after
+  the first unavailable call was omitted rather than ported behind per-call
+  stubs. `OMITTED SmBrep.cpp:<range>` comments identify the remaining bodies at
+  each dependency return. Replacing an individual dependency stub does not finish
+  those functions. No successful p9 topology mutation has been compared. The
+  insertion fixtures' vertex loops are native setup imported into Rust; they do
+  not certify Rust `MakeVertexLoop`. The small PRE_EDIT path was not duplicated
+  from active `topology.face_p3` work (PR #139).
+- **Review behavior fixes.** The insertion projection prefix now calls the
+  existing `Surface::drop_and_trim_curve` with face tolerance times 100 and
+  `true, true`, after empty drops at factors 1, 10 and 300. The plane override
+  receives the base `SmSurface*` default `bCreatingUVTrimCurve=TRUE`. A separate
+  geometry-only prefix probe compares partial overlap over `[-3,7]`, a contained
+  drop and the empty-drop fallback without pretending that an edge was inserted.
+  The prefix helper is the same code used by insertion. NaN/positive/negative
+  infinity split parameters retain their defined native refusals and endpoint
+  outputs; six op-4/op-6 differential regressions exercise them. Opaque edge
+  handles defer to `topology.brep_p9` until mutable arena context is supplied;
+  production callers no longer mistake that gap for invalid input. A unit test
+  checks that this deferral preserves classification state. The FFI rejects UB-1
+  part-container headers before its shared native loader; `SmallBox.smb` is
+  tested only through that guard. Both new include-generated Rust modules are
+  checked directly with rustfmt in addition to `cargo fmt --all`.
+- **Integration follow-up.** Official main `f75223ad` is merged, preserving newer
+  point-classification and merge notes and all new findings. No open PR branch is
+  merged. Editing state remains an explicit argument until the canonical part-1
+  B-rep field (PR #145) lands; the module-index conflict with other B-rep parts is
+  documented for that integration. New validation is pending. The merged main
+  currently fails compilation at `sphere.rs:852` (missing `OffsetSurface` match
+  arm, separately addressed by PR #218). Preliminary Linux checks use only that
+  one extra arm in the runner copy; it is not a PR change or clean-head evidence.
+
 - **Compared subset.** Numerical source `47758e96`: 604 default cases (92 fixed,
   512 generated), 497 bit-identical comparisons, 107 dependency deferrals, no
   failures and no absolute floors. All 497 perturbations are detected. With 4096

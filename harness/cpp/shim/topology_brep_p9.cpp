@@ -8,7 +8,7 @@ SC_EXPORT int32_t sc_topology_brep_p9_eval(int32_t op, int32_t export_only,
     const char* path, const double* in, int64_t n,
     double parameter, const double* point, double start_tol, double end_tol,
     double* out, int64_t cap, int64_t* len) {
-    if (!path || !in || !point || !len || n < 1 || op < 0 || op > 7 || selector < 0 || variant < 0 || variant > 5)
+    if (!path || !in || !point || !len || n < 1 || op < 0 || op > 8 || selector < 0 || variant < 0 || variant > 5)
         return SC_ERR_ARG;
     SC_TRY
     Rd rd{in,0}; Built built; SmStatus status;
@@ -59,7 +59,42 @@ SC_EXPORT int32_t sc_topology_brep_p9_eval(int32_t op, int32_t export_only,
     }
     b->m_bEditingEnabled = editing ? TRUE : FALSE;
     std::vector<double> record;
-    if (op == 0) {
+    if (op == 8) {
+        if (g.faces.empty()) return SC_ERR_ARG;
+        SmFace* face=g.faces[selector % g.faces.size()];
+        SmSurface* surface=face->GetSurface();
+        if (!surface) return SC_ERR_ARG;
+        double y=variant == 1 ? 2.0 : 0.5;
+        double x0=variant == 2 ? 0.25 : -1.0;
+        double x1=variant == 2 ? 0.75 : 2.0;
+        SmLine curve(SmPoint3d(x0,y,0),SmPoint3d(x1,y,0),3,&the_context());
+        SmExtent1d interval(-3.0,7.0);
+        status=curve.EditParameterization(interval,FALSE);
+        if (status != SM_SUCCESS) return SC_ERR_ARG;
+        SmTArray<SmBSplineCurve*> uv;
+        SmObjsDelete<SmBSplineCurve*> cleanup(&uv);
+        double max_dist=0.0,deviation=0.0;
+        for (double factor : {1.0,10.0,300.0}) {
+            // Deliberately call through SmSurface*: creating-UV-trim is the
+            // TRUE base-class default used by MakeEdgeInFaceWithVU.
+            status=surface->DropCurve(the_context(),face->GetUVDomain(),curve,
+                interval,face->GetTolerance()*factor,max_dist,deviation,uv,TRUE,nullptr);
+            if (status != SM_SUCCESS || uv.GetSize() != 0) break;
+        }
+        if (status == SM_SUCCESS && uv.GetSize() == 0)
+            status=surface->DropAndTrimCurve(the_context(),face->GetUVDomain(),curve,
+                interval,face->GetTolerance()*100.0,max_dist,deviation,uv,TRUE,TRUE,nullptr);
+        record={max_dist,deviation,(double)uv.GetSize()};
+        for (ULONG j=0;j<uv.GetSize();j++) {
+            SmExtent1d d=uv[j]->GetNaturalInterval();
+            record.push_back(d.GetMin()); record.push_back(d.GetMax());
+            for (double t : {d.GetMin(),d.GetMin()+0.5*(d.GetMax()-d.GetMin()),d.GetMax()}) {
+                SmPoint3d p;
+                if (uv[j]->EvaluatePoint(t,p) != SM_SUCCESS) return SC_ERR_ARG;
+                record.push_back(p.x); record.push_back(p.y); record.push_back(p.z);
+            }
+        }
+    } else if (op == 0) {
         SmRegion* result=nullptr;
         status=b->FindInfiniteRegion(result, nullptr, nullptr);
         record.push_back(g.find(0,result));

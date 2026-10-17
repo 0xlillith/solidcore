@@ -36,13 +36,41 @@ struct Inputs {
     editing: bool,
     #[serde(default = "yes")]
     same: bool,
-    #[serde(default)]
+    #[serde(default, with = "nf")]
     parameter: f64,
     #[serde(default)]
     point: [f64; 3],
     #[serde(default)]
     tolerances: [f64; 2],
 }
+// JSON numbers or the explicit strings "NaN", "inf" and "-inf".
+mod nf {
+    use serde::de::Error as _;
+    use serde::{Deserialize, Deserializer, Serializer};
+    use serde_json::Value;
+
+    #[allow(clippy::trivially_copy_pass_by_ref)] // serde's `with` signature
+    pub fn serialize<S: Serializer>(x: &f64, s: S) -> Result<S::Ok, S::Error> {
+        if x.is_nan() {
+            s.serialize_str("NaN")
+        } else if x.is_infinite() {
+            s.serialize_str(if *x > 0.0 { "inf" } else { "-inf" })
+        } else {
+            s.serialize_f64(*x)
+        }
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<f64, D::Error> {
+        match Value::deserialize(d)? {
+            Value::Number(n) => n.as_f64().ok_or_else(|| D::Error::custom("bad number")),
+            Value::String(s) if s == "NaN" => Ok(f64::NAN),
+            Value::String(s) if s == "inf" => Ok(f64::INFINITY),
+            Value::String(s) if s == "-inf" => Ok(f64::NEG_INFINITY),
+            other => Err(D::Error::custom(format!("bad float {other}"))),
+        }
+    }
+}
+
 fn yes() -> bool {
     true
 }
@@ -260,6 +288,46 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                     pc.t_param(),
                 ]);
                 ordinary(result)
+            }
+            8 => {
+                let face = target::<FaceId>(b.faces().len(), i.selector)
+                    .ok_or_else(|| SolidError::sm_err("difftest::brep_p9"))?;
+                let f = b.face(face)?;
+                let surface = f
+                    .surface
+                    .as_ref()
+                    .ok_or_else(|| SolidError::sm_err("difftest::brep_p9"))?;
+                let y = if i.variant == 1 { 2.0 } else { 0.5 };
+                let (x0, x1) = if i.variant == 2 {
+                    (0.25, 0.75)
+                } else {
+                    (-1.0, 2.0)
+                };
+                let interval = Extent1d::from_min_max(-3.0, 7.0);
+                let mut line = Line::from_points(Vec3::new(x0, y, 0.0), Vec3::new(x1, y, 0.0), 3);
+                line.edit_parameterization(&interval)?;
+                let dropped = port::drop_edge_curve(
+                    &k,
+                    surface,
+                    &f.uv_domain,
+                    &Curve::from(line),
+                    &interval,
+                    f.tolerance,
+                )?;
+                record.extend([
+                    dropped.max_drop_to_surf,
+                    dropped.max_approx_dev,
+                    dropped.uv_curves.len() as f64,
+                ]);
+                for curve in dropped.uv_curves {
+                    let d = curve.natural_interval();
+                    record.extend([d.min(), d.max()]);
+                    for t in [d.min(), d.min() + 0.5 * (d.max() - d.min()), d.max()] {
+                        let p = curve.evaluate_point(t)?;
+                        record.extend([p.x, p.y, p.z]);
+                    }
+                }
+                Ok(0)
             }
             _ => Err(SolidError::invalid_input("difftest::brep_p9", "bad op")),
         }
