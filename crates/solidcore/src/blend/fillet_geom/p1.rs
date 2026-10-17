@@ -106,7 +106,11 @@
 //!   `sm_ExamineNFixFilletGeoms` takes the two geometries' solvers (upstream:
 //!   `GetFilletSolver()`, an opaque id here) as co-ported [`ConstantRadiusAssistedFs`]
 //!   values; a geometry whose adjusting path needs a solver it does not have is a
-//!   null-pointer error (upstream dereferences it).
+//!   null-pointer error (upstream dereferences it). Upstream's `pAdjustFS` is any
+//!   `SmFilletSolver` and only base members are read (`GetSurface(k)`, `m_pSurfaces`);
+//!   the signature commits to the one solver kind on main until `blend.
+//!   fillet_standard_solver_p1` (PR #168) lands its `FilletSolverData` base-member
+//!   struct, which this argument should then take.
 //! - **Surface cache flags.** `sm_SurfaceDropPoint` and `sm_FindStepoffUV` temporarily
 //!   turn off the surface cache's point test (`m_bPointTestEnabled`) and turn on its
 //!   boundary-curve processing around `GlobalPointSolve`, so every solution is kept
@@ -3674,5 +3678,216 @@ mod tests {
         assert!(!fillet_vertexuse_is_kind_of(FILLET_BREP_TYPE));
         assert_eq!(FilStatus::from_code(7), Some(FilStatus::NoIntRailEu));
         assert_eq!(FilletEdgeType::from_code(99), None);
+    }
+    /// A cubic-by-linear B-spline strip: rows `i = 0..4` at `x = x0 + i`, columns at
+    /// `y = 0` and `y = 2`, `z = 0`.
+    fn cubic_strip(x0: f64) -> Surface {
+        let net = (0..4)
+            .map(|i| {
+                let x = x0 + f64::from(i);
+                vec![CPoint::new(x, 0.0, 0.0, NOW), CPoint::new(x, 2.0, 0.0, NOW)]
+            })
+            .collect();
+        let nurb = NurbSurface::new(
+            net,
+            3,
+            1,
+            vec![0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+            vec![0.0, 0.0, 1.0, 1.0],
+        )
+        .unwrap();
+        Surface::from(BSplineSurface::from_nurb(nurb, false))
+    }
+
+    /// Two fillet geometries at an Nx2 corner: geometry 0's strip starts at `x = 0.5`
+    /// (its rails are two edges with one edge use and vertex use each), geometry 1's
+    /// ends at `x = 3`, where the corner vertices sit. Returns the B-rep, the
+    /// geometries, the corner vertices and the edge use / vertex use of rail 0.
+    fn corner_for_examine(
+        k: &Kernel,
+    ) -> (
+        FilletBrep,
+        [FilletGeomId; 2],
+        [VertexId; 2],
+        EdgeuseId,
+        VertexuseId,
+    ) {
+        let mut fb = FilletBrep::new();
+        let add_v = |fb: &mut FilletBrep, p: Point3| {
+            let v = fb.brep_mut().add_vertex(p).unwrap();
+            fb.insert_fillet_vertex(v, FilletVertex::new(k, None));
+            v
+        };
+        let start_fv = add_v(&mut fb, Point3::new(3.0, 0.0, 0.0));
+        let end_fv = add_v(&mut fb, Point3::new(3.0, 2.0, 0.0));
+        let mut rails = [None, None];
+        let mut rail0_uses = None;
+        for rail in &mut rails {
+            let va = add_v(&mut fb, Point3::new(0.5, 0.0, 0.0));
+            let vb = add_v(&mut fb, Point3::new(3.5, 0.0, 0.0));
+            let e = fb.new_fillet_edge(va, vb, None).unwrap();
+            let eu = fb
+                .brep_mut()
+                .add_edgeuse_record(Edgeuse::default())
+                .unwrap();
+            let vu = fb
+                .brep_mut()
+                .add_vertexuse_record(Vertexuse::default())
+                .unwrap();
+            let b = fb.brep_mut();
+            b.edgeuse_mut(eu).unwrap().edge = Some(e);
+            b.edgeuse_mut(eu).unwrap().vertexuse = Some(vu);
+            b.vertexuse_mut(vu).unwrap().vertex = Some(va);
+            b.vertexuse_mut(vu).unwrap().owner = VertexuseOwner::Edgeuse(Some(eu));
+            b.vertex_mut(va).unwrap().vertexuses.push(vu);
+            b.edge_mut(e).unwrap().edgeuses.push(eu);
+            fb.insert_fillet_edgeuse(eu, FilletEdgeuse::default());
+            fb.insert_fillet_vertexuse(vu, FilletVertexuse::new());
+            *rail = Some(e);
+            rail0_uses.get_or_insert((eu, vu));
+        }
+        let mut g0 = FilletGeom::new(None, FilletGeomType::Blends).unwrap();
+        g0.fillet_surface = Some(cubic_strip(0.5));
+        g0.rails = rails;
+        let mut g1 = FilletGeom::new(None, FilletGeomType::Blends).unwrap();
+        g1.fillet_surface = Some(cubic_strip(0.0));
+        let g0 = fb.add_geom(g0);
+        let g1 = fb.add_geom(g1);
+        let (eu, vu) = rail0_uses.unwrap();
+        (fb, [g0, g1], [start_fv, end_fv], eu, vu)
+    }
+
+    #[test]
+    fn examine_copies_the_good_row_rebuilds_the_rail_and_stops_at_the_drop() {
+        use crate::blend::fillet_custom_solver::SurfaceId;
+        let k = Kernel::default();
+        let (mut fb, [g0, g1], [start_fv, end_fv], eu, vu) = corner_for_examine(&k);
+        // stale cached state the rail's SetCurve notification must clear
+        {
+            let mut sv = Vec3::new(1.0, 0.0, 0.0);
+            let mut ev = Vec3::new(1.0, 0.0, 0.0);
+            let line = interpolate_endpts_and_tangents(
+                Point3::new(0.0, 0.0, 0.0),
+                Point3::new(1.0, 0.0, 0.0),
+                &mut sv,
+                &mut ev,
+                2,
+            )
+            .unwrap();
+            let b = fb.brep_mut();
+            let rec = b.edgeuse_mut(eu).unwrap();
+            rec.uv_trim_curve = Some(Curve::from(line));
+            rec.max_edge_face_gap.edgeuse = Some(eu);
+            rec.max_edge_face_gap.gap_3d = 0.25;
+            let vrec = b.vertexuse_mut(vu).unwrap();
+            vrec.vertex_edge_gap.vertexuse = Some(vu);
+            vrec.vertex_face_gap.vertexuse = Some(vu);
+        }
+        let mut solver = ConstantRadiusAssistedFs::from_parts(
+            1e-6,
+            1e-3,
+            1e-6,
+            [0.25, 0.25],
+            [
+                Some(OffsetSurface::new(
+                    0.25,
+                    cubic_strip(0.0),
+                    SurfaceId::Free(1),
+                )),
+                None,
+            ],
+            [1.0, -1.0],
+            [None, None],
+        );
+        let err = examine_n_fix_fillet_geoms(
+            &k,
+            &mut fb,
+            g0,
+            true,
+            g1,
+            false,
+            start_fv,
+            end_fv,
+            1e-6,
+            [Some(&mut solver), None],
+        )
+        .unwrap_err();
+        assert!(
+            matches!(
+                err,
+                SolidError::Unported {
+                    upstream: "SmSurface::DropCurve",
+                    unit: "intersect.surface_drop_lib_p3"
+                }
+            ),
+            "{err:?}"
+        );
+        // the offset distance was zeroed for the drop and restored
+        assert_eq!(solver.surfaces[0].as_ref().unwrap().offset_distance, 0.25);
+        // geometry 0's start row is now geometry 1's end row; its other rows are its own
+        let near = |a: Point3, b: Point3| a.distance(b) < 1e-12;
+        let s0 = fb.geom(g0).unwrap().fillet_surface().unwrap();
+        let at = |u: f64, v: f64| s0.evaluate_point(Point2::new(u, v)).unwrap();
+        assert!(near(at(0.0, 0.0), Point3::new(3.0, 0.0, 0.0)));
+        assert!(near(at(0.0, 1.0), Point3::new(3.0, 2.0, 0.0)));
+        assert!(near(at(1.0, 0.0), Point3::new(3.5, 0.0, 0.0)));
+        // rail 0 is the v = 0 iso-curve of the adjusted surface; the drop of rail 0
+        // stopped the loop, so rail 1 keeps no curve
+        let rails = fb.geom(g0).unwrap().rails;
+        let rail0 = fb.brep().edge(rails[0].unwrap()).unwrap();
+        let curve = rail0.curve.as_ref().unwrap();
+        let ivl = curve.natural_interval();
+        assert!(near(
+            curve.evaluate_point(ivl.min()).unwrap(),
+            Point3::new(3.0, 0.0, 0.0)
+        ));
+        assert!(near(
+            curve.evaluate_point(ivl.max()).unwrap(),
+            Point3::new(3.5, 0.0, 0.0)
+        ));
+        assert!(fb.brep().edge(rails[1].unwrap()).unwrap().curve.is_none());
+        // the SetCurve notification cleared the cached state of rail 0's uses
+        let rec = fb.brep().edgeuse(eu).unwrap();
+        assert!(rec.uv_trim_curve.is_none());
+        assert!(rec.drop_curve_fail.is_none());
+        assert!(!rec.max_edge_face_gap.is_init());
+        let vrec = fb.brep().vertexuse(vu).unwrap();
+        assert!(!vrec.vertex_edge_gap.is_init());
+        assert!(!vrec.vertex_face_gap.is_init());
+
+        // without the solver the same path is upstream's null dereference
+        let (mut fb, [g0, g1], [start_fv, end_fv], _, _) = corner_for_examine(&k);
+        let err = examine_n_fix_fillet_geoms(
+            &k,
+            &mut fb,
+            g0,
+            true,
+            g1,
+            false,
+            start_fv,
+            end_fv,
+            1e-6,
+            [None, None],
+        )
+        .unwrap_err();
+        assert!(
+            matches!(err, SolidError::Upstream { code: 1006, .. }),
+            "{err:?}"
+        );
+        // and with the good surface meeting the corner nothing is adjusted
+        let (mut fb, [_, g1], [start_fv, end_fv], _, _) = corner_for_examine(&k);
+        examine_n_fix_fillet_geoms(
+            &k,
+            &mut fb,
+            g1,
+            false,
+            g1,
+            false,
+            start_fv,
+            end_fv,
+            1e-6,
+            [None, None],
+        )
+        .unwrap();
     }
 }

@@ -5812,9 +5812,9 @@ independent p6 integration.
 
 ## blend.fillet_geom_p1 (`SmFilletGeom.cpp` part 1: fillet records, pseudo B-rep, static helpers; PR #147, 2026-10-16; partial, no disagreements)
 
-Gate: `PARTIAL blend.fillet_geom_p1 cases=444 passed=421 failed=0 deferred=18 max_rel_err=0e0 rejected=5`
-(`cases_both_errored` 0, so 421 real passes; the 5 rejected cases are the regression
-inputs below; 2000-seed sweep 2033 pass / 106 deferred / 0 failed / 5 rejected; `--perturb` 421/421 detected).
+Gate: `PARTIAL blend.fillet_geom_p1 cases=456 passed=425 failed=0 deferred=19 max_rel_err=0e0 rejected=12`
+(`cases_both_errored` 0, so 425 real passes; the 12 rejected cases are the flagged
+regression inputs below; 2000-seed sweep 2033 pass / 111 deferred / 0 failed / 12 rejected; `--perturb` 425/425 detected).
 
 - **Deferred (unported callees, no stub of this unit's own code).**
   `sm_ClassifyFacePoint` defers on `SmFace::CalculateUVDomainFromUVTrimCurves`
@@ -5833,8 +5833,9 @@ inputs below; 2000-seed sweep 2033 pass / 106 deferred / 0 failed / 5 rejected; 
   unwired call of `SmSurfaceDropCurve::DoTrace` (ported; the stub in
   `intersect/surface_drop_lib/p1.rs` is labelled `intersect.surface_drop_curve`, which
   is what the difftest's `blocked_by` prints): the true owner is
-  `intersect.surface_drop_lib_p1`, whose open PR #140 wires it (1 case; this PR does not
-  build on #140 so its diff stays its own).
+  `intersect.surface_drop_lib_p1`, whose open PR #140 wires it (2 cases: the cliff
+  fixture and its near-zero-knot probe; this PR does not build on #140 so its diff
+  stays its own).
   `sm_ExamineNFixFilletGeoms` compares only its early returns (analytic/low-degree
   surfaces, no adjustment needed, both surfaces need adjusting, the same geometry
   twice): the adjusting path, control-net copy included, has no compared case. The
@@ -5845,7 +5846,10 @@ inputs below; 2000-seed sweep 2033 pass / 106 deferred / 0 failed / 5 rejected; 
   would reach it; the Rust side on that path rebuilds the rails and stops at
   `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`, PR #136) with
   `Unported`, or with a null-pointer error when, as in the difftest, no solver is
-  passed.
+  passed. The Rust adjusting path (net-row copy, rail `SetCurve` resets, the solver's
+  offset-distance save and restore, the `Unported` at `DropCurve`, the null-solver
+  error) is covered by the unit test `examine_copies_the_good_row_rebuilds_the_rail_and_stops_at_the_drop`
+  only.
   `sm_FindStepoffUV` and `sm_CreateCubicRailRailInterpolant` take an `SmFilletSolver`
   (unported) and have no difftest cases: the first is ported over the co-ported
   `ConstantRadiusAssistedFs` and a B-rep, the second returns `Unported` at its first
@@ -5885,19 +5889,74 @@ inputs below; 2000-seed sweep 2033 pass / 106 deferred / 0 failed / 5 rejected; 
   face whose surface has a control point of magnitude 1e154: `sm_ClassifyFacePoint`'s
   C++ path (`CalculateUVDomainFromUVTrimCurves` -> `DropAndTrimCurve` ->
   `SmCurve::GlobalCoincidenceChecker`) splits the boundary forever once squared
-  distances overflow. The pre-review's extended fuzz (seed 777, boundary specials)
-  showed the slowdown is continuous: on another shape a control point of 1e50 returns
-  in 0.15 s, 1e80 in 10 s, 1e100 in 23 s, 1e120..1e150 in 70-99 s, and a rational
-  surface reaches the same regime through a tiny weight (homogeneous 1e150 over
-  1e-150: 34 s). The FFI therefore bounds, for `ClassifyFacePoint` and `FbSplitFace`
-  only (the ops that reach `sm_ClassifyFacePoint`), every value and every Euclidean
-  control point `Pw / w` by `MAX_MAGNITUDE = 1e50`; that over-rejects valid but slow
-  upstream inputs, and is documented as such. The other ops take any finite value.
-  Rejected regression cases: the original 1e154 shape, the slow -1e150 input, a value
-  just above 1e50, a 1e-20 weight under a homogeneous 1e40 (Euclidean 1e60); the -1e50 boundary input is an accepted case. The
-  Rust side still defers that op on `topology.face_p1`. The sweep itself runs one
-  thread per call with a 30 s timeout (`FUZZ_SEED` / `FUZZ_CALLS` override the seed
-  and length): seed 777 at 40k calls (the pre-review's), the default seed at 60k and seed 4242 at 40k all ran without a crash or hang (10613, 16116 and 10692 accepted programs).
+  distances overflow to infinity (1e153 returns in 90 ms). That is the only
+  non-termination established; below it the call terminates but is slow in a
+  shape-dependent way from about 1e15 on (the re-review's probes on the pre-review's
+  fixture: one control point of -1e15 in all three coordinates 54 s, -1e20 14 s,
+  -1e50 12 s, the same magnitude in one coordinate 0.2 s, both surfaces and the point
+  scaled uniformly by 1e30 55 s and by 1e10 3 ms, a 1e-10 weight under a homogeneous
+  9.9e39 37 s, -1e80 10 s, -1e100 23 s, -1e120..-1e150 70-99 s; a random sweep of the
+  two ops found 14 calls in 40k above 2 s, worst 38 s, all with a value of at least
+  3e15, none above 120 s). The FFI therefore bounds, for `ClassifyFacePoint` and
+  `FbSplitFace` only (the ops that reach `sm_ClassifyFacePoint`), every value and every
+  Euclidean control point `Pw / w` by `MAX_MAGNITUDE = 1e150`, the overflow regime, and
+  accepts the slow inputs under it: slow is not undefined, and a lower bound would
+  reject valid inputs that are no slower than ones it accepts. The other ops take any
+  finite value. Rejected regression cases (`expected_rejection`): the original 1e154
+  shape, the pre-review's slow input moved to -1e151, a 1e-120 weight under a
+  homogeneous 1e40 (Euclidean 1e160); the -1e50 input is an accepted case (the C++
+  returns in 0.3 s). The Rust side still defers that op on `topology.face_p1`. The
+  sweep itself runs one thread per call with a 30 s timeout, 180 s for those two ops
+  (`FUZZ_SEED` / `FUZZ_CALLS` override the seed and length); its specials include the
+  bound, 1e15, 1e30, the UB-166 knot gaps and the HANG-20 bound, and one mutation sets
+  a value a hair above its predecessor. A clean sweep is evidence, not proof: the
+  earlier sweeps (seeds 777, default, 4242) missed UB-166 and the slow inputs, and the
+  widened specials then found HANG-20. With the HANG-20 bound in place, seed 4242 (40k:
+  11200 ran), seed 777 (40k: 11157 ran) and the default seed (60k: 16966 ran) found no
+  crash or hang.
+- **Upstream crash UB-166: a near-zero interior knot.** The re-review's fuzz found a
+  SIGSEGV in `sm_DecomposeSrf` through the surface cache (`sm_SurfaceDropPoint`, and
+  `sm_ClassifyFacePoint` through `SmSurface::DropCurve`): every `SmBSplineSurface`
+  constructor runs `sm_FixupKnotVector`, whose first stage snaps a knot less than
+  `SmTol::GetScaledZero(u0, u1)` (`1e-12 * (1 + max |u|)`, 2e-12 on `[0, 1]`) above its
+  already-snapped predecessor onto it; a first interior knot that close to the start
+  knot raises the start multiplicity to `degree + 2`, `N_BasisGetSpanCount` does not
+  count the zero-length span but `sm_DecomposeSrf`'s v loop extracts a patch for it and
+  then reads one patch pointer past the array (the u loop has upstream's B262 guard and
+  fails instead). The FFI computes that snap and refuses a surface whose snapped knot
+  vector has start multiplicity above `degree + 1` in u or v (the constructed object is
+  one the wrapper's clamped-knot check refuses as given); the reviewer's three
+  reproducers and the u-direction transpose are rejected regression cases
+  (`*_near_zero_*_knot*_rejected`). Curves: `sm_CreateBezSegments` skips a snapped start
+  over-multiplicity and bounds its segment index, so curves are only checked as given;
+  the probes `fb_cliff_near_zero_curve_knot` (a 1e-13 knot inserted in the cliff's
+  target and edge curves) and `capping_near_zero_uv_knot` (in both UV curves) run on
+  the C++ side without a crash.
+- **Upstream hang HANG-20: the global solvers in the top decade of the double range.**
+  This round's fuzz, with the widened specials, hung three ops: `FbCliff` (seed 4242),
+  `SurfaceDropPoint` (seed 777) and `TwoPnts` (seed 4242), each on a program with an
+  `NL_NOW` marker (`-DBL_MAX`) or `-7e307` dropped into a surface coordinate:
+  `SmGlobalSolver::SolveBranch` with the curve/surface, point/surface or
+  surface/surface local solver never returns (gdb). Replaying each program with that
+  coordinate substituted (`replay_program`, `REPLAY_FILE` / `REPLAY_SET`): the cliff
+  returns in 3 ms at `-7e307` and never at `-8e307` or `+-DBL_MAX` in any coordinate; the
+  point drop returns at `-3e307` and never at `-7e307`; the two-point intersection
+  returns at a homogeneous `-2e307` (Euclidean `1.3e307`) and never at `-3e307`; all
+  return in 1-3 ms at `-1e300` and below (`-1e200`, `-1e150`, `-1e100`). So the trigger
+  is the coordinate itself overflowing by a small factor in the solvers' box arithmetic,
+  not HANG-16's squared distances. The FFI bounds every value (Euclidean `Pw / w`) of
+  those four ops (`FbVertOnVert` drops a point too) by `MAX_SOLVER_MAGNITUDE = 1e307`,
+  under every measured hang and at or under every measured return; the other ops are
+  untouched (capping, the seam checks and the record ops ran the same values without
+  hanging in every sweep). Regression cases: `*_hang20_*_rejected` (the three fuzz
+  programs and the cliff at `-8e307`, flagged) and `*_hang20_boundary_1e307` (the same
+  programs at `-1e307`, accepted: the point drop and two-point cases compare, the cliff
+  one compares its `SM_ERR`).
+- **Rejected cases are opt-in.** A fixture carries `expected_rejection: true` when the
+  wrapper or the shim must refuse it; only then is a refusal recorded as rejected
+  (`Output::rejected`, as `intersect.curve_class_p6` does with `fixture_rejected`). A
+  refusal of any other case, generated ones included, is a harness error, as is a
+  flagged case that runs, so a guard that over-rejects fails the gate.
 - **Record writes without a notification environment.** `SmVertex::SetPoint` and
   `SmEdge::SetCurve(.., TRUE)` notify `SM_NO_CHANGE_GEOMETRY`; the pseudo B-rep has no
   notification environment, so the port applies the same resets directly (vertex-use

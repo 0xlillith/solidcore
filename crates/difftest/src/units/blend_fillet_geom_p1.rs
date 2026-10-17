@@ -18,12 +18,15 @@
 //! change the model its export (`v_*`, `e_*`, `g_*` keys).
 //!
 //! Deferred on the Rust side (unported callees): `two_pnts` past its point drops
-//! (`intersect.surface_intersector_p4`), `capping` (the cap lines are iso-parametric, so
-//! their lift reaches `sm_ExtractIsoCurve` of `surface.surface_p8`),
-//! `classify_face_point` and `fb` `split_face` of a vertex classified to the split face
-//! (`topology.face_p1`), `fb` `cliff` (`surface.surface_p8`), and `fb` `examine` when a
-//! surface needs adjusting (`blend.fillet_solver_p1`). Every run has at least
-//! [`MIN_GENERATED`] generated cases.
+//! (`intersect.surface_intersector_p4`), `classify_face_point` and `fb` `split_face` of
+//! a vertex classified to the split face (`topology.face_p1`), and `fb` `cliff`
+//! (`intersect.surface_drop_lib_p1`'s own unwired `SmSurfaceDropCurve::DoTrace`, whose
+//! stub prints `intersect.surface_drop_curve`). `fb` `examine` past its pre-checks is
+//! refused by the shim (no `SmFilletSolver`; see the FFI module). Fixtures flagged
+//! `expected_rejection` are regression inputs the FFI or the shim must refuse (upstream
+//! crashes or hangs: HANG-16, UB-166, the examine path); every other refusal is a
+//! harness error; HANG-20 bounds the four global-solver ops at `MAX_SOLVER_MAGNITUDE`).
+//! Every run has at least [`MIN_GENERATED`] generated cases.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -345,6 +348,19 @@ impl Query {
             Query::RemoveEdge { .. } => Op::FbRemoveEdge,
         }
     }
+}
+
+/// A case's inputs: the program, and whether the C++ side must refuse it.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct CaseInputs {
+    /// The FFI wrapper or the shim must refuse this program before the operation runs
+    /// (a regression input for a C++ crash or hang): the case is recorded as rejected
+    /// and never compared. A refusal of an unflagged case, or a flagged case that runs,
+    /// is a harness error, so over-rejection stays visible.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    expected_rejection: bool,
+    #[serde(flatten)]
+    inputs: Inputs,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -755,21 +771,26 @@ fn cpp_input(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
     Ok(o)
 }
 
-fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
+fn cpp(i: &Inputs, expected_rejection: bool) -> Result<Output, HarnessError> {
     let input = cpp_input(i)?;
-    let flat = match ffi::eval(i.op(), &input) {
-        Ok(flat) => flat,
-        // the wrapper refused an input upstream cannot handle (see the FFI module doc)
-        Err(solidcore_ffi::FfiError::InvalidArgument(reason)) => {
-            return Ok(Output::rejected(reason));
-        }
-        // the shim refused it (`SC_ERR_ARG`: the `FbExamine` adjusting path without a
-        // solver, a face upstream will not build)
-        Err(solidcore_ffi::FfiError::Status(solidcore_ffi::SC_ERR_ARG)) => {
-            return Ok(Output::rejected("shim_rejected_args"));
-        }
-        Err(e) => return Err(harness(e.to_string())),
-    };
+    let result = ffi::eval(i.op(), &input);
+    if expected_rejection {
+        // A fixture that upstream cannot run (see the FFI module doc): the wrapper
+        // refuses it (`InvalidArgument`) or the shim does (`SC_ERR_ARG`: the `FbExamine`
+        // adjusting path without a solver, a face upstream will not build). Only a
+        // flagged case may be recorded as rejected.
+        return match result {
+            Err(solidcore_ffi::FfiError::InvalidArgument(reason)) => Ok(Output::rejected(reason)),
+            Err(solidcore_ffi::FfiError::Status(solidcore_ffi::SC_ERR_ARG)) => {
+                Ok(Output::rejected("shim_rejected_args"))
+            }
+            Err(e) => Err(harness(format!(
+                "expected-rejection fixture failed in another way: {e}"
+            ))),
+            Ok(_) => Err(harness("expected-rejection fixture was not refused")),
+        };
+    }
+    let flat = result.map_err(|e| harness(e.to_string()))?;
     to_output(i, &flat)
 }
 
@@ -2238,7 +2259,8 @@ fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
             };
             let (du, dv) = surface_domain(&surface);
             let tol: f64 = *rng.choose(&[0.0, 1e-12, 1e-9, 1e-6, 1e-3]).unwrap_or(&1e-9);
-            let closure = rng.below(5) as i64;
+            // the whole SmSurfParamType range; UMIN..OUT take the early return
+            let closure = rng.below(10) as i64;
             // on, just outside, far outside, inside
             let pick = |rng: &mut Rng, d: f64| -> f64 {
                 match rng.below(6) {
@@ -2461,9 +2483,9 @@ fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
                 tol: *rng.choose(&[1e-9, 1e-6, 1e-3]).unwrap_or(&1e-6) * scale,
                 surface,
                 uv1,
-                orient1: 1 + rng.below(2) as i64,
+                orient1: rng.below(3) as i64,
                 uv2,
-                orient2: 1 + rng.below(2) as i64,
+                orient2: rng.below(3) as i64,
             }
         }
         _ => {
@@ -2503,7 +2525,15 @@ fn gen_model(rng: &mut Rng) -> Model {
                 0 if nt > 0 => (104, 1, rng.below(nt as u64) as i64, rng.below(2) as i64),
                 1 if nt > 0 => (109, 2, rng.below(nt as u64) as i64, 0),
                 2 if nf > 0 => (102, 3, rng.below(nf as u64) as i64, 0),
-                _ => (100, 0, -1, 0),
+                // the other classes carry no object in this model
+                _ => (
+                    *rng
+                        .choose(&[100, 101, 103, 105, 106, 107, 108, 110])
+                        .unwrap_or(&100),
+                    0,
+                    -1,
+                    0,
+                ),
             };
             VertexIn {
                 point: rng.point3(-scale, scale),
@@ -2723,12 +2753,12 @@ impl UnitDiff for Runner {
     }
 
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
-        let i: Inputs = case.parse()?;
-        cpp(&i)
+        let c: CaseInputs = case.parse()?;
+        cpp(&c.inputs, c.expected_rejection)
     }
 
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
-        let i: Inputs = case.parse()?;
+        let i = case.parse::<CaseInputs>()?.inputs;
         let rec = match &i {
             Inputs::Fb { model, query } => rust_pseudo(model, query)?,
             _ => rust_geometry(&i)?,
@@ -2768,9 +2798,12 @@ mod tests {
 
     /// Mutates generated and fixture programs and feeds them to the FFI: every program
     /// the guards accept must run without crashing (a crash kills the test process) or
-    /// hanging (30 s per call). `cargo test -p difftest --features cpp -- --ignored
-    /// fuzz_guards`; `FUZZ_SEED` and `FUZZ_CALLS` override the seed (`0xfa11ba11`) and
-    /// the call count (60k).
+    /// hanging (30 s per call; 180 s for `ClassifyFacePoint` and `FbSplitFace`, whose
+    /// accepted inputs can take up to about 100 s under the HANG-16 bound). `cargo test
+    /// -p difftest --features cpp -- --ignored fuzz_guards`; `FUZZ_SEED` and
+    /// `FUZZ_CALLS` override the seed (`0xfa11ba11`) and the call count (60k). A clean
+    /// sweep is evidence, not proof: the pre-review's sweeps missed UB-166 and the slow
+    /// HANG-16 inputs that a different mutation mix found.
     #[test]
     #[ignore = "60k FFI calls; run on demand"]
     fn fuzz_guards() {
@@ -2797,7 +2830,11 @@ mod tests {
             0.0, 1.0, -1.0, 2.0, 0.5, 100.0, 1e300, -1e300, 1e-300, f64::NAN, f64::INFINITY,
             -f64::INFINITY, 1e20, -1e20, 1e-12, 13.0, 999.0,
             // the guard boundaries: the magnitude cap, tiny positive weights, counts
-            ffi::MAX_MAGNITUDE, -ffi::MAX_MAGNITUDE, 1e49, 1e-150, 1e-6, 1e-9, 64.0, 63.0, -0.0,
+            ffi::MAX_MAGNITUDE, -ffi::MAX_MAGNITUDE, 1e149, 1e-150, 1e-6, 1e-9, 64.0, 63.0, -0.0,
+            // the HANG-16 slow range and the UB-166 knot snap (scaled zero 2e-12 on [0, 1])
+            1e15, -1e15, 1e30, 1e-13, 2e-12, 3e-12, 1e-11,
+            // the HANG-20 bound of the global-solver ops and the measured hangs above it
+            ffi::MAX_SOLVER_MAGNITUDE, -ffi::MAX_SOLVER_MAGNITUDE, 3e307, -7e307, 8e307,
         ];
         let env_u64 = |name: &str, default: u64| {
             std::env::var(name).ok().and_then(|v| v.parse().ok()).unwrap_or(default)
@@ -2812,7 +2849,7 @@ mod tests {
             let mut input = base.clone();
             let n_mut = rng.below(6);
             for _ in 0..n_mut {
-                match rng.below(6) {
+                match rng.below(7) {
                     0 if !input.is_empty() => {
                         let at = rng.below(input.len() as u64) as usize;
                         input[at] = specials[rng.below(specials.len() as u64) as usize];
@@ -2830,6 +2867,13 @@ mod tests {
                         let a = rng.below(input.len() as u64) as usize;
                         let b = rng.below(input.len() as u64) as usize;
                         input.swap(a, b);
+                    }
+                    5 if input.len() > 1 => {
+                        // a value a hair above its predecessor: inside a knot vector this
+                        // is the near-coincident pair the constructor snaps (UB-166)
+                        let at = 1 + rng.below(input.len() as u64 - 1) as usize;
+                        let gap = [1e-13, 1e-12, 2e-12, 1e-11, 1e-9][rng.below(5) as usize];
+                        input[at] = input[at - 1] + gap;
                     }
                     _ if !input.is_empty() => {
                         let at = rng.below(input.len() as u64) as usize;
@@ -2862,11 +2906,16 @@ mod tests {
             std::thread::spawn(move || {
                 let _ = tx.send(ffi::eval(op, &program).map(|_| ()));
             });
-            match rx.recv_timeout(std::time::Duration::from_secs(30)) {
+            let limit = if matches!(op, Op::ClassifyFacePoint | Op::FbSplitFace) {
+                180
+            } else {
+                30
+            };
+            match rx.recv_timeout(std::time::Duration::from_secs(limit)) {
                 Ok(Ok(()) | Err(solidcore_ffi::FfiError::Status(_))) => accepted += 1,
                 Ok(Err(_)) => rejected += 1,
                 Err(std::sync::mpsc::RecvTimeoutError::Timeout) => panic!(
-                    "fuzz_guards: call {calls} (op {}) hung for 30 s; input = {}",
+                    "fuzz_guards: call {calls} (op {}) hung for {limit} s; input = {}",
                     op as i32,
                     serde_json::to_string(&input).unwrap()
                 ),
@@ -2882,6 +2931,55 @@ mod tests {
             }
         }
         eprintln!("fuzz_guards: {calls} calls, {accepted} ran, {rejected} rejected by the wrapper");
+    }
+
+    /// Replays one flat program against the FFI with a timing: `REPLAY_FILE` names a
+    /// JSON `{"op": <Op as i32>, "input": [..]}` (the shape `fuzz_guards` prints for a
+    /// hang or crash, plus the op); `REPLAY_SUBST=<old>=<new>` first replaces every
+    /// value equal to `old` by `new`, `REPLAY_SET=<index>=<value>,..` sets single slots;
+    /// `REPLAY_TIMEOUT` (s, default 300) bounds the call.
+    /// `cargo test -p difftest --features cpp -- --ignored replay_program --nocapture`.
+    #[test]
+    #[ignore = "replays a program named by REPLAY_FILE"]
+    fn replay_program() {
+        let Ok(file) = std::env::var("REPLAY_FILE") else {
+            return;
+        };
+        let text = std::fs::read_to_string(&file).unwrap();
+        let v: Value = serde_json::from_str(&text).unwrap();
+        let op_code = v["op"].as_i64().unwrap();
+        let op = Op::from_code(op_code).unwrap();
+        let mut input: Vec<f64> = serde_json::from_value(v["input"].clone()).unwrap();
+        if let Ok(subst) = std::env::var("REPLAY_SUBST") {
+            let (old, new) = subst.split_once('=').unwrap();
+            let (old, new): (f64, f64) = (old.parse().unwrap(), new.parse().unwrap());
+            for x in &mut input {
+                if *x == old {
+                    *x = new;
+                }
+            }
+        }
+        if let Ok(sets) = std::env::var("REPLAY_SET") {
+            for set in sets.split(',') {
+                let (at, value) = set.split_once('=').unwrap();
+                input[at.parse::<usize>().unwrap()] = value.parse().unwrap();
+            }
+        }
+        let limit: u64 = std::env::var("REPLAY_TIMEOUT")
+            .ok()
+            .and_then(|t| t.parse().ok())
+            .unwrap_or(300);
+        let (tx, rx) = std::sync::mpsc::channel();
+        let program = input.clone();
+        let t0 = std::time::Instant::now();
+        std::thread::spawn(move || {
+            let _ = tx.send(ffi::eval(op, &program).map(|r| r.into_iter().take(4).collect::<Vec<_>>()));
+        });
+        let Ok(r) = rx.recv_timeout(std::time::Duration::from_secs(limit)) else {
+            eprintln!("replay_program: op {op_code} did not return within {limit} s");
+            std::process::exit(0);
+        };
+        eprintln!("replay_program: op {op_code} -> {r:?} in {:?}", t0.elapsed());
     }
 
     #[test]

@@ -72,14 +72,25 @@
 //! clamped B-splines (`1 <= p <= n`, at most [`MAX_INDEX`] control points per direction,
 //! degrees at most [`MAX_DEGREE`], finite data, consistent rationality, non-decreasing
 //! knots with end multiplicity `degree + 1` and interior multiplicity at most the degree),
-//! 3D edge, centre-line and target curves and 2D UV curves, enum values in range, indices
+//! 3D edge, centre-line and target curves and 2D UV curves, enum values in exactly their
+//! upstream range (every code is refused rather than defaulted on either side), indices
 //! inside the block, at most [`MAX_LIST`] objects per list, a curve on an edge whose
 //! fillet B-rep edge is looked for, both rails on a trimmed or rail-queried geometry, a
 //! vertex-classified vertex for `FbVertOnVert`, an edge-use-classified one for `FbCliff`,
 //! a deleted vertex without edges (its edge uses would keep dangling vertex-use pointers
-//! the export reads), finite tolerances and parameters. For `ClassifyFacePoint` and
-//! `FbSplitFace`, the ops that reach `sm_ClassifyFacePoint`, every value (control points
-//! as Euclidean `Pw / w`) is bounded by [`MAX_MAGNITUDE`] (HANG-16). Inverted intervals
+//! the export reads), finite tolerances and parameters. A surface knot vector is also
+//! checked after the snap the `SmBSplineSurface` constructor applies to it
+//! (`sm_FixupKnotVector`: a knot within the scaled zero of the end knots of its
+//! predecessor becomes that predecessor): one whose start multiplicity then exceeds
+//! `degree + 1` is refused, because `sm_DecomposeSrf` writes past the surface cache's
+//! patch array for it (UB-166; a curve's `sm_CreateBezSegments` skips such a start, so
+//! curves are only checked as given). For `ClassifyFacePoint` and `FbSplitFace`, the
+//! ops that reach `sm_ClassifyFacePoint`, every value (control points as Euclidean
+//! `Pw / w`) is bounded by [`MAX_MAGNITUDE`], the overflow regime of HANG-16; inputs
+//! under it are accepted even though those from about `1e15` can take seconds to about
+//! a minute. For `SurfaceDropPoint`, `TwoPnts`, `FbVertOnVert` and `FbCliff`, whose
+//! global solves never finish once a coordinate's own box arithmetic overflows
+//! (HANG-20), every value is bounded by [`MAX_SOLVER_MAGNITUDE`]. Inverted intervals
 //! are accepted (upstream `SetInterval` and `Trim` take them). One refusal lives in the
 //! shim: an `FbExamine` whose adjusting path would be reached returns `SC_ERR_ARG`,
 //! because the shim's geometries have no `SmFilletSolver` and upstream dereferences it
@@ -98,13 +109,30 @@ pub const MAX_LIST: usize = 64;
 /// [`Op::ClassifyFacePoint`] or [`Op::FbSplitFace`] input, the ops that reach
 /// `sm_ClassifyFacePoint`; rational control points are bounded as `Pw / w`. The
 /// boundary split in upstream `SmCurve::GlobalCoincidenceChecker` (reached through
-/// `SmFace::CalculateUVDomainFromUVTrimCurves`) slows down continuously with the
-/// magnitude of a control point and never terminates once squared distances overflow
-/// (HANG-16: a control point of `1e50` returns in 0.15 s, `1e80` in 10 s, `1e100` in
-/// 23 s, `1e120`..`1e150` in 70-99 s, `1e154` never; a weight of `1e-150` under a
-/// homogeneous `1e150` takes 34 s). Values beyond this bound are valid upstream inputs
-/// that merely run slowly; the other ops take any finite value.
-pub const MAX_MAGNITUDE: f64 = 1e50;
+/// `SmFace::CalculateUVDomainFromUVTrimCurves`) never terminates once squared
+/// distances overflow to infinity (HANG-16: a control point of `1e153` returns, `1e154`
+/// never), and that is the only non-termination established, so the bound sits at the
+/// overflow regime. It does not bound the runtime: the split is slow in a
+/// shape-dependent way from about `1e15` on (one control point of `-1e15` in every
+/// coordinate: 54 s; a fixture scaled uniformly by `1e30`: 55 s; `1e120`..`1e150`:
+/// 70-99 s; nothing at or under the bound ran past 99 s in any probe). Such inputs are
+/// valid upstream inputs and are accepted; the other ops take any finite value.
+pub const MAX_MAGNITUDE: f64 = 1e150;
+/// Largest magnitude of any value (control points as Euclidean `Pw / w`) of an input to
+/// the ops that run a global solver over a surface: [`Op::SurfaceDropPoint`] and
+/// [`Op::FbVertOnVert`] (the point/surface solver of `SmSurface::GlobalPointSolve`),
+/// [`Op::TwoPnts`] (that, then the surface/surface solver of
+/// `SmSurface::PointBasedSurfaceIntersect`) and [`Op::FbCliff`] (the curve/surface
+/// solver of `SmSurface::GlobalCurveIntersect`). Those solvers never finish once a
+/// coordinate's own box arithmetic overflows (HANG-20; `SmGlobalSolver::SolveBranch`
+/// branches forever): measured on the fuzz programs that found it, with one surface
+/// coordinate substituted, the cliff returns at `7e307` and never at `8e307`, the point
+/// drop returns at `3e307` and never at `7e307`, the two-point intersection returns at
+/// a homogeneous `2e307` (Euclidean `1.3e307`) and never at `3e307` (`2e307`), and all
+/// three return in milliseconds at `1e300` and below. The bound sits under every
+/// measured hang and at or under every measured return; it is not the squared-distance
+/// regime of HANG-16 (those three calls return at `1e150`..`1e300`).
+pub const MAX_SOLVER_MAGNITUDE: f64 = 1e307;
 /// `NL_NOZ`.
 const NOZ: f64 = f64::MAX;
 /// `NL_NOW`.
@@ -154,6 +182,48 @@ impl Op {
     pub fn is_pseudo(self) -> bool {
         (self as i32) >= 20
     }
+
+    /// The op with this code (the `op` of the shim entry point), if any.
+    #[must_use]
+    pub fn from_code(code: i64) -> Option<Self> {
+        Self::ALL.iter().copied().find(|&op| i64::from(op as i32) == code)
+    }
+
+    /// Every op, in code order.
+    pub const ALL: [Self; 32] = [
+        Self::CleanupNoise,
+        Self::CheckSeamOut,
+        Self::CheckSeamOn,
+        Self::SurfaceClosure,
+        Self::IsOrderCorrect,
+        Self::AdjustUvOnSeam,
+        Self::Interpolate,
+        Self::SurfaceDropPoint,
+        Self::TwoPnts,
+        Self::EvaluateMate,
+        Self::Capping,
+        Self::ClassifyFacePoint,
+        Self::FbExport,
+        Self::FbVertexGeoms,
+        Self::FbVuAtRailEnd,
+        Self::FbRailVertexuse,
+        Self::FbEdgeName,
+        Self::FbFindEdge,
+        Self::FbClearEdges,
+        Self::FbTrim,
+        Self::FbDeleteVertex,
+        Self::FbDeleteEdge,
+        Self::FbVertOnVert,
+        Self::FbCliff,
+        Self::FbSplitFace,
+        Self::FbExamine,
+        Self::FbSetEuGeom,
+        Self::FbSetUvCurve,
+        Self::FbOrigUvCurve,
+        Self::FbSetVuProperty,
+        Self::FbBrepEdges,
+        Self::FbRemoveEdge,
+    ];
 }
 
 mod sys {
@@ -177,8 +247,10 @@ fn bad(msg: impl Into<String>) -> FfiError {
 struct Reader<'a> {
     input: &'a [f64],
     at: usize,
-    /// Whether values are bounded by [`MAX_MAGNITUDE`] (the ops reaching HANG-16).
-    bounded: bool,
+    /// The magnitude bound of this op's values: [`MAX_MAGNITUDE`] for the ops reaching
+    /// HANG-16, [`MAX_SOLVER_MAGNITUDE`] for the global-solver ops (HANG-20), infinite
+    /// otherwise.
+    bound: f64,
 }
 
 impl Reader<'_> {
@@ -194,7 +266,7 @@ impl Reader<'_> {
 
     fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
-        if !v.is_finite() || (self.bounded && v.abs() > MAX_MAGNITUDE) {
+        if !v.is_finite() || v.abs() > self.bound {
             return Err(bad("non-finite or oversized value"));
         }
         Ok(v)
@@ -206,7 +278,7 @@ impl Reader<'_> {
         if v == marker {
             return Ok(v);
         }
-        if !v.is_finite() || (self.bounded && v.abs() > MAX_MAGNITUDE) {
+        if !v.is_finite() || v.abs() > self.bound {
             return Err(bad("non-finite or oversized value"));
         }
         Ok(v)
@@ -284,6 +356,47 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(), FfiError> {
     Ok(())
 }
 
+/// Start multiplicity of `knots` after the snap `sm_FixupKnotVector` applies in every
+/// `SmBSplineSurface` / `SmBSplineCurve` constructor: walking up, a knot less than the
+/// scaled zero of the end knots (`SM_EFF_ZERO * (1 + max(|u0|, |u1|))`, `SmTol::
+/// GetScaledZero(u0, u1)`) above its (already snapped) predecessor becomes equal to it.
+/// (The second stage, spreading distinct knots closer than the parameter tolerance
+/// apart, never merges knots.)
+fn snapped_start_multiplicity(knots: &[f64]) -> usize {
+    const EFF_ZERO: f64 = 1.0e-12;
+    let (Some(&u0), Some(&u1)) = (knots.first(), knots.last()) else {
+        return 0;
+    };
+    let scaled_zero = (EFF_ZERO * (1.0 + u0.abs())).max(EFF_ZERO * (1.0 + u1.abs()));
+    let mut prev = u0;
+    let mut run = 1;
+    for &k in knots.iter().skip(1) {
+        let snapped = if k - prev < scaled_zero { prev } else { k };
+        if snapped != u0 {
+            break;
+        }
+        run += 1;
+        prev = snapped;
+    }
+    run
+}
+
+/// Rejects a surface knot vector whose start multiplicity exceeds `p + 1` once the
+/// constructor has snapped it ([`snapped_start_multiplicity`]): `sm_DecomposeSrf`
+/// (through the surface cache every point drop and classification builds) then
+/// extracts one v-strip patch more than `N_BasisGetSpanCount` counted and writes past
+/// the patch array (UB-166; in u the same over-count hits upstream's B262 guard and
+/// fails instead). The vector as given passes [`check_knots`] (end multiplicity
+/// `p + 1`), so this is the only way the constructed surface can be ill-formed.
+fn check_snapped_knots(knots: &[f64], p: usize, what: &str) -> Result<(), FfiError> {
+    if snapped_start_multiplicity(knots) > p + 1 {
+        return Err(bad(format!(
+            "{what}: start multiplicity above degree + 1 after the constructor's knot snap"
+        )));
+    }
+    Ok(())
+}
+
 /// Checks that all points share their rational marker and, for `dim == 3`, are 3D.
 fn check_points(pts: &[[f64; 4]], dim: usize, what: &str) -> Result<(), FfiError> {
     let [_, _, _, w0] = *pts.first().ok_or_else(|| bad(format!("{what}: no points")))?;
@@ -313,10 +426,10 @@ fn points(rd: &mut Reader<'_>, k: usize) -> Result<Vec<[f64; 4]>, FfiError> {
             // the bound is on the Euclidean point: a tiny weight under a bounded
             // homogeneous coordinate reaches the HANG-16 regime just the same
             let w = pt[3];
-            if rd.bounded && w != NOW {
+            if rd.bound.is_finite() && w != NOW {
                 let oversized = |c: f64| {
                     let e = (c / w).abs();
-                    e.is_nan() || e > MAX_MAGNITUDE
+                    e.is_nan() || e > rd.bound
                 };
                 if oversized(pt[0]) || oversized(pt[1]) || (pt[2] != NOZ && oversized(pt[2])) {
                     return Err(bad("oversized Euclidean control point"));
@@ -365,12 +478,15 @@ fn surface(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     check_points(&pts, 3, "surface")?;
     check_knots(&u, p, "surface u")?;
     check_knots(&v, q, "surface v")?;
+    check_snapped_knots(&u, p, "surface u")?;
+    check_snapped_knots(&v, q, "surface v")?;
     Ok(())
 }
 
-/// `SmSurfParamType` values: U, V, UNKNOWN, BOTH, NEITHER.
+/// `SmSurfParamType` values: U, V, UNKNOWN, BOTH, NEITHER, UMIN, VMIN, UMAX, VMAX, OUT
+/// (the whole enum; the seam checks act on U, V and BOTH and return for the rest).
 fn closure(rd: &mut Reader<'_>) -> Result<(), FfiError> {
-    rd.index(4).map(|_| ())
+    rd.index(9).map(|_| ())
 }
 
 /// `SmOrientType` values: UNKNOWN, SAME, OPPOSITE.
@@ -494,7 +610,8 @@ fn validate_block(rd: &mut Reader<'_>) -> Result<Block, FfiError> {
         rd.index(13)?; // SmFilletVertexType
         rd.index(12)?; // SmFilStatus
         rd.opt_index(MAX_LIST)?; // corner tag
-        let pc_class = rd.index(200)?;
+        // SmPointClassificationType: SM_PC_UNKNOWN (100) ..= SM_PC_NOTHING (110)
+        let pc_class = rd.index(110)?;
         if pc_class < 100 {
             return Err(bad("vertex: point class below SM_PC_UNKNOWN"));
         }
@@ -734,7 +851,13 @@ pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     let mut rd = Reader {
         input,
         at: 0,
-        bounded: matches!(op, Op::ClassifyFacePoint | Op::FbSplitFace),
+        bound: match op {
+            Op::ClassifyFacePoint | Op::FbSplitFace => MAX_MAGNITUDE,
+            Op::SurfaceDropPoint | Op::TwoPnts | Op::FbVertOnVert | Op::FbCliff => {
+                MAX_SOLVER_MAGNITUDE
+            }
+            _ => f64::INFINITY,
+        },
     };
     if op.is_pseudo() {
         validate_pseudo(op, &mut rd)?;
@@ -756,4 +879,31 @@ pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
             )
         }
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn snapped_start_multiplicity_follows_the_constructor_snap() {
+        // the scaled zero of [0, 1] is 2e-12: a knot under it snaps onto the start knot
+        assert_eq!(snapped_start_multiplicity(&[0.0, 0.0, 0.0, 1e-12, 1.0, 1.0, 1.0]), 4);
+        assert_eq!(snapped_start_multiplicity(&[0.0, 0.0, 0.0, 1e-11, 1.0, 1.0, 1.0]), 3);
+        // the snap chains: each knot is measured from its snapped predecessor
+        assert_eq!(
+            snapped_start_multiplicity(&[0.0, 0.0, 0.0, 6.2e-31, 6.8e-31, 1.0, 1.0, 1.0]),
+            5
+        );
+        // a gap of exactly the scaled zero is not under it
+        assert_eq!(snapped_start_multiplicity(&[0.0, 0.0, 0.0, 1e-12, 2e-12, 1.0, 1.0, 1.0]), 4);
+        assert_eq!(snapped_start_multiplicity(&[0.0, 0.0, 0.0, 1e-12, 1.9e-12, 1.0, 1.0, 1.0]), 5);
+        // the scaled zero grows with the end knots
+        assert_eq!(snapped_start_multiplicity(&[0.0, 0.0, 5e-10, 1e3, 1e3, 1e3]), 3);
+        assert_eq!(snapped_start_multiplicity(&[0.0, 0.0, 5e-9, 1e3, 1e3, 1e3]), 2);
+        // a near-coincident pair away from the start only raises an interior multiplicity
+        assert_eq!(snapped_start_multiplicity(&[0.0, 0.0, 0.0, 0.5, 0.5 + 1e-13, 1.0, 1.0, 1.0]), 3);
+        assert!(check_snapped_knots(&[0.0, 0.0, 0.0, 1e-12, 1.0, 1.0, 1.0], 2, "v").is_err());
+        assert!(check_snapped_knots(&[0.0, 0.0, 0.0, 1e-11, 1.0, 1.0, 1.0], 2, "v").is_ok());
+    }
 }
