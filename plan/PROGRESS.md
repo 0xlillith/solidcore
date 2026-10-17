@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**199 / 261 units ported** (108 green, 91 partial), **273,977 / 387,903 upstream lines (70.6%)**. 34 claimed, 0 blocked, 28 todo.
+**199 / 261 units ported** (108 green, 91 partial), **273,977 / 387,903 upstream lines (70.6%)**. 33 claimed, 0 blocked, 29 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -19,6 +19,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] `blend.fillet_solver_p5` (848 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `surface.offset_surface`
 - [ ] `heal.stitch_p2` (1906 lines) — missing: `heal.stitch_p1`, `topology.brep_p1`, `topology.face_p3`
 - [ ] `blend.fillet_solver_p4` (1404 lines) — missing: `blend.fillet_geom_p1`, `blend.fillet_intersector`, `blend.fillet_solver_p1`, `surface.offset_surface`
+- [ ] `boolean.topology_intersector_p2` (2195 lines) — missing: `boolean.topology_intersector_p1`, `topology.face_p4`
 - [ ] `sweep.topology_sweep` (2456 lines) — missing: `heal.stitch_p1`, `topology.brep_p1`, `topology.brep_p3`, `topology.brep_p5` +2 more
 - [ ] `boolean.topology_intersector_p3` (1849 lines) — missing: `boolean.topology_intersector_p1`, `boolean.topology_intersector_p2`
 - [ ] `primitive.primitive_creation_p3` (1842 lines) — missing: `primitive.primitive_creation_p1`, `sweep.topology_sweep`, `topology.brep_p1`, `topology.brep_p5` +1 more
@@ -69,13 +70,12 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p5` (2193 lines) — in progress: #194 @Karl-VonRichter (draft)
 - [ ] 🔨 `blend.fillet_geom_p1` (2113 lines) — in progress: #147 @bluecmd (draft)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
-- [ ] 🔨 `blend.fillet_solver_p1` (1861 lines) — in progress: #192 @froglemonade2 (draft)
+- [ ] 🔨 `blend.fillet_solver_p1` (1861 lines) — in progress: #192 @froglemonade2 (ready for review)
 - [ ] 🔨 `blend.hcr` (1875 lines) — in progress: #191 @froglemonade2 (ready for review)
 - [ ] 🔨 `heal.stitch_p1` (2037 lines) — in progress: #196 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_intersector` (1708 lines) — in progress: #179 @bherbruck (ready for review)
 - [ ] 🔨 `blend.fillet_standard_solver_p1` (2336 lines) — in progress: #168 @bherbruck (ready for review)
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
-- [ ] 🔨 `boolean.topology_intersector_p2` (2195 lines) — in progress: #195 @froglemonade2 (draft)
 - [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (draft)
 - [ ] 🔨 `offset.offset_executive_p1` (2107 lines) — in progress: #175 @altvnk (ready for review)
 - [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (ready for review)
@@ -350,7 +350,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### boolean (3/9)
 
 - [ ] 🔨 `boolean.topology_intersector_p1` (2491 lines) — in progress: #146 @bluecmd (ready for review)
-- [ ] 🔨 `boolean.topology_intersector_p2` (2195 lines) — in progress: #195 @froglemonade2 (draft)
+- [ ] ⏳ `boolean.topology_intersector_p2` (2195 lines) — waiting
 - [ ] ⏳ `boolean.topology_intersector_p3` (1849 lines) — waiting
 - [ ] 🟡 `boolean.merge_p1` (993 lines) — partial, 248 cases
 - [ ] ⏳ `boolean.merge_p2` (1967 lines) — waiting
@@ -363,7 +363,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🟡 `blend.fillet_custom_solver` (1236 lines) — partial, 448 cases
 - [ ] 🔨 `blend.fillet_geom_p1` (2113 lines) — in progress: #147 @bluecmd (draft)
-- [ ] 🔨 `blend.fillet_solver_p1` (1861 lines) — in progress: #192 @froglemonade2 (draft)
+- [ ] 🔨 `blend.fillet_solver_p1` (1861 lines) — in progress: #192 @froglemonade2 (ready for review)
 - [ ] 🔨 `blend.hcr` (1875 lines) — in progress: #191 @froglemonade2 (ready for review)
 - [ ] 🔨 `blend.fillet_intersector` (1708 lines) — in progress: #179 @bherbruck (ready for review)
 - [ ] ⏳ `blend.fillet_solver_p5` (848 lines) — waiting
