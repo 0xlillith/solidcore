@@ -75,6 +75,16 @@ The report records `status`, `cases_passed`/`cases_failed`/`cases_deferred`,
 blocking unit lands and its stubs are wired, re-run: the deferred count drops
 and the unit can move from `partial` to `green`.
 
+## Rejected native fixtures
+
+When a native fixture constructor rejects geometry before the operation under test
+runs, its runner may return `Output::rejected(reason)` from `run_cpp`. The harness
+records the inputs and reason with `outcome: "rejected"`, skips the Rust call and
+excludes the case from parity passes, failures and sensitivity counts. Reports and
+summaries include a rejected count when nonzero. A run containing only rejected
+fixtures fails the gate: rejection cannot establish parity. Layout errors, native
+exceptions and errors from the operation itself must not be classified this way.
+
 ## Pass criteria (fixed; never weaken)
 
 * **Topology / integers / error strings**: identical, same counts and order.
@@ -212,6 +222,9 @@ impl UnitDiff for Runner {
 `.points(key, &[[f64; N]])`, `.ints(key, Vec<i64>)`, `.int(key, i64)`,
 `.topology(Topology::new().count("faces", n).entities("edges", ids).adjacency("face_loops", adj))`,
 `Output::err("normalised error")`.
+
+Shared conversions live in `crate::util` (`v3`, `p2`, `flag`): import them
+instead of redefining them in the runner.
 
 * `Ok(Output::err(..))` = the *operation* failed (both sides must fail with the
   same string). `Err(HarnessError)` = the *harness* failed (bad inputs) and
