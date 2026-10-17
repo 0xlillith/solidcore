@@ -121,9 +121,10 @@ struct Pool
     std::vector<bool> alive;
     double key(const SmOffsetSurface* s) const
     {
-        for (size_t i = 0; i < made.size(); i++)
-            if (made[i] == s)
-                return (double)i;
+        // newest live entry first: a deleted surface's address may be reused
+        for (size_t i = made.size(); i > 0; i--)
+            if (alive[i - 1] && made[i - 1] == s)
+                return (double)(i - 1);
         return -1.0;
     }
     SmOffsetSurface* add(SmOffsetSurface* s)
