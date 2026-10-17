@@ -1055,6 +1055,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (needs a bad argument from the calling code).
 - **Rust port:** `heal::gap` returns `InvalidInput`.
 
+#### UB-155. Volume discontinuity W planes index the V parameter array
+- **Location:** `source/SMLib/src/SmCurveClass.cpp:10071-10072`, `SmCurveClassification::Intersect3DDiscontinuities` (volume).
+- **What happens:** The W-plane loop takes its coordinates from `m_sParamsV[kk]` while iterating `m_sParamsW`. Different V/W values put the planes at the wrong W positions; more W than V parameters reads past V's array.
+- **Trigger:** unequal V/W discontinuity parameter arrays.
+- **How found:** read during porting `intersect.curve_class_p8` (PR #152).
+- **Confirmed:** no; native fixtures use equal V/W lists and never execute the out-of-bounds case.
+- **Severity:** crash/UB; wrong result for in-bounds unequal values.
+- **Rust port:** retains V coordinates, with checked indexing returning an error. The plane-intersection path remains dependency-deferred.
+
 ### Topology
 
 #### UB-105. `SmVertex::GetMaxUpDimGap3d` adds to a NULL gap array
@@ -1300,6 +1309,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** misuse hazard (use after free for bad caller arguments), no file-reachable path.
 - **Rust port:** `FaceIntersection` owns all curves and returns fresh vectors; the `!have_curves` block of the coincident branch replaces all four vectors (`s3DCurves`, `sUVCurves1`, `sUVCurves2`, `sCurveTypes`) with the intersector's. Outputs are return values, so the append-to-caller quirk has no counterpart: callers append the returned vectors themselves.
 
+#### UB-137. `SmFace::SplitAtSeam` recurses on itself with another face's seam classifications
+- **Location:** `source/SMLib/src/SmFace.cpp:18098-18149` `SmFace::SplitAtSeam` (the `bMergeU && bMergeV` branch); the crash is in `SmCurveClassification::MergeInterval` (`MergeIntervals`).
+- **What happens:** After merging the U seam, the loop over the faces the merge made computes `pTgtFace->HasSeamProblem(sThisCrvClassU, sThisCrvClassV, ..)` but then calls `SplitAtSeam(sThisCrvClassU, ..)` on `this`, not on `pTgtFace`. `MergeIntervals` then splits `this` along a classification of another face and dereferences invalid topology.
+- **Trigger:** `MoveSeam` with `bOkToSplit` (or `SplitAtSeam`) on a face that is treated as closed (by the face properties' closed flags) or is periodic in either direction, with seam problems to merge in both directions, e.g. `vase_rev.smb` (UV trim curves rebuilt), face 5 of the traversal order, with an `SmFaceProps` giving `m_eBadCrossedSeam = m_eBadMissingSeam = SM_SP_BOTH`, `m_bClosedU = m_bClosedV = TRUE` (difftest case `vase_rev.smb_1_f5_op9` of `topology.face_p1`).
+- **How found:** crash in the C++ reference run.
+- **Confirmed:** yes (SIGSEGV in `SmCurveClassification::MergeInterval` called from the recursive `SmFace::SplitAtSeam`, gdb backtrace).
+- **Severity:** crash.
+- **Rust port:** Faithful (recurses on the same face, bounded by `MAX_SPLIT_AT_SEAM_DEPTH`). `MergeIntervals` is wired (`intersect.curve_class_p5`), but its topology edits (`MergeInterval`, `intersect.curve_class_p2`) still defer, so the U merge makes no new face and the branch is not reached yet. The difftest shim keeps the C++ side away from every input that can reach it.
+
+#### UB-138. `SmFace::MoveSeam` uses the joined surface without checking `JoinSurface`
+- **Location:** `source/SMLib/src/SmFace.cpp:17539-17607` `SmFace::MoveSeam`.
+- **What happens:** `eStat = pRightSurface->JoinSurface(.., pJoinedSurface)` is never checked. When the join fails, `pJoinedSurface` is still `NULL` (first direction) and is dereferenced by `CopyAndAddAnalytics` for an analytic surface or handed to `SmBrep::ReplaceSurface` / `SetSurface`; in the second direction it still points to the first direction's surface, which the face already owns.
+- **Trigger:** a seam move whose split halves cannot be joined within the surface's zone tolerance (for example face properties that report a seam problem in a direction the surface is not closed in). Not reproduced: `MoveSeam` without split ran crash-free on the 15 `pt_TestFiles` B-reps of the `topology.face_p1` difftest (PR #148 review).
+- **How found:** read during porting.
+- **Confirmed:** no.
+- **Severity:** crash.
+- **Rust port:** Returns the join's error.
+
 #### UB-136. Fillet geometry substitution reads a missing partner interval
 - **Location:** `source/SMLib/src/SmCurveClass.cpp:16830` (`sm_SetDoFilletingGeometry`), called by `SmCurveClassification::MergeInterval`; unchecked indexing in `source/SMLib/inc/SmCurveClass.h:508`.
 - **What happens:** Fillet merging indexes both classifications at the target interval without checking the paired classification's size. An empty partner yields a null read; a shorter partner permits an out-of-range interval read.
@@ -1474,7 +1501,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **How found:** read during porting (static scan, `plan/closure.md`).
 - **Confirmed:** no. The shims sort upstream results before comparing.
 - **Severity:** nondeterminism.
-- **Rust port:** Uses ordered maps / insertion order on arena ids.
+- **Rust port:** Uses ordered maps / insertion order on arena ids. `SmTopologyIntersector`'s mate maps (`GetMappedBrepObjects`, `SmTopologyIntersector.cpp:945`; `GetMappedOtherObjects`, `CoincidenceNotify`) and subset (`GetSubset`) are `BTreeMap`/`BTreeSet`s over the caller's object handles in `boolean::topology_intersector::p1`, so their lists come out in handle order; the `boolean.topology_intersector_p1` shim sorts upstream's lists by export handle before comparing.
 
 #### ND-3. A function-local static fixed by the first call
 - **Location:** `SmFilletSolver.cpp:3604`, `SmFilletSolver::ComputePointValues` (def. `:3544`).
@@ -1623,6 +1650,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes.
 - **Severity:** wrong result.
 - **Rust port:** Ported as is.
+
+#### WR-159. `SmVector3d::Unitize` turns a vector with an overflowing squared length into a zero vector
+- **Location:** `source/SMLib/inc/SmVector3d.h:537-566`, `SmVector3d::Unitize`; reached from `SmAxis2Placement::SetCanonical` (`SmAxis2Placement.cpp:70-97`).
+- **What happens:** The degenerate test is only `dLenSq < SM_EFF_ZERO_SQ`. A component of about 1.34e154 or more makes `LengthSquared()` infinite, so the vector passes the test and is divided by an infinite length. Finite components become 0 and the result is a silent zero vector (with a negative-zero component), not the documented `(0,0,1)` default, and the status is success.
+- **Trigger:** An axis placement whose Y axis is `(0, -1e300, 1)`, unitized by `SetCanonical`, used in a cone/cone intersection (`SmCone::IntersectWithCone`). A component of 1e150 still unitizes correctly; 1e160 does not.
+- **How found:** differential fuzzing of `surface.cone_p3` (`fuzz01093`).
+- **Confirmed:** yes (C++ returns two lines with a zero Y axis: the polar conversion of that cone then fails, `SmEllipse.cpp:596`, and `IntersectWithCone` ignores that status, `SmCone.cpp:2966-2967`).
+- **Severity:** wrong result.
+- **Rust port:** `Vec3::unitize` is faithful and has the same overflow; such inputs agree with C++ (`surface.cone_p3` fixtures `fuzz_axis_overflow_zero_y*`).
 
 ### Topology, attributes, solvers
 
@@ -2356,6 +2392,39 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes: the `closed3d` cases of `fixtures/topology.loopuse/tolerance_limit.json` set every edge tolerance to 0, 1e-15 or -1e-12 so that real end gaps exceed `XSectTol3d`; both sides still report those loops closed (with the largest gap seen, also when `bCheckAllGaps == FALSE` stops early).
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (`topology::loopuse::is_closed_3d`).
+
+#### WR-154. Discontinuity classifiers select boundary solution slots with V+V offsets
+- **Location:** `source/SMLib/src/SmCurveClass.cpp:9241`, `:9654`, `:10121-10129`.
+- **What happens:** The UV and 3D surface classifiers select the last boundary's solution array using `2 * V_count - 1`, while the later consumer selects its curve using `U_count + V_count - 1`. The volume classifier repeats V in the offsets for its last three boundary slots too. Unequal counts can associate an internal boundary's solutions with a different outer boundary, or omit an outer solution array.
+- **Trigger:** different U/V knot or discontinuity counts, with intersections on the affected boundaries.
+- **How found:** read during porting `intersect.curve_class_p8` (PR #152).
+- **Confirmed:** no numerical reproduction isolated; native unequal-count fixtures are dependency-deferred in Rust before downstream classification.
+- **Rust port:** preserves these exact slot expressions; crossing classifications are uncertified until solution insertion is available.
+
+#### WR-155. Two volume boundary solution arrays share the same borrowed storage
+- **Location:** `source/SMLib/src/SmCurveClass.cpp:10002`, `sSolutions4(20,aData4), sSolutions5(20,aData4)`.
+- **What happens:** Both arrays initially refer to `aData4`. Writing the sixth boundary's solutions can overwrite the fifth boundary's saved solutions before the later classification scan. `aData5` is not declared; the arrays do not use independent buffers.
+- **Trigger:** both affected boundary slots contain results that remain in their borrowed arrays.
+- **How found:** read during porting `intersect.curve_class_p8` (PR #152).
+- **Confirmed:** no isolated native reproduction.
+- **Rust port:** independent owned vectors; this aliasing behavior is not certified or reproduced. All volume plane-intersection paths remain deferred to `surface.surface_p8`; revisit the output lifecycle when wiring that dependency.
+
+#### WR-156. The volume discontinuity unaligned check tests U three times
+- **Location:** `source/SMLib/src/SmCurveClass.cpp:10025-10027`.
+- **What happens:** The rejection predicate repeats `m_bUnalignedU` and never checks V or W, so a V/W-only unaligned discontinuity can proceed into the aligned-plane algorithm.
+- **Trigger:** a discontinuity report with U aligned and V or W unaligned.
+- **How found:** read during porting `intersect.curve_class_p8` (PR #152).
+- **Confirmed:** no native execution of the unsupported report.
+- **Rust port:** retains the U-only predicate, then rejects empty/malformed coordinate lists safely; custom discontinuity reports are outside the oracle's coverage.
+
+#### WR-157. `CheckIfHaveExistingSSI` re-copies the accumulated curve lists on every match
+- **Location:** `source/SMLib/src/SmTopologyIntersector.cpp:184-249`, `SmTopologyIntersector::CheckIfHaveExistingSSI`.
+- **What happens:** For each table entry matching the surface pair the function appends the entry's arrays to the outputs and then runs `for (jj=0; jj<r3DCurves.GetSize(); jj++)` over the *whole* accumulated output, replacing every 3D and UV B-spline curve by a fresh copy. With two matching entries the first entry's copies are copied once more and those first copies leak; with one entry the behaviour is as intended. A 3D curve that is not an `SmBSplineCurve` is `SER(SM_ERR)` after the output arrays were already partly filled with copies (also leaked by a caller that treats the status as fatal).
+- **Trigger:** `RegisterExistingSSI` twice for the same `(pBrepSurface, pOtherSurface)`, then `CheckIfHaveExistingSSI` for that pair (fixture `analytic_tsurf_pair_table`, `fixtures/boolean.topology_intersector_p1/upstream.json`).
+- **How found:** read during porting (`boolean.topology_intersector_p1`, PR #146); the difftest runs it in the release build.
+- **Confirmed:** no. The fixture runs the path in the C++ build and the doubly copied curves compare equal to the originals, so neither the extra copy nor the leak is observable in a result; both follow from source inspection.
+- **Severity:** memory leak / wasted work; results unaffected.
+- **Rust port:** Faithful: the re-copies go to the caller's curve store and the earlier handles stay unreferenced; the non-B-spline case reports the `SM_ERR` in `ExistingSsi::status` with the outputs filled so far.
 
 ### Healing
 
