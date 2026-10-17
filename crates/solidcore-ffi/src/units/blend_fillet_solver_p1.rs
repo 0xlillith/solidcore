@@ -99,7 +99,10 @@ mod sys {
 }
 
 /// Reads an array block; returns `(nx, nf, jacobian rows/cols)`.
-fn arrays(rd: &mut Reader<'_>) -> Result<(usize, usize, Option<(usize, usize)>), FfiError> {
+/// `(nx, nf, Jacobian rows and columns)` of an array block.
+type ArraySizes = (usize, usize, Option<(usize, usize)>);
+
+fn arrays(rd: &mut Reader<'_>) -> Result<ArraySizes, FfiError> {
     let nx = rd.index(MAX_ARRAY)?;
     rd.finites(nx)?;
     let nf = rd.index(MAX_ARRAY)?;

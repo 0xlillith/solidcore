@@ -143,9 +143,9 @@ fn cpp_input(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
             o.extend_from_slice(tols);
             push_surface(&mut o, &base[0])?;
             push_surface(&mut o, &base[1])?;
-            for k in 0..2 {
-                o.push(if has[k] { 1.0 } else { 0.0 });
-                o.push(off[k]);
+            for (h, d) in has.iter().zip(off) {
+                o.push(if *h { 1.0 } else { 0.0 });
+                o.push(*d);
             }
             o.extend_from_slice(orient);
             o.push(cmds.len() as f64);
@@ -247,19 +247,18 @@ fn put_state(o: &mut Vec<f64>, fs: &FilletSolver) -> Result<(), SolidError> {
         o.push(s.map_or(-1.0, |s| s.key as f64));
         o.push(s.map_or(0.0, |s| s.surface.offset_distance));
         o.push(fs.orientation(i)?);
-        o.push(fs.saved_offsets[i]);
+        o.push(fs.saved_offsets.get(i).copied().unwrap_or(0.0));
     }
     o.push(fs.extension_factor());
     o.push(b(fs.reverse_trim()));
-    o.push(fs.status() as i32 as f64);
+    o.push(f64::from(fs.status() as i32));
     Ok(())
 }
 
-#[allow(clippy::too_many_arguments)]
 fn rust_state(
     tols: &[f64; 3],
     base: &[SrfIn; 2],
-    has: &[bool; 2],
+    has: [bool; 2],
     off: &[f64; 2],
     orient: &[f64; 2],
     cmds: &[[f64; 3]],
@@ -271,15 +270,16 @@ fn rust_state(
     let mut make = |rail: usize, d: f64| {
         let key = next_key;
         next_key += 1;
+        let base = if rail == 0 { &bases[0] } else { &bases[1] };
         OffsetSurfaceSlot {
             key,
-            surface: OffsetSurface::new(d, bases[rail].clone(), SurfaceId::Free(rail as u32)),
+            surface: OffsetSurface::new(d, base.clone(), SurfaceId::Free(rail as u32)),
         }
     };
     let r = (|| -> Result<(), SolidError> {
-        for k in 0..2 {
-            if has[k] {
-                fs.set_surface(k, Some(make(k, off[k])))?;
+        for (k, (h, d)) in has.iter().zip(off).enumerate() {
+            if *h {
+                fs.set_surface(k, Some(make(k, *d)))?;
             }
         }
         fs.orientations = *orient;
@@ -290,7 +290,7 @@ fn rust_state(
             fs.conversion_tol(),
             fs.extension_factor(),
             b(fs.reverse_trim()),
-            fs.status() as i32 as f64,
+            f64::from(fs.status() as i32),
             fs.jacobian_size() as f64,
             b(fs.can_make_analytic()),
             b(fs.offset_radii_can_change()),
@@ -350,7 +350,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             off,
             orient,
             cmds,
-        } => rust_state(tols, base, has, off, orient, cmds, &mut o)?,
+        } => rust_state(tols, base, *has, off, orient, cmds, &mut o)?,
         Inputs::Extension { ext, surface, dom } => {
             let k = Kernel::default();
             let s = surface_of(surface)?;
@@ -433,20 +433,23 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         Inputs::UvVectors { vecs, uvd } => {
             let v = |a: [f64; 3]| Vec3::new(a[0], a[1], a[2]);
             let mut t = TsectPnt::new();
-            for s in 0..2 {
-                t.surface_pv[s][1][0] = v(vecs[2 * s]);
-                t.surface_pv[s][0][1] = v(vecs[2 * s + 1]);
-                t.uv_curve_pv[s][1] = Vec2::new(uvd[2 * s], uvd[2 * s + 1]);
-            }
-            t.curve_pv[1] = v(vecs[4]);
+            let [du0, dv0, du1, dv1, cd] = *vecs;
+            let [a0, b0, a1, b1] = *uvd;
+            t.surface_pv[0][1][0] = v(du0);
+            t.surface_pv[0][0][1] = v(dv0);
+            t.surface_pv[1][1][0] = v(du1);
+            t.surface_pv[1][0][1] = v(dv1);
+            t.uv_curve_pv[0][1] = Vec2::new(a0, b0);
+            t.uv_curve_pv[1][1] = Vec2::new(a1, b1);
+            t.curve_pv[1] = v(cd);
             let r = compute_uv_vectors(&mut t);
             o.push(match &r {
                 Ok(()) => 0.0,
                 Err(e) => status(e),
             });
-            for s in 0..2 {
-                o.push(t.uv_curve_pv[s][1].x);
-                o.push(t.uv_curve_pv[s][1].y);
+            for uvp in &t.uv_curve_pv {
+                o.push(uvp[1].x);
+                o.push(uvp[1].y);
             }
             match r {
                 Err(e @ SolidError::Unported { .. }) => Err(e),
@@ -598,7 +601,7 @@ fn gen_extension(rng: &mut Rng) -> Inputs {
             let c = rng.uniform(-1.0, 1.0) * s;
             [a, c, a + rng.uniform(0.0, 2.0) * s, c + rng.uniform(0.0, 2.0) * s]
         }
-        s => {
+        s @ SrfIn::Bspline(_) => {
             let d = domain(s);
             if rng.chance(0.7) {
                 d
