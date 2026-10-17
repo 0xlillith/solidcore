@@ -6,10 +6,11 @@
 // documented in crates/solidcore-ffi/src/units/blend_hcr.rs, which validates every input.
 // The input is the B-rep block of unit topology.vertexuse (sc_topology_fixture.h:
 // file, wire edge, face from surface, wire network), then
+//   `0 | 1 curve t0 t1`                    an extra wire edge (CreateWireEdgeFromCurve)
 //   `view_mode V[3] | O[3] Z[3] Xref[3]`  0: SmHCR(.., crViewVector, ..); 1: SmHCR(..,
 //                                         placement SetSTEPCanonical(O, Z, Xref), ..)
 //   `approx_tol ang_tol seams smooth`
-//   `n_sil sil[n_sil] n_back back[n_back]` scene edge indices seeded as silhouette edges
+//   (ops other than 8) `n_sil sil[n_sil] n_back back[n_back]` scene edge indices seeded as silhouette edges
 //                                         (the silhouette branch of ComputeSilhouettes'
 //                                         edge loop, replicated below) and back-facing
 //   op arguments (see below).
@@ -213,6 +214,15 @@ SC_EXPORT int32_t sc_blend_hcr_eval(int32_t op, const char* path, const double* 
     built.brep = build(rd, path, build_status);
     if (!built.brep)
         return SC_ERR_ARG;
+    if (rd.flag())
+    {
+        // the extra wire edge
+        SmBSplineCurve* c = read_curve(rd, ctx);
+        double t0 = rd.num(), t1 = rd.num();
+        SmEdge* pExtra = nullptr;
+        if (built.brep->CreateWireEdgeFromCurve(c, SmExtent1d(t0, t1), pExtra) != SM_SUCCESS)
+            return SC_ERR_ARG;
+    }
 
     int64_t view_mode = rd.idx();
     SmVector3d a = rd.vec();
@@ -244,7 +254,7 @@ SC_EXPORT int32_t sc_blend_hcr_eval(int32_t op, const char* path, const double* 
     export_graph(scene, g, scene_ex);
     auto edge_at = [&](int64_t i) -> SmEdge* { return (i >= 0 && i < (int64_t)g.edges.size()) ? g.edges[(size_t)i] : nullptr; };
 
-    int64_t n_sil = rd.idx();
+    int64_t n_sil = op == 8 ? 0 : rd.idx();
     for (int64_t i = 0; i < n_sil; i++)
     {
         SmEdge* e = edge_at(rd.idx());
@@ -252,7 +262,7 @@ SC_EXPORT int32_t sc_blend_hcr_eval(int32_t op, const char* path, const double* 
             return SC_ERR_ARG;
         seed_silhouette(h, e);
     }
-    int64_t n_back = rd.idx();
+    int64_t n_back = op == 8 ? 0 : rd.idx();
     for (int64_t i = 0; i < n_back; i++)
     {
         SmEdge* e = edge_at(rd.idx());

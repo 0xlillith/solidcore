@@ -66,7 +66,7 @@ use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::grid::Grid;
 use crate::geom::solution_array::{ObjectKind, SolutionObject, SolutionType};
-use crate::geom::tol::{are_same, xsect_tol_3d_from_zones};
+use crate::geom::tol::{are_same, xsect_tol_3d_from_zones, UNINIT_TOL};
 use crate::geom::tree::{NodeGeomType, Tree};
 use crate::intersect::curve_class::p1::CurveClassification;
 use crate::intersect::curve_class::p1::IntervalPosition;
@@ -155,7 +155,7 @@ impl ClassGeometry<HcrObject> for Geometry<'_> {
     fn topology_zone_tol_3d(&self, o: HcrObject) -> Option<f64> {
         match o {
             HcrObject::Vertex(v) => vertex::tolerance(self.brep, v).ok(),
-            HcrObject::Edge(e) => edge::tolerance(self.brep, e).ok(),
+            HcrObject::Edge(e) | HcrObject::Curve(e) => edge::tolerance(self.brep, e).ok(),
             _ => None,
         }
     }
@@ -309,20 +309,25 @@ fn find_if_rectangular_trim(brep: &Brep, face: FaceId) -> Result<(Extent2d, bool
     ))
 }
 
-/// `SmCurveClassification::SmCurveClassification(cpCurve, crInterval, NULL, tol, 64,
-/// pData)` (unit `intersect.curve_class_p4`).
-fn new_curve_classification(
+/// The classification of `curve` over `interval` that `ComputeEdgeVisibility` builds
+/// (`SmCurveClassification(cpCurve, crInterval, NULL, tol, 64, pData)`, unit
+/// `intersect.curve_class_p4`, whose body is `ReSet`, unit `intersect.curve_class_p2`;
+/// CO-PORTED here on [`CurveClassification::with_curve_interval`]): one unclassified
+/// interval; the source zone tolerance is `src_zone_tol_3d` when positive, else
+/// `SM_UNINIT_TOL`, and the three point classifications keep `src_zone_tol_3d`. The
+/// borrowed 64-interval buffer only bounds when the array reallocates.
+#[must_use]
+pub fn new_curve_classification(
     k: &Kernel,
     curve: HcrObject,
     interval: Extent1d,
     src_zone_tol_3d: f64,
-) -> Result<CurveClassification<HcrObject>> {
-    let _ = (k, curve, interval, src_zone_tol_3d);
-    // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
-    Err(SolidError::unported(
-        "SmCurveClassification::SmCurveClassification",
-        "intersect.curve_class_p4",
-    ))
+) -> CurveClassification<HcrObject> {
+    let mut cc = CurveClassification::with_curve_interval(k, curve, interval, src_zone_tol_3d);
+    if !(src_zone_tol_3d > 0.0) {
+        cc.set_src_zone_tol_3d(UNINIT_TOL);
+    }
+    cc
 }
 
 /// `SmCurveClassification::UpdatePointClass` (unit `intersect.curve_class_p2`).
@@ -339,16 +344,6 @@ fn update_point_class(
     ))
 }
 
-/// `SmBrep::GetTolerance` (unit `topology.brep_p1`).
-fn brep_tolerance(brep: &Brep) -> Result<f64> {
-    let _ = brep;
-    // UNPORTED(topology.brep_p1): SmBrep::GetTolerance
-    Err(SolidError::unported(
-        "SmBrep::GetTolerance",
-        "topology.brep_p1",
-    ))
-}
-
 /// `SM_CAST_PTR(SmBSplineSurface, pSurface)`: the surface as an `SmBSplineSurface`.
 fn b_spline_part(surface: &Surface) -> Option<&BSplineSurface> {
     match surface.kind() {
@@ -359,14 +354,27 @@ fn b_spline_part(surface: &Surface) -> Option<&BSplineSurface> {
     }
 }
 
-/// `sNewFaces[0]->GetSurface() == sNewFaces[1]->GetSurface()`. Each face owns its
-/// surface record here, so two faces carry the same surface only when they are the
-/// same face (to revisit with `SmBrep::MergeCurvesOnSurface`, unit
-/// `topology.brep_p2`, which splits a face).
+/// `sNewFaces[0]->GetSurface() == sNewFaces[1]->GetSurface()`. Upstream the two faces
+/// of a split share one surface object; here each face owns its surface record, and a
+/// split leaves equal copies, so the surfaces are compared by value: the same kind and
+/// the same NURBS data (control net, degrees, knots) of their B-spline part.
 fn same_surface(brep: &Brep, a: FaceId, b: FaceId) -> Result<bool> {
-    brep.face(a)?;
-    brep.face(b)?;
-    Ok(a == b)
+    let (sa, sb) = (
+        brep.face(a)?.surface.as_ref(),
+        brep.face(b)?.surface.as_ref(),
+    );
+    Ok(match (sa, sb) {
+        (Some(x), Some(y)) => {
+            core::mem::discriminant(x.kind()) == core::mem::discriminant(y.kind())
+                && match (b_spline_part(x), b_spline_part(y)) {
+                    (Some(p), Some(q)) => {
+                        format!("{:?}", p.gw_nurb()) == format!("{:?}", q.gw_nurb())
+                    }
+                    _ => false,
+                }
+        }
+        _ => false,
+    })
 }
 
 // ---- construction -------------------------------------------------------------------------
@@ -490,7 +498,8 @@ impl Hcr {
         // transform the copied Brep to place the eye looking up the Z axis
         ignore_status(transform_brep(&mut scene, &vt))?;
         ignore_status(find_and_set_infinite_region(&mut scene))?; // [B23]
-        let scene_box = brep_bounding_box(&scene)?;
+                                                                  // its status is ignored upstream (the box then stays empty)
+        let scene_box = ignored(brep_bounding_box(&scene))?.unwrap_or_else(Extent3d::new);
         Ok(Self::from_scene(k, scene, view_transform, scene_box, opts))
     }
 
@@ -742,7 +751,7 @@ impl Hcr {
             // This face is parallel to the view vector.
             let fu = crate::topology::face::p2::upward_faceuse(&self.scene, f)?
                 .ok_or(undefined("face without face use"))?;
-            let loopuses = self.scene.faceuse(fu)?.loopuses.clone();
+            let loopuses = edgeuse::p1::faceuse_loopuses(&self.scene, fu, false, None)?;
             for (jj, lu) in loopuses.into_iter().enumerate() {
                 let eus = crate::topology::loopuse::edgeuses(&self.scene, lu, None, None)?;
                 for eu in eus {
@@ -752,7 +761,7 @@ impl Hcr {
                         // Inner loops are not visible:
                         marked.insert(e);
                     } else if let Some(curve) = edge::curve(&self.scene, e)? {
-                        let tol = brep_tolerance(&self.scene)? / 100.0;
+                        let tol = self.scene.tolerance() / 100.0;
                         if curve.is_line(10, tol)?.is_some() {
                             let t = edge::interval(&self.scene, e)?.evaluate(0.5);
                             let (bin, _, _) = evaluate_binormal(&self.scene, eu, t)?;
@@ -808,9 +817,8 @@ impl Hcr {
     ///
     /// # Errors
     ///
-    /// Those of the curve copies and [`Hcr::compute_curve_visibility`];
-    /// [`SolidError::Unported`] for the classification of a visible edge (unit
-    /// `intersect.curve_class_p4`).
+    /// Those of the curve copies, the edge queries and
+    /// [`Hcr::compute_curve_visibility`].
     pub fn compute_edge_visibility(
         &mut self,
         k: &Kernel,
@@ -885,7 +893,7 @@ impl Hcr {
         }
         let interval = edge::interval(&self.scene, e)?;
         let tol = edge::tolerance(&self.scene, e)?;
-        let mut cc = new_curve_classification(k, HcrObject::Curve(e), interval, tol)?;
+        let mut cc = new_curve_classification(k, HcrObject::Curve(e), interval, tol);
 
         // divide Classification at curve SceneBrep projected xsects and classify
         self.compute_curve_visibility(k, &mut cc, start_hint, end_hint)?;
@@ -984,10 +992,16 @@ impl Hcr {
             }
             // pick tol to limit segment sizes in DoTrace (the partial callee does not
             // take the tolerances yet)
-            let _sil_tol = self.approx_tol_3d.min(self.ray_offset_tolerance / 100.0);
+            let sil_tol = self.approx_tol_3d.min(self.ray_offset_tolerance / 100.0);
             let uv_domain = face.uv_domain;
-            let Some((curves, uv_curves)) =
-                ignored(surface.create_silhouette_curves(k, &uv_domain, self.view_vector, false))?
+            let Some((curves, uv_curves)) = ignored(surface.create_silhouette_curves(
+                k,
+                &uv_domain,
+                self.view_vector,
+                false,
+                Some(sil_tol),
+                Some(self.ang_tol_rad),
+            ))?
             else {
                 continue;
             };
@@ -1096,8 +1110,11 @@ impl Hcr {
         let radial =
             edgeuse::p1::radial(&self.scene, prime)?.ok_or(undefined("edge use without radial"))?;
         let t = edge::interval(&self.scene, e)?.evaluate(0.5123);
-        let (bin1, tan1, norm1) = evaluate_binormal(&self.scene, prime, t)?;
-        let (bin2, _, norm2) = evaluate_binormal(&self.scene, radial, t)?;
+        // SE(..): a failed evaluation leaves the outputs uninitialised upstream
+        let (bin1, tan1, norm1) = ignored(evaluate_binormal(&self.scene, prime, t))?
+            .ok_or(undefined("uninitialised binormal"))?;
+        let (bin2, _, norm2) = ignored(evaluate_binormal(&self.scene, radial, t))?
+            .ok_or(undefined("uninitialised binormal"))?;
         let mut norm1 = norm1;
 
         // If both dot products are substantial and alike w.r.t. the view vector, it is
@@ -1190,8 +1207,11 @@ impl Hcr {
         let radial =
             edgeuse::p1::radial(&self.scene, prime)?.ok_or(undefined("edge use without radial"))?;
         let t = edge::interval(&self.scene, e)?.evaluate(0.5);
-        let (bin1, tan1, norm1) = evaluate_binormal(&self.scene, prime, t)?;
-        let (bin2, _, norm2) = evaluate_binormal(&self.scene, radial, t)?;
+        // SE(..): a failed evaluation leaves the outputs uninitialised upstream
+        let (bin1, tan1, norm1) = ignored(evaluate_binormal(&self.scene, prime, t))?
+            .ok_or(undefined("uninitialised binormal"))?;
+        let (bin2, _, norm2) = ignored(evaluate_binormal(&self.scene, radial, t))?
+            .ok_or(undefined("uninitialised binormal"))?;
 
         // If both Normals point away, it's back-facing.
         if norm1.dot(self.view_vector) < 0.0 && norm2.dot(self.view_vector) < 0.0 {
@@ -1283,6 +1303,10 @@ impl Hcr {
         }
 
         let setup = self.ray.as_ref().ok_or(undefined("ray tracer"))?;
+        // The tracer borrows the surfaces, so it is rebuilt per ray: FireRay re-marks the
+        // grid per call (Setup3DDDA), at O(surfaces) extra cost per ray. `Grid::new`
+        // fails only for a zero voxel count, which the sizes above exclude (upstream
+        // `new SmGrid` cannot fail).
         let grid = Grid::new(&setup.bbox, setup.size)?;
         let mut tracer = RayTracer::new(grid, setup.approx_tol, 1.0e-10);
         tracer.set_solver_tolerance(setup.approx_tol); // [B387]
@@ -1403,7 +1427,8 @@ impl Hcr {
                         .point_class_by_index(index)
                         .map_err(|_| undefined("null point class"))?;
                     if pc.point_class() == PointClassType::Vertex {
-                        let existing = ignored(pc.find_obj_point_3d(&geom))?.unwrap_or(Vec3::UNDEF);
+                        let existing = ignored(pc.find_obj_point_3d(&geom))?
+                            .ok_or(undefined("uninitialised vertex point"))?;
                         if existing.z >= vert_pnt.z {
                             continue; // Just ignore this one.
                         }

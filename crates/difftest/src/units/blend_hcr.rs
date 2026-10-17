@@ -3,34 +3,48 @@
 //!
 //! The C++ side builds a real `SmBrep` (the B-rep blocks of unit `topology.vertexuse`:
 //! upstream test files, a wire edge, a face from a B-spline or plane surface, the wire
-//! network), constructs an `SmHCR` on it from a view vector or a view placement, seeds
-//! silhouette edges (the silhouette branch of `ComputeSilhouettes`' edge loop) and
-//! back-facing edges, and runs one member. It exports the scene B-rep
-//! (`GetSceneBrep()`, the copy transformed by the unported `SmBrep` copy constructor and
-//! `Transform`) with its `CalculateBoundingBox` (unit `query.brep`, unported); the Rust
-//! side imports that scene record by record (the `topology.vertexuse` importer), builds
-//! its HCR with [`Hcr::from_scene`], seeds the same edges and runs the same member.
+//! network), optionally adds a second wire edge, constructs an `SmHCR` on it from a view
+//! vector or a view placement, seeds silhouette edges (the silhouette branch of
+//! `ComputeSilhouettes`' edge loop) and back-facing edges, and runs one member. It
+//! exports the scene B-rep (`GetSceneBrep()`, the copy transformed by the unported
+//! `SmBrep` copy constructor and `Transform`) with its `CalculateBoundingBox` (unit
+//! `query.brep`, unported); the Rust side imports that scene record by record (the
+//! `topology.vertexuse` importer), builds its HCR with [`Hcr::from_scene`], seeds the same
+//! edges and runs the same member. Both sides first build the scene (shim op 8) and check
+//! the seeds and op arguments against it with the same `ffi::validate`.
 //!
 //! Compared: the construction state (transforms, projection box, ray offset tolerance,
 //! view vector, options), `IsSilhouetteEdge` / `IsBackFacingEdge`, the intervals and
 //! point classes of `IntersectCurveWithSilhouettes` / `ComputeCurveVisibility`, the
 //! visible and hidden curve pieces of `ComputeEdgeVisibility` (natural interval and 5
 //! points each), `GetSilhouetteEdges` (sorted: upstream iterates a pointer hash) and
-//! `IsPointVisible`. Status `-2` marks an upstream path that is undefined (UB-170, null
-//! topology): the shim does not run it and the port returns `InvalidInput`. Ops whose
-//! edge curves (or, for op 5, face surfaces) the importer cannot hold exactly (an
-//! `SmEllipse` edge curve is imported as its B-spline part) report `inexact` on both
-//! sides.
+//! `IsPointVisible`. The classifications of ops 3 and 4 are built with
+//! [`new_curve_classification`], the co-port of the constructor `ComputeEdgeVisibility`
+//! uses, against the C++ `SmCurveClassification(curve, ivl, NULL, tol, 64, data)`.
+//!
+//! The crossing fixtures are two closed wire loops (degree 1 or 3 B-splines) at
+//! different heights, seen along +Z or a slight tilt: the projection of the second loop
+//! crosses the first in front of or behind it, overlaps it along a side (range
+//! solutions), or puts a vertex over a side's interior, so the classifications get two or
+//! more intervals and `ComputeEdgeVisibility` several pieces. Generated B-rep blocks are
+//! also scaled by 1e-4 and 1e4, and a face on a surface closed in u (seam edge) is
+//! generated.
+//!
+//! Status `-2` marks an upstream path that is undefined (UB-170, null topology): the
+//! shim does not run it and the port returns `InvalidInput`. Ops whose edge curves (or,
+//! for op 5, face surfaces) the importer cannot hold exactly (an `SmEllipse` edge curve
+//! is imported as its B-spline part) report `inexact_geometry` on both sides, decided
+//! from the same export.
 //!
 //! `ComputeSilhouettes` and `ComputeGlobalVisibility` are not run: their first statement
 //! is a `topology.brep_p1` query (every case would defer), and their C++ path reaches
 //! UB-170 on open silhouette chains.
 
-use super::topology_vertexuse::{gen_brep, import, path_of, push_curve, push_surface, sel, BrepIn};
+use super::topology_vertexuse::{gen_brep, import, path_of, push_curve, push_surface, sel, BrepIn, CrvIn};
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use solidcore::blend::hcr::{view_transform_for_vector, Hcr, HcrObject, HcrOptions};
+use solidcore::blend::hcr::{new_curve_classification, view_transform_for_vector, Hcr, HcrObject, HcrOptions};
 use solidcore::curve::curve::p2::{BSPLINE_CURVE_TYPE, LINE_TYPE};
 use solidcore::curve::curve::Curve;
 use solidcore::geom::axis2_placement::Axis2Placement;
@@ -65,9 +79,19 @@ enum OpIn {
     PointVisible { p: [f64; 3] },
 }
 
+/// A wire edge added to the B-rep (`CreateWireEdgeFromCurve`).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ExtraIn {
+    curve: CrvIn,
+    t0: f64,
+    t1: f64,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Inputs {
     brep: BrepIn,
+    #[serde(default)]
+    extra: Option<ExtraIn>,
     /// View vector (mode 0) or the placement origin (mode 1).
     view: [f64; 3],
     /// Placement `Z`, `Xref` (mode 1).
@@ -118,7 +142,28 @@ fn brep_block(b: &BrepIn) -> Result<Vec<f64>, HarnessError> {
     Ok(v)
 }
 
-/// Selectors resolved against the fixture's edge and vertex counts.
+/// The extra wire and view part of the input.
+fn hcr_block(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
+    let mut v = Vec::new();
+    match &i.extra {
+        None => v.push(0.0),
+        Some(x) => {
+            v.push(1.0);
+            push_curve(&mut v, &x.curve)?;
+            v.extend([x.t0, x.t1]);
+        }
+    }
+    v.push(if i.placement.is_some() { 1.0 } else { 0.0 });
+    v.extend(i.view);
+    if let Some([z, x]) = i.placement {
+        v.extend(z);
+        v.extend(x);
+    }
+    v.extend([i.approx_tol, i.ang_tol, flag(i.seams), flag(i.smooth)]);
+    Ok(v)
+}
+
+/// Selectors resolved against the scene's edge and vertex counts.
 struct Resolved {
     sil: Vec<i64>,
     back: Vec<i64>,
@@ -147,7 +192,7 @@ fn resolve(i: &Inputs, n_e: usize, n_v: usize) -> Option<Resolved> {
         }
         OpIn::EdgeVisibility { edge, vertex, visible, premark } => OpIn::EdgeVisibility {
             edge: e(edge),
-            vertex: if vertex < 0 { -1 } else { sel(vertex, n_v) },
+            vertex: if vertex < 0 || n_v == 0 { -1 } else { sel(vertex, n_v) },
             visible,
             premark,
         },
@@ -173,78 +218,56 @@ fn op_args(op: &OpIn) -> (u8, Vec<f64>) {
     }
 }
 
-fn hcr_block(i: &Inputs, r: &Resolved) -> Vec<f64> {
-    let mut v = Vec::new();
-    match i.placement {
-        None => v.push(0.0),
-        Some(_) => v.push(1.0),
-    }
-    v.extend(i.view);
-    if let Some([z, x]) = i.placement {
-        v.extend(z);
-        v.extend(x);
-    }
-    v.extend([i.approx_tol, i.ang_tol, flag(i.seams), flag(i.smooth)]);
-    v.push(r.sil.len() as f64);
+/// The seeds and op arguments.
+fn ops_block(r: &Resolved) -> (u8, Vec<f64>) {
+    let (op, args) = op_args(&r.op);
+    let mut v = vec![r.sil.len() as f64];
     v.extend(r.sil.iter().map(|&x| x as f64));
     v.push(r.back.len() as f64);
     v.extend(r.back.iter().map(|&x| x as f64));
-    v
+    v.extend(args);
+    (op, v)
 }
 
-/// Builds the fixture, resolves the selectors, and runs shim op `op` (`None`: the op of
-/// the case).
-fn call(i: &Inputs, scene_only: bool) -> Result<Result<(Resolved, Vec<f64>), String>, HarnessError> {
+/// What both sides compute before running: the scene (shim op 8), the resolved
+/// selectors and the op block, validated against the scene.
+struct Prepared {
+    path: String,
+    brep: Vec<f64>,
+    hcr: Vec<f64>,
+    scene: Vec<f64>,
+    r: Resolved,
+    op: u8,
+    ops: Vec<f64>,
+}
+
+/// [`Prepared`], or the label of a rejection both sides report identically.
+fn prepare(i: &Inputs) -> Result<Result<Prepared, String>, HarnessError> {
     let path = path_of(&i.brep)?;
-    let block = brep_block(&i.brep)?;
-    let ex = match fixture::eval(fixture::Op::Export, &path, &block) {
-        Ok(ex) => ex,
+    let brep = brep_block(&i.brep)?;
+    let hcr = hcr_block(i)?;
+    let scene = match ffi::scene(&path, &brep, &hcr) {
+        Ok(s) => s,
         Err(e) => return Ok(Err(format!("rejected: {e}"))),
     };
-    let Some(c) = fixture::counts(&ex) else {
-        return Ok(Err("build_failed".into()));
-    };
+    let s = ffi::split(&scene).ok_or_else(|| harness("short scene output"))?;
+    let c = fixture::counts(s.export).ok_or_else(|| harness("scene export"))?;
     let Some(r) = resolve(i, c[7], c[9]) else {
         return Ok(Err("no_edge".into()));
     };
-    let (op, args) = op_args(&r.op);
-    let mut rest = hcr_block(i, &r);
-    let op = if scene_only {
-        8
-    } else {
-        rest.extend(args);
-        op
-    };
-    match ffi::eval(op, &path, &block, &rest) {
-        Ok(v) => Ok(Ok((r, v))),
-        Err(e) => Ok(Err(format!("rejected: {e}"))),
+    let (op, ops) = ops_block(&r);
+    if let Err(e) = ffi::validate(op, &scene, &ops) {
+        return Ok(Err(format!("rejected: {e}")));
     }
-}
-
-/// `(status, record, edge curve types, scene box, scene export)` of a shim output.
-/// A split shim output.
-type Split<'a> = (f64, &'a [f64], &'a [f64], Extent3d, &'a [f64]);
-
-fn split(v: &[f64]) -> Result<Split<'_>, HarnessError> {
-    let short = || harness("short output");
-    let status = *v.first().ok_or_else(short)?;
-    let len = *v.get(1).ok_or_else(short)? as usize;
-    let record = v.get(2..2 + len).ok_or_else(short)?;
-    let n_e = *v.get(2 + len).ok_or_else(short)? as usize;
-    let at = 3 + len;
-    let types = v.get(at..at + n_e).ok_or_else(short)?;
-    let &[x0, y0, z0, x1, y1, z1] = v.get(at + n_e..at + n_e + 6).ok_or_else(short)? else {
-        return Err(short());
-    };
-    let (lo, hi) = (Vec3::new(x0, y0, z0), Vec3::new(x1, y1, z1));
-    let scene_box = if lo.x <= hi.x && lo.y <= hi.y && lo.z <= hi.z {
-        Extent3d::from_points(lo, hi)
-    } else if Extent3d::new().min() == lo && Extent3d::new().max() == hi {
-        Extent3d::new()
-    } else {
-        return Err(harness("scene box neither ordered nor empty"));
-    };
-    Ok((status, record, types, scene_box, v.get(at + n_e + 6..).ok_or_else(short)?))
+    Ok(Ok(Prepared {
+        path,
+        brep,
+        hcr,
+        scene,
+        r,
+        op,
+        ops,
+    }))
 }
 
 fn exact_curve(types: &[f64], e: i64) -> bool {
@@ -274,33 +297,50 @@ impl UnitDiff for Runner {
 
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
-        let (r, v) = match call(&i, false)? {
-            Ok(x) => x,
+        let p = match prepare(&i)? {
+            Ok(p) => p,
             Err(msg) => return Ok(Output::err(msg)),
         };
-        let (status, record, types, _, ex) = split(&v)?;
-        let (_, exact_faces) = import(ex)?;
-        if inexact(&r, types, &exact_faces) {
-            return Ok(Output::err("inexact"));
+        let s = ffi::split(&p.scene).ok_or_else(|| harness("short scene output"))?;
+        let (_, exact_faces) = import(s.export)?;
+        if inexact(&p.r, s.curve_types, &exact_faces) {
+            return Ok(Output::err("inexact_geometry"));
         }
-        Ok(output(status, record.to_vec()))
+        let v = match ffi::eval(p.op, &p.path, &p.brep, &p.hcr, &p.ops) {
+            Ok(v) => v,
+            Err(e) => return Ok(Output::err(format!("rejected: {e}"))),
+        };
+        let o = ffi::split(&v).ok_or_else(|| harness("short output"))?;
+        Ok(output(o.status, o.record.to_vec()))
     }
 
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
-        let (r, v) = match call(&i, true)? {
-            Ok(x) => x,
+        let p = match prepare(&i)? {
+            Ok(p) => p,
             Err(msg) => return Ok(Output::err(msg)),
         };
-        let (_, _, types, scene_box, ex) = split(&v)?;
-        let (scene, exact_faces) = import(ex)?;
-        if inexact(&r, types, &exact_faces) {
-            return Ok(Output::err("inexact"));
+        let s = ffi::split(&p.scene).ok_or_else(|| harness("short scene output"))?;
+        let (scene, exact_faces) = import(s.export)?;
+        if inexact(&p.r, s.curve_types, &exact_faces) {
+            return Ok(Output::err("inexact_geometry"));
         }
-        match run_rust(&i, &r, scene, scene_box) {
+        let [x0, y0, z0, x1, y1, z1] = s.scene_box;
+        let (lo, hi) = (Vec3::new(x0, y0, z0), Vec3::new(x1, y1, z1));
+        let scene_box = if lo.x <= hi.x && lo.y <= hi.y && lo.z <= hi.z {
+            Extent3d::from_points(lo, hi)
+        } else if Extent3d::new().min() == lo && Extent3d::new().max() == hi {
+            Extent3d::new()
+        } else {
+            return Err(harness("scene box neither ordered nor empty"));
+        };
+        match run_rust(&i, &p.r, scene, scene_box) {
             Ok((status, record)) => Ok(output(status, record)),
             Err(e) => Ok(Output::unported(&e).unwrap_or_else(|| match e {
-                SolidError::InvalidInput { operation: "blend::hcr", .. } => output(-2.0, vec![]),
+                SolidError::InvalidInput {
+                    operation: "blend::hcr",
+                    ..
+                } => output(-2.0, vec![]),
                 SolidError::Upstream { code, .. } => output(f64::from(code), vec![]),
                 other => Output::err(format!("rust_error: {other}")),
             })),
@@ -314,7 +354,7 @@ impl UnitDiff for Runner {
     fn cases(&self, ctx: &CaseContext) -> Result<Vec<Case>, HarnessError> {
         let ctx = CaseContext {
             root: ctx.root.clone(),
-            seeds: ctx.seeds.max(300),
+            seeds: ctx.seeds.max(400),
         };
         crate::runner::default_cases(self, &ctx)
     }
@@ -420,9 +460,9 @@ fn run_rust(i: &Inputs, r: &Resolved, scene: Brep, scene_box: Extent3d) -> Resul
         OpIn::Intersect { edge, fa, fb } | OpIn::CurveVisibility { edge, fa, fb, .. } => {
             let e = eid(edge);
             let ivl = edge::interval(h.scene_brep(), e)?;
-            let ivl = Extent1d::from_raw(ivl.evaluate(fa), ivl.evaluate(fb));
+            let ivl = Extent1d::from_min_max(ivl.evaluate(fa), ivl.evaluate(fb));
             let tol = edge::tolerance(h.scene_brep(), e)?;
-            let mut cc = CurveClassification::with_curve_interval(&k, HcrObject::Curve(e), ivl, tol);
+            let mut cc = new_curve_classification(&k, HcrObject::Curve(e), ivl, tol);
             let res = match r.op {
                 OpIn::CurveVisibility { start_hint, end_hint, .. } => {
                     h.compute_curve_visibility(&k, &mut cc, u64::from(start_hint), u64::from(end_hint))
@@ -469,24 +509,179 @@ fn run_rust(i: &Inputs, r: &Resolved, scene: Brep, scene_box: Extent3d) -> Resul
 
 // ---- generation -------------------------------------------------------------------------
 
-fn gen_case(rng: &mut Rng) -> Value {
-    let brep = gen_brep(rng);
-    let scale = *rng.choose(&[1e-4, 1.0, 1.0, 1.0, 1e4]).unwrap_or(&1.0);
-    let view = match rng.below(6) {
-        0 => [0.0, 0.0, 1.0],
-        1 => [0.0, 0.0, -1.0],
-        2 => [1.0, 0.0, 0.0],
-        3 => [0.0, 1e-13, 0.0],
-        _ => {
-            let p = rng.point3(-1.0, 1.0);
-            [p[0] * scale, p[1] * scale, p[2] * scale + 1e-3]
+/// A closed loop through the corners `pts` (the first repeated at the end): a clamped
+/// degree-1 B-spline, or a degree-3 one on the same control polygon.
+fn loop_curve(pts: &[[f64; 3]], cubic: bool) -> Value {
+    let mut cpts: Vec<[f64; 4]> = pts.iter().map(|p| [p[0], p[1], p[2], 1.0]).collect();
+    if let Some(&f) = cpts.first() {
+        cpts.push(f);
+    }
+    let p: usize = if cubic { 3 } else { 1 };
+    let interior = cpts.len().saturating_sub(p + 1);
+    let mut u = vec![0.0; p + 1];
+    u.extend((1..=interior).map(|j| j as f64 / (interior + 1) as f64));
+    u.extend(vec![1.0; p + 1]);
+    json!({"dim": 3, "cpts": cpts, "p": p, "u": u})
+}
+
+/// Scales the points of a generated B-rep block (curve control points, surface net,
+/// plane origin) by `s`.
+fn scale_brep(b: &mut Value, s: f64) {
+    let scale_pt = |p: &mut Value| {
+        if let Some(a) = p.as_array_mut() {
+            for c in a.iter_mut().take(3) {
+                if let Some(x) = c.as_f64() {
+                    if x.abs() < 1e300 {
+                        *c = json!(x * s);
+                    }
+                }
+            }
         }
     };
-    let placement = rng.chance(0.25).then(|| {
+    if let Some(pts) = b.pointer_mut("/curve/cpts").and_then(Value::as_array_mut) {
+        pts.iter_mut().for_each(scale_pt);
+    }
+    if let Some(rows) = b.pointer_mut("/surface/bspline/net").and_then(Value::as_array_mut) {
+        for row in rows.iter_mut() {
+            if let Some(r) = row.as_array_mut() {
+                r.iter_mut().for_each(scale_pt);
+            }
+        }
+    }
+    if let Some(o) = b.pointer_mut("/surface/plane/o") {
+        scale_pt(o);
+    }
+}
+
+/// A face on a B-spline surface closed in u (a square tube, degree 1): its loop has a
+/// seam edge.
+fn periodic_face(s: f64) -> Value {
+    let ring = [[1.0, 0.0], [0.0, 1.0], [-1.0, 0.0], [0.0, -1.0], [1.0, 0.0]];
+    let net: Vec<Vec<[f64; 4]>> = ring
+        .iter()
+        .map(|[x, y]| vec![[x * s, y * s, 0.0, 1.0], [x * s, y * s, s, 1.0]])
+        .collect();
+    json!({"kind": "face", "surface": {"bspline": {"net": net, "p": 1, "q": 1,
+        "u": [0.0, 0.0, 0.25, 0.5, 0.75, 1.0, 1.0], "v": [0.0, 0.0, 1.0, 1.0]}},
+        "dom": [0.0, 0.0, 1.0, 1.0]})
+}
+
+fn gen_view(rng: &mut Rng) -> (Value, Option<Value>) {
+    let view = match rng.below(16) {
+        0 => json!([0.0, 0.0, 1.0]),
+        1 => json!([0.0, 0.0, -1.0]),
+        2 => json!([1.0, 0.0, 0.0]),
+        3 => json!([0.0, 1e-13, 0.0]),
+        4 => json!([1e200, 0.0, 0.0]), // UB-169 (overflowing squared length): rejected
+        _ => {
+            let p = rng.point3(-1.0, 1.0);
+            let s = *rng.choose(&[1e-4, 1.0, 1e4]).unwrap_or(&1.0);
+            json!([p[0] * s, p[1] * s, p[2] * s + 1e-3])
+        }
+    };
+    let placement = rng.chance(0.2).then(|| {
         let z = rng.point3(-1.0, 1.0);
         let x = if rng.chance(0.2) { z } else { rng.point3(-1.0, 1.0) };
-        [[z[0], z[1], z[2] + 0.01], [x[0], x[1], x[2]]]
+        json!([[z[0], z[1], z[2] + 0.01], [x[0], x[1], x[2]]])
     });
+    (view, placement)
+}
+
+fn gen_op(rng: &mut Rng, edge: i64, crossing: bool) -> Value {
+    let (fa, fb) = if rng.chance(0.6) {
+        (0.0, 1.0)
+    } else {
+        let a = rng.uniform(0.0, 0.6);
+        (a, a + rng.uniform(0.1, 0.4))
+    };
+    let hint = |rng: &mut Rng| *rng.choose(&[0u8, 1, 1, 1, 2]).unwrap_or(&1);
+    let vertex = if rng.chance(0.3) { -1 } else { rng.below(1 << 20) as i64 };
+    let pick = if crossing { 2 + rng.below(12) } else { rng.below(16) };
+    match pick {
+        0 | 1 => json!({"op": "construct"}),
+        2 => json!({"op": "is_silhouette", "edge": edge}),
+        3 => json!({"op": "is_back_facing", "edge": edge}),
+        4..=7 => json!({"op": "intersect", "edge": edge, "fa": fa, "fb": fb}),
+        8 | 9 => json!({"op": "curve_visibility", "edge": edge, "fa": fa, "fb": fb,
+                         "start_hint": hint(rng), "end_hint": hint(rng)}),
+        10..=13 => json!({"op": "edge_visibility", "edge": edge, "vertex": vertex,
+                           "visible": rng.chance(0.8), "premark": rng.chance(0.1)}),
+        14 => json!({"op": "silhouette_edges"}),
+        _ => {
+            let p = rng.point3(-2.0, 2.0);
+            json!({"op": "point_visible", "p": p})
+        }
+    }
+}
+
+/// Two closed wire loops: the B-rep's (z = 0) and an extra one whose projection along
+/// +Z crosses it in front of or behind it, overlaps a side, or has a vertex over a
+/// side's interior.
+fn gen_crossing(rng: &mut Rng) -> Value {
+    let s = *rng.choose(&[1e-4, 1.0, 1.0, 1e4]).unwrap_or(&1.0);
+    let sc = |p: [f64; 3]| [p[0] * s, p[1] * s, p[2] * s];
+    let base: Vec<[f64; 3]> = [[0.0, 0.0, 0.0], [2.0, 0.0, 0.0], [2.0, 2.0, 0.0], [0.0, 2.0, 0.0]]
+        .into_iter()
+        .map(sc)
+        .collect();
+    let variant = rng.below(3);
+    let mut z = || *rng.choose(&[-1.0, -0.5, 0.5, 1.0, 2.0]).unwrap_or(&1.0);
+    let other: Vec<[f64; 3]> = match variant {
+        0 => [[1.0, 1.0, z()], [3.0, 1.0, z()], [3.0, 3.0, z()], [1.0, 3.0, z()]].to_vec(),
+        1 => {
+            let h = z();
+            [[1.0, 0.0, h], [3.0, 0.0, h], [3.0, 2.0, h], [1.0, 2.0, h]].to_vec()
+        }
+        _ => [[1.5, 0.5, z()], [3.0, 0.5, z()], [3.0, 3.0, z()], [1.5, 3.0, z()]].to_vec(),
+    }
+    .into_iter()
+    .map(sc)
+    .collect();
+    let cubic = rng.chance(0.3);
+    let brep = json!({"kind": "wire", "curve": loop_curve(&base, cubic), "t0": 0.0, "t1": 1.0});
+    let extra = json!({"curve": loop_curve(&other, rng.chance(0.3)), "t0": 0.0, "t1": 1.0});
+    let view = if rng.chance(0.8) {
+        json!([0.0, 0.0, 1.0])
+    } else {
+        json!([rng.uniform(-0.05, 0.05), rng.uniform(-0.05, 0.05), 1.0])
+    };
+    let sil: Vec<i64> = match rng.below(3) {
+        0 => vec![-1],
+        1 => vec![0],
+        _ => vec![1],
+    };
+    let edge = rng.below(2) as i64;
+    let mut v = json!({
+        "brep": brep, "extra": extra, "view": view,
+        "approx_tol": *rng.choose(&[1e-6, 1e-3]).unwrap_or(&1e-3), "ang_tol": 0.2,
+        "seams": true, "smooth": true, "sil": sil, "back": [],
+    });
+    merge(&mut v, gen_op(rng, edge, true));
+    v
+}
+
+fn merge(v: &mut Value, extra: Value) {
+    if let (Some(o), Some(map)) = (extra.as_object(), v.as_object_mut()) {
+        for (key, val) in o {
+            map.insert(key.clone(), val.clone());
+        }
+    }
+}
+
+fn gen_case(rng: &mut Rng) -> Value {
+    if rng.chance(0.45) {
+        return gen_crossing(rng);
+    }
+    let scale = *rng.choose(&[1e-4, 1.0, 1.0, 1.0, 1e4]).unwrap_or(&1.0);
+    let mut brep = if rng.chance(0.15) {
+        periodic_face(1.0)
+    } else {
+        json!(gen_brep(rng))
+    };
+    if brep.get("kind").and_then(Value::as_str) != Some("file") {
+        scale_brep(&mut brep, scale);
+    }
+    let (view, placement) = gen_view(rng);
     let sil: Vec<i64> = match rng.below(4) {
         0 => vec![],
         1 => vec![-1],
@@ -494,29 +689,6 @@ fn gen_case(rng: &mut Rng) -> Value {
     };
     let back: Vec<i64> = (0..rng.below(3)).map(|_| rng.below(1 << 20) as i64).collect();
     let edge = rng.below(1 << 20) as i64;
-    let (fa, fb) = if rng.chance(0.5) {
-        (0.0, 1.0)
-    } else {
-        let a = rng.uniform(0.0, 0.6);
-        (a, a + rng.uniform(0.1, 0.4))
-    };
-    let hint = |rng: &mut Rng| *rng.choose(&[0u8, 1, 1, 2]).unwrap_or(&1);
-    let op = match rng.below(16) {
-        0 | 1 => json!({"op": "construct"}),
-        2 | 3 => json!({"op": "is_silhouette", "edge": edge}),
-        4 | 5 => json!({"op": "is_back_facing", "edge": edge}),
-        6..=8 => json!({"op": "intersect", "edge": edge, "fa": fa, "fb": fb}),
-        9 | 10 => json!({"op": "curve_visibility", "edge": edge, "fa": fa, "fb": fb,
-                          "start_hint": hint(rng), "end_hint": hint(rng)}),
-        11..=13 => json!({"op": "edge_visibility", "edge": edge,
-                          "vertex": if rng.chance(0.5) { -1 } else { rng.below(1 << 20) as i64 },
-                          "visible": rng.chance(0.5), "premark": rng.chance(0.2)}),
-        14 => json!({"op": "silhouette_edges"}),
-        _ => {
-            let p = rng.point3(-2.0, 2.0);
-            json!({"op": "point_visible", "p": p})
-        }
-    };
     let mut v = json!({
         "brep": brep,
         "view": view,
@@ -527,13 +699,9 @@ fn gen_case(rng: &mut Rng) -> Value {
         "sil": sil,
         "back": back,
     });
-    if let (Some(o), Some(map)) = (op.as_object(), v.as_object_mut()) {
-        if let Some(p) = placement {
-            map.insert("placement".into(), json!(p));
-        }
-        for (key, val) in o {
-            map.insert(key.clone(), val.clone());
-        }
+    if let (Some(p), Some(map)) = (placement, v.as_object_mut()) {
+        map.insert("placement".into(), p);
     }
+    merge(&mut v, gen_op(rng, edge, false));
     v
 }
