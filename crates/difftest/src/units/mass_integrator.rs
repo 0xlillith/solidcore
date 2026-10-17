@@ -406,7 +406,8 @@ fn geometry_rust(g: &Geometry) -> Output {
                     return match r {
                         Err(e) if e.is_unported() => Err(e),
                         _ => Err(SolidError::Unported {
-                            upstream: "mass.integrator runner: no Rust face for the aggregate queries",
+                            upstream:
+                                "mass.integrator runner: no Rust face for the aggregate queries",
                             unit: "harness:mass.integrator-face-construction",
                         }),
                     };

@@ -43,7 +43,9 @@ use solidcore::heal::heal_data::p2::{
 use solidcore::intersect::point_class::{ClassObject, ClassObjectKind};
 use solidcore::kernel::Kernel;
 use solidcore::topology::topology_traverser::Marks;
-use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, RegionId, VertexId, VertexuseId};
+use solidcore::topology::{
+    Brep, EdgeId, EdgeuseId, FaceId, LoopId, RegionId, VertexId, VertexuseId,
+};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::heal_heal_data_p2 as ffi;
 use solidcore_ffi::units::topology_vertexuse::counts;

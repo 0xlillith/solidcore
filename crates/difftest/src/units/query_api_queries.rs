@@ -292,8 +292,14 @@ fn imported(k: &Kernel, a: &[f64; 22], export_op: i32) -> std::result::Result<Br
         .ok_or_else(|| HarnessError::new("missing face count"))?;
     // the B-rep's face, edge and vertex lists in their list order follow the metadata
     let (n_e, n_v) = (
-        counts.get(7).copied().ok_or_else(|| HarnessError::new("missing edge count"))?,
-        counts.get(9).copied().ok_or_else(|| HarnessError::new("missing vertex count"))?,
+        counts
+            .get(7)
+            .copied()
+            .ok_or_else(|| HarnessError::new("missing edge count"))?,
+        counts
+            .get(9)
+            .copied()
+            .ok_or_else(|| HarnessError::new("missing vertex count"))?,
     );
     let lists_len = 3 + count + n_e + n_v;
     let lists_at = raw
@@ -674,12 +680,7 @@ fn topology(k: &Kernel, i: &Inputs, b: &Brep, second: &Brep) -> Result<Vec<f64>>
             objects.build(k)?;
             closest(
                 &mut o,
-                api::face_closest_point(
-                    k,
-                    &objects,
-                    (BrepId::from_index(0), face),
-                    point,
-                )?,
+                api::face_closest_point(k, &objects, (BrepId::from_index(0), face), point)?,
             );
         }
         21 => cclosest(

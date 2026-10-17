@@ -209,7 +209,9 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             }
             let mut brep = Brep::new();
             let a = brep.add_vertex(p3([0.0; 3])).map_err(|e| harness(&e))?;
-            let b = brep.add_vertex(p3([1.0, 0.0, 0.0])).map_err(|e| harness(&e))?;
+            let b = brep
+                .add_vertex(p3([1.0, 0.0, 0.0]))
+                .map_err(|e| harness(&e))?;
             let edges: Vec<EdgeId> = (0..*n_edges)
                 .map(|_| brep.add_edge(a, b))
                 .collect::<Result<_, _>>()
