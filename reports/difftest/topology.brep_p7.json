@@ -34,16 +34,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeTopologyFromData",
-        "unit": "cpp-guard:unvalidated-topology"
-      },
       "max_rel_err": 0.0,
       "name": "gen0003",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427438353069631912",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -54,12 +50,16 @@
       "values_compared": 1
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::MakeShellVertex",
+        "unit": "topology.brep_p9"
+      },
       "max_rel_err": 0.0,
       "name": "gen0005",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=16427438353069631914",
-      "values_compared": 8
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -70,21 +70,17 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeTopologyFromData",
-        "unit": "cpp-guard:unvalidated-topology"
-      },
       "max_rel_err": 0.0,
       "name": "gen0007",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427438353069631916",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0008",
@@ -94,16 +90,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
-      },
       "max_rel_err": 0.0,
       "name": "gen0009",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427438353069631918",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -114,52 +106,56 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeTopologyFromData",
-        "unit": "cpp-guard:unvalidated-topology"
-      },
       "max_rel_err": 0.0,
       "name": "gen0011",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=16427438353069631920",
+      "values_compared": 3
+    },
+    {
+      "deferred": {
+        "symbol": "SmCurve::DeformToEndPointTargets (pOptSurfCrvOnSurf)",
+        "unit": "curve.curve_p6"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0012",
       "outcome": "deferred",
       "pass": false,
-      "source": "generated:seed=16427438353069631920",
+      "source": "generated:seed=16427438353069631921",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeFaceWithCurves",
+        "unit": "cpp-guard:ub-165"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0013",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=16427438353069631922",
       "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
-      "name": "gen0012",
+      "name": "gen0014",
       "outcome": "pass",
       "pass": true,
-      "source": "generated:seed=16427438353069631921",
+      "source": "generated:seed=16427438353069631923",
       "values_compared": 8
     },
     {
-      "max_rel_err": 0.0,
-      "name": "gen0013",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=16427438353069631922",
-      "values_compared": 1
-    },
-    {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::SetTolerance",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
-      "name": "gen0014",
+      "name": "gen0015",
       "outcome": "deferred",
       "pass": false,
-      "source": "generated:seed=16427438353069631923",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0015",
-      "outcome": "pass",
-      "pass": true,
       "source": "generated:seed=16427438353069631924",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -3007,19 +3003,18 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 119,
+  "cases_deferred": 118,
   "cases_failed": 0,
-  "cases_passed": 197,
+  "cases_passed": 198,
   "cases_total": 316,
   "deferred_by_unit": {
-    "cpp-guard:ub-165": 3,
-    "cpp-guard:unvalidated-topology": 3,
-    "curve.curve_p6": 1,
-    "topology.brep_p1": 10,
+    "cpp-guard:ub-165": 4,
+    "curve.curve_p6": 2,
+    "topology.brep_p1": 11,
     "topology.brep_p10": 30,
-    "topology.brep_p2": 49,
+    "topology.brep_p2": 50,
     "topology.brep_p6": 1,
-    "topology.brep_p9": 22
+    "topology.brep_p9": 20
   },
   "max_rel_err": 0.0,
   "pass": true,

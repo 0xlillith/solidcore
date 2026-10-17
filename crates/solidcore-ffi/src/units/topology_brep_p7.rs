@@ -192,7 +192,9 @@ fn curve(rd: &mut Reader<'_>) -> Result<(), FfiError> {
         return Err(bad("curve: need 1 <= p <= n, m = n+p+1"));
     }
     points(rd, n + 1, dim == 2)?;
-    let knots = (0..=m).map(|_| rd.finite()).collect::<Result<Vec<_>, _>>()?;
+    let knots = (0..=m)
+        .map(|_| rd.finite())
+        .collect::<Result<Vec<_>, _>>()?;
     check_knots(&knots, p)
 }
 
@@ -216,11 +218,17 @@ fn surface(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     let r = rd.index(MAX_INDEX + MAX_DEGREE + 1)?;
     let s = rd.index(MAX_INDEX + MAX_DEGREE + 1)?;
     if p == 0 || p > n || q == 0 || q > m || r != n + p + 1 || s != m + q + 1 {
-        return Err(bad("surface: need 1 <= p <= n, 1 <= q <= m, r = n+p+1, s = m+q+1"));
+        return Err(bad(
+            "surface: need 1 <= p <= n, 1 <= q <= m, r = n+p+1, s = m+q+1",
+        ));
     }
     points(rd, (n + 1) * (m + 1), false)?;
-    let u = (0..=r).map(|_| rd.finite()).collect::<Result<Vec<_>, _>>()?;
-    let v = (0..=s).map(|_| rd.finite()).collect::<Result<Vec<_>, _>>()?;
+    let u = (0..=r)
+        .map(|_| rd.finite())
+        .collect::<Result<Vec<_>, _>>()?;
+    let v = (0..=s)
+        .map(|_| rd.finite())
+        .collect::<Result<Vec<_>, _>>()?;
     check_knots(&u, p)?;
     check_knots(&v, q)
 }

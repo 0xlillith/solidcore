@@ -230,12 +230,21 @@ fn push_surface(v: &mut Vec<f64>, s: &SrfIn) {
             v.extend(o);
             v.extend(n);
         }
-        SrfIn::Bspline { net, p, q, u, v: vk } => {
+        SrfIn::Bspline {
+            net,
+            p,
+            q,
+            u,
+            v: vk,
+        } => {
             let n = net.len().saturating_sub(1);
             let m = net.first().map_or(0, |r| r.len().saturating_sub(1));
             v.extend([0.0, 0.0, 0.0]);
             v.extend([n as f64, m as f64, *p as f64, *q as f64]);
-            v.extend([(u.len().saturating_sub(1)) as f64, (vk.len().saturating_sub(1)) as f64]);
+            v.extend([
+                (u.len().saturating_sub(1)) as f64,
+                (vk.len().saturating_sub(1)) as f64,
+            ]);
             for row in net {
                 for pt in row {
                     v.extend(pt);
@@ -364,7 +373,8 @@ fn export_of(brep: &BrepIn) -> Result<Rc<Vec<f64>>, HarnessError> {
 /// when the case ends early (the B-rep did not build, or has nothing to select).
 #[allow(clippy::type_complexity)]
 fn resolve(i: &Inputs) -> Result<Result<(Inputs, Option<Rc<Vec<f64>>>), Output>, HarnessError> {
-    let (Inputs::Glue { brep, .. } | Inputs::Copy { brep, .. } | Inputs::MergeSelf { brep, .. }) = i
+    let (Inputs::Glue { brep, .. } | Inputs::Copy { brep, .. } | Inputs::MergeSelf { brep, .. }) =
+        i
     else {
         return Ok(Ok((i.clone(), None)));
     };
@@ -423,16 +433,26 @@ fn encode(i: &Inputs) -> Result<(Op, String, Vec<f64>, ReadOptions), HarnessErro
         } => {
             push_surface(&mut v, surface);
             v.extend(dom);
-            v.extend([f64::from(*orient), flag(*region_null), f64::from(*crv_on_surf)]);
+            v.extend([
+                f64::from(*orient),
+                flag(*region_null),
+                f64::from(*crv_on_surf),
+            ]);
             v.push(loops.len() as f64);
             v.extend(loops.iter().map(|&n| n as f64));
             v.extend([flag(*has3d), flag(*has_uv), curves.len() as f64]);
             for c in curves {
                 if *has3d {
-                    push_curve(&mut v, c.c3.as_ref().ok_or_else(|| harness("missing 3d curve"))?);
+                    push_curve(
+                        &mut v,
+                        c.c3.as_ref().ok_or_else(|| harness("missing 3d curve"))?,
+                    );
                 }
                 if *has_uv {
-                    push_curve(&mut v, c.uv.as_ref().ok_or_else(|| harness("missing uv curve"))?);
+                    push_curve(
+                        &mut v,
+                        c.uv.as_ref().ok_or_else(|| harness("missing uv curve"))?,
+                    );
                 }
                 v.push(f64::from(c.orient));
             }
@@ -448,7 +468,12 @@ fn encode(i: &Inputs) -> Result<(Op, String, Vec<f64>, ReadOptions), HarnessErro
             orient,
             region_null,
         } => {
-            v.extend([f64::from(*kind), *side, f64::from(*orient), flag(*region_null)]);
+            v.extend([
+                f64::from(*kind),
+                *side,
+                f64::from(*orient),
+                flag(*region_null),
+            ]);
             Op::MakeFace
         }
         Inputs::Glue {
@@ -459,7 +484,13 @@ fn encode(i: &Inputs) -> Result<(Op, String, Vec<f64>, ReadOptions), HarnessErro
             gap,
             nesting,
         } => {
-            v.extend([*e1 as f64, *e2 as f64, f64::from(*orient), *gap, flag(*nesting)]);
+            v.extend([
+                *e1 as f64,
+                *e2 as f64,
+                f64::from(*orient),
+                *gap,
+                flag(*nesting),
+            ]);
             v.extend(brep_block(brep)?);
             path = shared::path_of(brep)?;
             Op::Glue
@@ -552,12 +583,18 @@ fn rust_surface(s: &SrfIn) -> Result<Surface, HarnessError> {
         SrfIn::Bspline { net, p, q, u, v } => {
             let net = net
                 .iter()
-                .map(|r| r.iter().map(|x| CPoint::new(x[0], x[1], x[2], x[3])).collect())
+                .map(|r| {
+                    r.iter()
+                        .map(|x| CPoint::new(x[0], x[1], x[2], x[3]))
+                        .collect()
+                })
                 .collect();
             let nl = NlSurface::new(net, *p, *q, u.clone(), v.clone())
                 .map_err(|e| harness(format!("surface: {e}")))?;
             let mut s = BSplineSurface::from_nurb(nl, false);
-            s.set_b_spline_surface_form(BSplineSurfaceForm::from_code(0).ok_or_else(|| harness("form"))?);
+            s.set_b_spline_surface_form(
+                BSplineSurfaceForm::from_code(0).ok_or_else(|| harness("form"))?,
+            );
             Ok(Surface::from(s))
         }
     }
@@ -573,7 +610,10 @@ fn orient_of(code: u8) -> OrientType {
 
 fn key_of(e: EntityRef) -> ObjectRef {
     let (type_code, key) = match e {
-        EntityRef::Face(f) => (solidcore::topology::face::p2::TYPE, 1 + u64::from(f.index())),
+        EntityRef::Face(f) => (
+            solidcore::topology::face::p2::TYPE,
+            1 + u64::from(f.index()),
+        ),
         EntityRef::Edge(x) => (ed::TYPE, 1 << 40 | u64::from(x.index())),
         EntityRef::Edgeuse(x) => (16005, 2 << 40 | u64::from(x.index())),
         _ => (0, 3 << 40),
@@ -598,11 +638,26 @@ type Record = Result<Vec<f64>, Fail>;
 fn brep_counts(b: &Brep) -> [f64; 6] {
     [
         b.regions().iter().filter(|(_, r)| r.in_brep).count() as f64,
-        b.shells().iter().filter(|(_, s)| s.region.is_some()).count() as f64,
-        b.faces().iter().filter(|(_, f)| f.faceuse.is_some()).count() as f64,
-        b.loops().iter().filter(|(_, l)| l.loopuse.is_some()).count() as f64,
-        b.edges().iter().filter(|(_, e)| !e.edgeuses.is_empty()).count() as f64,
-        b.vertices().iter().filter(|(_, v)| !v.vertexuses.is_empty()).count() as f64,
+        b.shells()
+            .iter()
+            .filter(|(_, s)| s.region.is_some())
+            .count() as f64,
+        b.faces()
+            .iter()
+            .filter(|(_, f)| f.faceuse.is_some())
+            .count() as f64,
+        b.loops()
+            .iter()
+            .filter(|(_, l)| l.loopuse.is_some())
+            .count() as f64,
+        b.edges()
+            .iter()
+            .filter(|(_, e)| !e.edgeuses.is_empty())
+            .count() as f64,
+        b.vertices()
+            .iter()
+            .filter(|(_, v)| !v.vertexuses.is_empty())
+            .count() as f64,
     ]
 }
 
@@ -610,7 +665,11 @@ fn brep_counts(b: &Brep) -> [f64; 6] {
 fn new_face_record(b: &Brep, r: &Result<p7::NewFace, SolidError>) -> Record {
     let mut o = vec![status(r)?];
     if let Ok(nf) = r {
-        o.extend([flag(nf.face.is_some()), flag(nf.shell.is_some()), flag(nf.region.is_some())]);
+        o.extend([
+            flag(nf.face.is_some()),
+            flag(nf.shell.is_some()),
+            flag(nf.region.is_some()),
+        ]);
         o.extend(brep_counts(b));
     }
     Ok(o)
@@ -657,7 +716,10 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             // the shim's guard: upstream dereferences the null UV curve array once MakeFace
             // succeeds (the port returns InvalidInput there)
             if *crv_on_surf == 2 && !*has_uv && *has3d {
-                return Err(cpp_null_deref("cpp-guard:ub-165", "SmBrep::MakeFaceWithCurves"));
+                return Err(cpp_null_deref(
+                    "cpp-guard:ub-165",
+                    "SmBrep::MakeFaceWithCurves",
+                ));
             }
             let mut b = Brep::new();
             let region = if *region_null {
@@ -688,7 +750,8 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 loop_points: points.iter().map(|p| Vec3::new(p[0], p[1], p[2])).collect(),
             };
             let srf = rust_surface(surface)?;
-            let domain = Extent2d::from_points(Point2::new(dom[0], dom[1]), Point2::new(dom[2], dom[3]));
+            let domain =
+                Extent2d::from_points(Point2::new(dom[0], dom[1]), Point2::new(dom[2], dom[3]));
             let cos = match crv_on_surf {
                 0 => None,
                 1 => Some(false),
@@ -743,8 +806,12 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                         .map_err(hfail)?,
                 )
             };
-            let surface = (*kind == 1)
-                .then(|| Surface::from(Plane::from_normal(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 1.0))));
+            let surface = (*kind == 1).then(|| {
+                Surface::from(Plane::from_normal(
+                    Vec3::new(0.0, 0.0, 0.0),
+                    Vec3::new(0.0, 0.0, 1.0),
+                ))
+            });
             let dom = Extent2d::from_points(Point2::new(0.0, 0.0), Point2::new(1.0, 1.0));
             let r = p7::make_face(
                 k,
@@ -778,11 +845,17 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             // compare equal)
             if let (Some(a), Some(d)) = (eid(*e1), eid(*e2)) {
                 if a != d && !ed::is_wire(&b, d).map_err(hfail)? && *orient == 1 {
-                    let (ia, id) = (ed::interval(&b, a).map_err(hfail)?, ed::interval(&b, d).map_err(hfail)?);
-                    let one_null =
-                        b.edge(a).map_err(hfail)?.curve.is_none() != b.edge(d).map_err(hfail)?.curve.is_none();
+                    let (ia, id) = (
+                        ed::interval(&b, a).map_err(hfail)?,
+                        ed::interval(&b, d).map_err(hfail)?,
+                    );
+                    let one_null = b.edge(a).map_err(hfail)?.curve.is_none()
+                        != b.edge(d).map_err(hfail)?.curve.is_none();
                     if are_same(ia.min(), id.min()) && are_same(ia.max(), id.max()) && one_null {
-                        return Err(cpp_null_deref("cpp-guard:null-curve", "SmBrep::GlueEdgesGeneral"));
+                        return Err(cpp_null_deref(
+                            "cpp-guard:null-curve",
+                            "SmBrep::GlueEdgesGeneral",
+                        ));
                     }
                 }
             }
@@ -952,20 +1025,21 @@ fn face_cases() -> Vec<Inputs> {
         }
     }
     // input errors: no curves, no loops, degenerate surfaces, all curves degenerate
-    let base = |loops: Vec<usize>, has3d: bool, has_uv: bool, curves: Vec<FaceCurveIn>, srf: SrfIn| {
-        Inputs::MakeFaceWithCurves {
-            surface: srf,
-            dom: [0.0, 0.0, 10.0, 10.0],
-            orient: 1,
-            region_null: false,
-            crv_on_surf: 0,
-            loops,
-            has3d,
-            has_uv,
-            curves,
-            points: Vec::new(),
-        }
-    };
+    let base =
+        |loops: Vec<usize>, has3d: bool, has_uv: bool, curves: Vec<FaceCurveIn>, srf: SrfIn| {
+            Inputs::MakeFaceWithCurves {
+                surface: srf,
+                dom: [0.0, 0.0, 10.0, 10.0],
+                orient: 1,
+                region_null: false,
+                crv_on_surf: 0,
+                loops,
+                has3d,
+                has_uv,
+                curves,
+                points: Vec::new(),
+            }
+        };
     v.push(base(vec![], false, false, vec![], plane.clone()));
     v.push(base(vec![], true, false, vec![], plane.clone()));
     v.push(base(vec![4], false, false, Vec::new(), plane.clone()));
@@ -989,8 +1063,20 @@ fn face_cases() -> Vec<Inputs> {
         u: vec![0.0, 0.0, 1.0, 1.0],
         v: vec![0.0, 0.0, 1.0, 1.0],
     };
-    v.push(base(vec![4], true, false, square(1.0, 1.0, 8.0, true), flat));
-    v.push(base(vec![4], true, false, square(1.0, 1.0, 8.0, true), point));
+    v.push(base(
+        vec![4],
+        true,
+        false,
+        square(1.0, 1.0, 8.0, true),
+        flat,
+    ));
+    v.push(base(
+        vec![4],
+        true,
+        false,
+        square(1.0, 1.0, 8.0, true),
+        point,
+    ));
     v
 }
 
@@ -1152,9 +1238,20 @@ impl UnitDiff for Runner {
             };
             // ((0, 1), (0, 4) and (2, 5) include every distinct edge pair of the files that
             // shares both vertices: Mouse (0, 4) (2, 5); disk, surf_sphere150, torus, toruswvy (0, 1))
-            for (j, (e1, e2)) in [(-1, 0), (0, -1), (-1, -1), (0, 0), (3, 3), (0, 1), (1, 5), (2, 7), (0, 4), (2, 5)]
-                .into_iter()
-                .enumerate()
+            for (j, (e1, e2)) in [
+                (-1, 0),
+                (0, -1),
+                (-1, -1),
+                (0, 0),
+                (3, 3),
+                (0, 1),
+                (1, 5),
+                (2, 7),
+                (0, 4),
+                (2, 5),
+            ]
+            .into_iter()
+            .enumerate()
             {
                 push(
                     &mut v,
@@ -1208,9 +1305,13 @@ impl UnitDiff for Runner {
             o: [0.0, 0.0, 0.0],
             n: [0.0, 0.0, 1.0],
         };
-        for (j, (loops, curves)) in [(vec![4usize], sq.clone()), (vec![0], Vec::new()), (vec![3], sq.clone())]
-            .into_iter()
-            .enumerate()
+        for (j, (loops, curves)) in [
+            (vec![4usize], sq.clone()),
+            (vec![0], Vec::new()),
+            (vec![3], sq.clone()),
+        ]
+        .into_iter()
+        .enumerate()
         {
             for cos in [1u8, 2] {
                 push(
@@ -1251,7 +1352,10 @@ impl UnitDiff for Runner {
         )?;
         // a square too small for its lines (CreateLineSegment fails: -3 on both sides) and
         // the smallest side that still makes a face in C++
-        for (name, side) in [("make_face_tiny_1e-300", 1.0e-300), ("make_face_small_1e-12", 1.0e-12)] {
+        for (name, side) in [
+            ("make_face_tiny_1e-300", 1.0e-300),
+            ("make_face_small_1e-12", 1.0e-12),
+        ] {
             push(
                 &mut v,
                 name.to_string(),
