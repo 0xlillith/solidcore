@@ -6238,20 +6238,28 @@ independent p6 integration.
   remains for that reader's owner. The high-level trimmed-surface/circle/API
   intersection tests in the unit's call-graph list are not certified end to end.
 
-- **Validated subset and environment.** Functional source `f9fbbc97` on runner 2,
+- **Validated subset and environment.** Functional source `89a20913` on runner 2,
   Ubuntu 26.04 x86_64, Rust/rustdoc 1.98.0, GCC 15.2.0; one Cargo job under nice,
   standard difftest profile and C++ `-O2 -ffp-contract=off -fno-fast-math`.
   All 490 allowed upstream source/header files match `c9c5979`; existing reference
   libraries are reused. Rustdoc 1.98 is selected through `RUSTDOC` because the
   runner's system rustdoc is older; there are no repository platform/build changes.
-  Formatting, strict plain/native-enabled workspace Clippy, all 1,271 kernel
+  The first native executable rebuild exhausted the runner's 8 GiB RAM (kernel OOM-killed
+  rustc). Retrying with a temporary 4 GiB swap file preserves the standard build
+  profile; no compiler or numerical settings change. The swap file was disabled and
+  removed after compilation.
+  Formatting, strict plain/native-enabled workspace Clippy, all 1,282 kernel
   tests, WASM checking and two native safe-FFI tests pass. The eight affected
-  focused runs have no failures. Exact part 5 summaries:
+  focused runs have no failures. The complete `--green --no-report` gate passes
+  across all 200 green/partial units; `--status-of topology.brep_p5` reports
+  `partial`. Exact summaries:
 
   ```text
   PARTIAL topology.brep_p5 cases=724 passed=678 failed=0 deferred=46 max_rel_err=0e0 blocked_by=topology.brep_p1(10),topology.brep_p2(32),topology.brep_p4(2),topology.brep_p9(2)
   SENSITIVE topology.brep_p5 perturbed=678 detected=678 unperturbed=0 deferred=46
   PARTIAL topology.brep_p5 cases=4308 passed=4136 failed=0 deferred=172 max_rel_err=0e0 (--seeds 4096 --no-report)
+  difftest: 200 unit(s), 108 passed, 92 partial, 0 failed
+  --status-of topology.brep_p5: partial
   ```
 
   There are 212 unique fixtures and a minimum of 512 generated cases. The report's
@@ -6264,6 +6272,7 @@ independent p6 integration.
   real fixture paths/guards,
   input/collection safety, ownership and revision-specific coverage. No confirmed
   defect remains in the exercised subset; the handoffs above remain uncertified.
+
 ## topology.face_p1 (`SmFace.cpp` part 1: `MoveSeam`, `SplitAtSeam`, `CreateOrientedTrimBoundary`, `CalculateUVDomainFromUVTrimCurves`, ...; PR #148, 2026-10-16; partial, no disagreements)
 
 - **Mostly deferred by design.** Every mutating member starts with `SmFace::Notify`
