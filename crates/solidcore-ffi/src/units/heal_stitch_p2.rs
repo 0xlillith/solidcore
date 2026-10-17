@@ -26,10 +26,12 @@
 //! point and tolerance in list order.
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: the B-rep
-//! block rules of `heal.stitch_p1`, indices inside the B-rep's export, finite values,
-//! list counts up to [`MAX_LIST`], and a `VList` list without a repeated vertex (each
-//! copy of a coincident vertex is glued, the second one after it was freed: UB-171 in
-//! `plan/upstream-issues.md`). The `-3` guards are HANG-23 and HANG-24.
+//! block rules of `heal.stitch_p1`, indices inside the B-rep's export, finite values
+//! (any `Shell` `max_tol`: a non-finite one skips the doubling loop), list counts up to
+//! [`MAX_LIST`], and a `VList` list without a repeated vertex (each copy of a coincident
+//! vertex is glued, the second one after it was freed: UB-171 in
+//! `plan/upstream-issues.md`). The `-3` guards are HANG-23 and HANG-24 (a zero or
+//! negative B-rep tolerance).
 
 use crate::units::topology_brep_p1::counts;
 use crate::units::topology_edgeuse_p1::{bad, brep_block, face_block, Reader, MAX_LIST};
@@ -128,9 +130,10 @@ fn op_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError> 
             rd.flag()?;
             list(rd, ne)?;
         }
+        // a non-finite max_tol skips the doubling loop, as upstream
         Op::Shell => {
             rd.flag()?;
-            rd.finite()?;
+            rd.num()?;
         }
         Op::VList => {
             rd.finite()?;

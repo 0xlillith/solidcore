@@ -6690,7 +6690,7 @@ infinite region); the other 1657 compare values.
   `StitchIntoShell`: only the path where the doubling loop never runs (`max_tol <= 0`).
 - **Guards.** `-3` (upstream never returns): `StitchIntoShell` when `max_tol / 100`
   underflows to zero (HANG-23, confirmed by a C++ run), `StitchIntoSolid` from a zero
-  B-rep tolerance or a non-finite box diagonal (HANG-24). The FFI refuses a vertex repeated
-  in the one-list `StitchVertexPairs` list (UB-171). Upstream defects kept by the port:
-  WR-173 (`DoStitching`'s sticky candidate flags), WR-174 (a cancelled squeeze reported
-  as done), UB-172 (stale edge after a failed glue with `m_bIgnoreProblems`).
+  or negative B-rep tolerance (HANG-24; a non-finite diagonal ends or skips the loop).
+  The FFI refuses a vertex repeated in the one-list `StitchVertexPairs` list (UB-171).
+  Upstream defects kept by the port: WR-173 (`DoStitching`'s sticky candidate flags),
+  WR-174 (a cancelled squeeze reported as done), UB-172 (stale edge after a failed glue with `m_bIgnoreProblems`).

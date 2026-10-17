@@ -619,7 +619,7 @@ impl Stitch<'_> {
                     f,
                     NotifyOperation::PreEdit,
                     Some(EntityRef::Face(f)),
-                    true,
+                    false, // SM_NO_GET_BREP(pF)
                     None,
                 ))?;
             }
@@ -1508,8 +1508,8 @@ fn face_is_degenerate(
 }
 
 /// `SmFace::Notify(eNotifyOperation, pData1, pData2, pData3)` (unit
-/// `topology.face_p3`); `data2_is_brep` stands for `pData2` being the face's B-rep
-/// (`SM_NO_GET_BREP(pF)`, i.e. `b`), else null.
+/// `topology.face_p3`); `data2_is_brep` stands for `pData2` being the face's B-rep,
+/// else null (`SM_NO_GET_BREP(pF)` is null).
 fn face_notify(
     b: &mut Brep,
     f: FaceId,

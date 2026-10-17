@@ -1341,7 +1341,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **What happens:** The coincidence scan adds every later list entry within tolerance of `pV` to `sCoinVertices`, so a vertex listed twice lands there twice. Gluing the first copy (`GlueVertices(pV, copy)` or `SqueezeEdge`) deletes it; the second copy is then read (`IsLaminaVertex`, `GetPoint`) and glued after it was freed. Only `pV == sCoinVertices[jj]` (a repeat of `pV` itself) is caught.
 - **Trigger:** A vertex repeated in `rVertexList` and coincident with an earlier, different vertex that keeps it as the vertex to delete.
 - **How found:** read during porting (`heal.stitch_p2`).
-- **Confirmed:** no (source inspection). The difftest FFI refuses repeated vertices.
+- **Confirmed:** no (source inspection). The difftest FFI refuses repeated vertices. Not file-reachable: the only in-tree caller (`SmBrep.cpp:27427`) passes `pFace->GetVertices`, which has no repeats, so no [PSIRT] tag.
 - **Severity:** crash / use after free.
 - **Rust port:** Reproduces the order; a deleted vertex id makes the later query return `NotFound` instead of reading freed memory.
 
@@ -1350,7 +1350,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **What happens:** With `m_bIgnoreProblems`, a failing `GlueEdgesGeneral(pTestE, .., pE)` that nevertheless deleted `pE` sets `sVEdges[jj]` to `NULL`, but the local `pE` is not reset: it is added to `sCandidateEdges` and compared with the remaining `sVEdges[kk]` (`GetOtherVertex`, `GetCurve`, `GetInterval`), all through a stale pointer.
 - **Trigger:** `m_bIgnoreProblems` (e.g. `StitchIntoShell` with `bShellIsWellFormed == FALSE`), a coincident edge pair keeping the second edge, and a glue that fails after deleting the first.
 - **How found:** read during porting (`heal.stitch_p2`).
-- **Confirmed:** no (source inspection; `GlueEdgesGeneral` is unported, so no difftest case reaches it).
+- **Confirmed:** no (source inspection; `GlueEdgesGeneral` is unported, so no difftest case reaches it). Not file-reachable: `m_bIgnoreProblems` defaults to FALSE (`SmStitch.h:99`) and is set only by an API caller choosing `StitchIntoShell(bShellIsWellFormed=FALSE)` (`SmOffsetExecutive` passes TRUE), so no [PSIRT] tag.
 - **Severity:** crash / use after free.
 - **Rust port:** Reproduces the control flow; queries on the deleted edge id return `NotFound`.
 
@@ -1502,10 +1502,10 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 #### HANG-24. `SmStitch::StitchIntoSolid` never returns from a zero B-rep tolerance
 - **Location:** `source/SMLib/src/SmStitch.cpp:2676`-`2711` (`StitchIntoSolid`).
-- **What happens:** The loop starts at `GetTolerance() / 10` and doubles it while it is below `1/200` of the bounding box diagonal and lamina edges remain. A tolerance of `0` stays `0`, and a non-finite diagonal is never reached, so `DoStitching` runs forever.
-- **Trigger:** A B-rep tolerance of `0`, or a bounding box whose diagonal overflows to infinity, with a lamina edge that is never stitched.
+- **What happens:** The loop starts at `GetTolerance() / 10` and doubles it while it is below `1/200` of the bounding box diagonal and lamina edges remain. A tolerance of `0` stays `0` (a negative one only grows more negative), so `DoStitching` runs forever. A positive tolerance always ends: against an infinite diagonal it doubles to infinity in about 2100 steps and `inf < inf` is false; a NaN tolerance or diagonal fails the loop test at once.
+- **Trigger:** A B-rep tolerance `<= 0` with a positive box diagonal and a lamina edge that is never stitched.
 - **How found:** read during porting (`heal.stitch_p2`).
-- **Confirmed:** no (source inspection; the shim refuses these inputs, `-3`).
+- **Confirmed:** no (source inspection; the shim refuses a tolerance `<= 0` below the diagonal test, `-3`). The difftest block cannot set the B-rep tolerance, so no fixture reaches the guard.
 - **Severity:** hang.
 - **Rust port:** Stops after `MAX_TOL_DOUBLINGS` (2200) doublings with `SolidError::InvalidInput`.
 

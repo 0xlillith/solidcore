@@ -276,14 +276,15 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
     }
     case OP_SOLID:
     {
-        // the doubling from a tenth of the B-rep tolerance never ends from zero, or when
-        // the box diagonal is not finite (HANG-24)
+        // the doubling from a tenth of the B-rep tolerance never ends from zero or a
+        // negative value (HANG-24); a NaN tolerance or diagonal skips the loop and an
+        // infinite diagonal ends it once the tolerance doubles to infinity
         SmExtent3d box;
         if (brep->CalculateBoundingBox(box, TRUE) == SM_SUCCESS)
         {
             double dist = box.GetSize().Length();
             double tol = brep->GetTolerance() / 10.0;
-            if (tol < dist / 200.0 && (!(tol > 0.0) || !std::isfinite(dist)))
+            if (tol < dist / 200.0 && !(tol > 0.0))
             {
                 o.push_back(ST_NO_RETURN);
                 return;
