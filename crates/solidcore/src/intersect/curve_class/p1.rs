@@ -34,6 +34,7 @@
 //! | [`CurveClassification::topology_intersector`]          | `GetTopologyIntersector`                         |
 //! | [`CurveClassification::is_curve_current`]              | `GetIsCurveCurrent`                              |
 //! | [`CurveClassification::ignore_tangency`]               | `GetIgnoreTangency`                              |
+//! | [`CurveClassification::set_doing_cross_hatch`]         | `SetDoingCrossHatch`                             |
 //! | [`CurveClassification::doing_cross_hatch`]             | `GetDoingCrossHatch`                             |
 //! | [`CurveClassification::doing_fillets`]                 | `GetDoingFillets`                                |
 //! | [`CurveClassification::other_classification`]          | `GetOtherClassification`                         |
@@ -93,6 +94,8 @@
 //!   memory-management feature of `ReSet` (unit `intersect.curve_class_p2`) and are not
 //!   modelled. [`CurveClassification::set_size`] refuses more than [`MAX_INTERVALS`]
 //!   intervals instead of allocating without bound.
+//! - **Construction.** `with_curve_interval` initializes a single interval directly
+//!   for boundary APIs; it does not co-port part 2's `ReSet` implementation.
 //! - **Ownership of the curve.** `m_bIsCurveOwned` is kept as data; there is nothing to
 //!   delete when a handle is replaced.
 //! - **Undefined behaviour upstream** is an error here: `GetSubInterval`, `GetAt`,
@@ -135,7 +138,7 @@ use crate::curve::curve::p3::{local_curve_intersect, PointSolveOptions};
 use crate::error::{ignored, Result, SolidError, SM_ERR};
 use crate::geom::assert_array::labels::CURVE_CLASSIFICATION_TYPE;
 use crate::geom::extent1d::Extent1d;
-use crate::geom::global_solver::SolverOperation;
+use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object;
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionObject, SolutionType};
 use crate::geom::tol::{
@@ -510,6 +513,27 @@ impl<O: ClassObject> CurveClassification<O> {
         }
     }
 
+    /// Creates a classification with one unclassified interval for a curve.
+    /// This initializes the same interval and source-zone state required by the
+    /// boundary intersection APIs without invoking the separately owned `ReSet`.
+    #[must_use]
+    pub fn with_curve_interval(k: &Kernel, curve: O, interval: Extent1d, source_zone: f64) -> Self {
+        let mut result = Self::new(k);
+        result.set_curve(Some(curve), false);
+        result.set_src_zone_tol_3d(source_zone);
+        result.interval = interval;
+        result
+            .data
+            .push(CurveInterval::with_interval(k, &interval, Some(&result)));
+        result.allocated = true;
+        result
+    }
+
+    /// Sets the native cross-hatch tolerance mode (`SetDoingCrossHatch`).
+    pub fn set_doing_cross_hatch(&mut self, enabled: bool) {
+        self.doing_cross_hatch = enabled;
+    }
+
     // ---- simple data access --------------------------------------------------------
 
     /// The number of intervals (`GetSize`; the end-point count is one more).
@@ -522,6 +546,14 @@ impl<O: ClassObject> CurveClassification<O> {
     #[must_use]
     pub fn intervals(&self) -> &[CurveInterval<O>] {
         &self.data
+    }
+
+    /// Sets the complete classification domain (inline `SetInterval`).
+    ///
+    /// # Errors
+    /// Returns the interval validation error instead of ignoring an invalid domain.
+    pub fn set_interval(&mut self, interval: &Extent1d) -> Result<()> {
+        self.interval.set_min_max(interval.min(), interval.max())
     }
 
     /// The face classified against (`GetFace`).
@@ -1031,7 +1063,10 @@ impl<O: ClassObject> CurveClassification<O> {
     }
 
     /// The curve geometry, or an error for no curve.
-    fn curve_geometry<'g>(&self, geometry: &'g impl ClassGeometry<O>) -> Result<&'g Curve> {
+    pub(super) fn curve_geometry<'g>(
+        &self,
+        geometry: &'g impl ClassGeometry<O>,
+    ) -> Result<&'g Curve> {
         let c = self
             .curve
             .ok_or(SolidError::invalid_input(OP_CC, "no classification curve"))?;
@@ -1336,6 +1371,7 @@ pub fn set_xsect_curve_through_point(
             .collect();
         let mut new_param = out.param;
         let r = bs.set_intersection_curve_through_point(
+            k,
             &mut new_param,
             out.point_3d,
             Some(xsect_tangent),
@@ -1447,12 +1483,12 @@ pub fn get_cci_surface_gaps<S: Copy>(
                 solution.start.param(1)?
             };
             let guess = ignored(uv_curve.evaluate_point(t_param))?.unwrap_or(Vec3::UNDEF);
-            surface_local_point_solve(surface, point, Point2::new(guess.x, guess.y))?
+            surface_local_point_solve(k, surface, point, Point2::new(guess.x, guess.y))?
         } else {
             // get classCurvePoint/surf dist without checking trim boundaries
             let _cache = surface_cache::<()>(k, surface, None)?;
-            let _size = surface_approximate_size(surface)?;
-            match surface_global_point_solve(surface, point)? {
+            let size = surface_approximate_size(surface)?;
+            match surface_global_point_solve(k, surface, size, point)? {
                 Some(s) => Some(s),
                 None => return Ok(out),
             }
@@ -1918,11 +1954,18 @@ pub fn xsect_tol_2d_or_3d_for_classify_pair(
         // Curve2d with m_cpSurface1
         let obj2_zone_tol_2d = zone_tol3d(
             k,
-            map_to_2d_on_curve(obj2_zone_tol_3d, obj2_src_curve_param, src_curve, surface_1)?,
+            map_to_2d_on_curve(
+                k,
+                obj2_zone_tol_3d,
+                obj2_src_curve_param,
+                src_curve,
+                surface_1,
+            )?,
         );
         let obj1_zone_tol_2d = zone_tol3d(
             k,
             map_to_2d_on_curve(
+                k,
                 src_curve_or_obj1_zone_tol_3d,
                 src_curve_or_obj1_param,
                 src_curve,
@@ -1957,15 +2000,31 @@ pub fn object_dimension<O: ClassObject>(object: Option<O>) -> i32 {
 /// `SmSurface::LocalPointSolve(domain, SM_SO_MINIMIZE, point, guess, found, sol)`:
 /// the gap and UV point of the answer, if found.
 fn surface_local_point_solve(
-    _surface: &Surface,
-    _point: Point3,
-    _guess: Point2,
+    k: &Kernel,
+    surface: &Surface,
+    point: Point3,
+    guess: Point2,
 ) -> Result<Option<(f64, Point2)>> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
-    ))
+    let domain = surface.natural_uv_domain();
+    // (the status is ignored upstream, only bFoundAnswer is read)
+    let Some(r) = ignored(surface.local_point_solve::<()>(
+        k,
+        &domain,
+        SolverOperation::Minimize,
+        point,
+        guess,
+    ))?
+    else {
+        return Ok(None);
+    };
+    if r.found {
+        Ok(Some((
+            r.solution.start.solution_value,
+            Point2::new(r.solution.start.param(0)?, r.solution.start.param(1)?),
+        )))
+    } else {
+        Ok(None)
+    }
 }
 
 /// `SmSurface::ApproximateSize`: upstream ignores the status, leaving the size zero.
@@ -1977,14 +2036,43 @@ fn surface_approximate_size(surface: &Surface) -> Result<Vec2> {
     }
 }
 
-/// `SmSurface::GlobalPointSolve(domain, SM_SO_MINIMIZE, point, tol, &maxDrop,
-/// SM_SR_SINGLE, sols)`: the gap and UV point of the first solution, if any.
-fn surface_global_point_solve(_surface: &Surface, _point: Point3) -> Result<Option<(f64, Point2)>> {
-    // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::GlobalPointSolve",
-        "surface.surface_p4",
-    ))
+/// `SmSurface::GlobalPointSolve(domain, SM_SO_MINIMIZE, point, 0.001 * |size|, &maxDrop,
+/// SM_SR_SINGLE, sols)` over the natural domain (`maxDrop` is `1.0`): the gap and UV
+/// point of the first solution, if any. The status is ignored (`SmCurveClass.cpp:1045`
+/// checks only the solution count), so a failed solve is an empty result. Upstream's
+/// temporary switch-off of the surface cache's point test (`m_bPointTestEnabled`,
+/// `:1040`) is moot here: the solver builds no cache for a surface that owns no face,
+/// and a face-owned one is `Unported` in the solver (`UNPORTED(query.face_p2)`; the
+/// switch must be added with it).
+fn surface_global_point_solve(
+    k: &Kernel,
+    surface: &Surface,
+    size: Vec2,
+    point: Point3,
+) -> Result<Option<(f64, Point2)>> {
+    let tol = 0.001 * size.length();
+    let solutions = ignored(
+        surface.global_point_solve::<crate::surface::surface::p4::NoObject>(
+            k,
+            Some(crate::surface::surface::p4::NoObject),
+            &surface.natural_uv_domain(),
+            SolverOperation::Minimize,
+            point,
+            tol,
+            Some(1.0),
+            SolutionRequested::Single,
+        ),
+    )?
+    .unwrap_or_default();
+    Ok(solutions.as_slice().first().map(|s| {
+        (
+            s.start.solution_value,
+            Point2::new(
+                s.start.parameters.first().copied().unwrap_or(0.0),
+                s.start.parameters.get(1).copied().unwrap_or(0.0),
+            ),
+        )
+    }))
 }
 
 #[cfg(test)]

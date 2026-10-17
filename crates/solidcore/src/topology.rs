@@ -10,13 +10,13 @@
 //! | [`Region`] / [`RegionId`]   | `SmRegion` (minimal: its list owner)                  |
 //! | [`Shell`] / [`ShellId`]     | `SmShell`                                             |
 //! | [`Faceuse`] / [`FaceuseId`] | `SmFaceuse` (unit `topology.edgeuse_p1`)              |
-//! | [`Face`] / [`FaceId`]       | `SmFace`                                              |
-//! | [`Loopuse`] / [`LoopuseId`] | `SmLoopuse` (minimal)                                 |
+//! | [`Face`] / [`FaceId`]       | `SmFace` (unit `topology.face_p2`)                    |
+//! | [`Loopuse`] / [`LoopuseId`] | `SmLoopuse` (unit `topology.loopuse`)                 |
 //! | [`Loop`] / [`LoopId`]       | `SmLoop`                                              |
 //! | [`Edgeuse`] / [`EdgeuseId`] | `SmEdgeuse` (unit `topology.edgeuse_p1`)              |
 //! | [`Edge`] / [`EdgeId`]       | `SmEdge`                                              |
 //! | [`Vertexuse`] / [`VertexuseId`] | `SmVertexuse` (unit `topology.vertexuse`)         |
-//! | [`Vertex`] / [`VertexId`]   | `SmVertex`                                            |
+//! | [`Vertex`] / [`VertexId`]   | `SmVertex` (unit `topology.vertex`)                   |
 //! | [`ObjectHandle`]            | an `SmObject*` a record keeps but never dereferences  |
 //! | [`Arena`]                   | upstream's intrusive `SmListNode` linked lists        |
 //!
@@ -36,12 +36,19 @@
 //! friend writes of `SmBrepConstructor`: they link records without validation (a
 //! B-rep graph is cyclic, so a record may name ids added later).
 
+pub mod brep_cache;
 pub mod brep_data;
 pub mod database_io;
+pub mod edge;
 pub mod edgeuse;
+pub mod face;
+pub mod loopuse;
 pub mod proto_topology;
 #[allow(clippy::module_inception)]
 pub mod topology;
+pub mod topology_traverser;
+pub mod trimming_tools;
+pub mod vertex;
 pub mod vertexuse;
 
 use core::marker::PhantomData;
@@ -57,6 +64,7 @@ use crate::geom::vector2d::Point2;
 use crate::heal::gap::{EdgeEdgeGap, EdgeFaceGap, VertexEdgeGap, VertexFaceGap};
 use crate::math::{Point3, BIG_DOUBLE};
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
+use crate::query::poly::PolyVertexId;
 use crate::surface::surface::p2::DropCurveFail;
 use crate::surface::surface::Surface;
 
@@ -237,13 +245,32 @@ impl SolutionObject for ObjectHandle {
     }
 }
 
-/// A vertex (`SmVertex`): a point where edges meet.
+/// A vertex (`SmVertex`): a point where edges meet (the methods are in unit
+/// `topology.vertex`, [`vertex`]).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Vertex {
-    /// Position in model space.
+    /// `m_vPoint`: position in model space.
     pub point: Point3,
-    /// `m_sZoneTol3d` (CO-PORTED, `SM_USE_OLDTOL`): the vertex tolerance.
+    /// `m_sZoneTol3d` (`SM_USE_OLDTOL`): the vertex tolerance.
     pub tolerance: f64,
+    /// `m_pList` / `m_lListSize`: the vertex's vertex uses in list order from the head
+    /// (the primary vertex use, `GetPrimaryVertexuse`, is first).
+    pub vertexuses: Vec<VertexuseId>,
+    /// `m_pPolyVertex3D`: the temporary back pointer to the 3D poly vertex made from the
+    /// vertex during tessellation.
+    pub poly_vertex: Option<PolyVertexId>,
+}
+
+impl Default for Vertex {
+    /// `SmVertex()`: at the origin, tolerance `0`, no vertex uses, no poly vertex.
+    fn default() -> Self {
+        Self {
+            point: Point3::new(0.0, 0.0, 0.0),
+            tolerance: 0.0,
+            vertexuses: Vec::new(),
+            poly_vertex: None,
+        }
+    }
 }
 
 /// An edge (`SmEdge`): a bounded curve between two vertices.
@@ -282,21 +309,44 @@ pub struct Loop {
     pub loopuse: Option<LoopuseId>,
 }
 
-/// A face (`SmFace`): a bounded region of a surface.
+/// A face (`SmFace`): a bounded region of a surface. The methods are in unit
+/// `topology.face_p2` ([`face::p2`]).
 #[derive(Debug, Clone)]
 pub struct Face {
     /// Shell containing this face.
     pub shell: ShellId,
     /// Boundary loops; upstream keeps the outer loop first.
     pub loops: Vec<LoopId>,
-    /// `m_pSurface` (CO-PORTED): the face's surface (`GetSurface`).
+    /// `m_pSurface`: the face's surface (`GetSurface`).
     pub surface: Option<Surface>,
-    /// `m_vUVDomain` (CO-PORTED by `topology.edgeuse_p2`): the face's parameter domain
-    /// (`GetUVDomain`); [`Extent2d::new`] (empty) for a new face, as `SmFace()`.
+    /// `m_pFU`: the primary (upward, [`OrientType::Same`]) face use
+    /// (`GetUpwardFaceuse`).
+    pub faceuse: Option<FaceuseId>,
+    /// `m_vUVDomain`: the domain of the surface the face uses (`GetUVDomain`).
     pub uv_domain: Extent2d,
-    /// `m_sZoneTol3d` (CO-PORTED by `topology.edgeuse_p2`): the face's tolerance
-    /// (`GetTolerance`, `SM_USE_OLDTOL`); `0` for a new face, as `SmFace()`.
+    /// `m_bRectangularTrim` (an `SmBoolean`: `1` the face has one rectangular outer
+    /// loop of four iso trim curves spanning [`Face::uv_domain`], `0` it has not,
+    /// [`face::p2::UNSURE`] not yet known).
+    pub rectangular_trim: i32,
+    /// `m_sZoneTol3d` (`SM_USE_OLDTOL`): the face tolerance (`GetTolerance`).
     pub tolerance: f64,
+}
+
+impl Face {
+    /// `SmFace()` in `shell`: no loops, surface or face use, the "inside out" UV
+    /// domain, rectangular trim [`face::p2::UNSURE`] and tolerance `0`.
+    #[must_use]
+    pub const fn new(shell: ShellId) -> Self {
+        Self {
+            shell,
+            loops: Vec::new(),
+            surface: None,
+            faceuse: None,
+            uv_domain: Extent2d::new(),
+            rectangular_trim: face::p2::UNSURE,
+            tolerance: 0.0,
+        }
+    }
 }
 
 /// A shell (`SmShell`): a connected set of faces.
@@ -344,7 +394,7 @@ pub enum LoopuseStart {
     Vertexuse(Option<VertexuseId>),
 }
 
-/// One use of a loop (`SmLoopuse`, CO-PORTED minimal record).
+/// One use of a loop (`SmLoopuse`; `Default` is `SmLoopuse()`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Loopuse {
     /// `m_pListOwner` as an `SmFaceuse` (`GetFaceuse`).
@@ -355,6 +405,9 @@ pub struct Loopuse {
     pub mate: Option<LoopuseId>,
     /// `m_tLoopuseType` and `m_pEUorVU`.
     pub start: LoopuseStart,
+    /// `m_eOrientation` (unit `topology.loopuse`): [`OrientType::Same`] for an outer
+    /// loop use, [`OrientType::Opposite`] for an inner one.
+    pub orientation: OrientType,
 }
 
 /// What an edge use connects to (`m_tEdgeuseType` and `m_pSorLU`).
@@ -815,6 +868,7 @@ impl Brep {
         self.vertices.insert(Vertex {
             point,
             tolerance: ZONE_TOL_3D,
+            ..Vertex::default()
         })
     }
 
@@ -841,13 +895,7 @@ impl Brep {
         if self.shells.get(shell).is_none() {
             return Err(not_found(OP, shell));
         }
-        let face = self.faces.insert(Face {
-            shell,
-            loops: Vec::new(),
-            surface: None,
-            uv_domain: Extent2d::new(),
-            tolerance: 0.0,
-        })?;
+        let face = self.faces.insert(Face::new(shell))?;
         self.shells
             .get_mut(shell)
             .ok_or_else(|| not_found(OP, shell))?

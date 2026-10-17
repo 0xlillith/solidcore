@@ -185,8 +185,12 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let mut brep = Brep::new();
             let ids: Vec<VertexId> = vertices
                 .iter()
-                .map(|&[x, y, z, _]| brep.add_vertex(p3([x, y, z])))
-                .collect::<Result<_, _>>()
+                .map(|&[x, y, z, t]| {
+                    let v = brep.add_vertex(p3([x, y, z]))?;
+                    brep.vertex_mut(v)?.tolerance = t;
+                    Ok(v)
+                })
+                .collect::<Result<_, SolidError>>()
                 .map_err(|e| harness(&e))?;
             match tools::find_first_vertex_within_tol_to_pnt(&brep, &ids, p3(*pnt), *tol) {
                 Ok(m) => Ok(point_out(m.found, index_i64(m.index)?, vec![m.distance])),
@@ -235,7 +239,14 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             Ok(None) => Ok(status_only(SM_ERR)),
             Err(e) => Ok(rust_err(&e)),
         },
-        Inputs::Face { pnt, .. } => match tools::find_face(&Brep::new(), p3(*pnt)) {
+        Inputs::Face { pnt, .. } => match tools::find_face(
+            &solidcore::kernel::Kernel::default(),
+            &Brep::new(),
+            solidcore::topology::BrepId::from_index(0),
+            p3(*pnt),
+            &solidcore::topology::brep_cache::arena_identity,
+            &|_| None,
+        ) {
             Ok(Some(f)) => Ok(status_only(0).int("face", i64::from(f.index()))),
             Ok(None) => Ok(status_only(SM_ERR)),
             Err(e) => Ok(rust_err(&e)),

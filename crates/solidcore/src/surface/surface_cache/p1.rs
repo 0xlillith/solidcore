@@ -248,12 +248,16 @@ fn create_iso_parametric_curve(
             "SmSurfOfRevolution::CreateIsoParametricCurve",
             "surface.surface_cache_p1",
         )),
+        // the SmSurface body (surface.surface_p5); tolerance 0.0 as upstream's callers
         SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::CreateIsoParametricCurve
-            Err(SolidError::unported(
-                "SmSurface::CreateIsoParametricCurve",
-                "surface.surface_p5",
-            ))
+            let r =
+                surface.create_iso_parametric_curve(k, param, iso, 0.0, domain.as_ref(), false)?;
+            match r.curve.into_kind() {
+                CurveKind::BSpline(b) => Ok(b),
+                _ => Err(SolidError::sm_err(
+                    "surface::surface_cache::p1::create_iso_parametric_curve",
+                )),
+            }
         }
     }
 }
@@ -295,12 +299,17 @@ pub(super) fn calculate_bounding_box(
                     crate::surface::surface::p1::POLAR_RECURSION,
                 ));
             }
-            // The other boxes come from the surface's own cache, whose tree build needs
-            // the continuities.
-            // UNPORTED(surface.surface_p6): SmSurface::CalculateContinuities
+            // DISPATCH GAP: the other boxes come from the surface's own cache
+            // (Surface::base_calculate_bounding_box, surface::surface::p1), whose build
+            // needs the kernel this signature does not take. No UNPORTED marker: the
+            // callees are ported (the continuities of the tree build are
+            // surface::surface::p6); the error names the owner of the base body. Once the
+            // kernel is plumbed, the next blocker for these kinds is surface.surface_p5:
+            // CalculateContinuities calls the base CreateIsoParametricCurve, which that
+            // unit owns.
             Err(SolidError::unported(
-                "SmSurface::CalculateContinuities",
-                "surface.surface_p6",
+                "SmSurface::CalculateBoundingBox",
+                "surface.surface_p1",
             ))
         }
     }
@@ -308,7 +317,7 @@ pub(super) fn calculate_bounding_box(
 
 /// `SmSurface::IsSingularity(uv, eSingDir)`: the `SmPlane` override (a plane has no
 /// singularity); the other ported kinds run the base class body.
-fn is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
+fn is_singularity(k: &Kernel, surface: &Surface, uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
         SurfaceKind::BSpline(_)
@@ -316,11 +325,7 @@ fn is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
         | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
+            Ok(surface.is_singularity(k, uv, EFF_ZERO, false)?.singular)
         }
     }
 }
@@ -830,7 +835,7 @@ pub fn compute_bezier_approximation(
         };
         let p00 = d(&mat, 0, 0)?;
         let (du, dv, duv);
-        if is_singularity(surface, uv)? {
+        if is_singularity(&Kernel::default(), surface, uv)? {
             let uvu = Point2::new(uv.x + su * (size.x * EFF_ZERO_SQRT), uv.y);
             let uvv = Point2::new(uv.x, uv.y + sv * (size.y * EFF_ZERO_SQRT));
             let mu = surface.evaluate(uvu, 1, 1, flags)?;
@@ -1457,6 +1462,103 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         self.surface_handle
     }
 
+    /// Copies this cache with its object handles translated by `map` (tree, node
+    /// data, surface handle, subdivision surfaces), everything else unchanged. A Rust
+    /// adapter like [`Tree::map_objects`]: it lets a solve whose solutions name other
+    /// objects (a curve beside the surface) run over this cache. The copy names no
+    /// further subdivision halves (`set_subdivision_handles`, construction only).
+    /// `map` must name the same target object every time it receives the same
+    /// source handle.
+    ///
+    /// # Errors
+    ///
+    /// Those of `map`.
+    pub fn map_handles<P: Copy + PartialEq>(
+        &self,
+        map: impl Fn(O) -> Result<P>,
+    ) -> Result<SurfaceCache<P>> {
+        let map_aux = |a: &BezierAux2d<O>| -> Result<BezierAux2d<P>> {
+            let mut vertex_list = Vec::new();
+            for v in &a.vertex_list {
+                vertex_list.push(VertexListItem {
+                    vertexuse: v.vertexuse.map(&map).transpose()?,
+                    uv_point: v.uv_point,
+                    uv_tol: v.uv_tol,
+                });
+            }
+            Ok(BezierAux2d {
+                polar_box: a.polar_box,
+                is_tess_only: a.is_tess_only,
+                uv_domain: a.uv_domain,
+                has_inside_part: a.has_inside_part,
+                corner_nodes: a.corner_nodes,
+                vertex_list,
+                edgeuse_list: a
+                    .edgeuse_list
+                    .iter()
+                    .map(|&o| map(o))
+                    .collect::<Result<_>>()?,
+                poly_edge_list: a
+                    .poly_edge_list
+                    .iter()
+                    .map(|&o| map(o))
+                    .collect::<Result<_>>()?,
+                chord_height_satisfied: a.chord_height_satisfied,
+                angle_tol_satisfied: a.angle_tol_satisfied,
+                owning_tree_node: a.owning_tree_node,
+            })
+        };
+        let mut patches = Vec::new();
+        for p in &self.patches {
+            patches.push(BezierPatch {
+                aux: map_aux(&p.aux)?,
+                bezier: p.bezier.clone(),
+                u_curve_conts: p.u_curve_conts,
+                v_curve_conts: p.v_curve_conts,
+                pseudo_box: p.pseudo_box,
+            });
+        }
+        let mut auxs = Vec::new();
+        for a in &self.auxs {
+            auxs.push(map_aux(a)?);
+        }
+        let mut subdivision_surfaces = Vec::new();
+        for (o, s) in &self.subdivision_surfaces {
+            subdivision_surfaces.push((map(*o)?, s.clone()));
+        }
+        Ok(SurfaceCache {
+            alt_caches: self.alt_caches.clone(),
+            tree: self
+                .tree
+                .as_ref()
+                .map(|t| t.map_objects(&map))
+                .transpose()?,
+            surface: self.surface.clone(),
+            surface_handle: self.surface_handle.map(&map).transpose()?,
+            uv_domain: self.uv_domain,
+            u_continuities: self.u_continuities.clone(),
+            v_continuities: self.v_continuities.clone(),
+            patches,
+            auxs,
+            opts: self.opts,
+            iso_curve_tolerance: self.iso_curve_tolerance,
+            tessellation_algorithm: self.tessellation_algorithm,
+            start_fast_subdivision_angle_deg: self.start_fast_subdivision_angle_deg,
+            switch_to_fast_subdivision: self.switch_to_fast_subdivision,
+            trim_subdivision_factor: self.trim_subdivision_factor,
+            iso_boundary_curves: self.iso_boundary_curves.clone(),
+            subdivision_surfaces,
+            subdivision_handles: None,
+            subdivision_handle_count: self.subdivision_handle_count,
+            bounding_planes: self.bounding_planes.clone(),
+            have_t_surface_cache: self.have_t_surface_cache,
+            face_was_modified: self.face_was_modified,
+            process_boundary_curves: self.process_boundary_curves,
+            point_test_enabled: self.point_test_enabled,
+            face_containment_done: self.face_containment_done,
+        })
+    }
+
     /// `SmSurfaceCache_TYPE` (`GetType`).
     #[must_use]
     pub const fn type_code(&self) -> i64 {
@@ -1829,7 +1931,11 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     }
 
     /// The surface a node's `mBA_pSurface` handle refers to.
-    pub(super) fn node_surface(&self, handle: Option<O>) -> Result<&Surface> {
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` without a handle or for a handle the cache does not hold.
+    pub fn node_surface(&self, handle: Option<O>) -> Result<&Surface> {
         let h = handle.ok_or_else(|| invalid(OP_POLAR, "node has no surface"))?;
         if Some(h) == self.surface_handle {
             return Ok(&self.surface);

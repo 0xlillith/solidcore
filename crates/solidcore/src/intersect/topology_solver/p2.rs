@@ -21,7 +21,7 @@
 //!
 //! Deviations:
 //! - Topology pointers are adapter handles. [`TopologyTrees`] borrows cache trees;
-//!   the default B-rep cache lookup is explicitly unported. Shape topology keys
+//!   the default B-rep cache lookup uses the adapter's `BrepCache`. Shape topology keys
 //!   resolve to vertices, edge curves and face surfaces before tree traversal.
 //! - The local solver is taken from its parent and restored even on error.
 //!   The existing global solver and object-list walks supply traversal bounds;
@@ -53,6 +53,7 @@ use crate::geom::tree::{AuxDataType, Tree};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec2};
 use crate::nurbs::b_spline_curve::BoundingBoxRequest;
+use crate::surface::surface::p4::global_point_solve_starts;
 use crate::surface::surface::Surface;
 use crate::surface::trim_srf_cache::POINT_CLASS_UNKNOWN;
 
@@ -192,20 +193,6 @@ fn name_curve_face<O: Copy + PartialEq>(
     solution.num_variables = 3;
 }
 
-fn surface_curve_intersect<O>(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _tol: f64,
-) -> Result<SolutionArray<O>> {
-    // UNPORTED(surface.surface_p8): SmSurface::GlobalCurveIntersect
-    Err(SolidError::unported(
-        "SmSurface::GlobalCurveIntersect",
-        "surface.surface_p8",
-    ))
-}
-
 fn classified_curve_intervals<O>(
     _curve: &Curve,
     _interval: &Extent1d,
@@ -223,21 +210,43 @@ fn classified_curve_intervals<O>(
 }
 
 fn untrimmed_range_endpoints<O>(
-    _kernel: &Kernel,
-    _surface: &Surface,
+    kernel: &Kernel,
+    surface: &Surface,
     _surface_handle: O,
-    _face_domain: &Extent2d,
-    _start: Point3,
-    _end: Point3,
-    _tol: f64,
+    face_domain: &Extent2d,
+    start: Point3,
+    end: Point3,
+    tol: f64,
 ) -> Result<Option<(Vec2, Vec2)>> {
-    // UNPORTED(surface.surface_p4): SmSurface::GlobalPointSolve
-    // Its eventual shared-cache adapter must suppress point testing on the SAME
-    // cache around BOTH endpoint solves. An independent cache copy is insufficient.
-    Err(SolidError::unported(
-        "SmSurface::GlobalPointSolve",
-        "surface.surface_p4",
-    ))
+    // Upstream switches the surface cache's point test off around both solves. The
+    // solver here keeps every solution of a surface that owns no face, and a face-owned
+    // surface is Unported (query.face_p2) inside `Surface::global_point_solve`.
+    let first = global_point_solve_starts(
+        kernel,
+        surface,
+        face_domain,
+        SolverOperation::Intersect,
+        start,
+        tol,
+        SolutionRequested::All,
+    )?;
+    let Some(s) = first.first() else {
+        return Ok(None); // error - something is wrong here - quit
+    };
+    let uv_start = Vec2::new(s.param(0)?, s.param(1)?);
+    let second = global_point_solve_starts(
+        kernel,
+        surface,
+        face_domain,
+        SolverOperation::Intersect,
+        end,
+        tol,
+        SolutionRequested::All,
+    )?;
+    let Some(e) = second.first() else {
+        return Ok(None);
+    };
+    Ok(Some((uv_start, Vec2::new(e.param(0)?, e.param(1)?))))
 }
 
 impl<'a, O: SolutionObject> LocalSolver<'a, O> {
@@ -365,7 +374,16 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         let domain = ts.objects.face_uv_domain(face)?;
         let tol = ts.base.tolerance_3d + ts.objects.face_tolerance(face)?;
         let solutions = if ts.base.operation == SolverOperation::Intersect {
-            surface_curve_intersect(surface, &domain, curve.curve, &self.interval, tol)?
+            // surface->GlobalCurveIntersect(domain, curve, interval, tol, solutions)
+            // (SER): the solutions name the curve and the surface
+            surface.global_curve_intersect(
+                ts.kernel,
+                [curve.handle, surface_handle],
+                &domain,
+                curve.curve,
+                &self.interval,
+                tol,
+            )?
         } else {
             let mut vectors = ts.base.opt_vectors.clone();
             if ts.base.operation == SolverOperation::Signed3dDirectedMinimize && self.swap_order {
@@ -376,6 +394,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 vectors.truncate(1);
             }
             surface.global_curve_solve(
+                ts.kernel,
                 &domain,
                 curve.curve,
                 &self.interval,
@@ -384,6 +403,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 best,
                 &vectors,
                 SolutionRequested::All,
+                [Some(curve.handle), Some(face_surface_handle)],
             )?
         };
         for found in solutions.as_slice() {
@@ -504,6 +524,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             let a = ts.objects.surface(surface1)?;
             let b = ts.objects.surface(surface2)?;
             let solutions = a.global_surface_solve(
+                ts.kernel,
                 &ts.objects.face_uv_domain(face1)?,
                 b,
                 &ts.objects.face_uv_domain(face2)?,
@@ -512,6 +533,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 best,
                 &ts.base.opt_vectors,
                 ts.base.solution_requested,
+                [Some(surface1), Some(surface2)],
             )?;
             for found in solutions.as_slice() {
                 let mut solution = *found;
