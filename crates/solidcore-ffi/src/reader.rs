@@ -1,10 +1,10 @@
 //! Sequential reader over a flat `&[f64]` input record, shared by the unit
 //! wrappers' `validate` functions.
 //!
-//! Each unit declares its own `Reader` with [`unit_reader!`]: a newtype over
-//! [`Cursor`] that derefs to it. Methods a unit defines on its `Reader` take
-//! precedence over the [`Cursor`] ones, so a unit with a stricter or looser
-//! check keeps it unchanged.
+//! Each unit declares its own `Reader` with [`unit_reader!`]: a newtype that
+//! derefs to [`Cursor`], or to [`Coords`] when the unit passes a coordinate
+//! bound. Methods a unit defines on its `Reader` take precedence over the shared
+//! ones, so a unit with a stricter or looser check keeps it unchanged.
 
 use crate::FfiError;
 
@@ -12,25 +12,18 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Position in a flat input record, plus the coordinate bound of
-/// [`Cursor::finite`].
+/// Position in a flat input record.
 pub(crate) struct Cursor<'a> {
     /// The whole record.
     pub(crate) input: &'a [f64],
     /// Index of the next value to read.
     pub(crate) at: usize,
-    max_coord: f64,
 }
 
 impl<'a> Cursor<'a> {
-    /// A cursor at the start of `input`; [`Cursor::finite`] accepts magnitudes up to
-    /// `max_coord`.
-    pub(crate) fn new(input: &'a [f64], max_coord: f64) -> Self {
-        Self {
-            input,
-            at: 0,
-            max_coord,
-        }
+    /// A cursor at the start of `input`.
+    pub(crate) fn new(input: &'a [f64]) -> Self {
+        Self { input, at: 0 }
     }
 
     /// The next value.
@@ -109,6 +102,25 @@ impl<'a> Cursor<'a> {
         }
         Ok(v)
     }
+}
+
+/// A [`Cursor`] that also reads coordinates, each finite and of magnitude at
+/// most the unit's `MAX_COORD`. Only units that pass a bound to
+/// [`unit_reader!`] get these readers.
+pub(crate) struct Coords<'a> {
+    cursor: Cursor<'a>,
+    max_coord: f64,
+}
+
+impl<'a> Coords<'a> {
+    /// A reader at the start of `input`; [`Coords::finite`] accepts magnitudes up
+    /// to `max_coord`.
+    pub(crate) fn new(input: &'a [f64], max_coord: f64) -> Self {
+        Self {
+            cursor: Cursor::new(input),
+            max_coord,
+        }
+    }
 
     /// The next value, finite and of magnitude at most the unit's `MAX_COORD`.
     pub(crate) fn finite(&mut self) -> Result<f64, FfiError> {
@@ -119,17 +131,17 @@ impl<'a> Cursor<'a> {
         Ok(v)
     }
 
-    /// The next `k` values, each as [`Cursor::finite`].
+    /// The next `k` values, each as [`Coords::finite`].
     pub(crate) fn finites(&mut self, k: usize) -> Result<Vec<f64>, FfiError> {
         (0..k).map(|_| self.finite()).collect()
     }
 
-    /// The next three values, each as [`Cursor::finite`].
+    /// The next three values, each as [`Coords::finite`].
     pub(crate) fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
         Ok([self.finite()?, self.finite()?, self.finite()?])
     }
 
-    /// [`Cursor::vec3`] with squared length at least `1e-12`.
+    /// [`Coords::vec3`] with squared length at least `1e-12`.
     pub(crate) fn nonzero3(&mut self) -> Result<[f64; 3], FfiError> {
         let v = self.vec3()?;
         if v.iter().map(|c| c * c).sum::<f64>() < 1e-12 {
@@ -139,31 +151,49 @@ impl<'a> Cursor<'a> {
     }
 }
 
-/// Declares the unit's `Reader`: a newtype over [`Cursor`] built with
-/// `Reader::new(input)`. Pass the unit's `MAX_COORD` when it reads coordinates
-/// through [`Cursor::finite`].
+impl<'a> ::core::ops::Deref for Coords<'a> {
+    type Target = Cursor<'a>;
+    fn deref(&self) -> &Self::Target {
+        &self.cursor
+    }
+}
+
+impl ::core::ops::DerefMut for Coords<'_> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.cursor
+    }
+}
+
+/// Declares the unit's `Reader`, built with `Reader::new(input)`. With no
+/// argument it is a newtype over [`Cursor`] and has no coordinate readers; pass
+/// the unit's `MAX_COORD` to wrap [`Coords`] instead, which adds
+/// [`Coords::finite`], [`Coords::finites`], [`Coords::vec3`] and
+/// [`Coords::nonzero3`].
 macro_rules! unit_reader {
     () => {
-        $crate::reader::unit_reader!(f64::INFINITY);
+        $crate::reader::unit_reader!(@wrap Cursor);
     };
     ($max_coord:expr) => {
-        /// Sequential reader over the input record (see [`crate::reader::Cursor`]).
-        struct Reader<'a>(crate::reader::Cursor<'a>);
+        $crate::reader::unit_reader!(@wrap Coords, $max_coord);
+    };
+    (@wrap $target:ident $(, $max_coord:expr)?) => {
+        /// Sequential reader over the input record (see [`crate::reader`]).
+        struct Reader<'a>(crate::reader::$target<'a>);
 
         impl<'a> Reader<'a> {
             fn new(input: &'a [f64]) -> Self {
-                Self(crate::reader::Cursor::new(input, $max_coord))
+                Self(crate::reader::$target::new(input $(, $max_coord)?))
             }
         }
 
         impl<'a> ::core::ops::Deref for Reader<'a> {
-            type Target = crate::reader::Cursor<'a>;
+            type Target = crate::reader::$target<'a>;
             fn deref(&self) -> &Self::Target {
                 &self.0
             }
         }
 
-        impl ::core::ops::DerefMut for Reader<'_> {
+        impl<'a> ::core::ops::DerefMut for Reader<'a> {
             fn deref_mut(&mut self) -> &mut Self::Target {
                 &mut self.0
             }
