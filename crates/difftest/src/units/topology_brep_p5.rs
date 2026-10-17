@@ -1,7 +1,7 @@
 //! Differential coverage for `topology.brep_p5`.
 //!
 //! `combine_target` compares only the old-tol target stage against the surviving
-//! vertex after real native CombineCoincidentVertices. Other operations compare
+//! vertex after real native `CombineCoincidentVertices`. Other operations compare
 //! status/output lifecycle and the semantic graph or explicitly defer. Successful
 //! topology mutation and nonidentity transformation are not certified here.
 
@@ -27,6 +27,7 @@ use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
 pub struct Runner;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(clippy::struct_excessive_bools)] // Independent native optional flags.
 #[serde(default)]
 struct Inputs {
     // Raw fixed-size fixture, described in the FFI module.
@@ -354,7 +355,9 @@ impl UnitDiff for Runner {
         if i.op == 2 {
             i.editing = true;
             let side = rng.below(2) as usize;
-            i.fixture[9 + side] = rng.below(5) as f64;
+            if let Some(count) = i.fixture.get_mut(9 + side) {
+                *count = rng.below(5) as f64;
+            }
             if rng.chance(0.5) {
                 i.first = 1;
                 i.second = 0;

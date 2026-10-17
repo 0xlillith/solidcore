@@ -126,7 +126,9 @@ pub fn eval(op: Op, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, F
         || fixture[9..]
             .iter()
             .any(|x| x.fract() != 0.0 || !(0.0..=4.0).contains(x))
-        || [0, 15, 19, 20, 21].into_iter().any(|i| !flag(args[i]))
+        || [args[0], args[15], args[19], args[20], args[21]]
+            .into_iter()
+            .any(|x| !flag(x))
         || args[1..4].iter().any(|x| !integer(*x))
         || args[4].fract() != 0.0
         || !(0.0..=2.0).contains(&args[4])
@@ -185,5 +187,20 @@ mod tests {
         let mut face = f;
         face[0] = 2.;
         assert!(eval(Op::MakeEdgeInFace, &face, &a).is_err());
+    }
+
+    #[test]
+    fn defined_targets_and_degenerate_placements_are_retained() {
+        let f = [0., 0., 0., 0., 1., 0., 0., -1e-5, -2e-5, 0., 0.];
+        let mut a = [0.; 22];
+        a[0] = 1.;
+        a[2] = 1.;
+        assert_eq!(
+            eval(Op::CombineTarget, &f, &a).unwrap(),
+            vec![0., 0., 0., 0., 2.]
+        );
+        // SetCanonical stores its inputs and has a defined zero-axis fallback;
+        // constructor failure is not uninitialized state or a reason to refuse it.
+        assert!(eval(Op::Transform, &f, &a).is_ok());
     }
 }
