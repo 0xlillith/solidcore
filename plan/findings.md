@@ -3748,7 +3748,8 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   geometry imported as its B-spline part were not deferred; `inexact_geometry` now defers
   them (gap ops on loop edge uses, the 3D-drop branch of `GetStartPointUVLoopGap`) to
   `surface.cone_p1`, `surface.sphere`, `surface.surf_of_extrusion_p2` or
-  `topology.brep_p7`, with the mapping of `topology.edgeuse_p2`. With the exact import,
+  `topology.brep_p7` (relabelled to `topology.brep_p10` `MakeTopologyFromData` by PR #155),
+  with the mapping of `topology.edgeuse_p2`. With the exact import,
   every computed gap agrees bit for bit. `fixtures/topology.edgeuse_p1/review_gap_values.json`
   (1680 cases) keeps them compared. The units sharing the import (`topology.edgeuse_p2`,
   `topology.loopuse`, `query.api_queries`, `query.edge`, `query.face_p2`) give unchanged
@@ -4295,7 +4296,7 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   ~1e-15 (distances 6.2e-15 vs 4.0e-15). The runner therefore defers such cases (on the
   unit of the missing `SurfaceKind`, as `Surface::read_from_db` does, or on
   `topology.brep_p7` `SmBrep::ReadFromFile` where only an exact Rust B-rep reader can
-  hold the geometry). Most upstream `.smb` faces are analytic; compared
+  hold the geometry; relabelled to `topology.brep_p10` `MakeTopologyFromData` by PR #155). Most upstream `.smb` faces are analytic; compared
   `CheckAndSetUVTrimCurve` cases come from `Endcap.smb`, `ellips_ts2.smb`, `Mouse.smb`
   B-spline faces and `CreateFaceFromSurface` B-spline faces.
 - **Deferred everywhere else.** `IsTangentSector` (non-lamina), `IsConvexRadialSector`

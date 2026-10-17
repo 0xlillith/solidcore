@@ -141,8 +141,13 @@ fn brep_notify(_b: &mut Brep, _op: NotifyOperation, _data: [Option<EntityRef>; 3
     Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
 }
 
-/// `SmBrep::SetTolerance(tol)` (`SM_USE_OLDTOL`).
-fn brep_set_tolerance(_b: &mut Brep, _tol: f64) -> Result<()> {
+/// `SmBrep::SetTolerance(tol, bUpdateOnlyIfLarger, bCascadeToBndries)` (`SM_USE_OLDTOL`).
+fn brep_set_tolerance(
+    _b: &mut Brep,
+    _tol: f64,
+    _update_only_if_larger: bool,
+    _cascade_to_boundaries: bool,
+) -> Result<()> {
     // UNPORTED(topology.brep_p2): SmBrep::SetTolerance
     Err(SolidError::unported(
         "SmBrep::SetTolerance",
@@ -314,8 +319,14 @@ fn face_notify(
     Err(SolidError::unported("SmFace::Notify", "topology.face_p3"))
 }
 
-/// `SmFace::SetTolerance(tol)` (`SM_USE_OLDTOL`).
-fn face_set_tolerance(_b: &mut Brep, _f: FaceId, _tol: f64) -> Result<()> {
+/// `SmFace::SetTolerance(tol, bUpdateOnlyIfLarger, bCascadeToBndries)` (`SM_USE_OLDTOL`).
+fn face_set_tolerance(
+    _b: &mut Brep,
+    _f: FaceId,
+    _tol: f64,
+    _update_only_if_larger: bool,
+    _cascade_to_boundaries: bool,
+) -> Result<()> {
     // UNPORTED(topology.face_p3): SmFace::SetTolerance
     Err(SolidError::unported(
         "SmFace::SetTolerance",
@@ -323,11 +334,12 @@ fn face_set_tolerance(_b: &mut Brep, _f: FaceId, _tol: f64) -> Result<()> {
     ))
 }
 
-/// `pNewFace->CreateUVTrimCurves(FALSE, &uvCurves, &orients, ..)`.
+/// `pNewFace->CreateUVTrimCurves(bAdjustTolerances, &uvCurves, &orients, ..)`.
 fn face_create_uv_trim_curves(
     _k: &Kernel,
     _b: &mut Brep,
     _f: FaceId,
+    _adjust_tolerances: bool,
     _uv: Vec<Curve>,
     _orients: &[OrientType],
 ) -> Result<()> {
@@ -363,7 +375,9 @@ fn merge_copy_faces(
 }
 
 /// One interval of a self-intersection curve's classification: its parameter interval
-/// and the edge its middle is classified to (`None`: the middle is not on an edge).
+/// and the edge its middle is classified to (`None`: the middle is not on an edge). A
+/// stand-in for `SmCurveClassification` (it drops the end point classes `MergeIntervals`
+/// reads): wiring replaces it with `intersect.curve_class_p4`'s classification.
 type ClassifiedInterval = (Extent1d, Option<EdgeId>);
 
 /// `SmCurveClassification sCC(uvCurve, ivl, uvCurve, tol, 16, data, FALSE, TRUE,
@@ -570,7 +584,8 @@ pub fn make_face(
 
     // default face tolerance to Brep tolerance
     let tol = b.tolerance();
-    face_set_tolerance(b, new_face, tol)?;
+    // SetTolerance(GetTolerance()) = (tol, TRUE, TRUE): grow only, cascade
+    face_set_tolerance(b, new_face, tol, true, true)?;
 
     // make the face->surface connections
     surface.set_owner(Some(this_face(new_face)));
@@ -1005,7 +1020,8 @@ pub fn make_face_with_curves(
         // (upstream loops over cpOptUVCurves->GetSize(): a null array is dereferenced)
         let uv: Vec<Curve> = uv_curves
             .ok_or_else(|| null("crv_on_surf without UV curves (upstream dereferences null)"))?;
-        let r = face_create_uv_trim_curves(k, b, face, uv, &orientations);
+        // CreateUVTrimCurves(FALSE, &sNewUVCurves, &crCurveOrientations, ..)
+        let r = face_create_uv_trim_curves(k, b, face, false, uv, &orientations);
         match r {
             Err(e) if e.is_unported() => return Err(e),
             Err(SolidError::Upstream { code, .. }) if code == crate::error::SM_ERR => {
@@ -1344,7 +1360,8 @@ pub fn glue_edges_general(
 /// `CopyFaces`: copies `faces` of `src` into `dest`: with `use_merge` through the merge
 /// (keeping the topology between copied faces), else face by face from copies of their
 /// curves and surface (a face that cannot be copied makes the result `SM_ERR` but the
-/// others are still copied). The destination takes the source's tolerance. Returns the
+/// others are still copied). The destination's tolerance grows to the source's (it is
+/// never lowered). Returns the
 /// new faces of `dest`, and whether every face was copied.
 ///
 /// # Errors
@@ -1359,7 +1376,8 @@ pub fn copy_faces(
     use_merge: bool,
     this_face: &dyn Fn(FaceId) -> ObjectRef,
 ) -> Result<(Vec<FaceId>, bool)> {
-    brep_set_tolerance(dest, src.tolerance())?;
+    // pDestinationBrep->SetTolerance(GetTolerance()) = (tol, TRUE, TRUE): grow only
+    brep_set_tolerance(dest, src.tolerance(), true, true)?;
     let mut new_faces = Vec::new();
     let mut all_ok = true;
     // (upstream reads the destination's infinite region before both branches)
