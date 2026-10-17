@@ -27,7 +27,7 @@
 //! | `ReflectShell` | `face`                                           | `status`, then `shell1 shell2` and per shell its face use count (`n c*n`, -1 for a wire shell) |
 //! | `RmLoopVu`     | `vu`                                             | `status vertex_list_size [remaining(n idx*n)]` |
 //! | `MarkLoops`    | `loop level`                                     | `status loops(n idx*n)` |
-//! | `SwapFaceUv`   | `face mark premark`                              | `1` (unmarked: the Rust side defers) or `0 marked u0 v0 u1 v1` |
+//! | `SwapFaceUv`   | `face mark premark`                              | `0 marked u0 v0 u1 v1 [B-rep]` (an unmarked face is swapped: the `put_healed` B-rep follows) |
 //! | `CheckUv`      | `eu`                                             | `status` |
 //! | `LockBox`      |                                                  | `0` |
 //! | `FindSide`     | `curve P[3] D[3] tol`                            | `status right_hand_side` (`sm_FindSideOfCurve`) |

@@ -2755,8 +2755,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_swap_face_uv_0_2_0",
@@ -4056,8 +4056,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_swap_face_uv_0_2_0",
@@ -5276,8 +5276,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_swap_face_uv_0_2_0",
@@ -6529,8 +6529,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "cone_swap_face_uv_0_2_0",
@@ -7815,8 +7815,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "disk_swap_face_uv_0_2_0",
@@ -9055,8 +9055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_swap_face_uv_0_2_0",
@@ -10287,8 +10287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_swap_face_uv_0_2_0",
@@ -11519,8 +11519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_swap_face_uv_0_2_0",
@@ -12755,8 +12755,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "sphere_swap_face_uv_0_2_0",
@@ -14044,8 +14044,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_swap_face_uv_0_2_0",
@@ -15332,8 +15332,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_swap_face_uv_0_2_0",
@@ -16620,8 +16620,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_swap_face_uv_0_2_0",
@@ -17912,8 +17912,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "torus_swap_face_uv_0_2_0",
@@ -19209,8 +19209,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_swap_face_uv_0_2_0",
@@ -20498,8 +20498,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_swap_face_uv_0_2_0",
@@ -21299,8 +21299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::SwapUV",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0015",
@@ -21322,9 +21322,9 @@
     "query.face_p2": 9,
     "surface.surface_cache_p1": 3,
     "topology.edgeuse_p3": 93,
-    "topology.face_p1": 16,
     "topology.face_p2": 44,
     "topology.face_p3": 18,
+    "topology.face_p4": 16,
     "topology.shell": 151
   },
   "max_rel_err": 0.0,

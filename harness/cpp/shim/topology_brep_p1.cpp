@@ -1304,12 +1304,7 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         bool premark = rd.flag();
         if (premark)
             f->Mark(mark);
-        if (!f->IsMarked(mark))
-        {
-            // SmFace::SwapUV: the Rust side defers (unit topology.face_p1)
-            o.push_back(1.0);
-            break;
-        }
+        bool swaps = !f->IsMarked(mark);
         sc_brep_p1::sm_SwapFaceUV(f, mark);
         o.push_back(0.0);
         o.push_back(flg(f->IsMarked(mark)));
@@ -1318,6 +1313,9 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         o.push_back(d.GetMin().y);
         o.push_back(d.GetMax().x);
         o.push_back(d.GetMax().y);
+        // an unmarked face was swapped (surface, trim curves, loop uses): the B-rep after it
+        if (swaps)
+            put_healed(brep, o);
         break;
     }
     case OP_CHECK_UV:

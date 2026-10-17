@@ -1333,11 +1333,22 @@ fn run_rust_op(
             if *premark {
                 marks.mark(k, Entity::Face(f), mark);
             }
+            let swaps = !marks.is_marked(k, Entity::Face(f), mark);
             bp1::swap_face_uv(k, b, &mut marks, f, mark)?;
+            // a swap transforms the surface and mirrors the trim curves: compared only
+            // where the import is exact
+            if swaps {
+                if let Some(d) = inexact(types, None, None) {
+                    return Ok(Err(d));
+                }
+            }
             o.push(0.0);
             o.push(flag(marks.is_marked(k, Entity::Face(f), mark)));
             let d = b.face(f)?.uv_domain;
             o.extend([d.min().x, d.min().y, d.max().x, d.max().y]);
+            if swaps {
+                put_healed(k, b, types, &mut o)?;
+            }
         }
         OpIn::CheckUv { eu } => {
             let e = EdgeuseId::from_index(*eu as u32);

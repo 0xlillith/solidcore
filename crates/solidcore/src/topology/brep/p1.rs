@@ -94,8 +94,7 @@
 //!   tagged `UNPORTED(<unit>)`): `SmRegion::GetShells`, `SetIsVoid`, `IsVoid`,
 //!   `SmShell::GetMatedShells` (`topology.shell`), `SmEdgeuse::GetOrCreateUVTrimCurve`,
 //!   `NormalizedEvaluate`, `EvaluateBinormal` (`topology.edgeuse_p3`),
-//!   `SmFace::SwapUV` (`topology.face_p1`), `SmFace::FaceIntersect`
-//!   (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
+//!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
 //!   `UnLockBoundingBox` (`query.brep`).
 
 use std::collections::BTreeMap;
@@ -104,7 +103,7 @@ use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p1::GlobalPointSolveOptions;
 use crate::curve::curve::p3::PointSolveOptions;
 use crate::curve::curve::{Curve, CurveKind};
-use crate::error::{ignored, EntityRef, Result, SolidError};
+use crate::error::{ignore_status, ignored, EntityRef, Result, SolidError};
 use crate::geom::a_object::sag_is_kind_of;
 use crate::geom::attribute::{AttributeHandle, AttributeStore, ObjectKey};
 use crate::geom::context::MarkType;
@@ -130,6 +129,7 @@ use crate::surface::surface::Surface;
 use crate::topology::brep_cache::{arena_identity, CacheObject};
 use crate::topology::edge::{self, AttributeFilter};
 use crate::topology::edgeuse::p1 as eu1;
+use crate::topology::face::p1 as face1;
 use crate::topology::face::p2 as face2;
 use crate::topology::loopuse;
 use crate::topology::proto_topology::p1::CopyBrepMap;
@@ -1081,12 +1081,13 @@ fn mark_loops_to_delete_bounded(
 // ---- face UV swap (sm_SwapFaceUV) --------------------------------------------------------
 
 /// `sm_SwapFaceUV`: flips the face's normal (`SmFace::SwapUV`) unless its `mark` is
-/// set, and sets the mark.
+/// set, and sets the mark. `SwapUV`'s failing status is ignored (upstream's release
+/// `SE`), so the face is marked whatever the swap did.
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for an unmarked face: `SmFace::SwapUV` is unit
-/// `topology.face_p1`.
+/// [`SolidError::NotFound`] for a dangling face; [`SolidError::Unported`] from
+/// `SwapUV`'s unported callees.
 pub fn swap_face_uv(
     k: &Kernel,
     b: &mut Brep,
@@ -1099,9 +1100,10 @@ pub fn swap_face_uv(
     if marks.is_marked(k, Entity::Face(face), mark) {
         return Ok(());
     }
-    // swap and mark the face
-    // UNPORTED(topology.face_p1): SmFace::SwapUV
-    Err(SolidError::unported("SmFace::SwapUV", "topology.face_p1"))
+    // swap and mark the face (SE: the status is ignored)
+    ignore_status(face1::swap_uv(k, b, face))?;
+    marks.mark(k, Entity::Face(face), mark);
+    Ok(())
 }
 
 // ---- UV trim curve check (sm_CheckUVTrimCurve) -----------------------------------------
