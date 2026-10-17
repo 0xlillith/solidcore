@@ -362,7 +362,7 @@ fn brep_edges(brep: &Brep) -> Result<Vec<EdgeId>> {
 /// `SmBrep::GetShells` (ported in `topology::brep::p1`; empty for a B-rep without
 /// regions, otherwise it defers on `SmRegion::GetShells`, unit `topology.shell`, until
 /// that lands; that port also widens this to `&mut Kernel` for its mark lock).
-fn brep_shells(k: &Kernel, brep: &Brep) -> Result<Vec<ShellId>> {
+fn brep_shells(k: &mut Kernel, brep: &Brep) -> Result<Vec<ShellId>> {
     crate::topology::brep::p1::shells(k, brep, None)
 }
 
@@ -376,7 +376,7 @@ fn set_face_tolerance(_brep: &mut Brep, _face: FaceId, _tolerance: f64) -> Resul
 /// mates. In both modes the vertex list is the intersection list plus the deleted
 /// edges' endpoints, rather than every vertex in the B-rep.
 pub fn boolean_post_process(
-    k: &Kernel,
+    k: &mut Kernel,
     brep: &mut Brep,
     relations: &CleanupRelations,
     check_all_edges: bool,
@@ -560,7 +560,7 @@ mod tests {
             ..CleanupRelations::default()
         };
         // the stale ids are skipped and a B-rep without regions has no shells to count
-        boolean_post_process(&Kernel::default(), &mut b, &r, false).unwrap();
+        boolean_post_process(&mut Kernel::default(), &mut b, &r, false).unwrap();
     }
 
     #[test]

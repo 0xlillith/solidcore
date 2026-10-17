@@ -405,7 +405,7 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
             p,
             t,
             scaled_zero,
-            orient: orient % 3,
+            orient,
             for_tess,
         },
         OpIn::CornerBlend {
@@ -942,13 +942,16 @@ fn status_of(e: &SolidError) -> f64 {
     }
 }
 
-fn mark_type(code: u8) -> MarkType {
+/// The `SmMarkType` of a resolved mark code (`SM_MT_MARK` 1, `MARK2` 2, `MARK3` 4,
+/// `MARKIO` 8, `MARKASSERT` 16); any other code is a harness error (lesson 22).
+fn mark_type(code: u8) -> Result<MarkType, HarnessError> {
     match code {
-        1 => MarkType::Mark,
-        2 => MarkType::Mark2,
-        4 => MarkType::Mark3,
-        16 => MarkType::MarkAssert,
-        _ => MarkType::MarkIo,
+        1 => Ok(MarkType::Mark),
+        2 => Ok(MarkType::Mark2),
+        4 => Ok(MarkType::Mark3),
+        8 => Ok(MarkType::MarkIo),
+        16 => Ok(MarkType::MarkAssert),
+        other => Err(harness(format!("unknown mark code {other}"))),
     }
 }
 
@@ -1617,7 +1620,7 @@ fn run_rust_op(
             premark,
         } => {
             let f = FaceId::from_index(*face as u32);
-            let mark = mark_type(*mark);
+            let mark = mark_type(*mark)?;
             let mut marks = Marks::default();
             if *premark {
                 marks.mark(k, Entity::Face(f), mark);
@@ -1770,10 +1773,17 @@ fn run_rust_op(
                     return Ok(Err(d));
                 }
             }
+            // SmOrientType: SM_OT_UNKNOWN = 0, SM_OT_SAME = 1, SM_OT_OPPOSITE = 2 (the FFI
+            // refuses anything else; lesson 22: never default an unknown code)
             let orient = match orient {
+                0 => OrientType::Unknown,
                 1 => OrientType::Same,
                 2 => OrientType::Opposite,
-                _ => OrientType::Unknown,
+                other => {
+                    return Err(Fail::Harness(harness(format!(
+                        "unknown orientation code {other}"
+                    ))))
+                }
             };
             let r = bp1::make_vertex_split_uv_trim_curve(
                 k,

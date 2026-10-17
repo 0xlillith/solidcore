@@ -91,11 +91,17 @@
 //!   point (upstream borrows it); `sm_FindSectorOfFace` returns the region as `Option`
 //!   (upstream hands back the shell's region pointer unchecked).
 //! - Calls into units not ported yet return [`SolidError::Unported`] (every site is
-//!   tagged `UNPORTED(<unit>)`): `SmRegion::GetShells`, `SetIsVoid`, `IsVoid`,
-//!   `SmShell::GetMatedShells` (`topology.shell`), `SmEdgeuse::GetOrCreateUVTrimCurve`,
+//!   tagged `UNPORTED(<unit>)`, one stub per call site with the code after it ported):
+//!   `SmRegion::GetShells`, `SetIsVoid`, `IsVoid`, `SetList`, `SmShell::GetRegion`,
+//!   `GetMatedShells` (`topology.shell`), `SmEdgeuse::GetOrCreateUVTrimCurve`,
 //!   `NormalizedEvaluate`, `EvaluateBinormal` (`topology.edgeuse_p3`),
 //!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
-//!   `UnLockBoundingBox` (`query.brep`).
+//!   `UnLockBoundingBox` (`query.brep`), `SmBSplineSurface::CreateCornerBlend` with a
+//!   non-B-spline neighbour surface (`nurbs.b_spline_surface_n_lib_p2`, whose port takes
+//!   B-spline neighbours only).
+//! - `GetShells` dedups with a shell mark record local to the call (upstream marks the
+//!   `SmShell` objects); `SetRegionIsVoidFlagsForNestedSolids` bounds its shell queue at
+//!   `4 * shells + 16` passes.
 
 use std::collections::BTreeMap;
 
@@ -106,9 +112,10 @@ use crate::curve::curve::{Curve, CurveKind};
 use crate::error::{ignore_status, ignored, EntityRef, Result, SolidError};
 use crate::geom::a_object::sag_is_kind_of;
 use crate::geom::attribute::{AttributeHandle, AttributeStore, ObjectKey};
-use crate::geom::context::MarkType;
+use crate::geom::context::{with_mark_lock, MarkType, ALL_MARKS};
 use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent2d::Extent2d;
+use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::tol;
@@ -133,6 +140,7 @@ use crate::topology::face::p1 as face1;
 use crate::topology::face::p2 as face2;
 use crate::topology::loopuse;
 use crate::topology::proto_topology::p1::CopyBrepMap;
+use crate::topology::topology::Topology;
 use crate::topology::topology_traverser::{Entity, Marks};
 use crate::topology::vertex;
 use crate::topology::vertexuse;
@@ -446,28 +454,35 @@ pub fn vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: `SmRegion::GetShells` is unit `topology.shell`; a B-rep
-/// without regions returns the empty list, as upstream (the per-region loop never runs).
-///
-/// Takes `&Kernel` until `topology.shell` lands: upstream opens `SmNewMarkAndLock` on the
-/// context here, so that port widens this (and `boolean::merge::p1::boolean_post_process`)
-/// to `&mut Kernel`.
+/// [`SolidError::Unported`] from `SmRegion::GetShells` (unit `topology.shell`) for a
+/// B-rep with regions; a B-rep without regions returns the empty list, as upstream
+/// (the per-region loop never runs). Those of the mark lock.
 pub fn shells(
-    k: &Kernel,
+    k: &mut Kernel,
     b: &Brep,
     attribute: Option<&AttributeFilter<'_>>,
 ) -> Result<Vec<ShellId>> {
-    let _ = (k, attribute);
     // get regions
     let regions = regions(b, None)?;
-    if regions.is_empty() {
-        return Ok(Vec::new());
-    }
-    // UNPORTED(topology.shell): SmRegion::GetShells
-    Err(SolidError::unported(
-        "SmRegion::GetShells",
-        "topology.shell",
-    ))
+    with_mark_lock(k, ALL_MARKS, |k, mark| -> Result<Vec<ShellId>> {
+        let mut marked: BTreeMap<ShellId, Topology> = BTreeMap::new();
+        let mut out = Vec::new();
+        // for every region
+        for r in regions {
+            // get this region's shells
+            for s in region_shells(b, r, attribute)? {
+                // skip marked shells
+                let rec = marked.entry(s).or_default();
+                if rec.is_marked(&k.context, mark) {
+                    continue;
+                }
+                // mark and add shell to output
+                rec.mark(Some(&k.context), mark);
+                out.push(s);
+            }
+        }
+        Ok(out)
+    })?
 }
 
 /// `GetWireEdges`: the wire edges of [`edges`] (`SmEdge::IsWire`).
@@ -614,7 +629,7 @@ pub fn curves<'b>(
 /// # Errors
 ///
 /// [`SolidError::Unported`] when the vertex check passes: the bounding box is
-/// `SmBrep::CalculateBoundingBox` (unit `query.brep`).
+/// `SmBrep::CalculateBoundingBox` (unit `query.brep`), then `SmExtent3d::IsPointSized`.
 pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
     let _ = k;
     let tol_sq = tol_3d * tol_3d;
@@ -630,12 +645,10 @@ pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
         }
     }
 
-    // If Brep might be degenerate - Do expensive full check
-    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox (then SmExtent3d::IsPointSized)
-    Err(SolidError::unported(
-        "SmBrep::CalculateBoundingBox",
-        "query.brep",
-    ))
+    // If Brep might be degenerate - Do expensive full check (CalculateBoundingBox's
+    // status is ignored: a failure leaves the default box)
+    let bbox = ignored(brep_bounding_box(b))?.unwrap_or_default();
+    Ok(bbox.is_point_sized(tol_3d))
 }
 
 // ---- infinite region ------------------------------------------------------------------
@@ -662,7 +675,9 @@ pub enum SetRegionVoidType {
 ///
 /// `SM_ERR_INVALID_INPUT` for no region (`NULL`) or one not on the B-rep's list;
 /// [`SolidError::Unported`] for the flag update (`SmRegion::SetIsVoid` / `IsVoid`,
-/// unit `topology.shell`), after the region and list head have been changed.
+/// unit `topology.shell`), after the region and list head have been changed. The
+/// nested-solid update's statuses are ignored as upstream (only `Unported` and the
+/// null-dereference `InvalidInput` propagate).
 pub fn reset_infinite_region(
     k: &mut Kernel,
     b: &mut Brep,
@@ -686,21 +701,29 @@ pub fn reset_infinite_region(
 
     // manage IsVoid region bits
     match void_setting {
-        SetRegionVoidType::NestedSolid => set_region_is_void_flags_for_nested_solids(k, b),
-        SetRegionVoidType::InfiniteRegionSwap if old_infinite_region.is_none() => {
-            // upstream dereferences the (null) old infinite region here
-            Err(null(
-                "ResetInfiniteRegion swap without an old infinite region",
-            ))
+        SetRegionVoidType::NestedSolid => {
+            // status ignored upstream; the port's null-dereference marker still propagates
+            match set_region_is_void_flags_for_nested_solids(k, b) {
+                Err(e @ SolidError::InvalidInput { .. }) => return Err(e),
+                r => ignore_status(r)?,
+            }
         }
-        SetRegionVoidType::InfiniteRegionOnly | SetRegionVoidType::InfiniteRegionSwap => {
-            // UNPORTED(topology.shell): SmRegion::SetIsVoid, SmRegion::IsVoid
-            Err(SolidError::unported(
-                "SmRegion::SetIsVoid",
-                "topology.shell",
-            ))
+        SetRegionVoidType::InfiniteRegionOnly => {
+            region_set_is_void(b, new_infinite_region, true)?;
+        }
+        SetRegionVoidType::InfiniteRegionSwap => {
+            let Some(old) = old_infinite_region else {
+                // upstream dereferences the (null) old infinite region here
+                return Err(null(
+                    "ResetInfiniteRegion swap without an old infinite region",
+                ));
+            };
+            let new_is_void = region_is_void(b, new_infinite_region)?;
+            region_set_is_void(b, old, new_is_void)?;
+            region_set_is_void(b, new_infinite_region, true)?;
         }
     }
+    Ok(())
 }
 
 /// `SetRegionIsVoidFlagsForNestedSolids`: with the infinite region first on the
@@ -710,10 +733,11 @@ pub fn reset_infinite_region(
 /// # Errors
 ///
 /// `SM_ERR` when the infinite region is not identified or not the list head;
-/// [`SolidError::Unported`] otherwise (`SmRegion::SetIsVoid`, `GetShells`,
-/// `SmShell::GetMatedShells`, unit `topology.shell`).
+/// [`SolidError::Unported`] from the region and shell calls (`SmRegion::SetIsVoid`,
+/// `IsVoid`, `GetShells`, `SetList`, `SmShell::GetRegion`, `GetMatedShells`: their data
+/// is unit `topology.shell`'s); [`SolidError::InvalidInput`] where upstream
+/// dereferences null, and past `4 * shells + 16` queue passes.
 pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) -> Result<()> {
-    let _ = k;
     // check state - look for a properly labeled infinite region
     let Some(infinite) = b.infinite_region() else {
         return Err(sm_err());
@@ -721,11 +745,54 @@ pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) 
     if regions(b, None)?.first() != Some(&infinite) {
         return Err(sm_err());
     }
-    // UNPORTED(topology.shell): SmRegion::SetIsVoid, SmRegion::GetShells, SmShell::GetMatedShells
-    Err(SolidError::unported(
-        "SmRegion::SetIsVoid",
-        "topology.shell",
-    ))
+
+    // mark the infinite region as void
+    region_set_is_void(b, infinite, true)?;
+
+    // get the infinite region's shells
+    let mut queue = region_shells(b, infinite, None)?;
+
+    // for every shell in the queue (bounded: a well-formed nesting visits each shell
+    // once)
+    let bound = b.shells().len().saturating_mul(4).saturating_add(16);
+    let mut passes = 0usize;
+    while !queue.is_empty() {
+        passes += 1;
+        if passes > bound {
+            return Err(null(
+                "SetRegionIsVoidFlagsForNestedSolids: shell nesting does not terminate",
+            ));
+        }
+        let shell = queue.remove(0);
+        let region = shell_region(b, shell)?
+            .ok_or_else(|| null("SetRegionIsVoidFlagsForNestedSolids: shell without region"))?;
+
+        // nested regions get the opposite flag
+        let nested_is_void = !region_is_void(b, region)?;
+
+        // the shells mated to this one (increments an unused mark value)
+        for mated in shell_mated_shells(k, b, shell)? {
+            let nested = shell_region(b, mated)?.ok_or_else(|| {
+                null("SetRegionIsVoidFlagsForNestedSolids: mated shell without region")
+            })?;
+            region_set_is_void(b, nested, nested_is_void)?;
+
+            // the mated shell is the nested region's outer shell
+            region_set_list(b, nested, mated)?;
+
+            // add all inner shells to the queue (the 1st shell is the outer shell)
+            let mut nested_shells = region_shells(b, nested, None)?;
+            if nested_shells.is_empty() {
+                // upstream RemoveAt(0) on an empty array
+                return Err(null(
+                    "SetRegionIsVoidFlagsForNestedSolids: nested region without shells",
+                ));
+            }
+            nested_shells.remove(0);
+            queue.extend(nested_shells);
+        }
+    }
+    Ok(())
 }
 
 // ---- region votes (sm_VoteForRegion, sm_FindHighestVote) -------------------------------
@@ -885,8 +952,15 @@ pub fn reverse_reflection_edgeuses(b: &mut Brep, e: EdgeId) -> Result<()> {
 }
 
 /// `sm_SwapReflectionShells`: when the face's two face uses sit in different shells,
-/// exchanges the shells they belong to (the face record's shell follows its first
-/// face use).
+/// exchanges the shells they belong to.
+///
+/// Upstream removes each face use from its shell's list and appends it to the other's
+/// (`Remove` / `PostInsert`): the membership is each face use's `shell`, swapped here.
+/// The order of a shell's face use list is `SmShell`'s (unit `topology.shell`) and is
+/// not modelled yet. `Face::shell` and `Shell::faces` have no upstream counterpart
+/// (`SmFace` holds no shell; the arena builders fill them, the import leaves
+/// `Shell::faces` empty): they follow the first face use, so the face moves to the
+/// other shell's list.
 ///
 /// # Errors
 ///
@@ -1105,7 +1179,7 @@ pub fn swap_face_uv(
     // a null pointer upstream's SwapUV dereferences (undefined there, not a status): it
     // propagates, as this unit's own null dereferences.
     match face1::swap_uv(k, b, face) {
-        Err(e) if matches!(e, SolidError::InvalidInput { .. }) => {
+        Err(SolidError::InvalidInput { .. }) => {
             return Err(SolidError::invalid_input(
                 OP,
                 "sm_SwapFaceUV: SmFace::SwapUV dereferences a null pointer",
@@ -1269,6 +1343,72 @@ fn normalized_evaluate(b: &Brep, eu: EdgeuseId, t: f64, uv: bool) -> Result<Poin
     Err(SolidError::unported(
         "SmEdgeuse::NormalizedEvaluate",
         "topology.edgeuse_p3",
+    ))
+}
+
+/// `SmRegion::GetShells(rShells, pOptAttributeId)` (unit `topology.shell`).
+fn region_shells(
+    b: &Brep,
+    region: RegionId,
+    attribute: Option<&AttributeFilter<'_>>,
+) -> Result<Vec<ShellId>> {
+    let _ = (b, region, attribute);
+    // UNPORTED(topology.shell): SmRegion::GetShells
+    Err(SolidError::unported(
+        "SmRegion::GetShells",
+        "topology.shell",
+    ))
+}
+
+/// `SmRegion::SetIsVoid(flag)` (unit `topology.shell`).
+fn region_set_is_void(b: &mut Brep, region: RegionId, is_void: bool) -> Result<()> {
+    let _ = (b, region, is_void);
+    // UNPORTED(topology.shell): SmRegion::SetIsVoid
+    Err(SolidError::unported(
+        "SmRegion::SetIsVoid",
+        "topology.shell",
+    ))
+}
+
+/// `SmRegion::IsVoid()` (unit `topology.shell`).
+fn region_is_void(b: &Brep, region: RegionId) -> Result<bool> {
+    let _ = (b, region);
+    // UNPORTED(topology.shell): SmRegion::IsVoid
+    Err(SolidError::unported("SmRegion::IsVoid", "topology.shell"))
+}
+
+/// `SmRegion::SetList(shell)`: the region's shell list head (the generic
+/// `SmOwningTopology::SetList`; the region's shell list is unit `topology.shell`'s data).
+fn region_set_list(b: &mut Brep, region: RegionId, shell: ShellId) -> Result<()> {
+    let _ = (b, region, shell);
+    // UNPORTED(topology.shell): SmRegion::SetList (the region's shell list)
+    Err(SolidError::unported("SmRegion::SetList", "topology.shell"))
+}
+
+/// `SmShell::GetRegion()` (unit `topology.shell`).
+fn shell_region(b: &Brep, shell: ShellId) -> Result<Option<RegionId>> {
+    let _ = (b, shell);
+    // UNPORTED(topology.shell): SmShell::GetRegion
+    Err(SolidError::unported("SmShell::GetRegion", "topology.shell"))
+}
+
+/// `SmShell::GetMatedShells(rShells)` (unit `topology.shell`).
+fn shell_mated_shells(k: &mut Kernel, b: &Brep, shell: ShellId) -> Result<Vec<ShellId>> {
+    let _ = (k, b, shell);
+    // UNPORTED(topology.shell): SmShell::GetMatedShells
+    Err(SolidError::unported(
+        "SmShell::GetMatedShells",
+        "topology.shell",
+    ))
+}
+
+/// `SmBrep::CalculateBoundingBox(rBox)` (unit `query.brep`).
+fn brep_bounding_box(b: &Brep) -> Result<Extent3d> {
+    let _ = b;
+    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
+    Err(SolidError::unported(
+        "SmBrep::CalculateBoundingBox",
+        "query.brep",
     ))
 }
 
@@ -1804,16 +1944,21 @@ fn bspline_part(curve: &Curve) -> Option<BSplineCurve> {
     }
 }
 
-/// The `SmBSplineSurface` part of a surface (`SmPlane` is one upstream).
+/// The neighbour surface `SmBSplineSurface::CreateCornerBlend` gets: the
+/// `SmBSplineSurface` part of a surface (`SmPlane` and `SmSurfOfRevolution` are B-splines
+/// upstream).
 fn bspline_surface(surface: &Surface) -> Result<&BSplineSurface> {
     match surface.kind() {
         SurfaceKind::BSpline(s) => Ok(s),
         SurfaceKind::Plane(p) => Ok(p.base()),
         SurfaceKind::SurfOfRevolution(s) => Ok(s.base()),
-        // DISPATCH GAP: an SmCrvOnSurf / corner blend over another SmSurface kind
+        // Upstream passes any SmSurface*; the port of SmBSplineSurface::CreateCornerBlend
+        // takes B-spline neighbours only (its Deviations): the other kinds are that
+        // partial unit's own unported part.
+        // UNPORTED(nurbs.b_spline_surface_n_lib_p2): SmBSplineSurface::CreateCornerBlend with a non-B-spline neighbour surface
         _ => Err(SolidError::unported(
-            "SmSurface (non-B-spline) in SmCrvOnSurf",
-            "curve.crv_on_surf",
+            "SmBSplineSurface::CreateCornerBlend (non-B-spline neighbour SmSurface)",
+            "nurbs.b_spline_surface_n_lib_p2",
         )),
     }
 }
@@ -1896,6 +2041,9 @@ pub fn make_vertex_split_uv_trim_curve(
         let mut reuse_trim_curve = false;
         if for_tesselation {
             let SurfaceKind::BSpline(bs) = surface.kind() else {
+                // the port of SmCrvOnSurf takes a B-spline surface only: that partial
+                // unit's own unported part
+                // UNPORTED(curve.crv_on_surf): SmCrvOnSurf::SmCrvOnSurf over a non-B-spline SmSurface
                 return Err(SolidError::unported(
                     "SmSurface (non-B-spline) in SmCrvOnSurf",
                     "curve.crv_on_surf",
@@ -2238,8 +2386,11 @@ pub fn create_corner_blend(
         // When Needed, put in UVTrimCurve and Surface in sOrderedUV and sOrderedSurfs arrays
         let tangent = tangencies.get(i).copied().unwrap_or(true);
         if tangent {
-            // get Edgeuse->UVTrimCurve, copy UVTrimCurve
-            let uv_curve = get_or_create_uv_trim_curve(k, b, eu)?;
+            // get Edgeuse->UVTrimCurve (status ignored upstream; SM_ASSERT(pUVCurve != NULL)
+            // is a release no-op and the copy dereferences it), copy UVTrimCurve
+            let uv_curve = ignored(get_or_create_uv_trim_curve(k, b, eu))?.ok_or_else(|| {
+                null("CreateCornerBlend: GetOrCreateUVTrimCurve left no UV trim curve")
+            })?;
             let uv_copy = uv_curve.copy(k)?;
             let Some(uv_bspline) = bspline_part(&uv_copy) else {
                 return Err(sm_err());

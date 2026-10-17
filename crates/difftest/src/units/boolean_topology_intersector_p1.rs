@@ -83,6 +83,7 @@ use solidcore::query::face::p2::{
 use solidcore::surface::surface::p2::TsectCurveType;
 use solidcore::surface::surface::Surface;
 use solidcore::surface::volume::Volume;
+use solidcore::topology::brep::p1 as bp1;
 use solidcore::topology::edge as ed;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::face::p2 as fp2;
@@ -1012,6 +1013,20 @@ impl ProtoTopology<H> for Two {
 }
 
 impl IntersectorBrep<H> for Two {
+    fn brep_edges(&self, brep: H) -> solidcore::Result<Vec<H>> {
+        let b = self.brep_r(brep)?;
+        Ok(bp1::edges(b, None)?
+            .into_iter()
+            .map(|e| hd(brep.b, K_EDGE, e.index()))
+            .collect())
+    }
+    fn brep_vertices(&self, brep: H) -> solidcore::Result<Vec<H>> {
+        let b = self.brep_r(brep)?;
+        Ok(bp1::vertices(b, None)?
+            .into_iter()
+            .map(|v| hd(brep.b, K_VERTEX, v.index()))
+            .collect())
+    }
     fn vertex_brep(&self, vertex: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(vertex)?;
         Ok(vx::brep(b, vid(vertex))?.map(|_| brep_h(vertex.b)))
@@ -1187,6 +1202,18 @@ impl IntersectorBrep<H> for Two {
 }
 
 impl TopologyObjects<H> for Two {
+    /// The adapter builds no B-rep cache (`SmBrep::GetBrepCache`, built on demand by the
+    /// C++ topology solver): the solves that need one (`BrepCurveSolve` of the wire and
+    /// lamina pass) defer under a harness label instead of comparing against nothing.
+    fn brep_cache(
+        &self,
+        _brep: H,
+    ) -> solidcore::Result<&solidcore::topology::brep_cache::BrepCache<H>> {
+        Err(SolidError::unported(
+            "SmBrep::GetBrepCache (the difftest adapter builds no B-rep cache trees)",
+            "harness:intersector-brep-cache",
+        ))
+    }
     fn curve(&self, object: H) -> solidcore::Result<&SmCurve> {
         ClassGeometry::curve(self, object).ok_or_else(|| invalid("not a curve handle"))
     }
@@ -2139,13 +2166,13 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
             }
             OpIn::CommonEdges => {
                 o.push(7.0);
-                let (a, b) = ti.common_edges()?;
+                let (a, b) = ti.common_edges(&two)?;
                 put_hs(&mut o, &a);
                 put_hs(&mut o, &b);
             }
             OpIn::CommonVertices => {
                 o.push(8.0);
-                let (a, b) = ti.common_vertices()?;
+                let (a, b) = ti.common_vertices(&two)?;
                 put_hs(&mut o, &a);
                 put_hs(&mut o, &b);
             }
