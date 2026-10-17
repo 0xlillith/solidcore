@@ -601,7 +601,7 @@ pub fn compute_loop_orientation(
     // arrive here when UVTrimCurves are not good for computation. Try 3d algorithm.
 
     // get temporary face->Surface copy
-    let surf_copy = surface_of(b, f)?.copy()?;
+    let surf_copy = surface_of(b, f)?.copy(k)?;
     let face_domain = face2::uv_domain(b, f)?;
     let surf_domain = surface_of(b, f)?.natural_uv_domain();
 
