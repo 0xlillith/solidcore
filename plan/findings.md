@@ -5869,7 +5869,8 @@ infinite region); the other 1652 compare values.
   infinite region, so `Fix_InfiniteRegion` on the three boxes compared a B-rep without one
   against one with it: the lists export now carries the infinite-region index), and (#163)
   `GetEdges` / `GetShells` in `boolean.merge_p1` (`GetShells` still stops at
-  `SmRegion::GetShells`, `topology.shell`, so its 33 cases stay deferred under that unit);
+  `SmRegion::GetShells`, `topology.shell`, so its 33 cases continue to the next stub: 26 there, 4
+  `boolean.topology_intersector_p3`, 3 `topology.face_p2`);
   in the other direction
   `SmBrep::HealBrep` creates a `HealData` (on a loop handle, `HealLoopHandle`) and calls
   `HealData::heal_brep`, ignoring every status but `Unported`, as upstream ignores the
