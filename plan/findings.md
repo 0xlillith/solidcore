@@ -4371,9 +4371,11 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
 
 ## surface.offset_surface (`SmOffsetSurface`, PR #62, 2026-10-14)
 
-- **Status (2026-10-16, after merging main `8aea1944`):** default difftest 3066 cases,
-  2853 passed, 0 failed, 213 deferred (all `surface.surface_point_solve_p3`); 6000-seed
-  run 6066 cases, 5620 passed, 0 failed, 446 deferred; compared values bit-identical.
+- **Status (2026-10-16, after merging main `56af2a02`): green.** Default difftest 3072
+  cases, 3072 passed, 0 failed, 0 deferred; 6000-seed run 6072 cases, 6072 passed;
+  compared values bit-identical. `intersect.surface_drop_lib_p2` (1531/1531) and
+  `nurbs.b_spline_surface_p1` (2120/2120) reach 0 deferred and are promoted to green.
+  (Earlier: 3066 cases, 2853 passed, 213 deferred on `surface.surface_point_solve_p3`.)
 - **Guards loosened to exactly what C++ needs (review nice-to-have):** probed every static
   FFI limit against the isolated worker. Removed the `1e6` coordinate cap, the `1e-3`
   transform-scale floor, the `1e-6` revolution generator minimum (offset callers only;
@@ -4407,7 +4409,7 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   A face-owned offset's expanded box returns `Unported(topology.face_p2)`
   (`SmFace::GetTolerance`) for a B-spline-family base instead of the default zone
   tolerance: upstream's base finds the face through `GetFace()`'s owner chain, which the
-  boxed base here lacks, so the offset passes the face down. `SmSurface::IsPeriodic`
+  base now follows (see **Owners**). `SmSurface::IsPeriodic`
   ignores its `Evaluate` statuses as upstream (`Surface::evaluate_ignoring_status`): a
   B-spline keeps the derivatives it wrote when its zero-tangent repair fails, so a
   bicubic collapsed to one point is periodic both ways and its offset constructs
@@ -4452,9 +4454,23 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   `create_extended_surface(_dir)`, `create_offset_surface`, `trim_with_domain` (main) and
   `is_planar` take `&Kernel`; `BSplineSurface::create_offset_surface` takes it and now
   returns a `Surface` (the offset).
-- **Owners.** The offset holds its base by value and does not become its owner, so the
-  base's `Surface::face` does not follow the offset's owner; `Surface::face` of a
-  caller-set surface owner now returns `InvalidInput` instead of an `Unported` marker.
+- **Owners (found when `surface.surface_point_solve_p3` landed).** The 213 cases that had
+  deferred on `LocalPointSolve_1` ran, and 5 disagreed: Rust returned a solution at a pole
+  corner that C++ rejects. Upstream's owning offset calls `m_pSurface->SetOwner(this)`, and
+  `LocalPointSolve_1` on the base then takes `SmTol::GetZoneTol3d(GetOwner())` (the system
+  zone tolerance for an offset without a face) as its loose tolerance instead of `0.01`.
+  The port now does the same: an owning offset gives its base the surface owner
+  `BASE_OWNER` wherever upstream calls `SetOwner(this)` (constructor, `Copy`, `ReadFromDB`;
+  the extended surface gets none) and hands down the face its own owner chain reaches
+  (`Surface::set_owner` keeps nested bases in step), so the base's `Surface::face`
+  follows the chain as `GetFace()` does. A non-owning offset's base keeps its caller's
+  owner (`Surface::clone_keeping_owner`, as upstream shares the object) in `Copy`,
+  `topology.face_p2`'s thick-face offset and `DropOffset`. Main's two "any owner" tests
+  that stand for `SmTol::GetZoneTol3d(const SmObject*)` (the approximation tolerance in
+  `surface.surface_p3` and the zone tolerance in `surface.surface_cache_p2`) now ask
+  `Surface::face`, as that function asks `GetFace()`. The three generated cases are kept
+  as fixtures with the base owned and shared (`owned_base_loose_tol_*`,
+  `shared_base_loose_tol_*`).
 - **Fixes in other units found by this difftest** (their difftests re-run, still green):
   `nlib.srf_nurb` / `nlib.srf_adv_p1`: `N_SrfIsClosedSmooth` stores its flag before
   returning a failed-angle error (WR-165); `Surface::is_closed_smooth_flag` returns both and
@@ -4478,8 +4494,9 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   it can still track; the shim, in the worker, re-checks every box against the actual base
   domain after the preceding steps (UB-167, HANG-19) and zero-distance delegation to a
   plane's evaluator (UB-166).
-- **Deferred:** only `SmSurface::LocalPointSolve_1` (`surface.surface_point_solve_p3`),
-  reached through the `SmSurface` solver bodies run on an offset. `GetSingularities` runs
+- **Deferred:** none since `surface.surface_point_solve_p3` landed (it was the last
+  deferral, `LocalPointSolve_1` reached through the `SmSurface` solver bodies run on an
+  offset). `GetSingularities` runs
   the `SmSurface` body for every base, an offset base too: the constructor calls it
   through `SmSurface&`, and `SmOffsetSurface::GetSingularities()` hides, not overrides,
   the virtual.
@@ -4498,16 +4515,16 @@ default 3,093-case set (which the gate and CI run) is clean, and the previous ge
   `GetSingularities` landed, `SM_SS_UNKNOWN` rails construct, and `rpSurface2->LocalPointSolve`
   runs `SmSurface::LocalPointSolve` on a copy of the other rail's offset (the solver is
   borrowed shared, so an extension it makes is dropped): 448 cases, 401 pass, 0 failed,
-  47 deferred (`surface.surface_point_solve_p3`). `topology.face_p2` (#91): a thick
+  47 deferred (`blend.fillet_standard_solver_p2`; `LocalPointSolve_1` runs since
+  `surface.surface_point_solve_p3` landed). `topology.face_p2` (#91): a thick
   face's iso-curve integrand builds its temporary `SmOffsetSurface(+-t/2)` over a copy of
   the face surface and calls `EvaluateSimple`; its 112 offset-deferred cases now pass
   (2692 cases, 2322 pass, 370 deferred) and `mass.integrator`'s one (1521 pass, 7 deferred).
   `intersect.surface_drop_lib_p2` (#112, merged after this PR started): `DropOffset`'s
   `DropVectors` / `EvaluateDirectionalDerivs` build the ported offset (not owning, the
   stored singularities) over a copy of the drop surface and run the `SmSurface` bodies,
-  which `SmOffsetSurface` does not override; its 120 offset deferrals pass (1531 cases,
-  1223 pass, 308 deferred on `surface.surface_p5` / `surface.surface_p3` stubs of that
-  unit).
+  which `SmOffsetSurface` does not override; all its offset deferrals pass (1531 cases,
+  1531 pass, 0 deferred: green).
 - **Issue numbers:** renumbered past main (`2bdd9f66`) and every open PR (2026-10-16):
   UB-165..168 (first UB-99..102, then UB-116..119, then UB-162..165), WR-159..165 (first
   WR-81..87, then WR-97..103), HANG-19 and HANG-20 (first HANG-13/14, then HANG-14/15,

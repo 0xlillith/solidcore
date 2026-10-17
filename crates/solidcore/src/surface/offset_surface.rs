@@ -29,6 +29,7 @@
 //! | [`OffsetSurface::set_offset_distance`], [`OffsetSurface::set_allow_extension`], [`OffsetSurface::set_context`] | `SetOffsetDistance`, `SetAllowExtension`, `SetContext` |
 //! | [`SS_UNKNOWN`], [`MAX_DERIVS`]                        | `SM_SS_UNKNOWN` (`SmTypes.h`), `MAX_DERIVS` (local of `EvaluatePlainOrSimple`) |
 //! | [`MAX_STEPOFF_DEPTH`]                                 | no counterpart (recursion bound)                 |
+//! | [`BASE_OWNER`]                                        | the owner `m_pSurface->SetOwner(this)` gives an owned base |
 //! | [`OffsetSurface::with_evaluator`], [`OffsetEval`]     | the offset as an `SmSurface` for inherited bodies (`Evaluate1stDerivatives`, `ComputeInwardVector`, ...) |
 //!
 //! Deviations:
@@ -180,20 +181,15 @@ pub struct OffsetSurface {
 /// by this offset or kept from its caller) is copied explicitly.
 impl Clone for OffsetSurface {
     fn clone(&self) -> Self {
-        let copy_with_owner = |s: &Surface| {
-            let mut c = s.clone();
-            c.restore_owner_state(s);
-            c
-        };
         Self {
             offset_distance: self.offset_distance,
             allow_extension: self.allow_extension,
             owns_surface: self.owns_surface,
-            surface: Box::new(copy_with_owner(&self.surface)),
+            surface: Box::new(self.surface.clone_keeping_owner()),
             extended_surface: self
                 .extended_surface
                 .as_deref()
-                .map(|e| Box::new(copy_with_owner(e))),
+                .map(|e| Box::new(e.clone_keeping_owner())),
             is_periodic_on_u: self.is_periodic_on_u,
             is_periodic_on_v: self.is_periodic_on_v,
             singularities: self.singularities,
@@ -516,8 +512,7 @@ impl OffsetSurface {
         } else {
             // when BaseSurface is not owned (shared upstream: the same base surface)
             // (the same object upstream: its owner is unchanged)
-            let mut shared = (*self.surface).clone();
-            shared.restore_owner_state(&self.surface);
+            let shared = self.surface.clone_keeping_owner();
             let mut s = Self::new(k, self.offset_distance, shared, false, SS_UNKNOWN)?;
             s.owns_surface = false;
             s
@@ -2282,6 +2277,59 @@ mod tests {
         assert!(free
             .calculate_bounding_box(&k, &dom, [true, true, true], true)
             .is_ok());
+    }
+
+    fn base_of(s: &Surface) -> &Surface {
+        match s.kind() {
+            SurfaceKind::OffsetSurface(o) => o.base_surface(),
+            _ => panic!("not an offset"),
+        }
+    }
+
+    /// An owning offset is its base's owner (`m_pSurface->SetOwner(this)`), so the
+    /// base's `GetFace()` follows the offset's owner chain at every nesting level; a
+    /// copy re-owns its base without a face; a shared base keeps its caller's owner.
+    #[test]
+    fn owned_base_follows_the_owner_chain() {
+        use crate::surface::surface::p1::zone_tol_3d;
+        let k = Kernel::default();
+        let face = ObjectRef {
+            type_code: crate::geom::assert_array::labels::FACE_TYPE,
+            key: ObjectKey(3),
+        };
+        let inner = Surface::from(OffsetSurface::new(&k, 1.0, plane(), true, 0).unwrap());
+        assert_eq!(base_of(&inner).owner(), Some(BASE_OWNER));
+        assert_eq!(base_of(&inner).face().unwrap(), None);
+
+        let mut outer = Surface::from(OffsetSurface::new(&k, 1.0, inner, true, 0).unwrap());
+        outer.set_owner(Some(face));
+        let mid = base_of(&outer);
+        assert_eq!(mid.owner(), Some(BASE_OWNER));
+        assert_eq!(mid.face().unwrap(), Some(face));
+        assert_eq!(base_of(mid).face().unwrap(), Some(face));
+        // the solver's loose tolerance asks the face (GetZoneTol3d(GetOwner()))
+        assert!(is_face_tolerance(&zone_tol_3d(&k, base_of(mid))));
+
+        // the copy constructor resets the owner; the copy still owns its bases
+        let copy = outer.clone();
+        assert_eq!(copy.owner(), None);
+        assert_eq!(base_of(&copy).owner(), Some(BASE_OWNER));
+        assert_eq!(base_of(base_of(&copy)).face().unwrap(), None);
+
+        outer.set_owner(None);
+        assert_eq!(base_of(base_of(&outer)).face().unwrap(), None);
+
+        // a non-owning offset shares its caller's surface, owner included; its copy
+        // reruns GetSingularities on that surface, which asks the caller's face
+        let mut caller = plane();
+        caller.set_owner(Some(face));
+        let shared = OffsetSurface::new(&k, 1.0, caller.clone_keeping_owner(), false, 0).unwrap();
+        assert_eq!(shared.base_surface().owner(), Some(face));
+        assert!(is_face_tolerance(&shared.copy(&k)));
+        caller.set_owner(Some(BASE_OWNER));
+        let shared = OffsetSurface::new(&k, 1.0, caller.clone_keeping_owner(), false, 0).unwrap();
+        let copy = shared.copy(&k).unwrap();
+        assert_eq!(copy.base_surface().owner(), Some(BASE_OWNER));
     }
 
     #[test]

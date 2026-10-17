@@ -139,14 +139,15 @@ impl DropOffset {
     }
 
     /// The `SmOffsetSurface` this stands for over `surface` (not owning it, with the
-    /// stored singularities): its constructor's `IsPeriodic` (and, for
-    /// [`SS_UNKNOWN`], `GetSingularities`) depend only on `surface`, so building it per
-    /// call gives the object upstream builds once.
+    /// stored singularities; the copy keeps `surface`'s owner, as upstream's shared base
+    /// does): its constructor's `IsPeriodic` (and, for [`SS_UNKNOWN`],
+    /// `GetSingularities`) depend only on `surface`, so building it per call gives the
+    /// object upstream builds once.
     fn offset_of(&self, k: &Kernel, surface: &Surface) -> Result<Surface> {
         Ok(Surface::from(OffsetSurface::new(
             k,
             self.offset_distance,
-            surface.clone(),
+            surface.clone_keeping_owner(),
             false,
             self.singularities,
         )?))

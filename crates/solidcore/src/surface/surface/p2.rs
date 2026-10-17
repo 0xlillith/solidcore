@@ -569,10 +569,21 @@ impl Surface {
     }
 
     /// Restores an owner state copied from another surface (for a field-wise copy of an
-    /// owning surface: [`Clone`] resets the owner).
+    /// owning surface: [`Clone`] resets the owner), and passes it down the bases this
+    /// surface owns.
     pub(crate) fn restore_owner_state(&mut self, from: &Self) {
         self.owner = from.owner;
         self.owner_chain_face = from.owner_chain_face;
+        self.update_owned_bases();
+    }
+
+    /// A copy standing for this same object where upstream shares it (the base of a
+    /// non-owning `SmOffsetSurface` is the caller's surface, owner included):
+    /// [`Clone`] resets the owner, this keeps it.
+    pub(crate) fn clone_keeping_owner(&self) -> Self {
+        let mut c = self.clone();
+        c.restore_owner_state(self);
+        c
     }
 
     /// Passes the face this surface reaches down the chain of bases it owns (an owning
