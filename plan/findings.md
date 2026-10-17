@@ -5809,9 +5809,16 @@ Changes made for bherbruck's review (all re-verified; numbers below are the new 
   from the Rust arenas); `imprint_intersections` returns the deleted curve handles only
   with success (on failure the handles stay unreferenced in the owner's store, so nothing
   dangles); `RemoveRelationship` through the mate closure is `_p2`'s API change (noted in
-  its plan notes); #144 (`topology.proto_topology_p1`) changes
-  `ProtoBrep::edge_other_vertex` to take `Option<O>`, which also covers this unit's
-  `edge_other_vertex_of`; whichever of #144 and #146 lands second adapts the signature.
+  its plan notes).
+- **#144 (`topology.proto_topology_p1`, merged after the pre-review).** It moved the
+  B-rep walks of `ProtoBrep` into a `ProtoTopology` supertrait (`vertex_point` now
+  returns `Result`, `edge_other_vertex` takes `Option<O>`, `edge_brep` returns the
+  B-rep's `ObjectKey`). This unit's `IntersectorBrep` dropped its duplicates
+  (`edge_start_vertex`, `edge_other_vertex_of`; the latter's null-vertex semantics are
+  `edge::other_vertex`'s: `None`, as `SmEdge::GetOtherVertex(NULL)` after `SE(SM_ERR)`),
+  renamed its handle-returning `edge_brep` to `edge_brep_handle`, and its runner's
+  `Two` implements `ProtoTopology<H>` (the walks over the handles' own operand). No
+  numeric change: the difftest result is identical.
 - **#163 (`boolean.merge_p1`, merged after the pre-review).** Its co-port of the mate
   storage over typed ids (`MateMap`, `Relations`, at this unit's module path
   `boolean::topology_intersector::p1`) is kept in this unit's `p1.rs` (add/add merge; the

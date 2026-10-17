@@ -87,6 +87,7 @@ use solidcore::surface::volume::Volume;
 use solidcore::topology::edge as ed;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::face::p2 as fp2;
+use solidcore::topology::proto_topology::p1::ProtoTopology;
 use solidcore::topology::proto_topology::{ProtoBrep, ProtoGeometry, ProtoTopologyManager};
 use solidcore::topology::topology::Topology;
 use solidcore::topology::vertex as vx;
@@ -774,16 +775,6 @@ impl ProtoBrep<H> for Two {
         self.extra.push(curve);
         Some(hh)
     }
-    fn vertex_point(&self, vertex: H) -> Option<Point3> {
-        vx::point(self.brep(vertex)?, vid(vertex)).ok()
-    }
-    fn edge_faces(&self, edge: H) -> solidcore::Result<Vec<H>> {
-        let b = self.brep_r(edge)?;
-        Ok(ed::faces(b, eid(edge), None)?
-            .into_iter()
-            .map(|f| hd(edge.b, K_FACE, f.index()))
-            .collect())
-    }
     fn vertex_common_edges(&self, v1: H, v2: H) -> solidcore::Result<Vec<H>> {
         let b = self.brep_r(v1)?;
         let other = (v2.b == v1.b && v2.kind == K_VERTEX).then(|| vid(v2));
@@ -791,11 +782,6 @@ impl ProtoBrep<H> for Two {
             .into_iter()
             .map(|e| hd(v1.b, K_EDGE, e.index()))
             .collect())
-    }
-    fn edge_other_vertex(&self, edge: H, vertex: H) -> solidcore::Result<Option<H>> {
-        let b = self.brep_r(edge)?;
-        let v = (vertex.b == edge.b && vertex.kind == K_VERTEX).then(|| vid(vertex));
-        Ok(ed::other_vertex(b, eid(edge), v)?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
     fn face_curve_on_classify(
         &self,
@@ -810,12 +796,58 @@ impl ProtoBrep<H> for Two {
     }
 }
 
+/// The B-rep walks over one operand's own entities (as `Brep`'s own impl, through the
+/// handles); an unknown handle is an invalid-input error, as a null dereference upstream.
+impl ProtoTopology<H> for Two {
+    fn vertex_use_faces(&self, vertex: H) -> solidcore::Result<Vec<Option<H>>> {
+        let b = self.brep_r(vertex)?;
+        let mut out = Vec::new();
+        for vu in vx::vertexuses(b, vid(vertex))? {
+            let face = match solidcore::topology::vertexuse::faceuse(b, vu)? {
+                Some(fu) => eu1::faceuse_face(b, fu)?,
+                None => None,
+            };
+            out.push(face.map(|f| hd(vertex.b, K_FACE, f.index())));
+        }
+        Ok(out)
+    }
+    fn edge_use_faces(&self, edge: H) -> solidcore::Result<Vec<Option<H>>> {
+        let b = self.brep_r(edge)?;
+        let mut out = Vec::new();
+        for eu in ed::edgeuses(b, eid(edge), None, None)? {
+            out.push(eu1::face(b, eu)?.map(|f| hd(edge.b, K_FACE, f.index())));
+        }
+        Ok(out)
+    }
+    fn edge_start_vertex(&self, edge: H) -> solidcore::Result<Option<H>> {
+        Ok(ed::start_vertex(self.brep_r(edge)?, eid(edge))?.map(|v| hd(edge.b, K_VERTEX, v.index())))
+    }
+    fn edge_other_vertex(&self, edge: H, vertex: Option<H>) -> solidcore::Result<Option<H>> {
+        let b = self.brep_r(edge)?;
+        let v = vertex.filter(|v| v.b == edge.b && v.kind == K_VERTEX).map(vid);
+        Ok(ed::other_vertex(b, eid(edge), v)?.map(|v| hd(edge.b, K_VERTEX, v.index())))
+    }
+    fn vertex_point(&self, vertex: H) -> solidcore::Result<Point3> {
+        vx::point(self.brep_r(vertex)?, vid(vertex))
+    }
+    fn edge_brep(&self, edge: H) -> solidcore::Result<Option<ObjectKey>> {
+        Ok(eu1::edge_brep(self.brep_r(edge)?, eid(edge))?.map(Brep::key))
+    }
+    fn edge_faces(&self, edge: H) -> solidcore::Result<Vec<H>> {
+        let b = self.brep_r(edge)?;
+        Ok(ed::faces(b, eid(edge), None)?
+            .into_iter()
+            .map(|f| hd(edge.b, K_FACE, f.index()))
+            .collect())
+    }
+}
+
 impl IntersectorBrep<H> for Two {
     fn vertex_brep(&self, vertex: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(vertex)?;
         Ok(vx::brep(b, vid(vertex))?.map(|_| brep_h(vertex.b)))
     }
-    fn edge_brep(&self, edge: H) -> solidcore::Result<Option<H>> {
+    fn edge_brep_handle(&self, edge: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(edge)?;
         Ok(ed::brep(b, eid(edge))?.map(|_| brep_h(edge.b)))
     }
@@ -882,20 +914,12 @@ impl IntersectorBrep<H> for Two {
     fn edge_vertex(&self, edge: H) -> solidcore::Result<Option<H>> {
         Ok(ed::vertex(self.brep_r(edge)?, eid(edge))?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
-    fn edge_start_vertex(&self, edge: H) -> solidcore::Result<Option<H>> {
-        Ok(ed::start_vertex(self.brep_r(edge)?, eid(edge))?.map(|v| hd(edge.b, K_VERTEX, v.index())))
-    }
     fn edge_primary_edgeuse_orientation(&self, edge: H) -> solidcore::Result<Option<OrientType>> {
         let b = self.brep_r(edge)?;
         match eu1::primary_edgeuse(b, eid(edge))? {
             Some(eu) => Ok(Some(eu1::orientation(b, eu)?)),
             None => Ok(None),
         }
-    }
-    fn edge_other_vertex_of(&self, edge: H, vertex: Option<H>) -> solidcore::Result<Option<H>> {
-        let b = self.brep_r(edge)?;
-        let v = vertex.filter(|v| v.b == edge.b && v.kind == K_VERTEX).map(vid);
-        Ok(ed::other_vertex(b, eid(edge), v)?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
     fn edge_bounding_box(&self, k: &Kernel, edge: H) -> solidcore::Result<Extent3d> {
         let b = self.brep_r(edge)?;

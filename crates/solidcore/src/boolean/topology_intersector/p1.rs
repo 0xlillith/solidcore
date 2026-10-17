@@ -207,7 +207,9 @@ fn find_common_elements<O: Copy + PartialEq>(this: &[O], other: &[O]) -> Vec<O> 
 
 /// What the intersector reads from and writes to its two B-reps (the `SmBrep`,
 /// `SmVertex`, `SmEdge` and `SmFace` members it calls), implemented by the owner of
-/// the B-reps on top of [`ProtoBrep`]. Each method names the upstream function and
+/// the B-reps on top of [`ProtoBrep`] (whose [`ProtoTopology`](crate::topology::proto_topology::ProtoTopology) walks, `vertex_point`,
+/// `edge_start_vertex` and `edge_other_vertex`, serve here too). Each method names the
+/// upstream function and
 /// the ported function that implements it. A method returns `Ok(None)` /
 /// `Err(InvalidInput)` where upstream would dereference null.
 pub trait IntersectorBrep<O>: ProtoBrep<O> {
@@ -217,12 +219,14 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
     ///
     /// Those of the topology walk.
     fn vertex_brep(&self, vertex: O) -> Result<Option<O>>;
-    /// `SmEdge::GetBrep` (`topology::edge::brep`): the B-rep handle of an edge.
+    /// `SmEdge::GetBrep` (`topology::edge::brep`): the B-rep handle of an edge
+    /// ([`ProtoTopology::edge_brep`](crate::topology::proto_topology::ProtoTopology::edge_brep) gives its key; the intersector edits the B-rep
+    /// through its handle).
     ///
     /// # Errors
     ///
     /// Those of the topology walk.
-    fn edge_brep(&self, edge: O) -> Result<Option<O>>;
+    fn edge_brep_handle(&self, edge: O) -> Result<Option<O>>;
     /// `SmVertex::SetPoint` (`topology::vertex::set_point`).
     ///
     /// # Errors
@@ -282,12 +286,6 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
     ///
     /// Those of the query.
     fn edge_vertex(&self, edge: O) -> Result<Option<O>>;
-    /// `SmEdge::GetStartVertex` (`topology::edge::start_vertex`).
-    ///
-    /// # Errors
-    ///
-    /// Those of the query.
-    fn edge_start_vertex(&self, edge: O) -> Result<Option<O>>;
     /// `SmEdge::GetPrimaryEdgeuse()->GetOrientation()`
     /// (`topology::edgeuse::p1::primary_edgeuse`, `orientation`): `None` without a
     /// primary edge use (upstream dereferences null).
@@ -303,9 +301,6 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
     ///
     /// Those of the computation.
     fn edge_bounding_box(&self, k: &Kernel, edge: O) -> Result<Extent3d>;
-    /// `SmEdge::GetOtherVertex(vertex)` with a possibly null vertex (null, with
-    /// `SE(SM_ERR)`, when the vertex is null: `SmEdge.cpp:4558-4561`).
-    fn edge_other_vertex_of(&self, edge: O, vertex: Option<O>) -> Result<Option<O>>;
     /// `SmFace::PointClassify(uv, tol, FALSE, TRUE, pc)` with upstream's other
     /// arguments at their defaults (`query::face::p2::point_classify`).
     ///
@@ -1642,9 +1637,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 continue;
             };
 
-            let pv_point = brep
-                .vertex_point(v)
-                .ok_or(dangling("vertex handle is unknown"))?;
+            let pv_point = brep.vertex_point(v)?;
 
             // Find all faces close to this vertex (the bounding box is computed and
             // unused upstream).
@@ -1694,12 +1687,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     // First set the position of the surviving vertex to be
                     // the midpoint of the two ... this should help to keep tolerances
                     // from growing excessively.
-                    let new_point = brep
-                        .vertex_point(new_vertex)
-                        .ok_or(dangling("vertex handle is unknown"))?;
-                    let v_point = brep
-                        .vertex_point(v)
-                        .ok_or(dangling("vertex handle is unknown"))?;
+                    let new_point = brep.vertex_point(new_vertex)?;
+                    let v_point = brep.vertex_point(v)?;
                     let mid = 0.5 * (v_point + new_point);
                     brep.set_vertex_point(k, v, mid)?;
 
@@ -2042,7 +2031,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 // Intersection is interior to pThisSplitEdge.
                 // Split the edge with a new vertex.
                 let e_brep = brep
-                    .edge_brep(this_split_edge)?
+                    .edge_brep_handle(this_split_edge)?
                     .ok_or(dangling("edge without B-rep"))?;
                 let (e1, e2, v) = match brep_make_vertex_split_edge(e_brep, this_split_edge, param)
                 {
@@ -2082,17 +2071,13 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 // Find that vertex: search params of boundaries of Edges in sEdgesSplitFromThis list.
                 let mut found: Option<O> = None;
 
-                let new_face_pt = brep
-                    .vertex_point(new_face_vtx)
-                    .ok_or(dangling("vertex handle is unknown"))?;
+                let new_face_pt = brep.vertex_point(new_face_vtx)?;
                 let num_split = edges_split_from_this.len();
                 for (jj, &this_e) in edges_split_from_this.iter().enumerate() {
                     let vtx = brep
                         .edge_start_vertex(this_e)?
                         .ok_or(dangling("edge without start vertex"))?;
-                    let vtx_pt = brep
-                        .vertex_point(vtx)
-                        .ok_or(dangling("vertex handle is unknown"))?;
+                    let vtx_pt = brep.vertex_point(vtx)?;
                     if vtx_pt.closer_than(this_tol, new_face_pt) {
                         found = Some(vtx);
                         break;
@@ -2101,11 +2086,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     // Check top of domain for last piece.
                     if jj + 1 == num_split {
                         let vtx = brep
-                            .edge_other_vertex(this_e, vtx)?
+                            .edge_other_vertex(this_e, Some(vtx))?
                             .ok_or(dangling("edge without end vertex"))?;
-                        let vtx_pt = brep
-                            .vertex_point(vtx)
-                            .ok_or(dangling("vertex handle is unknown"))?;
+                        let vtx_pt = brep.vertex_point(vtx)?;
                         if vtx_pt.closer_than(this_tol, new_face_pt) {
                             found = Some(vtx);
                             break;
@@ -2121,12 +2104,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 // First set the position of the surviving vertex to be
                 // the midpoint of the two ... this should help to keep tolerances
                 // from growing excessively.
-                let ev_pt = brep
-                    .vertex_point(ev)
-                    .ok_or(dangling("vertex handle is unknown"))?;
-                let fv_pt = brep
-                    .vertex_point(new_face_vtx)
-                    .ok_or(dangling("vertex handle is unknown"))?;
+                let ev_pt = brep.vertex_point(ev)?;
+                let fv_pt = brep.vertex_point(new_face_vtx)?;
                 let mid = 0.5 * (ev_pt + fv_pt);
                 brep.set_vertex_point(k, ev, mid)?;
 
@@ -2987,9 +2966,7 @@ pub fn intersect_shell_vertices<O: ClassObject + SolutionObject + Ord>(
         let vtx_zone_tol = geometry
             .topology_tolerance(vertex)
             .ok_or(dangling("vertex handle is unknown"))?;
-        let point = geometry
-            .vertex_point(vertex)
-            .ok_or(dangling("vertex handle is unknown"))?;
+        let point = geometry.vertex_point(vertex)?;
 
         // intersect pVertex with Brep (temporarily disable EditingEnabled)
         let old_edit = geometry.set_editing_enabled(brep2, false)?;
@@ -3143,7 +3120,7 @@ pub fn intersect_wire_lamina_edges<O: ClassObject + SolutionObject + Ord>(
             ci.mid.set_class_object(PointClassType::Edge, Some(edge));
         }
         // (GetOtherVertex of a null vertex is null, with SE(SM_ERR))
-        let vertex = geometry.edge_other_vertex_of(edge, vertex)?;
+        let vertex = geometry.edge_other_vertex(edge, vertex)?;
         crv_class1
             .at_mut(0)?
             .end
@@ -3238,7 +3215,7 @@ pub fn set_edge_class<O: ClassObject + SolutionObject + Ord>(
         .edge_vertex(edge)?
         .ok_or(dangling("edge without vertex"))?;
     let mut v2 = geometry
-        .edge_other_vertex(edge, v1)?
+        .edge_other_vertex(edge, Some(v1))?
         .ok_or(dangling("edge without other vertex"))?;
     let prim_eu_orientation = geometry
         .edge_primary_edgeuse_orientation(edge)?
@@ -3299,9 +3276,7 @@ pub fn set_edge_class<O: ClassObject + SolutionObject + Ord>(
         .ok_or(dangling("edge handle is unknown"))?;
 
     // when curveInterval start is trimmed
-    let v1_point = geometry
-        .vertex_point(v1)
-        .ok_or(dangling("vertex handle is unknown"))?;
+    let v1_point = geometry.vertex_point(v1)?;
     if start.distance(v1_point) > start_tol {
         // change CurveClassification m_vStart from Vertex to Point on Edge classification
         let dropped = edge_curve.drop_point(
@@ -3325,9 +3300,7 @@ pub fn set_edge_class<O: ClassObject + SolutionObject + Ord>(
         .topology_tolerance(v2)
         .ok_or(dangling("vertex handle is unknown"))?;
     let end_tol = v2_tol + src_zone_tol_3d;
-    let v2_point = geometry
-        .vertex_point(v2)
-        .ok_or(dangling("vertex handle is unknown"))?;
+    let v2_point = geometry.vertex_point(v2)?;
     if end.distance(v2_point) > end_tol {
         // change CurveClassification m_vEnd from Vertex to Point on Edge classification
         let dropped = edge_curve.drop_point(
@@ -3405,20 +3378,16 @@ pub fn check_interior_edge<O: ClassObject>(
     let v = geometry
         .edge_vertex(edge)?
         .ok_or(dangling("edge without vertex"))?;
-    let v_point = geometry
-        .vertex_point(v)
-        .ok_or(dangling("vertex handle is unknown"))?;
+    let v_point = geometry.vertex_point(v)?;
     let dist = position.distance(v_point);
     if dist <= tol {
         return Ok(false);
     }
 
     let v = geometry
-        .edge_other_vertex(edge, v)?
+        .edge_other_vertex(edge, Some(v))?
         .ok_or(dangling("edge without other vertex"))?;
-    let v_point = geometry
-        .vertex_point(v)
-        .ok_or(dangling("vertex handle is unknown"))?;
+    let v_point = geometry.vertex_point(v)?;
     let dist = position.distance(v_point);
     if dist <= tol {
         return Ok(false);
@@ -3529,7 +3498,7 @@ pub fn test_and_split_two_edges<O: ClassObject + SolutionObject + Ord>(
         // The intersection is interior to both Edges.
         // Split them both, and then glue the vertices.
         let brep = geometry
-            .edge_brep(edge1)?
+            .edge_brep_handle(edge1)?
             .ok_or(SolidError::null_pointer(OP_SPLIT_TWO))?;
 
         let (e1, e2, new_v1) = match brep_make_vertex_split_edge(brep, edge1, t1) {
@@ -3551,7 +3520,7 @@ pub fn test_and_split_two_edges<O: ClassObject + SolutionObject + Ord>(
         out.new_edges1.push(new_edge);
 
         let brep = geometry
-            .edge_brep(edge2)?
+            .edge_brep_handle(edge2)?
             .ok_or(dangling("edge without B-rep"))?; // Presumably the same... (dereferenced upstream)
         let (e1, e2, new_v2) = match brep_make_vertex_split_edge(brep, edge2, t2) {
             Ok(r) => r,
@@ -3564,12 +3533,8 @@ pub fn test_and_split_two_edges<O: ClassObject + SolutionObject + Ord>(
         let new_edge = if e2 == edge2 { e1 } else { e2 };
         out.new_edges2.push(new_edge);
 
-        let p1 = geometry
-            .vertex_point(new_v1)
-            .ok_or(dangling("vertex handle is unknown"))?;
-        let p2 = geometry
-            .vertex_point(new_v2)
-            .ok_or(dangling("vertex handle is unknown"))?;
+        let p1 = geometry.vertex_point(new_v1)?;
+        let p2 = geometry.vertex_point(new_v2)?;
         out.dist_to_edge = p1.distance(p2);
 
         // And glue the vertices.
