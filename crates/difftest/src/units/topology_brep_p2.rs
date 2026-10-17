@@ -82,11 +82,22 @@ const BREP_TYPE: i64 = 16011;
 enum OpIn {
     /// `0` `GetEdgeuses`, `1` `GetShellVertices`, `2` `IsManifoldSolid`, `3` `IsSheet`,
     /// `4` `IsOrientedSheet`, `5` `GetMinEdgeBBoxSize`.
-    Query { which: u8 },
-    SetTol { tol: f64, only_larger: bool, cascade: bool },
+    Query {
+        which: u8,
+    },
+    SetTol {
+        tol: f64,
+        only_larger: bool,
+        cascade: bool,
+    },
     Rebuild,
     /// `0` `MakeShellVertexTopology`, `1` `MakeEdgeVertexTopology`, `2` `MakeEdgeTopology`.
-    Make { which: u8, region: i64, v1: i64, v2: i64 },
+    Make {
+        which: u8,
+        region: i64,
+        v1: i64,
+        v2: i64,
+    },
     /// `class`: an `SmPointClassificationType` code (`102` face, `103` edge, `104`
     /// vertex: the object's kind; any other with a null (`object < 0`) or vertex
     /// object); `orient` an `SmOrientType` code (`0` unknown, `1` same, `2` opposite).
@@ -100,11 +111,23 @@ enum OpIn {
         t: f64,
         uv: [f64; 2],
     },
-    Merge { face: i64, tol: f64, curves: Vec<CrvIn> },
-    Mate { edge: i64, surface: SrfIn, ext: f64, uv_ext: f64 },
+    Merge {
+        face: i64,
+        tol: f64,
+        curves: Vec<CrvIn>,
+    },
+    Mate {
+        edge: i64,
+        surface: SrfIn,
+        ext: f64,
+        uv_ext: f64,
+    },
     /// `data`: `[type, selector]` per data object (`[-1, -1]` null, type `16011` the
     /// B-rep).
-    Notify { operation: u8, data: [[i64; 2]; 3] },
+    Notify {
+        operation: u8,
+        data: [[i64; 2]; 3],
+    },
     /// Face `i` gets a trimmed-surface cache when bit `i % 8` of `create` is set,
     /// marked modified when that bit of `modified` is.
     Stale {
@@ -115,8 +138,18 @@ enum OpIn {
     },
     Swap,
     /// `keep`: `0` delete, `1` deleted list, `2` keep.
-    Replace { face: i64, surface: SrfIn, keep: u8, create: bool },
-    RayFire { p: [f64; 3], v: [f64; 3], tol: f64, limit: Option<f64> },
+    Replace {
+        face: i64,
+        surface: SrfIn,
+        keep: u8,
+        create: bool,
+    },
+    RayFire {
+        p: [f64; 3],
+        v: [f64; 3],
+        tol: f64,
+        limit: Option<f64>,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -224,7 +257,14 @@ fn op_args(op: &OpIn, c: &[usize; 10]) -> Result<Option<(Op, Vec<f64>)>, Harness
             };
             let mut v = Vec::new();
             push_curve(&mut v, curve)?;
-            v.extend([*t0, *t1, f64::from(*orient), *class as f64, f64::from(ty), o]);
+            v.extend([
+                *t0,
+                *t1,
+                f64::from(*orient),
+                *class as f64,
+                f64::from(ty),
+                o,
+            ]);
             v.extend([*t, uv[0], uv[1]]);
             (Op::Sector, v)
         }
@@ -376,7 +416,10 @@ fn rust_brep(path: &str, h: &[f64], c: &[usize; 10]) -> Result<Brep, HarnessErro
     let ex = ffi::eval(Op::Extras, path, h).map_err(|e| ffi_err(&e))?;
     let mut at = 1usize;
     let mut next = || -> Result<f64, HarnessError> {
-        let v = ex.get(at).copied().ok_or_else(|| harness("extras too short"))?;
+        let v = ex
+            .get(at)
+            .copied()
+            .ok_or_else(|| harness("extras too short"))?;
         at += 1;
         Ok(v)
     };
@@ -406,7 +449,11 @@ fn rust_brep(path: &str, h: &[f64], c: &[usize; 10]) -> Result<Brep, HarnessErro
 }
 
 fn rust_curve(c: &CrvIn) -> Result<BSplineCurve, HarnessError> {
-    let pw = c.cpts.iter().map(|p| CPoint::new(p[0], p[1], p[2], p[3])).collect();
+    let pw = c
+        .cpts
+        .iter()
+        .map(|p| CPoint::new(p[0], p[1], p[2], p[3]))
+        .collect();
     let nl = NlCurve::new(pw, c.p, c.u.clone()).map_err(|e| harness(format!("curve: {e}")))?;
     Ok(BSplineCurve::from_nurb(nl, c.dim, false))
 }
@@ -421,7 +468,11 @@ fn rust_surface(s: &SrfIn) -> Result<Surface, HarnessError> {
             let net = b
                 .net
                 .iter()
-                .map(|r| r.iter().map(|p| CPoint::new(p[0], p[1], p[2], p[3])).collect())
+                .map(|r| {
+                    r.iter()
+                        .map(|p| CPoint::new(p[0], p[1], p[2], p[3]))
+                        .collect()
+                })
                 .collect();
             let nl = NlSurface::new(net, b.p, b.q, b.u.clone(), b.v.clone())
                 .map_err(|e| harness(format!("surface: {e}")))?;
@@ -475,7 +526,9 @@ fn idx<I>(o: Option<I>, f: impl Fn(I) -> u32) -> f64 {
 fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f64>, Fail> {
     let mut out = vec![0.0];
     let arg = |i: usize| -> Result<f64, Fail> {
-        a.get(i).copied().ok_or_else(|| Fail::Harness(harness("args too short")))
+        a.get(i)
+            .copied()
+            .ok_or_else(|| Fail::Harness(harness("args too short")))
     };
     match op {
         Op::Query => match arg(0)? as u8 {
@@ -500,7 +553,13 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
         },
         Op::SetTol => {
             let tol = tol::zone_tol3d(k, arg(0)?);
-            must(bp2::set_tolerance(k, b, tol, arg(1)? != 0.0, arg(2)? != 0.0))?;
+            must(bp2::set_tolerance(
+                k,
+                b,
+                tol,
+                arg(1)? != 0.0,
+                arg(2)? != 0.0,
+            ))?;
             out.push(b.tolerance());
             out.extend(b.faces().iter().map(|(_, f)| f.tolerance));
             out.extend(b.edges().iter().map(|(_, e)| e.tolerance));
@@ -509,11 +568,16 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
         Op::Rebuild => {
             let (s, _) = status(bp2::rebuild_uv_trim_curves(k, b))?;
             out.push(s);
-            out.extend(b.edgeuses().iter().map(|(_, e)| flag(e.uv_trim_curve.is_some())));
+            out.extend(
+                b.edgeuses()
+                    .iter()
+                    .map(|(_, e)| flag(e.uv_trim_curve.is_some())),
+            );
             out.extend(b.edges().iter().map(|(_, e)| e.tolerance));
         }
         Op::Make => {
-            let region = (arg(1)? >= 0.0).then(|| RegionId::from_index(arg(1).unwrap_or(0.0) as u32));
+            let region =
+                (arg(1)? >= 0.0).then(|| RegionId::from_index(arg(1).unwrap_or(0.0) as u32));
             let v1 = VertexId::from_index(arg(2)?.max(0.0) as u32);
             let v2 = VertexId::from_index(arg(3)?.max(0.0) as u32);
             let s = match arg(0)? as u8 {
@@ -530,7 +594,12 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
             let m = arg(3)? as usize;
             let cpts: Vec<[f64; 4]> = (0..=n)
                 .map(|j| -> Result<[f64; 4], Fail> {
-                    Ok([arg(4 + 4 * j)?, arg(5 + 4 * j)?, arg(6 + 4 * j)?, arg(7 + 4 * j)?])
+                    Ok([
+                        arg(4 + 4 * j)?,
+                        arg(5 + 4 * j)?,
+                        arg(6 + 4 * j)?,
+                        arg(7 + 4 * j)?,
+                    ])
                 })
                 .collect::<Result<_, _>>()?;
             let at = 4 + 4 * (n + 1);
@@ -598,7 +667,10 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
             let mut records = BTreeMap::new();
             for d in data.iter().flatten() {
                 if let bp2::NotifyArg::Entity(e) = d {
-                    records.insert(key_of(*e).key, solidcore::topology::topology::Topology::default());
+                    records.insert(
+                        key_of(*e).key,
+                        solidcore::topology::topology::Topology::default(),
+                    );
                 }
             }
             let mut attrs = AttributeStore::default();
@@ -623,7 +695,8 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
                 if (create >> bit) & 1 == 0 {
                     continue;
                 }
-                let mut c = TrimSrfCache::<CacheObject>::new(surface, SurfaceCacheOptions::default());
+                let mut c =
+                    TrimSrfCache::<CacheObject>::new(surface, SurfaceCacheOptions::default());
                 c.base_mut().face_was_modified = (modified >> bit) & 1 == 1;
                 caches.insert(f, c);
             }
@@ -691,7 +764,9 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
 /// The surface block of `a` starting at `at` (`push_surface`'s layout).
 fn surface_arg(a: &[f64], at: usize) -> Result<Surface, Fail> {
     let get = |i: usize| -> Result<f64, Fail> {
-        a.get(i).copied().ok_or_else(|| Fail::Harness(harness("surface block too short")))
+        a.get(i)
+            .copied()
+            .ok_or_else(|| Fail::Harness(harness("surface block too short")))
     };
     if get(at)? == 1.0 {
         let s = SrfIn::Plane {
@@ -881,7 +956,11 @@ fn tiny_curve(rng: &mut Rng) -> CrvIn {
 
 fn gen_op(rng: &mut Rng) -> (OpIn, i64) {
     let sel = |rng: &mut Rng| rng.below(1 << 20) as i64;
-    let editing = if rng.chance(0.5) { -1 } else { rng.below(2) as i64 };
+    let editing = if rng.chance(0.5) {
+        -1
+    } else {
+        rng.below(2) as i64
+    };
     match rng.below(14) {
         0..=2 => (
             OpIn::Query {
@@ -969,12 +1048,19 @@ fn gen_op(rng: &mut Rng) -> (OpIn, i64) {
             for d in &mut data {
                 if rng.chance(0.6) {
                     *d = [
-                        *rng.choose(&[16002i64, 16016, 16021, BREP_TYPE]).unwrap_or(&16016),
+                        *rng.choose(&[16002i64, 16016, 16021, BREP_TYPE])
+                            .unwrap_or(&16016),
                         sel(rng),
                     ];
                 }
             }
-            (OpIn::Notify { operation: op, data }, editing)
+            (
+                OpIn::Notify {
+                    operation: op,
+                    data,
+                },
+                editing,
+            )
         }
         11 => (
             OpIn::Stale {

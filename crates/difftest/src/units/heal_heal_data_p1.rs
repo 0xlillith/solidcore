@@ -96,7 +96,10 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
             let r = match api.box_size {
                 None => api_heal_brep(&mut k, None),
                 Some(_) => {
-                    return Ok(Output::deferred("primitive.api_primitives", "SmApiCreateBox"));
+                    return Ok(Output::deferred(
+                        "primitive.api_primitives",
+                        "SmApiCreateBox",
+                    ));
                 }
             };
             Ok(match r {
