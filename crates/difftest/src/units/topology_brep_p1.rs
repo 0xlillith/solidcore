@@ -125,6 +125,9 @@ enum OpIn {
         mode: u8,
         reset: i64,
         flag: u8,
+        /// A region whose raw void flag is set to `UNSURE` (2) first (`-1`: none).
+        #[serde(default = "minus_one")]
+        unsure: i64,
     },
     Degenerate {
         tol: f64,
@@ -302,11 +305,15 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
             mode,
             reset,
             flag,
+            unsure,
         } => OpIn::SetInf {
             set: if set < 0 { set.max(-2) } else { sel(set, n_r) },
             mode: mode % 3,
             reset: sel(reset, n_r),
-            flag: flag % 3,
+            // the raw SmSetRegionVoidType code (lesson 22: the FFI and the Rust decode
+            // refuse anything but 0..=2)
+            flag,
+            unsure: if unsure < 0 { -1 } else { sel(unsure, n_r) },
         },
         OpIn::Vote { regions } => OpIn::Vote {
             regions: regions.into_iter().map(|r| sel(r, n_r)).collect(),
@@ -488,12 +495,14 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             mode,
             reset,
             flag,
+            unsure,
         } => {
             a.extend([
                 *set as f64,
                 f64::from(*mode),
                 *reset as f64,
                 f64::from(*flag),
+                *unsure as f64,
             ]);
             Op::SetInf
         }
@@ -1390,7 +1399,12 @@ fn run_rust_op(
             mode,
             reset,
             flag: void_flag,
+            unsure,
         } => {
+            // SmRegion::SetIsVoid(UNSURE) on the chosen region first
+            if *unsure >= 0 {
+                b.region_mut(RegionId::from_index(*unsure as u32))?.is_void = 2;
+            }
             if *set != -2 {
                 b.set_infinite_region((*set >= 0).then(|| RegionId::from_index(*set as u32)));
             }
@@ -1851,7 +1865,12 @@ fn run_rust_op(
                 .map(|&i| EdgeuseId::from_index(i as u32))
                 .collect();
             match bp1::create_corner_blend(k, b, &ids, tangent.as_deref(), *tol, *ang) {
-                Ok(s) => o.extend([0.0, s.len() as f64]),
+                Ok(s) => {
+                    o.extend([0.0, s.len() as f64]);
+                    for blend in s {
+                        put_surface(&mut o, &Surface::from(blend))?;
+                    }
+                }
                 Err(e) if e.is_unported() => return Err(e.into()),
                 // upstream resets the output array before failing
                 Err(e) => o.extend([status_of(&e), 0.0]),
@@ -2034,6 +2053,11 @@ fn gen_op(rng: &mut Rng) -> OpIn {
             mode: rng.below(3) as u8,
             reset: rng.range_i64(-1, 1 << 10),
             flag: rng.below(3) as u8,
+            unsure: if rng.chance(0.3) {
+                rng.range_i64(0, 1 << 10)
+            } else {
+                -1
+            },
         },
         5 => OpIn::Degenerate {
             tol: 10f64.powf(rng.uniform(-9.0, 9.0)),

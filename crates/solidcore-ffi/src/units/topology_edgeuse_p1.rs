@@ -14,6 +14,7 @@
 //! | `3 validate_only init_gaps`                   | the wire network of `prog_test` `my_test_topology` |
 //! | `4 n points(x y z)*n validate_only init_gaps` | actual `MakeShellVertex` calls (0..64 vertices) |
 //! | `5 has_face [surface u0 v0 u1 v1] networks validate_only init_gaps` | an optional face (as kind 2) and `networks` (0..=3) copies of the wire network in one B-rep |
+//! | `6 surface u0 v0 u1 v1 validate_only init_gaps` | as kind 2 on a B-spline surface, every edge curve then an `SmCrvOnSurf` over its UV trim curve |
 //!
 //! A surface block is `0 oob form n m p q r s cpts(x y z w) u v` (`SmBSplineSurface`) or
 //! `1 O[3] N[3]` (`SmPlane(O, N)`); a curve block `dim n p m cpts(x y z w) knots`
@@ -230,9 +231,7 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiErr
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!(
-                "{what}: interior multiplicity above the degree"
-            )));
+            return Err(bad(format!("{what}: interior multiplicity above the degree")));
         }
     }
     Ok((a, b))
@@ -258,10 +257,7 @@ fn check_points(rd: &mut Reader<'_>, k: usize, planar: bool, what: &str) -> Resu
             return Err(bad(format!("{what}: weight out of range")));
         }
         let z = if z == NOZ { 0.0 } else { z };
-        if [x, y, z]
-            .iter()
-            .any(|c| !c.is_finite() || c.abs() > MAX_COORD)
-        {
+        if [x, y, z].iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
             return Err(bad(format!("{what}: point out of range")));
         }
     }
@@ -329,8 +325,7 @@ fn uv(rd: &mut Reader<'_>, dom: Domain) -> Result<(), FfiError> {
     let v = rd.finite()?;
     if let Some([u0, v0, u1, v1]) = dom {
         let (du, dv) = (u1 - u0, v1 - v0);
-        if u < u0 - 100.0 * du || u > u1 + 100.0 * du || v < v0 - 100.0 * dv || v > v1 + 100.0 * dv
-        {
+        if u < u0 - 100.0 * du || u > u1 + 100.0 * du || v < v0 - 100.0 * dv || v > v1 + 100.0 * dv {
             return Err(bad("uv too far outside the domain"));
         }
     } else if u.abs() > 1e6 || v.abs() > 1e6 {
@@ -344,8 +339,9 @@ pub(crate) fn brep_block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError
     brep_block_with_plane_limit(rd, path, 1e4)
 }
 
-/// The surface and parameter domain of a face block (`2`, and `5` with a face).
-pub(crate) fn face_block(rd: &mut Reader<'_>, plane_domain_limit: f64) -> Result<(), FfiError> {
+/// The surface and parameter domain of a face block (`2`, `6`, and `5` with a face):
+/// whether the surface is a B-spline surface (not a plane).
+pub(crate) fn face_block(rd: &mut Reader<'_>, plane_domain_limit: f64) -> Result<bool, FfiError> {
         let dom = surface(rd)?;
         let d = rd.finites(4)?;
         let (Some(&a), Some(&b2), Some(&c), Some(&e)) = (d.first(), d.get(1), d.get(2), d.get(3))
@@ -367,11 +363,11 @@ pub(crate) fn face_block(rd: &mut Reader<'_>, plane_domain_limit: f64) -> Result
                 }
             }
         }
-    Ok(())
+    Ok(dom.is_some())
 }
 
 fn brep_block_with_plane_limit(rd: &mut Reader<'_>, path: &str, plane_domain_limit: f64) -> Result<(), FfiError> {
-    match rd.index(5)? {
+    match rd.index(6)? {
         0 => {
             let p = Path::new(path);
             if p.extension().and_then(|e| e.to_str()) != Some("smb") || !p.is_file() {
@@ -387,7 +383,15 @@ fn brep_block_with_plane_limit(rd: &mut Reader<'_>, path: &str, plane_domain_lim
                 return Err(bad("wire edge interval outside the curve's"));
             }
         }
-        2 => face_block(rd, plane_domain_limit)?,
+        2 => {
+            face_block(rd, plane_domain_limit)?;
+        }
+        6 => {
+            // kind 6 (edges as `SmCrvOnSurf`) needs an `SmBSplineSurface` base
+            if !face_block(rd, plane_domain_limit)? {
+                return Err(bad("CrvOnSurf face: the base must be a B-spline surface"));
+            }
+        }
         5 => {
             if rd.flag()? {
                 face_block(rd, plane_domain_limit)?;
