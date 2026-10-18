@@ -387,7 +387,13 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                     records: &mut records,
                     attributes: &mut attrs,
                     source_key: &|_| obj(1, 16021),
-                    destination_key: &|_| obj(2, 16021),
+                    destination_key: &|e| match e {
+                        solidcore::EntityRef::Vertex(_) => obj(2, 16021),
+                        solidcore::EntityRef::Vertexuse(v) => {
+                            obj(100 + u64::from(v.index()), 16006)
+                        }
+                        _ => obj(200, 16001),
+                    },
                 },
                 Some(&mut context),
             )?;

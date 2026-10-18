@@ -281,8 +281,8 @@ pub struct VertexCopy<'a> {
     pub attributes: &'a mut AttributeStore,
     /// Notification identity of each other-operand vertex.
     pub source_key: &'a dyn Fn(VertexId) -> ObjectRef,
-    /// Notification identity of each primary vertex, including freshly created ids.
-    pub destination_key: &'a dyn Fn(VertexId) -> ObjectRef,
+    /// Notification identity of each primary topology entity, including newly created vertices and vertex uses.
+    pub destination_key: &'a dyn Fn(crate::EntityRef) -> ObjectRef,
 }
 
 /// Reuse a mated primary vertex or create a shell vertex, relate it and notify
@@ -299,7 +299,7 @@ pub fn merge_vertex(
     region: Option<RegionId>,
     relations: &mut Relations,
     copy: &mut VertexCopy<'_>,
-    context: Option<&mut Context>,
+    mut context: Option<&mut Context>,
 ) -> Result<Option<VertexId>> {
     let Some(source) = source else {
         return Ok(None);
@@ -308,7 +308,15 @@ pub fn merge_vertex(
     let dest = if let Some(dest) = relations.vertices.primary(source) {
         dest
     } else {
-        let dest = make_shell_vertex(brep, other, source, region)?;
+        let point = other.vertex(source)?.point;
+        let mut env = edge::NotifyEnv {
+            records: copy.records,
+            attributes: copy.attributes,
+            context: context.as_deref_mut(),
+            key_of: copy.destination_key,
+        };
+        let (_, dest) =
+            crate::topology::brep::p9::make_shell_vertex(brep, region, point, &mut env)?;
         relations.relate_vertices(brep, dest, other, source)?;
         dest
     };
@@ -323,24 +331,11 @@ pub fn merge_vertex(
         context,
         NotifyOperation::Copy,
         (copy.source_key)(source),
-        Some((copy.destination_key)(dest)),
+        Some((copy.destination_key)(crate::EntityRef::Vertex(dest))),
         None, // SM_NO_GET_BREP(pBrepVertex) is NULL in pinned SmTypes.h.
         None, // SM_NO_GET_BREP(pVertexInOther) is NULL as well.
     )?;
     Ok(Some(dest))
-}
-
-fn make_shell_vertex(
-    brep: &mut Brep,
-    other: &Brep,
-    source: VertexId,
-    region: Option<RegionId>,
-) -> Result<VertexId> {
-    if let Some(region) = region {
-        brep.region(region)?;
-    }
-    let point = other.vertex(source)?.point;
-    crate::topology::brep::p9::make_shell_vertex(brep, region, point).map(|(_, vertex)| vertex)
 }
 
 /// The intersection lists and live primary-to-other mate lookups used by cleanup.

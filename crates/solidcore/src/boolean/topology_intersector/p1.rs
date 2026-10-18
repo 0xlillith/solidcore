@@ -216,6 +216,19 @@ fn find_common_elements<O: Copy + PartialEq>(this: &[O], other: &[O]) -> Vec<O> 
 /// the ported function that implements it. A method returns `Ok(None)` /
 /// `Err(InvalidInput)` where upstream would dereference null.
 pub trait IntersectorBrep<O>: ProtoBrep<O> {
+    /// `SmBrep::MakeVertexLoop` with its default opposite orientation, using the
+    /// caller's mutable arenas and notification state (`topology::brep::p9`).
+    fn make_vertex_loop(&mut self, brep: O, face: O, point: Point3) -> Result<(O, O)>;
+    /// `SmBrep::MakeVertexSplitEdge` through `topology::brep::p9`. Ordinary
+    /// refusals return their native status; these callers discard failure outputs.
+    fn make_vertex_split_edge(
+        &mut self,
+        k: &mut Kernel,
+        brep: O,
+        edge: O,
+        parameter: f64,
+    ) -> Result<(O, O, O)>;
+
     /// `SmVertex::GetBrep` (`topology::vertex::brep`): the B-rep handle of a vertex.
     ///
     /// # Errors
@@ -352,26 +365,6 @@ fn brep_vertices<O>(_brep: O) -> Result<Vec<O>> {
     Err(SolidError::unported(
         "SmBrep::GetVertices",
         "topology.brep_p1",
-    ))
-}
-
-/// `SmBrep::MakeVertexLoop(pFace, crPoint, rpNewLoop, rpNewVertex)`: the new loop and
-/// vertex.
-fn brep_make_vertex_loop<O>(_brep: O, _face: O, _point: Point3) -> Result<(O, O)> {
-    // UNPORTED(topology.brep_p9): SmBrep::MakeVertexLoop
-    Err(SolidError::unported(
-        "SmBrep::MakeVertexLoop",
-        "topology.brep_p9",
-    ))
-}
-
-/// `SmBrep::MakeVertexSplitEdge(pEdge, dT, rpE1, rpE2, rpNewVertex)`: the two edges
-/// and the new vertex.
-fn brep_make_vertex_split_edge<O>(_brep: O, _edge: O, _t: f64) -> Result<(O, O, O)> {
-    // UNPORTED(topology.brep_p9): SmBrep::MakeVertexSplitEdge
-    Err(SolidError::unported(
-        "SmBrep::MakeVertexSplitEdge",
-        "topology.brep_p9",
     ))
 }
 
@@ -1739,7 +1732,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     #[allow(clippy::too_many_lines)]
     pub fn edge_face_intersect(
         &mut self,
-        k: &Kernel,
+        k: &mut Kernel,
         brep: &mut impl IntersectorBrep<O>,
         edges: &[Option<O>],
         faces: &[Option<O>],
@@ -1991,7 +1984,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             edges_split_from_this.push(edge);
 
             // Create a new Vertex in the Face.
-            let new_face_vtx = match brep_make_vertex_loop(f_brep, face, face_pt) {
+            let new_face_vtx = match brep.make_vertex_loop(f_brep, face, face_pt) {
                 Ok((_loop, v)) => v,
                 Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
                     return Err(e)
@@ -2036,20 +2029,20 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 let e_brep = brep
                     .edge_brep_handle(this_split_edge)?
                     .ok_or(dangling("edge without B-rep"))?;
-                let (e1, e2, v) = match brep_make_vertex_split_edge(e_brep, this_split_edge, param)
-                {
-                    Ok(r) => r,
-                    Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
-                        return Err(e)
-                    }
-                    Err(e) => {
-                        // SM_ASSERT(FALSE)
-                        if ignore_problems {
-                            continue;
+                let (e1, e2, v) =
+                    match brep.make_vertex_split_edge(k, e_brep, this_split_edge, param) {
+                        Ok(r) => r,
+                        Err(
+                            e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. }),
+                        ) => return Err(e),
+                        Err(e) => {
+                            // SM_ASSERT(FALSE)
+                            if ignore_problems {
+                                continue;
+                            }
+                            return Err(e);
                         }
-                        return Err(e);
-                    }
-                };
+                    };
                 out.new_verts.push(v); // We'll keep this vertex.
 
                 let new_edge = if this_split_edge == e1 { e2 } else { e1 };
@@ -2527,10 +2520,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         // We have intersecting 3dcurves. Imprint the point as a vertex on each face.
         // Glue the vertices, then keep going
         if pc1.point_class() == PointClassType::Face {
-            let v1 = ignore_soft(brep_make_vertex_loop(this_brep, f1, pt))?.map(|(_loop1, v)| v);
+            let v1 = ignore_soft(brep.make_vertex_loop(this_brep, f1, pt))?.map(|(_loop1, v)| v);
 
             pt = ignore_soft(pc2.find_obj_point_3d(brep))?.unwrap_or(Point3::UNDEF);
-            let v2 = ignore_soft(brep_make_vertex_loop(this_brep, f2, pt))?.map(|(_loop2, v)| v);
+            let v2 = ignore_soft(brep.make_vertex_loop(this_brep, f2, pt))?.map(|(_loop2, v)| v);
 
             // (two null vertices from failed MakeVertexLoops are NER upstream, ignored; one
             // null vertex is dereferenced by GlueVertices)
@@ -3419,7 +3412,7 @@ pub fn check_interior_edge<O: ClassObject>(
 /// null handles upstream dereferences.
 #[allow(clippy::too_many_lines)]
 pub fn test_and_split_two_edges<O: ClassObject + SolutionObject + Ord>(
-    k: &Kernel,
+    k: &mut Kernel,
     geometry: &mut impl IntersectorBrep<O>,
     edge1: O,
     edge2: O,
@@ -3509,7 +3502,7 @@ pub fn test_and_split_two_edges<O: ClassObject + SolutionObject + Ord>(
             .edge_brep_handle(edge1)?
             .ok_or(SolidError::null_pointer(OP_SPLIT_TWO))?;
 
-        let (e1, e2, new_v1) = match brep_make_vertex_split_edge(brep, edge1, t1) {
+        let (e1, e2, new_v1) = match geometry.make_vertex_split_edge(k, brep, edge1, t1) {
             Ok(r) => r,
             Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
                 return Err(e)
@@ -3530,7 +3523,7 @@ pub fn test_and_split_two_edges<O: ClassObject + SolutionObject + Ord>(
         let brep = geometry
             .edge_brep_handle(edge2)?
             .ok_or(dangling("edge without B-rep"))?; // Presumably the same... (dereferenced upstream)
-        let (e1, e2, new_v2) = match brep_make_vertex_split_edge(brep, edge2, t2) {
+        let (e1, e2, new_v2) = match geometry.make_vertex_split_edge(k, brep, edge2, t2) {
             Ok(r) => r,
             Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
                 return Err(e)
@@ -3636,7 +3629,7 @@ pub fn test_and_imprint_face<O: ClassObject + SolutionObject + Ord>(
 
     // Point is on the surface, within the face.
     let f_brep = face_brep(face)?.ok_or(dangling("face without B-rep"))?;
-    match brep_make_vertex_loop(f_brep, face, point) {
+    match geometry.make_vertex_loop(f_brep, face, point) {
         Ok((_new_loop, new_v)) => {
             out.new_vertex = Some(new_v);
         }

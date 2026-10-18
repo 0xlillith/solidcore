@@ -6963,7 +6963,49 @@ independent p6 integration.
   faces. It is unreachable today (`MergeInterval` makes no topology until
   `intersect.curve_class_p2`); that unit's porter must give the healer a typed resolver.
 
-## topology.brep_p9: incomplete independent work (PR #183, todo)
+## topology.brep_p9: per-call continuations and coverage limits (PR #183)
+
+### Issue #210 continuation revision (validation pending)
+
+All six owned bodies now continue after individual dependency calls. This replaces
+all previous `OMITTED` ranges: ray sampling and fallback, marked sheet walk,
+vertex-loop creation, split geometry/use rewiring, and edge/loop/face insertion and
+inner-loop redistribution. No open dependency branch was merged; official main
+43e9e47a supplies the newly merged shell unit. Its changes and p9 integration were
+both preserved.
+
+Notification storage/identities and curve identities are explicit caller inputs.
+The Boolean intersector now invokes p9 through its mutable B-rep adapter; typed
+point-classification and merge vertex-copy adapters also supply notification state.
+The older opaque classification API has no mutable owning-arena lookup and defers
+to that specific p1 integration boundary, rather than claiming that the p9 operation
+itself is missing. Canonical editing state remains with p1 (PR #145). No p9
+algorithm `UNPORTED` call remains elsewhere in the kernel.
+
+Source review found `SmEdge::InsertManifoldEdgeEnd` only setting each VU's vertex,
+while native `SmEdge.cpp:4641-4643` also appends both VUs to the vertex owning list.
+The previous port comment explicitly predated that list in Rust. Both insertions
+are now ported in order, with a focused start/end regression. This dependency fix
+is needed for p9's insertion body; its edge differential runner will be rerun.
+
+Remaining barriers are individual calls to the active p1/p2 and face/query/drop
+owners. Append-only arena retirement is explicitly deferred to p1 rather than
+exposing deleted loop records as live topology. Native constructor/debug allocator
+notifications are represented by the shared arena model; added topology flag records
+are registered in the caller's notification storage. A shell retry uses at most two
+passes, and an inner-loop transfer that fails to shrink its source list returns an
+error instead of looping. Undefined odd edgeuse pairs are rejected. These bounds
+and adaptations are documented in the file header.
+
+Coverage is still limited: **0/6 owned operations have a compared successful
+p9 topology mutation**. Refusals, guards, projection probes, and point-class vertex
+updates are separate evidence. Op-5 initial vertex loops still come from C++, so
+those imports are not Rust MakeVertexLoop successes. The full newly ported tails
+require dependency wiring before native success-path certification. All earlier
+counts below describe earlier source, not this revision. New gates/reports pending.
+
+### Previous c19c0db1 checkpoint (historical)
+
 
 - **Review status correction (2026-10-18).** The following `47758e96` /
   `c482d6fc` evidence is historical. The unit is now `todo`, because the code after

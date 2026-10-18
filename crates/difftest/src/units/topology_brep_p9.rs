@@ -117,12 +117,30 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
             .get(2..)
             .ok_or_else(|| error("missing initial export"))?,
     )?;
-    let k = Kernel::default();
+    let mut k = Kernel::default();
     let mut record = Vec::new();
+    let mut records = std::collections::BTreeMap::new();
+    let mut attributes = solidcore::geom::attribute::AttributeStore::default();
+    let mut env = solidcore::topology::edge::NotifyEnv {
+        records: &mut records,
+        attributes: &mut attributes,
+        context: None,
+        key_of: &object_ref,
+    };
     let result: solidcore::Result<i32> = (|| {
         match i.op {
             0 => {
-                record.push(id(port::find_infinite_region(&b, None, None)?));
+                record.push(id(port::find_infinite_region::<
+                    super::topology_shell::NoRayObject,
+                    _,
+                >(
+                    &mut k,
+                    &b,
+                    solidcore::topology::BrepId::from_index(0),
+                    None,
+                    None,
+                    &super::topology_shell::EmptyRayWorld,
+                )?));
                 Ok(0)
             }
             1 => {
@@ -131,7 +149,7 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                 } else {
                     target::<FaceId>(b.faces().len(), i.selector)
                 };
-                ordinary(port::orient_sheet_surfaces(&mut b, face, i.same))
+                ordinary(port::orient_sheet_surfaces(&mut k, &mut b, face, i.same))
             }
             2 => {
                 let region = if i.variant == 1 {
@@ -139,7 +157,8 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                 } else {
                     target::<RegionId>(b.regions().len(), i.selector)
                 };
-                let (shell, vertex) = port::make_shell_vertex(&mut b, region, Vec3::from(i.point))?;
+                let (shell, vertex) =
+                    port::make_shell_vertex(&mut b, region, Vec3::from(i.point), &mut env)?;
                 record.extend([id(Some(shell)), id(Some(vertex))]);
                 Ok(0)
             }
@@ -155,6 +174,7 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                     } else {
                         OrientType::Opposite
                     },
+                    &mut env,
                 )?;
                 record.extend([id(Some(loop_)), id(Some(vertex))]);
                 Ok(0)
@@ -164,7 +184,15 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                     .ok_or_else(|| SolidError::invalid_input("difftest::brep_p9", "no edge"))?;
                 // Native tolerances were assigned before export. They have already
                 // undergone SmZoneTol3d conversion and are imported verbatim.
-                let split = port::make_vertex_split_edge(&k, &mut b, edge, i.parameter, i.editing)?;
+                let split = port::make_vertex_split_edge(
+                    &mut k,
+                    &mut b,
+                    edge,
+                    i.parameter,
+                    i.editing,
+                    &mut env,
+                    &curve_ref,
+                )?;
                 record.extend([
                     id(split.edges.map(|v| v[0])),
                     id(split.edges.map(|v| v[1])),
@@ -218,6 +246,8 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                         curve_zone_tol_3d: zone_tol3d(&k, 1e-7),
                         editing_enabled: i.editing,
                     },
+                    &mut env,
+                    &curve_ref,
                 );
                 record.extend([-1.0, -1.0, -1.0]);
                 ordinary(output)
@@ -262,7 +292,7 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                     key_of: &object_ref,
                 };
                 let result = pc.merge_into_brep(
-                    &k,
+                    &mut k,
                     Vec3::from(i.point),
                     BrepMerge {
                         brep: &mut b,
@@ -270,6 +300,7 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                         editing_enabled: i.editing,
                         handle: &Handle,
                         notifications: &mut env,
+                        curve_ref: &curve_ref,
                     },
                 );
                 let vertex = match pc.object() {
@@ -361,16 +392,12 @@ impl solidcore::intersect::point_class::ClassObject for Handle {
     }
 }
 fn object_ref(e: solidcore::EntityRef) -> solidcore::geom::object::ObjectRef {
-    use solidcore::EntityRef as E;
-    let (kind, index) = match e {
-        E::Vertex(v) => (16021, v.index()),
-        E::Vertexuse(v) => (16006, v.index()),
-        E::Edge(v) => (16016, v.index()),
-        E::Edgeuse(v) => (16005, v.index()),
-        _ => (16001, 0),
-    };
+    super::boolean_topology_intersector_p1::p9_entity_ref(e)
+}
+
+fn curve_ref(edge: EdgeId, kind: i64) -> solidcore::geom::object::ObjectRef {
     solidcore::geom::object::ObjectRef {
-        key: solidcore::geom::attribute::ObjectKey((kind as u64) << 32 | u64::from(index)),
+        key: solidcore::geom::attribute::ObjectKey(((kind as u64) << 32) | u64::from(edge.index())),
         type_code: kind,
     }
 }

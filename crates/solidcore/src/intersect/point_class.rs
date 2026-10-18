@@ -70,7 +70,7 @@
 //! - **Mutable topology.** [`BrepMerge`] supplies an arena, resolved target,
 //!   handle mapping and notification environment for [`PointClassification::merge_into_brep`].
 //!   The older opaque-handle entrypoint cannot resolve an edge's arena and returns
-//!   an `Unported(topology.brep_p9)` deferral until the caller supplies that
+//!   an `Unported(topology.brep_p1)` deferral until the caller supplies that
 //!   context. Region/face owner queries retain their own blockers.
 //! - **Object handles.** `m_pObject` and `m_cpFace` are caller-chosen handles `O`
 //!   ([`ClassObject`]): equal handles are the same object, and
@@ -142,12 +142,14 @@ pub struct BrepMerge<'a, 'env, O> {
     pub brep: &'a mut crate::topology::Brep,
     /// Resolved target in that graph (region, face, edge or vertex).
     pub target: crate::error::EntityRef,
-    /// Current B-rep editing state; constructor default is true.
+    /// Current B-rep editing state; constructor default is false.
     pub editing_enabled: bool,
     /// Classification handle corresponding to a topology id in this B-rep.
     pub handle: &'a dyn Fn(crate::error::EntityRef) -> O,
     /// Notification storage/identities shared with the caller's other mutations.
     pub notifications: &'a mut crate::topology::edge::NotifyEnv<'env>,
+    /// Identity of each edge's curve from its id and actual native type code, including a new split edge.
+    pub curve_ref: &'a dyn Fn(crate::topology::EdgeId, i64) -> ObjectRef,
 }
 
 const OP_GAP: &str = "intersect::point_class::PointClassification::gap_3d";
@@ -1207,28 +1209,19 @@ impl<O: ClassObject> PointClassification<O> {
 
         // the vertex the point merges into
         let new_v: O = match object.class_kind() {
-            ClassObjectKind::Region => {
-                // Region owner lookup must accompany the future MakeShellVertex integration;
-                // typed region metadata is implemented in topology::shell.
-                // UNPORTED(topology.brep_p9): SmBrep::MakeShellVertex
+            ClassObjectKind::Region | ClassObjectKind::Edge => {
+                // The opaque API has no mutable owning-arena lookup. The actual
+                // p9 operation is available through merge_into_brep; canonical
+                // B-rep owner storage remains part 1's integration boundary.
+                // UNPORTED(topology.brep_p1): SmBrep mutable owning context
                 return Err(SolidError::unported(
-                    "SmBrep::MakeShellVertex",
-                    "topology.brep_p9",
+                    "SmBrep mutable owning context",
+                    "topology.brep_p1",
                 ));
             }
             ClassObjectKind::Face => {
                 // UNPORTED(topology.face_p4): SmFace::GetBrep
                 return Err(SolidError::unported("SmFace::GetBrep", "topology.face_p4"));
-            }
-            ClassObjectKind::Edge => {
-                // A valid upstream edge can have a B-rep even though this API's
-                // opaque handle cannot resolve it. Keep that integration gap a
-                // deferral; do not misreport it as invalid caller input.
-                // UNPORTED(topology.brep_p9): SmBrep::MakeVertexSplitEdge
-                return Err(SolidError::unported(
-                    "SmBrep::MakeVertexSplitEdge",
-                    "topology.brep_p9",
-                ));
             }
             // Almost no work to do. There is already a vertex here.
             ClassObjectKind::Vertex => object,
@@ -1291,7 +1284,7 @@ impl<O: ClassObject> PointClassification<O> {
     /// notification failures and owned dependency deferrals.
     pub fn merge_into_brep(
         &mut self,
-        k: &Kernel,
+        k: &mut Kernel,
         src_point: Point3,
         context: BrepMerge<'_, '_, O>,
     ) -> Result<MergeOutputs<O>> {
@@ -1304,6 +1297,7 @@ impl<O: ClassObject> PointClassification<O> {
             editing_enabled,
             handle,
             notifications: env,
+            curve_ref,
         } = context;
         let object = self.object.ok_or_else(|| null_object(OP_MERGE))?;
         let kind = match target {
@@ -1325,7 +1319,7 @@ impl<O: ClassObject> PointClassification<O> {
         };
         let vertex_id = match target {
             EntityRef::Region(r) => {
-                let (_, v) = p9::make_shell_vertex(b, Some(r), src_point)?;
+                let (_, v) = p9::make_shell_vertex(b, Some(r), src_point, env)?;
                 outputs.new_vertices.push(handle(EntityRef::Vertex(v)));
                 v
             }
@@ -1335,12 +1329,21 @@ impl<O: ClassObject> PointClassification<O> {
                     f,
                     src_point,
                     crate::nurbs::b_spline_surface_n_lib::p2::OrientType::Opposite,
+                    env,
                 )?;
                 outputs.new_vertices.push(handle(EntityRef::Vertex(v)));
                 v
             }
             EntityRef::Edge(e) => {
-                let split = p9::make_vertex_split_edge(k, b, e, self.t_param(), editing_enabled)?;
+                let split = p9::make_vertex_split_edge(
+                    k,
+                    b,
+                    e,
+                    self.t_param(),
+                    editing_enabled,
+                    env,
+                    curve_ref,
+                )?;
                 let v = split.vertex.ok_or_else(|| SolidError::sm_err(OP_MERGE))?;
                 if !split.split {
                     // Native assigns these two fields directly; in particular an
@@ -1910,8 +1913,8 @@ mod tests {
         assert!(matches!(
             p.merge_into_object(&Kernel::default(), Point3::new(0.25, 0.0, 0.0)),
             Err(SolidError::Unported {
-                upstream: "SmBrep::MakeVertexSplitEdge",
-                unit: "topology.brep_p9"
+                upstream: "SmBrep mutable owning context",
+                unit: "topology.brep_p1"
             })
         ));
         assert_eq!(p.object(), Some(object));
