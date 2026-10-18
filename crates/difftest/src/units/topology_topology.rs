@@ -350,12 +350,12 @@ impl State {
                     op::TRACK_STOP => t.stop_tracking(Some(self.ctx()?)),
                     op::TRACK_IS => out.push(i64::from(t.is_tracking(Some(self.ctx_ref()?)))),
                     op::TRACK_LISTS => {
-                        out.push(t.rm_list().len() as i64);
-                        out.extend(t.rm_list().iter().map(|k| k.0 as i64));
-                        out.push(t.add_list().len() as i64);
-                        out.extend(t.add_list().iter().map(|k| k.0 as i64));
+                        out.push(t.rm_list(Some(self.ctx_ref()?)).len() as i64);
+                        out.extend(t.rm_list(Some(self.ctx_ref()?)).iter().map(|k| k.0 as i64));
+                        out.push(t.add_list(Some(self.ctx_ref()?)).len() as i64);
+                        out.extend(t.add_list(Some(self.ctx_ref()?)).iter().map(|k| k.0 as i64));
                     }
-                    op::TRACK_RESET => t.reset_arrays(),
+                    op::TRACK_RESET => t.reset_arrays(Some(self.ctx()?)),
                     _ => keep = false,
                 }
                 if keep {

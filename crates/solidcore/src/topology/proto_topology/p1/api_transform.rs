@@ -113,7 +113,7 @@ fn is_uniform_positive_scale(scale: Vec3) -> bool {
 /// [`SolidError::Unported`] for B-reps (`SmBrep::Transform`, unit
 /// `topology.brep_p2` through part 5).
 pub fn transform_independent_object(
-    k: &Kernel,
+    k: &mut Kernel,
     obj: Option<TransformObject<'_>>,
     transform: &Axis2Placement,
     scale: Option<Vec3>,
@@ -209,7 +209,7 @@ pub fn transform_independent_object(
 ///
 /// Those of [`transform_independent_object`].
 pub fn api_transform(
-    k: &Kernel,
+    k: &mut Kernel,
     obj: Option<TransformObject<'_>>,
     rotate_move: &Axis2Placement,
 ) -> Result<()> {
@@ -221,7 +221,7 @@ pub fn api_transform(
 /// # Errors
 ///
 /// Those of [`transform_independent_object`].
-pub fn api_scale(k: &Kernel, obj: Option<TransformObject<'_>>, scale: Vec3) -> Result<()> {
+pub fn api_scale(k: &mut Kernel, obj: Option<TransformObject<'_>>, scale: Vec3) -> Result<()> {
     let matrix = Axis2Placement::default();
     transform_independent_object(k, obj, &matrix, Some(scale))
 }
@@ -234,7 +234,7 @@ pub fn api_scale(k: &Kernel, obj: Option<TransformObject<'_>>, scale: Vec3) -> R
 /// [`SolidError::InvalidInput`] for an undefined or near-zero scale; those of
 /// [`transform_independent_object`].
 pub fn api_scale_by_pt(
-    k: &Kernel,
+    k: &mut Kernel,
     obj: Option<TransformObject<'_>>,
     ref_pt: Point3,
     scale: Vec3,
@@ -261,7 +261,11 @@ pub fn api_scale_by_pt(
 /// # Errors
 ///
 /// Those of [`transform_independent_object`].
-pub fn api_translate(k: &Kernel, obj: Option<TransformObject<'_>>, translate: Vec3) -> Result<()> {
+pub fn api_translate(
+    k: &mut Kernel,
+    obj: Option<TransformObject<'_>>,
+    translate: Vec3,
+) -> Result<()> {
     let mut transform = Axis2Placement::default();
     transform.translate(translate);
     transform_independent_object(k, obj, &transform, None)
@@ -275,7 +279,7 @@ pub fn api_translate(k: &Kernel, obj: Option<TransformObject<'_>>, translate: Ve
 /// [`SolidError::InvalidInput`] for no object or a zero-length axis; those of
 /// [`transform_independent_object`].
 pub fn api_rotate(
-    k: &Kernel,
+    k: &mut Kernel,
     obj: Option<TransformObject<'_>>,
     ref_pt: Point3,
     axis: Vec3,

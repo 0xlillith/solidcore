@@ -3,6 +3,7 @@
 // Shared fixture/export helpers read only SMLib. No shared harness changes.
 #include "sc_topology_fixture.h"
 #include <memory>
+#include <SmTrackTopologyChanges.h>
 
 namespace {
 // Fixture block: kind, two xyz points, two raw tolerances, two incident-edge counts.
@@ -61,7 +62,7 @@ template<class T> T* select(const std::vector<T*>& v, double x) {
 // placement O/X/Y (9), have_scale, scale xyz (3), scale_tol, flag, spare.
 SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, int64_t nf,
         const double* a, int64_t na, double* out, int64_t cap, int64_t* out_len) {
-    if (nf!=11 || na!=22 || !fixture || !a || !out_len || op<0 || op>14) return SC_ERR_ARG;
+    if (nf!=11 || na!=22 || !fixture || !a || !out_len || op<0 || op>15) return SC_ERR_ARG;
     SC_TRY
     SmStatus status=SM_SUCCESS;
     std::unique_ptr<SmBrep> owner(p5_build(fixture,status));
@@ -82,6 +83,60 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
     SmVertex* v2=select(g.vertices,a[2]);
     SmEdge* edge=select(g.edges,a[3]);
     SmFace* face=select(g.faces,a[1]);
+    if (op==15) {
+        if (!v1 || !v2) return SC_ERR_ARG;
+        SmTArray<SmTopology*> removed, added, changed;
+        SmTArray<SmNotifyEvent> events;
+        SmTopologyChangeCallback callback(&removed,&added,&changed,&events);
+        auto send=[&](SmNotifyOperation op, SmObject* caller, SmObject* x,
+                      SmObject* y, SmObject* z) { callback.Execute(op,caller,x,y,z); };
+        SmCurve* curve=edge ? edge->GetCurve() : nullptr;
+        if (a[4]==0) {
+            send(SM_NO_ADD_TO_BREP,b,v1,b,nullptr);
+            send(SM_NO_ADD_TO_BREP,b,v1,b,nullptr);
+            send(SM_NO_CHANGE_GEOMETRY,v1,nullptr,b,nullptr);
+            send(SM_NO_MERGE_IN_BREP,b,v1,v2,b);
+            send(SM_NO_POST_EDIT,v1,v1,b,nullptr);
+            send(SM_NO_DESTRUCTION,v1,v1,nullptr,nullptr);
+            send(SM_NO_REG_PROPAGATION,b,nullptr,nullptr,nullptr);
+            send(SM_NO_UNKNOWN,b,nullptr,nullptr,nullptr);
+        } else if (a[4]==1) {
+            send(SM_NO_SPLIT_IN_BREP,b,v1,v2,nullptr);
+            send(SM_NO_TRIM_NO_SPLIT_IN_BREP,b,v2,v1,nullptr);
+            send(SM_NO_RM_FROM_BREP,b,v2,b,nullptr);
+            send(SM_NO_ADD_TO_BREP,b,v1,b,nullptr);
+            send(SM_NO_COPY,v1,v2,b,b);
+            send(SM_NO_COINCIDENT,b,v1,v2,b);
+            send(SM_NO_PRE_EDIT,v1,v1,b,nullptr);
+            send(SM_NO_CHANGE_OWNER,v1,nullptr,nullptr,nullptr);
+            send(SM_NO_CONSTRUCTION,v1,v1,nullptr,nullptr);
+            send(SM_NO_DESTRUCTION,v2,v2,nullptr,nullptr);
+        } else {
+            if (!curve || curve->GetOwner()!=edge) return SC_ERR_ARG;
+            send(SM_NO_POST_EDIT,curve,curve,edge,nullptr);
+            send(SM_NO_SPLIT,curve,curve,nullptr,edge);
+            send(SM_NO_MERGE,curve,curve,curve,edge);
+        }
+        auto key=[&](SmObject* object)->double {
+            if (!object) return -1;
+            if (object==b) return 0;
+            for (size_t i=0;i<g.vertices.size();++i) if (g.vertices[i]==object) return 1000000+i;
+            for (size_t i=0;i<g.edges.size();++i) if (g.edges[i]==object) return 2000000+i;
+            if (object==curve) return 3000000;
+            return -999;
+        };
+        for (auto* list : {&removed,&added,&changed}) {
+            o.push_back(list->GetSize());
+            for (int i=0;i<list->GetSize();++i) o.push_back(key(list->GetAt(i)));
+        }
+        o.push_back(events.GetSize());
+        for (int i=0;i<events.GetSize();++i) {
+            auto& event=events.GetAt(i);
+            o.push_back(event.m_eAction); o.push_back(key(event.m_pCaller));
+            o.push_back(key(event.m_pData1)); o.push_back(key(event.m_pData2)); o.push_back(key(event.m_pData3));
+        }
+        return sc_copy_out(o.data(),o.size(),out,cap,out_len);
+    }
     if (op==14) {
         if (!v1) return SC_ERR_ARG;
         SmTArray<SmEdge*> edges; v1->GetEdges(edges);

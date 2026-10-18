@@ -3859,7 +3859,7 @@ const ANCHOR: ObjectRef = ObjectRef {
 };
 
 fn run_transform(obj: &TObjIn, op: &TOpIn) -> Result<Vec<f64>, Fail> {
-    let k = Kernel::default();
+    let mut k = Kernel::default();
     let mut curve = None;
     let mut surface = None;
     // a curve kind the API refuses (no state is reported for it)
@@ -3955,12 +3955,12 @@ fn run_transform(obj: &TObjIn, op: &TOpIn) -> Result<Vec<f64>, Fail> {
     let res = match op {
         TOpIn::Transform { o, x, y } => {
             let pl = Axis2Placement::new(v3(*o), v3(*x), v3(*y));
-            api::api_transform(&k, target, &pl)
+            api::api_transform(&mut k, target, &pl)
         }
-        TOpIn::Scale { s } => api::api_scale(&k, target, v3(*s)),
-        TOpIn::ScaleByPt { r, s } => api::api_scale_by_pt(&k, target, v3(*r), v3(*s)),
-        TOpIn::Translate { v } => api::api_translate(&k, target, v3(*v)),
-        TOpIn::Rotate { r, a, deg } => api::api_rotate(&k, target, v3(*r), v3(*a), *deg),
+        TOpIn::Scale { s } => api::api_scale(&mut k, target, v3(*s)),
+        TOpIn::ScaleByPt { r, s } => api::api_scale_by_pt(&mut k, target, v3(*r), v3(*s)),
+        TOpIn::Translate { v } => api::api_translate(&mut k, target, v3(*v)),
+        TOpIn::Rotate { r, a, deg } => api::api_rotate(&mut k, target, v3(*r), v3(*a), *deg),
     };
     let s = match res {
         Ok(()) => SM_SUCCESS,

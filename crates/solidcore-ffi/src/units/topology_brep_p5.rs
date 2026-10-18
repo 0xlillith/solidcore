@@ -38,6 +38,8 @@ pub enum Op {
     Transform = 12,
     /// `CreateWireEdgeFromCurve` on a real non-normalized `SmLine`.
     CreateWireEdgeFromCurve = 13,
+    /// Real topology-change callback scripts (supporting healer integration).
+    TrackNotifications = 15,
 }
 
 impl Op {
@@ -58,6 +60,7 @@ impl Op {
             11 => Self::SqueezeFace,
             12 => Self::Transform,
             13 => Self::CreateWireEdgeFromCurve,
+            15 => Self::TrackNotifications,
             _ => return None,
         })
     }
@@ -155,7 +158,7 @@ pub fn eval(op: Op, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, F
     let v1 = select(args[1], counts[9]);
     let v2 = select(args[2], counts[9]);
     let face = select(args[1], counts[3]);
-    if matches!(op, Op::Combine | Op::CombineTarget | Op::GlueVertices)
+    if matches!(op, Op::Combine | Op::CombineTarget | Op::GlueVertices | Op::TrackNotifications)
         && (v1.is_none() || v2.is_none())
         && !(op == Op::GlueVertices && v1 == v2)
     {

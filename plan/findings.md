@@ -6851,27 +6851,43 @@ independent p6 integration.
 
 ## topology.brep_p5 — review follow-up in progress
 
-PR #194 returned to draft; the unit is `todo` while omitted bodies are being
-ported. Previous `95967da6`/`89a20913` validation above is historical and does
-not certify these review changes. No open dependency PR is included; official
-main `f75223ad` is merged (including the proto-topology conflict resolution).
+PR #194 remains draft and `todo` pending fresh review/validation. The old
+`95967da6`/`89a20913` evidence above is historical. Official main `a8958254`
+is merged; no open dependency PR is included. Main's sphere/offset compile fix
+has landed and a workspace/all-targets check passes on runner 2.
 
-The declaration's default is `SM_VS_INFINITEREGION_SWAP` (2), despite the old
-source comment claiming nested-solid. The healer now passes 2. Same-input glue
-returns success before notification; combining an aliased vertex is refused only
-when it is isolated, where native deletion invalidates the survivor. A native
-inspection helper checks the selected vertex's actual incidence before that
-refusal. Forty alias fixtures are added but not yet validated.
+All twelve owned editing bodies now include their source-level continuations,
+with missing individual callees/types explicitly deferred. This includes the
+second stitch pass, orientation override, notification/point/tolerance/interval
+combine tail, vertex-use and shell cleanup, curve joining and UV cleanup,
+squeeze stitching/output lifecycle, transformation and reflection/tolerance
+work. The internal pending topology guard detaches borrowed attributes on failure
+and preserves them on release; its database-reader integration awaits part 6.
 
-Continuations are now present for `CombineCoincidentVertices`,
-`CreateWireEdgeFromCurve`, `FindAndSetInfiniteRegion`, `MakeEdgeInFace`,
-`MakeManifold`, `RemoveFaces` and `StitchAndOrient`, including the second stitch
-pass and explicit `just_unify` override. Mutation continuations remain uncertified.
-The larger omitted bodies have explicit source ranges at their early returns and
-remain work in progress. Notification records/attributes are caller-supplied;
-no temporary records or invented change lists may substitute for them.
+The declaration's infinite-region default is `SM_VS_INFINITEREGION_SWAP` (2).
+Same-input glue succeeds before notification. Aliased combination is refused only
+for an isolated vertex (native use-after-free); a native incidence query checks
+that precise guard. Forty alias fixtures await native validation.
 
-Validation is pending. The first current-main kernel check failed in
-`surface/sphere.rs:852`: `SurfaceKind::OffsetSurface` is absent from a match.
-This is independent of this unit and already has open fixes #218/#221; neither
-is pulled into #194. No old passes are presented as current-revision results.
+The boolean intersector's face insertion now calls the shared p5 control flow
+using actual editing/tolerance getters. It reaches missing `FindVertexSector`
+(face part 4) and `MakeEdgeInFaceWithVU` (B-rep part 9) primitives. Existing opaque
+glue callers share the identity preflight and currently defer at B-rep part 2.
+
+Healer adapters capture real context notifications instead of guessing changes
+from the requested edit. `SmTopologyChangeCallback::Execute`, `AddUnique` and
+`Remove` are co-ported in topology.topology for that integration, including
+stale-identity removal and geometry-owner traversal. Owner metadata must be
+supplied by the actual object store; chains are bounded to 64 links. Missing
+metadata is an explicit failure. Nonempty captures in the arena-only healer
+still need part 2's actual key-to-id routing; no arena-index encoding is guessed.
+Twenty-seven callback-script fixtures compare this supporting algorithm separately
+from the twelve edits; they do not certify topology mutation.
+
+Coverage limits: successful topology edits, nonidentity transformations,
+post-deferral mutation continuations, shared native geometry across distinct
+owning records, and pending-reader integration remain uncertified. Separate
+Rust geometry slots own separate values; equal owner metadata is not proof of
+native pointer identity. No temporary attributes, records or keys substitute for
+caller state. Current-revision formatting, strict Clippy, tests, WASM and native
+differential validation are pending; no previous-head passes certify this work.

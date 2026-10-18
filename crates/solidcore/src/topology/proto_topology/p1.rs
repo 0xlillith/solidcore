@@ -665,10 +665,10 @@ mod tests {
 
     #[test]
     fn api_transforms() {
-        let k = Kernel::default();
+        let mut k = Kernel::default();
         let mut c = line([1.0, 0.0, 0.0], [2.0, 0.0, 0.0]);
         api_transform::api_translate(
-            &k,
+            &mut k,
             Some(TransformObject::Curve(&mut c)),
             Vec3::new(0.0, 1.0, 0.0),
         )
@@ -677,7 +677,7 @@ mod tests {
         let p = c.evaluate_point(ivl.min()).unwrap();
         assert!((p - Point3::new(1.0, 1.0, 0.0)).length() < 1e-12);
         api_transform::api_scale_by_pt(
-            &k,
+            &mut k,
             Some(TransformObject::Curve(&mut c)),
             Point3::new(1.0, 1.0, 0.0),
             Vec3::new(2.0, 2.0, 2.0),
@@ -689,7 +689,7 @@ mod tests {
 
         assert!(matches!(
             api_transform::api_rotate(
-                &k,
+                &mut k,
                 Some(TransformObject::Curve(&mut c)),
                 Point3::new(0.0, 0.0, 0.0),
                 Vec3::new(0.0, 0.0, 0.0),
@@ -698,15 +698,19 @@ mod tests {
             Err(SolidError::InvalidInput { .. })
         ));
         assert!(matches!(
-            api_transform::api_scale(&k, None, Vec3::new(1.0, 1.0, 1.0)),
+            api_transform::api_scale(&mut k, None, Vec3::new(1.0, 1.0, 1.0)),
             Err(SolidError::InvalidInput { .. })
         ));
         assert!(matches!(
-            api_transform::api_scale(&k, Some(TransformObject::Other), Vec3::new(0.0, 1.0, 1.0)),
+            api_transform::api_scale(
+                &mut k,
+                Some(TransformObject::Other),
+                Vec3::new(0.0, 1.0, 1.0)
+            ),
             Err(SolidError::InvalidInput { .. })
         ));
         assert!(api_transform::api_translate(
-            &k,
+            &mut k,
             Some(TransformObject::Brep(&mut crate::topology::Brep::new())),
             Vec3::new(1.0, 0.0, 0.0)
         )
