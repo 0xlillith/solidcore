@@ -1881,10 +1881,10 @@ pub fn is_topological(
             * (0.5 * face2::tolerance(b, face1)?).min(0.5 * face2::tolerance(b, face2_)?);
 
         // Do this only for Analytic surfaces, because they are extendable.
-        if !(surf1.is_analytic()? || surf1.is_planar(approx_tol)?.is_planar) {
+        if !(surf1.is_analytic()? || surf1.is_planar(k, approx_tol)?.is_planar) {
             return Ok(out);
         }
-        if !(surf2.is_analytic()? || surf2.is_planar(approx_tol)?.is_planar) {
+        if !(surf2.is_analytic()? || surf2.is_planar(k, approx_tol)?.is_planar) {
             return Ok(out);
         }
 
@@ -2486,11 +2486,17 @@ mod tests {
     /// their vertex uses.
     fn wire() -> (Brep, EdgeId, [EdgeuseId; 2], [VertexId; 2]) {
         let mut b = Brep::new();
-        let r = b.add_region_record(Region { in_brep: true }).unwrap();
+        let r = b
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
         let s = b
             .add_shell_record(Shell {
                 faces: Vec::new(),
                 region: Some(r),
+                ..Shell::default()
             })
             .unwrap();
         let v: Vec<VertexId> = (0..2)

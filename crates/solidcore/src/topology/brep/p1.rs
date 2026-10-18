@@ -92,8 +92,7 @@
 //!   (upstream hands back the shell's region pointer unchecked).
 //! - Calls into units not ported yet return [`SolidError::Unported`] (every site is
 //!   tagged `UNPORTED(<unit>)`, one stub per call site with the code after it ported):
-//!   `SmRegion::GetShells`, `SetIsVoid`, `IsVoid`, `SetList`, `SmShell::GetMatedShells`
-//!   (`topology.shell`), `SmEdgeuse::GetOrCreateUVTrimCurve`,
+//!   `SmEdgeuse::GetOrCreateUVTrimCurve`,
 //!   `NormalizedEvaluate`, `EvaluateBinormal` (`topology.edgeuse_p3`),
 //!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
 //!   `UnLockBoundingBox` (`query.brep`), `SmBSplineSurface::CreateCornerBlend` with a
@@ -147,6 +146,10 @@ use crate::topology::vertexuse;
 use crate::topology::{
     Brep, EdgeId, EdgeuseId, FaceId, LoopId, RegionId, ShellId, VertexId, Vertexuse, VertexuseId,
 };
+
+/// `SmBoolean` `TRUE` / `FALSE`.
+const TRUE: i32 = 1;
+const FALSE: i32 = 0;
 
 const OP: &str = "topology::brep::p1";
 
@@ -711,7 +714,7 @@ pub fn reset_infinite_region(
             }
         }
         SetRegionVoidType::InfiniteRegionOnly => {
-            region_set_is_void(b, new_infinite_region, true)?;
+            region_set_is_void(b, new_infinite_region, TRUE)?;
         }
         SetRegionVoidType::InfiniteRegionSwap => {
             let Some(old) = old_infinite_region else {
@@ -722,7 +725,7 @@ pub fn reset_infinite_region(
             };
             let new_is_void = region_is_void(b, new_infinite_region)?;
             region_set_is_void(b, old, new_is_void)?;
-            region_set_is_void(b, new_infinite_region, true)?;
+            region_set_is_void(b, new_infinite_region, TRUE)?;
         }
     }
     Ok(())
@@ -749,7 +752,7 @@ pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) 
     }
 
     // mark the infinite region as void
-    region_set_is_void(b, infinite, true)?;
+    region_set_is_void(b, infinite, TRUE)?;
 
     // get the infinite region's shells
     let mut queue = region_shells(b, infinite, None)?;
@@ -769,8 +772,9 @@ pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) 
         let region = shell_region(b, shell)?
             .ok_or_else(|| null("SetRegionIsVoidFlagsForNestedSolids: shell without region"))?;
 
-        // nested regions get the opposite flag
-        let nested_is_void = !region_is_void(b, region)?;
+        // nested regions get the opposite flag (`!pRegion->IsVoid()` on the raw SmBoolean:
+        // UNSURE (2) gives FALSE)
+        let nested_is_void = i32::from(region_is_void(b, region)? == FALSE);
 
         // the shells mated to this one (increments an unused mark value)
         // (status ignored upstream: a failed call is read as no mated shells)
@@ -1352,46 +1356,40 @@ fn normalized_evaluate(b: &Brep, eu: EdgeuseId, t: f64, uv: bool) -> Result<Poin
     ))
 }
 
-/// `SmRegion::GetShells(rShells, pOptAttributeId)` (unit `topology.shell`).
+/// `SmRegion::GetShells(rShells, pOptAttributeId)` (`Region::get_shells`, unit
+/// `topology.shell`): the region's shell list, those carrying `attribute` when given.
 fn region_shells(
     b: &Brep,
     region: RegionId,
     attribute: Option<&AttributeFilter<'_>>,
 ) -> Result<Vec<ShellId>> {
-    let _ = (b, region, attribute);
-    // UNPORTED(topology.shell): SmRegion::GetShells
-    Err(SolidError::unported(
-        "SmRegion::GetShells",
-        "topology.shell",
-    ))
+    b.region(region)?
+        .get_shells(attribute.map(|f| f.attribute_id), |shell, _| {
+            Ok(attribute.is_some_and(|f| f.matches(EntityRef::Shell(shell))))
+        })
 }
 
-/// `SmRegion::SetIsVoid(flag)` (unit `topology.shell`; the Rust `Region` record carries no
-/// void flag yet).
-fn region_set_is_void(b: &mut Brep, region: RegionId, is_void: bool) -> Result<()> {
-    let _ = (b, region, is_void);
-    // UNPORTED(topology.shell): SmRegion::SetIsVoid
-    Err(SolidError::unported(
-        "SmRegion::SetIsVoid",
-        "topology.shell",
-    ))
+/// `SmRegion::SetIsVoid(flag)` (`Region::set_is_void`): the raw `SmBoolean` flag.
+fn region_set_is_void(b: &mut Brep, region: RegionId, is_void: i32) -> Result<()> {
+    b.region_mut(region)?.set_is_void(is_void);
+    Ok(())
 }
 
-/// `SmRegion::IsVoid()` (unit `topology.shell`; a header inline upstream, stubbed because the
-/// Rust `Region` record carries no void flag yet).
-fn region_is_void(b: &Brep, region: RegionId) -> Result<bool> {
-    let _ = (b, region);
-    // UNPORTED(topology.shell): SmRegion::IsVoid
-    Err(SolidError::unported("SmRegion::IsVoid", "topology.shell"))
+/// `SmRegion::IsVoid()` (`Region::is_void`): the raw `SmBoolean` flag (2 is `UNSURE`).
+fn region_is_void(b: &Brep, region: RegionId) -> Result<i32> {
+    Ok(b.region(region)?.is_void())
 }
 
-/// `SmRegion::SetList(shell)`: the region's shell list head (the generic
-/// `SmOwningTopology::SetList`, a header inline upstream; stubbed because the Rust `Region`
-/// record carries no shell list yet, unit `topology.shell`'s data).
+/// `SmRegion::SetList(shell)` (`SmOwningTopology::SetList`, a header inline): makes
+/// `shell` the head of the region's circular shell list (a rotation of the typed list).
 fn region_set_list(b: &mut Brep, region: RegionId, shell: ShellId) -> Result<()> {
-    let _ = (b, region, shell);
-    // UNPORTED(topology.shell): SmRegion::SetList (the region's shell list)
-    Err(SolidError::unported("SmRegion::SetList", "topology.shell"))
+    let shells = &mut b.region_mut(region)?.shells;
+    let at = shells
+        .iter()
+        .position(|&s| s == shell)
+        .ok_or_else(|| null("SmRegion::SetList: the shell is not on the region's list"))?;
+    shells.rotate_left(at);
+    Ok(())
 }
 
 /// `SmShell::GetRegion()`: the shell's `m_pListOwner` (co-ported as `Shell::region`).
@@ -1399,14 +1397,10 @@ fn shell_region(b: &Brep, shell: ShellId) -> Result<Option<RegionId>> {
     Ok(b.shell(shell)?.region)
 }
 
-/// `SmShell::GetMatedShells(rShells)` (unit `topology.shell`).
+/// `SmShell::GetMatedShells(rShells)` (`Shell::mated_shells`, unit `topology.shell`:
+/// claims a mark).
 fn shell_mated_shells(k: &mut Kernel, b: &Brep, shell: ShellId) -> Result<Vec<ShellId>> {
-    let _ = (k, b, shell);
-    // UNPORTED(topology.shell): SmShell::GetMatedShells
-    Err(SolidError::unported(
-        "SmShell::GetMatedShells",
-        "topology.shell",
-    ))
+    b.shell(shell)?.mated_shells(k, b)
 }
 
 /// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
@@ -2882,9 +2876,20 @@ mod tests {
     fn region_list_rotates_to_head() {
         let mut b = Brep::new();
         let r: Vec<RegionId> = (0..3)
-            .map(|_| b.add_region_record(Region { in_brep: true }).unwrap())
+            .map(|_| {
+                b.add_region_record(Region {
+                    in_brep: true,
+                    ..Region::default()
+                })
+                .unwrap()
+            })
             .collect();
-        let off = b.add_region_record(Region { in_brep: false }).unwrap();
+        let off = b
+            .add_region_record(Region {
+                in_brep: false,
+                ..Region::default()
+            })
+            .unwrap();
         assert_eq!(regions(&b, None).unwrap(), r);
         b.set_region_list_head(Some(r[1]));
         assert_eq!(regions(&b, None).unwrap(), vec![r[1], r[2], r[0]]);

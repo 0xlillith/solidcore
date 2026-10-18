@@ -1394,10 +1394,17 @@ fn run_rust_op(
             if *set != -2 {
                 b.set_infinite_region((*set >= 0).then(|| RegionId::from_index(*set as u32)));
             }
+            // SmSetRegionVoidType: SM_VS_NESTEDSOLID 0, _INFINITEREGION_ONLY 1, _SWAP 2 (the FFI
+            // refuses anything else; lesson 22: never default an unknown code)
             let void_type = match void_flag {
                 0 => bp1::SetRegionVoidType::NestedSolid,
                 1 => bp1::SetRegionVoidType::InfiniteRegionOnly,
-                _ => bp1::SetRegionVoidType::InfiniteRegionSwap,
+                2 => bp1::SetRegionVoidType::InfiniteRegionSwap,
+                other => {
+                    return Err(Fail::Harness(harness(format!(
+                        "unknown SmSetRegionVoidType code {other}"
+                    ))))
+                }
             };
             let r = match mode {
                 1 => bp1::reset_infinite_region(
@@ -1421,8 +1428,17 @@ fn run_rust_op(
                 o.push(b.infinite_region().map_or(-1.0, |r| f64::from(r.index())));
                 o.extend(ids(&bp1::regions(b, None)?));
             }
-            // the void flags of a successful mode 1/2 are never reached: both go through
-            // SmRegion::SetIsVoid (unit topology.shell)
+            // a successful mode 1/2: every region's raw IsVoid flag, in the export's
+            // region order (the shim's traversal registry)
+            if *mode != 0 && status == 0.0 {
+                let flags: Vec<f64> = b
+                    .regions()
+                    .iter()
+                    .map(|(_, r)| f64::from(r.is_void))
+                    .collect();
+                o.push(flags.len() as f64);
+                o.extend(flags);
+            }
         }
         OpIn::Degenerate { tol } => {
             o.push(flag(bp1::is_degenerate(k, b, *tol)?));

@@ -101,7 +101,8 @@ pub(crate) fn block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError> {
                 return Err(bad("no faces"));
             }
             for _ in 0..n {
-                face_block(rd)?;
+                // a sheet face's plane domain is bounded as in the face block's non-export ops
+                face_block(rd, 1e4)?;
             }
             Ok(())
         }
