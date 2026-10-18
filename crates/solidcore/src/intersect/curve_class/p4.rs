@@ -56,7 +56,9 @@
 //!   messages and the `SM_DEBUG_CODE` blocks (the release build compiles them out).
 //! - **Callees in units not ported yet** return [`SolidError::Unported`]:
 //!   `intersect.curve_class_p2` (`ReSet`, `ConnectIntervals`, `SmCurveInterval::GetMinUV`
-//!   / `GetMaxUV`) and `topology.edgeuse_p3` (`SmEdgeuse::EvaluateBinormal`, the stub in `topology::edge`).
+//!   / `GetMaxUV`).
+//! - **`EvaluateBinormal`** takes `&mut Brep` in the port; with `bUse3DOnly` true it
+//!   creates nothing, so it runs on a copy of the B-rep, as `ComputeUVSector` does.
 //! - **Recursion.** None.
 
 use crate::curve::curve::p2::Curve;
@@ -89,6 +91,7 @@ use crate::surface::surface::p7::drop_vectors_at;
 use crate::surface::surface::Surface;
 use crate::topology::edge as topo_edge;
 use crate::topology::edgeuse::p1 as eu1;
+use crate::topology::edgeuse::p3 as topo_eu3;
 use crate::topology::face::p2 as face_p2;
 use crate::topology::loopuse;
 use crate::topology::vertex as topo_vertex;
@@ -424,15 +427,25 @@ fn edgeuse_orientation<O: ClassObject, G: ClassGeometry<O>>(
     eu1::orientation(b, eu)
 }
 
-/// `SmEdgeuse::EvaluateBinormal(param, TRUE, ...)` (unit `topology.edgeuse_p3`, through the
-/// stub in `topology::edge`).
+/// `SmEdgeuse::EvaluateBinormal(param, TRUE, ...)` (unit `topology.edgeuse_p3`). With
+/// `bUse3DOnly` true no UV trim curve is created, so the port runs it on a copy of the
+/// B-rep (it takes `&mut Brep`).
 fn edgeuse_evaluate_binormal<O: ClassObject, G: ClassGeometry<O>>(
+    k: &Kernel,
     geometry: &G,
     edgeuse: O,
     param: f64,
 ) -> Result<Binormal> {
     let (b, eu) = edgeuse_id(geometry, edgeuse, OP_CROSS)?;
-    let r = topo_edge::evaluate_binormal(b, eu, param, true)?;
+    let mut scratch = b.clone();
+    let r = topo_eu3::evaluate_binormal(
+        k,
+        &mut scratch,
+        eu,
+        param,
+        true,
+        &topo_eu3::BinormalOptions::default(),
+    )?;
     Ok(Binormal {
         point: r.point,
         binormal: r.binormal,
@@ -868,8 +881,8 @@ impl<O: ClassObject> CurveClassification<O> {
     /// curve (upstream dereferences them before its `NULL` checks, UB-124), a loop without
     /// face when stage 2 is computed (UB-131) and a topology handle `geometry` does not
     /// resolve; those of `SetProps_Stage2` and
-    /// [`CurveClassification::point_classifies_connected_to`]; [`SolidError::Unported`] for
-    /// `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`).
+    /// [`CurveClassification::point_classifies_connected_to`] and
+    /// `SmEdgeuse::EvaluateBinormal`.
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn get_loop_crossings<G: ClassGeometry<O>>(
         &self,
@@ -1550,6 +1563,7 @@ impl<O: ClassObject> CurveClassification<O> {
                         for _ in 0..10 {
                             let smp_pn = eval_pn(c.classify_crv, smp_classify_crv_param)?;
                             let bn = edgeuse_evaluate_binormal(
+                                c.k,
                                 c.geometry,
                                 tgt_edgeuse,
                                 smp_edgeuse_param,
@@ -1703,8 +1717,12 @@ impl<O: ClassObject> CurveClassification<O> {
 
                         for _ in 0..smp_cnt {
                             let smp_pn = eval_pn(c.classify_crv, smp_classify_crv_param)?;
-                            let bn =
-                                edgeuse_evaluate_binormal(c.geometry, edgeuse, smp_edgeuse_param)?;
+                            let bn = edgeuse_evaluate_binormal(
+                                c.k,
+                                c.geometry,
+                                edgeuse,
+                                smp_edgeuse_param,
+                            )?;
                             let gap = smp_pn[0] - bn.point;
                             if !is_degenerate_vec3(c.k, gap, None) {
                                 let dir = if bn.binormal.dot(gap) > 0.0 {
