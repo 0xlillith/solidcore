@@ -6967,6 +6967,14 @@ independent p6 integration.
 
 ### Issue #210 continuation revision (validation pending)
 
+Final source review also preserved explicit NER null-pointer statuses in
+FindInfiniteRegion/MakeVertexLoop and translated a zero ray direction into the
+native Unitize status `SM_ERR_INVALID_INPUT` (1007), rather than a Rust safety
+error. A focused zero-ray regression covers that status. ComputeLoopOrientation's
+optional output and 3D-computation flag are identified explicitly at its call stub.
+The earlier 1324-test/native-Clippy snapshot precedes these corrections; reruns
+are required before submitting.
+
 All six owned bodies now continue after individual dependency calls. This replaces
 all previous `OMITTED` ranges: ray sampling and fallback, marked sheet walk,
 vertex-loop creation, split geometry/use rewiring, and edge/loop/face insertion and

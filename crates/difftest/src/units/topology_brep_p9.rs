@@ -373,6 +373,21 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
             record.insert(0, f64::from(code));
             Ok(graph(&b, record))
         }
+        Err(SolidError::Upstream { code, .. }) if i.op <= 4 => {
+            // These APIs clear their pointer outputs before the first fallible
+            // operation. Compare defined native failures as statuses, not harness
+            // errors; any partial graph changes are still compared normally.
+            let slots = match i.op {
+                0 => 1,
+                1 => 0,
+                2 | 3 => 2,
+                4 => 3,
+                _ => 0,
+            };
+            record.resize(slots, -1.0);
+            record.insert(0, f64::from(code));
+            Ok(graph(&b, record))
+        }
         Err(e) => status(&e),
     }
 }

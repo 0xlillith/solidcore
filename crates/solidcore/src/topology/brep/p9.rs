@@ -166,7 +166,7 @@ where
                     }
                 }
             }
-            direction = direction.unitize()?;
+            direction = ray_direction(direction)?;
             let radius = bounds.sphere_bound().radius;
             let attempt = crate::topology::shell::ray_fire(
                 k,
@@ -185,7 +185,7 @@ where
             let success = ray_success(&attempt.status)?;
             state = attempt.state;
             if !success {
-                let edge_id = required(best_edge, "failed shell ray without target edge")?;
+                let edge_id = best_edge.ok_or_else(|| SolidError::null_pointer(OP))?;
                 let record = b.edge(edge_id)?;
                 let curve = required(record.curve.as_ref(), "ray target edge without curve")?;
                 let point = curve.evaluate_point(record.interval.evaluate(0.789))?;
@@ -276,7 +276,7 @@ where
                     }
                 }
             }
-            direction = direction.unitize()?;
+            direction = ray_direction(direction)?;
             if !brep_ray_fire(b, ray_start, direction, tolerance, &mut state)? {
                 // Native retries use edges[0], not the closest sampled edge.
                 let edge_id = *required(edges.first(), "missing first ray edge")?;
@@ -334,6 +334,14 @@ fn brep_ray_fire<O>(
     let _ = (b, start, direction, tolerance, state);
     // UNPORTED(topology.brep_p2): SmBrep::RayFire
     Err(SolidError::unported("SmBrep::RayFire", "topology.brep_p2"))
+}
+
+fn ray_direction(direction: Vec3) -> Result<Vec3> {
+    direction.unitize().map_err(|_| SolidError::Upstream {
+        operation: OP,
+        code: 1007,
+        entity: None,
+    })
 }
 
 fn ray_success(status: &Result<()>) -> Result<bool> {
@@ -554,11 +562,12 @@ pub fn make_vertex_loop(
         b.vertexuse_mut(vu)?.vertex = Some(vertex);
     }
     ignore_status(set_vertex_point(b, vertex, point, env))?;
-    let fu1 = required(
-        crate::topology::face::p2::upward_faceuse(b, face)?,
-        "face without upward faceuse",
-    )?;
-    let fu2 = required(b.faceuse(fu1)?.mate, "faceuse without mate")?;
+    let fu1 = crate::topology::face::p2::upward_faceuse(b, face)?
+        .ok_or_else(|| SolidError::null_pointer(OP))?;
+    let fu2 = b
+        .faceuse(fu1)?
+        .mate
+        .ok_or_else(|| SolidError::null_pointer(OP))?;
     b.loop_mut(loop_)?.loopuse = Some(lu1);
     for (lu, mate, fu, vu) in [(lu1, lu2, fu1, vu1), (lu2, lu1, fu2, vu2)] {
         *b.loopuse_mut(lu)? = Loopuse {
@@ -1657,10 +1666,10 @@ fn compute_loop_orientation(
     b: &Brep,
     face: FaceId,
     loop_: LoopId,
-    domain: Option<&crate::geom::extent2d::Extent2d>,
-    skip_one_face_edges: bool,
+    uv_bounds: Option<&mut crate::geom::extent2d::Extent2d>,
+    do_3d_loop_computation: bool,
 ) -> Result<OrientType> {
-    let _ = (k, b, face, loop_, domain, skip_one_face_edges);
+    let _ = (k, b, face, loop_, uv_bounds, do_3d_loop_computation);
     // UNPORTED(topology.face_p3): SmFace::ComputeLoopOrientation
     Err(SolidError::unported(
         "SmFace::ComputeLoopOrientation",
@@ -2094,6 +2103,15 @@ fn drop_curve(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn zero_ray_direction_retains_the_defined_native_status() {
+        assert!(matches!(
+            ray_direction(Vec3::ZERO),
+            Err(SolidError::Upstream { code: 1007, .. })
+        ));
+        assert_eq!(ray_direction(Vec3::Z).unwrap(), Vec3::Z);
+    }
 
     #[test]
     fn extreme_parameters_do_not_panic_and_editing_refusal_clears_outputs() {
