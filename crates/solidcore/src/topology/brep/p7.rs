@@ -61,8 +61,7 @@
 //!   (`topology.brep_p1`); `SmBrep::Notify`, `SetTolerance`, `sm_CheckAndFixUVTrimCurves`,
 //!   `RebuildUVTrimCurves` (`topology.brep_p2`); `MakeWireEdge`, `MakeWireEdgeVertex`
 //!   (`topology.brep_p3`); `DeleteEdge` (`topology.brep_p4`); `GlueVertices`
-//!   (`topology.brep_p5`); `MakeFaceTopology`, `TestClosureSplitRegion(faceuse)`
-//!   (`topology.brep_p6`); `MakeShellVertex` (`topology.brep_p9`);
+//!   (`topology.brep_p5`); `MakeShellVertex` (`topology.brep_p9`);
 //!   `MakeTopologyFromData`, `TestClosureSplitRegion(edge)` (`topology.brep_p10`);
 //!   `SmFace::Notify`, `SetTolerance`,
 //!   `CreateUVTrimCurves` (`topology.face_p3`); `SmFace::GetBrep`, `GetEdges`
@@ -73,7 +72,12 @@
 //!   (`classify_on_faces`, `set_curve_and_merge`) over a stand-in interval type; the
 //!   upstream interval loop around them is ported (`GetSize() != 1` skips before the
 //!   second merge, `SM_ERR` after it, `SE(SM_ERR)` for a middle not on an edge).
-//!   `SmShell::IsInnerShell` (merged shells) calls `topology.shell`'s port.
+//!   `SmShell::IsInnerShell` (merged shells) calls `topology.shell`'s port;
+//!   `MakeFaceTopology` and `TestClosureSplitRegion(faceuse)` call `topology.brep_p6`'s.
+//!   That `MakeFaceTopology` names the face for its surface's owner before the face
+//!   exists, so it gets the key `this_face` gives the next face id (arenas only append);
+//!   it builds the face on a copy of the surface, which `MakeFace` then replaces with
+//!   its own (upstream: one shared surface whose owner `MakeFace` restores).
 //! - **`MakeFace`** returns nothing when `MakeFaceTopology` fails; upstream still hands
 //!   back the region and shell it may have made (`MakeFaceWithCurves` warns about it).
 //! - **`GlueEdgesGeneral`**: the arena cannot share one curve between two edges, so
@@ -95,6 +99,7 @@ use crate::geom::tools::{
 };
 use crate::kernel::Kernel;
 use crate::math::{Point3, EFF_ZERO, EFF_ZERO_DEG};
+use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_curve_n_lib::InValueType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::{Surface, SurfaceKind};
@@ -103,7 +108,8 @@ use crate::topology::database_io::FileType;
 use crate::topology::edge as ed;
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::face::p2 as fp2;
-use crate::topology::topology_traverser as tt;
+use crate::topology::brep::p6;
+use crate::topology::topology_traverser::{self as tt, Marks};
 use crate::topology::{Brep, EdgeId, EdgeuseId, FaceId, FaceuseId, RegionId, ShellId, VertexId};
 
 const OP: &str = "topology::brep::p7";
@@ -223,39 +229,6 @@ fn glue_vertices(_b: &mut Brep, _v1: VertexId, _v2: VertexId) -> Result<()> {
     Err(SolidError::unported(
         "SmBrep::GlueVertices",
         "topology.brep_p5",
-    ))
-}
-
-/// `MakeFaceTopology(region, surface, orient, loops, edgeuses, loopVertices, ..)`: the
-/// new region, shell and face.
-#[allow(clippy::too_many_arguments)]
-fn make_face_topology(
-    _k: &Kernel,
-    _b: &mut Brep,
-    _region: RegionId,
-    _surface: &Surface,
-    _orient: OrientType,
-    _loops: &[usize],
-    _edgeuses: &[EdgeuseId],
-    _loop_vertices: &[VertexId],
-    _opts: &MakeFaceOptions<'_>,
-) -> Result<(Option<RegionId>, Option<ShellId>, FaceId)> {
-    // UNPORTED(topology.brep_p6): SmBrep::MakeFaceTopology
-    Err(SolidError::unported(
-        "SmBrep::MakeFaceTopology",
-        "topology.brep_p6",
-    ))
-}
-
-/// `TestClosureSplitRegion(TRUE, faceuse, rpNewShell, rpNewRegion)` (status ignored).
-fn test_closure_split_region_faceuse(
-    _b: &mut Brep,
-    _fu: FaceuseId,
-) -> Result<(Option<ShellId>, Option<RegionId>)> {
-    // UNPORTED(topology.brep_p6): SmBrep::TestClosureSplitRegion
-    Err(SolidError::unported(
-        "SmBrep::TestClosureSplitRegion",
-        "topology.brep_p6",
     ))
 }
 
@@ -494,8 +467,9 @@ pub struct MakeFaceOptions<'a> {
     pub verify_radial_sectors: bool,
     /// `bCalculateTrims`: attach or make a UV trim curve on every edge use.
     pub calculate_trims: bool,
-    /// `cpOptUVCurves`: UV trim curves to assign to the new edge uses.
-    pub uv_curves: Option<&'a [Curve]>,
+    /// `cpOptUVCurves`: UV trim curves to assign to the new edge uses (`None` entries
+    /// are null).
+    pub uv_curves: Option<&'a [Option<BSplineCurve>]>,
 }
 
 /// The topology [`make_face`] and [`make_face_with_curves`] made.
@@ -518,11 +492,11 @@ pub struct NewFace {
 /// # Errors
 ///
 /// `SM_ERR_NULL_POINTER` without surface; those of the topology build;
-/// [`SolidError::Unported`] (`GetInfiniteRegion`, `MakeFaceTopology`,
-/// `SmFace::SetTolerance`).
+/// [`SolidError::Unported`] (`GetInfiniteRegion`; `SmFace::SetTolerance`, which
+/// `MakeFaceTopology` reaches first).
 #[allow(clippy::too_many_arguments)]
 pub fn make_face(
-    k: &Kernel,
+    _k: &Kernel,
     b: &mut Brep,
     region: Option<RegionId>,
     loops: &[usize],
@@ -542,21 +516,31 @@ pub fn make_face(
         None => infinite_region(b)?,
     };
 
-    // the topology build may change the surface owner; keep it
+    // get preexisting surface owner
     let old_owner = surface.owner();
-    let built = make_face_topology(
-        k,
-        b,
-        region,
-        &surface,
-        orientation,
-        loops,
-        edgeuses,
-        loop_vertices,
-        opts,
+    // the face p6 allocates next (arenas only append)
+    let next_face = FaceId::from_index(
+        u32::try_from(b.faces().len()).map_err(|_| SolidError::invalid_input(OP, "too many faces"))?,
     );
+    let built = p6::make_face_topology(
+        b,
+        Some(surface.clone()),
+        orientation,
+        this_face(next_face).key,
+        &p6::FaceTopologyOptions {
+            region: Some(region),
+            edge_loops: loops,
+            edgeuses,
+            loop_vertices,
+            verify_radial_sectors: opts.verify_radial_sectors,
+            calculate_trims: opts.calculate_trims,
+            uv_curves: opts.uv_curves,
+        },
+    );
+    // restore the preexisting surface owner, whether the build fails or succeeds
     surface.set_owner(old_owner);
-    let (new_region, new_shell, new_face) = built?;
+    let built = built?;
+    let (new_region, new_shell, new_face) = (built.region, built.shell, built.face);
 
     b.face_mut(new_face)?.uv_domain = *uv_domain;
 
@@ -1318,13 +1302,12 @@ pub fn glue_edges_general(
     }
 
     if do_region_nesting {
+        let mut marks = Marks::default();
         let mut new_region = None;
         for fu in test_split {
-            // (whether upstream's rpNewRegion is reset by a call that splits nothing is
-            // up to TestClosureSplitRegion's port, unit topology.brep_p6)
-            if let Some((_, r)) = ignored(test_closure_split_region_faceuse(b, fu))? {
-                new_region = r;
-            }
+            // status ignored; each call first resets rpNewRegion to NULL
+            let attempt = p6::test_closure_split_region_attempt(k, b, &mut marks, true, fu)?;
+            new_region = attempt.region;
         }
         if ed::is_spine(b, surv)? && new_region.is_none() {
             ignore_status(test_closure_split_region_edge(b, surv))?;
