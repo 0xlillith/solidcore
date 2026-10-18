@@ -1299,6 +1299,7 @@ mod tests {
             }
             let corner = &mut net.last_mut().unwrap()[1];
             corner[0] = serde_json::json!(x);
+            // homogeneous: the stored y is w * 1, so the corner's Cartesian y stays 1
             corner[1] = serde_json::json!(w);
             corner[3] = serde_json::json!(w);
             serde_json::from_value(v).unwrap()
@@ -1310,9 +1311,13 @@ mod tests {
                 "{x} {w}: {err}"
             );
         }
-        let c = run_cpp(&rational(1e140, 1e3)).unwrap();
-        let r = run_rust(&rational(1e140, 1e3)).unwrap();
-        assert_eq!(format!("{c:?}"), format!("{r:?}"));
+        // compared inside the bound and exactly at it (inclusive): stored 1e151 with
+        // w = 1, stored 1e148 with w = 1e-3 (a vertex at 1e151)
+        for (x, w) in [(1e140, 1e3), (1e151, 1.0), (1e148, 1e-3)] {
+            let c = run_cpp(&rational(x, w)).unwrap();
+            let r = run_rust(&rational(x, w)).unwrap();
+            assert_eq!(format!("{c:?}"), format!("{r:?}"), "{x} {w}");
+        }
     }
 
     /// A mating surface so far from the lamina edge that the squared distance overflows
