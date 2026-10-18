@@ -1539,7 +1539,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (the native call produced no result within 60 s).
 - **Severity:** hang.
 - **Rust port:** Returns `NotConverged` after `curve::ellipse::p2::MAX_PERIOD_SHIFTS` (2^20) shifts or when a shift no longer changes the midpoint; the callers ignore that status as upstream ignores the set-up's, leaving the converter impossible.
-- **Harness:** the `surface.cone_p3` FFI rejects cone records with a start or end angle beyond `1e8` degrees, below the Rust bound (about `3.8e8` degrees).
+- **Harness:** the `surface.cone_p3` FFI rejects cone records with a start or end angle beyond `360 * (2^20 - 3)` degrees (about `3.8e8`), the largest for which the set-up stays within the Rust bound, so every accepted record is compared. Upstream documents cone angles in `[-360, 360]` (`SmCone.h:205-206`).
 
 ## Nondeterminism
 

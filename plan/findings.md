@@ -6081,8 +6081,13 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   (upstream-issues HANG-23). The fuzzed record itself had 18 doubles, so the native
   wrapper refused it, but the harness still runs Rust on wrapper refusals. The Rust loop
   now stops with `NotConverged` after `MAX_PERIOD_SHIFTS` (2^20) turns, and the
-  `surface.cone_p3` FFI rejects cone angles beyond `MAX_ANGLE` (`1e8` degrees), so every
-  accepted record stays below the Rust bound. No fixture uses angles beyond 720 degrees.
+  `surface.cone_p3` FFI rejects cone angles beyond `MAX_ANGLE` (`360 * (2^20 - 3)`
+  degrees): the set-up starts from a midpoint in `[0, 540]` and needs at most
+  `(|m| + 360) / 360` turns, so every accepted record stays within the Rust bound and
+  is compared (a compile-time assertion in the
+  difftest runner ties the two constants). Upstream documents cone angles in
+  `[-360, 360]`. Apart from `far_angles.json` (54 cones at the bound, every swap and
+  inside-out flag), no fixture uses angles beyond 720 degrees.
   After the change: `FUZZ-PASS surface.cone_p3 cases=10000 rejected=4320 malformed=3054
   ran=2626 differs=0 crashes=0 panics=0 timeouts=0`; `curve.ellipse_p1` (2028) and
   `curve.ellipse_p2` (2102) still pass bit-identically; `--green` reports 202 units,

@@ -27,12 +27,14 @@ mod sys {
     }
 }
 
-/// Largest start or end angle (degrees) of a cone record. Native polar set-up
-/// shifts its circles' angles by one turn per loop iteration without a bound and
-/// never ends near `1e18`; the Rust port stops after
-/// `solidcore::curve::ellipse::p2::MAX_PERIOD_SHIFTS` turns (about `3.8e8`
-/// degrees), so accepted records stay well below both.
-pub const MAX_ANGLE: f64 = 1e8;
+/// Largest start or end angle (degrees) of a cone record: `360 * (2^20 - 3)`.
+/// Native polar set-up moves its circles' angles one turn per loop iteration without
+/// a bound and never ends near `1e18` (upstream-issues HANG-23); the Rust port stops
+/// after `solidcore::curve::ellipse::p2::MAX_PERIOD_SHIFTS` (`2^20`) turns. The set-up
+/// starts from a midpoint in `[0, 540]` and needs at most `(|m| + 360) / 360` turns to
+/// reach a midpoint `m`, so every accepted record stays within the Rust bound and is
+/// compared. Upstream documents cone angles in `[-360, 360]` (`SmCone.h:205-206`).
+pub const MAX_ANGLE: f64 = 360.0 * ((1u32 << 20) - 3) as f64;
 
 fn cone_valid(v: &[f64]) -> bool {
     v.len() == 17
@@ -149,7 +151,7 @@ mod tests {
     #[test]
     fn rejects_only_angles_whose_polar_set_up_never_ends() {
         for index in [12, 13] {
-            for value in [MAX_ANGLE * 1.5, -9.223_372_036_854_776e18] {
+            for value in [MAX_ANGLE + 1.0, -MAX_ANGLE - 1.0, -9.223_372_036_854_776e18] {
                 let mut a = cone();
                 a[index] = value;
                 assert!(matches!(

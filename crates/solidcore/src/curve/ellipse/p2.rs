@@ -2290,6 +2290,15 @@ mod tests {
         e.set_up_polar_conversion(&k).expect("set-up");
         assert!(e.polar.is_polar_conversion_possible());
         assert!((e.step_interval().mid() - (1e8 + 45.0)).abs() <= 180.0);
+        // The FFI's largest accepted angle still shifts within the bound.
+        let edge = 360.0 * (MAX_PERIOD_SHIFTS - 3) as f64;
+        for (lo, hi) in [(edge - 90.0, edge), (-edge, 90.0 - edge)] {
+            let mut e = arc(lo);
+            e.set_step_interval(Extent1d::from_min_max(lo, hi));
+            e.set_up_polar_conversion(&k)
+                .expect("set-up at the FFI bound");
+            assert!(e.polar.is_polar_conversion_possible());
+        }
         // Upstream never ends: adding a turn no longer changes the midpoint.
         let mut e = arc(9.223_372_036_854_776e18);
         let err = e.set_up_polar_conversion(&k).unwrap_err();

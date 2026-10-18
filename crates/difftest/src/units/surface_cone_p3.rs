@@ -20,6 +20,12 @@ use solidcore::surface::surface::p2::SurfaceIntersection;
 use solidcore::SolidError;
 use solidcore_ffi::units::surface_cone_p3 as ffi;
 
+// The FFI angle bound must stay within the port's polar set-up shift bound.
+const _: () = assert!(
+    ffi::MAX_ANGLE
+        == 360.0 * (solidcore::curve::ellipse::p2::MAX_PERIOD_SHIFTS - 3) as f64
+);
+
 /// Cone intersection differential runner.
 pub struct Runner;
 #[derive(Clone, Serialize, Deserialize)]
