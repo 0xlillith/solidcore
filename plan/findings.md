@@ -5838,10 +5838,22 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   executed for them. Four `missing_polar_height_plane_*` cases exercise the corrected
   height through direct/global plane intersections; two compare a returned circle.
   The original overflow-axis fixtures remain covered.
+- Before the height fix, a 10,000-case probe of the original 1,312-case corpus found
+  eight status-1006 disagreements, all retained in `fuzz_height.json`: fuzz00226,
+  fuzz02052, fuzz02407, fuzz05279, fuzz05558, fuzz06289, fuzz06674 and fuzz09442.
+  It also found three status-1007 disagreements on global calls (fuzz04485, fuzz04639,
+  fuzz07170). Those reached the runner's general-intersector callback, whose temporary
+  `InvalidInput` hid the existing missing typed Cone adapter. The callback now returns
+  `Unported(surface.surface_p2)` for that adapter, as the cone's boundary path already
+  does. `fuzz_general.json` retains those cases as dependency deferrals; no general
+  intersection result is fabricated or counted as a pass.
 - Linux validation uses Proxmox VM 107 (`runner-codex-02`, x86-64, GNU C++ 15.2), a fresh
   snapshot of official main `53ba102b` plus this change, and the shared C++ reference build.
-  Its allowed source trees were byte-checked against pinned `c9c5979`. No Apple Clang
-  prerequisites or profile overrides are used.
+  Its allowed source trees were byte-checked against pinned `c9c5979`. The first default
+  runner build was killed by signal 9 near the 8 GiB VM memory limit. Validation retries
+  use `--config 'profile.difftest.package.difftest.opt-level=0'` for the runner package
+  only; Rust kernel and C++ reference settings are unchanged. No Apple Clang prerequisites
+  are used.
 
 ## surface.surface_p11 (`LocalSurfaceIntersect`, `SmCSGlobalSolver` / `SmSSGlobalSolver::LocalSolve`, `IntersectSurfaceBoundaries`, `LiftCurve`, PR #120, 2026-10-15; partial)
 

@@ -181,9 +181,10 @@ fn rust(i: &Inputs) -> solidcore::Result<Vec<f64>> {
                 i.tolerance,
                 None,
                 |_| {
-                    Err(SolidError::invalid_input(
-                        "difftest::surface_cone_p3",
-                        "global cone fixture unexpectedly needs general intersector",
+                    // UNPORTED(surface.surface_p2): typed Cone general-intersector adapter.
+                    Err(SolidError::unported(
+                        "SurfaceKind::Cone (SmSurface::GlobalSurfaceIntersect)",
+                        "surface.surface_p2",
                     ))
                 },
             )?;
@@ -210,9 +211,10 @@ fn rust(i: &Inputs) -> solidcore::Result<Vec<f64>> {
                 i.tolerance,
                 None,
                 |_| {
-                    Err(SolidError::invalid_input(
-                        "difftest::surface_cone_p3",
-                        "global fixture unexpectedly needs general intersector",
+                    // UNPORTED(surface.surface_p2): typed Cone general-intersector adapter.
+                    Err(SolidError::unported(
+                        "SurfaceKind::Cone (SmSurface::GlobalSurfaceIntersect)",
+                        "surface.surface_p2",
                     ))
                 },
             )?;
