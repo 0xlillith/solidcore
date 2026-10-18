@@ -6423,21 +6423,25 @@ independent p6 integration.
 Difftest (`fixtures/topology.brep_p1/`: 2095 cases on the 15 upstream `.smb` files read by
 `SmBrep::ReadFromFile`, 238 on constructed B-reps (wire edges, plane and B-spline faces, the
 `prog_test` wire network, 10 `sm_FindSideOfCurve` cases among them), 16 generated): 2349 cases,
-1708 pass (1663 compare values, 45 both-errored null-dereference guards), 15 rejected (no entity of the op's kind; nothing runs), 0 failed, 626 deferred (`harness:analytic-geometry-export` 217, `topology.shell` 151,
+1708 pass, of which 1663 compare values and 45 are guard agreements, not coverage (the C++ is not run: the shim stops before an upstream null dereference; 30 are the port's matching refusal, 15 a runner-side mirror with no port call), 15 rejected (no entity of the op's kind; nothing runs), 0 failed, 626 deferred (`harness:analytic-geometry-export` 217, `topology.shell` 151,
 `topology.edgeuse_p3` 93, `query.brep` 71, `topology.face_p2` 44, `topology.face_p3` 18,
 `topology.face_p4` 16, `query.face_p2` 9, `curve.crv_on_surf` 4, `surface.surface_cache_p1` 3);
 `--perturb` detects 1708/1708; `--fuzz 2000` FUZZ-PASS; a 1000-seed generated sweep (3333 cases)
-passes 2399 with 0 failed, 919 deferred and 15 rejected; green runs 201 units (main's 200 + this unit) with
+passes 2399 with 0 failed, 919 deferred and 15 rejected (2323 compare values; the other 76 are guard
+agreements of the same kinds: 53 port refusals, i.e. 43 UB-162 redistribute, 7 `CreateEdgeEdgeBlend` with a blend
+edge use without face, 3 swaps without an old infinite region, and 23 runner-side `AddAttributes` mirrors); green runs 201 units (main's 200 + this unit) with
 0 failed (main merged through a28e0f06).
 `sm_SwapFaceUV` calls `topology.face_p1`'s `SmFace::SwapUV` (#148, wired after the merge; status ignored as upstream's release `SE`, `Unported` still propagates): on an unmarked face the shim now runs the C++ swap and both sides compare the swapped B-rep digest (the heal digest: surfaces, trim-curve fingerprints, loop-use links), but every such case defers at `SmFace::GetBrep` (`topology.face_p4`), the first call of face_p1's `swap_uv`, so none compares yet (the 16 former `topology.face_p1` deferrals are now `topology.face_p4` 16; no deferral flipped to pass).
-Every compared value is bit-identical; no absolute floors. 60 of the 1717 passes compare no value
-because both sides report the same error (`both_errored` in the report): 15 `no_entity` lookups
-on the three wire B-reps (`ReflectShell`, `sm_MarkLoopsToDelete`, `sm_SwapFaceUV`,
-`FindSectorOfFace` local and global, no face to find) and 45 `null_dereference_guard` cases where
-the shim stops before an upstream null dereference and the Rust returns the matching error (15
-`AddAttributes` on a null indexed target, 27 `sm_RedistributeSeamUVTrimCurves` with a trim curve
-on files with fewer than four seam edge uses, UB-162, and 3 `SetInfiniteRegion` swaps without an
-infinite region); the other 1657 compare values.
+Every compared value is bit-identical; no absolute floors. Of the 1708 passes, 1663 compare
+values. The other 45 are guard agreements, not coverage: both sides report the null-dereference
+guard (`both_errored` in the report) and no C++ runs, because the shim stops before an upstream null
+dereference. 15 are `AddAttributes` on a null indexed target, where the runner itself writes the
+Rust side's `-2` before any port call (a runner-side mirror, no port code exercised). 27 are
+`sm_RedistributeSeamUVTrimCurves` with a trim curve on files with fewer than four seam edge uses
+(UB-162) and 3 are `SetInfiniteRegion` swaps without an old infinite region: those 30 exercise only
+the port's matching refusal. The 15 ops naming an entity kind the wire B-reps lack
+(`ReflectShell`, `sm_MarkLoopsToDelete`, `sm_SwapFaceUV`, `FindSectorOfFace` local and global) are
+rejected: nothing runs on either side.
 
 - **Coverage, honestly.** `GetShells` and `SmLockBrepBox` have no passing case (every
   `GetShells` case defers: every fixture B-rep has regions, so it stops at
