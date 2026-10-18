@@ -548,9 +548,6 @@ pub struct Brep {
     tolerance: f64,
     /// The identity the B-rep is attributed and notified under (`SmBrep*`).
     key: ObjectKey,
-    /// `m_pInfiniteRegion` (unit `topology.brep_p1`, [`brep::p1`]): the infinite (outer)
-    /// region.
-    infinite_region: Option<RegionId>,
     /// `SmOwningTopology::m_pList` of the B-rep (unit `topology.brep_p1`): the head of
     /// its circular region list, `None` for the first region record (the region arena
     /// holds the list in traversal order; the head only rotates it).
@@ -594,7 +591,6 @@ impl Default for Brep {
             validate_only: false,
             tolerance: ZONE_TOL_3D,
             key: ObjectKey(0),
-            infinite_region: None,
             region_list_head: None,
             face_list: Vec::new(),
             edge_list: Vec::new(),
