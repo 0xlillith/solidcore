@@ -233,11 +233,11 @@ fn infinite_region(brep: &Brep) -> Result<Option<RegionId>> {
     ))
 }
 
-/// `SmBrep::GetEdges` (unit `topology.brep_p1`).
-fn brep_edges(brep: &Brep) -> Result<Vec<EdgeId>> {
-    let _ = brep;
-    // UNPORTED(topology.brep_p1): SmBrep::GetEdges
-    Err(SolidError::unported("SmBrep::GetEdges", "topology.brep_p1"))
+/// `SmBrep::GetEdges(rEdges)` without an attribute filter (unit `topology.brep_p1`, not
+/// ported yet): its CO-PORT in `topology.shell`, the B-rep's edges in `m_pEdgeListHead`
+/// order. Every call upstream's `SmHCR` makes passes no attribute id.
+fn brep_edges(brep: &Brep) -> Vec<EdgeId> {
+    crate::topology::shell::brep_get_edges(brep)
 }
 
 /// `SmBrep::GetFaces` (unit `topology.brep_p1`).
@@ -285,14 +285,23 @@ fn merge_curves_on_surface(
 }
 
 /// `SmEdgeuse::EvaluateBinormal(t, FALSE, ..)` (unit `topology.edgeuse_p3`): binormal,
-/// tangent, face use normal.
-fn evaluate_binormal(brep: &Brep, eu: EdgeuseId, t: f64) -> Result<(Vec3, Vec3, Vec3)> {
-    let _ = (brep, eu, t);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-    Err(SolidError::unported(
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
-    ))
+/// tangent, face use normal. It works on the scene itself, as upstream: with
+/// `bUse3DOnly = FALSE` a missing UV trim curve is built on the scene's edge use.
+fn evaluate_binormal(
+    k: &Kernel,
+    brep: &mut Brep,
+    eu: EdgeuseId,
+    t: f64,
+) -> Result<(Vec3, Vec3, Vec3)> {
+    let r = edgeuse::p3::evaluate_binormal(
+        k,
+        brep,
+        eu,
+        t,
+        false,
+        &edgeuse::p3::BinormalOptions::default(),
+    )?;
+    Ok((r.binormal, r.tangent, r.face_normal))
 }
 
 /// `SmFace::FindIfRectangularTrim` (unit `topology.face_p1`): domain, rectangular,
@@ -734,7 +743,7 @@ impl Hcr {
 
         // Attributes for curves are attached to the scene edge curves (graphics only):
         // the edge list is the first scene query.
-        let edges = brep_edges(&self.scene)?;
+        let edges = brep_edges(&self.scene);
 
         // Disable editing now
         self.scene.set_editing_enabled(false);
@@ -771,7 +780,7 @@ impl Hcr {
                         let tol = self.scene.tolerance() / 100.0;
                         if curve.is_line(10, tol)?.is_some() {
                             let t = edge::interval(&self.scene, e)?.evaluate(0.5);
-                            let (bin, _, _) = evaluate_binormal(&self.scene, eu, t)?;
+                            let (bin, _, _) = evaluate_binormal(k, &mut self.scene, eu, t)?;
                             if bin.z > -EFF_ZERO {
                                 // Binormal is toward eye or perpendicular to the eye
                                 marked.insert(e);
@@ -783,7 +792,7 @@ impl Hcr {
         }
 
         // For each invisible edge: copy it, trim the copy to Edge interval, and add it.
-        let edges2 = brep_edges(&self.scene)?;
+        let edges2 = brep_edges(&self.scene);
         let _ = edges;
         for &e in &edges2 {
             if marked.contains(&e) {
@@ -845,13 +854,13 @@ impl Hcr {
         let mut visible_edge = !self.back_facing_edges.contains(&e);
 
         // when not displaying seams, make seams invisible except for silhouette edges
-        if visible_edge && !self.display_seams && edge::is_seam(&self.scene, e)? {
+        if visible_edge && !self.display_seams && edge::is_seam(k, &mut self.scene, e)? {
             visible_edge = self.is_silhouette_edge(k, e)?;
         }
         // when not displaying G1 smooth edges, make them invisible except for silhouettes
         if visible_edge
             && !self.display_smooth_edges
-            && edge::is_tangent_edge(&self.scene, e, 2.0, false)?
+            && edge::is_tangent_edge(k, &mut self.scene, e, 2.0, false)?
         {
             visible_edge = self.is_silhouette_edge(k, e)?;
         }
@@ -1062,7 +1071,7 @@ impl Hcr {
         }
 
         // classify every edge in the scene (adding silhouettes may have split edges)
-        let edges = brep_edges(&self.scene)?;
+        let edges = brep_edges(&self.scene);
         for e in edges {
             if self.is_silhouette_edge(k, e)? {
                 self.add_silhouette_edge(k, e)?;
@@ -1094,11 +1103,10 @@ impl Hcr {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] from the edge use binormals (unit
-    /// `topology.edgeuse_p3`) and the infinite region; `InvalidInput` for topology
-    /// upstream would dereference as null.
-    pub fn is_silhouette_edge(&self, k: &Kernel, e: EdgeId) -> Result<bool> {
-        let _ = k;
+    /// [`SolidError::Unported`] from the edge use binormals (their own callees) and the
+    /// infinite region; `InvalidInput` for topology upstream would dereference as null.
+    /// The binormal builds a missing UV trim curve on the scene's edge use, as upstream.
+    pub fn is_silhouette_edge(&mut self, k: &Kernel, e: EdgeId) -> Result<bool> {
         // low work - edge already classified
         if self.sil_edges.contains(&e) {
             return Ok(true);
@@ -1118,9 +1126,9 @@ impl Hcr {
             edgeuse::p1::radial(&self.scene, prime)?.ok_or(undefined("edge use without radial"))?;
         let t = edge::interval(&self.scene, e)?.evaluate(0.5123);
         // SE(..): a failed evaluation leaves the outputs uninitialised upstream
-        let (bin1, tan1, norm1) = ignored(evaluate_binormal(&self.scene, prime, t))?
+        let (bin1, tan1, norm1) = ignored(evaluate_binormal(k, &mut self.scene, prime, t))?
             .ok_or(undefined("uninitialised binormal"))?;
-        let (bin2, _, norm2) = ignored(evaluate_binormal(&self.scene, radial, t))?
+        let (bin2, _, norm2) = ignored(evaluate_binormal(k, &mut self.scene, radial, t))?
             .ok_or(undefined("uninitialised binormal"))?;
         let mut norm1 = norm1;
 
@@ -1178,10 +1186,9 @@ impl Hcr {
     /// # Errors
     ///
     /// [`SolidError::Unported`] from the infinite region (unit `topology.brep_p1`)
-    /// and the edge use binormals; `InvalidInput` for topology upstream would
+    /// and the edge use binormals (their own callees); `InvalidInput` for topology upstream would
     /// dereference as null.
-    pub fn is_back_facing_edge(&self, k: &Kernel, e: EdgeId) -> Result<bool> {
-        let _ = k;
+    pub fn is_back_facing_edge(&mut self, k: &Kernel, e: EdgeId) -> Result<bool> {
         // low work - edge already classified
         if self.sil_edges.contains(&e) {
             return Ok(true);
@@ -1215,9 +1222,9 @@ impl Hcr {
             edgeuse::p1::radial(&self.scene, prime)?.ok_or(undefined("edge use without radial"))?;
         let t = edge::interval(&self.scene, e)?.evaluate(0.5);
         // SE(..): a failed evaluation leaves the outputs uninitialised upstream
-        let (bin1, tan1, norm1) = ignored(evaluate_binormal(&self.scene, prime, t))?
+        let (bin1, tan1, norm1) = ignored(evaluate_binormal(k, &mut self.scene, prime, t))?
             .ok_or(undefined("uninitialised binormal"))?;
-        let (bin2, _, norm2) = ignored(evaluate_binormal(&self.scene, radial, t))?
+        let (bin2, _, norm2) = ignored(evaluate_binormal(k, &mut self.scene, radial, t))?
             .ok_or(undefined("uninitialised binormal"))?;
 
         // If both Normals point away, it's back-facing.
@@ -1291,7 +1298,7 @@ impl Hcr {
                 if rectangular {
                     if natural {
                         // Domain match, no trimming needed: just copy.
-                        if let Some(copy) = ignored(surface.copy())? {
+                        if let Some(copy) = ignored(surface.copy(k))? {
                             add_deleted_surface(&mut self.scene)?;
                             entry = RaySurface::Owned(Box::new(copy));
                         } else {
