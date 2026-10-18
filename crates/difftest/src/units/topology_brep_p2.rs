@@ -1240,9 +1240,11 @@ mod tests {
         }
     }
 
-    /// The fixture's gap initialisation never returns on a u-degree-2, three-span face
-    /// whose corner sits at `5e156` (HANG-28, `--fuzz` case fuzz00497): the FFI refuses
-    /// degree >= 2 faces with a corner past `2e156` under `init_gaps`, and nothing else.
+    /// The fixture's gap initialisation slows down from a corner at `1e155` and stops
+    /// returning around `1e156` on a u-degree-2, three-span face (HANG-28, `--fuzz` case
+    /// fuzz00497): the FFI refuses degree >= 2 faces with a corner past `1e154` under
+    /// `init_gaps`, and nothing else. The compared control at the bound returns in about
+    /// 0.01 s.
     #[test]
     fn gap_initialisation_refuses_a_huge_curved_corner() {
         let now = -f64::MAX;
@@ -1269,14 +1271,14 @@ mod tests {
             });
             serde_json::from_value(v).unwrap()
         };
-        for z in [5e156, 1e300] {
+        for z in [2e154, 1e156, 5e156, 1e300] {
             let err = run_cpp(&case(2, z, true)).unwrap_err().to_string();
             assert!(
                 err.contains("face too large for the gap initialisation"),
                 "{z}: {err}"
             );
         }
-        for (p, z, gaps) in [(2, 2e156, true), (2, 1e300, false), (1, 1e300, true)] {
+        for (p, z, gaps) in [(2, 1e154, true), (2, 1e300, false), (1, 1e300, true)] {
             let c = run_cpp(&case(p, z, gaps)).unwrap();
             let r = run_rust(&case(p, z, gaps)).unwrap();
             assert_eq!(format!("{c:?}"), format!("{r:?}"), "{p} {z} {gaps}");

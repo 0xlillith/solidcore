@@ -7027,9 +7027,10 @@ independent p6 integration.
   Mate's early returns and then computes upstream's `dMaxDist` with the same calls, so an
   early `SM_ERR` is still compared; the Rust stops there with `NotConverged`), and a
   degree >= 2 B-spline face under `init_gaps` with a corner control point coordinate past
-  `2e156` (`HANG-28`: the shared fixture's `GetVertexFaceGap` never returns on a three-span
-  u-degree-2 face with a corner at `5e156`; the exact condition is not pinned down, so
-  single- and two-span biquadratic patches that return are refused too). `LocalCurveSector` requires `t0 < t1` (finite; extrapolated
+  `1e154` (`HANG-28`: the shared fixture's `GetVertexFaceGap` slows down from `1e155` and stops
+  returning around `1e156` on v-degree-1 faces, measured on x, y and z; the first bound,
+  `2e156`, was inside that slow band; the exact condition is not pinned down, so shapes that
+  return, e.g. v-degree 2, are refused too). `LocalCurveSector` requires `t0 < t1` (finite; extrapolated
   intervals are allowed) and an integer point class 100..=110; the object kind must match only
   for face/edge/vertex classes (102/103/104), every other class takes upstream's default
   `SM_ERR` arm with a null or vertex object. The orientation is an `SmOrientType` code 0..=2
