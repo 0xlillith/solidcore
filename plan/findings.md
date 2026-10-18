@@ -6238,6 +6238,16 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   `sm_FindBestUVCurve`, `CheckAndSetUVTrimCurve` and the `SmCrvOnSurf_TYPE` test of
   `SmFace.cpp:8117`-`8160` are exercised) defer the same way, so those paths are not
   compared yet; they start comparing when `topology.face_p4` lands.
+  **Update (review round 2026-10-18, `topology.edgeuse_p3` wired).** `ComputeLoopOrientation`
+  of edge loops now compares in the 3D walk (orientation, bounds and use states, e.g. the
+  closed B-spline cylinder face, whose `sm_CheckSeamCrossing` period shift runs, 43-51
+  values per case); its UV path defers inside `GetOrCreateUVTrimCurve`
+  (`SmSurface::DropCurve`, `intersect.surface_drop_lib_p3`) or at a `SmFace::GetTolerance`
+  stub tagged `topology.face_p2` (144 cases, on the `.smb` plane faces). `CreateUVTrimCurves` no longer stops at `GetSingularities`
+  (it uses `get_singularities_of_face`): it defers at `GetUpwardLoopuses`
+  (`topology.face_p4`), so the pole-gap test and the `SmCrvOnSurf_TYPE` branch still wait
+  for `topology.face_p4`. `CreateComposites` defers inside `CreateCurvesFromFace`
+  (`SmSurface::DropCurve`).
 - **Import / dispatch gap (not a pending port).** The `surface.surface_p2` and
   `surface.surf_of_extrusion_p2` deferrals come from the runner's `inexact_geometry`: the
   graph import keeps the C++ type codes 15012 (`SmCone`), 15013 (`SmCylinder`), 15014
@@ -6296,12 +6306,16 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   remainder, so calling the ported `topology::face::p3::set_tolerance` there would only
   move the stop into code `topology.face_p3` does not own. It is wired when
   `topology.brep_p6` ports the remainder.
-- **Wired after the review round (merge with main, #117).** `topology.edgeuse_p3`
-  `EvaluateBinormal`'s `smsurf_GetSurfaceCache` now builds the cache
-  (`surface::surface::p1::get_surface_cache`; its construction runs
-  `CreateUVTrimCurves` upstream, and the face handle of a face-owned surface defers inside
-  it, `topology.face_p2`); this unit's own `NormalizedEvaluate` and
-  `GetOrCreateUVTrimCurve` calls go to `topology::edgeuse::p3`, and `CreateUVTrimCurves`
+  Also `topology.edgeuse_p3` `face_surface_cache` (merge with main, #117):
+  `EvaluateBinormal`'s `smsurf_GetSurfaceCache` builds the face surface's trimmed cache,
+  whose constructor calls `CreateUVTrimCurves` (`SmTrimSrfCache.cpp:209`); that is the
+  `surface.trim_srf_cache` call above, with the same opaque face handle. Building the
+  Rust cache there instead (tried in this round) runs without the side effect: 251
+  `topology.edgeuse_p3` binormal cases then fail on the edge use states (C++ 44 values,
+  Rust 33: the UV trim curves the cache's `CreateUVTrimCurves` attaches are missing).
+- **Wired in the review round (merge with main, #117).** This unit's own
+  `NormalizedEvaluate` and `GetOrCreateUVTrimCurve` calls go to `topology::edgeuse::p3`
+  (`pdOptDistToSurf` only where upstream passes it), and `CreateUVTrimCurves`
   reads the poles with `get_singularities_of_face` (the surface is face-owned there, so
   the face tolerance is the approximation tolerance), no longer reaching the
   `topology.face_p2` `SmFace::GetTolerance` stub of `surface.surface_p3`.
