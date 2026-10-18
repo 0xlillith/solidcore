@@ -48,6 +48,10 @@
 //!   upstream needs at most `n1 + 2 * n2`).
 //! - `SmVertex::SetPoint`'s change notification runs on a record set local to the call
 //!   (no attributes are attached by the stitch).
+//! - Uninitialised reads upstream: `DoSimpleFaceStitch` ignores `CurveMaxDistanceBetween`'s
+//!   status (`SE`) and reads the unset `dDistToCurve` after a failure (the port reads 0);
+//!   `UnifyNormals` ignores `NormalizedEvaluate`'s status and reads the unset `sPnt` /
+//!   `sDir` (`SmVector3d() = default`; the port uses [`Point3::UNDEF`]).
 //! - The calls into `SmBrep::GlueVertices`, `RemoveFaces`, `StitchAndOrient`
 //!   (`topology.brep_p5`), `GlueEdgesGeneral` (`topology.brep_p7`), `SqueezeEdge`
 //!   (`topology.brep_p3`), `MakeVertexSplitEdge` (`topology.brep_p9`), `Notify`
@@ -893,6 +897,32 @@ impl<'c> Stitch<'c> {
             }
         }
 
+        // UB-177: upstream's RemoveFaces frees every vertex only the delete faces use, and
+        // the glue loop then reads those vertices; a repeated delete face is freed twice; a
+        // vertex the two lists share pairs with itself. Those inputs are undefined upstream.
+        for (i, d) in faces_to_delete.iter().enumerate() {
+            if faces_to_delete.iter().take(i).any(|x| x == d) {
+                return Err(deref(
+                    "DoSimpleFaceStitch: a face repeated in the delete list (UB-177)",
+                ));
+            }
+        }
+        for (&kv, &dv) in k_vertices.iter().zip(&d_vertices) {
+            if kv == dv {
+                return Err(deref(
+                    "DoSimpleFaceStitch: a vertex paired with itself (UB-177)",
+                ));
+            }
+            if vertex::faces(b, dv)?
+                .iter()
+                .all(|f| faces_to_delete.contains(f))
+            {
+                return Err(deref(
+                    "DoSimpleFaceStitch: RemoveFaces frees a vertex the glue reads (UB-177)",
+                ));
+            }
+        }
+
         // the vertex and edge pairs have been found and they are in tolerance so delete
         // FacesToDelete (increments unlocked mark value; status ignored)
         ignore_status(remove_faces(k, b, faces_to_delete))?;
@@ -1075,6 +1105,7 @@ impl<'c> Stitch<'c> {
                         dist_to_curve,
                         do_region_nesting,
                         other,
+                        None,
                     )?;
                     out.stitched_edges += 1;
                 }
@@ -1109,7 +1140,9 @@ impl<'c> Stitch<'c> {
             let mut flipped: Vec<FaceId> = Vec::new();
             let mut marks = Marks::default();
 
-            let brep_bbox = brep_bounding_box(b)?;
+            // CalculateBoundingBox(sBrepBBox) with the header defaults; status ignored
+            // upstream (a failure leaves the default-initialised box)
+            let brep_bbox = ignored(brep_bounding_box(b, false, false, true))?.unwrap_or_default();
 
             let edges = bp1::edges(b, None)?;
             // lNumPerNode = max(500, edges/10) only sizes the memory blocks
@@ -1160,9 +1193,15 @@ impl<'c> Stitch<'c> {
                         #[allow(clippy::cast_precision_loss)] // upstream ULONG to double
                         let param = (j as f64 + 1.0) / (num_samples as f64 + 2.0);
                         let orig_ivl = edge::interval(b, eu_edge)?;
-                        // FALSE = 3d Eval (status ignored upstream; a failure leaves the
-                        // point and direction unset)
-                        let (pnt, dir) = normalized_evaluate_3d(b, eu, param)?;
+                        // NormalizedEvaluate(dParam, FALSE, sPnt, &sDir): 3d, with the
+                        // first derivative, default bOKToMakeUVTrimCurve. The status is
+                        // ignored upstream; a failure leaves sPnt / sDir uninitialised
+                        // (SmVector3d() = default), here UNDEF.
+                        let (pnt, dir) =
+                            ignored(normalized_evaluate(b, eu, param, false, true, true))?
+                                .map_or((Point3::UNDEF, Vec3::UNDEF), |(p, d)| {
+                                    (p, d.unwrap_or(Vec3::UNDEF))
+                                });
                         let mut vbox = Extent3d::from_point(pnt);
                         vbox.expand_absolute(stitch_tol_3d);
                         let objects = edge_tree.objects_in_box(&vbox)?;
@@ -1215,8 +1254,11 @@ impl<'c> Stitch<'c> {
                             // Here we should have opposite oriented edgeuses; pPrimEU's
                             // faceuse should be on side of positive normal. Only stitch
                             // cases where angle between binormals is > 90 degrees.
-                            let bin_vec = evaluate_binormal(b, prim_eu, dropped.parameter)?;
-                            let bin_orig = evaluate_binormal(b, eu, orig_ivl.evaluate(param))?;
+                            // EvaluateBinormal(t, FALSE, sPt, sBinVec): optional outputs NULL
+                            let (_, bin_vec) =
+                                evaluate_binormal(b, prim_eu, dropped.parameter, false)?;
+                            let (_, bin_orig) =
+                                evaluate_binormal(b, eu, orig_ivl.evaluate(param), false)?;
                             if bin_vec.dot(bin_orig) > 0.0 {
                                 continue;
                             }
@@ -1751,6 +1793,7 @@ impl<'c> Stitch<'c> {
                         dist_to_curve,
                         self.do_region_nesting,
                         test_e,
+                        None,
                     ) {
                         Ok(()) => {
                             out.glued.push(e);
@@ -1917,9 +1960,24 @@ pub(crate) fn remove_faces(k: &mut Kernel, b: &mut Brep, faces: &[FaceId]) -> Re
     ))
 }
 
-/// `SmBrep::StitchAndOrient` (unit `topology.brep_p5`).
-fn stitch_and_orient(k: &mut Kernel, b: &mut Brep) -> Result<()> {
-    let _ = (k, b);
+/// `SmBrep::StitchAndOrient(dStitchTol3d, bAllowSpineEdges, pOptFacesToSwap,
+/// pbJustUnify)` (unit `topology.brep_p5`; header defaults -0.1, FALSE, NULL, NULL).
+fn stitch_and_orient(
+    k: &mut Kernel,
+    b: &mut Brep,
+    stitch_tol_3d: f64,
+    allow_spine_edges: bool,
+    faces_to_swap: Option<&[FaceId]>,
+    just_unify: Option<bool>,
+) -> Result<()> {
+    let _ = (
+        k,
+        b,
+        stitch_tol_3d,
+        allow_spine_edges,
+        faces_to_swap,
+        just_unify,
+    );
     // UNPORTED(topology.brep_p5): SmBrep::StitchAndOrient
     Err(SolidError::unported(
         "SmBrep::StitchAndOrient",
@@ -1927,8 +1985,8 @@ fn stitch_and_orient(k: &mut Kernel, b: &mut Brep) -> Result<()> {
     ))
 }
 
-/// `SmBrep::GlueEdgesGeneral(keep, orientation, dist, bDoRegionNesting, delete)` (unit
-/// `topology.brep_p7`).
+/// `SmBrep::GlueEdgesGeneral(keep, orientation, dist, bDoRegionNesting, delete,
+/// pInsideFaceuses)` (unit `topology.brep_p7`; header default `pInsideFaceuses = NULL`).
 pub(crate) fn glue_edges_general(
     b: &mut Brep,
     keep: EdgeId,
@@ -1936,8 +1994,17 @@ pub(crate) fn glue_edges_general(
     dist: f64,
     do_region_nesting: bool,
     delete: EdgeId,
+    inside_faceuses: Option<&[crate::topology::FaceuseId]>,
 ) -> Result<()> {
-    let _ = (b, keep, orientation, dist, do_region_nesting, delete);
+    let _ = (
+        b,
+        keep,
+        orientation,
+        dist,
+        do_region_nesting,
+        delete,
+        inside_faceuses,
+    );
     // UNPORTED(topology.brep_p7): SmBrep::GlueEdgesGeneral
     Err(SolidError::unported(
         "SmBrep::GlueEdgesGeneral",
@@ -1976,9 +2043,15 @@ pub(crate) fn brep_notify_pre_edit(b: &mut Brep) -> Result<()> {
     Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
 }
 
-/// `SmBrep::CalculateBoundingBox` (unit `query.brep`).
-fn brep_bounding_box(b: &Brep) -> Result<Extent3d> {
-    let _ = b;
+/// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
+/// `query.brep`; header defaults FALSE, FALSE, TRUE).
+fn brep_bounding_box(
+    b: &Brep,
+    approx: bool,
+    tight: bool,
+    expand_by_zone_tol_3d: bool,
+) -> Result<Extent3d> {
+    let _ = (b, approx, tight, expand_by_zone_tol_3d);
     // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
     Err(SolidError::unported(
         "SmBrep::CalculateBoundingBox",
@@ -2010,10 +2083,26 @@ fn face_edges(b: &Brep, f: FaceId) -> Result<Vec<EdgeId>> {
     Err(SolidError::unported("SmFace::GetEdges", "topology.face_p4"))
 }
 
-/// `SmEdgeuse::NormalizedEvaluate(t, FALSE, P, &D)`: the 3d point and direction (unit
-/// `topology.edgeuse_p3`).
-fn normalized_evaluate_3d(b: &Brep, eu: EdgeuseId, t: f64) -> Result<(Point3, Vec3)> {
-    let _ = (b, eu, t);
+/// `SmEdgeuse::NormalizedEvaluate(t, bParameterSpaceEval, rPoint, pOptFirstDeriv,
+/// bOKToMakeUVTrimCurve)` (unit `topology.edgeuse_p3`; header defaults
+/// `pOptFirstDeriv = NULL`, `bOKToMakeUVTrimCurve = TRUE`): the point and, when
+/// `want_first_deriv`, the first derivative.
+fn normalized_evaluate(
+    b: &Brep,
+    eu: EdgeuseId,
+    t: f64,
+    parameter_space_eval: bool,
+    want_first_deriv: bool,
+    ok_to_make_uv_trim_curve: bool,
+) -> Result<(Point3, Option<Vec3>)> {
+    let _ = (
+        b,
+        eu,
+        t,
+        parameter_space_eval,
+        want_first_deriv,
+        ok_to_make_uv_trim_curve,
+    );
     // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
     Err(SolidError::unported(
         "SmEdgeuse::NormalizedEvaluate",
@@ -2021,10 +2110,12 @@ fn normalized_evaluate_3d(b: &Brep, eu: EdgeuseId, t: f64) -> Result<(Point3, Ve
     ))
 }
 
-/// `SmEdgeuse::EvaluateBinormal(t, FALSE, P, B)`: the binormal (unit
-/// `topology.edgeuse_p3`).
-fn evaluate_binormal(b: &Brep, eu: EdgeuseId, t: f64) -> Result<Vec3> {
-    let _ = (b, eu, t);
+/// `SmEdgeuse::EvaluateBinormal(t, bUse3DOnly, rBinormalPoint, rBinormal,
+/// pOptEdgeuseTangent, pOptFaceuseNormal, pOptUVParameter, pOptUVDir)` (unit
+/// `topology.edgeuse_p3`; the four optional outputs default to NULL): the point and the
+/// binormal (the stitch asks for neither optional output).
+fn evaluate_binormal(b: &Brep, eu: EdgeuseId, t: f64, use_3d_only: bool) -> Result<(Point3, Vec3)> {
+    let _ = (b, eu, t, use_3d_only);
     // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
     Err(SolidError::unported(
         "SmEdgeuse::EvaluateBinormal",
@@ -2041,7 +2132,8 @@ fn evaluate_binormal(b: &Brep, eu: EdgeuseId, t: f64) -> Result<Vec3> {
 /// [`SolidError::InvalidInput`] for a null B-rep.
 pub fn api_stitch(k: &mut Kernel, b: Option<&mut Brep>) -> Result<()> {
     let b = b.ok_or_else(|| SolidError::invalid_input(API_OP, "SmApiStitch: null B-rep"))?;
-    ignore_status(stitch_and_orient(k, b))?;
+    // StitchAndOrient() with its header defaults
+    ignore_status(stitch_and_orient(k, b, -0.1, false, None, None))?;
     // Check manifold?
     Ok(())
 }
@@ -2060,9 +2152,12 @@ pub fn api_stitch_face(k: &mut Kernel, b: Option<&mut Brep>, face: Option<FaceId
         ));
     };
     let _ = (k, b, face);
-    // UNPORTED(boolean.merge_p2): SmMerge::MergeAddedFace
+    // UNPORTED(boolean.merge_p2): SmMerge::SmMerge(ctx, pBrep, NULL), then MergeAddedFace.
+    // Upstream crashes already in the constructor (UB-167: with tolerance 0 it calls
+    // GetMinEdgeBBoxSize on the null other B-rep), so this entry point cannot become a
+    // compared pass once merge_p2 lands; its port must refuse the null other B-rep.
     Err(SolidError::unported(
-        "SmMerge::MergeAddedFace",
+        "SmMerge::SmMerge (then MergeAddedFace; UB-167)",
         "boolean.merge_p2",
     ))
 }

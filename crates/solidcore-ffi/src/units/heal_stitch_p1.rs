@@ -288,5 +288,19 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     };
     op_args(op, &mut rd, c)?;
     rd.done()?;
+    // HANG-29: the full upstream stitches behind SmApiStitch / StitchIntoSolid /
+    // StitchIntoShell / StitchAdvanced never return on sheets with coordinates near the
+    // top of the double range (a control point at -1e300); bound every block value there
+    if op == Op::Api && input.first() == Some(&1.0) {
+        let which = input.get(block_in.len()).copied().unwrap_or(-1.0);
+        if [0.0, 2.0, 3.0, 6.0].contains(&which)
+            && block_in.iter().any(|v| v.abs() > MAX_STITCH_COORD)
+        {
+            return Err(bad("full stitch on a sheet value beyond 1e150 (HANG-29)"));
+        }
+    }
     raw(op, path, input)
 }
+
+/// The largest block value the full upstream stitches are given (HANG-29).
+pub const MAX_STITCH_COORD: f64 = 1e150;

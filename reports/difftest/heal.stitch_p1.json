@@ -186,16 +186,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
-      },
       "max_rel_err": 0.0,
       "name": "box_split_far",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/heal.stitch_p1/constructed.json#20",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -1346,11 +1342,14 @@
       "values_compared": 0
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
+      },
       "max_rel_err": 0.0,
       "name": "two_squares_simple",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/heal.stitch_p1/constructed.json#135",
       "values_compared": 0
     },
@@ -1492,6 +1491,1158 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "network_select_v0_v1_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#152",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v2_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#153",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v3_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#154",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v0_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#155",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v2_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#156",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v3_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#157",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v0_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#158",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v1_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#159",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v3_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#160",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v0_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#161",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v1_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#162",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v2_dist7e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#163",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v1_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#164",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v2_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#165",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v3_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#166",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v0_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#167",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v2_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#168",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v3_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#169",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v0_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#170",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v1_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#171",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v3_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#172",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v0_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#173",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v1_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#174",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v2_distjust_over_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#175",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v1_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#176",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v2_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#177",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v3_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#178",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v0_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#179",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v2_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#180",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v3_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#181",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v0_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#182",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v1_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#183",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v3_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#184",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v0_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#185",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v1_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#186",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v2_distjust_under_10tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#187",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v1_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#188",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v2_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#189",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v3_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#190",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v0_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#191",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v2_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#192",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v3_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#193",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v0_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#194",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v1_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#195",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v3_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#196",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v0_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#197",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v1_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#198",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v2_dist2e-4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#199",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v1_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#200",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v2_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#201",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v0_v3_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#202",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v0_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#203",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v2_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#204",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v1_v3_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#205",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v0_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#206",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v1_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#207",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v2_v3_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#208",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v0_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#209",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v1_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#210",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "network_select_v3_v2_dist5e-6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#211",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s0.0_off5e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#212",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s0.0_off2e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#213",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s0.0_off5e-06_tol1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#214",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s1.0_off5e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#215",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s1.0_off2e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#216",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s1.0_off5e-06_tol1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#217",
+      "values_compared": 4
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s0.5_off5e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#218",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s0.5_off2e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#219",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s0.5_off5e-06_tol1e-05",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#220",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s0.25_off5e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#221",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s0.25_off2e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#222",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge0_s0.25_off5e-06_tol1e-05",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#223",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s0.0_off5e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#224",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s0.0_off2e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#225",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s0.0_off5e-06_tol1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#226",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s1.0_off5e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#227",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s1.0_off2e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#228",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s1.0_off5e-06_tol1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#229",
+      "values_compared": 4
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s0.5_off5e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#230",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s0.5_off2e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#231",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s0.5_off5e-06_tol1e-05",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#232",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s0.25_off5e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#233",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s0.25_off2e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#234",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge1_s0.25_off5e-06_tol1e-05",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#235",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s0.0_off5e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#236",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s0.0_off2e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#237",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s0.0_off5e-06_tol1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#238",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s1.0_off5e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#239",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s1.0_off2e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#240",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s1.0_off5e-06_tol1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#241",
+      "values_compared": 4
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s0.5_off5e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#242",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s0.5_off2e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#243",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s0.5_off5e-06_tol1e-05",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#244",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s0.25_off5e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#245",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s0.25_off2e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#246",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge2_s0.25_off5e-06_tol1e-05",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#247",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s0.0_off5e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#248",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s0.0_off2e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#249",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s0.0_off5e-06_tol1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#250",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s1.0_off5e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#251",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s1.0_off2e-06_tol1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#252",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s1.0_off5e-06_tol1e-05",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#253",
+      "values_compared": 4
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s0.5_off5e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#254",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s0.5_off2e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#255",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s0.5_off5e-06_tol1e-05",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#256",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s0.25_off5e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#257",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s0.25_off2e-06_tol1e-06",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#258",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
+      "max_rel_err": 0.0,
+      "name": "square_split_edge3_s0.25_off5e-06_tol1e-05",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#259",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge0_s0.012_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#260",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge0_s0.015_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#261",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge0_s0.018_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#262",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge0_s0.982_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#263",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge0_s0.985_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#264",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge0_s0.988_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#265",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge1_s0.012_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#266",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge1_s0.015_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#267",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge1_s0.018_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#268",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge1_s0.982_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#269",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge1_s0.985_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#270",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge1_s0.988_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#271",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge2_s0.012_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#272",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge2_s0.015_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#273",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge2_s0.018_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#274",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge2_s0.982_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#275",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge2_s0.985_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#276",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge2_s0.988_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#277",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge3_s0.012_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#278",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge3_s0.015_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#279",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge3_s0.018_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#280",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge3_s0.982_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#281",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge3_s0.985_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#282",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "square_interior_edge3_s0.988_tol1e-3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/heal.stitch_p1/constructed.json#283",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -1499,11 +2650,14 @@
       "values_compared": 1
     },
     {
-      "both_errored": true,
+      "deferred": {
+        "symbol": "SmFace::GetBrep",
+        "unit": "topology.face_p4"
+      },
       "max_rel_err": 0.0,
       "name": "gen0001",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=10358690932861732225",
       "values_compared": 0
     },
@@ -1624,18 +2778,19 @@
       "values_compared": 5
     }
   ],
-  "cases_both_errored": 2,
-  "cases_deferred": 69,
+  "cases_both_errored": 0,
+  "cases_deferred": 94,
   "cases_failed": 0,
-  "cases_passed": 99,
-  "cases_total": 168,
+  "cases_passed": 206,
+  "cases_total": 300,
   "deferred_by_unit": {
     "harness:analytic-geometry-export": 1,
     "heal.stitch_p2": 3,
     "query.brep": 7,
     "topology.brep_p5": 6,
-    "topology.brep_p9": 3,
-    "topology.face_p2": 49
+    "topology.brep_p9": 26,
+    "topology.face_p2": 49,
+    "topology.face_p4": 2
   },
   "max_rel_err": 0.0,
   "pass": true,

@@ -29,7 +29,6 @@ use solidcore::kernel::Kernel;
 use solidcore::math::Point3;
 use solidcore::topology::brep::p1 as bp1;
 use solidcore::topology::face::p2 as fp2;
-use solidcore::topology::topology_traverser::face_edges;
 use solidcore::topology::{edge, vertex, Brep, EdgeId, FaceId, VertexId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::heal_stitch_p1::{self as ffi, Op, TY_EDGE, TY_FACE, TY_VERTEX};
@@ -693,50 +692,6 @@ pub(crate) fn digest(b: &Brep, o: &mut Vec<f64>) -> solidcore::Result<()> {
     Ok(())
 }
 
-/// The vertices of a face's edges (the shim's `SmFace::GetVertices` on these B-reps).
-fn face_vertices(b: &Brep, f: FaceId) -> solidcore::Result<Vec<VertexId>> {
-    let mut out = Vec::new();
-    for e in face_edges(b, f)? {
-        for v in vertex::edge_vertices(b, e)?.into_iter().flatten() {
-            if !out.contains(&v) {
-                out.push(v);
-            }
-        }
-    }
-    Ok(out)
-}
-
-/// The shim's `simple_face_guard`.
-fn simple_face_ok(b: &Brep, keep: &[FaceId], del: &[FaceId]) -> solidcore::Result<bool> {
-    if keep.is_empty() || keep.len() != del.len() {
-        return Ok(true);
-    }
-    for (i, d) in del.iter().enumerate() {
-        if del.iter().take(i).any(|x| x == d) || keep.contains(d) {
-            return Ok(false);
-        }
-    }
-    let mut kv = Vec::new();
-    for &f in keep {
-        for v in face_vertices(b, f)? {
-            if !kv.contains(&v) {
-                kv.push(v);
-            }
-        }
-    }
-    for &f in del {
-        for v in face_vertices(b, f)? {
-            if kv.contains(&v) {
-                return Ok(false);
-            }
-            if vertex::faces(b, v)?.iter().all(|x| del.contains(x)) {
-                return Ok(false);
-            }
-        }
-    }
-    Ok(true)
-}
-
 #[allow(clippy::too_many_lines)] // one arm per op
 fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: &Resolved) -> solidcore::Result<Vec<f64>> {
     let mut cb = st::DefaultStitchCallback::new();
@@ -832,9 +787,6 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: &Resolved) -> solidcore::Result
             keep,
             del,
         } => {
-            if !simple_face_ok(b, keep, del)? {
-                return Ok(vec![NULL_DEREF]);
-            }
             let r = if *api {
                 st::api_simple_face_stitch(k, Some(b), keep, del)
             } else {

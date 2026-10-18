@@ -2584,6 +2584,33 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** `heal::stitch::p1::api_stitch_face` returns `Unported` (`SmMerge::MergeAddedFace`, unit `boolean.merge_p2`); the difftest FFI refuses `SmApiStitch` with a B-rep and a face, so only its null-argument guards are compared.
 
+#### UB-176. Two-list `SmStitch::StitchVertexPairs` glues a vertex twice
+- **Location:** `source/SMLib/src/SmStitch.cpp:3242`-`3749` (the two-list `StitchVertexPairs`): each glue deletes `sUsingVerts2[...]` and nulls only its own slot.
+- **What happens:** A vertex repeated in `rVertexList2`, or present in both lists, is glued (and deleted) once per occurrence, so a later `GlueVertices` gets an already-deleted vertex (double free / use after free). The sorting loops also index `sSortedIndex1` / `sSortedIndex2` with the unfiltered counts, reading past them when a list holds `NULL` entries.
+- **Trigger:** caller-built lists with a repeated vertex, a vertex in both lists, or a `NULL` entry.
+- **How found:** source review while porting `heal.stitch_p1` (PR #196); the difftest FFI refuses repeats, shared vertices and `NULL`s.
+- **Confirmed:** no (source inspection only; the shim never runs it).
+- **Severity:** crash/UB.
+- **Rust port:** `heal::stitch::p1::Stitch::stitch_vertex_pairs` returns `InvalidInput` where the sorted index arrays would be read past; repeated vertices are a caller error the FFI refuses.
+
+#### UB-177. `SmStitch::DoSimpleFaceStitch` glues vertices that `RemoveFaces` has freed
+- **Location:** `source/SMLib/src/SmStitch.cpp:785` (`pBrepToStitch->RemoveFaces(cpFacesToDelete)`), then the glue loop at `:840`-`916` (`pV1->IsLaminaVertex()`, `GlueVertices`).
+- **What happens:** Once the pair validation passes, `RemoveFaces` deletes every vertex used only by the delete faces, and the glue loop then reads those freed `sDVertices` (use after free). A face repeated in the delete list is freed twice; a vertex shared by a keep and a delete face pairs with itself (`GlueVertices(v, v)`). Upstream's own comment calls the routine "never called" and its scenario "questionable".
+- **Trigger:** delete faces whose vertices no other face uses (any lamina face pair), a repeated delete face, or keep and delete faces sharing a vertex.
+- **How found:** source review while porting `heal.stitch_p1` (PR #196).
+- **Confirmed:** no (source inspection; the shim refuses exactly the inputs that pass the validation and meet one of the three conditions, using a read-only copy of the validation).
+- **Severity:** crash/UB.
+- **Rust port:** `heal::stitch::p1::Stitch::do_simple_face_stitch` returns `InvalidInput` for those inputs before removing any face.
+
+#### HANG-29. `SmApiStitch(SmBrep*)` never returns on a sheet with a coordinate near the top of the double range
+- **Location:** `source/SM_API/src/SmApiBrep.cpp:1128`-`1151` (`SmApiStitch(pBrep)`) -> `SmBrep::StitchAndOrient` (unit `topology.brep_p5`); the looping routine is not located.
+- **What happens:** A one-face sheet whose biquadratic surface has one control point at `-1e300` (the others about `1e-3`) makes `StitchAndOrient` run past 20 s without returning, also when run alone; the same class as HANG-20 (box arithmetic overflowing on a coordinate in the top decades of the double range).
+- **Trigger:** `SmApiStitch` on such a sheet (difftest fuzz program `fuzz01923` of `heal.stitch_p1`).
+- **How found:** difftest fuzzing of `heal.stitch_p1` (PR #196).
+- **Confirmed:** yes (C++ reference run, reproduced alone by the fuzz harness).
+- **Severity:** hang.
+- **Rust port:** `heal::stitch::p1::api_stitch` defers at `SmBrep::StitchAndOrient` (`topology.brep_p5`); the difftest FFI bounds sheet values at 1e150 for the full-stitch API entry points.
+
 ### Numerical integration
 
 #### WR-94. `SmIntegrator::IntegrateIt` hides integration/evaluator failure as zero

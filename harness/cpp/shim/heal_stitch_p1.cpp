@@ -18,7 +18,9 @@
 #include "sc_shim.h"
 
 // The renames must be active when SmStitch.cpp includes StdAfx.h (SmSmlibAll.h declares
-// the classes), so nothing upstream is included before them.
+// the classes), so nothing upstream is included before them. SmSmlibAll.h also brings in
+// SmTopologySweep.h, whose SmSweepStitchCallback is thereby rebased on sc_st_Callback in
+// this translation unit; the shim never uses that class.
 #define SmStitch sc_st_Stitch
 #define SmStitchCallback sc_st_Callback
 #include "../../../upstream/source/SMLib/src/SmStitch.cpp"
@@ -228,50 +230,151 @@ void put_digest(SmBrep* brep, std::vector<double>& o)
         put_vec(o, vs[i]->GetPoint());
 }
 
-// SimpleFaceStitch removes the faces to delete, then glues the paired vertices: upstream
-// frees a vertex that only the deleted faces used and then glues it, and glues a vertex
-// the two lists share with itself. Inputs that could reach either are refused (also when
-// the vertex pairing would fail first; the Rust side applies the same test). Duplicate
-// faces in the delete list are freed twice.
-bool simple_face_guard(const SmTArray<SmFace*>& keep, const SmTArray<SmFace*>& del)
+// DoSimpleFaceStitch's validation, read-only: a VERBATIM copy of SmStitch.cpp:625-780 (commit
+// c9c5979) with every `return (SM_ERR)` turned into `return false`; true when the call would
+// reach RemoveFaces, with the vertex pairs it found. `dDistToCurve` starts at 0 here, where
+// upstream reads it uninitialised after a failed CurveMaxDistanceBetween (`SE`).
+bool simple_face_validates(SmBrep* pBrepToStitch, const SmTArray<SmFace*>& cpFacesToKeep,
+                           const SmTArray<SmFace*>& cpFacesToDelete, double m_dStitchTol3d,
+                           SmTArray<SmVertex*>& sKVertices, SmTArray<SmVertex*>& sDVertices)
 {
-    if (keep.GetSize() == 0 || keep.GetSize() != del.GetSize())
+    ULONG nFPairs = cpFacesToKeep.GetSize();
+    if (nFPairs == 0 || nFPairs != cpFacesToDelete.GetSize())
+        return false;
+    SmBrep* pBrep0 = (cpFacesToKeep[0]->GetBrep());
+    if (!pBrep0 || pBrep0 != pBrepToStitch)
+        return false;
+    SmBrep* pBrep1 = (cpFacesToDelete[0]->GetBrep());
+    if (!pBrep1 || pBrep1 != pBrepToStitch)
+        return false;
+    ULONG nVerts, nEdges;
+    for (ULONG iPair = 0; iPair < nFPairs; iPair++)
+    {
+        SmFace* pFaceToKeep = cpFacesToKeep[iPair];
+        SmFace* pFaceToDelete = cpFacesToDelete[iPair];
+        SmTArray<SmVertex*> sKVerts;
+        pFaceToKeep->GetVertices(sKVerts);
+        SmTArray<SmVertex*> sDVerts;
+        pFaceToDelete->GetVertices(sDVerts);
+        nVerts = sKVerts.GetSize();
+        if (nVerts != sDVerts.GetSize())
+            return false;
+        double Vtol = m_dStitchTol3d;
+        ULONG nFound = 0;
+        ULONG iK;
+        for (iK = 0; iK < nVerts; iK++)
+        {
+            SmVertex* pKVertex = sKVerts[iK];
+            SmPoint3d pKVpt = pKVertex->GetPoint();
+            for (ULONG iD = 0; iD < nVerts; iD++)
+            {
+                SmVertex* pDVertex = sDVerts[iD];
+                SmPoint3d pDVpt = pDVertex->GetPoint();
+                double Vdist = pKVpt.DistanceBetween(pDVpt);
+                if (Vdist < Vtol)
+                {
+                    sKVertices.Add(pKVertex);
+                    sDVertices.Add(pDVertex);
+                    nFound++;
+                    iD = nVerts;
+                }
+            }
+        }
+        if (nFound != nVerts)
+            return false;
+        SmTArray<SmEdge*> sKEds;
+        pFaceToKeep->GetEdges(sKEds);
+        SmTArray<SmEdge*> sDEds;
+        pFaceToDelete->GetEdges(sDEds);
+        nEdges = sKEds.GetSize();
+        if (nEdges != sDEds.GetSize() || nEdges != nVerts)
+            return false;
+        nFound = 0;
+        for (iK = 0; iK < nEdges; iK++)
+        {
+            SmEdge* pKEdge = sKEds[iK];
+            SmVertex* pKV0 = pKEdge->GetVertex();
+            SmVertex* pKV1 = pKEdge->GetOtherVertex(pKV0);
+            ULONG lIndex;
+            if (!sKVertices.FindElement(pKV0, lIndex))
+                return false;
+            SmVertex* pDKV0 = sDVertices[lIndex];
+            if (!sKVertices.FindElement(pKV1, lIndex))
+                return false;
+            SmVertex* pDKV1 = sDVertices[lIndex];
+            SmCurve* pKCurve = pKEdge->GetCurve();
+            for (ULONG iD = 0; iD < nEdges; iD++)
+            {
+                SmEdge* pDEdge = sDEds[iD];
+                SmCurve* pDCurve = pDEdge->GetCurve();
+                SmVertex* pDV0 = pDEdge->GetVertex();
+                SmVertex* pDV1 = pDEdge->GetOtherVertex(pDV0);
+                if ((pDKV0 == pDV0 && pDKV1 == pDV1) || (pDKV0 == pDV1 && pDKV1 == pDV0))
+                {
+                    nFound++;
+                    double dKStart, dKEnd, dDStart, dDEnd;
+                    double dDistToCurve = 0.0;
+                    dKStart = pKEdge->GetInterval().GetMin();
+                    dKEnd = pKEdge->GetInterval().GetMax();
+                    dDStart = pDEdge->GetInterval().GetMin();
+                    dDEnd = pDEdge->GetInterval().GetMax();
+                    SmPoint3d sKpt0, sKpt1, sDpt0, sDpt1;
+                    if (pKCurve->EvaluatePoint(dKStart, sKpt0) != SM_SUCCESS) return false;
+                    if (pKCurve->EvaluatePoint(dKEnd, sKpt1) != SM_SUCCESS) return false;
+                    if (pDCurve->EvaluatePoint(dDStart, sDpt0) != SM_SUCCESS) return false;
+                    if (pDCurve->EvaluatePoint(dDEnd, sDpt1) != SM_SUCCESS) return false;
+                    if (sKpt0.DistanceBetween(sDpt0) < Vtol && sKpt1.DistanceBetween(sDpt1) < Vtol)
+                    {
+                    }
+                    else if (sKpt0.DistanceBetween(sDpt1) < Vtol && sKpt1.DistanceBetween(sDpt0) < Vtol)
+                    {
+                        double dTemp = dDStart;
+                        dDStart = dDEnd;
+                        dDEnd = dTemp;
+                    }
+                    else
+                        return false;
+                    double dTol = smos_Max(m_dStitchTol3d, (double)(pKEdge->GetTolerance() + pDEdge->GetTolerance()));
+                    pKCurve->CurveMaxDistanceBetween(pKEdge->GetInterval(), *pDCurve, dDStart, dDEnd, 10, &dTol,
+                                                     dDistToCurve);
+                    if (dDistToCurve > dTol)
+                        return false;
+                    iD = nEdges;
+                }
+            }
+        }
+        if (nFound != nEdges)
+            return false;
+    }
+    return true;
+}
+
+// UB-177: once the validation passes, RemoveFaces frees every vertex only the delete faces
+// use and the glue loop then reads those freed vertices; a face repeated in the delete list
+// is freed twice; a vertex shared by the two lists pairs with itself. Exactly those inputs
+// are refused (-2); everything else runs, so upstream's SM_ERR statuses are compared.
+bool simple_face_guard(SmBrep* brep, const SmTArray<SmFace*>& keep, const SmTArray<SmFace*>& del, double tol)
+{
+    SmTArray<SmVertex*> kv, dv;
+    if (!simple_face_validates(brep, keep, del, tol, kv, dv))
         return true;
     for (ULONG i = 0; i < del.GetSize(); i++)
-    {
         for (ULONG j = 0; j < i; j++)
             if (del[i] == del[j])
                 return false;
-        for (ULONG j = 0; j < keep.GetSize(); j++)
-            if (del[i] == keep[j])
-                return false;
-    }
-    SmTArray<SmVertex*> kv;
-    for (ULONG i = 0; i < keep.GetSize(); i++)
+    for (ULONG i = 0; i < dv.GetSize(); i++)
     {
-        SmTArray<SmVertex*> vs;
-        keep[i]->GetVertices(vs);
-        for (ULONG j = 0; j < vs.GetSize(); j++)
-            kv.AddUnique(vs[j]);
-    }
-    for (ULONG i = 0; i < del.GetSize(); i++)
-    {
-        SmTArray<SmVertex*> vs;
-        del[i]->GetVertices(vs);
-        for (ULONG j = 0; j < vs.GetSize(); j++)
-        {
-            ULONG at;
-            if (kv.FindElement(vs[j], at))
-                return false;
-            SmTArray<SmFace*> fs;
-            vs[j]->GetFaces(fs);
-            bool other = false;
-            for (ULONG f = 0; f < fs.GetSize(); f++)
-                if (!del.FindElement(fs[f], at))
-                    other = true;
-            if (!other)
-                return false;
-        }
+        if (kv[i] == dv[i])
+            return false;
+        SmTArray<SmFace*> fs;
+        dv[i]->GetFaces(fs);
+        bool other = false;
+        ULONG at;
+        for (ULONG f = 0; f < fs.GetSize(); f++)
+            if (!del.FindElement(fs[f], at))
+                other = true;
+        if (!other)
+            return false;
     }
     return true;
 }
@@ -419,7 +522,8 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         SmTArray<SmFace*> keep, del;
         read_faces(rd, g, keep);
         read_faces(rd, g, del);
-        if (!simple_face_guard(keep, del))
+        // the API variant stitches with the B-rep tolerance
+        if (!simple_face_guard(brep, keep, del, api ? (double)brep->GetTolerance() : tol))
         {
             o.push_back(ST_NULL_DEREF);
             return;
