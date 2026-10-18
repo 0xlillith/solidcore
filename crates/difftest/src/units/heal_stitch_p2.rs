@@ -11,7 +11,7 @@
 //! never return) in a status slot are guards, an error on both sides.
 //!
 //! Selectors are taken modulo the entity count (`-1` is a null list entry); an op
-//! needing a vertex the B-rep lacks is `no_entity` on both sides. As in
+//! needing a vertex the B-rep lacks is rejected (nothing runs on either side). As in
 //! `heal.stitch_p1`, B-reps with analytic geometry other than planes and lines defer
 //! (the shared export flattens it to B-spline parts).
 
@@ -131,8 +131,10 @@ fn build_failure(export: &[f64]) -> Output {
     ))
 }
 
+/// An op needing a vertex the B-rep lacks: no code runs on either side, so the case is
+/// rejected (not counted as a pass), as in `heal.stitch_p1`.
 fn no_entity() -> Output {
-    Output::err("no_entity")
+    Output::rejected("no vertex in this B-rep: nothing runs on either side")
 }
 
 fn pick(s: i64, n: usize) -> Option<u32> {

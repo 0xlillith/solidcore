@@ -29,7 +29,7 @@
 //! block rules of `heal.stitch_p1`, indices inside the B-rep's export, finite values
 //! (any `Shell` `max_tol`: a non-finite one skips the doubling loop), list counts up to
 //! [`MAX_LIST`], and a `VList` list without a repeated vertex (each copy of a coincident
-//! vertex is glued, the second one after it was freed: UB-171 in
+//! vertex is glued, the second one after it was freed: UB-178 in
 //! `plan/upstream-issues.md`). The `-3` guards are HANG-23 and HANG-24 (a zero or
 //! negative B-rep tolerance).
 
@@ -84,7 +84,8 @@ fn block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError> {
                 return Err(bad("no faces"));
             }
             for _ in 0..n {
-                face_block(rd)?;
+                // a sheet face's plane domain is bounded as in heal.stitch_p1's block
+                face_block(rd, 1e4)?;
             }
             Ok(())
         }

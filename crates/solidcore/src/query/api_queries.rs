@@ -624,7 +624,7 @@ pub fn face_internal_point(k: &Kernel, brep: &Brep, face: FaceId) -> Result<Poin
 /// classifier's vertex tests, loop containment and default classification tolerance.
 pub fn face_classify_uv(
     k: &Kernel,
-    brep: &Brep,
+    brep: &mut Brep,
     face: FaceId,
     uv: Point2,
 ) -> Result<PointClassType> {

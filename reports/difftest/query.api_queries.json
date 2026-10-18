@@ -935,8 +935,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op18",
@@ -1171,8 +1171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_kind5_op18",
@@ -3055,8 +3055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "hole_uv_scale1_0_0",
@@ -3067,8 +3067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "hole_uv_scale1_0.5_0.5",
@@ -3079,8 +3079,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "hole_uv_scale1_1_1",
@@ -3187,8 +3187,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "hole_uv_scale16_0_0",
@@ -10391,8 +10391,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0684",
@@ -11521,11 +11521,11 @@
   "cases_total": 1203,
   "deferred_by_unit": {
     "curve.curve_p6": 31,
+    "intersect.surface_drop_lib_p3": 7,
     "query.brep": 335,
     "query.face_p1": 12,
     "query.face_p3": 45,
-    "topology.brep_p2": 42,
-    "topology.edgeuse_p3": 7
+    "topology.brep_p2": 42
   },
   "max_rel_err": 0.0,
   "pass": true,

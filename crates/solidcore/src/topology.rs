@@ -45,6 +45,7 @@ pub mod edgeuse;
 pub mod face;
 pub mod loopuse;
 pub mod proto_topology;
+pub mod shell;
 #[allow(clippy::module_inception)]
 pub mod topology;
 pub mod topology_traverser;
@@ -357,14 +358,22 @@ pub struct Shell {
     pub faces: Vec<FaceId>,
     /// `m_pListOwner` (CO-PORTED): the region owning the shell (`GetRegion`).
     pub region: Option<RegionId>,
+    /// Native `m_tShellType`, independent of the list head during construction.
+    pub shell_type: shell::ShellType,
+    /// Native list members in head-first circular traversal order.
+    pub members: shell::ShellMembers,
 }
 
 /// A region (`SmRegion`, CO-PORTED minimal record).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Region {
     /// `m_pListOwner != NULL`: the region is on the B-rep's region list, so
     /// `GetBrep` reaches the B-rep.
     pub in_brep: bool,
+    /// Native region shell list, in traversal order from its head.
+    pub shells: Vec<ShellId>,
+    /// Native `SmBoolean` `m_bIsVoidFlag` (0 at construction; 2 is `UNSURE`).
+    pub is_void: i32,
 }
 
 /// One use of a face (`SmFaceuse`): the face seen from one side.
@@ -381,6 +390,9 @@ pub struct Faceuse {
     pub orientation: OrientType,
     /// `m_pList`: the loop uses, outer loop use first.
     pub loopuses: Vec<LoopuseId>,
+    /// Literal sibling links when present, even if the owner has no list head.
+    /// `None` uses the owner's canonical face-use vector during construction.
+    pub sibling_links: Option<shell::FaceuseSiblingLinks>,
 }
 
 /// What a loop use starts from (`m_tLoopuseType` and `m_pEUorVU`).
@@ -525,6 +537,7 @@ pub struct Brep {
     edges: Arena<EdgeId, Edge>,
     vertices: Arena<VertexId, Vertex>,
     regions: Arena<RegionId, Region>,
+    infinite_region: Option<RegionId>,
     faceuses: Arena<FaceuseId, Faceuse>,
     loopuses: Arena<LoopuseId, Loopuse>,
     edgeuses: Arena<EdgeuseId, Edgeuse>,
@@ -535,9 +548,6 @@ pub struct Brep {
     tolerance: f64,
     /// The identity the B-rep is attributed and notified under (`SmBrep*`).
     key: ObjectKey,
-    /// `m_pInfiniteRegion` (unit `topology.brep_p1`, [`brep::p1`]): the infinite (outer)
-    /// region.
-    infinite_region: Option<RegionId>,
     /// `SmOwningTopology::m_pList` of the B-rep (unit `topology.brep_p1`): the head of
     /// its circular region list, `None` for the first region record (the region arena
     /// holds the list in traversal order; the head only rotates it).
@@ -573,6 +583,7 @@ impl Default for Brep {
             edges: Arena::default(),
             vertices: Arena::default(),
             regions: Arena::default(),
+            infinite_region: None,
             faceuses: Arena::default(),
             loopuses: Arena::default(),
             edgeuses: Arena::default(),
@@ -580,7 +591,6 @@ impl Default for Brep {
             validate_only: false,
             tolerance: ZONE_TOL_3D,
             key: ObjectKey(0),
-            infinite_region: None,
             region_list_head: None,
             face_list: Vec::new(),
             edge_list: Vec::new(),
@@ -607,13 +617,14 @@ impl Brep {
         Self::default()
     }
 
-    /// `m_pInfiniteRegion` (`GetInfiniteRegion`).
+    /// The region designated as infinite by the B-rep constructor.
     #[must_use]
     pub const fn infinite_region(&self) -> Option<RegionId> {
         self.infinite_region
     }
 
-    /// Sets `m_pInfiniteRegion` (a raw member write, no validation).
+    /// Friend write of the B-rep's infinite-region identity. Like other record
+    /// writes, this permits references to records added later.
     pub fn set_infinite_region_record(&mut self, region: Option<RegionId>) {
         self.infinite_region = region;
     }

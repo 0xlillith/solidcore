@@ -24,7 +24,7 @@
 //! | `Edges`     | `tol manifold fast ignore nesting n v*n`            | `status [max_gap min_gap glued deleted [digest]]` (`StitchEdgesOfVertices`) |
 //! | `Simple`    | `api tol nk f*nk nd f*nd`                           | `status [max_vertex_gap max_edge_gap stitched digest]` (`DoSimpleFaceStitch`, or `SmApiSimpleFaceStitch` with the B-rep tolerance) |
 //! | `Unify`     | `api tol face n_samples`                            | `status [flipped (u0 v0 u1 v1)*n]` (`UnifyNormals`, or `SmApiUnifyNormals`) |
-//! | `Api`       | `which null_brep ..`                                | which 0 `SmApiStitch(brep)`: `status`; 1 `face+1` `SmApiStitch(brep, face)` (only with a null B-rep or face: the B-rep's own face crashes `MergeAddedFace`): `status`; 2 `SmApiStitchIntoSolid`: `status [solid n vgap egap]`; 3 `well_formed ratio` `SmApiStitchIntoShell`: `status [n vgap egap]`; 4 `face+1 n` `SmApiUnifyNormals`: `status [flipped]`; 5 `SmApiSimpleFaceStitch` (empty lists): `status`; 6 `tol squeeze split manifold slivers` `SmApiStitchAdvanced`: `status [n lamina vgap egap]` |
+//! | `Api`       | `which null_brep ..`                                | which 0 `SmApiStitch(brep)`: `status`; 1 `face+1` `SmApiStitch(brep, face)` (only with a null B-rep or face: otherwise `SmMerge`'s constructor dereferences the null other B-rep, UB-167): `status`; 2 `SmApiStitchIntoSolid`: `status [solid n vgap egap]`; 3 `well_formed ratio` `SmApiStitchIntoShell`: `status [n vgap egap]`; 4 `face+1 n` `SmApiUnifyNormals`: `status [flipped]`; 5 `SmApiSimpleFaceStitch` (empty lists): `status`; 6 `tol squeeze split manifold slivers` `SmApiStitchAdvanced`: `status [n lamina vgap egap]` |
 //!
 //! A digest is the B-rep after a mutating op: `n_faces n_edges n_vertices` then each
 //! vertex point in list order. `Simple` reports `-2` when the face lists are equally
@@ -101,7 +101,8 @@ pub(crate) fn block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError> {
                 return Err(bad("no faces"));
             }
             for _ in 0..n {
-                face_block(rd)?;
+                // a sheet face's plane domain is bounded as in the face block's non-export ops
+                face_block(rd, 1e4)?;
             }
             Ok(())
         }
@@ -214,11 +215,13 @@ fn op_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError> 
             let null_brep = rd.flag()?;
             match which {
                 1 => {
-                    // SmMerge::MergeAddedFace merges a face not yet in the B-rep: one of
-                    // the B-rep's own faces crashes upstream (only the null guards run)
+                    // SmApiStitch(brep, face) builds SmMerge(ctx, brep, NULL) with a zero
+                    // tolerance, whose constructor dereferences the null other B-rep
+                    // (UB-167): with a B-rep and a face it always crashes upstream, so
+                    // only the null guards run
                     let face = rd.index(nf)?;
                     if !null_brep && face != 0 {
-                        return Err(bad("SmApiStitch(brep, face): face already in the B-rep"));
+                        return Err(bad("SmApiStitch(brep, face): SmMerge dereferences the null other B-rep (UB-167)"));
                     }
                 }
                 3 => {
@@ -285,5 +288,19 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     };
     op_args(op, &mut rd, c)?;
     rd.done()?;
+    // HANG-30: the full upstream stitches behind SmApiStitch / StitchIntoSolid /
+    // StitchIntoShell / StitchAdvanced never return on sheets with coordinates near the
+    // top of the double range (a control point at -1e300); bound every block value there
+    if op == Op::Api && input.first() == Some(&1.0) {
+        let which = input.get(block_in.len()).copied().unwrap_or(-1.0);
+        if [0.0, 2.0, 3.0, 6.0].contains(&which)
+            && block_in.iter().any(|v| v.abs() > MAX_STITCH_COORD)
+        {
+            return Err(bad("full stitch on a sheet value beyond 1e150 (HANG-30)"));
+        }
+    }
     raw(op, path, input)
 }
+
+/// The largest block value the full upstream stitches are given (HANG-30).
+pub const MAX_STITCH_COORD: f64 = 1e150;

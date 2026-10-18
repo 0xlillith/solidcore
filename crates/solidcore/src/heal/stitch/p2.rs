@@ -864,6 +864,7 @@ impl Stitch<'_> {
                         dist_to_curve,
                         self.do_region_nesting,
                         delete,
+                        None, // header default pInsideFaceuses = NULL
                     ) {
                         Ok(()) => {
                             if !choice.keep_first {

@@ -11,7 +11,7 @@
 //! where upstream dereferences null), traversal indices, flags and values.
 //!
 //! Selectors are taken modulo the entity count (`-1` selecting null where allowed); an
-//! op needing an entity the B-rep lacks is `no_entity` on both sides.
+//! op needing an entity the B-rep lacks is rejected (nothing runs on either side).
 //!
 //! **Inexact geometry.** The export carries plain B-spline curves and `SmLine`s and
 //! B-spline surfaces and `SmPlane`s exactly; other analytic kinds arrive as their
@@ -125,6 +125,9 @@ enum OpIn {
         mode: u8,
         reset: i64,
         flag: u8,
+        /// A region whose raw void flag is set to `UNSURE` (2) first (`-1`: none).
+        #[serde(default = "minus_one")]
+        unsure: i64,
     },
     Degenerate {
         tol: f64,
@@ -302,11 +305,15 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
             mode,
             reset,
             flag,
+            unsure,
         } => OpIn::SetInf {
             set: if set < 0 { set.max(-2) } else { sel(set, n_r) },
             mode: mode % 3,
             reset: sel(reset, n_r),
-            flag: flag % 3,
+            // the raw SmSetRegionVoidType code (lesson 22: the FFI and the Rust decode
+            // refuse anything but 0..=2)
+            flag,
+            unsure: if unsure < 0 { -1 } else { sel(unsure, n_r) },
         },
         OpIn::Vote { regions } => OpIn::Vote {
             regions: regions.into_iter().map(|r| sel(r, n_r)).collect(),
@@ -357,10 +364,9 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
             premark,
         } => OpIn::SwapFaceUv {
             face: need(n_f, face)?,
-            mark: [1u8, 2, 4, 8, 16]
-                .get(usize::from(mark) % 5)
-                .copied()
-                .unwrap_or(1),
+            // the raw SmMarkType code: the FFI refuses anything but 1/2/4/8/16 and the
+            // Rust decode (mark_type) errors on it, so an unknown code never runs
+            mark,
             premark,
         },
         OpIn::CheckUv { eu } => OpIn::CheckUv {
@@ -405,7 +411,7 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
             p,
             t,
             scaled_zero,
-            orient: orient % 3,
+            orient,
             for_tess,
         },
         OpIn::CornerBlend {
@@ -445,8 +451,10 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
     })
 }
 
+/// An op naming an entity kind the B-rep lacks (e.g. a face op on a wire B-rep): no code
+/// runs on either side, so the case is rejected (not counted as a pass).
 fn no_entity() -> Output {
-    Output::err("no_entity")
+    Output::rejected("no entity of the op's kind in this B-rep: nothing runs on either side")
 }
 
 fn ints_of(v: &[i64]) -> Vec<f64> {
@@ -487,12 +495,14 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             mode,
             reset,
             flag,
+            unsure,
         } => {
             a.extend([
                 *set as f64,
                 f64::from(*mode),
                 *reset as f64,
                 f64::from(*flag),
+                *unsure as f64,
             ]);
             Op::SetInf
         }
@@ -942,13 +952,16 @@ fn status_of(e: &SolidError) -> f64 {
     }
 }
 
-fn mark_type(code: u8) -> MarkType {
+/// The `SmMarkType` of a resolved mark code (`SM_MT_MARK` 1, `MARK2` 2, `MARK3` 4,
+/// `MARKIO` 8, `MARKASSERT` 16); any other code is a harness error (lesson 22).
+fn mark_type(code: u8) -> Result<MarkType, HarnessError> {
     match code {
-        1 => MarkType::Mark,
-        2 => MarkType::Mark2,
-        4 => MarkType::Mark3,
-        16 => MarkType::MarkAssert,
-        _ => MarkType::MarkIo,
+        1 => Ok(MarkType::Mark),
+        2 => Ok(MarkType::Mark2),
+        4 => Ok(MarkType::Mark3),
+        8 => Ok(MarkType::MarkIo),
+        16 => Ok(MarkType::MarkAssert),
+        other => Err(harness(format!("unknown mark code {other}"))),
     }
 }
 
@@ -1386,14 +1399,26 @@ fn run_rust_op(
             mode,
             reset,
             flag: void_flag,
+            unsure,
         } => {
+            // SmRegion::SetIsVoid(UNSURE) on the chosen region first
+            if *unsure >= 0 {
+                b.region_mut(RegionId::from_index(*unsure as u32))?.is_void = 2;
+            }
             if *set != -2 {
                 b.set_infinite_region((*set >= 0).then(|| RegionId::from_index(*set as u32)));
             }
+            // SmSetRegionVoidType: SM_VS_NESTEDSOLID 0, _INFINITEREGION_ONLY 1, _SWAP 2 (the FFI
+            // refuses anything else; lesson 22: never default an unknown code)
             let void_type = match void_flag {
                 0 => bp1::SetRegionVoidType::NestedSolid,
                 1 => bp1::SetRegionVoidType::InfiniteRegionOnly,
-                _ => bp1::SetRegionVoidType::InfiniteRegionSwap,
+                2 => bp1::SetRegionVoidType::InfiniteRegionSwap,
+                other => {
+                    return Err(Fail::Harness(harness(format!(
+                        "unknown SmSetRegionVoidType code {other}"
+                    ))))
+                }
             };
             let r = match mode {
                 1 => bp1::reset_infinite_region(
@@ -1417,8 +1442,17 @@ fn run_rust_op(
                 o.push(b.infinite_region().map_or(-1.0, |r| f64::from(r.index())));
                 o.extend(ids(&bp1::regions(b, None)?));
             }
-            // the void flags of a successful mode 1/2 are never reached: both go through
-            // SmRegion::SetIsVoid (unit topology.shell)
+            // a successful mode 1/2: every region's raw IsVoid flag, in the export's
+            // region order (the shim's traversal registry)
+            if *mode != 0 && status == 0.0 {
+                let flags: Vec<f64> = b
+                    .regions()
+                    .iter()
+                    .map(|(_, r)| f64::from(r.is_void))
+                    .collect();
+                o.push(flags.len() as f64);
+                o.extend(flags);
+            }
         }
         OpIn::Degenerate { tol } => {
             o.push(flag(bp1::is_degenerate(k, b, *tol)?));
@@ -1617,13 +1651,16 @@ fn run_rust_op(
             premark,
         } => {
             let f = FaceId::from_index(*face as u32);
-            let mark = mark_type(*mark);
+            let mark = mark_type(*mark)?;
             let mut marks = Marks::default();
             if *premark {
                 marks.mark(k, Entity::Face(f), mark);
             }
             let swaps = !marks.is_marked(k, Entity::Face(f), mark);
-            bp1::swap_face_uv(k, b, &mut marks, f, mark)?;
+            match bp1::swap_face_uv(k, b, &mut marks, f, mark) {
+                Err(e) if !e.is_unported() => return Ok(Ok(vec![status_of(&e)])),
+                r => r?,
+            }
             // a swap transforms the surface and mirrors the trim curves: compared only
             // where the import is exact
             if swaps {
@@ -1767,10 +1804,17 @@ fn run_rust_op(
                     return Ok(Err(d));
                 }
             }
+            // SmOrientType: SM_OT_UNKNOWN = 0, SM_OT_SAME = 1, SM_OT_OPPOSITE = 2 (the FFI
+            // refuses anything else; lesson 22: never default an unknown code)
             let orient = match orient {
+                0 => OrientType::Unknown,
                 1 => OrientType::Same,
                 2 => OrientType::Opposite,
-                _ => OrientType::Unknown,
+                other => {
+                    return Err(Fail::Harness(harness(format!(
+                        "unknown orientation code {other}"
+                    ))))
+                }
             };
             let r = bp1::make_vertex_split_uv_trim_curve(
                 k,
@@ -1821,7 +1865,12 @@ fn run_rust_op(
                 .map(|&i| EdgeuseId::from_index(i as u32))
                 .collect();
             match bp1::create_corner_blend(k, b, &ids, tangent.as_deref(), *tol, *ang) {
-                Ok(s) => o.extend([0.0, s.len() as f64]),
+                Ok(s) => {
+                    o.extend([0.0, s.len() as f64]);
+                    for blend in s {
+                        put_surface(&mut o, &Surface::from(blend))?;
+                    }
+                }
                 Err(e) if e.is_unported() => return Err(e.into()),
                 // upstream resets the output array before failing
                 Err(e) => o.extend([status_of(&e), 0.0]),
@@ -2004,6 +2053,11 @@ fn gen_op(rng: &mut Rng) -> OpIn {
             mode: rng.below(3) as u8,
             reset: rng.range_i64(-1, 1 << 10),
             flag: rng.below(3) as u8,
+            unsure: if rng.chance(0.3) {
+                rng.range_i64(0, 1 << 10)
+            } else {
+                -1
+            },
         },
         5 => OpIn::Degenerate {
             tol: 10f64.powf(rng.uniform(-9.0, 9.0)),
@@ -2050,7 +2104,7 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         },
         14 => OpIn::SwapFaceUv {
             face: gen_sel(rng),
-            mark: rng.below(5) as u8,
+            mark: *rng.choose(&[1u8, 2, 4, 8, 16]).unwrap_or(&1),
             premark: rng.chance(0.7),
         },
         15 => OpIn::CheckUv { eu: gen_sel(rng) },
