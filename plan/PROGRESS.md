@@ -69,7 +69,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `boolean.topology_intersector_p3` (1849 lines) — in progress: #211 @oursland (draft)
 - [ ] 🔨 `primitive.primitive_creation_p3` (1842 lines) — in progress: #233 @damgru (ready for review)
 - [ ] 🔨 `boolean.merge_p2` (1967 lines) — in progress: #229 @Pluto-XI (ready for review)
-- [ ] 🔨 `blend.fillet_solver_p3` (1112 lines) — in progress: #236 @denelson1-dot (draft)
+- [ ] 🔨 `blend.fillet_solver_p3` (1112 lines) — in progress: #236 @denelson1-dot (ready for review)
 - [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (ready for review)
 - [ ] 🔨 `offset.offset_executive_p2` (1846 lines) — in progress: #201 @altvnk (ready for review)
 
@@ -366,7 +366,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] ⏳ `blend.fillet_executive_p1` (2063 lines) — waiting
 - [ ] ⏳ `blend.fillet_corner_p1` (1971 lines) — waiting
 - [ ] ⏳ `blend.fillet_solver_p2` (1939 lines) — waiting
-- [ ] 🔨 `blend.fillet_solver_p3` (1112 lines) — in progress: #236 @denelson1-dot (draft)
+- [ ] 🔨 `blend.fillet_solver_p3` (1112 lines) — in progress: #236 @denelson1-dot (ready for review)
 - [ ] ⏳ `blend.fillet_geom_p3` (1032 lines) — waiting
 - [ ] ⏳ `blend.fillet_geom_p4` (2074 lines) — waiting
 - [ ] ⏳ `blend.fillet_geom_p6` (1813 lines) — waiting
