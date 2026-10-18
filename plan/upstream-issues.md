@@ -1353,6 +1353,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash / out-of-range read.
 - **Rust port:** Kernel topology mutation remains deferred. Both the safe FFI validator and the C++ shim require equally sized partners for op 3 with fillets. Six `rejected_fillets_*` fixtures check rejection; 660 isolated probes independently exercise both guards at first and last indices of 1/2/3/32 intervals. Valid equal-sized pairs and non-fillet calls remain accepted.
 
+#### UB-176. `CombineCoincidentVertices` deletes its isolated surviving vertex when inputs alias
+- **Location:** `source/SMLib/src/SmBrep.cpp:1354-1366`, `SmBrep::CombineCoincidentVertices`.
+- **What happens:** The zero-incident-edge branch sets the surviving vertex's point/tolerance, then calls `DeleteVertex(pVertexToDelete)` and returns `SM_SUCCESS`. If both input pointers are the same, the supposedly surviving vertex is deleted too. A caller retaining the survivor pointer can subsequently read freed storage. The same-input early return in `GlueVertices` is not reached on this branch.
+- **Trigger:** Pass the same isolated vertex as both `pSurvivingVertex` and `pVertexToDelete`. This finding does not apply to all aliased inputs: incident-edge aliases retain the native path.
+- **How found:** PR #194 review and source inspection while porting `topology.brep_p5`.
+- **Confirmed:** no; the undefined isolated-alias path is deliberately excluded by both FFI and C++ shim guards. No unsafe native reproduction was attempted. Defined incident-edge aliases and same-input/null `GlueVertices` calls are retained in differential coverage.
+- **Severity:** dangling survivor / caller use-after-free.
+- **Rust port:** Reject only an isolated aliased combination. Determine incidence from the actual native object for the FFI guard; do not reject every alias.
+
 ### Healer target management
 
 #### UB-163. Uncached healer props removal leaves targets that resize into NULL props holes

@@ -6866,7 +6866,9 @@ Review fixes include the declaration's infinite-region default
 `SM_VS_INFINITEREGION_SWAP` (2), same-input glue before notification (including two
 null inputs), and refusing aliased combination only for isolated vertices where
 native deletion invalidates the survivor. A native incidence query enforces that
-precise guard; 40 alias fixtures retain valid aliases.
+precise guard; 40 alias fixtures retain valid aliases. The isolated-alias hazard
+is recorded as UB-176 in `plan/upstream-issues.md` (source finding; no undefined
+native reproduction attempted).
 
 The boolean intersector's insertion calls the shared part 5 control flow with
 actual editing/tolerance getters, then defers at `FindVertexSector` (face part 4)
@@ -6897,8 +6899,8 @@ remain an integration handoff after its independent PR merges. Part 2's Notify
 remains the critical dependency; its open PR is not bundled here.
 
 Coverage on source `fd5a15a7`, Linux runner 2 (Ubuntu 26.04 x86_64, Rust/rustdoc
-1.98.0, GCC 15.2.0; pinned `c9c5979` reference, C++17/O2 with FP contraction and
-fast math disabled):
+1.98.0, GCC 15.2.0; pinned `c9c5979` reference, C++17/O2 with
+`SM_USE_OLDTOL`, FP contraction and fast math disabled):
 
 - **791 cases:** 279 fixtures + 512 generated; **737 pass, 54 deferred, 0 fail**,
   max relative error 0, fixed relative tolerance 1e-9, no absolute floors.
@@ -6917,8 +6919,9 @@ Formatting, strict plain/native Clippy, all **1326** kernel tests, WASM and all
 **3** native FFI guard tests pass. Ten affected differential units pass their gates
 (1 green, 9 partial, 0 failed); the full green/partial sweep is pending. Commands
 use `nice -n 10`, one Cargo job and sccache. The matching 1.98 rustdoc is selected
-explicitly. A worktree-owned temporary 4 GiB swap file supports compilation on the
-8 GiB runner and will be removed after validation.
+explicitly. A worktree-owned temporary 4 GiB swap file supported compilation on the
+8 GiB runner and was removed after compilation. No permanent runner configuration
+was changed.
 
 Uncertified: successful topology mutations, nonidentity transformations,
 continuations behind dependency barriers, native geometry shared across separate
