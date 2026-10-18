@@ -49,15 +49,15 @@
 //! - `SmVertex::SetPoint`'s change notification runs on a record set local to the call
 //!   (no attributes are attached by the stitch).
 //! - Uninitialised reads upstream: `DoSimpleFaceStitch` ignores `CurveMaxDistanceBetween`'s
-//!   status (`SE`) and reads the unset `dDistToCurve` after a failure (the port reads 0);
-//!   `UnifyNormals` ignores `NormalizedEvaluate`'s status and reads the unset `sPnt` /
-//!   `sDir` (`SmVector3d() = default`; the port uses [`Point3::UNDEF`]).
+//!   status (`SE`) and reads the unset `dDistToCurve` after a failure (the port reads 0).
+//! - `UnifyNormals` ignores `NormalizedEvaluate`'s status and goes on with `sPnt` / `sDir`
+//!   as they were: `SmVector3d`'s default `SM_UNDEF_DOUBLE` (defined; the 3D evaluation
+//!   writes them only after its last status), [`Point3::UNDEF`] / [`Vec3::UNDEF`] here.
 //! - The calls into `SmBrep::GlueVertices`, `RemoveFaces`, `StitchAndOrient`
 //!   (`topology.brep_p5`), `GlueEdgesGeneral` (`topology.brep_p7`), `SqueezeEdge`
 //!   (`topology.brep_p3`), `MakeVertexSplitEdge` (`topology.brep_p9`), `Notify`
 //!   (`topology.brep_p2`), `CalculateBoundingBox` (`query.brep`), `SmFace::GetBrep`,
-//!   `GetVertices`, `GetEdges` (`topology.face_p4`), `SmEdgeuse::NormalizedEvaluate`,
-//!   `EvaluateBinormal` (`topology.edgeuse_p3`), `SmMerge::MergeAddedFace`
+//!   `GetVertices`, `GetEdges` (`topology.face_p4`), `SmMerge::MergeAddedFace`
 //!   (`boolean.merge_p2`) and `SmStitch::DoStitching`, `StitchIntoSolid`,
 //!   `StitchIntoShell` (`heal.stitch_p2`) return [`SolidError::Unported`].
 
@@ -79,6 +79,7 @@ use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::topology::brep::p1 as bp1;
 use crate::topology::brep_cache::{arena_identity, CacheObject};
 use crate::topology::edgeuse::p1 as eu1;
+use crate::topology::edgeuse::p3::{self as eu3, BinormalOptions};
 use crate::topology::face::p1 as fp1;
 use crate::topology::face::p2 as fp2;
 use crate::topology::topology::Topology;
@@ -1195,10 +1196,10 @@ impl<'c> Stitch<'c> {
                         let orig_ivl = edge::interval(b, eu_edge)?;
                         // NormalizedEvaluate(dParam, FALSE, sPnt, &sDir): 3d, with the
                         // first derivative, default bOKToMakeUVTrimCurve. The status is
-                        // ignored upstream; a failure leaves sPnt / sDir uninitialised
-                        // (SmVector3d() = default), here UNDEF.
+                        // ignored upstream; a failure leaves sPnt / sDir at SmVector3d's
+                        // default SM_UNDEF_DOUBLE, here UNDEF.
                         let (pnt, dir) =
-                            ignored(normalized_evaluate(b, eu, param, false, true, true))?
+                            ignored(normalized_evaluate(k, b, eu, param, false, true, true))?
                                 .map_or((Point3::UNDEF, Vec3::UNDEF), |(p, d)| {
                                     (p, d.unwrap_or(Vec3::UNDEF))
                                 });
@@ -1256,9 +1257,9 @@ impl<'c> Stitch<'c> {
                             // cases where angle between binormals is > 90 degrees.
                             // EvaluateBinormal(t, FALSE, sPt, sBinVec): optional outputs NULL
                             let (_, bin_vec) =
-                                evaluate_binormal(b, prim_eu, dropped.parameter, false)?;
+                                evaluate_binormal(k, b, prim_eu, dropped.parameter, false)?;
                             let (_, bin_orig) =
-                                evaluate_binormal(b, eu, orig_ivl.evaluate(param), false)?;
+                                evaluate_binormal(k, b, eu, orig_ivl.evaluate(param), false)?;
                             if bin_vec.dot(bin_orig) > 0.0 {
                                 continue;
                             }
@@ -2084,43 +2085,43 @@ fn face_edges(b: &Brep, f: FaceId) -> Result<Vec<EdgeId>> {
 }
 
 /// `SmEdgeuse::NormalizedEvaluate(t, bParameterSpaceEval, rPoint, pOptFirstDeriv,
-/// bOKToMakeUVTrimCurve)` (unit `topology.edgeuse_p3`; header defaults
+/// bOKToMakeUVTrimCurve)` (`topology::edgeuse::p3::normalized_evaluate`; header defaults
 /// `pOptFirstDeriv = NULL`, `bOKToMakeUVTrimCurve = TRUE`): the point and, when
 /// `want_first_deriv`, the first derivative.
 fn normalized_evaluate(
-    b: &Brep,
+    k: &Kernel,
+    b: &mut Brep,
     eu: EdgeuseId,
     t: f64,
     parameter_space_eval: bool,
     want_first_deriv: bool,
     ok_to_make_uv_trim_curve: bool,
 ) -> Result<(Point3, Option<Vec3>)> {
-    let _ = (
+    let eval = eu3::normalized_evaluate(
+        k,
         b,
         eu,
         t,
         parameter_space_eval,
         want_first_deriv,
         ok_to_make_uv_trim_curve,
-    );
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+    )?;
+    Ok((eval.point, eval.first_deriv))
 }
 
 /// `SmEdgeuse::EvaluateBinormal(t, bUse3DOnly, rBinormalPoint, rBinormal,
-/// pOptEdgeuseTangent, pOptFaceuseNormal, pOptUVParameter, pOptUVDir)` (unit
-/// `topology.edgeuse_p3`; the four optional outputs default to NULL): the point and the
-/// binormal (the stitch asks for neither optional output).
-fn evaluate_binormal(b: &Brep, eu: EdgeuseId, t: f64, use_3d_only: bool) -> Result<(Point3, Vec3)> {
-    let _ = (b, eu, t, use_3d_only);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-    Err(SolidError::unported(
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
-    ))
+/// pOptEdgeuseTangent, pOptFaceuseNormal, pOptUVParameter, pOptUVDir)`
+/// (`topology::edgeuse::p3::evaluate_binormal`; the four optional outputs default to
+/// NULL): the point and the binormal (the stitch asks for neither optional output).
+fn evaluate_binormal(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    t: f64,
+    use_3d_only: bool,
+) -> Result<(Point3, Vec3)> {
+    let eval = eu3::evaluate_binormal(k, b, eu, t, use_3d_only, &BinormalOptions::default())?;
+    Ok((eval.point, eval.binormal))
 }
 
 // ---- SM_API entry points ---------------------------------------------------------------
