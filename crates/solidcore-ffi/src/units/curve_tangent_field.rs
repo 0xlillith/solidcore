@@ -90,7 +90,6 @@ fn bad(msg: impl Into<String>) -> FfiError {
 
 crate::reader::unit_reader!(MAX_COORD);
 
-
 /// A validated curve block: whether it is a B-spline, and its parameter range.
 #[derive(Debug, Clone, Copy)]
 struct CurveInfo {

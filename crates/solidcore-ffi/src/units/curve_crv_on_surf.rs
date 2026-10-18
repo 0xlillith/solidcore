@@ -218,7 +218,6 @@ fn bad(msg: impl Into<String>) -> FfiError {
 
 crate::reader::unit_reader!(MAX_COORD);
 
-
 /// Clamped, sorted, finite knots of degree `p` with interior multiplicities at most
 /// `p`; returns the range.
 fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiError> {

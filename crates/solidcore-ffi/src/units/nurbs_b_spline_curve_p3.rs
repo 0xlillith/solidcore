@@ -119,7 +119,6 @@ fn bad(msg: impl Into<String>) -> FfiError {
 
 crate::reader::unit_reader!(MAX_COORD);
 
-
 /// A validated curve block.
 #[derive(Debug, Clone)]
 struct CurveInfo {

@@ -129,7 +129,6 @@ fn bad(msg: impl Into<String>) -> FfiError {
 
 crate::reader::unit_reader!(MAX_COORD);
 
-
 fn euclid([x, y, z, w]: [f64; 4]) -> [f64; 3] {
     let z = if z == NOZ { 0.0 } else { z };
     if w == NOW {
