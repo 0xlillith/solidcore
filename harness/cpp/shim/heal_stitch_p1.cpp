@@ -356,9 +356,11 @@ bool simple_face_validates(SmBrep* pBrepToStitch, const SmTArray<SmFace*>& cpFac
 // faces, a repeated keep face, or a vertex shared by the two lists) is freed by the glue of
 // its first entry (GlueVertices / SqueezeEdge delete the other vertex) and read by the next.
 // Those inputs are refused (-2); everything else runs, so upstream's SM_ERR statuses are
-// compared. A repeated vertex whose first entry glues nothing (squeeze skipped, or a short
-// manifold common edge) is refused too: a deliberate over-refusal of a rare input, because
-// whether that entry frees it depends on the glue itself.
+// compared. A repeated vertex whose first entry frees nothing (squeeze skipped, a short
+// manifold common edge, the m_bMakingManifoldSolid non-lamina skip, or the loop ending first
+// with upstream's defined SM_ERR: dMaxDistance > dTol or a failed SelectTopologyToKeep) is
+// refused too: a deliberate over-refusal of a rare input, because whether that entry frees
+// it depends on the stateful glue loop itself.
 bool simple_face_guard(SmBrep* brep, const SmTArray<SmFace*>& keep, const SmTArray<SmFace*>& del, double tol)
 {
     SmTArray<SmVertex*> kv, dv;

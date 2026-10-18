@@ -902,8 +902,10 @@ impl<'c> Stitch<'c> {
         // the glue loop then reads those vertices; a repeated delete face is freed twice; a
         // vertex in more than one entry of the two vertex lists (built with plain Add across
         // the face pairs) is freed by the glue of its first entry and read by the next. Those
-        // inputs are undefined upstream. A repeated vertex whose first entry glues nothing is
-        // refused too (a deliberate over-refusal of a rare input, as the C++ shim does).
+        // inputs are undefined upstream. A repeated vertex whose first entry frees nothing
+        // (squeeze skipped, a short manifold common edge, the making-manifold-solid skip, or
+        // the loop ending first with SM_ERR) is refused too: a deliberate over-refusal of a
+        // rare input, as the C++ shim does.
         for (i, d) in faces_to_delete.iter().enumerate() {
             if faces_to_delete.iter().take(i).any(|x| x == d) {
                 return Err(deref(
