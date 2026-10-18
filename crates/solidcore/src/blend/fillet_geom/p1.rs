@@ -91,10 +91,9 @@
 //!   (the shell-owned edge use with no fillet geometry) is ported behind them, so
 //!   [`FilletBrep::new_fillet_edgeuse`] returns [`SolidError::Unported`] today and
 //!   completes once they are wired. `SmFilletGeom(pFilletSolver, eType)` copies the
-//!   solver's offset surfaces with `SmOffsetSurface::Copy` (`surface.offset_surface`,
-//!   a call stub; its status is ignored upstream, so a failed copy leaves `NULL`):
-//!   with a solver that has one, [`FilletGeom::new`] returns [`SolidError::Unported`];
-//!   without a solver it is complete. That constructor leaves `m_dOrientations` and `m_bCapped`
+//!   solver's offset surfaces with `SmOffsetSurface::Copy` (the kernel stands for the
+//!   solver's creation context; its status is ignored upstream, so a failed copy leaves
+//!   `NULL`, and only [`SolidError::Unported`] propagates). That constructor leaves `m_dOrientations` and `m_bCapped`
 //!   uninitialised; they start as `0.0` and `false` here.
 //! - **Arguments.** Out-params become return values; `SmContext` arguments are the
 //!   [`Kernel`]; `int iDebugLevel` arguments and debug drawing are dropped.
@@ -144,9 +143,9 @@
 //!   trim curve, drop-curve record and cached edge/face gap of each edge use (its
 //!   mate's gap too) and the cached gaps of their vertex uses. The examine routine
 //!   then drops the new rail onto the solver's offset surface with its offset distance
-//!   at `0`: `SmOffsetSurface::GetNaturalUVDomain` (`surface.offset_surface`) and
-//!   `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`) are call stubs, so it
-//!   returns [`SolidError::Unported`] at the first; the tail behind them (a failed drop
+//!   at `0` over its `GetNaturalUVDomain`: `SmSurface::DropCurve`
+//!   (`intersect.surface_drop_lib_p3`) is a call stub, so it returns
+//!   [`SolidError::Unported`] there; the tail behind them (a failed drop
 //!   skips the rail, a single UV curve becomes the mate edge use's UV curve through
 //!   `SetUVCurve` with its defaults) is ported.
 //! - **Difftest coverage.** The shim builds plain `SmBSplineSurface` / `SmBSplineCurve`
@@ -163,8 +162,8 @@
 //!   `SmFilletSolver::FindIndexOfRailOnFace` (`blend.fillet_solver_p1`) and
 //!   `SmFilletSolver::RailRailIntersect` (`blend.fillet_solver_p2`) in
 //!   `sm_CreateCubicRailRailInterpolant` (the cubic built from their result is ported
-//!   behind them); `SmOffsetSurface::GetNaturalUVDomain` (`surface.offset_surface`) and
-//!   `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`) in the adjusting path of
+//!   behind them); `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`) in the
+//!   adjusting path of
 //!   `sm_ExamineNFixFilletGeoms`. Every stub replaces only its call.
 //! - **Bounds.** `sm_ExamineNFixFilletGeoms` copies at most the smaller control net
 //!   row; indices are checked. No input-driven recursion.
@@ -1053,9 +1052,10 @@ impl FilletGeom {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: copying a solver offset surface
-    /// (`SmOffsetSurface::Copy`, `surface.offset_surface`).
+    /// [`SolidError::Unported`] from copying a solver offset surface
+    /// (`SmOffsetSurface::Copy`); any other failed copy leaves that slot `None`.
     pub fn new(
+        k: &Kernel,
         solver: Option<(FilletSolverId, &ConstantRadiusAssistedFs)>,
         geom_type: FilletGeomType,
     ) -> Result<Self> {
@@ -1065,7 +1065,7 @@ impl FilletGeom {
                 *slot = match fs.surfaces.get(i).and_then(Option::as_ref) {
                     // SmOffsetSurface::Copy() returns an SmSurface*, not SmOffsetSurface*;
                     // its status is ignored, so a failed copy leaves NULL
-                    Some(off_srf) => match offset_surface_copy(off_srf) {
+                    Some(off_srf) => match offset_surface_copy(k, off_srf) {
                         Ok(new_surf) => Some(new_surf),
                         Err(e) if e.is_unported() => return Err(e),
                         Err(_) => None,
@@ -1372,7 +1372,9 @@ impl FilletBrep {
     /// of `topology.brep_p2`); [`SolidError::Upstream`] (`SM_ERR_NULL_POINTER`) when the
     /// region still has no shell (upstream reads `sShells[0]` of an empty array).
     pub fn new_fillet_edgeuse(&mut self) -> Result<EdgeuseId> {
-        let reg = infinite_region(&self.brep)?;
+        // upstream dereferences m_pInfiniteRegion unchecked
+        let reg =
+            infinite_region(&self.brep)?.ok_or_else(|| SolidError::null_pointer(OP_EDGEUSE))?;
         let mut shells = region_shells(&self.brep, reg)?;
         if shells.is_empty() {
             // Just an artifact vertex
@@ -3294,7 +3296,7 @@ fn drop_rail_onto_offset_surface(
         .get_mut(rail_index)
         .and_then(Option::as_mut)
         .ok_or_else(|| SolidError::null_pointer(OP_EXAMINE))?;
-    let orig_offset_dist = offset_surf.offset_distance;
+    let orig_offset_dist = offset_surf.offset_distance();
     offset_surf.set_offset_distance(0.0);
 
     // Drop the 3d curve onto the surface
@@ -3304,16 +3306,15 @@ fn drop_rail_onto_offset_surface(
         .curve
         .as_ref()
         .ok_or_else(|| SolidError::null_pointer(OP_EXAMINE))?;
-    let drop = offset_natural_uv_domain(offset_surf).and_then(|domain| {
-        offset_surface_drop_curve(
-            k,
-            offset_surf,
-            &domain,
-            iso_crv,
-            &iso_crv.natural_interval(),
-            dist_tol,
-        )
-    });
+    let domain = offset_natural_uv_domain(offset_surf);
+    let drop = offset_surface_drop_curve(
+        k,
+        offset_surf,
+        &domain,
+        iso_crv,
+        &iso_crv.natural_interval(),
+        dist_tol,
+    );
     offset_surf.set_offset_distance(orig_offset_dist);
     let uv_curves = match drop {
         // the sampled max distance and the deviation are not used
@@ -3338,7 +3339,7 @@ fn drop_rail_onto_offset_surface(
 }
 
 /// `SmBrep::GetInfiniteRegion` (unit `topology.brep_p1`).
-fn infinite_region(_brep: &Brep) -> Result<RegionId> {
+fn infinite_region(_brep: &Brep) -> Result<Option<RegionId>> {
     // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
     Err(SolidError::unported(
         "SmBrep::GetInfiniteRegion",
@@ -3365,23 +3366,21 @@ fn make_shell_vertex_topology(_brep: &mut Brep, _region: RegionId) -> Result<(Sh
     ))
 }
 
-/// `SmOffsetSurface::Copy(crContext, rpNewSurf)` (unit `surface.offset_surface`); the
-/// context is the solver's creation context, which the port does not have.
-fn offset_surface_copy(_surface: &OffsetSurface) -> Result<OffsetSurface> {
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::Copy
-    Err(SolidError::unported(
-        "SmOffsetSurface::Copy",
-        "surface.offset_surface",
-    ))
+/// `SmOffsetSurface::Copy(crContext, rpNewSurf)` ([`OffsetSurface::copy`](crate::surface::offset_surface::OffsetSurface::copy);
+/// the solver's creation context is the kernel). A solver's offset surface does not own
+/// its base (`SmOffsetSurface(d, rSurface, FALSE, ..)`), so the copy shares the base
+/// pointer and keeps its [`SurfaceId`](crate::blend::fillet_custom_solver::SurfaceId).
+fn offset_surface_copy(k: &Kernel, surface: &OffsetSurface) -> Result<OffsetSurface> {
+    Ok(OffsetSurface {
+        surface: surface.surface.copy(k)?,
+        base_id: surface.base_id,
+    })
 }
 
-/// `SmOffsetSurface::GetNaturalUVDomain` (unit `surface.offset_surface`).
-fn offset_natural_uv_domain(_surface: &OffsetSurface) -> Result<Extent2d> {
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::GetNaturalUVDomain
-    Err(SolidError::unported(
-        "SmOffsetSurface::GetNaturalUVDomain",
-        "surface.offset_surface",
-    ))
+/// `SmOffsetSurface::GetNaturalUVDomain`
+/// ([`OffsetSurface::natural_uv_domain`](crate::surface::offset_surface::OffsetSurface::natural_uv_domain)).
+fn offset_natural_uv_domain(surface: &OffsetSurface) -> Extent2d {
+    surface.surface.natural_uv_domain()
 }
 
 /// `SmSurface::DropCurve(crContext, crDropDomain, cr3DCurve, crInterval, dDistTol,
@@ -3860,7 +3859,7 @@ mod tests {
             fb.insert_fillet_edgeuse(eu, FilletEdgeuse::default());
             fb.insert_fillet_vertexuse(vu, FilletVertexuse::new());
         }
-        let g = fb.add_geom(FilletGeom::new(None, FilletGeomType::Blends).unwrap());
+        let g = fb.add_geom(FilletGeom::new(&k, None, FilletGeomType::Blends).unwrap());
         fb.geom_mut(g).unwrap().set_rail(0, Some(e));
         fb.set_edgeuse_fillet_geom(eu1, Some(g)).unwrap();
         assert_eq!(fb.geom(g).unwrap().ref_eus, vec![eu1]);
@@ -3975,10 +3974,10 @@ mod tests {
             *rail = Some(e);
             rail0_uses.get_or_insert((eu, vu));
         }
-        let mut g0 = FilletGeom::new(None, FilletGeomType::Blends).unwrap();
+        let mut g0 = FilletGeom::new(k, None, FilletGeomType::Blends).unwrap();
         g0.fillet_surface = Some(cubic_strip(0.5));
         g0.rails = rails;
-        let mut g1 = FilletGeom::new(None, FilletGeomType::Blends).unwrap();
+        let mut g1 = FilletGeom::new(k, None, FilletGeomType::Blends).unwrap();
         g1.fillet_surface = Some(cubic_strip(0.0));
         let g0 = fb.add_geom(g0);
         let g1 = fb.add_geom(g1);
@@ -4018,11 +4017,9 @@ mod tests {
             1e-6,
             [0.25, 0.25],
             [
-                Some(OffsetSurface::new(
-                    0.25,
-                    cubic_strip(0.0),
-                    SurfaceId::Free(1),
-                )),
+                Some(
+                    OffsetSurface::new(&k, 0.25, cubic_strip(0.0), SurfaceId::Free(1), 0).unwrap(),
+                ),
                 None,
             ],
             [1.0, -1.0],
@@ -4045,14 +4042,14 @@ mod tests {
             matches!(
                 err,
                 SolidError::Unported {
-                    upstream: "SmOffsetSurface::GetNaturalUVDomain",
-                    unit: "surface.offset_surface"
+                    upstream: "SmSurface::DropCurve",
+                    unit: "intersect.surface_drop_lib_p3"
                 }
             ),
             "{err:?}"
         );
         // the offset distance was zeroed for the drop and restored
-        assert_eq!(solver.surfaces[0].as_ref().unwrap().offset_distance, 0.25);
+        assert_eq!(solver.surfaces[0].as_ref().unwrap().offset_distance(), 0.25);
         // geometry 0's start row is now geometry 1's end row; its other rows are its own
         let near = |a: Point3, b: Point3| a.distance(b) < 1e-12;
         let s0 = fb.geom(g0).unwrap().fillet_surface().unwrap();
