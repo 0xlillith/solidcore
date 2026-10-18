@@ -591,8 +591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "split_minimum_dependency",
@@ -603,8 +603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "split_maximum_dependency",
@@ -622,16 +622,12 @@
       "values_compared": 36
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
-      },
       "max_rel_err": 0.0,
       "name": "boundary_exact_eff_zero_split",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/offset.offset_executive_p1/synchronize.json#18",
-      "values_compared": 0
+      "values_compared": 36
     },
     {
       "max_rel_err": 0.0,
@@ -1925,8 +1921,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0141",
@@ -2449,8 +2445,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0206",
@@ -2565,8 +2561,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0220",
@@ -2593,8 +2589,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0223",
@@ -3037,8 +3033,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0278",
@@ -3265,8 +3261,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0306",
@@ -3325,8 +3321,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0313",
@@ -4769,8 +4765,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0493",
@@ -5341,8 +5337,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeVertexSplitEdge",
-        "unit": "topology.brep_p9"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0564",
@@ -5633,9 +5629,9 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 17,
+  "cases_deferred": 16,
   "cases_failed": 0,
-  "cases_passed": 675,
+  "cases_passed": 676,
   "cases_rejected": 1,
   "cases_total": 693,
   "deferred_by_unit": {
@@ -5643,8 +5639,8 @@
     "offset.offset_geometry_creation": 1,
     "topology.brep_p4": 1,
     "topology.brep_p5": 1,
-    "topology.brep_p9": 12,
-    "topology.edgeuse_p3": 1
+    "topology.edgeuse_p3": 1,
+    "topology.face_p3": 11
   },
   "max_rel_err": 2.9158035700250084e-14,
   "pass": true,
