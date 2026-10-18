@@ -14,9 +14,12 @@
 //! than `SmPlane` (cylinder, cone, sphere, torus, surface of revolution or extrusion) and
 //! an `SmBSplineCurve` subclass other than `SmLine` (ellipse, ...) only as its B-spline
 //! part. A geometric op (`LoopOrient` and later) on a B-rep holding such a kind is
-//! deferred to the unit that gives the kind its Rust representation, as in the
-//! `topology.edgeuse_p2` runner; the topological ops (`Lamina`, `SetTol`, `Notify`) are
-//! compared on every B-rep.
+//! deferred to the unit that gives the kind its Rust representation: the `SurfaceKind`
+//! dispatch of `surface.surface_p2` for `SmCone` / `SmCylinder` / `SmSphere` / `SmTorus`
+//! (their own units are ported, but no `Surface` can hold them yet),
+//! `surface.surf_of_extrusion_p2` for the extrusion, `topology.brep_p7`
+//! (`SmBrep::ReadFromFile`) otherwise; the topological ops (`Lamina`, `SetTol`, `Notify`)
+//! are compared on every B-rep.
 //!
 //! Face, loop and other-face selectors are taken modulo the B-rep's counts, so
 //! generated cases need no counts; a B-rep without faces gives `no face` on both sides.
@@ -32,8 +35,9 @@ use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
-use solidcore::topology::face::p3;
 use solidcore::topology::edgeuse::p1 as eu1;
+use solidcore::topology::face::p3;
+use solidcore::topology::loopuse as lu1;
 use solidcore::topology::topology_traverser;
 use solidcore::topology::{Brep, FaceId, LoopId};
 use solidcore::{EntityRef, SolidError};
@@ -73,10 +77,21 @@ const NOTIFY_OPS: [NotifyOperation; ffi::NOTIFY_OPS] = [
 #[serde(tag = "op", rename_all = "snake_case")]
 enum OpIn {
     /// `which`: 0 `IsLamina`, 1 `HasLaminaEdge`, 2 `HasConsecutiveLaminaEdges`.
-    Lamina { face: i64, which: u8 },
-    SetTol { face: i64, tol: f64, only_if_larger: bool, cascade: bool },
+    Lamina {
+        face: i64,
+        which: u8,
+    },
+    SetTol {
+        face: i64,
+        tol: f64,
+        only_if_larger: bool,
+        cascade: bool,
+    },
     /// `operation`: an index into [`NOTIFY_OPS`].
-    Notify { face: i64, operation: u8 },
+    Notify {
+        face: i64,
+        operation: u8,
+    },
     /// `lp` selects the loop: `-1` (default) the first loop of the face, else any loop.
     LoopOrient {
         face: i64,
@@ -85,8 +100,14 @@ enum OpIn {
         want_bounds: bool,
         do_3d: bool,
     },
-    Degenerate { face: i64, skip_quick: bool, tol: Option<f64> },
-    Composites { face: i64 },
+    Degenerate {
+        face: i64,
+        skip_quick: bool,
+        tol: Option<f64>,
+    },
+    Composites {
+        face: i64,
+    },
     /// `own_curves`: pass copies of the face's UV trim curves, cleared first.
     UvTrim {
         face: i64,
@@ -187,7 +208,11 @@ fn face_sel(s: i64, n_f: usize) -> Option<usize> {
 
 /// The six shim arguments of the op, with selectors resolved; `None` when the B-rep has
 /// no face (or no loop for `LoopOrient`).
-fn args(op: &OpIn, b: &Built, loop_of_face: impl Fn(usize) -> Option<usize>) -> Option<[f64; N_ARGS]> {
+fn args(
+    op: &OpIn,
+    b: &Built,
+    loop_of_face: impl Fn(usize) -> Option<usize>,
+) -> Option<[f64; N_ARGS]> {
     let [_, _, _, n_f, _, n_l, _, _, _, _] = b.counts;
     let f = |s: i64| face_sel(s, n_f).map(|x| x as f64);
     Some(match *op {
@@ -218,7 +243,14 @@ fn args(op: &OpIn, b: &Built, loop_of_face: impl Fn(usize) -> Option<usize>) -> 
             } else {
                 usize::try_from(shared::sel(lp, n_l)).ok()?
             };
-            [fi as f64, l as f64, flag(want_bounds), flag(do_3d), 0.0, 0.0]
+            [
+                fi as f64,
+                l as f64,
+                flag(want_bounds),
+                flag(do_3d),
+                0.0,
+                0.0,
+            ]
         }
         OpIn::Degenerate {
             face,
@@ -289,8 +321,8 @@ fn run_cpp_case(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(a) = args(&i.op, &b, |f| first_loop(&rb, f)) else {
         return Ok(Output::err("no face"));
     };
-    let v = ffi::eval(op_of(&i.op), &b.path, &b.block, &a)
-        .map_err(|e| harness(format!("c++: {e}")))?;
+    let v =
+        ffi::eval(op_of(&i.op), &b.path, &b.block, &a).map_err(|e| harness(format!("c++: {e}")))?;
     Ok(Output::new().values("out", v))
 }
 
@@ -366,6 +398,51 @@ fn face_geometry_complete(b: &Brep, f: FaceId) -> bool {
     }
 }
 
+/// Whether `ComputeLoopOrientation` of loop `l` on face `f` reads no missing geometry
+/// (the shim's `loop_geometry_complete`): a vertex loop reads none; an edge loop needs
+/// `f`'s surface and its edges' curves, and without `do_3d` the whole geometry of the
+/// loop's own face (creating a UV trim curve builds that face's trimmed surface cache).
+fn loop_geometry_complete(b: &Brep, f: FaceId, l: LoopId, do_3d: bool) -> bool {
+    let Ok((lu, _)) = lu1::loop_loopuses(b, l) else {
+        return false;
+    };
+    if lu1::is_vertex_loopuse(b, lu).unwrap_or(false) {
+        return true;
+    }
+    if !b.face(f).is_ok_and(|face| face.surface.is_some()) {
+        return false;
+    }
+    let Ok(eus) = lu1::edgeuses(b, lu, None, None) else {
+        return false;
+    };
+    let curves = eus.iter().all(|&eu| {
+        eu1::edge(b, eu)
+            .ok()
+            .flatten()
+            .is_some_and(|e| b.edge(e).is_ok_and(|e| e.curve.is_some()))
+    });
+    if !curves {
+        return false;
+    }
+    if do_3d {
+        return true;
+    }
+    let loop_face = b
+        .loopuse(lu)
+        .ok()
+        .and_then(|r| r.faceuse)
+        .and_then(|fu| b.faceuse(fu).ok().and_then(|r| r.face));
+    loop_face.is_some_and(|lf| face_geometry_complete(b, lf))
+}
+
+/// Whether `l` is a vertex loop (its first loop use is of vertex type): the one
+/// `ComputeLoopOrientation` input that reads no geometry at all.
+fn is_vertex_loop(b: &Brep, l: LoopId) -> bool {
+    lu1::loop_loopuses(b, l)
+        .and_then(|(lu, _)| lu1::is_vertex_loopuse(b, lu))
+        .unwrap_or(false)
+}
+
 /// The deferral of a geometric op on a B-rep holding a kind the import has only as its
 /// B-spline part (see the module docs).
 fn inexact_geometry(types: &[f64]) -> Result<Option<Output>, HarnessError> {
@@ -377,11 +454,28 @@ fn inexact_geometry(types: &[f64]) -> Result<Option<Output>, HarnessError> {
     for &t in surfaces {
         let t = t as i64;
         if t >= 0 && !EXACT_SURFACES.contains(&t) {
+            // The analytic kinds' own units (`surface.cone_p1`, `surface.sphere`,
+            // `surface.torus`) are ported; what is missing is their `SurfaceKind`
+            // variant, i.e. the `SmSurface` dispatch of `surface.surface_p2` (issue
+            // #76, the DISPATCH GAP of `Surface::read_from_db`).
             let (unit, symbol) = match t {
-                15012 | 15013 => ("surface.cone_p1", "SmCone (no SurfaceKind)"),
-                15014 => ("surface.sphere", "SmSphere"),
-                15015 => ("surface.torus", "SmTorus (no SurfaceKind)"),
-                15030 => ("surface.surf_of_extrusion_p2", "SurfaceKind::SurfOfExtrusion"),
+                15012 => ("surface.surface_p2", "SurfaceKind::Cone (SmCone dispatch)"),
+                15013 => (
+                    "surface.surface_p2",
+                    "SurfaceKind::Cone (SmCylinder dispatch)",
+                ),
+                15014 => (
+                    "surface.surface_p2",
+                    "SurfaceKind::Sphere (SmSphere dispatch)",
+                ),
+                15015 => (
+                    "surface.surface_p2",
+                    "SurfaceKind::Torus (SmTorus dispatch)",
+                ),
+                15030 => (
+                    "surface.surf_of_extrusion_p2",
+                    "SurfaceKind::SurfOfExtrusion",
+                ),
                 _ => ("topology.brep_p7", "SmBrep::ReadFromFile"),
             };
             return Ok(Some(Output::deferred(unit, symbol)));
@@ -391,7 +485,10 @@ fn inexact_geometry(types: &[f64]) -> Result<Option<Output>, HarnessError> {
         .iter()
         .any(|&t| t >= 0.0 && !EXACT_CURVES.contains(&(t as i64)))
     {
-        return Ok(Some(Output::deferred("topology.brep_p7", "SmBrep::ReadFromFile")));
+        return Ok(Some(Output::deferred(
+            "topology.brep_p7",
+            "SmBrep::ReadFromFile",
+        )));
     }
     Ok(None)
 }
@@ -448,7 +545,10 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
         return Ok(Output::err("no face"));
     };
     let op = op_of(&i.op);
-    if op as i32 >= Op::LoopOrient as i32 {
+    let f = FaceId::from_index(a[0] as u32);
+    let loop_orient = matches!(i.op, OpIn::LoopOrient { .. });
+    let vertex_loop = loop_orient && is_vertex_loop(&b, LoopId::from_index(a[1] as u32));
+    if op as i32 >= Op::LoopOrient as i32 && !vertex_loop {
         let types = ffi::eval(Op::Types, &built.path, &built.block, &[])
             .map_err(|e| harness(format!("c++ types: {e}")))?;
         if let Some(o) = inexact_geometry(&types)? {
@@ -456,11 +556,14 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
         }
     }
     let k = Kernel::default();
-    let f = FaceId::from_index(a[0] as u32);
     let mut out = vec![0.0];
-    let complete = face_geometry_complete(&b, f)
-        && (!matches!(i.op, OpIn::Intersect { .. })
-            || face_geometry_complete(&b, FaceId::from_index(a[1] as u32)));
+    let complete = if loop_orient {
+        loop_geometry_complete(&b, f, LoopId::from_index(a[1] as u32), a[3] != 0.0)
+    } else {
+        face_geometry_complete(&b, f)
+            && (!matches!(i.op, OpIn::Intersect { .. })
+                || face_geometry_complete(&b, FaceId::from_index(a[1] as u32)))
+    };
     if op as i32 >= Op::LoopOrient as i32 && !complete {
         out.push(NULL_DEREF);
         return Ok(Output::new().values("out", out));
@@ -491,7 +594,10 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
                 key_of: &key_of,
             };
             value!(p3::notify(&mut b, f, &mut env, None, operation, [None; 3]));
-            let rect = b.face(f).map_err(|e| harness(e.to_string()))?.rectangular_trim;
+            let rect = b
+                .face(f)
+                .map_err(|e| harness(e.to_string()))?
+                .rectangular_trim;
             out.push(f64::from(rect));
             put_use_states(&b, &mut out);
         }
@@ -518,15 +624,26 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
                 OrientType::Opposite => 2.0,
             });
             if want_bounds {
-                out.extend([bounds.min().x, bounds.min().y, bounds.max().x, bounds.max().y]);
+                out.extend([
+                    bounds.min().x,
+                    bounds.min().y,
+                    bounds.max().x,
+                    bounds.max().y,
+                ]);
             }
             put_use_states(&b, &mut out);
         }
         OpIn::Degenerate { .. } => {
             let tol = (a[2] != 0.0).then_some(a[3]);
-            out.push(flag(value!(p3::is_degenerate(&k, &mut b, f, a[1] != 0.0, tol))));
+            out.push(flag(value!(p3::is_degenerate(
+                &k,
+                &mut b,
+                f,
+                a[1] != 0.0,
+                tol
+            ))));
         }
-        OpIn::Composites { .. } => match status!(p3::create_composites(&k, &b, f)) {
+        OpIn::Composites { .. } => match status!(p3::create_composites(&k, &mut b, f)) {
             Ok(comps) => {
                 out.push(0.0);
                 out.push(comps.len() as f64);
@@ -554,7 +671,8 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
             if a[2] != 0.0 {
                 let mut face_eus = Vec::new();
                 for (eu, _) in b.edgeuses().iter() {
-                    if value!(eu1::is_loop_edgeuse(&b, eu)) && value!(eu1::face(&b, eu)) == Some(f) {
+                    if value!(eu1::is_loop_edgeuse(&b, eu)) && value!(eu1::face(&b, eu)) == Some(f)
+                    {
                         face_eus.push(eu);
                     }
                 }
@@ -646,7 +764,11 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         },
         4 => OpIn::LoopOrient {
             face,
-            lp: if rng.chance(0.7) { -1 } else { rng.below(1 << 20) as i64 },
+            lp: if rng.chance(0.7) {
+                -1
+            } else {
+                rng.below(1 << 20) as i64
+            },
             want_bounds: rng.chance(0.5),
             do_3d: rng.chance(0.7),
         },

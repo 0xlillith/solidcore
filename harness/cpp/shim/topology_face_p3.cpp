@@ -89,8 +89,38 @@ bool face_geometry_complete(SmFace* f)
     return true;
 }
 
+// ComputeLoopOrientation(pLoop, .., bDo3D) on face f reads pLoop's first loop use (m_pLU)
+// and returns at once for a vertex loop. An edge loop's edge uses evaluate their edges'
+// curves (NormalizedEvaluate, GetOrCreateUVTrimCurve) and the 3D walk copies f's
+// surface; creating a missing UV trim curve (bDo3D FALSE) builds the trimmed surface cache
+// of the loop's own face, whose CreateUVTrimCurves reads that face's surface and every
+// edge curve of it. The loop may lie on another face than f.
+bool loop_geometry_complete(SmFace* f, SmLoop* l, bool do_3d)
+{
+    SmLoopuse *lu1 = nullptr, *lu2 = nullptr;
+    l->GetLoopuses(lu1, lu2);
+    if (lu1 == nullptr)
+        return false;
+    if (lu1->IsVertexLoopuse())
+        return true;
+    if (f->*FPeek::srf() == nullptr)
+        return false;
+    SmTArray<SmEdgeuse*> eus;
+    lu1->GetEdgeuses(eus);
+    for (ULONG i = 0; i < eus.GetSize(); i++)
+        if (eus[i] == nullptr || eus[i]->GetEdge() == nullptr || eus[i]->GetEdge()->GetCurve() == nullptr)
+            return false;
+    if (do_3d)
+        return true;
+    SmFaceuse* fu = lu1->GetFaceuse();
+    SmFace* lf = fu ? fu->*FuPeek::face() : nullptr;
+    return lf != nullptr && face_geometry_complete(lf);
+}
+
 bool geometry_complete(int32_t op, Graph& g, const double* a)
 {
+    if (op == P3_LOOP_ORIENT)
+        return loop_geometry_complete(g.faces.at((size_t)a[0]), g.loops.at((size_t)a[1]), a[3] != 0.0);
     if (!face_geometry_complete(g.faces.at((size_t)a[0])))
         return false;
     return op != P3_INTERSECT || face_geometry_complete(g.faces.at((size_t)a[1]));

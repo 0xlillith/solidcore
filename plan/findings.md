@@ -6238,14 +6238,17 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   `sm_FindBestUVCurve`, `CheckAndSetUVTrimCurve` and the `SmCrvOnSurf_TYPE` test of
   `SmFace.cpp:8117`-`8160` are exercised) defer the same way, so those paths are not
   compared yet; they start comparing when `topology.face_p4` lands.
-- **Import / dispatch gap (not a pending port).** The 224 `surface.cone_p1` and 112
-  `surface.surf_of_extrusion_p2` deferrals (and `surface.torus`, `surface.sphere` when
-  they appear) come from the runner's `inexact_geometry`: the graph import keeps the C++
-  type codes 15012 / 15013 (cone), 15015 (torus) and 15030 (extrusion) only as their
-  B-spline part, so a geometric op on such a B-rep defers to the unit that gives the kind
-  a `SurfaceKind` variant. No pending port clears them (the unit named is only the owner
-  of the missing import/dispatch, as the DISPATCH GAP convention in this file); they are
-  owned by the `SurfaceKind` variant work.
+- **Import / dispatch gap (not a pending port).** The `surface.surface_p2` and
+  `surface.surf_of_extrusion_p2` deferrals come from the runner's `inexact_geometry`: the
+  graph import keeps the C++ type codes 15012 (`SmCone`), 15013 (`SmCylinder`), 15014
+  (`SmSphere`), 15015 (`SmTorus`) and 15030 (`SmSurfOfExtrusion`) only as their B-spline
+  part, so a geometric op on such a B-rep defers. The kinds' own units
+  (`surface.cone_p1`, `surface.sphere`, `surface.torus`) are green, so the deferrals name
+  the owner of the missing `SurfaceKind` variants, the `SmSurface` dispatch of
+  `surface.surface_p2` (issue #76; the DISPATCH GAP of `Surface::read_from_db`), and
+  `surface.surf_of_extrusion_p2` for the extrusion (its own `SurfaceKind` gap). They clear
+  when those variants exist and the import builds them (until PR #139's review round they
+  named the green kind units, so they could never clear).
 - **Harness.** The B-rep blocks, graph export and import are those of the
   `topology.vertexuse` runner (planes as `SmPlane`, lines as `SmLine`). Its import keeps
   analytic `SmBSplineSurface` / `SmBSplineCurve` subclasses (cone, cylinder, sphere,
@@ -6256,6 +6259,14 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   outputs `-2` instead of calling a geometric op when the target face (or, for
   `FaceIntersect`, either face) has no surface or one of its loops' edges has no curve
   (upstream dereferences them; the ops touch nothing else); the Rust side does the same.
+  `ComputeLoopOrientation` checks the selected loop instead, which may lie on another
+  face: a vertex loop returns before any geometry (never `-2`, and compared on every
+  B-rep); an edge loop needs the target face's surface and its own edges' curves and,
+  without `bDo3DLoopComputation`, the surface and all edge curves of the loop's own face
+  (a missing UV trim curve is created through that face's trimmed surface cache, whose
+  `CreateUVTrimCurves` reads them). Until PR #139's review round the check covered only
+  the target face's edges, so a loop of another face with a curve-less edge reached
+  upstream's null curve dereference.
   Block kind 4 (a kind-2 face plus an inner vertex loop at given fractions of its
   domain, `SmBrep::MakeVertexLoop`) was added to the shared fixture for this unit.
   `SmallBox.smb` (and `Platform.smb`) do not build upstream and are not used.
@@ -6277,7 +6288,23 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   notification's data arguments are the new and the old surface, and a face-owned
   surface has no object identity in the B-rep model to form them from (the other ten
   `SmFace::Notify` calls of `topology.face_p1` are wired, with the empty environment of
-  `topology.loopuse`'s `face_notify_edit`).
+  `topology.loopuse`'s `face_notify_edit`). Also `topology.brep_p6` `make_face_topology`
+  (merge with main, #169): its `SmFace::SetTolerance(GetTolerance())` is where that unit
+  stops (its header: "face construction at `SetTolerance` (`face_p3`)"); everything after
+  it upstream (primary face use, face list and shell insertion, loops, edge uses, radial
+  sectors, trims, ~500 lines of `SmBrep::MakeFaceTopology`) is that unit's own unported
+  remainder, so calling the ported `topology::face::p3::set_tolerance` there would only
+  move the stop into code `topology.face_p3` does not own. It is wired when
+  `topology.brep_p6` ports the remainder.
+- **Wired after the review round (merge with main, #117).** `topology.edgeuse_p3`
+  `EvaluateBinormal`'s `smsurf_GetSurfaceCache` now builds the cache
+  (`surface::surface::p1::get_surface_cache`; its construction runs
+  `CreateUVTrimCurves` upstream, and the face handle of a face-owned surface defers inside
+  it, `topology.face_p2`); this unit's own `NormalizedEvaluate` and
+  `GetOrCreateUVTrimCurve` calls go to `topology::edgeuse::p3`, and `CreateUVTrimCurves`
+  reads the poles with `get_singularities_of_face` (the surface is face-owned there, so
+  the face tolerance is the approximation tolerance), no longer reaching the
+  `topology.face_p2` `SmFace::GetTolerance` stub of `surface.surface_p3`.
 - **Wired elsewhere (merge with main, #148 / #146).** `topology.face_p1` (`CreateUVTrimCurves`;
   ten of its eleven `SmFace::Notify` calls), `geom.tol` (`SmFace::SetTolerance` in
   `UpdateObjectTolerance`) and `boolean.topology_intersector_p1` (`SmFace::FaceIntersect`

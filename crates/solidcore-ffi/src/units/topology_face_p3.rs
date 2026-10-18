@@ -9,8 +9,8 @@
 //! are `0`). Indices refer to that export's traversal order. Every op's output starts
 //! with `0`, or with `-1 status` when the B-rep could not be built. `-2` right after the
 //! leading `0` (ops `LoopOrient` to `Intersect`) is "upstream would dereference null":
-//! the B-rep has a face without surface or an edge without curve, so the shim did not
-//! call the function. "tolerances"
+//! the target face(s) (for `LoopOrient`, the selected loop; see below) reach a missing
+//! surface or edge curve, so the shim did not call the function. "tolerances"
 //! are those of every face, edge and vertex; "use states" are, per edge use, whether it
 //! has a UV trim curve and whether its edge/face and edge/CCW-edge gaps are initialised,
 //! then per vertex use whether its vertex/face and vertex/edge gaps are; "samples" of a
@@ -30,8 +30,13 @@
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: valid B-rep
 //! blocks (checked by [`super::topology_vertexuse`]), indices inside the B-rep's export,
-//! the flags and selectors above, finite tolerances in `[0, 1e3]`, an approximation
-//! tolerance in `(0, 1e3]` and an angle in `(0, 180]` degrees.
+//! the flags and selectors above, finite `SetTol` / `Degenerate` tolerances (any sign:
+//! upstream only compares them), a finite positive approximation tolerance and an angle
+//! in `(0, 180]` degrees for `Intersect`. Inputs upstream would dereference null on
+//! (missing surface or edge curve) are not rejected here: the shim outputs `-2` for them
+//! without calling the function (`LoopOrient` checks the selected loop, which may lie on
+//! another face: a vertex loop reads no geometry; an edge loop needs the face's surface,
+//! its edges' curves and, without `do_3d`, all geometry of its own face).
 
 use super::topology_vertexuse::{self as fixture, Op as FixtureOp};
 use crate::{call_with_buffer, FfiError};
@@ -125,8 +130,8 @@ fn tol(v: f64, what: &str) -> Result<(), FfiError> {
 /// Checks the op's arguments against the B-rep's counts (see [`fixture::counts`]).
 fn check_args(op: Op, a: &[f64], c: [usize; 10]) -> Result<(), FfiError> {
     let [_, _, _, n_f, _, n_l, _, _, _, _] = c;
-    let [a0, a1, a2, a3, a4, a5] = <[f64; N_ARGS]>::try_from(a)
-        .map_err(|_| bad(format!("need {N_ARGS} arguments")))?;
+    let [a0, a1, a2, a3, a4, a5] =
+        <[f64; N_ARGS]>::try_from(a).map_err(|_| bad(format!("need {N_ARGS} arguments")))?;
     let unused = |xs: &[f64]| -> Result<(), FfiError> {
         if xs.iter().any(|&x| x != 0.0) {
             return Err(bad("unused arguments must be 0"));

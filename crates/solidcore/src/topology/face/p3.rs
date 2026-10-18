@@ -63,10 +63,11 @@
 //!   `SM_NO_PRE_EDIT` (`SmCacheMgr::GetObjectCache(SM_OC_TRIMSRF, ..)` has no counterpart:
 //!   B-rep surfaces carry no object cache) and the notification state of
 //!   [`edge::NotifyEnv`]. `SE_MSG` for `SM_NO_UNKNOWN` is compiled out.
-//! - **Unported callees** return [`SolidError::Unported`]: `SmEdgeuse::NormalizedEvaluate`
-//!   and `GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`), the curve constructor of
+//! - **Unported callees** return [`SolidError::Unported`]: the curve constructor of
 //!   `SmCurveClassification` (`intersect.curve_class_p4`), `SmFace::Point3DClassify`
-//!   (`query.face_p1`) and the `topology.face_p4` accessors above.
+//!   (`query.face_p1`) and the `topology.face_p4` accessors above. `SmEdgeuse::NormalizedEvaluate`
+//!   and `GetOrCreateUVTrimCurve` are wired (`topology.edgeuse_p3`; their own unported
+//!   callees still return it).
 //! - **Bounds.** No recursion; every loop is over B-rep arrays or a fixed sample count.
 
 use crate::curve::composite_curve::CompositeCurve;
@@ -100,6 +101,7 @@ use crate::surface::volume::Volume;
 use crate::topology::edge::{self, NotifyEnv};
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::edgeuse::p2 as eu2;
+use crate::topology::edgeuse::p3 as eu3;
 use crate::topology::face::p2 as face2;
 use crate::topology::loopuse as lu1;
 use crate::topology::topology as topo;
@@ -116,38 +118,35 @@ fn null(reason: &'static str) -> SolidError {
     SolidError::invalid_input(OP, reason)
 }
 
-// ---- calls into units that are not ported yet -------------------------------------------
+// ---- calls into other units (some not ported yet) ---------------------------------------
 
 /// `pEU->NormalizedEvaluate(t, bUV, rPoint, pOptFirstDeriv)` (default
 /// `bOkToMakeUVTrimCurve`): the point and, with `want_deriv`, the first derivative.
 fn normalized_evaluate(
-    _k: &Kernel,
-    _b: &mut Brep,
-    _eu: EdgeuseId,
-    _t: f64,
-    _uv: bool,
-    _want_deriv: bool,
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    t: f64,
+    uv: bool,
+    want_deriv: bool,
 ) -> Result<(Point3, Option<Vec3>)> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+    let r = eu3::normalized_evaluate(k, b, eu, t, uv, want_deriv, true)?;
+    Ok((r.point, r.first_deriv))
 }
 
-/// `pEU->GetOrCreateUVTrimCurve(rpUVCurve, pdOptDistToSurf)`: the returned status and
-/// `*pdOptDistToSurf` (`-1` for an existing curve). The curve is then
+/// `pEU->GetOrCreateUVTrimCurve(rpUVCurve, pdOptDistToSurf)` (default
+/// `bOKToMakeUVTrimCurve`, no `pdOptDeviation`; `pdOptDistToSurf` non-null with
+/// `want_dist`): the returned status and `*pdOptDistToSurf` (`-1` for an existing curve
+/// without a cached gap, and when not asked for). The curve is then
 /// [`eu1::uv_trim_curve`].
 fn get_or_create_uv_trim_curve(
-    _k: &Kernel,
-    _b: &mut Brep,
-    _eu: EdgeuseId,
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    want_dist: bool,
 ) -> Result<(Result<()>, f64)> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+    let r = eu3::get_or_create_uv_trim_curve(k, b, eu, want_dist, false, true)?;
+    Ok((r.status, r.dist_to_surf))
 }
 
 /// `GetUpwardLoopuses(sLoopuses)` (default arguments).
@@ -436,14 +435,15 @@ pub fn notify(
 
 /// `CreateComposites`: one closed composite curve per loop of the face use with
 /// orientation `SM_OT_SAME`, made of copies of the loop's 3D edge curves with their
-/// senses (`false` for an edge use running opposite to its loop).
+/// senses (`false` for an edge use running opposite to its loop). The B-rep is mutable:
+/// `CreateCurvesFromFace` may create missing UV trim curves.
 ///
 /// # Errors
 ///
 /// Those of [`face2::create_curves_from_face`] (including [`SolidError::Unported`] for
 /// edge loops); [`SolidError::InvalidInput`] when the loop counts exceed the curves or
 /// orientations returned (upstream reads past them).
-pub fn create_composites(k: &Kernel, b: &Brep, f: FaceId) -> Result<Vec<CompositeCurve>> {
+pub fn create_composites(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<Vec<CompositeCurve>> {
     // init output
     let mut composites = Vec::new();
 
@@ -506,8 +506,8 @@ const NUM_SAMPLES: u32 = 20;
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for missing
 /// topology, a face without surface, an edge loop without edge uses
 /// (upstream reads an empty array, UB-162); those of the surface copy,
-/// evaluations and solves; [`SolidError::Unported`] (`SmEdgeuse::NormalizedEvaluate`,
-/// `GetOrCreateUVTrimCurve`).
+/// evaluations and solves; [`SolidError::Unported`] (from `SmEdgeuse::NormalizedEvaluate`
+/// and `GetOrCreateUVTrimCurve`).
 #[allow(clippy::too_many_lines)] // one upstream routine
 pub fn compute_loop_orientation(
     k: &Kernel,
@@ -546,7 +546,7 @@ pub fn compute_loop_orientation(
             true
         } else {
             // create missing UVTrimCurves
-            get_or_create_uv_trim_curve(k, b, eu)?.0.is_ok()
+            get_or_create_uv_trim_curve(k, b, eu, false)?.0.is_ok()
         };
         let uv_curve = eu1::uv_trim_curve(b, eu)?.0.cloned();
 
@@ -757,8 +757,8 @@ pub struct UvTrimCurveGaps {
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for missing
 /// topology or surface; those of the curve searches, edits and evaluations;
-/// [`SolidError::Unported`] (`GetUpwardLoopuses`, `GetBrep`, `NormalizedEvaluate`,
-/// `GetOrCreateUVTrimCurve`).
+/// [`SolidError::Unported`] (`GetUpwardLoopuses`, `GetBrep`; from `NormalizedEvaluate`
+/// and `GetOrCreateUVTrimCurve`).
 pub fn create_uv_trim_curves(
     k: &Kernel,
     b: &mut Brep,
@@ -766,11 +766,13 @@ pub fn create_uv_trim_curves(
     adjust_tolerances: bool,
     opt_uv_curves: Option<(&mut [Option<Curve>], &[OrientType])>,
 ) -> Result<UvTrimCurveGaps> {
-    // queried before the surface owner is cleared, as upstream
+    // queried before the surface owner is cleared, as upstream: the surface is still
+    // face-owned, so `GetSingularities`' approximation tolerance
+    // (`SmTol::GetApproxTol3d(this)`) is the face's
     let pre = PreRescue {
         uv_domain: face2::uv_domain(b, f)?,
         srf_poles: surface_of(b, f)?
-            .get_singularities(k, false, false)?
+            .get_singularities_of_face(k, face2::tolerance(b, f)?, false, false)?
             .singular,
         srf_uv_domain: surface_of(b, f)?.natural_uv_domain(),
     };
@@ -882,7 +884,7 @@ fn create_uv_trim_curves_body(
                 ))?;
             }
 
-            let (status, max_dist_to_surf) = get_or_create_uv_trim_curve(k, b, eu)?;
+            let (status, max_dist_to_surf) = get_or_create_uv_trim_curve(k, b, eu, true)?;
             status?;
 
             mean_cs_gap += smos_max(0.0, max_dist_to_surf); // This can come back -1.0.

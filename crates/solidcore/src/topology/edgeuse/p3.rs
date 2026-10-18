@@ -31,9 +31,9 @@
 //!   `m_bProcessBoundaryCurves`) have nothing to act on because the Rust surface
 //!   solvers build no surface cache. `EvaluateBinormal` first gets the surface cache of
 //!   the face's surface (`smsurf_GetSurfaceCache`), whose construction creates the UV
-//!   trim curves of the face's edge uses: that is `UNPORTED(topology.face_p3)`
-//!   (`SmFace::CreateUVTrimCurves`), so the paths that reach the global point solve are
-//!   deferred. The same side effect makes `CreateUVTrimCurve` clean up a UV trim curve
+//!   trim curves of the face's edge uses (`SmFace::CreateUVTrimCurves`): the port builds
+//!   that cache, and the face handle of a face-owned surface still defers inside it
+//!   (`topology.face_p2`), so the paths that reach the global point solve are deferred. The same side effect makes `CreateUVTrimCurve` clean up a UV trim curve
 //!   the cache attached; the clean-up is kept.
 //! - **Out-params.** `CreateUVTrimCurve` returns a [`CreatedUvTrimCurve`]; its optional
 //!   `pdMaxDeviation` is `want_deviation`. `GetOrCreateUVTrimCurve` returns its status
@@ -256,16 +256,15 @@ fn status<T>(r: Result<T>) -> Result<Option<T>> {
     }
 }
 
-/// `smsurf_GetSurfaceCache(pSurface)` of the surface of a face, as `EvaluateBinormal`
-/// calls it before clearing the surface's owner: the face's trimmed surface cache,
-/// whose construction attaches a UV trim curve to every edge use of the face
-/// (`SmFace::CreateUVTrimCurves`, `topology.face_p3`).
-fn face_surface_cache() -> Result<()> {
-    // UNPORTED(topology.face_p3): SmFace::CreateUVTrimCurves
-    Err(SolidError::unported(
-        "SmFace::CreateUVTrimCurves",
-        "topology.face_p3",
-    ))
+/// `smsurf_GetSurfaceCache(pSurface)` of the surface of a face (`NER`), as
+/// `EvaluateBinormal` calls it before clearing the surface's owner: the face's trimmed
+/// surface cache, whose construction attaches a UV trim curve to every edge use of the
+/// face (`SmFace::CreateUVTrimCurves`). The cache itself is not used afterwards (the
+/// Rust solvers build their own); its construction reaches the face of a face-owned
+/// surface, which defers in [`crate::surface::surface::p1::get_surface_cache`].
+fn face_surface_cache(k: &Kernel, surface: &Surface) -> Result<()> {
+    crate::surface::surface::p1::get_surface_cache::<()>(k, surface, None)?;
+    Ok(())
 }
 
 /// `pEdge->SetTolerance(tolerance)` (default arguments).
@@ -1899,7 +1898,7 @@ pub fn evaluate_binormal_uv(
 
         // get and lock the surface cache (of the face's surface: its owner is cleared
         // only below)
-        face_surface_cache()?;
+        face_surface_cache(k, &surface)?;
 
         // (the surface cache flags are not modelled; module docs). Use surface's
         // domain instead of Face's domain.
