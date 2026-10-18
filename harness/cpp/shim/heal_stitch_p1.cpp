@@ -351,8 +351,14 @@ bool simple_face_validates(SmBrep* pBrepToStitch, const SmTArray<SmFace*>& cpFac
 
 // UB-177: once the validation passes, RemoveFaces frees every vertex only the delete faces
 // use and the glue loop then reads those freed vertices; a face repeated in the delete list
-// is freed twice; a vertex shared by the two lists pairs with itself. Exactly those inputs
-// are refused (-2); everything else runs, so upstream's SM_ERR statuses are compared.
+// is freed twice; a vertex in more than one entry of sKVertices / sDVertices (both lists
+// are built with plain Add across the face pairs: a vertex shared by two keep or two delete
+// faces, a repeated keep face, or a vertex shared by the two lists) is freed by the glue of
+// its first entry (GlueVertices / SqueezeEdge delete the other vertex) and read by the next.
+// Those inputs are refused (-2); everything else runs, so upstream's SM_ERR statuses are
+// compared. A repeated vertex whose first entry glues nothing (squeeze skipped, or a short
+// manifold common edge) is refused too: a deliberate over-refusal of a rare input, because
+// whether that entry frees it depends on the glue itself.
 bool simple_face_guard(SmBrep* brep, const SmTArray<SmFace*>& keep, const SmTArray<SmFace*>& del, double tol)
 {
     SmTArray<SmVertex*> kv, dv;
@@ -362,10 +368,15 @@ bool simple_face_guard(SmBrep* brep, const SmTArray<SmFace*>& keep, const SmTArr
         for (ULONG j = 0; j < i; j++)
             if (del[i] == del[j])
                 return false;
+    SmTArray<SmVertex*> all;
+    all.Append(kv);
+    all.Append(dv);
+    for (ULONG i = 0; i < all.GetSize(); i++)
+        for (ULONG j = 0; j < i; j++)
+            if (all[i] == all[j])
+                return false;
     for (ULONG i = 0; i < dv.GetSize(); i++)
     {
-        if (kv[i] == dv[i])
-            return false;
         SmTArray<SmFace*> fs;
         dv[i]->GetFaces(fs);
         bool other = false;

@@ -900,7 +900,10 @@ impl<'c> Stitch<'c> {
 
         // UB-177: upstream's RemoveFaces frees every vertex only the delete faces use, and
         // the glue loop then reads those vertices; a repeated delete face is freed twice; a
-        // vertex the two lists share pairs with itself. Those inputs are undefined upstream.
+        // vertex in more than one entry of the two vertex lists (built with plain Add across
+        // the face pairs) is freed by the glue of its first entry and read by the next. Those
+        // inputs are undefined upstream. A repeated vertex whose first entry glues nothing is
+        // refused too (a deliberate over-refusal of a rare input, as the C++ shim does).
         for (i, d) in faces_to_delete.iter().enumerate() {
             if faces_to_delete.iter().take(i).any(|x| x == d) {
                 return Err(deref(
@@ -908,12 +911,15 @@ impl<'c> Stitch<'c> {
                 ));
             }
         }
-        for (&kv, &dv) in k_vertices.iter().zip(&d_vertices) {
-            if kv == dv {
+        let all_vertices: Vec<VertexId> = k_vertices.iter().chain(&d_vertices).copied().collect();
+        for (i, v) in all_vertices.iter().enumerate() {
+            if all_vertices.iter().take(i).any(|x| x == v) {
                 return Err(deref(
-                    "DoSimpleFaceStitch: a vertex paired with itself (UB-177)",
+                    "DoSimpleFaceStitch: a vertex in more than one vertex pair entry (UB-177)",
                 ));
             }
+        }
+        for &dv in &d_vertices {
             if vertex::faces(b, dv)?
                 .iter()
                 .all(|f| faces_to_delete.contains(f))
