@@ -50,6 +50,7 @@ use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::p2::DropCurveFail;
 use solidcore::surface::surface::{Surface, SurfaceKind};
 use solidcore::topology::edgeuse::p1 as eu1;
+use solidcore::topology::shell::{ShellMembers, ShellType};
 use solidcore::topology::{
     Brep, Edge, EdgeId, Edgeuse, EdgeuseId, EdgeuseOwner, Face, FaceId, Faceuse, FaceuseId,
     Loop, LoopId, Loopuse, LoopuseId, LoopuseStart, ObjectHandle, Region, RegionId, Shell,
@@ -128,6 +129,21 @@ pub(crate) enum BrepIn {
     /// surface over their UV trim curves: the `CrvOnSurf` path of `CreateUVTrimCurve`.
     CrvOnSurfFace { surface: SrfIn, dom: [f64; 4] },
     Network,
+    Vertices { points: Vec<[f64; 3]> },
+    /// An optional face and `networks` copies of the wire network in one B-rep, so
+    /// face-use shells and wire shells coexist (native constructors only).
+    Mixed {
+        #[serde(default)]
+        face: Option<FaceIn>,
+        networks: usize,
+    },
+}
+
+/// The face of a [`BrepIn::Mixed`] B-rep (as [`BrepIn::Face`]).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) struct FaceIn {
+    surface: SrfIn,
+    dom: [f64; 4],
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -266,11 +282,23 @@ pub(crate) fn brep_block_of(
             v.extend(dom);
         }
         BrepIn::CrvOnSurfFace { surface, dom } => {
-            v.push(4.0);
+            v.push(6.0);
             push_surface(&mut v, surface)?;
             v.extend(dom);
         }
         BrepIn::Network => v.push(3.0),
+        BrepIn::Vertices { points } => {
+            v.extend([4.0, points.len() as f64]);
+            for point in points { v.extend(point); }
+        }
+        BrepIn::Mixed { face, networks } => {
+            v.extend([5.0, flag(face.is_some())]);
+            if let Some(face) = face {
+                push_surface(&mut v, &face.surface)?;
+                v.extend(face.dom);
+            }
+            v.push(*networks as f64);
+        }
     }
     v.push(flag(validate_only));
     v.push(flag(init_gaps));
@@ -485,6 +513,16 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
 
 fn is_brep_op(op: &OpIn) -> bool {
     !matches!(op, OpIn::StepOff { .. } | OpIn::DistDev { .. } | OpIn::Seam { .. })
+}
+
+/// Reuse the native B-rep fixture encoding without duplicating its geometry
+/// constructors or input validation. Shell cases supply a B-rep description.
+pub(crate) fn fixture_input(value: Value) -> Result<(String, Vec<f64>), HarnessError> {
+    let brep: BrepIn = serde_json::from_value(value)
+        .map_err(|e| harness(format!("topology fixture: {e}")))?;
+    let inputs = Inputs { brep: Some(brep), validate_only: false, init_gaps: false,
+        op: OpIn::SetOrient { eu: 0, orient: 0 } };
+    Ok((path_of(inputs.brep.as_ref())?, brep_block(&inputs)?))
 }
 
 /// The C++ export of the case's B-rep.
@@ -764,18 +802,21 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
     let mut regions = Vec::new();
     for _ in 0..n_r {
         let in_brep = rd.num()? != 0.0;
-        rd.list()?;
-        regions.push(Region { in_brep });
+        let shells = rd.list()?.into_iter()
+            .map(|x| opt(x, ShellId::from_index)?.ok_or_else(|| harness("null shell")))
+            .collect::<Result<Vec<_>, _>>()?;
+        regions.push(Region { in_brep, shells, ..Region::default() });
     }
     let mut shells = Vec::new();
     for _ in 0..n_s {
         let region = opt(rd.idx()?, RegionId::from_index)?;
-        rd.idx()?;
-        rd.list()?;
-        shells.push(Shell {
-            faces: Vec::new(),
-            region,
-        });
+        let shell_type = ShellType::from_code(rd.idx()?);
+        let faceuses = rd.list()?.into_iter()
+            .map(|x| opt(x, FaceuseId::from_index)?.ok_or_else(|| harness("null face use")))
+            .collect::<Result<Vec<_>, _>>()?;
+        let members = if faceuses.is_empty() { ShellMembers::Empty }
+            else { ShellMembers::Faceuses(faceuses) };
+        shells.push(Shell { faces: Vec::new(), region, shell_type, members });
     }
     let mut faceuses = Vec::new();
     for _ in 0..n_fu {
@@ -794,6 +835,7 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
             mate,
             orientation,
             loopuses,
+            sibling_links: None,
         });
     }
     let mut surfaces = Vec::new();
@@ -926,11 +968,36 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
     for _ in 0..n_v {
         let point = Vec3::new(rd.num()?, rd.num()?, rd.num()?);
         let tolerance = rd.num()?;
-        vertices.push(Vertex {
-            point,
-            tolerance,
-            ..Vertex::default()
-        });
+        vertices.push(Vertex { point, tolerance, ..Vertex::default() });
+    }
+    if rd.idx()? != 3 {
+        return Err(harness("export: unsupported shell extension version"));
+    }
+    let infinite_region = opt(rd.idx()?, RegionId::from_index)?;
+    for region in &mut regions {
+        region.is_void = i32::try_from(rd.idx()?)
+            .map_err(|_| harness("export: void flag outside native int range"))?;
+    }
+    for shell in &mut shells {
+        let head = rd.idx()?;
+        if shell.is_wire_shell() {
+            shell.members = opt(head, EdgeuseId::from_index)?
+                .map_or(ShellMembers::Empty, ShellMembers::Edgeuse);
+        } else if shell.is_vertex_shell() {
+            shell.members = opt(head, VertexuseId::from_index)?
+                .map_or(ShellMembers::Empty, ShellMembers::Vertexuse);
+        } else if head != -1 {
+            return Err(harness("export: unexpected shell head"));
+        }
+    }
+    for vertex in &mut vertices {
+        vertex.vertexuses = rd.list()?.into_iter()
+            .map(|v| opt(v, VertexuseId::from_index)?.ok_or_else(|| harness("null vertex use")))
+            .collect::<Result<Vec<_>, _>>()?;
+    }
+    for faceuse in &mut faceuses {
+        faceuse.sibling_links = Some((opt(rd.idx()?, FaceuseId::from_index)?,
+            opt(rd.idx()?, FaceuseId::from_index)?));
     }
     let brep_tolerance = rd.num()?;
     if rd.at != ex.len() {
@@ -940,6 +1007,7 @@ pub(crate) fn import_with_types(ex: &[f64]) -> Result<(Brep, ImportTypes), Harne
     // assemble (skeleton fields filled minimally)
     let mut b = Brep::new();
     b.set_validate_only(validate_only);
+    b.set_infinite_region_record(infinite_region);
     b.set_tolerance(brep_tolerance);
     for r in regions {
         b.add_region_record(r).map_err(|e| harness(e.to_string()))?;
