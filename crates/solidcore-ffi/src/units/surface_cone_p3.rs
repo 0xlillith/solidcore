@@ -1,7 +1,8 @@
 //! Native cone/plane and cone/cone intersection adapters.
 //!
 //! Cone records: origin, x axis, y axis, bottom/top radii, height, start/end
-//! angles, swap UV, inside out, cylinder class (17 doubles). Plane records:
+//! angles (at most [`MAX_ANGLE`] degrees), swap UV, inside out, cylinder class
+//! (17 doubles). Plane records:
 //! origin, x axis, y axis, STEP domain (13 doubles). Domain records contain
 //! two rectangles as fractions of each natural NURB domain. The result stores
 //! status, needs-general, full curve geometry and NURBS, UV nullness, types and
@@ -26,9 +27,20 @@ mod sys {
     }
 }
 
+/// Largest start or end angle (degrees) of a cone record. Native polar set-up
+/// shifts its circles' angles by one turn per loop iteration without a bound and
+/// never ends near `1e18`; the Rust port stops after
+/// `solidcore::curve::ellipse::p2::MAX_PERIOD_SHIFTS` turns (about `3.8e8`
+/// degrees), so accepted records stay well below both.
+pub const MAX_ANGLE: f64 = 1e8;
+
 fn cone_valid(v: &[f64]) -> bool {
     v.len() == 17
         && v.iter().all(|x| x.is_finite())
+        && v.get(12..14)
+            .unwrap_or(&[])
+            .iter()
+            .all(|x| x.abs() <= MAX_ANGLE)
         && v.get(14..)
             .unwrap_or(&[])
             .iter()
@@ -132,6 +144,32 @@ mod tests {
             }
         }
         assert!(intersect(0, &a, &nested, &DOMAINS, None, false).is_ok());
+    }
+
+    #[test]
+    fn rejects_only_angles_whose_polar_set_up_never_ends() {
+        for index in [12, 13] {
+            for value in [MAX_ANGLE * 1.5, -9.223_372_036_854_776e18] {
+                let mut a = cone();
+                a[index] = value;
+                assert!(matches!(
+                    intersect(3, &cone(), &a, &DOMAINS, Some(1e-7), false),
+                    Err(FfiError::InvalidArgument(_))
+                ));
+            }
+        }
+        let mut far = cone();
+        far[12] = MAX_ANGLE - 90.0;
+        far[13] = MAX_ANGLE;
+        let mut turns = cone();
+        turns[13] = 720.0;
+        // Native may still report a status for these; the wrapper must not refuse them.
+        for other in [far, turns] {
+            assert!(!matches!(
+                intersect(3, &cone(), &other, &DOMAINS, Some(1e-7), false),
+                Err(FfiError::InvalidArgument(_))
+            ));
+        }
     }
 
     fn plane() -> Vec<f64> {
