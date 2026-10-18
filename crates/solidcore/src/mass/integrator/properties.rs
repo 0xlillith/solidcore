@@ -371,9 +371,9 @@ fn edges(b: &Brep) -> Result<Vec<EdgeId>> {
 fn vertices(b: &Brep) -> Result<Vec<VertexId>> {
     crate::topology::brep::p1::vertices(b, None)
 }
-fn region_void(_b: &Brep, _r: RegionId) -> Result<bool> {
-    // UNPORTED(topology.shell): SmRegion::IsVoid
-    Err(SolidError::unported("SmRegion::IsVoid", "topology.shell"))
+/// `SmRegion::IsVoid` as a C truth value (`UNSURE`, 2, counts as void).
+fn region_void(b: &Brep, r: RegionId) -> Result<bool> {
+    Ok(b.region(r)?.is_void() != 0)
 }
 fn manifold_solid(_b: &Brep) -> Result<bool> {
     // UNPORTED(topology.brep_p2): SmBrep::IsManifoldSolid
