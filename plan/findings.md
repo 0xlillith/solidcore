@@ -6066,9 +6066,9 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   intersection result is fabricated or counted as a pass.
 - Affected-unit comparison with the polar set-up bound passes on Linux:
   `PASS surface.cone_p1 cases=20702 passed=20702 failed=0 deferred=0 max_rel_err=0e0`;
-  `PARTIAL surface.cone_p3 cases=1361 passed=1235 failed=0 deferred=126 max_rel_err=0e0`.
-  Part 3 has 1227 passes with values (18 of them the `far_angles.json` cones at the
-  `1e8`-degree FFI bound) and eight guard-only status assertions. All eight
+  `PARTIAL surface.cone_p3 cases=1415 passed=1289 failed=0 deferred=126 max_rel_err=0e0`.
+  Part 3 has 1281 passes with values (72 of them the `angle_bounds.json` cones) and
+  eight guard-only status assertions. All eight
   status-1006 regressions and all four reduced plane intersections pass. Its 126
   deferrals comprise 91 on `surface.cone_p2` and 35 on the typed Cone adapter in
   `surface.surface_p2`; the latter includes the three general fuzz cases and two
@@ -6094,10 +6094,11 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   circles. No earlier fixture uses angles outside it; `angle_bounds.json` (72 cases)
   compares cones at both limits, a full negative turn and a straddling domain with every
   swap and inside-out flag, through direct and global cone and plane intersections.
-  After the change: `FUZZ-PASS surface.cone_p3 cases=10000 rejected=4320 malformed=3054
-  ran=2626 differs=0 crashes=0 panics=0 timeouts=0`; `curve.ellipse_p1` (2028) and
-  `curve.ellipse_p2` (2102) still pass bit-identically; `--green` reports 202 units,
-  112 passed, 90 partial, 0 failed.
+  After the change: `FUZZ-PASS surface.cone_p3 cases=10000 rejected=4242 malformed=3032
+  ran=2726 differs=0 crashes=0 panics=0 timeouts=0`; perturbation detects 1289/1289
+  (`cone_p3`) and 20702/20702 (`cone_p1`); `curve.ellipse_p1` (2028) and
+  `curve.ellipse_p2` (2102) still pass bit-identically; after merging official main
+  `f1d0f1d5`, `--green` reports 203 units, 113 passed, 90 partial, 0 failed.
 - Linux validation uses Proxmox VM 107 (`runner-codex-02`, x86-64, GNU C++ 15.2), a fresh
   snapshot of official main `53ba102b` plus this change, and the shared C++ reference build.
   Its allowed source trees were byte-checked against pinned `c9c5979`. The first default

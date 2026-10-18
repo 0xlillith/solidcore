@@ -289,7 +289,6 @@ mod tests {
             (11, -1.0),
             (13, 0.0),
             (13, -90.0),
-            (13, 720.0),
             (12, -360.0),
             (3, 0.0),
             (7, 0.0),
@@ -302,6 +301,13 @@ mod tests {
                 "constructor boundary index={index} value={value}"
             );
         }
+        // A two-turn end angle is outside the documented range ([`MAX_ANGLE`]).
+        let mut a = cone();
+        a[13] = 720.0;
+        assert!(matches!(
+            intersect(1, &a, &plane(), &DOMAINS, Some(1e-7), false),
+            Err(FfiError::InvalidArgument(_))
+        ));
     }
 
     #[test]
