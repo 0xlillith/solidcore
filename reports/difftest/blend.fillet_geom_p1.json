@@ -651,8 +651,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "classify_face_point_0",
@@ -987,8 +987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "fb_split_face_classified",
@@ -1670,8 +1670,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "classify_face_point_hang16_large_1e50_accepted",
@@ -1720,7 +1720,7 @@
       "name": "surface_drop_point_near_zero_v_knot_rejected",
       "outcome": "rejected",
       "pass": false,
-      "rejected": "surface v: start multiplicity above degree + 1 after the constructor's knot snap",
+      "rejected": "shim_rejected_args",
       "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#143 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmBSplineSurface.cpp:203 (sm_FixupKnotVector); UB-166 (re-review of #147))",
       "values_compared": 0
     },
@@ -1733,44 +1733,119 @@
           "net": [
             [
               [0.025272794194751064, -0.09137617356236333, 0.24989067863759445, 1.4273220631433399],
-              [0.5750566104451098, -0.06664018303649882, 0.11952619339602427, 1.2102562894118285],
-              [1.0839881523390404, 0.010788156830674245, -0.207351289517641, 1.073561541641512]
-            ],
-            [
               [0.06810438750020717, 0.21988190371700722, 0.24441415989269571, 0.6893213235764994],
-              [0.40698735153787136, 0.24414858251790333, -0.014884688465585771, 0.5006985946020376],
-              [1.0089669553598153, 0.2356773920839062, 0.10646432207974604, 1.514626346584243]
-            ],
-            [
               [-0.0323561682294808, 0.5294294678141442, -0.16783920290539503, 0.695835758577916],
-              [0.5372049158690442, 0.43758227840961983, 0.01412505815051579, 1.3474942539959684],
-              [1.0536801207095619, 0.58629118034788, 0.2845682469847188, 0.6541208101967024]
-            ],
-            [
               [-0.05338986939654753, 0.814639118560299, -0.16626700180105408, 1.5633618466566426],
-              [0.5320615939402149, 0.8232190086502043, -0.2579231338806038, 1.4016598387783086],
-              [1.0442626648302031, 0.8405988193176447, 0.25976847797009867, 1.8490783763946115]
+              [0.09871939215619652, 1.0530091055908675, 0.03705448385029403, 0.8979875113602122]
             ],
             [
-              [0.09871939215619652, 1.0530091055908675, 0.03705448385029403, 0.8979875113602122],
-              [0.48016474658200536, 1.0116986908297911, -0.016169899483206462, 0.5031847253330031],
+              [0.5750566104451098, -0.06664018303649882, 0.11952619339602427, 1.2102562894118285],
+              [0.40698735153787136, 0.24414858251790333, -0.014884688465585771, 0.5006985946020376],
+              [0.5372049158690442, 0.43758227840961983, 0.01412505815051579, 1.3474942539959684],
+              [0.5320615939402149, 0.8232190086502043, -0.2579231338806038, 1.4016598387783086],
+              [0.48016474658200536, 1.0116986908297911, -0.016169899483206462, 0.5031847253330031]
+            ],
+            [
+              [1.0839881523390404, 0.010788156830674245, -0.207351289517641, 1.073561541641512],
+              [1.0089669553598153, 0.2356773920839062, 0.10646432207974604, 1.514626346584243],
+              [1.0536801207095619, 0.58629118034788, 0.2845682469847188, 0.6541208101967024],
+              [1.0442626648302031, 0.8405988193176447, 0.25976847797009867, 1.8490783763946115],
               [2.0, 1.0579140548354127, -0.18628118164128368, 1.4302952817471666]
             ]
           ],
           "p": 2,
           "q": 2,
-          "u": [0.0, 0.0, 0.0, 6.249421640442009e-31, 6.818487193967173e-31, 1.0, 1.0, 1.0],
-          "v": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
+          "u": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+          "v": [0.0, 0.0, 0.0, 5e-9, 5e-9, 1.212e-8, 1.212e-8, 1.212e-8]
         },
         "tol": 1e-31
       },
       "max_rel_err": 0.0,
-      "name": "surface_drop_point_near_zero_u_knot_rejected",
+      "name": "surface_drop_point_spread_v_knot_rejected",
       "outcome": "rejected",
       "pass": false,
-      "rejected": "surface u: start multiplicity above degree + 1 after the constructor's knot snap",
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#144 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmBSplineSurface.cpp:203 (sm_FixupKnotVector); UB-166 (re-review of #147))",
+      "rejected": "shim_rejected_args",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#144 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmNurbsCrv.cpp:386 (sm_FixupKnotVector second stage: distinct knots under SM_EFF_ZERO_PARAM spread by 1.212e-8); UB-166 (round-3 review of #147))",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_spread_v_knot_non_monotone",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#145 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmNurbsCrv.cpp:386 (sm_FixupKnotVector second stage: distinct knots under SM_EFF_ZERO_PARAM spread by 1.212e-8); UB-166 (round-3 review of #147); non-monotone constructed vector: defined in C++ (valgrind clean), compared (round-4 review of #147))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_spread_v_knot_below_start",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#146 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmNurbsCrv.cpp:386 (sm_FixupKnotVector second stage: distinct knots under SM_EFF_ZERO_PARAM spread by 1.212e-8); UB-166 (round-3 review of #147); non-monotone constructed vector: defined in C++ (valgrind clean), compared (round-4 review of #147))",
+      "values_compared": 2
+    },
+    {
+      "inputs": {
+        "expected_rejection": true,
+        "op": "surface_drop_point",
+        "pnt": [-8.441345836979168e-31, 4.046822954776353e-31, 1.590919568150211e-31],
+        "surface": {
+          "net": [
+            [
+              [0.0, 0.0, 0.0, 1.0],
+              [0.0, 0.2, 0.0, 1.0],
+              [0.0, 0.4, 0.0, 1.0],
+              [0.0, 0.6000000000000001, 0.0, 1.0],
+              [0.0, 0.8, 0.0, 1.0],
+              [0.0, 1.0, 0.0, 1.0]
+            ],
+            [
+              [0.3, 0.0, 0.0, 1.0],
+              [0.3, 0.2, 0.05, 1.0],
+              [0.3, 0.4, 0.1, 1.0],
+              [0.3, 0.6000000000000001, 0.15000000000000002, 1.0],
+              [0.3, 0.8, 0.2, 1.0],
+              [0.3, 1.0, 0.25, 1.0]
+            ],
+            [
+              [0.6, 0.0, 0.0, 1.0],
+              [0.6, 0.2, 0.1, 1.0],
+              [0.6, 0.4, 0.2, 1.0],
+              [0.6, 0.6000000000000001, 0.30000000000000004, 1.0],
+              [0.6, 0.8, 0.4, 1.0],
+              [0.6, 1.0, 0.5, 1.0]
+            ]
+          ],
+          "p": 2,
+          "q": 2,
+          "u": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+          "v": [0.0, 0.0, 0.0, 5e-9, 5e-9, 1.212e-8, 1.2120500000000001e-8, 1.2120500000000001e-8, 1.2120500000000001e-8]
+        },
+        "tol": 1e-31
+      },
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_endsnap_v_knot_rejected",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "shim_rejected_args",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#147 (upstream source/SMLib/src/SmNurbsCrv.cpp:386 (sm_FixupKnotVector: the end group snaps to 1.212e-8 first, then the spread moves 5e-9 onto the start knot), SmNurbsSrf.cpp:1524 (sm_DecomposeSrf); UB-166 (round-4 review of #147))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_endsnap_v_knot_control",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#148 (upstream source/SMLib/src/SmNurbsCrv.cpp:386 (sm_FixupKnotVector: an end group 2e-12 away does not snap, the spread leaves a non-monotone vector and upstream solves with status 0); UB-166 control (round-4 review of #147))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_near_zero_u_knot",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#149 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf, u loop: the B262 guard fails with status 1006), SmBSplineSurface.cpp:135 (sm_FixupKnotVector); UB-166 (re-review of #147))",
+      "values_compared": 2
     },
     {
       "inputs": {
@@ -1857,8 +1932,8 @@
       "name": "classify_face_point_near_zero_v_knot_rejected",
       "outcome": "rejected",
       "pass": false,
-      "rejected": "surface v: start multiplicity above degree + 1 after the constructor's knot snap",
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#145 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmBSplineSurface.cpp:203 (sm_FixupKnotVector); UB-166 (re-review of #147))",
+      "rejected": "shim_rejected_args",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#150 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmBSplineSurface.cpp:203 (sm_FixupKnotVector); UB-166 (re-review of #147))",
       "values_compared": 0
     },
     {
@@ -1951,8 +2026,8 @@
       "name": "classify_face_point_near_zero_v_knots_rejected",
       "outcome": "rejected",
       "pass": false,
-      "rejected": "surface v: start multiplicity above degree + 1 after the constructor's knot snap",
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#146 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmBSplineSurface.cpp:203 (sm_FixupKnotVector); UB-166 (re-review of #147))",
+      "rejected": "shim_rejected_args",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#151 (upstream source/SMLib/src/SmNurbsSrf.cpp:1524 (sm_DecomposeSrf), SmBSplineSurface.cpp:203 (sm_FixupKnotVector); UB-166 (re-review of #147))",
       "values_compared": 0
     },
     {
@@ -1964,7 +2039,7 @@
       "name": "fb_cliff_near_zero_curve_knot",
       "outcome": "deferred",
       "pass": false,
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#147 (upstream source/SMLib/src/SmNurbsCrv.cpp:478 (sm_CreateBezSegments skips a snapped start over-multiplicity); UB-166 curve probe)",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#152 (upstream source/SMLib/src/SmNurbsCrv.cpp:478 (sm_CreateBezSegments skips a snapped start over-multiplicity); UB-166 curve probe)",
       "values_compared": 0
     },
     {
@@ -1972,7 +2047,7 @@
       "name": "capping_near_zero_uv_knot",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#148 (upstream source/SMLib/src/SmNurbsCrv.cpp:478 (sm_CreateBezSegments skips a snapped start over-multiplicity); UB-166 curve probe)",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#153 (upstream source/SMLib/src/SmNurbsCrv.cpp:478 (sm_CreateBezSegments skips a snapped start over-multiplicity); UB-166 curve probe)",
       "values_compared": 107
     },
     {
@@ -2366,7 +2441,7 @@
       "outcome": "rejected",
       "pass": false,
       "rejected": "non-finite or oversized value",
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#149 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#154 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
       "values_compared": 0
     },
     {
@@ -2760,7 +2835,7 @@
       "outcome": "rejected",
       "pass": false,
       "rejected": "non-finite or oversized value",
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#150 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#155 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
       "values_compared": 0
     },
     {
@@ -2768,7 +2843,7 @@
       "name": "fb_cliff_hang20_boundary_1e307",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#151 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#156 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
       "values_compared": 5
     },
     {
@@ -2815,7 +2890,7 @@
       "outcome": "rejected",
       "pass": false,
       "rejected": "non-finite or oversized value",
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#152 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#157 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
       "values_compared": 0
     },
     {
@@ -2823,7 +2898,7 @@
       "name": "surface_drop_point_hang20_boundary_1e307",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#153 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#158 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
       "values_compared": 2
     },
     {
@@ -2906,7 +2981,7 @@
       "outcome": "rejected",
       "pass": false,
       "rejected": "non-finite or oversized value",
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#154 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#159 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
       "values_compared": 0
     },
     {
@@ -2914,13 +2989,13 @@
       "name": "two_pnts_hang20_boundary_1e307",
       "outcome": "pass",
       "pass": true,
-      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#155 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#160 (upstream HANG-20 (re-review fuzz of #147): the global solvers never finish once a coordinate exceeds about 2e307..8e307; the FFI bounds the solver ops at 1e307)",
       "values_compared": 7
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0000",
@@ -3603,8 +3678,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0085",
@@ -3631,8 +3706,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0088",
@@ -3667,8 +3742,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0092",
@@ -3747,8 +3822,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0101",
@@ -3759,8 +3834,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0102",
@@ -3915,8 +3990,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0121",
@@ -4215,8 +4290,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0158",
@@ -4499,8 +4574,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0193",
@@ -5119,8 +5194,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0270",
@@ -5163,8 +5238,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "unit": "topology.face_p1"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0275",
@@ -5369,13 +5444,13 @@
   "cases_both_errored": 0,
   "cases_deferred": 19,
   "cases_failed": 0,
-  "cases_passed": 425,
-  "cases_rejected": 12,
-  "cases_total": 456,
+  "cases_passed": 429,
+  "cases_rejected": 13,
+  "cases_total": 461,
   "deferred_by_unit": {
     "intersect.surface_drop_curve": 2,
     "intersect.surface_intersector_p4": 3,
-    "topology.face_p1": 14
+    "topology.face_p3": 14
   },
   "max_rel_err": 0.0,
   "pass": true,
