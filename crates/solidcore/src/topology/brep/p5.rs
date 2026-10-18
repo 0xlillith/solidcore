@@ -15,7 +15,7 @@
 //! | [`remove_faces`] | `SmBrep::RemoveFaces` |
 //! | [`stitch_and_orient`] | `SmBrep::StitchAndOrient` |
 //! | [`squeeze_face`] | `SmBrep::SqueezeFace` |
-//! | [`transform`] | `SmBrep::Transform` |
+//! | [`transform`] | `SmBrep::Transform(const SmAxis2Placement&, ...)` (the 4x4 matrix overload is not owned by this unit) |
 //! | [`PendingTopology`] | `SmPendingTopologyDelete` constructor/destructor and `Clear` (co-port) |
 //!
 //! Deviations: dependency-limited editing. All twelve owned editing
@@ -216,7 +216,13 @@ pub fn combine_with_notifications(
     if edges2.is_empty() {
         notify_merge(k, b, survivor, deleted, notifications.as_deref_mut())?;
         set_vertex_point(k, b, survivor, target.point, notifications.as_deref_mut())?;
-        vertex::set_tolerance(b, survivor, target.tolerance, true, true)?;
+        crate::error::ignore_status(vertex::set_tolerance(
+            b,
+            survivor,
+            target.tolerance,
+            true,
+            true,
+        ))?;
         crate::error::ignore_status(delete_vertex(b, deleted))?;
         return Ok(());
     } else if edges.is_empty() {
@@ -232,7 +238,13 @@ pub fn combine_with_notifications(
         }
         notify_merge(k, b, survivor, deleted, notifications.as_deref_mut())?;
         set_vertex_point(k, b, survivor, target.point, notifications.as_deref_mut())?;
-        vertex::set_tolerance(b, survivor, target.tolerance, true, true)?;
+        crate::error::ignore_status(vertex::set_tolerance(
+            b,
+            survivor,
+            target.tolerance,
+            true,
+            true,
+        ))?;
         crate::error::ignore_status(delete_vertex(b, deleted))?;
         return Ok(());
     }
@@ -329,7 +341,13 @@ pub fn combine_with_notifications(
         ))?;
     }
     set_vertex_point(k, b, survivor, target.point, notifications)?;
-    vertex::set_tolerance(b, survivor, target.tolerance, true, true)?;
+    crate::error::ignore_status(vertex::set_tolerance(
+        b,
+        survivor,
+        target.tolerance,
+        true,
+        true,
+    ))?;
     update_vertex_edge_intervals(b, survivor)
 }
 
@@ -390,7 +408,8 @@ fn set_vertex_point(
         // UNPORTED(topology.brep_p2): SmBrep::Notify (arena-only notification environment)
         return missing("SmBrep::Notify", "topology.brep_p2");
     };
-    vertex::set_point(
+    // `SmVertex::SetPoint` returns void: its notification statuses are dropped.
+    crate::error::ignore_status(vertex::set_point(
         b,
         vertex,
         point,
@@ -399,7 +418,7 @@ fn set_vertex_point(
         env.context.as_deref_mut().or(Some(&mut k.context)),
         (env.key_of)(crate::error::EntityRef::Vertex(vertex)),
         &|vu| (env.key_of)(crate::error::EntityRef::Vertexuse(vu)),
-    )
+    ))
 }
 
 fn update_vertex_edge_intervals(_b: &mut Brep, _vertex: VertexId) -> Result<()> {
@@ -648,7 +667,7 @@ pub fn delete_topological_vertex_with_notifications(
     crate::error::ignore_status(notify_edge_pre_edit(k, b, survivor, notifications))?;
     if !crate::topology::edge::is_wire(b, survivor)? {
         for eu in crate::topology::edge::edgeuses(b, survivor, None, None)? {
-            get_or_create_uv_trim_curve(b, eu)?;
+            get_or_create_uv_trim_curve(k, b, eu)?;
         }
     }
     Ok(())
@@ -776,9 +795,14 @@ fn notify_edge_merge(
     // UNPORTED(topology.brep_p2): SmBrep::Notify
     missing("SmBrep::Notify", "topology.brep_p2")
 }
-fn get_or_create_uv_trim_curve(_b: &mut Brep, _eu: crate::topology::EdgeuseId) -> Result<()> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    missing("SmEdgeuse::GetOrCreateUVTrimCurve", "topology.edgeuse_p3")
+/// `SER(pEU->GetOrCreateUVTrimCurve(pNewCurve))` with the declaration's defaults:
+/// no distance or deviation outputs, `bOKToMakeUVTrimCurve = TRUE`.
+fn get_or_create_uv_trim_curve(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: crate::topology::EdgeuseId,
+) -> Result<()> {
+    crate::topology::edgeuse::p3::get_or_create_uv_trim_curve(k, b, eu, false, false, true)?.status
 }
 
 /// Finds the infinite region, then resets its void state. The ray-selection
@@ -885,7 +909,7 @@ pub fn glue_with_notifications(
     let mut first = Some(first);
     let radius = distance + b.vertex(deleted)?.tolerance;
     if radius > b.vertex(survivor)?.tolerance {
-        vertex::set_tolerance(b, survivor, radius, true, true)?;
+        crate::error::ignore_status(vertex::set_tolerance(b, survivor, radius, true, true))?;
     }
     if vertex::is_shell_vertex(b, deleted)? {
         delete_vertex(b, deleted)?;
@@ -1338,8 +1362,9 @@ pub fn make_manifold(
         }
         Ok(())
     })();
-    set_editing_enabled(b, previous)?;
-    result
+    // Upstream restores in a destructor; a restore failure never hides `result`.
+    let restored = set_editing_enabled(b, previous);
+    result.and(restored.map(|_| ()))
 }
 
 fn set_editing_enabled(_b: &mut Brep, _enabled: bool) -> Result<bool> {
@@ -1484,8 +1509,9 @@ pub fn remove_topological_with_notifications(
         }
         Ok(())
     })();
-    set_editing_enabled(b, previous)?;
-    result
+    // Upstream restores in a destructor; a restore failure never hides `result`.
+    let restored = set_editing_enabled(b, previous);
+    result.and(restored.map(|_| ()))
 }
 
 fn delete_edge_keep_surface(_b: &mut Brep, _edge: EdgeId, _surface_face: FaceId) -> Result<FaceId> {
@@ -1533,8 +1559,9 @@ pub fn remove_faces(
         }
         Ok(())
     })();
-    mark.release(core::slice::from_mut(&mut k.context))?;
-    result
+    // Upstream releases in a destructor; a release failure never hides `result`.
+    let released = mark.release(core::slice::from_mut(&mut k.context));
+    result.and(released)
 }
 
 fn face_edges(_b: &Brep, _face: FaceId) -> Result<Vec<EdgeId>> {
@@ -1706,6 +1733,10 @@ pub fn squeeze_face(
         let mut surviving = Vec::new();
         let mut deleted_vertices = Vec::new();
         let mut deleted_edges = Vec::new();
+        // `dMaxVertexGap, dMinUnStitchVertGap`: uninitialised upstream, written by
+        // each stitch step and passed on to the next.
+        let mut max_vertex_gap = 0.0;
+        let mut min_unstitched_vertex_gap = 0.0;
         cleanup_status(
             stitch_vertex_pairs(
                 &mut stitch,
@@ -1714,6 +1745,8 @@ pub fn squeeze_face(
                 &mut surviving,
                 &mut deleted_vertices,
                 &mut deleted_edges,
+                &mut max_vertex_gap,
+                &mut min_unstitched_vertex_gap,
             ),
             &mut failed,
         )?;
@@ -1733,6 +1766,8 @@ pub fn squeeze_face(
                 &mut processed,
                 &mut split,
                 &mut new_edges,
+                &mut max_vertex_gap,
+                &mut min_unstitched_vertex_gap,
             ),
             &mut failed,
         )?;
@@ -1745,6 +1780,8 @@ pub fn squeeze_face(
                 &mut glued,
                 &mut deleted_edges,
                 &mut processed,
+                &mut max_vertex_gap,
+                &mut min_unstitched_vertex_gap,
             ),
             &mut failed,
         )?;
@@ -1790,6 +1827,7 @@ fn region_is_infinite(b: &Brep, region: RegionId) -> Result<bool> {
 // the constructor requires the actual SmStitch owner/type, shared across all
 // three subsequent calls; constructing a fresh manager per call changes state.
 struct SqueezeStitch;
+/// `SmStitch sStitch(sCallBack, dXSectTol3d)` with a default `SmStitchCallback`.
 fn squeeze_stitch(_tolerance: f64, _flags: [bool; 7]) -> Result<SqueezeStitch> {
     // UNPORTED(heal.stitch_p1): SmStitch::SmStitch
     missing("SmStitch::SmStitch", "heal.stitch_p1")
@@ -1801,6 +1839,8 @@ fn stitch_vertex_pairs(
     _surviving: &mut Vec<Option<VertexId>>,
     _deleted_vertices: &mut Vec<VertexId>,
     _deleted_edges: &mut Vec<EdgeId>,
+    _max_vertex_gap: &mut f64,
+    _min_unstitched_vertex_gap: &mut f64,
 ) -> Result<()> {
     // UNPORTED(heal.stitch_p2): SmStitch::StitchVertexPairs
     missing("SmStitch::StitchVertexPairs", "heal.stitch_p2")
@@ -1813,6 +1853,8 @@ fn split_edges_with_vertices(
     _processed: &mut Vec<VertexId>,
     _split: &mut Vec<EdgeId>,
     _new: &mut Vec<EdgeId>,
+    _max_vertex_gap: &mut f64,
+    _min_unstitched_vertex_gap: &mut f64,
 ) -> Result<()> {
     // UNPORTED(heal.stitch_p2): SmStitch::SplitEdgesWithVertices
     missing("SmStitch::SplitEdgesWithVertices", "heal.stitch_p2")
@@ -1824,6 +1866,8 @@ fn stitch_edges_of_vertices(
     _glued: &mut Vec<EdgeId>,
     _deleted: &mut Vec<EdgeId>,
     _processed: &mut Vec<VertexId>,
+    _max_edge_gap: &mut f64,
+    _min_unstitched_edge_gap: &mut f64,
 ) -> Result<()> {
     // UNPORTED(heal.stitch_p1): SmStitch::StitchEdgesOfVertices
     missing("SmStitch::StitchEdgesOfVertices", "heal.stitch_p1")
@@ -1963,10 +2007,12 @@ pub fn transform_with_notifications(
         let zone = set_brep_model_size(b, size)?;
         crate::geom::tol::set_context_model_size_estimate(&mut k.context, size);
         for vertex in vertices {
-            vertex::set_tolerance(b, vertex, zone, false, false)?;
+            crate::error::ignore_status(vertex::set_tolerance(b, vertex, zone, false, false))?;
         }
         for edge in brep_edges(b)? {
-            crate::topology::edge::set_tolerance(b, edge, zone, false, false)?;
+            crate::error::ignore_status(crate::topology::edge::set_tolerance(
+                b, edge, zone, false, false,
+            ))?;
         }
         for face in brep_faces(b)? {
             set_face_tolerance(b, face, zone, false, false)?;
@@ -2063,8 +2109,8 @@ fn swap_reflection_shells(_b: &mut Brep, _face: FaceId) -> Result<()> {
 fn set_brep_model_size(_b: &mut Brep, _size: f64) -> Result<f64> {
     // SmTol::SetModelSizeEstimate's arithmetic belongs to geom.tol; the
     // missing owning B-rep fields, not that already ported routine, block it.
-    // UNPORTED(topology.brep_p1): SmBrep::m_dThisModelSizeEstimate
-    missing("SmBrep::m_dThisModelSizeEstimate", "topology.brep_p1")
+    // UNPORTED(topology.brep_p1): SmBrep::SetThisModelSizeEstimate
+    missing("SmBrep::SetThisModelSizeEstimate", "topology.brep_p1")
 }
 fn set_face_tolerance(
     _b: &mut Brep,
