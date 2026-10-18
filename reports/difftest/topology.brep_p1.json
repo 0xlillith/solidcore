@@ -154,16 +154,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "wire_line_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#19 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -182,28 +178,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "wire_line_reset_inf_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#22 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "wire_line_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#23 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -574,16 +562,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#56 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -602,28 +586,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_reset_inf_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#59 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#60 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1008,16 +984,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "face_plane_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#93 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -1036,28 +1008,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "face_plane_reset_inf_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#96 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "face_plane_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#97 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1340,16 +1304,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#130 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -1368,28 +1328,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_reset_inf_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#133 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#134 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -1672,16 +1624,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_sub_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#167 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -1700,28 +1648,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_sub_reset_inf_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#170 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_sub_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#171 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2000,16 +1940,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "network_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#204 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -2028,28 +1964,20 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "network_reset_inf_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#207 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "network_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#208 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -2421,16 +2349,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#9 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -2689,88 +2613,60 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#42 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#43 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#44 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#45 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#46 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#47 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#48 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -3706,16 +3602,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#148 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -3974,88 +3866,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#181 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#182 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#183 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#184 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#185 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#186 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#187 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4066,16 +3930,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#189 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -4942,16 +4802,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#287 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -5210,88 +5066,60 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#320 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#321 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#322 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#323 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#324 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#325 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#326 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -6191,16 +6019,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "cone_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#426 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6459,88 +6283,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "cone_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#459 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "cone_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#460 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "cone_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#461 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "cone_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#462 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "cone_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#463 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "cone_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#464 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "cone_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#465 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -6551,16 +6347,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "cone_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#467 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7477,16 +7269,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "disk_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#565 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -7745,88 +7533,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "disk_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#598 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "disk_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#599 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "disk_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#600 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "disk_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#601 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "disk_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#602 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "disk_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#603 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "disk_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#604 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7837,16 +7597,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "disk_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#606 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8717,16 +8473,12 @@
       "values_compared": 24
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#704 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -8985,88 +8737,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#737 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#738 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#739 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#740 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#741 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#742 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#743 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9077,16 +8801,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#745 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9937,16 +9657,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#843 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -10205,88 +9921,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#876 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#877 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#878 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#879 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#880 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#881 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#882 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -10297,16 +9985,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#884 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -11181,16 +10865,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#982 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -11449,88 +11129,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1015 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1016 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1017 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1018 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1019 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1020 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1021 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11541,16 +11193,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1023 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -12421,16 +12069,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1121 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -12689,88 +12333,60 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1154 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1155 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1156 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1157 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1158 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1159 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1160 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -13706,16 +13322,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1260 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -13974,88 +13586,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1293 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1294 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1295 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1296 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1297 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1298 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1299 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -14066,16 +13650,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1301 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -14994,16 +14574,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1399 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -15262,88 +14838,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1432 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1433 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1434 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1435 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1436 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1437 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1438 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -15354,16 +14902,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1440 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -16282,16 +15826,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1538 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -16550,88 +16090,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1571 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1572 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1573 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1574 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1575 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1576 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1577 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -16642,16 +16154,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1579 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -17566,16 +17074,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "torus_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1677 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -17834,88 +17338,60 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "torus_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1710 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "torus_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1711 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "torus_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1712 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "torus_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1713 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "torus_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1714 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "torus_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1715 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "torus_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1716 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -18863,16 +18339,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1816 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -19131,88 +18603,60 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1849 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1850 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1851 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1852 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1853 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1854 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1855 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -20160,16 +19604,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::GetShells",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_lists_9",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1955 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -20428,88 +19868,60 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_reset_inf_0_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1988 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_reset_inf_1_flag0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1989 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_reset_inf_0_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1990 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_reset_inf_1_flag1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1991 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_reset_inf_0_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1992 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_reset_inf_1_flag2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1993 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_void_flags",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1994 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -20520,16 +19932,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::SetIsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_void_flags_after_other",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1996 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -21372,16 +20780,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_set_inf_swap_keep_guard",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2086 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "both_errored": true,
@@ -21393,16 +20797,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_set_inf_swap_keep_guard",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2088 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "both_errored": true,
@@ -21414,16 +20814,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_set_inf_swap_keep_guard",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2090 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile; SmBrep.cpp:8630 null old infinite region))",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -21611,9 +21007,9 @@
     }
   ],
   "cases_both_errored": 45,
-  "cases_deferred": 626,
+  "cases_deferred": 475,
   "cases_failed": 0,
-  "cases_passed": 1708,
+  "cases_passed": 1859,
   "cases_rejected": 15,
   "cases_total": 2349,
   "deferred_by_unit": {
@@ -21625,8 +21021,7 @@
     "topology.edgeuse_p3": 93,
     "topology.face_p2": 44,
     "topology.face_p3": 18,
-    "topology.face_p4": 16,
-    "topology.shell": 151
+    "topology.face_p4": 16
   },
   "max_rel_err": 0.0,
   "pass": true,

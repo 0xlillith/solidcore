@@ -506,16 +506,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "fix_infinite_region_fresh",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/heal.heal_data_p1/edge_cases.json#49",
-      "values_compared": 0
+      "values_compared": 3410
     },
     {
       "deferred": {
@@ -2650,16 +2646,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "gen0083",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=8971097847862315939",
-      "values_compared": 0
+      "values_compared": 3240
     },
     {
       "max_rel_err": 0.0,
@@ -3826,16 +3818,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmRegion::IsVoid",
-        "unit": "topology.shell"
-      },
       "max_rel_err": 0.0,
       "name": "gen0210",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=8971097847862316066",
-      "values_compared": 0
+      "values_compared": 4448
     },
     {
       "max_rel_err": 0.0,
@@ -4855,9 +4843,9 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 227,
+  "cases_deferred": 224,
   "cases_failed": 0,
-  "cases_passed": 266,
+  "cases_passed": 269,
   "cases_total": 493,
   "deferred_by_unit": {
     "query.face_p4": 62,
@@ -4865,8 +4853,7 @@
     "topology.edgeuse_p3": 45,
     "topology.face_p2": 55,
     "topology.face_p3": 18,
-    "topology.face_p4": 37,
-    "topology.shell": 3
+    "topology.face_p4": 37
   },
   "max_rel_err": 0.0,
   "pass": true,

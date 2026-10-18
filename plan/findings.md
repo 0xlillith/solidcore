@@ -6895,16 +6895,16 @@ independent p6 integration.
 Difftest (`fixtures/topology.brep_p1/`: 2095 cases on the 15 upstream `.smb` files read by
 `SmBrep::ReadFromFile`, 238 on constructed B-reps (wire edges, plane and B-spline faces, the
 `prog_test` wire network, 10 `sm_FindSideOfCurve` cases among them), 16 generated): 2349 cases,
-1708 pass, of which 1663 compare values and 45 are guard agreements, not coverage (the C++ is not run: the shim stops before an upstream null dereference; 30 are the port's matching refusal, 15 a runner-side mirror with no port call), 15 rejected (no entity of the op's kind; nothing runs), 0 failed, 626 deferred (`harness:analytic-geometry-export` 217, `topology.shell` 151,
+1859 pass, of which 1814 compare values and 45 are guard agreements, not coverage (the C++ is not run: the shim stops before an upstream null dereference; 30 are the port's matching refusal, 15 a runner-side mirror with no port call), 15 rejected (no entity of the op's kind; nothing runs), 0 failed, 475 deferred (`harness:analytic-geometry-export` 217,
 `topology.edgeuse_p3` 93, `query.brep` 71, `topology.face_p2` 44, `topology.face_p3` 18,
 `topology.face_p4` 16, `query.face_p2` 9, `curve.crv_on_surf` 4, `surface.surface_cache_p1` 3);
-`--perturb` detects 1708/1708; `--fuzz 2000` FUZZ-PASS; a 1000-seed generated sweep (3333 cases)
-passes 2399 with 0 failed, 919 deferred and 15 rejected (2323 compare values; the other 76 are guard
+`--perturb` detects 1859/1859; `--fuzz 2000` FUZZ-PASS; a 1000-seed generated sweep (3333 cases)
+passes 2584 with 0 failed, 734 deferred and 15 rejected (2508 compare values; the other 76 are guard
 agreements of the same kinds: 53 port refusals, i.e. 43 UB-162 redistribute, 7 `CreateEdgeEdgeBlend` with a blend
 edge use without face, 3 swaps without an old infinite region, and 23 runner-side `AddAttributes` mirrors); green runs 201 units (main's 200 + this unit) with
 0 failed (main merged through a28e0f06).
 `sm_SwapFaceUV` calls `topology.face_p1`'s `SmFace::SwapUV` (#148, wired after the merge; status ignored as upstream's release `SE`, `Unported` still propagates): on an unmarked face the shim now runs the C++ swap and both sides compare the swapped B-rep digest (the heal digest: surfaces, trim-curve fingerprints, loop-use links), but every such case defers at `SmFace::GetBrep` (`topology.face_p4`), the first call of face_p1's `swap_uv`, so none compares yet (the 16 former `topology.face_p1` deferrals are now `topology.face_p4` 16; no deferral flipped to pass).
-Every compared value is bit-identical; no absolute floors. Of the 1708 passes, 1663 compare
+Every compared value is bit-identical; no absolute floors. Of the 1859 passes, 1814 compare
 values. The other 45 are guard agreements, not coverage: both sides report the null-dereference
 guard (`both_errored` in the report) and no C++ runs, because the shim stops before an upstream null
 dereference. 15 are `AddAttributes` on a null indexed target, where the runner itself writes the
@@ -6915,9 +6915,10 @@ the port's matching refusal. The 15 ops naming an entity kind the wire B-reps la
 (`ReflectShell`, `sm_MarkLoopsToDelete`, `sm_SwapFaceUV`, `FindSectorOfFace` local and global) are
 rejected: nothing runs on either side.
 
-- **Coverage, honestly.** `GetShells` and `SmLockBrepBox` have no passing case (every
-  `GetShells` case defers: every fixture B-rep has regions, so it stops at
-  `SmRegion::GetShells`, and the empty list on a region-less B-rep is only unit-tested).
+- **Coverage, honestly.** `SmLockBrepBox` has no passing case (it defers at `query.brep`).
+  Since topology.shell (#154) is wired, `GetShells` (21 cases), `ResetInfiniteRegion` (all three
+  void settings) and `SetRegionIsVoidFlagsForNestedSolids` compare the region list, the infinite
+  region and every region's raw void flag.
   `HealBrep` runs the C++ healer and the Rust `HealData` (`heal.heal_data_p3`, #164).
   `SmBrep::HealBrep` always returns `SM_SUCCESS`, so a status-only comparison compares nothing: both sides now emit the same digest of the healed B-rep after the heal (the shim's and the runner's `put_healed`: the `Export` extras, then every record's links, orientations, geometry ids and types, domains, tolerances and gap-init flags, in C++ list order and Rust arena order, which agree because the steps that complete reorder no list; a byte-identical re-export was not possible because the Rust import discards the region and shell lists). The sequence reaches `SmEdgeuse::NormalizedEvaluate` from `SM_HO_CACHE_EDGEPROPS` on, so only `SM_HO_NONE` and `SM_HO_FIX_BACKPOINTERS` complete: the 5 `*_heal_backpointers` fixtures on the B-spline-only files (Endcap, disk, ellips_ts2, plane_circ, plane_square) compare the healed B-rep (2785 values), the other 10 defer on the analytic export, the 15 `SM_HO_ALL` fixtures defer at `topology.edgeuse_p3`, and in the 1000-seed sweep 3 of the 33 generated heal cases complete and compare (718 values; the generator draws `heal` for 1% of cases). No heal case passes on status alone. The digest found one disagreement: after the heal the C++ region list head was the infinite region and the Rust's was `None`, because the runner's import checked the exported head flag but never set `Brep::region_list_head`; the import now sets it (no library change: `regions()` already started at list index 0, which is the infinite region).
   A harness defect surfaced earlier when #164's sequence replaced the `HealTgts` stub: the 15

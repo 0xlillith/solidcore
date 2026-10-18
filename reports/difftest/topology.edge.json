@@ -4399,8 +4399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetInfiniteRegion",
-        "unit": "topology.brep_p1"
+        "symbol": "SmEdgeuse::EvaluateBinormal",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_e0_blend",
@@ -4683,8 +4683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetInfiniteRegion",
-        "unit": "topology.brep_p1"
+        "symbol": "SmEdgeuse::EvaluateBinormal",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_e2_blend",
@@ -4891,8 +4891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetInfiniteRegion",
-        "unit": "topology.brep_p1"
+        "symbol": "SmEdgeuse::EvaluateBinormal",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_e5_blend",
@@ -5099,8 +5099,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetInfiniteRegion",
-        "unit": "topology.brep_p1"
+        "symbol": "SmEdgeuse::EvaluateBinormal",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_e9_blend",
@@ -5505,8 +5505,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetInfiniteRegion",
-        "unit": "topology.brep_p1"
+        "symbol": "SmEdgeuse::EvaluateBinormal",
+        "unit": "topology.edgeuse_p3"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_rb_e0_blend",
@@ -14778,9 +14778,8 @@
   "cases_passed": 1715,
   "cases_total": 1787,
   "deferred_by_unit": {
-    "topology.brep_p1": 5,
     "topology.brep_p2": 5,
-    "topology.edgeuse_p3": 62
+    "topology.edgeuse_p3": 67
   },
   "max_rel_err": 0.0,
   "pass": true,
