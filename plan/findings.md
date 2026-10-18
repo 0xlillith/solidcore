@@ -6965,58 +6965,87 @@ independent p6 integration.
 
 ## topology.brep_p9: per-call continuations and coverage limits (PR #183)
 
-### Issue #210 continuation revision (validation pending)
-
-Final source review also preserved explicit NER null-pointer statuses in
-FindInfiniteRegion/MakeVertexLoop and translated a zero ray direction into the
-native Unitize status `SM_ERR_INVALID_INPUT` (1007), rather than a Rust safety
-error. A focused zero-ray regression covers that status. ComputeLoopOrientation's
-optional output and 3D-computation flag are identified explicitly at its call stub.
-The earlier 1324-test/native-Clippy snapshot precedes these corrections; reruns
-are required before submitting.
+### Issue #210 continuation revision (source `84ee130c`)
 
 All six owned bodies now continue after individual dependency calls. This replaces
 all previous `OMITTED` ranges: ray sampling and fallback, marked sheet walk,
 vertex-loop creation, split geometry/use rewiring, and edge/loop/face insertion and
-inner-loop redistribution. No open dependency branch was merged; official main
-43e9e47a supplies the newly merged shell unit. Its changes and p9 integration were
-both preserved.
+inner-loop redistribution. Only official main was merged; active dependency PRs
+remain independent. Official main through f30275bb is included; the final merge
+changes generated progress only.
 
-Notification storage/identities and curve identities are explicit caller inputs.
-The Boolean intersector now invokes p9 through its mutable B-rep adapter; typed
-point-classification and merge vertex-copy adapters also supply notification state.
-The older opaque classification API has no mutable owning-arena lookup and defers
-to that specific p1 integration boundary, rather than claiming that the p9 operation
-itself is missing. Canonical editing state remains with p1 (PR #145). No p9
-algorithm `UNPORTED` call remains elsewhere in the kernel.
+Review fixes preserve the base-class DropCurve creating-UV default TRUE and call
+existing DropAndTrimCurve with tolerance * 100 and TRUE/TRUE. Defined NaN/Inf
+split inputs remain covered; the part-container guard runs before both native
+loaders. Explicit NER null-pointer statuses and Unitize status 1007 are retained;
+a focused zero-ray regression covers the latter. ComputeLoopOrientation's optional
+output and 3D flag are explicit at the dependency call.
 
-Source review found `SmEdge::InsertManifoldEdgeEnd` only setting each VU's vertex,
-while native `SmEdge.cpp:4641-4643` also appends both VUs to the vertex owning list.
-The previous port comment explicitly predated that list in Rust. Both insertions
-are now ported in order, with a focused start/end regression. This dependency fix
-is needed for p9's insertion body; its edge differential runner will be rerun.
+Notification storage/identities and actual curve type identities are caller inputs.
+The Boolean intersector now invokes p9 through its mutable adapter; typed
+point-classification and merge vertex-copy adapters supply notification state.
+The opaque classification API lacks mutable owning-arena lookup and defers to
+that p1 integration boundary. Canonical editing state remains with p1 (PR #145),
+with native constructor default FALSE. No p9 algorithm `UNPORTED` call remains
+elsewhere in the kernel.
+
+Source review found InsertManifoldEdgeEnd only setting each VU's vertex, while
+SmEdge.cpp:4641-4643 also appends both VUs to the vertex owning list. Both insertions
+are restored in order, with a focused start/end regression. Edge skeleton caches
+follow the existing importer primary/mate order. The edge differential rerun passes
+1715 cases, with 72 deferred and zero failures.
 
 Remaining barriers are individual calls to the active p1/p2 and face/query/drop
-owners. Append-only arena retirement is explicitly deferred to p1 rather than
-exposing deleted loop records as live topology. Native constructor/debug allocator
-notifications are represented by the shared arena model; added topology flag records
-are registered in the caller's notification storage. A shell retry uses at most two
-passes, and an inner-loop transfer that fails to shrink its source list returns an
-error instead of looping. Undefined odd edgeuse pairs are rejected. These bounds
-and adaptations are documented in the file header.
+owners. Append-only arena retirement is deferred to p1 rather than exposing deleted
+loops as live topology. Constructor/debug allocator notifications follow the shared
+arena model; constructed topology flag records are registered in caller storage.
+The shell retry has at most two passes. Inner-loop transfer must shrink its source
+list or return an error; undefined odd edgeuse pairs are rejected. These deviations
+and bounds are documented in the source header.
 
-Coverage is still limited: **0/6 owned operations have a compared successful
-p9 topology mutation**. Refusals, guards, projection probes, and point-class vertex
-updates are separate evidence. Op-5 initial vertex loops still come from C++, so
-those imports are not Rust MakeVertexLoop successes. The full newly ported tails
-require dependency wiring before native success-path certification. All earlier
-counts below describe earlier source, not this revision. New gates/reports pending.
+**Coverage limits:** 0/6 owned entrypoints have a compared successful completion;
+no p9 topology mutation is certified. Default passes comprise 477 split refusals,
+10 insertion guards/refusals, 8 point-class edge refusal paths, 8 point-class vertex
+updates and 2 projection helper probes. The 108 deferrals comprise 3 region queries,
+3 orientations, 6 shell vertices, 4 vertex loops, 85 splits, 2 insertions, 4 point-class
+edge merges and 1 projection probe. Op-5 setup vertex loops are native imports,
+not successful Rust MakeVertexLoop calls. UV attachment/redistribution,
+notification/attribute construction and the full new mutation tails remain
+uncertified until dependencies are wired. The graph oracle is demonstrated for
+refusals and vertex updates only; successful mutations still require audit of
+legacy caches, stable identity/order normalization and complete curve/UV geometry.
+No tolerance changes or p9 absolute floors were introduced.
+
+Revision-specific evidence: Ubuntu 26.04.1 x86_64, GCC 15.2, Rust 1.98.0, pinned
+SMLib c9c5979; nice 10 and one Cargo job. The 1268-file source/config/fixture manifest
+has SHA-256 `96065a1d187c089bb7e207827f81ed5d2a6dd15492a582f7fcc34192bdad6017`.
+The final validation source audit differs only in the intentional modules.toml status
+change; final local metadata/report edits do not alter tested functional source.
+Passed fmt and direct include-file rustfmt, plain and native strict workspace
+Clippy, 1325 kernel tests (0 failed), WASM check and the native part-container guard
+(1 passed, 71 filtered). All 12 affected differential runners are partial with
+0 failures. P9 default: 613 cases, 505 passed, 108 deferred, max relative error 0;
+blockers surface_drop_curve 1, surface_drop_lib_p3 1, brep_p1 96, brep_p2 3,
+face_p3 7. Perturbation detects all 505/505 perturbed cases, with 108 deferred.
+4096 generated seeds: 4197 cases, 3479 passed, 718 deferred, 0 failed, max error 0.
+Full green/partial gate: `difftest: 204 unit(s), 113 passed, 91 partial, 0 failed`. `--status-of topology.brep_p9` returns `partial`.
+
+Native runtime Cargo commands use the CLI-only override
+`--config 'profile.difftest.package.difftest.opt-level=0'` with
+`run --profile difftest -p difftest --features cpp -- <args>`. Standard runner
+opt-level 1 compilation was killed by SIGKILL near the host's 8 GiB limit, even
+with one job; the override builds successfully. Kernel-crate and C++ profiles
+remain unchanged, though generic code instantiated in the runner may be affected.
+Standard-profile native Clippy passed; a standard opt-level 1 executable build
+did not complete on this host. Fixtures, comparison rules and tolerances are
+unchanged; no workflow/build/Cargo configuration changes are bundled. Earlier
+snapshots below are historical and do not certify the full continuation revision.
 
 ### Previous c19c0db1 checkpoint (historical)
 
 
 - **Review status correction (2026-10-18).** The following `47758e96` /
-  `c482d6fc` evidence is historical. The unit is now `todo`, because the code after
+  `c482d6fc` evidence is historical. At that checkpoint the unit was `todo`, because the code after
   the first unavailable call was omitted rather than ported behind per-call
   stubs. `OMITTED SmBrep.cpp:<range>` comments identify the remaining bodies at
   each dependency return. Replacing an individual dependency stub does not finish
