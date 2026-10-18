@@ -467,13 +467,11 @@ fn capture_changes<T>(
     use crate::geom::context::NotifyCallback;
     use crate::topology::topology::TopologyChangeCallback;
     if k.context.sys_notify_callback().is_some() {
-        // Native asserts against nested SmTrackTopologyChanges. Keep the existing
-        // callback installed and preserve the callee's error (especially Unported).
-        edit(k, b)?;
-        return Err(SolidError::Unsupported {
-            operation: OP,
-            reason: "nested topology-change tracking is unsupported upstream",
-        });
+        // Native StartTracking preserves a preexisting callback, leaving this
+        // tracker's own arrays empty. StopTracking preserves that callback too.
+        // These are the actual empty native arrays, not guessed edit identities.
+        let value = edit(k, b)?;
+        return Ok((value, Changes::default()));
     }
     k.context
         .set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(1))));
@@ -1450,5 +1448,26 @@ mod tests {
             ),
             Err(SolidError::Upstream { code: SM_ERR, .. })
         ));
+    }
+    #[test]
+    fn aliased_glue_preserves_a_preexisting_tracker_without_invented_changes() {
+        use crate::geom::context::NotifyCallback;
+        use crate::topology::topology::TopologyChangeCallback;
+        let mut k = Kernel::default();
+        let mut b = Brep::new();
+        k.context
+            .set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(27))));
+        // Native GlueVertices compares identities before using the pointer.
+        let v = VertexId::from_index(0);
+        let changes = glue_vertices(&mut k, &mut b, v, v).unwrap();
+        assert!(changes.removed.is_empty() && changes.added.is_empty());
+        let callback = k
+            .context
+            .sys_notify_callback()
+            .and_then(NotifyCallback::as_any)
+            .and_then(|a| a.downcast_ref::<TopologyChangeCallback>())
+            .unwrap();
+        assert_eq!(callback.tracker(), 27);
+        assert!(callback.lists().notify_events.is_empty());
     }
 }

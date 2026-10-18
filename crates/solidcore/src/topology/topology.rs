@@ -805,7 +805,7 @@ impl TrackTopologyChanges {
     /// Empties the lists and, when the B-rep and its context exist and the context
     /// has no system notify callback, installs this tracker's callback
     /// (`StartTracking`). An already installed callback is left in place (upstream
-    /// asserts; nested tracking is not supported).
+    /// retains it and starts no nested tracking).
     pub fn start_tracking(&mut self, context: Option<&mut Context>) {
         // init internal arrays
         self.reset_arrays();

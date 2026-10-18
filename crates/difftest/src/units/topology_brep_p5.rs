@@ -337,6 +337,9 @@ fn notification_record(b: &Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
     if i.flag {
         use solidcore::topology::{topology::TrackTopologyChanges, BrepId};
         let mut context = solidcore::geom::context::Context::default();
+        if i.mode == 1 {
+            context.set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(2))));
+        }
         // The fixture contains one B-rep at traversal index zero.
         let mut tracker =
             TrackTopologyChanges::new(Some(BrepId::from_index(0)), 1, true, Some(&mut context));
@@ -351,10 +354,13 @@ fn notification_record(b: &Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
             .sys_notify_callback_mut()
             .ok_or_else(|| SolidError::sm_err("notification tracker"))?
             .execute(PostEdit, v1, Some(v1), Some(brep), None)?;
-        context.set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(2))));
+        if i.mode != 1 {
+            context.set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(2))));
+        }
         tracker.stop_tracking(Some(&mut context));
         out.extend(notification_values(&tracker.lists()));
         out.push(f(context.sys_notify_callback().is_none()));
+        context.set_sys_notify_callback(None);
         return Ok(out);
     }
     let mut owners = std::collections::BTreeMap::new();

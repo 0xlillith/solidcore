@@ -116,6 +116,7 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
         if (a[20]!=0) {
             auto* context=const_cast<SmContext*>(b->GetContext());
             if (context->GetSysNotifyCallback()) return SC_ERR_ARG;
+            if (a[4]==1) context->SetSysNotifyCallback(&callback);
             SmTrackTopologyChanges tracker(b,TRUE);
             context->GetSysNotifyCallback()->Execute(SM_NO_POST_EDIT,v1,v1,b,nullptr);
             emit(tracker.GetRmList(),tracker.GetAddList(),tracker.GetChgList(),tracker.GetNotifyEvents());
@@ -126,6 +127,7 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
             tracker.StopTracking(); // native clears the foreign callback too
             emit(tracker.GetRmList(),tracker.GetAddList(),tracker.GetChgList(),tracker.GetNotifyEvents());
             o.push_back(context->GetSysNotifyCallback()==nullptr ? 1.0 : 0.0);
+            context->SetSysNotifyCallback(nullptr); // release the stack-owned foreign callback
             return sc_copy_out(o.data(),o.size(),out,cap,out_len);
         }
         if (a[4]==0) {

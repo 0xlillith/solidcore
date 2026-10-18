@@ -6852,7 +6852,13 @@ validation section below. These results do not certify the review fixes.
   faces. It is unreachable today (`MergeInterval` makes no topology until
   `intersect.curve_class_p2`); that unit's porter must give the healer a typed resolver.
 
-## topology.brep_p5 — review validation (partial)
+## topology.brep_p5 — review follow-up; source 64f9f549 evidence
+
+Current follow-up: the arena-only healer must preserve an already installed
+system callback, leaving its own native tracker arrays empty. Returning Unsupported
+there was a mismatch. Three native preexisting-observer cases and a healer
+regression are added; the unit is todo pending refreshed validation. The source
+64f9f549 sweep was interrupted to fix this; its results below are historical.
 
 PR #194 restores all twelve owned editing bodies and the internal pending-topology
 attribute cleanup. Source `64f9f549` includes official main `53ba102b`; no open

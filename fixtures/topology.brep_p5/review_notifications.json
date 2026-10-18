@@ -551,6 +551,78 @@
         "second": 1,
         "flag": true
       }
+    },
+    {
+      "name": "tracker-preexisting-k0",
+      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:425",
+      "inputs": {
+        "op": 15,
+        "fixture": [
+          0,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          1,
+          1
+        ],
+        "first": 0,
+        "second": 1,
+        "flag": true,
+        "mode": 1
+      }
+    },
+    {
+      "name": "tracker-preexisting-k1",
+      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:425",
+      "inputs": {
+        "op": 15,
+        "fixture": [
+          1,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          1,
+          1
+        ],
+        "first": 0,
+        "second": 1,
+        "flag": true,
+        "mode": 1
+      }
+    },
+    {
+      "name": "tracker-preexisting-k2",
+      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:425",
+      "inputs": {
+        "op": 15,
+        "fixture": [
+          2,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          1,
+          1
+        ],
+        "first": 0,
+        "second": 1,
+        "flag": true,
+        "mode": 1
+      }
     }
   ]
 }
