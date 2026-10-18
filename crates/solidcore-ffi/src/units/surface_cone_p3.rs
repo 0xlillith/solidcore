@@ -1,7 +1,7 @@
 //! Native cone/plane and cone/cone intersection adapters.
 //!
 //! Cone records: origin, x axis, y axis, bottom/top radii, height, start/end
-//! angles (at most [`MAX_ANGLE`] degrees), swap UV, inside out, cylinder class
+//! angles (within `[-MAX_ANGLE, MAX_ANGLE]`, [`MAX_ANGLE`]), swap UV, inside out, cylinder class
 //! (17 doubles). Plane records:
 //! origin, x axis, y axis, STEP domain (13 doubles). Domain records contain
 //! two rectangles as fractions of each natural NURB domain. The result stores
@@ -27,14 +27,13 @@ mod sys {
     }
 }
 
-/// Largest start or end angle (degrees) of a cone record: `360 * (2^20 - 3)`.
-/// Native polar set-up moves its circles' angles one turn per loop iteration without
-/// a bound and never ends near `1e18` (upstream-issues HANG-23); the Rust port stops
-/// after `solidcore::curve::ellipse::p2::MAX_PERIOD_SHIFTS` (`2^20`) turns. The set-up
-/// starts from a midpoint in `[0, 540]` and needs at most `(|m| + 360) / 360` turns to
-/// reach a midpoint `m`, so every accepted record stays within the Rust bound and is
-/// compared. Upstream documents cone angles in `[-360, 360]` (`SmCone.h:205-206`).
-pub const MAX_ANGLE: f64 = 360.0 * ((1u32 << 20) - 3) as f64;
+/// Largest start or end angle magnitude (degrees) of a cone record, upstream's
+/// documented range (`SmCone.h:205-206`). Native evaluation wraps angles one turn
+/// per iteration (`SmExtent1d::PeriodicWrap`, upstream-issues HANG-1) and polar
+/// set-up shifts them one turn per iteration (HANG-23), so the cost of every
+/// evaluation grows with the angle: fuzzing found intersections of cones near
+/// `3.8e8` degrees that did not finish in 20 s, and near `9.2e18` set-up never ends.
+pub const MAX_ANGLE: f64 = 360.0;
 
 fn cone_valid(v: &[f64]) -> bool {
     v.len() == 17
@@ -149,9 +148,15 @@ mod tests {
     }
 
     #[test]
-    fn rejects_only_angles_whose_polar_set_up_never_ends() {
+    fn rejects_only_angles_outside_the_documented_range() {
         for index in [12, 13] {
-            for value in [MAX_ANGLE + 1.0, -MAX_ANGLE - 1.0, -9.223_372_036_854_776e18] {
+            for value in [
+                MAX_ANGLE + 1e-9,
+                -MAX_ANGLE - 1e-9,
+                720.0,
+                3.774_862_8e8,
+                -9.223_372_036_854_776e18,
+            ] {
                 let mut a = cone();
                 a[index] = value;
                 assert!(matches!(
@@ -160,13 +165,11 @@ mod tests {
                 ));
             }
         }
-        let mut far = cone();
-        far[12] = MAX_ANGLE - 90.0;
-        far[13] = MAX_ANGLE;
-        let mut turns = cone();
-        turns[13] = 720.0;
         // Native may still report a status for these; the wrapper must not refuse them.
-        for other in [far, turns] {
+        for (start, end) in [(-MAX_ANGLE, -270.0), (270.0, MAX_ANGLE), (-MAX_ANGLE, MAX_ANGLE)] {
+            let mut other = cone();
+            other[12] = start;
+            other[13] = end;
             assert!(!matches!(
                 intersect(3, &cone(), &other, &DOMAINS, Some(1e-7), false),
                 Err(FfiError::InvalidArgument(_))

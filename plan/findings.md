@@ -6080,14 +6080,20 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   midpoint; a well-formed native record with the same angles also does not return
   (upstream-issues HANG-23). The fuzzed record itself had 18 doubles, so the native
   wrapper refused it, but the harness still runs Rust on wrapper refusals. The Rust loop
-  now stops with `NotConverged` after `MAX_PERIOD_SHIFTS` (2^20) turns, and the
-  `surface.cone_p3` FFI rejects cone angles beyond `MAX_ANGLE` (`360 * (2^20 - 3)`
-  degrees): the set-up starts from a midpoint in `[0, 540]` and needs at most
-  `(|m| + 360) / 360` turns, so every accepted record stays within the Rust bound and
-  is compared (a compile-time assertion in the
-  difftest runner ties the two constants). Upstream documents cone angles in
-  `[-360, 360]`. Apart from `far_angles.json` (54 cones at the bound, every swap and
-  inside-out flag), no fixture uses angles beyond 720 degrees.
+  now stops with `NotConverged` after `MAX_PERIOD_SHIFTS` (2^20) turns.
+- The `surface.cone_p3` FFI first accepted angles up to `360 * (2^20 - 3)` degrees, the
+  largest the bounded set-up reaches. Fuzzing seeded from cones at that bound then found
+  three native timeouts (fuzz05643, fuzz07048, fuzz07266: the bound plus a tolerance of
+  `-1` or `0`, or a radius of 8). gdb showed each in `SmExtent1d::PeriodicWrap` under
+  `SmEllipse::STEPInversion` / `SmPolarConversion::ConvertToPolarParameter` /
+  `SmCone::ConvertUVFromNURBSToSTEP`, reached from `SmSurface::DropPoint`,
+  `SmSurfPtSolveStepper` and `SmSurfaceIntersector::TraceCurve`: every evaluation wraps
+  the angle one turn per iteration (HANG-1, ported faithfully), so the cost grows with
+  the angle on both sides. The FFI therefore accepts start and end angles only within
+  upstream's documented `[-360, 360]` (`SmCone.h:205-206`), as `surface.cone_p1` does for
+  circles. No earlier fixture uses angles outside it; `angle_bounds.json` (72 cases)
+  compares cones at both limits, a full negative turn and a straddling domain with every
+  swap and inside-out flag, through direct and global cone and plane intersections.
   After the change: `FUZZ-PASS surface.cone_p3 cases=10000 rejected=4320 malformed=3054
   ran=2626 differs=0 crashes=0 panics=0 timeouts=0`; `curve.ellipse_p1` (2028) and
   `curve.ellipse_p2` (2102) still pass bit-identically; `--green` reports 202 units,
