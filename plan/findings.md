@@ -5809,6 +5809,40 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   written U falls outside a trimmed domain for one line) and `_swapped` (swap UV: the
   failed conversion returns before the exchange).
 
+
+### surface.cone_p3 tiny-axis follow-up (issue #207)
+
+- A tiny Y axis can leave a cone with a NURB but no polar circle: `MakeNurbWithSweepParams`
+  ignores the converter rebuild's failure (`SmSurfOfRevolution.cpp:1033`). In the parallel
+  cylinder branch, `IntersectWithCone` reaches `ConvertUVFromSTEPToNURBS` at
+  `SmCone.cpp:2966-2967`, which enters `SmPolarConversion::ConvertToNURBSParameter` and
+  dereferences the missing circle at `SmEllipse.cpp:491` (upstream-issues UB-175).
+- The native shim overrides that virtual conversion for real `SmCone` and `SmCylinder`
+  subclasses and rejects only when the conversion is actually called with a null circle.
+  This preserves self-intersection/disjoint early returns, constructor errors, and
+  converters that have a circle even when their exact conversion table is unavailable.
+  A dedicated exception exits the native call with `SC_ERR_ARG`; owned native objects
+  unwind normally. Neither a blanket small-axis check nor `HavePolarConversion()` is used.
+- `GetHeight` also encountered the missing circle, but its native behavior is defined:
+  `SmPoint3d` members initialize to `SM_UNDEF_DOUBLE` (`SmVector3d.h:56-58`). Both ignored
+  `EvaluatePoint` failures leave those points unchanged, so their difference, and the
+  resulting height, are zero (`SmCone.cpp:2264-2268`). Rust previously propagated status
+  1006. `Cone::height` now preserves the default point on ignored evaluation failures;
+  `Unported` still propagates. The part-1 state adapters now compare height without the
+  former polar-circle restriction, and `height_without_polar.json` checks tiny axes and
+  negative radii with every swap/inside-out combination.
+- `tiny_axis.json` has eight `rejected_*` guard assertions (both operand orders, direct
+  and global cone calls, real cylinders, zero and sub-threshold axes) and eight defined
+  neighboring calls (self/disjoint early returns and nondegenerate axes). Guard assertions
+  are status-only tests of `SC_ERR_ARG`, not geometry parity; Rust intersection is not
+  executed for them. Four `missing_polar_height_plane_*` cases exercise the corrected
+  height through direct/global plane intersections; two compare a returned circle.
+  The original overflow-axis fixtures remain covered.
+- Linux validation uses Proxmox VM 107 (`runner-codex-02`, x86-64, GNU C++ 15.2), a fresh
+  snapshot of official main `53ba102b` plus this change, and the shared C++ reference build.
+  Its allowed source trees were byte-checked against pinned `c9c5979`. No Apple Clang
+  prerequisites or profile overrides are used.
+
 ## surface.surface_p11 (`LocalSurfaceIntersect`, `SmCSGlobalSolver` / `SmSSGlobalSolver::LocalSolve`, `IntersectSurfaceBoundaries`, `LiftCurve`, PR #120, 2026-10-15; partial)
 
 - **Known disagreement (not generated): boundaries of an `SmPlane`.** In

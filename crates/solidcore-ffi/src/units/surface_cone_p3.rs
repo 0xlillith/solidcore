@@ -67,6 +67,8 @@ pub fn intersect(
     // Coincident native cylinders dereference the optional tolerance unconditionally.
     // The shim guards that exact path after computing its geometry, rather than
     // rejecting all calls without a tolerance here.
+    // The shim also rejects a STEP-to-NURBS conversion whose cone has no polar
+    // curve after MakeNurb, at the virtual call that would dereference it.
     call_with_buffer(4096, |out, len| {
         // SAFETY: fixed record lengths and values checked above; output and length
         // are writable, and native-owned curves are destroyed before returning.
@@ -267,5 +269,39 @@ mod tests {
         // SmCylinder_TYPE falls through the native global switch into the
         // general intersector; it never dereferences the analytic tolerance.
         assert!(intersect(3, &a, &b, &DOMAINS, None, false).is_ok());
+    }
+
+    #[test]
+    fn guards_missing_polar_curve_only_when_conversion_is_reached() {
+        let mut a = vec![
+            0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1e-300, 0.0, 1.5628, 1.5628,
+            1.10780, 0.0, 360.0, 0.0, 1.0, 0.0,
+        ];
+        let mut b = vec![
+            0.0, 0.5539, 0.5539, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.5628, 1.5628,
+            1.10780, 0.0, 360.0, 0.0, 0.0, 0.0,
+        ];
+        let domains = [0.0, 0.0, 1.0, 1.0, 0.0, 0.125, 1.0, 0.875];
+        for class in [0.0, 1.0] {
+            a[16] = class;
+            b[16] = class;
+            for (first, second) in [(&a, &b), (&b, &a)] {
+                assert_eq!(
+                    intersect(0, first, second, &domains, Some(1e-7), false),
+                    Err(FfiError::Status(crate::SC_ERR_ARG))
+                );
+            }
+        }
+        a[16] = 0.0;
+        b[16] = 0.0;
+        assert_eq!(
+            intersect(3, &a, &b, &domains, Some(1e-7), false),
+            Err(FfiError::Status(crate::SC_ERR_ARG))
+        );
+        // Missing polar state alone is not a reason to reject: these paths
+        // return before requesting the undefined conversion.
+        assert!(intersect(0, &a, &b, &domains, Some(1e-7), true).is_ok());
+        b[1] = 10.0;
+        assert!(intersect(0, &a, &b, &domains, Some(1e-7), false).is_ok());
     }
 }
