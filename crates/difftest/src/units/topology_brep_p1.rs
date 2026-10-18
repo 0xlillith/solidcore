@@ -1865,7 +1865,12 @@ fn run_rust_op(
                 .map(|&i| EdgeuseId::from_index(i as u32))
                 .collect();
             match bp1::create_corner_blend(k, b, &ids, tangent.as_deref(), *tol, *ang) {
-                Ok(s) => o.extend([0.0, s.len() as f64]),
+                Ok(s) => {
+                    o.extend([0.0, s.len() as f64]);
+                    for blend in s {
+                        put_surface(&mut o, &Surface::from(blend))?;
+                    }
+                }
                 Err(e) if e.is_unported() => return Err(e.into()),
                 // upstream resets the output array before failing
                 Err(e) => o.extend([status_of(&e), 0.0]),

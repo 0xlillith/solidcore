@@ -3199,8 +3199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_redistribute_0_1_7",
@@ -3211,8 +3211,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_redistribute_1_1_0",
@@ -3223,8 +3223,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_redistribute_2_1_1",
@@ -3342,16 +3342,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_corner_blend_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#121 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -3403,8 +3399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_edge_edge_blend_1_0_1_0",
@@ -3415,8 +3411,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_edge_edge_blend_2_0_2_0",
@@ -3427,8 +3423,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_edge_edge_blend_3_1_2_1",
@@ -3507,8 +3503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "Mouse_heal",
@@ -4543,8 +4539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_corner_blend_3",
@@ -4603,8 +4599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_edge_edge_blend_1_0_1_0",
@@ -4615,8 +4611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_edge_edge_blend_2_0_2_0",
@@ -4627,8 +4623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_edge_edge_blend_3_1_2_1",
@@ -4703,8 +4699,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "Endcap_heal",
@@ -5627,40 +5623,28 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_redistribute_0_1_7",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#386 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_redistribute_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#387 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_redistribute_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#388 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -5751,16 +5735,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_corner_blend_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#399 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -5812,8 +5792,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edge_edge_blend_1_0_1_0",
@@ -5824,8 +5804,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edge_edge_blend_2_0_2_0",
@@ -5836,8 +5816,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edge_edge_blend_3_1_2_1",
@@ -5916,8 +5896,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_heal",
@@ -6873,8 +6853,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_redistribute_0_1_7",
@@ -6894,8 +6874,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_redistribute_2_1_1",
@@ -7006,8 +6986,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "cone_corner_blend_3",
@@ -7066,8 +7046,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_edge_edge_blend_1_0_1_0",
@@ -7078,8 +7058,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_edge_edge_blend_2_0_2_0",
@@ -7090,8 +7070,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_edge_edge_blend_3_1_2_1",
@@ -7170,8 +7150,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_heal",
@@ -8214,8 +8194,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "disk_corner_blend_3",
@@ -8274,8 +8254,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "disk_edge_edge_blend_1_0_1_0",
@@ -8286,8 +8266,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "disk_edge_edge_blend_2_0_2_0",
@@ -8298,8 +8278,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "disk_edge_edge_blend_3_1_2_1",
@@ -8378,8 +8358,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "disk_heal",
@@ -9401,16 +9381,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_corner_blend_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#816 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -9462,8 +9438,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_edge_edge_blend_1_0_1_0",
@@ -9474,8 +9450,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_edge_edge_blend_2_0_2_0",
@@ -9486,8 +9462,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_edge_edge_blend_3_1_2_1",
@@ -9566,8 +9542,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_heal",
@@ -10606,8 +10582,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_corner_blend_3",
@@ -10666,8 +10642,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_edge_edge_blend_1_0_1_0",
@@ -10678,8 +10654,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_edge_edge_blend_2_0_2_0",
@@ -10690,8 +10666,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_edge_edge_blend_3_1_2_1",
@@ -10770,8 +10746,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "plane_circ_heal",
@@ -11805,16 +11781,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_corner_blend_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1094 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -11866,8 +11838,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_edge_edge_blend_1_0_1_0",
@@ -11878,8 +11850,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_edge_edge_blend_2_0_2_0",
@@ -11890,8 +11862,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_edge_edge_blend_3_1_2_1",
@@ -11970,8 +11942,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "plane_square_heal",
@@ -12918,40 +12890,28 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_redistribute_0_1_7",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1220 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_redistribute_1_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1221 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_redistribute_2_1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1222 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -13055,8 +13015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "sphere_corner_blend_3",
@@ -13115,8 +13075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_edge_edge_blend_1_0_1_0",
@@ -13127,8 +13087,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_edge_edge_blend_2_0_2_0",
@@ -13139,8 +13099,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_edge_edge_blend_3_1_2_1",
@@ -13219,8 +13179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_heal",
@@ -14306,16 +14266,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_corner_blend_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1372 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -14367,8 +14323,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_edge_edge_blend_1_0_1_0",
@@ -14379,8 +14335,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_edge_edge_blend_2_0_2_0",
@@ -14391,8 +14347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_edge_edge_blend_3_1_2_1",
@@ -14471,8 +14427,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_extrude_heal",
@@ -15559,8 +15515,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_corner_blend_3",
@@ -15619,8 +15575,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_edge_edge_blend_1_0_1_0",
@@ -15631,8 +15587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_edge_edge_blend_2_0_2_0",
@@ -15643,8 +15599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_edge_edge_blend_3_1_2_1",
@@ -15723,8 +15679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_rev_heal",
@@ -16807,8 +16763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_corner_blend_3",
@@ -16867,8 +16823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_edge_edge_blend_1_0_1_0",
@@ -16879,8 +16835,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_edge_edge_blend_2_0_2_0",
@@ -16891,8 +16847,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_edge_edge_blend_3_1_2_1",
@@ -16971,8 +16927,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_heal",
@@ -17936,8 +17892,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "torus_redistribute_0_1_7",
@@ -17948,8 +17904,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "torus_redistribute_1_1_0",
@@ -17960,8 +17916,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "torus_redistribute_2_1_1",
@@ -18072,8 +18028,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "torus_corner_blend_3",
@@ -18132,8 +18088,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "torus_edge_edge_blend_1_0_1_0",
@@ -18144,8 +18100,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "torus_edge_edge_blend_2_0_2_0",
@@ -18156,8 +18112,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "torus_edge_edge_blend_3_1_2_1",
@@ -18236,8 +18192,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "torus_heal",
@@ -19201,8 +19157,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_redistribute_0_1_7",
@@ -19213,8 +19169,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_redistribute_1_1_0",
@@ -19225,8 +19181,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_redistribute_2_1_1",
@@ -19337,8 +19293,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_corner_blend_3",
@@ -19397,8 +19353,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_edge_edge_blend_1_0_1_0",
@@ -19409,8 +19365,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_edge_edge_blend_2_0_2_0",
@@ -19421,8 +19377,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_edge_edge_blend_3_1_2_1",
@@ -19501,8 +19457,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "toruswvy_heal",
@@ -20454,8 +20410,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_redistribute_0_1_7",
@@ -20584,8 +20540,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_corner_blend_3",
@@ -20644,8 +20600,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_edge_edge_blend_1_0_1_0",
@@ -20656,8 +20612,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_edge_edge_blend_2_0_2_0",
@@ -20668,8 +20624,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_edge_edge_blend_3_1_2_1",
@@ -20748,8 +20704,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "vase_rev_heal",
@@ -20852,6 +20808,1926 @@
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2094 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile; sm_VoteForRegion with a NULL region, SmBrep.cpp:11165 called at :11867 and :11889))",
       "values_compared": 7
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2095 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2096 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2097 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2098 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2099 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2100 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2101 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2102 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2103 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2104 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2105 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2106 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2107 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2108 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2109 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Mouse_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2110 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2111 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2112 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2113 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2114 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2115 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2116 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2117 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2118 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2119 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2120 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2121 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2122 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2123 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2124 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2125 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "Endcap_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2126 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2127 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2128 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2129 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2130 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2131 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2132 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2133 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2134 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2135 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2136 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2137 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2138 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2139 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2140 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2141 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "box_with_large_fillet_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2142 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2143 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2144 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2145 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2146 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2147 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2148 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2149 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2150 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2151 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2152 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2153 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2154 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2155 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2156 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2157 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cone_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2158 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2159 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2160 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2161 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2162 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2163 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2164 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2165 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2166 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2167 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2168 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2169 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2170 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2171 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2172 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2173 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "disk_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2174 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2175 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2176 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2177 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2178 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2179 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2180 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2181 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2182 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2183 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2184 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2185 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2186 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2187 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2188 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2189 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "ellips_ts2_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2190 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2191 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2192 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2193 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2194 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2195 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2196 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2197 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2198 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2199 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2200 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2201 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2202 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2203 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2204 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2205 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_circ_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2206 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2207 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2208 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2209 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2210 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2211 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2212 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2213 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2214 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2215 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2216 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2217 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2218 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2219 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2220 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2221 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "plane_square_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2222 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2223 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2224 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2225 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2226 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2227 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2228 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2229 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2230 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2231 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2232 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2233 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2234 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2235 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2236 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2237 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sphere_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2238 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2239 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2240 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2241 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2242 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2243 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2244 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2245 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2246 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2247 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2248 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2249 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2250 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2251 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2252 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2253 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_extrude_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2254 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2255 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2256 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2257 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2258 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2259 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2260 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2261 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2262 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2263 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2264 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2265 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2266 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2267 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2268 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2269 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_rev_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2270 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2271 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2272 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2273 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2274 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2275 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2276 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2277 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2278 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2279 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2280 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2281 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2282 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2283 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2284 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2285 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surf_sphere150_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2286 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2287 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2288 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2289 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2290 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2291 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2292 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2293 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2294 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2295 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2296 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2297 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2298 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2299 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2300 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2301 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "torus_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2302 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2303 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2304 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2305 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2306 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2307 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2308 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2309 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2310 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2311 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2312 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2313 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2314 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2315 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2316 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2317 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "toruswvy_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2318 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_null_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2319 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_null_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2320 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 4
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_0_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2321 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_0_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2322 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_1_flag0_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2323 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_1_flag0_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2324 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_0_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2325 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_0_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2326 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_1_flag1_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2327 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_1_flag1_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2328 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_0_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2329 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_0_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2330 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_1_flag2_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2331 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_reset_inf_1_flag2_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2332 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_void_flags_unsure0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2333 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "vase_rev_void_flags_unsure1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2334 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -21007,20 +22883,20 @@
     }
   ],
   "cases_both_errored": 45,
-  "cases_deferred": 475,
+  "cases_deferred": 464,
   "cases_failed": 0,
-  "cases_passed": 1859,
+  "cases_passed": 2110,
   "cases_rejected": 15,
-  "cases_total": 2349,
+  "cases_total": 2589,
   "deferred_by_unit": {
     "curve.crv_on_surf": 4,
     "harness:analytic-geometry-export": 217,
+    "intersect.surface_drop_lib_p3": 10,
     "query.brep": 71,
     "query.face_p2": 9,
     "surface.surface_cache_p1": 3,
-    "topology.edgeuse_p3": 93,
-    "topology.face_p2": 44,
-    "topology.face_p3": 18,
+    "topology.face_p2": 113,
+    "topology.face_p3": 21,
     "topology.face_p4": 16
   },
   "max_rel_err": 0.0,

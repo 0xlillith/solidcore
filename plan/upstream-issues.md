@@ -179,7 +179,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **What happens:** After the last new knot is inserted, the merge step compares `X[mx+1]`. An empty `X` reads `X[-1]`.
 - **Trigger:** Any call: one slot past the end is always read. Or an empty insert vector.
 - **How found:** read during porting.
-- **Confirmed:** no. The read never changes the output in practice.
+- **Confirmed:** no. The read never changes the output in practice. valgrind reports the read as a conditional jump on an uninitialised value (`N_BasisInsertKnots` under `N_CreateSkinSrfBoundaryContinuity`, `topology.brep_p1` edge-edge blends through `CreateBlendSurface`, cases that defer on the Rust side).
 - **Severity:** crash/UB.
 - **Rust port:** Skips the comparison. Empty `X` is `InvalidInput`.
 
@@ -1154,6 +1154,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (heap corruption without the shim's probe; with it, 2000 cases run clean).
 - **Severity:** crash/UB.
 - **Rust port:** The sample statuses fail the call at the first failing sample (`SM_ERR`). Skinning with too few intersection parameters returns `InvalidInput` ("too few intersection parameters"). The shim probes both conditions (the `GetSampleValues` pair and the rail synchronisation on copies) and reports `SM_ERR` / `1007` instead of running the undefined part.
+- **Also reached from:** `SmBrep::CreateEdgeEdgeBlend` (`SmBrep.cpp`, blend flags 1-3), which hands its trimmed, reparameterised edge rails to `CreateBlendSurface`: heap corruption in the `topology.brep_p1` difftest (valgrind: invalid read/write of 8 bytes just past a 128-double `sIntParams` copy, edge-edge blends on the upstream `.smb` files) once that shim ran the blend. The `topology.brep_p1` shim replays `CreateEdgeEdgeBlend` up to the blend call on its own rails and applies the same probe.
 
 #### UB-111. `SmApiCreateDraftSweep` with no curves crashes
 - **Location:** `source/SM_API/src/SmApiBrep.cpp:1310` `SmApiCreateDraftSweep` -> `source/SMLib/src/SmPrimitiveCreation.cpp:3604` `SmPrimitiveCreation::CreateTaperExtrude`.

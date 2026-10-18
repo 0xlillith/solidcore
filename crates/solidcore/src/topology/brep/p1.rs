@@ -92,12 +92,13 @@
 //!   (upstream hands back the shell's region pointer unchecked).
 //! - Calls into units not ported yet return [`SolidError::Unported`] (every site is
 //!   tagged `UNPORTED(<unit>)`, one stub per call site with the code after it ported):
-//!   `SmEdgeuse::GetOrCreateUVTrimCurve`,
-//!   `NormalizedEvaluate`, `EvaluateBinormal` (`topology.edgeuse_p3`),
 //!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
 //!   `UnLockBoundingBox` (`query.brep`), `SmBSplineSurface::CreateCornerBlend` with a
 //!   non-B-spline neighbour surface (`nurbs.b_spline_surface_n_lib_p2`, whose port takes
 //!   B-spline neighbours only).
+//! - `CreateEdgeEdgeBlend` propagates a failing `EvaluateBinormal` (upstream ignores
+//!   both statuses and goes on with partly initialised outputs) and so takes the B-rep
+//!   mutably (edge use evaluations may attach UV trim curves).
 //! - `GetShells` dedups with a shell mark record local to the call (upstream marks the
 //!   `SmShell` objects); `SetRegionIsVoidFlagsForNestedSolids` bounds its shell queue at
 //!   `4 * shells + 16` passes.
@@ -135,6 +136,8 @@ use crate::surface::surface::Surface;
 use crate::topology::brep_cache::{arena_identity, CacheObject};
 use crate::topology::edge::{self, AttributeFilter};
 use crate::topology::edgeuse::p1 as eu1;
+use crate::topology::edgeuse::p2::BinormalEval;
+use crate::topology::edgeuse::p3::{self as eu3, BinormalOptions};
 use crate::topology::face::p1 as face1;
 use crate::topology::face::p2 as face2;
 use crate::topology::loopuse;
@@ -1343,17 +1346,21 @@ impl Drop for LockBrepBox<'_> {
     }
 }
 
-// ---- stubs into unit topology.edgeuse_p3 ------------------------------------------------
+// ---- calls into unit topology.edgeuse_p3 ------------------------------------------------
 
-/// `SmEdgeuse::NormalizedEvaluate(t, bUV, point)` (unit `topology.edgeuse_p3`).
-fn normalized_evaluate(b: &Brep, eu: EdgeuseId, t: f64, uv: bool) -> Result<Point3> {
-    b.edgeuse(eu)?;
-    let _ = (t, uv);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+/// `SmEdgeuse::NormalizedEvaluate(t, bParameterSpaceEval, rPoint, pOptFirstDeriv)`
+/// (`topology::edgeuse::p3::normalized_evaluate`; header default
+/// `bOKToMakeUVTrimCurve = TRUE`): `rPoint`. `want_first_deriv` is
+/// `pOptFirstDeriv != NULL` (the derivative itself is unused by every caller here).
+fn normalized_evaluate(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    t: f64,
+    parameter_space_eval: bool,
+    want_first_deriv: bool,
+) -> Result<Point3> {
+    Ok(eu3::normalized_evaluate(k, b, eu, t, parameter_space_eval, want_first_deriv, true)?.point)
 }
 
 /// `SmRegion::GetShells(rShells, pOptAttributeId)` (`Region::get_shells`, unit
@@ -1419,51 +1426,39 @@ fn brep_bounding_box(
     ))
 }
 
-/// The outcome of `SmEdgeuse::GetOrCreateUVTrimCurve`: its status and, apart from it, the
-/// curve it hands back (upstream returns an existing UV trim curve together with the
-/// failure status of an earlier drop).
-struct UvTrimCurveResult {
-    /// `None` for `SM_SUCCESS`.
-    status: Option<SolidError>,
-    /// `rpUVTrimCurve`.
-    curve: Option<Curve>,
-}
-
 /// `SmEdgeuse::GetOrCreateUVTrimCurve(rpUVTrimCurve, pdOptDistToSurf, pdOptDeviation,
-/// bUVSpaceOkay)` (unit `topology.edgeuse_p3`; header defaults `NULL`, `NULL`, `TRUE`).
-/// `Err` only for [`SolidError::Unported`].
+/// bUVSpaceOkay)` (`topology::edgeuse::p3::get_or_create_uv_trim_curve`; header defaults
+/// `NULL`, `NULL`, `TRUE`): the returned status, `None` for `SM_SUCCESS`. The curve
+/// upstream hands back in `rpUVTrimCurve` (also alongside a failure status) is the edge
+/// use's or its mate's attached one afterwards, [`eu1::uv_trim_curve`]. `want_dist` /
+/// `want_deviation` are `pdOpt... != NULL`. `Err` only where upstream has no status
+/// (`Unported`, dangling ids, null dereferences).
 fn get_or_create_uv_trim_curve(
     k: &Kernel,
     b: &mut Brep,
     eu: EdgeuseId,
-    opt_dist_to_surf: Option<&mut f64>,
-    opt_deviation: Option<&mut f64>,
+    want_dist: bool,
+    want_deviation: bool,
     uv_space_okay: bool,
-) -> Result<UvTrimCurveResult> {
-    let _ = (k, opt_dist_to_surf, opt_deviation, uv_space_okay);
-    b.edgeuse(eu)?;
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+) -> Result<Option<SolidError>> {
+    Ok(
+        eu3::get_or_create_uv_trim_curve(k, b, eu, want_dist, want_deviation, uv_space_okay)?
+            .status
+            .err(),
+    )
 }
 
-/// `SmEdgeuse::EvaluateBinormal(t, bEdgeParam, point, binormal, &tangent, &normal)`
-/// (unit `topology.edgeuse_p3`): `(point, binormal, tangent, normal)`.
+/// `SmEdgeuse::EvaluateBinormal(dParameter, bUse3DOnly, rBinormalPoint, rBinormal,
+/// pOptEdgeuseTangent, pOptFaceuseNormal)` (`topology::edgeuse::p3::evaluate_binormal`;
+/// header defaults `pOptUVParameter = pOptUVDir = NULL`).
 fn evaluate_binormal(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     eu: EdgeuseId,
-    t: f64,
-) -> Result<(Point3, Vec3, Vec3, Vec3)> {
-    let _ = (k, t);
-    b.edgeuse(eu)?;
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-    Err(SolidError::unported(
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
-    ))
+    parameter: f64,
+    use_3d_only: bool,
+) -> Result<BinormalEval> {
+    eu3::evaluate_binormal(k, b, eu, parameter, use_3d_only, &BinormalOptions::default())
 }
 
 // ---- curve side (sm_FindSideOfCurve) ----------------------------------------------------
@@ -1670,9 +1665,7 @@ pub fn find_sector_of_face(
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] for an edge without curve (upstream dereferences it);
-/// those of the evaluations, drops and notifications; [`SolidError::Unported`] from
-/// `SmEdgeuse::GetOrCreateUVTrimCurve` (unit `topology.edgeuse_p3`) when an edited
-/// edge has a UV trim curve.
+/// those of the evaluations, drops and notifications.
 pub fn update_vertex_edge_intervals(
     k: &Kernel,
     b: &mut Brep,
@@ -1783,7 +1776,7 @@ pub fn update_vertex_edge_intervals(
                         None,
                     ))?;
                     let _ignored_status =
-                        get_or_create_uv_trim_curve(k, b, eu, None, None, true)?.status;
+                        get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
                 }
             }
         }
@@ -1805,10 +1798,8 @@ pub fn update_vertex_edge_intervals(
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] where upstream reads past the edge use list (fewer
-/// than four edge uses) or dereferences null; [`SolidError::Unported`] from
-/// `SmEdgeuse::GetOrCreateUVTrimCurve` / `NormalizedEvaluate` / `EvaluateBinormal`
-/// (unit `topology.edgeuse_p3`), reached for every seam edge with a trim curve; those
-/// of the singularity test and the trim curve swap.
+/// than four edge uses) or dereferences null; those of the UV trim curve creation,
+/// the singularity test and the trim curve swap.
 pub fn redistribute_seam_uv_trim_curves(
     k: &Kernel,
     b: &mut Brep,
@@ -1837,21 +1828,22 @@ pub fn redistribute_seam_uv_trim_curves(
 
     // GWC: Check if we need to make sure the PrevEdgeuses have UVTrimCurves for this to work?
     // (the statuses and curves are only SM_ASSERTed upstream)
-    let _this_status = get_or_create_uv_trim_curve(k, b, prev_this, None, None, true)?.status;
-    let _other_status = get_or_create_uv_trim_curve(k, b, prev_other, None, None, true)?.status;
+    let _this_status = get_or_create_uv_trim_curve(k, b, prev_this, false, false, true)?;
+    let _other_status = get_or_create_uv_trim_curve(k, b, prev_other, false, false, true)?;
 
     // Find the UV point for the two new starting Vertexuses (statuses not checked
-    // upstream: a failed evaluation leaves the point unset; undefined here)
+    // upstream: a failed evaluation leaves the point unset; undefined here; the first
+    // derivatives are requested but unused upstream)
     // NewE Start UV values from UVTrimCurves
     let this_point_uv =
-        ignored(normalized_evaluate(b, this_eu, 0.0, true))?.unwrap_or(Point3::UNDEF);
+        ignored(normalized_evaluate(k, b, this_eu, 0.0, true, true))?.unwrap_or(Point3::UNDEF);
     let other_point_uv =
-        ignored(normalized_evaluate(b, other_eu, 0.0, true))?.unwrap_or(Point3::UNDEF);
+        ignored(normalized_evaluate(k, b, other_eu, 0.0, true, true))?.unwrap_or(Point3::UNDEF);
     // Prev Start UV values from PrevUVtrimCurves
     let prev_this_point_uv =
-        ignored(normalized_evaluate(b, prev_this, 1.0, true))?.unwrap_or(Point3::UNDEF);
+        ignored(normalized_evaluate(k, b, prev_this, 1.0, true, true))?.unwrap_or(Point3::UNDEF);
     let prev_other_point_uv =
-        ignored(normalized_evaluate(b, prev_other, 1.0, true))?.unwrap_or(Point3::UNDEF);
+        ignored(normalized_evaluate(k, b, prev_other, 1.0, true, true))?.unwrap_or(Point3::UNDEF);
 
     // make sure sThisPointUV == sPrevThisPointUV, sOtherPointUV == sPrevOtherPointUV are
     // the same to tol by switching the UVTrimCurves if needed. Expect all 4 PointUVs to
@@ -1904,10 +1896,13 @@ pub fn redistribute_seam_uv_trim_curves(
         // (the three statuses are tested, not propagated)
         let uv = ignored(this_uv_trim_curve.evaluate_point(parameter))?;
         let binormal = match uv {
-            Some(_) => ignored(evaluate_binormal(k, b, this_eu, parameter))?,
+            Some(_) => ignored(evaluate_binormal(k, b, this_eu, parameter, true))?,
             None => None,
         };
-        if let (Some(uv), Some((_edge_point, binormal, _, _))) = (uv, binormal) {
+        if let (Some(uv), Some(BinormalEval { binormal, .. })) = (uv, binormal) {
+            // (the face surface fetched above; re-borrowed past the binormal evaluation)
+            let surface = face2::surface(b, face)?
+                .ok_or_else(|| null("sm_RedistributeSeamUVTrimCurves: face without surface"))?;
             if let Some((_surface_point, du, dv)) =
                 ignored(surface.evaluate_1st_derivatives(Point2::new(uv.x, uv.y), true, true))?
             {
@@ -2255,9 +2250,8 @@ fn face_intersect(
 ///
 /// # Errors
 ///
-/// `SM_ERR` for fewer than two edge uses or a gap in the chain; [`SolidError::Unported`]
-/// from `SmEdgeuse::NormalizedEvaluate` / `GetOrCreateUVTrimCurve` (unit
-/// `topology.edgeuse_p3`), reached for every valid input; [`SolidError::InvalidInput`]
+/// `SM_ERR` for fewer than two edge uses or a gap in the chain; those of the edge use
+/// evaluations; [`SolidError::InvalidInput`]
 /// where upstream dereferences null (an opposite edge use without mate, an edge
 /// without curve, a tangent edge use without face) or reads past
 /// `tangent_to_face`; those of the copies, trims and the blend.
@@ -2335,10 +2329,10 @@ pub fn create_corner_blend(
             };
 
             // lastEdgeuse endpoint (3d Eval)
-            let end_point = normalized_evaluate(b, last_eu, param, false)?;
+            let end_point = normalized_evaluate(k, b, last_eu, param, false, false)?;
 
             // TestEdgeuse StartPoint
-            let test_pt = normalized_evaluate(b, eu, 0.0, false)?;
+            let test_pt = normalized_evaluate(k, b, eu, 0.0, false, false)?;
 
             // when LastEdge EndPoint coincides with TestEdge Start
             if test_pt.distance(end_point) < approx_tol_3d * tol_scale {
@@ -2354,7 +2348,7 @@ pub fn create_corner_blend(
             }
 
             // TestEdgeuse EndPoint
-            let test_pt = normalized_evaluate(b, eu, 1.0, false)?;
+            let test_pt = normalized_evaluate(k, b, eu, 1.0, false, false)?;
 
             // When LastEdge EndPoint coincides with TestEdge End
             if test_pt.distance(end_point) < approx_tol_3d * tol_scale {
@@ -2416,11 +2410,10 @@ pub fn create_corner_blend(
             // get Edgeuse->UVTrimCurve (status ignored upstream; SM_ASSERT(pUVCurve != NULL)
             // is a release no-op and the copy dereferences it), copy UVTrimCurve
             // (the status is ignored: upstream copies whatever curve it returns)
-            let uv_curve = get_or_create_uv_trim_curve(k, b, eu, None, None, true)?
-                .curve
-                .ok_or_else(|| {
-                    null("CreateCornerBlend: GetOrCreateUVTrimCurve left no UV trim curve")
-                })?;
+            let _ignored_status = get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
+            let uv_curve = eu1::uv_trim_curve(b, eu)?.0.ok_or_else(|| {
+                null("CreateCornerBlend: GetOrCreateUVTrimCurve left no UV trim curve")
+            })?;
             let uv_copy = uv_curve.copy(k)?;
             let Some(uv_bspline) = bspline_part(&uv_copy) else {
                 return Err(sm_err());
@@ -2504,13 +2497,12 @@ pub fn create_corner_blend(
 /// `SM_ERR_NULL_POINTER` for a null edge use (`NER`); `SM_ERR_INVALID_INPUT` for an
 /// edge use without edge, an edge without B-spline curve or a face without surface;
 /// [`SolidError::InvalidInput`] for a blend edge use without face (upstream
-/// dereferences it); those of the knot dampening and the ruled surface;
-/// [`SolidError::Unported`] from `SmEdgeuse::EvaluateBinormal` (unit
-/// `topology.edgeuse_p3`), reached for every blend.
+/// dereferences it); those of the binormal evaluations (statuses upstream ignores),
+/// the knot dampening and the ruled surface.
 #[allow(clippy::too_many_arguments)]
 pub fn create_edge_edge_blend(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     blend_flag: u64,
     eu_1: Option<EdgeuseId>,
     eu_2: Option<EdgeuseId>,
@@ -2603,16 +2595,29 @@ pub fn create_edge_edge_blend(
         eu1::face(b, eu_1)?.ok_or_else(|| null("CreateEdgeEdgeBlend: edge use without face"))?;
     let face2_ =
         eu1::face(b, eu_2)?.ok_or_else(|| null("CreateEdgeEdgeBlend: edge use without face"))?;
-    let (Some(surface1), Some(surface2)) = (face2::surface(b, face1)?, face2::surface(b, face2_)?)
-    else {
+    let surfaces_present = (
+        face2::surface(b, face1)?.is_some(),
+        face2::surface(b, face2_)?.is_some(),
+    );
+    if !(surfaces_present.0 && surfaces_present.1) {
         return Err(status(SM_ERR_INVALID_INPUT)); // Could not fetch Surface from Edgeuse
-    };
+    }
 
     // set the bIntoFace values for curve/Surface pairs
-    let (_edge1_pos, edge1_binormal, mut edge1_tangent, mut face1_normal) =
-        evaluate_binormal(k, b, eu_1, ivl1.evaluate(0.5))?;
-    let (_edge2_pos, edge2_binormal, mut edge2_tangent, mut face2_normal) =
-        evaluate_binormal(k, b, eu_2, ivl2.evaluate(0.5))?;
+    // (upstream ignores both statuses and goes on with the partly initialised outputs;
+    // a failure is propagated here)
+    let BinormalEval {
+        binormal: edge1_binormal,
+        tangent: mut edge1_tangent,
+        face_normal: mut face1_normal,
+        ..
+    } = evaluate_binormal(k, b, eu_1, ivl1.evaluate(0.5), true)?;
+    let BinormalEval {
+        binormal: edge2_binormal,
+        tangent: mut edge2_tangent,
+        face_normal: mut face2_normal,
+        ..
+    } = evaluate_binormal(k, b, eu_2, ivl2.evaluate(0.5), true)?;
     if eu1::orientation(b, eu_1)? == OrientType::Opposite {
         edge1_tangent = -edge1_tangent;
     }
@@ -2685,6 +2690,9 @@ pub fn create_edge_edge_blend(
     // build blend surface
     let curve1 = Curve::from(rail1);
     let curve2 = Curve::from(rail2);
+    // (the face surfaces fetched above; re-borrowed past the edge use evaluations)
+    let surface1 = face2::surface(b, face1)?.ok_or_else(|| SolidError::null_pointer(OP))?;
+    let surface2 = face2::surface(b, face2_)?.ok_or_else(|| SolidError::null_pointer(OP))?;
     surface1.create_blend_surface(
         k,
         &curve1,
