@@ -26,8 +26,8 @@
 //! (`SmNewMarkAndLock`). Before every op the executive's extended-surface cache is
 //! seeded with every face surface of both B-reps and every store surface mapped to
 //! itself, so `GetCreateExtendedSurface` returns the base surface unextended and the
-//! non-returning `CreateExtendedSurface` loops (HANG-16 of PR #175, HANG-17) never run;
-//! the Rust side defers at that call.
+//! non-returning `CreateExtendedSurface` loops (HANG-16, HANG-17) never run; the Rust
+//! runner seeds the ported executive's cache the same way.
 //!
 //! An object handle is a triple `brep kind index`: `kind` 0 vertex, 1 edge, 2 face, 9
 //! edge use, 10 face use (of B-rep `brep`, `index` in its export's traversal order), 3

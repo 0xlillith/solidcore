@@ -13,8 +13,13 @@
 //! trim curve, marked edge uses), then runs the unit's functions. The Rust side imports
 //! the shim's exports of both B-reps (as the `topology.vertexuse` runner does) into two
 //! [`Brep`]s behind one adapter ([`Two`], which implements the port's [`OffsetBrep`]
-//! with the ported topology functions) and an [`OffsetExecutive`] holding the same
-//! flags and pairs, and runs the same script. Both sides produce the same flat record:
+//! with the ported topology functions) and the ported executive
+//! (`offset.offset_executive_p1`, behind the port's [`OffsetExecutive`]) holding the same
+//! flags and pairs, and runs the same script. Before every op both sides seed the
+//! executive's extended-surface cache with every face surface of both B-reps and every
+//! store surface mapped to itself (the shim through `m_vSurfExtSurf`, the runner through
+//! `insert_extended_surface`), so `GetCreateExtendedSurface` returns the base surface
+//! unextended and `CreateExtendedSurface` (HANG-16, HANG-17) never runs. Both sides produce the same flat record:
 //! per op its code, a status and its outputs (new geometry as curve blocks and surface
 //! samples, B-rep edits as edge state blocks).
 //!
@@ -45,10 +50,8 @@
 //! `surface.offset_surface`), `UpdateFaceSurfaceDomain`
 //! (`SmFace::CreateUVTrimCurves` inside `CalculateUVDomainFromUVTrimCurves`,
 //! `topology.face_p3`),
-//! `ExtendTrimEdges` / `MateEdges` with non-null edge uses
-//! (`SmOffsetExecutive::GetCreateExtendedSurface`, `offset.offset_executive_p1`),
 //! `HaveTangentGaps` and the vertex moves of `ReplaceEdgeCurves` with a new 3D curve
-//! (`SmEdgeuse::NormalizedEvaluate`, `topology.edgeuse_p3`), the extended-surface and
+//! (`SmEdgeuse::NormalizedEvaluate`, `topology.edgeuse_p3`), the
 //! `CreateUVTrimCurve` candidates of `TrimExtendedEdge`, the offset-surface rails and
 //! the circular cross-section surface of `EdgeuseOffset`, and the inset-on-shell-face
 //! mating (`SmBrep::MateLaminaEdgeToSurface`, `topology.brep_p2`).
@@ -75,24 +78,30 @@ use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::nurbs::crv_basic::Curve as NlCurve;
 use solidcore::nurbs::math::{CPoint, NOW, NOZ};
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
+use solidcore::offset::offset_executive::p1::{
+    OffsetExecutive as OffsetExecutivePort, OffsetOperation,
+};
 use solidcore::offset::offset_geometry_creation::{
     LocalOperationGeometryCreation, OffsetBrep, OffsetExecutive, OffsetGeometryCreation, SsiData,
     UNDEFINED_UPSTREAM,
 };
 use solidcore::query::edge::ClosestPoint;
 use solidcore::surface::plane::Plane;
-use solidcore::surface::surface::p2::{SurfaceKind, TsectCurveType, SPHERE_TYPE};
+use solidcore::surface::surface::p2::{DropCurveFail, SurfaceKind, TsectCurveType, SPHERE_TYPE};
 use solidcore::surface::surface::Surface;
 use solidcore::surface::volume::Volume;
 use solidcore::topology::edge as ed;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::edgeuse::p2 as eu2;
+use solidcore::topology::edgeuse::p3 as eu3;
 use solidcore::topology::face::p1 as fp1;
 use solidcore::topology::face::p2 as fp2;
 use solidcore::topology::proto_topology::ProtoGeometry;
 use solidcore::topology::topology::Topology;
 use solidcore::topology::vertex as vx;
-use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, FaceuseId, VertexId, VertexuseId};
+use solidcore::topology::{
+    Brep, EdgeId, EdgeuseId, FaceId, FaceuseId, ObjectHandle, VertexId, VertexuseId,
+};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::offset_offset_geometry_creation::{self as ffi, Op};
 
@@ -1015,7 +1024,12 @@ impl OffsetBrep<H> for Two {
     fn edge_is_lamina(&self, edge: H) -> solidcore::Result<bool> {
         ed::is_lamina(self.brep_r(edge)?, eid(edge))
     }
-    fn edge_is_seam_of_face_surface(&self, edge: H, face: H) -> solidcore::Result<bool> {
+    fn edge_is_seam_of_face_surface(
+        &mut self,
+        k: &Kernel,
+        edge: H,
+        face: H,
+    ) -> solidcore::Result<bool> {
         if face.b != edge.b || face.kind != K_FACE {
             return Err(invalid("face of another B-rep"));
         }
@@ -1027,7 +1041,7 @@ impl OffsetBrep<H> for Two {
                 unit: ANALYTIC_EXPORT,
             });
         }
-        ed::is_seam_of_surface(self.brep_r(edge)?, eid(edge), fid(face))
+        ed::is_seam_of_surface(k, self.brep_m(edge)?, eid(edge), fid(face))
     }
     fn edge_vertex(&self, edge: H) -> solidcore::Result<Option<H>> {
         Ok(ed::vertex(self.brep_r(edge)?, eid(edge))?.map(|v| hd(edge.b, K_VERTEX, v.index())))
@@ -1159,52 +1173,170 @@ impl OffsetBrep<H> for Two {
         self.set_eu_uv_from(eu, c, max_dist)
     }
     fn edgeuse_is_tangent_sector(
-        &self,
-        _k: &Kernel,
+        &mut self,
+        k: &Kernel,
         eu: H,
         tol_deg: f64,
     ) -> solidcore::Result<bool> {
-        eu2::is_tangent_sector(self.brep_r(eu)?, euid(eu), tol_deg, false, true)
+        eu2::is_tangent_sector(k, self.brep_m(eu)?, euid(eu), tol_deg, false, true)
     }
     fn edgeuse_is_convex_radial_sector(
-        &self,
+        &mut self,
         k: &Kernel,
         eu: H,
         num_samples: u64,
     ) -> solidcore::Result<bool> {
-        eu2::is_convex_radial_sector(k, self.brep_r(eu)?, euid(eu), num_samples, false, 0.0)
+        eu2::is_convex_radial_sector(k, self.brep_m(eu)?, euid(eu), num_samples, false, 0.0)
     }
     fn edgeuse_is_marked(&self, _k: &Kernel, eu: H, _mark: MarkType) -> solidcore::Result<bool> {
         Ok(self.marked.contains(&eu))
     }
+    fn edgeuse_normalized_evaluate(
+        &mut self,
+        k: &Kernel,
+        eu: H,
+        t: f64,
+        parameter_space_eval: bool,
+        want_first_deriv: bool,
+        ok_to_make_uv_trim_curve: bool,
+    ) -> solidcore::Result<Point3> {
+        Ok(eu3::normalized_evaluate(
+            k,
+            self.brep_m(eu)?,
+            euid(eu),
+            t,
+            parameter_space_eval,
+            want_first_deriv,
+            ok_to_make_uv_trim_curve,
+        )?
+        .point)
+    }
+    fn edgeuse_create_uv_trim_curve(
+        &mut self,
+        k: &Kernel,
+        eu: H,
+        want_max_deviation: bool,
+        want_drop_curve_fail: bool,
+    ) -> solidcore::Result<(f64, SmCurve)> {
+        let mut fail = DropCurveFail::<ObjectHandle>::default();
+        let made = eu3::create_uv_trim_curve(
+            k,
+            self.brep_m(eu)?,
+            euid(eu),
+            want_max_deviation,
+            want_drop_curve_fail.then_some(&mut fail),
+        )?;
+        Ok((made.max_dist_to_surf, made.curve))
+    }
 }
 
-/// The executive's data: flags, shell faces and the original-to-offset edge-use relation
-/// (many-to-many, as `m_vEUToEU`: the distinct offset edge uses of an original, a
-/// repeated pair adding nothing, as `SmMapPtrToPtrs::Insert` into its `unordered_set`).
+/// The executive: the ported `SmOffsetExecutive` (`offset.offset_executive_p1`) holding the
+/// flags, the shell faces, the original-to-offset edge-use relation (many-to-many, as
+/// `m_vEUToEU`) and the extended-surface cache. Its typed ids each name one B-rep, while the
+/// script's handles span both, so a handle is folded into an id ([`exec_index`]) and back.
 struct Exec {
-    inset: bool,
-    extend: bool,
-    shell: Vec<H>,
-    map: BTreeMap<H, Vec<H>>,
+    inner: OffsetExecutivePort,
+    /// Extension-cache keys of the surfaces the shim seeds `m_vSurfExtSurf` with: every face
+    /// surface of both B-reps and every store surface as they stand at the start of each op,
+    /// cumulative as the C++ map (see [`Exec::seed`]).
+    seeded: BTreeSet<u64>,
+    /// Store handles of the extensions the port made for unseeded bases, by key.
+    made: BTreeMap<u64, H>,
+}
+
+/// A handle as an executive id: `i * 64 + kind * 4 + (b + 1)` (the FFI admits `b` in
+/// `-1..=2` and kinds below 12).
+fn exec_index(h: H) -> Result<u32, HarnessError> {
+    let b = u32::try_from(i16::from(h.b) + 1).ok().filter(|b| *b < 4);
+    let kind = u32::from(h.kind);
+    b.filter(|_| kind < 16)
+        .and_then(|b| h.i.checked_mul(64)?.checked_add(kind * 4 + b))
+        .ok_or_else(|| harness("executive handle outside the folded id range"))
+}
+
+/// The handle of an executive id ([`exec_index`]).
+fn exec_handle(x: u32) -> H {
+    hd((x & 3) as i8 - 1, ((x >> 2) & 15) as u8, x >> 6)
+}
+
+/// The extension-cache key of a surface handle (upstream keys the cache by pointer; each
+/// imported face owns its surface, so a handle names one surface).
+fn surface_key(h: H) -> u64 {
+    (u64::from(h.i) << 16) | (u64::from(h.kind) << 8) | u64::from(h.b as u8)
+}
+
+impl Exec {
+    /// Records the shim's per-op seeding (`seed_extended`): every face surface of both
+    /// B-reps and every store surface. The surfaces themselves go into the port's cache at
+    /// lookup ([`OffsetExecutive::get_create_extended_surface`]), as they stand then: the
+    /// C++ map holds the live surface, not a copy.
+    fn seed(&mut self, two: &Two) {
+        for (b, brep) in two.breps.iter().enumerate() {
+            let Some(brep) = brep else { continue };
+            for (id, face) in brep.faces().iter() {
+                if face.surface.is_some() {
+                    self.seeded
+                        .insert(surface_key(hd(b as i8, K_FACE_SURFACE, id.index())));
+                }
+            }
+        }
+        for (q, s) in two.surfaces.iter().enumerate() {
+            if s.is_some() {
+                self.seeded.insert(surface_key(hd(2, K_SURFACE, q as u32)));
+            }
+        }
+    }
 }
 
 impl OffsetExecutive<H> for Exec {
     fn inset(&self) -> bool {
-        self.inset
+        self.inner.inset()
     }
     fn extend_convex_edges(&self) -> bool {
-        self.extend
+        self.inner.extend_convex_edges()
     }
     fn shell_faces(&self) -> Vec<H> {
-        self.shell.clone()
+        self.inner
+            .shell_faces()
+            .iter()
+            .map(|f| exec_handle(f.index()))
+            .collect()
     }
-    /// `GetOffsetEdgeuse`: the related offset edge use only when there is exactly one.
     fn offset_edgeuse(&self, original: H) -> Option<H> {
-        match self.map.get(&original).map(Vec::as_slice) {
-            Some([one]) => Some(*one),
-            _ => None,
+        let original = EdgeuseId::from_index(exec_index(original).ok()?);
+        self.inner
+            .offset_edgeuse(original)
+            .map(|eu| exec_handle(eu.index()))
+    }
+    fn get_create_extended_surface<B: OffsetBrep<H>>(
+        &mut self,
+        k: &Kernel,
+        brep: &mut B,
+        base: H,
+    ) -> solidcore::Result<(H, Extent2d)> {
+        let surface = ClassGeometry::surface(brep, base)
+            .ok_or_else(|| invalid("GetCreateExtendedSurface of a null surface"))?
+            .clone();
+        let key = surface_key(base);
+        let seeded = self.seeded.contains(&key);
+        if seeded {
+            self.inner.insert_extended_surface(key, surface.clone());
         }
+        let ext = self.inner.get_create_extended_surface(k, key, &surface)?;
+        let domain = ext.natural_uv_domain();
+        if seeded {
+            // the seeded entry is the base itself, as `m_vSurfExtSurf.Insert(s, s)`
+            return Ok((base, domain));
+        }
+        if let Some(&h) = self.made.get(&key) {
+            return Ok((h, domain));
+        }
+        let ext = ext.clone();
+        let h = brep
+            .insert_surface(ext)
+            .ok_or_else(|| invalid("surface store full"))?;
+        self.made.insert(key, h);
+        Ok((h, domain))
     }
 }
 
@@ -2061,27 +2193,36 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
     let (lf0, ls0) = local_lists(&two);
     let local = LocalOperationGeometryCreation::new(i.dist, i.approx, &lf0, &ls0);
     let shell_count = hdr.shell.len();
-    let exec = Exec {
-        inset: i.inset,
-        extend: i.extend,
-        shell: hdr.shell.iter().filter_map(|h| triple_to_h(*h)).collect(),
-        map: hdr
-            .pairs
-            .iter()
-            .fold(BTreeMap::new(), |mut m: BTreeMap<H, Vec<H>>, [a, b]| {
-                if let (Some(a), Some(b)) = (triple_to_h(*a), triple_to_h(*b)) {
-                    let seconds = m.entry(a).or_default();
-                    if !seconds.contains(&b) {
-                        seconds.push(b);
-                    }
-                }
-                m
-            }),
+    let mut exec = Exec {
+        inner: OffsetExecutivePort::with_geometry_parameters(
+            OffsetOperation::SolidOffset,
+            geom.offset_distance(),
+            geom.this_approx_tol_3d(),
+            geom.tangency_tol_radians(),
+        ),
+        seeded: BTreeSet::new(),
+        made: BTreeMap::new(),
     };
+    exec.inner.set_inset(i.inset);
+    exec.inner.set_extend_convex_edges(i.extend);
+    let mut shell = Vec::new();
+    for f in hdr.shell.iter().filter_map(|h| triple_to_h(*h)) {
+        shell.push(FaceId::from_index(exec_index(f)?));
+    }
+    exec.inner.set_shell_faces(&shell);
+    for [a, b] in &hdr.pairs {
+        if let (Some(a), Some(b)) = (triple_to_h(*a), triple_to_h(*b)) {
+            exec.inner.relate_edgeuses(
+                EdgeuseId::from_index(exec_index(a)?),
+                EdgeuseId::from_index(exec_index(b)?),
+            );
+        }
+    }
     let all_ok = two.all_ok();
     let mark = MarkType::Mark;
 
     for r in &ops {
+        exec.seed(&two);
         match &r.op {
             OpIn::AddCurve { curve } => {
                 o.push(1.0);
@@ -2371,7 +2512,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 let r = geom.trim_extended_edge(
                     &k,
                     &mut two,
-                    &exec,
+                    &mut exec,
                     base,
                     triple_to_h(*other_base),
                     triple_to_h(*off),
@@ -2423,7 +2564,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 let r = geom.extend_trim_edges(
                     &k,
                     &mut two,
-                    &exec,
+                    &mut exec,
                     eu,
                     other,
                     Some(off),
@@ -2456,7 +2597,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     triple_to_h(*off),
                     triple_to_h(*other_off),
                 );
-                let r = geom.mate_edges(&k, &mut two, &exec, eu, other, off, other_off, mark);
+                let r = geom.mate_edges(&k, &mut two, &mut exec, eu, other, off, other_off, mark);
                 status(r, &mut o)?; // the edges' states: after every status
                 o.push(flag(off.is_some()));
                 if let Some(off) = off {
@@ -2480,7 +2621,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     o.push(NULL_DEREF);
                     continue;
                 }
-                let r = geom.have_tangent_gaps(&k, &two, *n, off, other_off);
+                let r = geom.have_tangent_gaps(&k, &mut two, *n, off, other_off);
                 let gaps = r.map_err(Fail::Solid)?;
                 o.push(0.0);
                 o.push(flag(gaps));
@@ -2534,8 +2675,9 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                         }
                     }
                 }
-                let r = geom
-                    .edgeuse_offset(&k, &mut two, &exec, orig, other_orig, off, other_off, mark);
+                let r = geom.edgeuse_offset(
+                    &k, &mut two, &mut exec, orig, other_orig, off, other_off, mark,
+                );
                 if let Some(out) = status(r, &mut o)? {
                     // the out-parameters: only after success
                     o.push(flag(out.surface.is_some()));

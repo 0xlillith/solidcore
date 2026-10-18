@@ -27,9 +27,8 @@
 // with every face surface of both B-reps and every store surface mapped to itself, so
 // `SmOffsetExecutive::GetCreateExtendedSurface` returns the base surface unextended and
 // `CreateExtendedSurface` never runs here (its loops do not return for a negative offset
-// distance, HANG-16 of PR #175, nor for a closed surface short against the extension,
-// HANG-17). The Rust side defers at `UNPORTED(offset.offset_executive_p1)` at the same
-// call, so no output that follows a seeded lookup is compared.
+// distance, HANG-16, nor for a closed surface short against the extension, HANG-17). The
+// Rust runner seeds the ported executive's cache the same way (`insert_extended_surface`).
 #include "sc_topology_fixture.h"
 
 #include <SmOffsetExecutive.h>

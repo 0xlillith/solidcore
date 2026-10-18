@@ -25,7 +25,7 @@
 //! | [`OffsetGeometryCreation::have_tangent_gaps`]               | `HaveTangentGaps`                                     |
 //! | [`OffsetGeometryCreation::edgeuse_offset`]                  | `EdgeuseOffset`                                       |
 //! | [`SsiData`]                                                 | `SmSSIData` (`SmSSIData.h`, CO-PORTED: no unit owns it) |
-//! | [`OffsetExecutive`]                                         | the data of `SmOffsetExecutive` this unit reads (CO-PORTED from `offset.offset_executive_p1`) |
+//! | [`OffsetExecutive`]                                         | what this unit uses of `SmOffsetExecutive` (ported in `offset.offset_executive_p1`), over handles |
 //! | [`OffsetBrep`]                                              | what the unit reads from and writes to the two B-reps |
 //!
 //! Deviations:
@@ -37,7 +37,9 @@
 //!   [`ProtoGeometry`]; new curves and surfaces go to the owner's stores
 //!   (`insert_curve` / `insert_surface`) and their handles are returned where upstream
 //!   returns owned pointers. The offset executive is reached through
-//!   [`OffsetExecutive`] (its stored flags, shell faces and edge-use map).
+//!   [`OffsetExecutive`] (its stored flags, shell faces, edge-use map and
+//!   extended-surface cache), which its owner implements over the ported
+//!   [`crate::offset::offset_executive::p1::OffsetExecutive`].
 //! - **Context.** `crContext` is the [`Kernel`] passed to each method.
 //! - **Out-params** become return values ([`VertexOffsetGeometry`], [`EdgeuseOffset`],
 //!   [`ReplaceEdgeCurves`], the trim interval of `TrimExtendedEdge` as an `Option`,
@@ -47,13 +49,12 @@
 //!   handles simply stay unreferenced in the owner's store ([`ReplaceEdgeCurves`]
 //!   reports the `rbDelete*` flags).
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
-//!   each tagged `UNPORTED(<unit>)`: `SmOffsetExecutive::GetCreateExtendedSurface`
-//!   (`offset.offset_executive_p1`),
-//!   `SmEdgeuse::NormalizedEvaluate` / `CreateUVTrimCurve` (`topology.edgeuse_p3`),
+//!   each tagged `UNPORTED(<unit>)`:
 //!   `SmBrep::MateLaminaEdgeToSurface` / `ReplaceSurface` (`topology.brep_p2`) and
 //!   `SmCircularCrossSectionFSG` (`blend.fillet_solver_p1`,
 //!   `blend.fillet_standard_solver_p1`). The code after a stub is ported in full;
-//!   `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`) and
+//!   `SmEdgeuse::NormalizedEvaluate` / `CreateUVTrimCurve` (`topology.edgeuse_p3`,
+//!   through [`OffsetBrep`]), `SmSurface::GlobalCurveIntersect` (`surface.surface_p8`) and
 //!   `SmSurface::CreateOffsetSurface` / the `SmOffsetSurface` constructor
 //!   (`surface.offset_surface`) are real calls. The offset-surface rail of
 //!   `EdgeuseOffset` defers at `SmCrvOnSurf` over that offset surface
@@ -259,11 +260,13 @@ pub struct ReplaceEdgeCurves {
 
 // ---- what the unit needs from the executive and the B-reps --------------------------------
 
-/// The data of the offset executive (`SmOffsetExecutive`, unit
-/// `offset.offset_executive_p1`) this unit reads: its stored flags, the faces to
-/// shell and the relation of original edge uses to offset edge uses. The tangency
-/// tolerance is not here: upstream's executive calls back into the geometry creation
-/// (`m_rGeometryCreation.GetTangencyTolDegrees()`), so this module reads its own.
+/// What this unit uses of the offset executive (`SmOffsetExecutive`, ported as
+/// [`crate::offset::offset_executive::p1::OffsetExecutive`]): its stored flags, the
+/// faces to shell, the relation of original edge uses to offset edge uses and its
+/// extended-surface cache, over this unit's object handles `O`. The executive's owner
+/// implements it on top of the ported struct, mapping handles to its typed ids. The
+/// tangency tolerance is not here: upstream's executive calls back into the geometry
+/// creation (`m_rGeometryCreation.GetTangencyTolDegrees()`), so this module reads its own.
 pub trait OffsetExecutive<O> {
     /// `GetInset`.
     fn inset(&self) -> bool;
@@ -274,6 +277,24 @@ pub trait OffsetExecutive<O> {
     /// `GetOffsetEdgeuse`: the offset edge use related to `original`, only when exactly
     /// one is (`m_vEUToEU` is a many-to-many `SmRelation`; none or several give `None`).
     fn offset_edgeuse(&self, original: O) -> Option<O>;
+    /// `GetCreateExtendedSurface(pBase, rUVDomainOfOffset, rpExtSurface)`: the extension
+    /// of `base` cached by the executive (`m_vSurfExtSurf`), created on a miss by
+    /// extending `base` by five offset distances
+    /// (`m_rGeometryCreation.GetOffsetDistance() * 5.0`, G1-ruled) with
+    /// [`crate::offset::offset_executive::p1::OffsetExecutive::get_create_extended_surface`],
+    /// and its natural UV domain. A newly made extension is stored where `brep` resolves
+    /// the returned handle; a hit returns the cached handle again.
+    ///
+    /// # Errors
+    ///
+    /// The extension's errors, and [`SolidError::InvalidInput`] for a `base` that does not
+    /// resolve to a surface (upstream `NER(pBase)`).
+    fn get_create_extended_surface<B: OffsetBrep<O>>(
+        &mut self,
+        k: &Kernel,
+        brep: &mut B,
+        base: O,
+    ) -> Result<(O, Extent2d)>;
 }
 
 /// What the unit reads from and writes to the original and offset B-reps,
@@ -326,7 +347,7 @@ pub trait OffsetBrep<O>: ProtoGeometry<O> {
     /// `SmEdge::IsLamina` (`topology::edge::is_lamina`).
     fn edge_is_lamina(&self, edge: O) -> Result<bool>;
     /// `SmEdge::IsSeam(*face->GetSurface())` (`topology::edge::is_seam_of_surface`).
-    fn edge_is_seam_of_face_surface(&self, edge: O, face: O) -> Result<bool>;
+    fn edge_is_seam_of_face_surface(&mut self, k: &Kernel, edge: O, face: O) -> Result<bool>;
     /// `SmEdge::GetVertex` (`topology::edge::vertex`).
     fn edge_vertex(&self, edge: O) -> Result<Option<O>>;
     /// `SmEdge::GetOtherVertex` (`topology::edge::other_vertex`).
@@ -381,72 +402,83 @@ pub trait OffsetBrep<O>: ProtoGeometry<O> {
     ) -> Result<()>;
     /// `SmEdgeuse::IsTangentSector(tolDeg)` with upstream's other defaults
     /// (`topology::edgeuse::p2::is_tangent_sector`).
-    fn edgeuse_is_tangent_sector(&self, k: &Kernel, eu: O, tol_deg: f64) -> Result<bool>;
+    fn edgeuse_is_tangent_sector(&mut self, k: &Kernel, eu: O, tol_deg: f64) -> Result<bool>;
     /// `SmEdgeuse::IsConvexRadialSector(samples)` with upstream's other defaults
     /// (`topology::edgeuse::p2::is_convex_radial_sector`).
-    fn edgeuse_is_convex_radial_sector(&self, k: &Kernel, eu: O, num_samples: u64) -> Result<bool>;
+    fn edgeuse_is_convex_radial_sector(
+        &mut self,
+        k: &Kernel,
+        eu: O,
+        num_samples: u64,
+    ) -> Result<bool>;
     /// `SmEdgeuse::IsMarked(eMarkType)` (`topology::topology::Topology::is_marked`).
     fn edgeuse_is_marked(&self, k: &Kernel, eu: O, mark: MarkType) -> Result<bool>;
+    /// `SmEdgeuse::NormalizedEvaluate(t, bParameterSpaceEval, rPoint, pOptFirstDeriv,
+    /// bOKToMakeUVTrimCurve)` (`topology::edgeuse::p3::normalized_evaluate`): the point
+    /// (`want_first_deriv` is `pOptFirstDeriv != NULL`; the derivative is not returned).
+    fn edgeuse_normalized_evaluate(
+        &mut self,
+        k: &Kernel,
+        eu: O,
+        t: f64,
+        parameter_space_eval: bool,
+        want_first_deriv: bool,
+        ok_to_make_uv_trim_curve: bool,
+    ) -> Result<Point3>;
+    /// `SmEdgeuse::CreateUVTrimCurve(rdMaxDist, rpUVCurve, pdMaxDeviation,
+    /// pOptDropCurveFail)` (`topology::edgeuse::p3::create_uv_trim_curve`): `rdMaxDist`
+    /// and the new, unattached UV curve (`want_max_deviation` / `want_drop_curve_fail`:
+    /// the optional out-parameters are non-null; their values are not returned).
+    fn edgeuse_create_uv_trim_curve(
+        &mut self,
+        k: &Kernel,
+        eu: O,
+        want_max_deviation: bool,
+        want_drop_curve_fail: bool,
+    ) -> Result<(f64, Curve)>;
 }
 
-// ---- unported callees -----------------------------------------------------------------------
+// ---- callees through the B-rep, and unported callees ----------------------------------------
 //
-// Each stub carries every argument of the upstream call (literals and header defaults
+// Each helper carries every argument of the upstream call (literals and header defaults
 // included, as named parameters) plus the kernel and the B-rep / executive it is called
-// on, so wiring one changes no call site.
-
-/// `cpOffsetExecutive->GetCreateExtendedSurface(pBase, rUVDomainOfOffset, rpExtSurface)`:
-/// the extended surface (made by extending `pBase` by five offset distances,
-/// `m_rGeometryCreation.GetOffsetDistance() * 5.0`, and cached in the executive's
-/// `m_vSurfExtSurf`) and its domain. The cache makes the upstream call mutate the
-/// executive, which the port's `&` executive will have to allow when it is wired.
-fn executive_get_create_extended_surface<O>(
-    _k: &Kernel,
-    _brep: &mut impl OffsetBrep<O>,
-    _executive: &impl OffsetExecutive<O>,
-    _offset_distance: f64,
-    _base: O,
-) -> Result<(O, Extent2d)> {
-    // UNPORTED(offset.offset_executive_p1): SmOffsetExecutive::GetCreateExtendedSurface
-    Err(SolidError::unported(
-        "SmOffsetExecutive::GetCreateExtendedSurface",
-        "offset.offset_executive_p1",
-    ))
-}
+// on, so wiring a stub changes no call site.
 
 /// `pEdgeuse->NormalizedEvaluate(t, bParameterSpaceEval, rPoint, pOptFirstDeriv = NULL,
 /// bOKToMakeUVTrimCurve = TRUE)`: the point at the normalised parameter (every call
 /// here passes `FALSE`, a 3D evaluation, and no derivative).
 fn edgeuse_normalized_evaluate<O>(
-    _k: &Kernel,
-    _brep: &impl OffsetBrep<O>,
-    _eu: O,
-    _t: f64,
-    _parameter_space_eval: bool,
-    _want_first_deriv: bool,
-    _ok_to_make_uv_trim_curve: bool,
+    k: &Kernel,
+    brep: &mut impl OffsetBrep<O>,
+    eu: O,
+    t: f64,
+    parameter_space_eval: bool,
+    want_first_deriv: bool,
+    ok_to_make_uv_trim_curve: bool,
 ) -> Result<Point3> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+    brep.edgeuse_normalized_evaluate(
+        k,
+        eu,
+        t,
+        parameter_space_eval,
+        want_first_deriv,
+        ok_to_make_uv_trim_curve,
+    )
 }
 
 /// `pEdgeuse->CreateUVTrimCurve(rdMaxDist, rpUVCurve, pdMaxDeviation = NULL,
-/// pOptDropCurveFail = NULL)`: the largest distance and the new UV curve.
-fn edgeuse_create_uv_trim_curve<O>(
-    _k: &Kernel,
-    _brep: &mut impl OffsetBrep<O>,
-    _eu: O,
-    _want_max_deviation: bool,
-    _want_drop_curve_fail: bool,
+/// pOptDropCurveFail = NULL)`: the largest distance and the new UV curve (stored, not
+/// attached to the edge use: upstream's caller owns it).
+fn edgeuse_create_uv_trim_curve<O: ClassObject>(
+    k: &Kernel,
+    brep: &mut impl OffsetBrep<O>,
+    eu: O,
+    want_max_deviation: bool,
+    want_drop_curve_fail: bool,
 ) -> Result<(f64, O)> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::CreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::CreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+    let (max_dist, curve) =
+        brep.edgeuse_create_uv_trim_curve(k, eu, want_max_deviation, want_drop_curve_fail)?;
+    Ok((max_dist, store_curve(brep, curve)?))
 }
 
 /// `pEdge->GetBrep()->MateLaminaEdgeToSurface(pEdge, crSurface, dTolMult = 1.5,
@@ -945,7 +977,7 @@ impl OffsetGeometryCreation {
                 .first()
                 .copied()
                 .ok_or(dangling("edge without faces"))?;
-            if brep.edge_is_seam_of_face_surface(e, f)? {
+            if brep.edge_is_seam_of_face_surface(k, e, f)? {
                 // no need for a vertex cap Surface
                 return Ok(out);
             }
@@ -1365,8 +1397,8 @@ impl OffsetGeometryCreation {
     ///
     /// # Errors
     ///
-    /// `SER` of the evaluations and the vertex moves; [`SolidError::Unported`] for
-    /// `SmEdgeuse::NormalizedEvaluate` (`topology.edgeuse_p3`);
+    /// `SER` of the evaluations (`SmEdgeuse::NormalizedEvaluate` included) and the
+    /// vertex moves;
     /// [`SolidError::InvalidInput`] for an edge use without edge, an edge without
     /// curve, or a null UV curve where upstream dereferences it.
     pub fn replace_edge_curves<O: ClassObject + SolutionObject>(
@@ -1515,15 +1547,14 @@ impl OffsetGeometryCreation {
     /// # Errors
     ///
     /// `SER` of the point solves, intersections and evaluations;
-    /// [`SolidError::Unported`] for `SmOffsetExecutive::GetCreateExtendedSurface` and
-    /// `SmEdgeuse::CreateUVTrimCurve`;
-    /// [`SolidError::InvalidInput`] for null objects upstream dereferences.
+    /// [`SolidError::InvalidInput`] for null objects upstream dereferences. `SER` of
+    /// `SmEdgeuse::CreateUVTrimCurve` is included.
     #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
     pub fn trim_extended_edge<O: ClassObject + SolutionObject>(
         &self,
         k: &Kernel,
         brep: &mut impl OffsetBrep<O>,
-        executive: &impl OffsetExecutive<O>,
+        executive: &mut impl OffsetExecutive<O>,
         base_edgeuse: O,
         other_base_edgeuse: Option<O>,
         offset_edgeuse: Option<O>,
@@ -1830,13 +1861,8 @@ impl OffsetGeometryCreation {
                 let f_surface = brep
                     .face_surface(f)?
                     .ok_or(dangling("face without surface"))?;
-                let (ext_surface, ext_domain) = executive_get_create_extended_surface(
-                    k,
-                    brep,
-                    executive,
-                    self.offset_distance,
-                    f_surface,
-                )?;
+                let (ext_surface, ext_domain) =
+                    executive.get_create_extended_surface(k, brep, f_surface)?;
 
                 // intersect pF->ExtendedSurface with 3DCurve
                 let crv_ivl = curve_of(brep, curve_3d)?.natural_interval();
@@ -1960,8 +1986,8 @@ impl OffsetGeometryCreation {
     #[allow(clippy::too_many_arguments)]
     fn collect_neighbour<O: ClassObject + SolutionObject>(
         k: &Kernel,
-        brep: &impl OffsetBrep<O>,
-        executive: &impl OffsetExecutive<O>,
+        brep: &mut impl OffsetBrep<O>,
+        executive: &mut impl OffsetExecutive<O>,
         vertex: O,
         base_edge: O,
         neighbour: O,
@@ -2038,16 +2064,16 @@ impl OffsetGeometryCreation {
     /// # Errors
     ///
     /// `SM_ERR` when no trim interval is found or the second UV curve is missing;
-    /// `SER` of the geometry calls; [`SolidError::Unported`] for
-    /// `SmOffsetExecutive::GetCreateExtendedSurface` (`offset.offset_executive_p1`)
-    /// and the callees of `TrimExtendedEdge` / `ReplaceEdgeCurves`;
+    /// `SER` of the geometry calls (`GetCreateExtendedSurface` included);
+    /// [`SolidError::Unported`] for the callees of `TrimExtendedEdge` /
+    /// `ReplaceEdgeCurves`;
     /// [`SolidError::InvalidInput`] for null objects upstream dereferences.
     #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
     pub fn extend_trim_edges<O: ClassObject + SolutionObject>(
         &self,
         k: &Kernel,
         brep: &mut impl OffsetBrep<O>,
-        executive: &impl OffsetExecutive<O>,
+        executive: &mut impl OffsetExecutive<O>,
         edgeuse: O,
         other_edgeuse: Option<O>,
         offset_edgeuse: Option<O>,
@@ -2153,13 +2179,7 @@ impl OffsetGeometryCreation {
                 let surf = brep
                     .face_surface(off_face)?
                     .ok_or(dangling("face without surface"))?;
-                other_ext_surf = Some(executive_get_create_extended_surface(
-                    k,
-                    brep,
-                    executive,
-                    self.offset_distance,
-                    surf,
-                )?);
+                other_ext_surf = Some(executive.get_create_extended_surface(k, brep, surf)?);
             }
             if let Some(other_off) = other_offset_edgeuse {
                 let face2 = brep
@@ -2168,13 +2188,7 @@ impl OffsetGeometryCreation {
                 let surf2 = brep
                     .face_surface(face2)?
                     .ok_or(dangling("face without surface"))?;
-                ext_surf = Some(executive_get_create_extended_surface(
-                    k,
-                    brep,
-                    executive,
-                    self.offset_distance,
-                    surf2,
-                )?);
+                ext_surf = Some(executive.get_create_extended_surface(k, brep, surf2)?);
             }
         } else {
             // extend the surface (pOffsetEdgeuse is dereferenced: null is undefined)
@@ -2184,13 +2198,7 @@ impl OffsetGeometryCreation {
             let surf = brep
                 .face_surface(off_face)?
                 .ok_or(dangling("face without surface"))?;
-            ext_surf = Some(executive_get_create_extended_surface(
-                k,
-                brep,
-                executive,
-                self.offset_distance,
-                surf,
-            )?);
+            ext_surf = Some(executive.get_create_extended_surface(k, brep, surf)?);
 
             if !brep.edge_is_lamina(edge)? {
                 if let Some(other_off) = other_offset_edgeuse {
@@ -2200,13 +2208,7 @@ impl OffsetGeometryCreation {
                     let surf2 = brep
                         .face_surface(face2)?
                         .ok_or(dangling("face without surface"))?;
-                    other_ext_surf = Some(executive_get_create_extended_surface(
-                        k,
-                        brep,
-                        executive,
-                        self.offset_distance,
-                        surf2,
-                    )?);
+                    other_ext_surf = Some(executive.get_create_extended_surface(k, brep, surf2)?);
                 }
             }
         }
@@ -2420,16 +2422,15 @@ impl OffsetGeometryCreation {
     /// # Errors
     ///
     /// `SM_ERR_NULL_POINTER` for a null edge use or a missing UV curve; `SM_ERR`
-    /// when no intersection curve can be trimmed; `SER` of the geometry calls;
-    /// [`SolidError::Unported`] for `SmOffsetExecutive::GetCreateExtendedSurface`
-    /// (`offset.offset_executive_p1`) and the callees of `TrimExtendedEdge` /
-    /// `ReplaceEdgeCurves`.
+    /// when no intersection curve can be trimmed; `SER` of the geometry calls
+    /// (`GetCreateExtendedSurface` included); [`SolidError::Unported`] for the callees
+    /// of `TrimExtendedEdge` / `ReplaceEdgeCurves`.
     #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
     pub fn mate_edges<O: ClassObject + SolutionObject>(
         &self,
         k: &Kernel,
         brep: &mut impl OffsetBrep<O>,
-        executive: &impl OffsetExecutive<O>,
+        executive: &mut impl OffsetExecutive<O>,
         edgeuse: Option<O>,
         other_edgeuse: Option<O>,
         offset_edgeuse: Option<O>,
@@ -2449,16 +2450,14 @@ impl OffsetGeometryCreation {
         let surf1 = brep
             .face_surface(face1)?
             .ok_or(dangling("face without surface"))?;
-        let (ext_surface1, domain1) =
-            executive_get_create_extended_surface(k, brep, executive, self.offset_distance, surf1)?;
+        let (ext_surface1, domain1) = executive.get_create_extended_surface(k, brep, surf1)?;
         let face2 = brep
             .edgeuse_face(other_offset_edgeuse)?
             .ok_or(dangling("edge use without face"))?;
         let surf2 = brep
             .face_surface(face2)?
             .ok_or(dangling("face without surface"))?;
-        let (ext_surface2, domain2) =
-            executive_get_create_extended_surface(k, brep, executive, self.offset_distance, surf2)?;
+        let (ext_surface2, domain2) = executive.get_create_extended_surface(k, brep, surf2)?;
 
         // locals for surf/surf intersection
         let edge = brep
@@ -2632,13 +2631,13 @@ impl OffsetGeometryCreation {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for `SmEdgeuse::NormalizedEvaluate`
-    /// (`topology.edgeuse_p3`); those of the closest point; [`SolidError::InvalidInput`]
+    /// Those of the closest point (`SmEdgeuse::NormalizedEvaluate`'s status is ignored,
+    /// [`SolidError::Unported`] aside); [`SolidError::InvalidInput`]
     /// for an edge use without edge.
     pub fn have_tangent_gaps<O: ClassObject + SolutionObject>(
         &self,
         k: &Kernel,
-        brep: &impl OffsetBrep<O>,
+        brep: &mut impl OffsetBrep<O>,
         num_samples: u64,
         offset_edgeuse: O,
         other_offset_edgeuse: O,
@@ -2696,7 +2695,7 @@ impl OffsetGeometryCreation {
         &self,
         k: &Kernel,
         brep: &mut impl OffsetBrep<O>,
-        executive: &impl OffsetExecutive<O>,
+        executive: &mut impl OffsetExecutive<O>,
         original_edgeuse: O,
         other_original_edgeuse: Option<O>,
         offset_edgeuse: Option<O>,
