@@ -37588,6 +37588,4086 @@
      1
     ]
    }
+  },
+  {
+   "name": "Mouse_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Mouse_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Mouse_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Mouse_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Endcap_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "Endcap_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "Endcap_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "box_with_large_fillet_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "box_with_large_fillet_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "box_with_large_fillet_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "box_with_large_fillet.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "cone_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "cone_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "cone_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "cone_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "cone_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "cone_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "cone_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "cone_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "cone_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "cone_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "cone_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "cone_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "cone_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "cone_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "cone_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "cone_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "cone.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "disk_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "disk_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "disk_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "disk_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "disk_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "disk_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "disk_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "disk_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "disk_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "disk_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "disk_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "disk_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "disk_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "disk_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "disk_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "disk_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "disk.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "ellips_ts2_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "ellips_ts2_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "ellips_ts2_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "ellips_ts2.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_circ_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_circ_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_circ_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_circ.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_square_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "plane_square_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "plane_square_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "plane_square.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "sphere_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "sphere_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "sphere_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "sphere_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "sphere_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "sphere_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "sphere_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "sphere_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "sphere_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "sphere_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "sphere_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "sphere_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "sphere_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "sphere_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "sphere_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "sphere_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "sphere.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_extrude_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_extrude_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_extrude_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_extrude.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_rev_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_rev_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_rev_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_sphere150_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "surf_sphere150_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "surf_sphere150_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "surf_sphere150.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "torus_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "torus_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "torus_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "torus_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "torus_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "torus_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "torus_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "torus_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "torus_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "torus_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "torus_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "torus_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "torus_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "torus_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "torus_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "torus_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "torus.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "toruswvy_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "toruswvy_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "toruswvy_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "toruswvy.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_null_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_null_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": -1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_0_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_0_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_1_flag0_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_1_flag0_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 0,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_0_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_0_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_1_flag1_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_1_flag1_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 1,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_0_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_0_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 0,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_1_flag2_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "vase_rev_reset_inf_1_flag2_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 1,
+    "reset": 1,
+    "flag": 2,
+    "unsure": 1
+   }
+  },
+  {
+   "name": "vase_rev_void_flags_unsure0",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 0
+   }
+  },
+  {
+   "name": "vase_rev_void_flags_unsure1",
+   "upstream_ref": "TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "vase_rev.smb",
+     "rebuild": false
+    },
+    "op": "set_inf",
+    "set": -2,
+    "mode": 2,
+    "reset": 0,
+    "flag": 0,
+    "unsure": 1
+   }
   }
  ]
 }

@@ -1046,9 +1046,13 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         int64_t mode = rd.idx();
         int64_t reset_idx = rd.idx();
         int64_t flag = rd.idx();
+        int64_t unsure_idx = rd.idx();
         auto region_at = [&](int64_t i) -> SmRegion* {
             return i >= 0 && i < (int64_t)g.regions.size() ? g.regions[(size_t)i] : nullptr;
         };
+        // SmRegion::SetIsVoid(UNSURE) on the chosen region first
+        if (region_at(unsure_idx) != nullptr)
+            region_at(unsure_idx)->SetIsVoid((SmBoolean)2);
         if (set_idx != -2)
             brep->SetInfiniteRegion(region_at(set_idx));
         // GUARD: ResetInfiniteRegion(region, SM_VS_INFINITEREGION_SWAP) dereferences the old
