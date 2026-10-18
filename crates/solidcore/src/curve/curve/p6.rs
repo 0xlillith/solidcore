@@ -55,7 +55,7 @@
 //!   the cache kept on the curve (`GetOrCreateObjectCache`); a port without one
 //!   rebuilds it for every drop. `GlobalCoincidenceChecker` (four drops per call,
 //!   tripled per split) keeps the two curves' caches for its whole recursion instead
-//!   ([`Curve::global_point_solve_cached`]), built at the first global solve as
+//!   (`Curve::global_point_solve_cached`), built at the first global solve as
 //!   upstream's; the build is deterministic, so the solutions are those of a fresh
 //!   cache. Other `DropPoint` callers still build one per call.
 //! - **Recursion.** `GlobalCoincidenceChecker` splits closed and half closed curves
