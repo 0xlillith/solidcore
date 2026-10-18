@@ -2023,18 +2023,107 @@ mod tests {
         assert_eq!(r.uv_domain, Extent2d::new());
     }
 
-    #[test]
-    fn edits_notify_first() {
+    /// The unit that owns the stub an error names (`None` for a real status).
+    fn unported_unit(e: &SolidError) -> Option<&'static str> {
+        match e {
+            SolidError::Unported { unit, .. } => Some(unit),
+            _ => None,
+        }
+    }
+
+    fn is_null_pointer(e: &SolidError) -> bool {
+        matches!(
+            e,
+            SolidError::Upstream {
+                code: crate::error::SM_ERR_NULL_POINTER,
+                ..
+            }
+        )
+    }
+
+    /// `plane_face` with the pair of face uses (no loops) the edits walk.
+    fn plane_face_with_faceuses() -> (
+        Brep,
+        FaceId,
+        crate::topology::FaceuseId,
+        crate::topology::FaceuseId,
+    ) {
+        use crate::topology::{Faceuse, FaceuseId};
         let (mut b, f) = plane_face();
+        let top = b
+            .add_faceuse_record(Faceuse {
+                face: Some(f),
+                mate: Some(FaceuseId::from_index(1)),
+                orientation: OrientType::Same,
+                ..Faceuse::default()
+            })
+            .unwrap();
+        let bot = b
+            .add_faceuse_record(Faceuse {
+                face: Some(f),
+                mate: Some(top),
+                orientation: OrientType::Opposite,
+                ..Faceuse::default()
+            })
+            .unwrap();
+        fp2::set_faceuse(&mut b, f, Some(top)).unwrap();
+        (b, f, top, bot)
+    }
+
+    /// With `SmFace::Notify` ported (`topology.face_p3`) the edits no longer stop at the
+    /// notification: the pre-edit notification runs (it resets the cached rectangular
+    /// trim), then each edit does what the C++ does until it reaches the next unported
+    /// callee (`GetUpwardEdgeuses` of the post-edit notification, `GetBrep`) or the
+    /// `NER` on a face without face use.
+    #[test]
+    fn edits_run_notify_then_the_edit() {
         let k = Kernel::default();
-        assert!(flip_face_orientation(&mut b, f).unwrap_err().is_unported());
-        assert!(remove_uv_trim_curves(&mut b, f).unwrap_err().is_unported());
+
+        // no face use: the pre-edit notification ran, then `NER(pFU)`
+        let (mut b, f) = plane_face();
+        b.face_mut(f).unwrap().rectangular_trim = 1;
+        assert!(is_null_pointer(
+            &flip_face_orientation(&mut b, f).unwrap_err()
+        ));
+        assert_eq!(b.face(f).unwrap().rectangular_trim, fp2::UNSURE);
+        b.face_mut(f).unwrap().rectangular_trim = 1;
+        assert!(is_null_pointer(
+            &remove_uv_trim_curves(&mut b, f).unwrap_err()
+        ));
+        assert_eq!(b.face(f).unwrap().rectangular_trim, fp2::UNSURE);
+
+        // with face uses and no loops: RemoveUVTrimCurves has nothing to delete and
+        // (as upstream) no post-edit notification
+        let (mut b, f, _, _) = plane_face_with_faceuses();
+        remove_uv_trim_curves(&mut b, f).unwrap();
+
+        // FlipFaceOrientation swaps the face uses before the post-edit notification
+        // reaches the unported `GetUpwardEdgeuses`
+        let (mut b, f, top, bot) = plane_face_with_faceuses();
+        let e = flip_face_orientation(&mut b, f).unwrap_err();
+        assert_eq!(unported_unit(&e), Some("topology.face_p4"));
+        assert_eq!(fp2::upward_faceuse(&b, f).unwrap(), Some(bot));
+        assert_eq!(b.faceuse(top).unwrap().orientation, OrientType::Opposite);
+        assert_eq!(b.faceuse(bot).unwrap().orientation, OrientType::Same);
+
+        // SetSurface: the change-geometry notification's data arguments cannot be
+        // formed (a surface owned by a face has no object identity), see findings.md
+        let (mut b, f) = plane_face();
         let s = b.face(f).unwrap().surface.clone().unwrap();
-        assert!(set_surface(&mut b, f, me(f), s, true)
-            .unwrap_err()
-            .is_unported());
-        assert!(swap_uv(&k, &mut b, f).unwrap_err().is_unported());
-        assert!(destroy(&mut b, f, me(f)).unwrap_err().is_unported());
+        let e = set_surface(&mut b, f, me(f), s, true).unwrap_err();
+        assert_eq!(unported_unit(&e), Some("topology.face_p3"));
+
+        // SwapUV starts at `GetBrep()->GetContext()`
+        let (mut b, f) = plane_face();
+        let e = swap_uv(&k, &mut b, f).unwrap_err();
+        assert_eq!(unported_unit(&e), Some("topology.face_p4"));
+
+        // the destructor notifies DESTRUCTION (no hierarchy to inform), clears the
+        // face use and drops the surface the face owns
+        let (mut b, f, _, _) = plane_face_with_faceuses();
+        destroy(&mut b, f, me(f)).unwrap();
+        let face = b.face(f).unwrap();
+        assert!(face.faceuse.is_none() && face.surface.is_none());
     }
 
     #[test]
