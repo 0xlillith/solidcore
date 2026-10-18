@@ -125,6 +125,7 @@ struct Guess {
 /// A `Point3DClassify` case. The point is the face surface at the UV domain fraction
 /// `(u, v)` plus `offset`.
 #[derive(Serialize, Deserialize)]
+#[allow(clippy::struct_excessive_bools)] // upstream's SmBoolean arguments
 struct PointInput {
     brep: Value,
     face: usize,
@@ -614,10 +615,10 @@ fn run_curve(input: &CurveInput, cpp: bool) -> Result<Output, HarnessError> {
     match p1::evaluate_curve(curve.as_ref(), input.parameter.value()?) {
         Ok(result) => {
             for ((i, vector), destination) in
-                result.iter().enumerate().zip(values.chunks_exact_mut(3))
+                result.iter().enumerate().zip(values.as_chunks_mut::<3>().0)
             {
                 if input.mask & (1 << i) != 0 {
-                    destination.copy_from_slice(&[vector.x, vector.y, vector.z]);
+                    *destination = [vector.x, vector.y, vector.z];
                 }
             }
             Ok(curve_output(0, values))
