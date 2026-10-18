@@ -6566,9 +6566,10 @@ are generic over caller handles (`O: ClassObject + SolutionObject`), as the prot
 topology and the topology intersector: the two B-reps are reached through the
 `OffsetBrep<O>` trait (each method names the ported topology function it stands for)
 and the executive's stored data (`GetInset`, `GetExtendConvexEdges`, `GetShellFaces`,
-`GetOffsetEdgeuse`; the tangency tolerance is the creation's own) through
-`OffsetExecutive<O>`, a co-port of the accessor surface of `offset.offset_executive_p1`
-(no open PR owns that unit; logged in the swarm COORD file). `SmSSIData` (no owning
+`GetOffsetEdgeuse`, `GetCreateExtendedSurface`; the tangency tolerance is the
+creation's own) through `OffsetExecutive<O>`, which its owner implements over the ported
+`offset::offset_executive::p1::OffsetExecutive` (first a co-port of that unit's
+accessors, before #175 merged). `SmSSIData` (no owning
 unit) is `SsiData<O>`. The curves and surfaces the unit makes go to the owner's stores.
 
 **Difftest.** The shim builds the original and the "offset" B-rep from real `.smb`
@@ -6583,23 +6584,25 @@ torus, cylinder, "raise the tolerances" and "non-synchronised" branches of
 `EdgeuseOffset`; three rational arcs through an offset corner reach the sphere of
 `VertexOffset`.
 
-**Upstream hangs (HANG-17; #175's negative-distance HANG-16).** `SmOffsetExecutive::GetCreateExtendedSurface`
+**Upstream hangs (HANG-17; HANG-16).** `SmOffsetExecutive::GetCreateExtendedSurface`
 extends the face's surface by five offset distances (`SmBSplineSurface::CreateExtendedSurface`,
 `SM_CT_G1R`) unless its `m_vSurfExtSurf` cache already holds the surface, in which case it
 returns the cached one without extending (`SmOffsetExecutive.cpp:2123`). Two things make the
 extension not return. (1) With a negative offset distance the per-side loop `while (dExtDist <
 dDist/2.0) { dExtDist *= 2.0; ... }` holds from the start and keeps holding while the extensions
 succeed, so the distance doubles without bound on any face, planes included (three generated
-cases at -0.25 ran past 60 s, gdb backtraces in `ST_surxsdr` under `CreateExtendedSurface`); PR
-#175 (`offset.offset_executive_p1`) records this as its "HANG-16. Negative-distance surface
-extension", which the HANG-17 entry in `plan/upstream-issues.md` references. (2) HANG-17: with a
+cases at -0.25 ran past 60 s, gdb backtraces in `ST_surxsdr` under `CreateExtendedSurface`); this
+is HANG-16 ("Direct negative-distance surface extension moves away from its loop's exit", from
+PR #175), which the HANG-17 entry in `plan/upstream-issues.md` references. Real callers build the
+geometry creation with `fabs(dOffsetDistance)`, so a negative creator distance (as the generator
+uses) is outside the executive's internal contract. (2) HANG-17: with a
 positive distance `ST_surxsdr` splits a large extension and recurses twice per level to depth
 10, so a surface whose iso-curves are short relative to the distance runs through up to `2^11`
-extensions (28 minutes, killed). The port never reaches the extension
-(`UNPORTED(offset.offset_executive_p1)`), so the shim seeds the cache before every op with every
-face surface of both B-reps and every store surface mapped to itself: the C++ then never extends,
-the Rust defers at the same call, and every op is compared up to that call with no guard status
-and no over-rejection (an earlier version refused these calls with a `-5` status on both sides,
+extensions (28 minutes, killed). The shim seeds the cache before every op with every face
+surface of both B-reps and every store surface mapped to itself, and the runner seeds the ported
+executive's cache (`OffsetExecutive::insert_extended_surface`) the same way: neither side ever
+extends, `GetCreateExtendedSurface` returns the face's own surface on both, and every op is
+compared past that call with no guard status and no over-rejection (an earlier version refused these calls with a `-5` status on both sides,
 which turned 21 would-be deferrals into constant-status passes and refused, through a
 closed-surface proxy, a third of the probe faces that complete; the pre-review removed it).
 
@@ -6681,13 +6684,13 @@ offset-surface rail of `EdgeuseOffset` without an offset edge use builds its
 `SmOffsetSurface` (`surface.offset_surface`, PR #62, wired) but the ported `CrvOnSurf`
 holds an `SmBSplineSurface` only, so the curve on it and its `ApproximateCurve` defer;
 `SmFace::CreateUVTrimCurves` (`topology.face_p3`, inside `UpdateFaceSurfaceDomain`'s
-`CalculateUVDomainFromUVTrimCurves`, wired since `topology.face_p1` merged);
-`SmOffsetExecutive::GetCreateExtendedSurface` (`offset.offset_executive_p1`:
-`ExtendTrimEdges`, `MateEdges` with non-null edge uses, the extended-surface candidates of
-`TrimExtendedEdge`); `SmEdgeuse::NormalizedEvaluate`, `EvaluateBinormal` and
-`CreateUVTrimCurve` (`topology.edgeuse_p3`, PR #117: `HaveTangentGaps`, the vertex moves
-after a new 3D curve in `ReplaceEdgeCurves`, the UV-curve candidates of a tangent
-neighbour without a UV trim curve); `SmBrep::Notify` and `MateLaminaEdgeToSurface`
+`CalculateUVDomainFromUVTrimCurves`, wired since `topology.face_p1` merged); the
+trimmed surface cache of a face's own surface (`SmTrimSrfCache::BuildTree` reads the face's
+B-rep editing flag, `topology.brep_p1`, then `SmFace::CreateUVTrimCurves`): the seeded
+`GetCreateExtendedSurface` hands `MateEdges` / `TrimExtendedEdge` the face's surface, and the
+surface intersections build that cache; `SmSurface::DropCurve` and the drop-curve tracer
+(`intersect.surface_drop_lib_p3`, `intersect.surface_drop_curve`) inside `CreateUVTrimCurve`;
+the face handle of a surface's cache (`topology.face_p2`); `SmBrep::Notify` and `MateLaminaEdgeToSurface`
 (`topology.brep_p2`: the notification after an in-place edit, the inset-on-shell-face
 branch of `EdgeuseOffset`); `SmCircularCrossSectionFSG` (`blend.fillet_standard_solver_p1`,
 the general cap of `EdgeuseOffset`); `SmCone::IsNurbSurfaceCone` (`surface.cone_p2`).
@@ -6752,31 +6755,58 @@ recursion, where upstream keeps it on the curve. PR #224 (`perf/curve-cache-reus
 merged into this branch, which depends on it) keeps one cache per curve for the
 recursion; reports are byte-identical and `gen0353` now runs in under a second.
 
+**Wiring round: `offset.offset_executive_p1` (#175), `topology.edgeuse_p3` (#117), #147.**
+`GetCreateExtendedSurface` goes through `OffsetExecutive<O>::get_create_extended_surface`
+(the executive is now `&mut`); the runner wraps #175's `OffsetExecutive` behind the trait
+(its typed ids each name one B-rep, the script's handles span both, so a handle is folded
+into an id and back) and seeds its cache as the shim seeds `m_vSurfExtSurf`.
+`NormalizedEvaluate` and `CreateUVTrimCurve` go through two `OffsetBrep` methods over
+`topology::edgeuse::p3` with upstream's arguments at every call site (3D evaluation, no
+derivative, null optional outputs); #117's `&mut Brep` signatures make the seam,
+tangent-sector and convex-sector methods and `HaveTangentGaps` take the B-rep mutably.
+The first complete run passed 445, failed 5 (gen0153, gen0230, gen0266, gen0550, gen0583,
+all on `Endcap.smb`): with the cache seeded, `GetCreateExtendedSurface` returns the face's
+own surface, so C++ `MateEdges`' `GlobalSurfaceIntersect` builds that face's trimmed surface
+cache, whose `ImplantFace` runs `SmFace::CreateUVTrimCurves` (UV trim curves attached, the
+offset edge's tolerance raised from 0.004051 to 0.007557) and finds the intersection curve;
+the port's `make_trim_srf_cache` built its cache on `surface.clone()`, which drops the owner
+(the copy constructor), so the cache ran as a standalone surface and found no curve. PR
+#147 builds the caches on `clone_for_evaluation()`, which keeps the owner; merged here, the
+five defer at `topology.brep_p1` and 17 cases that had passed through the standalone path
+defer too (97 cases newly pass). The other units do not reach that path: every regenerated
+report of `green` on main + #147 + this PR has the same per-case outcomes as main's,
+`nurbs.b_spline_surface_p2`'s WR-103 case (this PR) aside. #175's own
+`UNPORTED(offset.offset_geometry_creation)` `EdgeuseOffset` / `VertexOffset` calls stay
+stubbed: they need an `OffsetBrep` over the executive's original and offset B-reps and
+#175's code after `EdgeuseOffset` (cpp:2956-3071), which reaches `topology.brep_p7/p8`; a
+follow-up once this PR merges.
+
 **Results.** 861 cases (5 upstream-derived fixtures, 56 cases built in code, 800 generated
-two-B-rep scripts): 331 pass bit for bit (`max_rel_err 0`), 0 fail, 530 deferred, 0 cases
-where both sides reject the script. Every pass compares real values (`with_values=331
-no_values=0`; 315 compare more than six, 156 more than fifty). Deferred, by the unit that
-blocks: `topology.edgeuse_p3` 142, `offset.offset_executive_p1` 138, `topology.brep_p2`
-123, `harness:analytic-geometry-export` 63, `topology.face_p3` 38, `curve.crv_on_surf`
-21, `blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 1. Success-path coverage (counted at the PR head, the tree
-of 1c823d44 plus the review minors): 123 of the 331 passes complete at least one
+two-B-rep scripts): 428 pass bit for bit (`max_rel_err 0`), 0 fail, 433 deferred, 0 cases
+where both sides reject the script. Every pass compares real values (`with_values=428
+no_values=0`). Deferred, by the unit that blocks: `topology.brep_p2` 166,
+`topology.brep_p1` 78, `harness:analytic-geometry-export` 70, `topology.face_p3` 42,
+`intersect.surface_drop_curve` 27, `curve.crv_on_surf` 25, `topology.face_p2` 12,
+`intersect.surface_drop_lib_p3` 7, `blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 2.
+Success-path coverage (counted at this head): 211 of the 428 passes complete at least one
 successful call among the unit's ops (the rest compare matching `-2` refusals or matching
-upstream error statuses), including the 4 new passes, each of which runs a successful
-non-local `FaceuseOffset`. Per op over the passing cases (successes / refusals /
-upstream errors): `FaceuseOffset` 21 / 13 / 0, `VertexOffset` 37 / 22 / 14,
-`ReplaceEdgeCurves` 43 / 6 / 0, `TrimExtendedEdge` 23 / 44 / 0, `EdgeuseOffset` 17 / 21 /
-7, `LocalFaceuseOffset` 5 / 28 / 43; no successful pass: `UpdateFaceSurfaceDomain` (43
-refusals), `ExtendTrimEdges` (33), `MateEdges` (18 refusals, 32 errors),
-`HaveTangentGaps` (28). (Earlier counts in this PR swapped the `FaceuseOffset` and
-`ReplaceEdgeCurves` labels.) A 4000-seed sweep (4061 cases)
-passes 1619, fails 0, defers 2442, with no C++ crash or stall. Perturb:
-`SENSITIVE 331/331`. `--fuzz 2000`: `FUZZ-PASS cases=2000 rejected=243 malformed=635
-ran=1122 differs=0 crashes=0 panics=0 timeouts=0`. Valgrind on 54 sampled shim programs:
-clean. `nurbs.b_spline_surface_p2` (touched): 764 cases, 759 pass, 5 deferred; its
+upstream error statuses). Per op, the passing cases that contain a success / a refusal / an
+upstream error (a case can count in several): `FaceuseOffset` 30 / 15 / 0, `VertexOffset`
+48 / 24 / 18, `ReplaceEdgeCurves` 49 / 9 / 0, `TrimExtendedEdge` 44 / 50 / 0,
+`ExtendTrimEdges` 1 / 39 / 7, `HaveTangentGaps` 55 / 30 / 0, `EdgeuseOffset` 34 / 22 / 10,
+`LocalFaceuseOffset` 6 / 37 / 52; no successful pass: `UpdateFaceSurfaceDomain` (54
+refusals), `MateEdges` (18 refusals, 54 upstream errors). (This PR's earliest per-op
+counts swapped the `FaceuseOffset` and `ReplaceEdgeCurves` labels.) A 4000-seed sweep
+(4061 cases) passes 2114, fails 0, defers 1947, with no C++ crash or stall. Perturb:
+`SENSITIVE 428/428`. `--fuzz 2000`: `FUZZ-PASS cases=2000 rejected=243 malformed=635
+ran=1122 differs=0 crashes=0 panics=0 timeouts=0`. Valgrind: 54 sampled shim programs
+before the wiring round, then 64 on the new paths (54 newly passing cases, up to ten per
+op family plus eight built-in ones, and ten new deferrals including the five above): clean.
+`nurbs.b_spline_surface_p2` (touched): 764 cases, 759 pass, 5 deferred; its
 `three_arcs_about_two_centres` case (arcs about two centres, the first two sharing their
-start point) compares
-94 values and fails with the first arc's centre captured by value, so it pins WR-103. All green/partial units: `green-par: 203 units,
-failed=0` on the tree merged with `main` at `a8958254`.
+start point) compares 94 values and fails with the first arc's centre captured by value, so
+it pins WR-103. All green/partial units: `green-par: 207 units, failed=0` on main 89dc103a +
+#147 + this PR.
 
 ## boolean.topology_intersector_p1 (`SmTopologyIntersector.cpp` part 1, PR #146, 2026-10-16; partial, no disagreements)
 

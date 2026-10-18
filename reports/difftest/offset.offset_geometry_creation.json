@@ -27,8 +27,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "cylinder_seam_vertex_and_edge_caps",
@@ -39,8 +39,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "nurb_box_trim_and_replace",
@@ -106,16 +106,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0004",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762760",
-      "values_compared": 0
+      "values_compared": 1831
     },
     {
       "max_rel_err": 0.0,
@@ -154,16 +150,12 @@
       "values_compared": 22
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0009",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762765",
-      "values_compared": 0
+      "values_compared": 135
     },
     {
       "max_rel_err": 0.0,
@@ -175,8 +167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0011",
@@ -214,21 +206,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0015",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762771",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0016",
@@ -247,8 +235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0018",
@@ -259,8 +247,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0019",
@@ -271,8 +259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0020",
@@ -311,8 +299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0024",
@@ -343,8 +331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0027",
@@ -363,8 +351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0029",
@@ -402,16 +390,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0033",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762789",
-      "values_compared": 0
+      "values_compared": 189
     },
     {
       "max_rel_err": 0.0,
@@ -422,16 +406,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0035",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762791",
-      "values_compared": 0
+      "values_compared": 548
     },
     {
       "deferred": {
@@ -447,8 +427,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0037",
@@ -471,8 +451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0039",
@@ -483,8 +463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0040",
@@ -546,16 +526,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0046",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762802",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "deferred": {
@@ -579,8 +555,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0049",
@@ -591,8 +567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0050",
@@ -603,8 +579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0051",
@@ -614,16 +590,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0052",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762808",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -682,16 +654,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0059",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762815",
-      "values_compared": 0
+      "values_compared": 189
     },
     {
       "max_rel_err": 0.0,
@@ -730,16 +698,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0064",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762820",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -782,21 +746,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0069",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762825",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0070",
@@ -831,8 +791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0074",
@@ -843,8 +803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0075",
@@ -874,16 +834,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0078",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762834",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "deferred": {
@@ -898,21 +854,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0080",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762836",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0081",
@@ -923,8 +875,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0082",
@@ -966,21 +918,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0086",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762842",
-      "values_compared": 0
+      "values_compared": 241
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0087",
@@ -991,8 +939,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0088",
@@ -1055,8 +1003,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0095",
@@ -1067,8 +1015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0096",
@@ -1119,8 +1067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0101",
@@ -1167,8 +1115,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0105",
@@ -1251,8 +1199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0114",
@@ -1290,33 +1238,25 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0118",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762874",
-      "values_compared": 0
+      "values_compared": 19
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0119",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762875",
-      "values_compared": 0
+      "values_compared": 259
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0120",
@@ -1359,8 +1299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0124",
@@ -1403,8 +1343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0128",
@@ -1415,8 +1355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0129",
@@ -1427,8 +1367,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0130",
@@ -1446,33 +1386,25 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0132",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762888",
-      "values_compared": 0
+      "values_compared": 587
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0133",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762889",
-      "values_compared": 0
+      "values_compared": 338
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0134",
@@ -1490,33 +1422,25 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0136",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762892",
-      "values_compared": 0
+      "values_compared": 95
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0137",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762893",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0138",
@@ -1566,16 +1490,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0143",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762899",
-      "values_compared": 0
+      "values_compared": 173
     },
     {
       "deferred": {
@@ -1618,16 +1538,12 @@
       "values_compared": 645
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0148",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762904",
-      "values_compared": 0
+      "values_compared": 201
     },
     {
       "max_rel_err": 0.0,
@@ -1659,8 +1575,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0152",
@@ -1671,8 +1587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0153",
@@ -1695,8 +1611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0155",
@@ -1739,8 +1655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0159",
@@ -1775,8 +1691,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0163",
@@ -1810,16 +1726,12 @@
       "values_compared": 75
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0167",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762923",
-      "values_compared": 0
+      "values_compared": 338
     },
     {
       "deferred": {
@@ -1855,8 +1767,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0171",
@@ -1879,8 +1791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0173",
@@ -1922,16 +1834,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0177",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762933",
-      "values_compared": 0
+      "values_compared": 46
     },
     {
       "deferred": {
@@ -1963,7 +1871,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9515163603058762936",
-      "values_compared": 212
+      "values_compared": 266
     },
     {
       "max_rel_err": 0.0,
@@ -1975,8 +1883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0182",
@@ -2002,21 +1910,17 @@
       "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0185",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762941",
-      "values_compared": 0
+      "values_compared": 240
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0186",
@@ -2027,8 +1931,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0187",
@@ -2046,16 +1950,12 @@
       "values_compared": 51
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0189",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762945",
-      "values_compared": 0
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -2074,16 +1974,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0192",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762948",
-      "values_compared": 0
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -2118,21 +2014,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0196",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762952",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0197",
@@ -2167,8 +2059,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0200",
@@ -2247,8 +2139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0209",
@@ -2267,8 +2159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0211",
@@ -2287,8 +2179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0213",
@@ -2322,21 +2214,17 @@
       "values_compared": 178
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0217",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762973",
-      "values_compared": 0
+      "values_compared": 15
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0218",
@@ -2418,16 +2306,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0227",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762983",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2438,21 +2322,17 @@
       "values_compared": 407
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0229",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762985",
-      "values_compared": 0
+      "values_compared": 210
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0230",
@@ -2507,8 +2387,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0235",
@@ -2519,8 +2399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0236",
@@ -2635,8 +2515,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0248",
@@ -2646,16 +2526,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0249",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763005",
-      "values_compared": 0
+      "values_compared": 179
     },
     {
       "max_rel_err": 0.0,
@@ -2667,8 +2543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0251",
@@ -2691,8 +2567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0253",
@@ -2702,16 +2578,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0254",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763010",
-      "values_compared": 0
+      "values_compared": 193
     },
     {
       "max_rel_err": 0.0,
@@ -2722,16 +2594,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0256",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763012",
-      "values_compared": 0
+      "values_compared": 605
     },
     {
       "deferred": {
@@ -2747,8 +2615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0258",
@@ -2766,16 +2634,12 @@
       "values_compared": 12
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0260",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763016",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -2823,8 +2687,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0266",
@@ -2835,8 +2699,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0267",
@@ -2927,8 +2791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0275",
@@ -2987,8 +2851,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0281",
@@ -3103,8 +2967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0293",
@@ -3191,8 +3055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0301",
@@ -3203,8 +3067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0302",
@@ -3223,8 +3087,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0304",
@@ -3243,8 +3107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0306",
@@ -3255,8 +3119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0307",
@@ -3267,8 +3131,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0308",
@@ -3319,8 +3183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0313",
@@ -3330,16 +3194,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0314",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763070",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -3350,16 +3210,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0316",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763072",
-      "values_compared": 0
+      "values_compared": 347
     },
     {
       "max_rel_err": 0.0,
@@ -3386,16 +3242,12 @@
       "values_compared": 22
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0320",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763076",
-      "values_compared": 0
+      "values_compared": 191
     },
     {
       "max_rel_err": 0.0,
@@ -3415,8 +3267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0323",
@@ -3475,8 +3327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0329",
@@ -3487,8 +3339,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0330",
@@ -3527,8 +3379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0334",
@@ -3550,16 +3402,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0336",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763092",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -3570,21 +3418,17 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0338",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763094",
-      "values_compared": 0
+      "values_compared": 105
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0339",
@@ -3594,16 +3438,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0340",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763096",
-      "values_compared": 0
+      "values_compared": 331
     },
     {
       "deferred": {
@@ -3634,21 +3474,17 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0344",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763100",
-      "values_compared": 0
+      "values_compared": 261
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0345",
@@ -3659,8 +3495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0346",
@@ -3683,8 +3519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0348",
@@ -3703,8 +3539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0350",
@@ -3722,16 +3558,12 @@
       "values_compared": 48
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0352",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763108",
-      "values_compared": 0
+      "values_compared": 280
     },
     {
       "deferred": {
@@ -3779,8 +3611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0357",
@@ -3791,8 +3623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0358",
@@ -3823,8 +3655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0361",
@@ -3874,16 +3706,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0366",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763122",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "deferred": {
@@ -3899,8 +3727,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0368",
@@ -3935,8 +3763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0372",
@@ -3970,28 +3798,20 @@
       "values_compared": 143
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0376",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763132",
-      "values_compared": 0
+      "values_compared": 217
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0377",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763133",
-      "values_compared": 0
+      "values_compared": 144
     },
     {
       "deferred": {
@@ -4051,8 +3871,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0383",
@@ -4062,16 +3882,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0384",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763140",
-      "values_compared": 0
+      "values_compared": 86
     },
     {
       "max_rel_err": 0.0,
@@ -4083,8 +3899,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0386",
@@ -4139,8 +3955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0391",
@@ -4150,16 +3966,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0392",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763148",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -4171,8 +3983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0394",
@@ -4203,8 +4015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0397",
@@ -4235,8 +4047,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0400",
@@ -4254,16 +4066,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0402",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763158",
-      "values_compared": 0
+      "values_compared": 389
     },
     {
       "deferred": {
@@ -4278,16 +4086,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0404",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763160",
-      "values_compared": 0
+      "values_compared": 10
     },
     {
       "deferred": {
@@ -4339,8 +4143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0410",
@@ -4350,16 +4154,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0411",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763167",
-      "values_compared": 0
+      "values_compared": 189
     },
     {
       "max_rel_err": 0.0,
@@ -4371,8 +4171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0413",
@@ -4403,8 +4203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0416",
@@ -4462,16 +4262,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0422",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763178",
-      "values_compared": 0
+      "values_compared": 205
     },
     {
       "max_rel_err": 0.0,
@@ -4498,16 +4294,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0426",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763182",
-      "values_compared": 0
+      "values_compared": 118
     },
     {
       "max_rel_err": 0.0,
@@ -4555,8 +4347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0432",
@@ -4567,8 +4359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0433",
@@ -4591,8 +4383,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0435",
@@ -4619,8 +4411,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0438",
@@ -4679,8 +4471,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0444",
@@ -4711,8 +4503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0447",
@@ -4731,8 +4523,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0449",
@@ -4751,8 +4543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0451",
@@ -4779,8 +4571,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0454",
@@ -4803,8 +4595,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0456",
@@ -4815,8 +4607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0457",
@@ -4851,8 +4643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0460",
@@ -4899,8 +4691,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0465",
@@ -4910,40 +4702,28 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0466",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763222",
-      "values_compared": 0
+      "values_compared": 144
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0467",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763223",
-      "values_compared": 0
+      "values_compared": 9
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0468",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763224",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -4967,8 +4747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0471",
@@ -4991,8 +4771,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0473",
@@ -5011,8 +4791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0475",
@@ -5051,8 +4831,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0479",
@@ -5118,16 +4898,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0486",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763242",
-      "values_compared": 0
+      "values_compared": 572
     },
     {
       "max_rel_err": 0.0,
@@ -5139,8 +4915,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0488",
@@ -5207,8 +4983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0494",
@@ -5275,8 +5051,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0501",
@@ -5295,8 +5071,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0503",
@@ -5315,8 +5091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0505",
@@ -5338,16 +5114,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0507",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763263",
-      "values_compared": 0
+      "values_compared": 259
     },
     {
       "deferred": {
@@ -5362,16 +5134,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0509",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763265",
-      "values_compared": 0
+      "values_compared": 244
     },
     {
       "deferred": {
@@ -5439,8 +5207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0517",
@@ -5451,8 +5219,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0518",
@@ -5474,16 +5242,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0520",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763276",
-      "values_compared": 0
+      "values_compared": 337
     },
     {
       "max_rel_err": 0.0,
@@ -5563,8 +5327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0529",
@@ -5590,21 +5354,17 @@
       "values_compared": 469
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0532",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763288",
-      "values_compared": 0
+      "values_compared": 252
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0533",
@@ -5742,16 +5502,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0546",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763302",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "deferred": {
@@ -5766,16 +5522,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0548",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763304",
-      "values_compared": 0
+      "values_compared": 205
     },
     {
       "max_rel_err": 0.0,
@@ -5787,8 +5539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0550",
@@ -5839,8 +5591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0555",
@@ -5871,8 +5623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0558",
@@ -5915,8 +5667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0562",
@@ -6019,8 +5771,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0572",
@@ -6043,8 +5795,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0574",
@@ -6055,8 +5807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0575",
@@ -6075,8 +5827,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0577",
@@ -6095,8 +5847,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0579",
@@ -6126,21 +5878,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0582",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763338",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0583",
@@ -6254,16 +6002,12 @@
       "values_compared": 357
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0595",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763351",
-      "values_compared": 0
+      "values_compared": 402
     },
     {
       "max_rel_err": 0.0,
@@ -6275,8 +6019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0597",
@@ -6286,16 +6030,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0598",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763354",
-      "values_compared": 0
+      "values_compared": 330
     },
     {
       "deferred": {
@@ -6395,8 +6135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0609",
@@ -6443,8 +6183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0614",
@@ -6455,8 +6195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0615",
@@ -6559,8 +6299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0625",
@@ -6579,8 +6319,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0627",
@@ -6603,8 +6343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0629",
@@ -6615,8 +6355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0630",
@@ -6667,8 +6407,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0635",
@@ -6679,8 +6419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0636",
@@ -6707,8 +6447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0639",
@@ -6731,8 +6471,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0641",
@@ -6743,8 +6483,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0642",
@@ -6778,16 +6518,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0645",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763401",
-      "values_compared": 0
+      "values_compared": 93
     },
     {
       "max_rel_err": 0.0,
@@ -6846,16 +6582,12 @@
       "values_compared": 128
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0653",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763409",
-      "values_compared": 0
+      "values_compared": 28
     },
     {
       "max_rel_err": 0.0,
@@ -6891,8 +6623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0657",
@@ -6903,8 +6635,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0658",
@@ -6915,8 +6647,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0659",
@@ -6926,28 +6658,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0660",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763416",
-      "values_compared": 0
+      "values_compared": 226
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0661",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763417",
-      "values_compared": 0
+      "values_compared": 364
     },
     {
       "max_rel_err": 0.0,
@@ -6983,8 +6707,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0666",
@@ -7007,8 +6731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0668",
@@ -7018,16 +6742,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0669",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763425",
-      "values_compared": 0
+      "values_compared": 203
     },
     {
       "deferred": {
@@ -7042,16 +6762,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0671",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763427",
-      "values_compared": 0
+      "values_compared": 200
     },
     {
       "max_rel_err": 0.0,
@@ -7090,33 +6806,25 @@
       "values_compared": 429
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0676",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763432",
-      "values_compared": 0
+      "values_compared": 70
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0677",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763433",
-      "values_compared": 0
+      "values_compared": 20
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0678",
@@ -7151,8 +6859,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0681",
@@ -7163,8 +6871,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0682",
@@ -7175,8 +6883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0683",
@@ -7223,8 +6931,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0688",
@@ -7283,8 +6991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0694",
@@ -7327,8 +7035,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0698",
@@ -7338,16 +7046,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0699",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763455",
-      "values_compared": 0
+      "values_compared": 176
     },
     {
       "max_rel_err": 0.0,
@@ -7375,8 +7079,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0703",
@@ -7395,8 +7099,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0705",
@@ -7414,21 +7118,17 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0707",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763463",
-      "values_compared": 0
+      "values_compared": 115
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0708",
@@ -7446,16 +7146,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0710",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763466",
-      "values_compared": 0
+      "values_compared": 24
     },
     {
       "deferred": {
@@ -7487,8 +7183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0714",
@@ -7562,21 +7258,17 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0722",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763478",
-      "values_compared": 0
+      "values_compared": 693
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0723",
@@ -7603,8 +7295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0726",
@@ -7643,8 +7335,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0730",
@@ -7663,8 +7355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0732",
@@ -7675,8 +7367,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0733",
@@ -7686,16 +7378,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0734",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763490",
-      "values_compared": 0
+      "values_compared": 89
     },
     {
       "deferred": {
@@ -7747,8 +7435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0739",
@@ -7759,8 +7447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0740",
@@ -7771,8 +7459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0741",
@@ -7783,8 +7471,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0742",
@@ -7822,21 +7510,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0746",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763502",
-      "values_compared": 0
+      "values_compared": 30
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0747",
@@ -7855,8 +7539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0749",
@@ -7915,8 +7599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0755",
@@ -7955,8 +7639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0759",
@@ -7978,16 +7662,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0761",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763517",
-      "values_compared": 0
+      "values_compared": 206
     },
     {
       "max_rel_err": 0.0,
@@ -8010,16 +7690,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0764",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763520",
-      "values_compared": 0
+      "values_compared": 73
     },
     {
       "max_rel_err": 0.0,
@@ -8043,8 +7719,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0767",
@@ -8078,16 +7754,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0770",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763526",
-      "values_compared": 0
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -8167,8 +7839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0779",
@@ -8178,16 +7850,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0780",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763536",
-      "values_compared": 0
+      "values_compared": 249
     },
     {
       "max_rel_err": 0.0,
@@ -8227,8 +7895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0785",
@@ -8279,8 +7947,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0791",
@@ -8350,21 +8018,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0798",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763554",
-      "values_compared": 0
+      "values_compared": 174
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0799",
@@ -8438,16 +8102,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "cone_vertex_offset",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 689
     },
     {
       "max_rel_err": 0.0,
@@ -8470,28 +8130,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_vertex_offset",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 522
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_vertex_offset",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 689
     },
     {
       "deferred": {
@@ -8506,33 +8158,25 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_plain",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 854
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_inset_shell",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 858
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_extend",
@@ -8542,16 +8186,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_shell",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 854
     },
     {
       "deferred": {
@@ -8578,16 +8218,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_edgeuse_offset_extend",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 948
     },
     {
       "deferred": {
@@ -8614,21 +8250,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_edgeuse_offset_inset_shell",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 1104
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "torus_edgeuse_offset_extend",
@@ -8651,8 +8283,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "endcap_edgeuse_offset_plain",
@@ -8663,8 +8295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "endcap_edgeuse_offset_inset_shell",
@@ -8674,21 +8306,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "endcap_edgeuse_offset_extend",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 12
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "endcap_edgeuse_offset_shell",
@@ -8723,8 +8351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "mouse_edgeuse_offset_extend",
@@ -8914,57 +8542,41 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "cone_trim_extended_edge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "box_trim_extended_edge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "torus_trim_extended_edge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "vase_trim_extended_edge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
       "deferred": {
-        "symbol": "SmOffsetExecutive::GetCreateExtendedSurface",
-        "unit": "offset.offset_executive_p1"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "cone_mate_extend_local",
@@ -9011,19 +8623,21 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 530,
+  "cases_deferred": 433,
   "cases_failed": 0,
-  "cases_passed": 331,
+  "cases_passed": 428,
   "cases_total": 861,
   "deferred_by_unit": {
     "blend.fillet_standard_solver_p1": 4,
-    "curve.crv_on_surf": 21,
-    "harness:analytic-geometry-export": 63,
-    "offset.offset_executive_p1": 138,
-    "surface.cone_p2": 1,
-    "topology.brep_p2": 123,
-    "topology.edgeuse_p3": 142,
-    "topology.face_p3": 38
+    "curve.crv_on_surf": 25,
+    "harness:analytic-geometry-export": 70,
+    "intersect.surface_drop_curve": 27,
+    "intersect.surface_drop_lib_p3": 7,
+    "surface.cone_p2": 2,
+    "topology.brep_p1": 78,
+    "topology.brep_p2": 166,
+    "topology.face_p2": 12,
+    "topology.face_p3": 42
   },
   "max_rel_err": 0.0,
   "pass": true,

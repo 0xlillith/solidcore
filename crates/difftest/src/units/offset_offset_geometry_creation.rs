@@ -46,15 +46,17 @@
 //! `SmCrvOnSurf::ApproximateCurve`). The generator's distances (0.001 to 100) never
 //! reach the second bound; the first stops no compared case (the Rust defers there).
 //!
-//! **Deferred.** `SmOffsetGeometryCreation::FaceuseOffset` (`SmSurface::CreateOffsetSurface`,
-//! `surface.offset_surface`), `UpdateFaceSurfaceDomain`
+//! **Deferred.** The offset surface of a non-plane analytic face (imported as its
+//! B-spline part, `harness:analytic-geometry-export`), `UpdateFaceSurfaceDomain`
 //! (`SmFace::CreateUVTrimCurves` inside `CalculateUVDomainFromUVTrimCurves`,
-//! `topology.face_p3`),
-//! `HaveTangentGaps` and the vertex moves of `ReplaceEdgeCurves` with a new 3D curve
-//! (`SmEdgeuse::NormalizedEvaluate`, `topology.edgeuse_p3`), the
-//! `CreateUVTrimCurve` candidates of `TrimExtendedEdge`, the offset-surface rails and
-//! the circular cross-section surface of `EdgeuseOffset`, and the inset-on-shell-face
-//! mating (`SmBrep::MateLaminaEdgeToSurface`, `topology.brep_p2`).
+//! `topology.face_p3`), the trimmed surface cache of a face's own surface that the
+//! seeded `GetCreateExtendedSurface` hands to the surface intersections of `MateEdges`
+//! and `TrimExtendedEdge` (the B-rep editing flag, `topology.brep_p1`, and the face
+//! handle, `topology.face_p2`), the drops inside `CreateUVTrimCurve`
+//! (`intersect.surface_drop_lib_p3`, `intersect.surface_drop_curve`), the offset-surface
+//! rails (`curve.crv_on_surf`) and the circular cross-section surface of `EdgeuseOffset`,
+//! and the in-place notification and inset-on-shell-face mating (`SmBrep::Notify`,
+//! `SmBrep::MateLaminaEdgeToSurface`, `topology.brep_p2`).
 
 use std::collections::{BTreeMap, BTreeSet};
 
