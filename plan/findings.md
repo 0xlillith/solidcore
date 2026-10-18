@@ -6673,7 +6673,10 @@ independent p6 integration.
   take the other operand mutably; it stays unreached behind `MakeShellVertex`,
   `topology.brep_p9`.)
 
-## topology.brep_p5
+## topology.brep_p5 — historical pre-review coverage (superseded)
+
+Historical evidence only (`95967da6` / `89a20913`); see the current review
+validation section below. These results do not certify the review fixes.
 
 - **Independent partial scope (PR #194).** Selected from official main `433e1b2c`:
   no unclaimed todo unit had all required dependencies green/partial, and this
@@ -6849,45 +6852,69 @@ independent p6 integration.
   faces. It is unreachable today (`MergeInterval` makes no topology until
   `intersect.curve_class_p2`); that unit's porter must give the healer a typed resolver.
 
-## topology.brep_p5 — review follow-up in progress
+## topology.brep_p5 — review validation (partial)
 
-PR #194 remains draft and `todo` pending fresh review/validation. The old
-`95967da6`/`89a20913` evidence above is historical. Official main `a8958254`
-is merged; no open dependency PR is included. Main's sphere/offset compile fix
-has landed and a workspace/all-targets check passes on runner 2.
+PR #194 restores all twelve owned editing bodies and the internal pending-topology
+attribute cleanup. Source `64f9f549` includes official main `53ba102b`; no open
+dependency PR is included. The earlier pre-review evidence above is historical.
+All owned continuations are present with per-call missing-dependency barriers,
+including combine tails, shell/vertex-use cleanup, curve joins/UV cleanup,
+manifold/face cleanup, the second stitch pass and orientation override, squeeze
+output lifecycle, transformation/reflection and tolerance work.
 
-All twelve owned editing bodies now include their source-level continuations,
-with missing individual callees/types explicitly deferred. This includes the
-second stitch pass, orientation override, notification/point/tolerance/interval
-combine tail, vertex-use and shell cleanup, curve joining and UV cleanup,
-squeeze stitching/output lifecycle, transformation and reflection/tolerance
-work. The internal pending topology guard detaches borrowed attributes on failure
-and preserves them on release; its database-reader integration awaits part 6.
+Review fixes include the declaration's infinite-region default
+`SM_VS_INFINITEREGION_SWAP` (2), same-input glue before notification (including two
+null inputs), and refusing aliased combination only for isolated vertices where
+native deletion invalidates the survivor. A native incidence query enforces that
+precise guard; 40 alias fixtures retain valid aliases.
 
-The declaration's infinite-region default is `SM_VS_INFINITEREGION_SWAP` (2).
-Same-input glue succeeds before notification. Aliased combination is refused only
-for an isolated vertex (native use-after-free); a native incidence query checks
-that precise guard. Forty alias fixtures await native validation.
+The boolean intersector's insertion calls the shared part 5 control flow with
+actual editing/tolerance getters, then defers at `FindVertexSector` (face part 4)
+and `MakeEdgeInFaceWithVU` (B-rep part 9). Opaque glue callers share the identity
+preflight; nonalias edits still need the mutable owning arena/kernel and part 2's
+notification routing. When that adapter lands, it must call the existing complete
+`glue_with_notifications` body, not just replace the preflight barrier with Notify.
 
-The boolean intersector's face insertion now calls the shared p5 control flow
-using actual editing/tolerance getters. It reaches missing `FindVertexSector`
-(face part 4) and `MakeEdgeInFaceWithVU` (B-rep part 9) primitives. Existing opaque
-glue callers share the identity preflight and currently defer at B-rep part 2.
+Healer adapters capture actual context notifications instead of inventing removed
+and added lists. Supporting co-port in topology.topology:
+`SmTopologyChangeCallback::{Execute, AddUnique, Remove}`. The tracker and callback
+share notification arrays (no topology graph pointers), preserving active reset
+and foreign-callback replacement lifetimes. Geometry owner and edgeuse-to-edge
+metadata must come from the actual object store; missing metadata is an explicit
+capture failure, and chains are bounded to 64 links. Nonempty arena-only healer
+captures still require part 2's actual key-to-id routing; no arena-index encoding
+is guessed. All 24 native callback scripts pass, including list order, event
+payload identities, destruction cleanup, curve-owner traversal, direct face
+notifications and tracker lifetimes.
 
-Healer adapters capture real context notifications instead of guessing changes
-from the requested edit. `SmTopologyChangeCallback::Execute`, `AddUnique` and
-`Remove` are co-ported in topology.topology for that integration, including
-stale-identity removal and geometry-owner traversal. Owner metadata must be
-supplied by the actual object store; chains are bounded to 64 links. Missing
-metadata is an explicit failure. Nonempty captures in the arena-only healer
-still need part 2's actual key-to-id routing; no arena-index encoding is guessed.
-Twenty-four callback-script fixtures, including active reset and replacement
-lifetimes, compare this supporting algorithm separately from the twelve edits; they do not certify topology mutation.
+Coverage on source `64f9f549`, Linux runner 2 (Ubuntu 26.04 x86_64, Rust/rustdoc
+1.98.0, GCC 15.2.0; pinned `c9c5979` reference, C++17/O2 with FP contraction and
+fast math disabled):
 
-Coverage limits: successful topology edits, nonidentity transformations,
-post-deferral mutation continuations, shared native geometry across distinct
-owning records, and pending-reader integration remain uncertified. Separate
-Rust geometry slots own separate values; equal owner metadata is not proof of
-native pointer identity. No temporary attributes, records or keys substitute for
-caller state. Current-revision formatting, strict Clippy, tests, WASM and native
-differential validation are pending; no previous-head passes certify this work.
+- **788 cases:** 276 fixtures + 512 generated; **734 pass, 54 deferred, 0 fail**,
+  max relative error 0, fixed relative tolerance 1e-9, no absolute floors.
+- **409** passes compare only the coincident-vertex numerical target against a
+  real native merge's survivor. They do not certify the topology edit.
+- **301** compare whole-operation refusals/output lifecycle, empty selections,
+  identity transforms and aliased-glue no-ops (with unchanged semantic graphs).
+- **24** compare supporting notification algorithms; they do not mutate topology.
+- Deferred counts: B-rep part 1 **10**, part 2 **40**, part 4 **2**, part 9 **2**.
+- Sensitivity: **734/734** detected, 0 unperturbed, 54 deferred.
+- Extended 4096 generated: **4372 total, 4192 pass, 180 deferred, 0 fail**,
+  max relative error 0.
+
+Formatting, strict plain/native Clippy, all **1325** kernel tests, WASM and all
+**3** native FFI guard tests pass. Ten affected differential units pass their gates
+(1 green, 9 partial, 0 failed); the full green/partial sweep is pending. Commands
+use `nice -n 10`, one Cargo job and sccache. The matching 1.98 rustdoc is selected
+explicitly. A worktree-owned temporary 4 GiB swap file supports compilation on the
+8 GiB runner and will be removed after validation.
+
+Uncertified: successful topology mutations, nonidentity transformations,
+continuations behind dependency barriers, native geometry shared across separate
+owning records, longer/mixed geometry owner chains, and pending-reader integration
+(part 6). Separate Rust geometry slots own separate values; equal owner metadata
+is not proof of native pointer identity. Pending cleanup has focused Rust tests
+for attribute detachment versus release, with no standalone native reader oracle.
+No temporary records, attributes, keys or successful mutations substitute for
+caller state. This unit is **partial, never green** with these deferrals.

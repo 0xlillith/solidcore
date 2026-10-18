@@ -95,7 +95,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetRegions",
+        "symbol": "SmBrep::m_bEditingEnabled",
         "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
@@ -107,7 +107,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetRegions",
+        "symbol": "SmBrep::m_bEditingEnabled",
         "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
@@ -119,7 +119,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetEdges",
+        "symbol": "SmBrep::m_bEditingEnabled",
         "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
@@ -131,7 +131,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetEdges",
+        "symbol": "SmBrep::m_bEditingEnabled",
         "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
@@ -263,7 +263,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetFaces",
+        "symbol": "SmBrep::m_bEditingEnabled",
         "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
@@ -375,7 +375,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetRegions",
+        "symbol": "SmBrep::m_bEditingEnabled",
         "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
@@ -395,7 +395,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetFaces",
+        "symbol": "SmBrep::m_bEditingEnabled",
         "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
@@ -515,7 +515,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetRegions",
+        "symbol": "SmBrep::m_bEditingEnabled",
         "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
@@ -1828,6 +1828,550 @@
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#211 (upstream source/SMLib/src/SmBrep.cpp:SmBrep::RemoveFaces (SmNewMarkAndLock lifetime))",
       "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_0_0_False_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#0 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_0_0_False_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#1 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_0_0_False_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#2 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_0_0_False_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#3 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_0_0_True_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#4 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_0_0_True_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#5 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_0_0_True_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#6 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_0_0_True_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#7 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_1_2_False_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#8 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_1_2_False_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#9 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_1_2_False_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#10 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_1_2_False_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#11 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_1_2_True_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#12 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_1_2_True_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#13 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_1_2_True_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#14 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_0_1_2_True_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#15 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_1_0_0_False_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#16 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_1_0_0_False_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#17 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_1_0_0_False_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#18 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_1_0_0_False_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#19 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_1_0_0_True_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#20 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_1_0_0_True_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#21 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_1_0_0_True_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#22 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_1_0_0_True_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#23 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_2_0_0_False_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#24 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_2_0_0_False_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#25 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_2_0_0_False_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#26 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_2_0_0_False_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#27 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_2_0_0_True_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#28 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_2_0_0_True_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#29 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_2_0_0_True_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#30 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "glue_alias_2_0_0_True_-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#31 (upstream source/SMLib/src/SmBrep.cpp:9593)",
+      "values_compared": 50
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "combine_alias_wire_False_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#32 (upstream source/SMLib/src/SmBrep.cpp:1589)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "combine_alias_wire_True_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#33 (upstream source/SMLib/src/SmBrep.cpp:1589)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "combine_alias_wire_False_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#34 (upstream source/SMLib/src/SmBrep.cpp:1589)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "combine_alias_wire_True_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#35 (upstream source/SMLib/src/SmBrep.cpp:1589)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "combine_alias_wire_False_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#36 (upstream source/SMLib/src/SmBrep.cpp:1589)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "combine_alias_wire_True_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#37 (upstream source/SMLib/src/SmBrep.cpp:1589)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "combine_alias_wire_False_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#38 (upstream source/SMLib/src/SmBrep.cpp:1589)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "combine_alias_wire_True_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#39 (upstream source/SMLib/src/SmBrep.cpp:1589)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k0-m0-0-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#0 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k0-m0-1-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#1 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k0-m0-0-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#2 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 30
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k0-m1-0-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#3 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k0-m1-1-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#4 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k0-m1-0-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#5 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k0-m2-0-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#6 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 20
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k1-m0-0-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#7 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k1-m0-1-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#8 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k1-m0-0-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#9 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 30
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k1-m1-0-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#10 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k1-m1-1-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#11 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k1-m1-0-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#12 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k1-m2-0-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#13 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 20
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k2-m0-0-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#14 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k2-m0-1-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#15 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k2-m0-0-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#16 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 30
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k2-m1-0-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#17 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k2-m1-1-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#18 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k2-m1-0-0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#19 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 25
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notification-k2-m2-0-1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#20 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:190)",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tracker-lifetime-k0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#21 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:425)",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tracker-lifetime-k1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#22 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:425)",
+      "values_compared": 27
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tracker-lifetime-k2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#23 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:425)",
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -5979,13 +6523,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 46,
+  "cases_deferred": 54,
   "cases_failed": 0,
-  "cases_passed": 678,
-  "cases_total": 724,
+  "cases_passed": 734,
+  "cases_total": 788,
   "deferred_by_unit": {
     "topology.brep_p1": 10,
-    "topology.brep_p2": 32,
+    "topology.brep_p2": 40,
     "topology.brep_p4": 2,
     "topology.brep_p9": 2
   },
