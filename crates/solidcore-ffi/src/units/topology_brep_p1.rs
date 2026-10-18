@@ -17,7 +17,7 @@
 //! | `Lists`        | `which attr_id n_targets (ty idx)*n`             | `status`, the list (`n idx*n`); `which`: 0 regions, 1 faces, 2 edges, 3 vertices, 4 wire edges, 5 topological edges, 6 topological vertices, 7 surfaces (as face indices), 8 curves (as edge indices), 9 shells; the attribute `attr_id` (-1 none) is attached to the targets first |
 //! | `Query`        | `ty idx`                                         | `num_faces live tol est_raw est ratio_raw ratio inf_region type kind_of*9 len_type_string len_class_string editing validate_only` |
 //! | `SetSize`      | `kind value`                                     | kind 0 `SetThisModelSizeEstimate`: `returned_tol tol est_raw est ctx_est ctx_tol`; kind 1 `SetThisLargeSmallSizeRatio`: `ratio_raw ratio ctx_ratio` |
-//! | `SetInf`       | `set_idx mode reset_idx flag`                    | `SetInfiniteRegion(set_idx)` unless -2 (-1 null), then mode 1 `ResetInfiniteRegion(reset_idx, flag)` / 2 `SetRegionIsVoidFlagsForNestedSolids`: `status inf_region regions(n idx*n) [is_void(n flag*n) on success of mode 1/2]` |
+//! | `SetInf`       | `set_idx mode reset_idx flag unsure_idx`         | `unsure_idx`'s void flag set to `UNSURE` (2) unless -1, `SetInfiniteRegion(set_idx)` unless -2 (-1 null), then mode 1 `ResetInfiniteRegion(reset_idx, flag)` / 2 `SetRegionIsVoidFlagsForNestedSolids`: `status inf_region regions(n idx*n) [is_void(n flag*n) on success of mode 1/2]` |
 //! | `Degenerate`   | `tol`                                            | `flag` |
 //! | `AddDeleted`   | `n`                                              | `count` of `m_pDeletedSurfaces` after adding `n` planes |
 //! | `Vote`         | `n idx*n`                                        | `regions(n idx*n) votes(n v*n) highest` |
@@ -27,7 +27,7 @@
 //! | `ReflectShell` | `face`                                           | `status`, then `shell1 shell2` and per shell its face use count (`n c*n`, -1 for a wire shell) |
 //! | `RmLoopVu`     | `vu`                                             | `status vertex_list_size [remaining(n idx*n)]` |
 //! | `MarkLoops`    | `loop level`                                     | `status loops(n idx*n)` |
-//! | `SwapFaceUv`   | `face mark premark`                              | `1` (unmarked: the Rust side defers) or `0 marked u0 v0 u1 v1` |
+//! | `SwapFaceUv`   | `face mark premark`                              | `0 marked u0 v0 u1 v1 [B-rep]` (an unmarked face is swapped: the `put_healed` B-rep follows) |
 //! | `CheckUv`      | `eu`                                             | `status` |
 //! | `LockBox`      |                                                  | `0` |
 //! | `FindSide`     | `curve P[3] D[3] tol`                            | `status right_hand_side` (`sm_FindSideOfCurve`) |
@@ -214,6 +214,8 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             rd.index(2)?;
             rd.below_or_none(n_r)?;
             rd.index(2)?;
+            // the region set UNSURE first, or -1
+            rd.below_or_none(n_r)?;
             // `ResetInfiniteRegion(region, SM_VS_INFINITEREGION_SWAP)` dereferences the
             // old infinite region (`SmBrep.cpp:8630`) when it is null (set -1, or -2 on a
             // B-rep without one): the shim stops before that call and reports `-2`, as

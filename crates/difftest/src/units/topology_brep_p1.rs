@@ -11,7 +11,7 @@
 //! where upstream dereferences null), traversal indices, flags and values.
 //!
 //! Selectors are taken modulo the entity count (`-1` selecting null where allowed); an
-//! op needing an entity the B-rep lacks is `no_entity` on both sides.
+//! op needing an entity the B-rep lacks is rejected (nothing runs on either side).
 //!
 //! **Inexact geometry.** The export carries plain B-spline curves and `SmLine`s and
 //! B-spline surfaces and `SmPlane`s exactly; other analytic kinds arrive as their
@@ -24,7 +24,6 @@ use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
 use solidcore::curve::curve::Curve;
-use solidcore::topology::proto_topology::p1::CopyBrepMap;
 use solidcore::geom::attribute::{Attribute, AttributeStore, Behavior, ObjectKey};
 use solidcore::geom::context::MarkType;
 use solidcore::geom::extent2d::Extent2d;
@@ -42,6 +41,7 @@ use solidcore::surface::surface::Surface;
 use solidcore::topology::brep::p1 as bp1;
 use solidcore::topology::brep_cache::{arena_identity, CacheObject};
 use solidcore::topology::edge::AttributeFilter;
+use solidcore::topology::proto_topology::p1::CopyBrepMap;
 use solidcore::topology::topology_traverser::{Entity, Marks};
 use solidcore::topology::{
     Brep, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId, LoopuseStart,
@@ -51,8 +51,8 @@ use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_p1::{self as ffi, Op, N_EXTRA_SCALARS, TARGET_TYPES};
 
 use super::topology_edgeuse_p1::{
-    brep_block_of, bspline_of, flag, gen_brep, gen_curve, import_with_types, path_of, push_curve, sel,
-    BrepIn, CrvIn, ImportTypes, FILES,
+    brep_block_of, bspline_of, flag, gen_brep, gen_curve, import_with_types, path_of, push_curve,
+    sel, BrepIn, CrvIn, ImportTypes, FILES,
 };
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
@@ -109,35 +109,91 @@ enum OpIn {
         #[serde(default)]
         targets: Vec<[i64; 2]>,
     },
-    Query { ty: i64, index: i64 },
+    Query {
+        ty: i64,
+        index: i64,
+    },
     /// `kind`: 0 `SetThisModelSizeEstimate`, 1 `SetThisLargeSmallSizeRatio`.
-    SetSize { kind: u8, value: f64 },
+    SetSize {
+        kind: u8,
+        value: f64,
+    },
     /// `set`: -2 skip `SetInfiniteRegion`, -1 null, else a region; `mode`: 0 none, 1
     /// `ResetInfiniteRegion(reset, flag)`, 2 `SetRegionIsVoidFlagsForNestedSolids`.
-    SetInf { set: i64, mode: u8, reset: i64, flag: u8 },
-    Degenerate { tol: f64 },
-    AddDeleted { n: u8 },
-    Vote { regions: Vec<i64> },
-    ObjMap { sets: Vec<ObjSet>, gets: Vec<[i64; 2]> },
-    AddAttrs { target: [i64; 2], ids: Vec<i64>, indexed: Vec<i64> },
-    ReflectEu { edge: i64 },
-    ReflectShell { face: i64 },
-    RmLoopVu { vu: i64 },
+    SetInf {
+        set: i64,
+        mode: u8,
+        reset: i64,
+        flag: u8,
+        /// A region whose raw void flag is set to `UNSURE` (2) first (`-1`: none).
+        #[serde(default = "minus_one")]
+        unsure: i64,
+    },
+    Degenerate {
+        tol: f64,
+    },
+    AddDeleted {
+        n: u8,
+    },
+    Vote {
+        regions: Vec<i64>,
+    },
+    ObjMap {
+        sets: Vec<ObjSet>,
+        gets: Vec<[i64; 2]>,
+    },
+    AddAttrs {
+        target: [i64; 2],
+        ids: Vec<i64>,
+        indexed: Vec<i64>,
+    },
+    ReflectEu {
+        edge: i64,
+    },
+    ReflectShell {
+        face: i64,
+    },
+    RmLoopVu {
+        vu: i64,
+    },
     MarkLoops {
         #[serde(rename = "loop")]
         loop_: i64,
         level: u64,
     },
     /// `mark`: an `SmMarkType` code (1, 2, 4, 8, 16); `premark` marks the face first.
-    SwapFaceUv { face: i64, mark: u8, premark: bool },
-    CheckUv { eu: i64 },
+    SwapFaceUv {
+        face: i64,
+        mark: u8,
+        premark: bool,
+    },
+    CheckUv {
+        eu: i64,
+    },
     LockBox,
-    FindSide { curve: CrvIn, p: [f64; 3], dir: [f64; 3], tol: f64 },
-    FindSector { face: i64, guess: Option<[f64; 2]>, p: [f64; 3], dir: [f64; 3] },
-    UpdateIvls { vertex: i64 },
+    FindSide {
+        curve: CrvIn,
+        p: [f64; 3],
+        dir: [f64; 3],
+        tol: f64,
+    },
+    FindSector {
+        face: i64,
+        guess: Option<[f64; 2]>,
+        p: [f64; 3],
+        dir: [f64; 3],
+    },
+    UpdateIvls {
+        vertex: i64,
+    },
     /// `seam`: an `SmSurfParamType` code (0 U, 1 V, 2 UNKNOWN, 3 BOTH, 4 NEITHER, 5 UMIN,
     /// 6 VMIN, 7 UMAX, 8 VMAX).
-    Redistribute { edge: i64, has_uv: bool, seam: u8, dom: [f64; 4] },
+    Redistribute {
+        edge: i64,
+        has_uv: bool,
+        seam: u8,
+        dom: [f64; 4],
+    },
     /// `orient`: 0 unknown, 1 same, 2 opposite (`SmOrientType`).
     SplitUv {
         eu_orig: i64,
@@ -148,9 +204,23 @@ enum OpIn {
         orient: u8,
         for_tess: bool,
     },
-    BrepIntersect { tol: f64, ang: f64, want_points: bool },
-    CornerBlend { eus: Vec<i64>, tangent: Option<Vec<bool>>, tol: f64, ang: f64 },
-    EdgeEdgeBlend { flag: u8, eu1: i64, eu2: i64, dir: u8 },
+    BrepIntersect {
+        tol: f64,
+        ang: f64,
+        want_points: bool,
+    },
+    CornerBlend {
+        eus: Vec<i64>,
+        tangent: Option<Vec<bool>>,
+        tol: f64,
+        ang: f64,
+    },
+    EdgeEdgeBlend {
+        flag: u8,
+        eu1: i64,
+        eu2: i64,
+        dir: u8,
+    },
     ParallelProj {
         curve: CrvIn,
         vec: [f64; 3],
@@ -165,7 +235,10 @@ enum OpIn {
     /// FFI rejects anything above (upstream would run every step for an out-of-range code,
     /// the Rust enum has no such value). `SmBrep::HealBrep` always returns `SM_SUCCESS`, so
     /// the compared result is the healed B-rep ([`put_healed`]).
-    Heal { healer_op: u8, make_uv: bool },
+    Heal {
+        healer_op: u8,
+        make_uv: bool,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -184,7 +257,10 @@ struct Inputs {
 
 /// The export slot of a target type code.
 fn slot_of(ty: i64) -> Option<usize> {
-    TARGET_TYPES.iter().find(|(code, _)| *code == ty).map(|&(_, s)| s)
+    TARGET_TYPES
+        .iter()
+        .find(|(code, _)| *code == ty)
+        .map(|&(_, s)| s)
 }
 
 /// A target resolved modulo its kind's count.
@@ -207,7 +283,11 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
     let [n_r, _, _, n_f, _, n_l, n_eu, n_e, n_vu, _] = c;
     let need = |n: usize, s: i64| if n == 0 { None } else { Some(sel(s, n).max(0)) };
     Some(match op.clone() {
-        OpIn::Lists { which, attr, targets } => OpIn::Lists {
+        OpIn::Lists {
+            which,
+            attr,
+            targets,
+        } => OpIn::Lists {
             which: which % 10,
             attr,
             targets: targets.into_iter().map(|t| target(t, c)).collect(),
@@ -216,12 +296,24 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
             let [ty, index] = target([ty, index], c);
             OpIn::Query { ty, index }
         }
-        OpIn::SetSize { kind, value } => OpIn::SetSize { kind: kind % 2, value },
-        OpIn::SetInf { set, mode, reset, flag } => OpIn::SetInf {
+        OpIn::SetSize { kind, value } => OpIn::SetSize {
+            kind: kind % 2,
+            value,
+        },
+        OpIn::SetInf {
+            set,
+            mode,
+            reset,
+            flag,
+            unsure,
+        } => OpIn::SetInf {
             set: if set < 0 { set.max(-2) } else { sel(set, n_r) },
             mode: mode % 3,
             reset: sel(reset, n_r),
-            flag: flag % 3,
+            // the raw SmSetRegionVoidType code (lesson 22: the FFI and the Rust decode
+            // refuse anything but 0..=2)
+            flag,
+            unsure: if unsure < 0 { -1 } else { sel(unsure, n_r) },
         },
         OpIn::Vote { regions } => OpIn::Vote {
             regions: regions.into_iter().map(|r| sel(r, n_r)).collect(),
@@ -237,7 +329,11 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
                 .collect(),
             gets: gets.into_iter().map(|t| target(t, c)).collect(),
         },
-        OpIn::AddAttrs { target: t, ids, indexed } => {
+        OpIn::AddAttrs {
+            target: t,
+            ids,
+            indexed,
+        } => {
             let n = ids.len();
             OpIn::AddAttrs {
                 target: target(t, c),
@@ -249,20 +345,39 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
                 ids,
             }
         }
-        OpIn::ReflectEu { edge } => OpIn::ReflectEu { edge: need(n_e, edge)? },
-        OpIn::ReflectShell { face } => OpIn::ReflectShell { face: need(n_f, face)? },
-        OpIn::RmLoopVu { vu } => OpIn::RmLoopVu { vu: need(n_vu, vu)? },
+        OpIn::ReflectEu { edge } => OpIn::ReflectEu {
+            edge: need(n_e, edge)?,
+        },
+        OpIn::ReflectShell { face } => OpIn::ReflectShell {
+            face: need(n_f, face)?,
+        },
+        OpIn::RmLoopVu { vu } => OpIn::RmLoopVu {
+            vu: need(n_vu, vu)?,
+        },
         OpIn::MarkLoops { loop_, level } => OpIn::MarkLoops {
             loop_: need(n_l, loop_)?,
             level: level % 1_000_000,
         },
-        OpIn::SwapFaceUv { face, mark, premark } => OpIn::SwapFaceUv {
+        OpIn::SwapFaceUv {
+            face,
+            mark,
+            premark,
+        } => OpIn::SwapFaceUv {
             face: need(n_f, face)?,
-            mark: [1u8, 2, 4, 8, 16].get(usize::from(mark) % 5).copied().unwrap_or(1),
+            // the raw SmMarkType code: the FFI refuses anything but 1/2/4/8/16 and the
+            // Rust decode (mark_type) errors on it, so an unknown code never runs
+            mark,
             premark,
         },
-        OpIn::CheckUv { eu } => OpIn::CheckUv { eu: need(n_eu, eu)? },
-        OpIn::FindSector { face, guess, p, dir } => OpIn::FindSector {
+        OpIn::CheckUv { eu } => OpIn::CheckUv {
+            eu: need(n_eu, eu)?,
+        },
+        OpIn::FindSector {
+            face,
+            guess,
+            p,
+            dir,
+        } => OpIn::FindSector {
             face: need(n_f, face)?,
             guess,
             p,
@@ -271,22 +386,40 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
         OpIn::UpdateIvls { vertex } => OpIn::UpdateIvls {
             vertex: need(c[9], vertex)?,
         },
-        OpIn::Redistribute { edge, has_uv, seam, dom } => OpIn::Redistribute {
+        OpIn::Redistribute {
+            edge,
+            has_uv,
+            seam,
+            dom,
+        } => OpIn::Redistribute {
             edge: need(n_e, edge)?,
             has_uv,
             seam: seam % 9,
             dom,
         },
-        OpIn::SplitUv { eu_orig, eu_new, p, t, scaled_zero, orient, for_tess } => OpIn::SplitUv {
+        OpIn::SplitUv {
+            eu_orig,
+            eu_new,
+            p,
+            t,
+            scaled_zero,
+            orient,
+            for_tess,
+        } => OpIn::SplitUv {
             eu_orig: need(n_eu, eu_orig)?,
             eu_new: need(n_eu, eu_new)?,
             p,
             t,
             scaled_zero,
-            orient: orient % 3,
+            orient,
             for_tess,
         },
-        OpIn::CornerBlend { eus, tangent, tol, ang } => {
+        OpIn::CornerBlend {
+            eus,
+            tangent,
+            tol,
+            ang,
+        } => {
             if n_eu == 0 && !eus.is_empty() {
                 return None;
             }
@@ -297,7 +430,12 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
                 ang,
             }
         }
-        OpIn::EdgeEdgeBlend { flag, eu1, eu2, dir } => OpIn::EdgeEdgeBlend {
+        OpIn::EdgeEdgeBlend {
+            flag,
+            eu1,
+            eu2,
+            dir,
+        } => OpIn::EdgeEdgeBlend {
             flag: flag % 4,
             eu1: sel(eu1, n_eu),
             eu2: sel(eu2, n_eu),
@@ -313,8 +451,10 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
     })
 }
 
+/// An op naming an entity kind the B-rep lacks (e.g. a face op on a wire B-rep): no code
+/// runs on either side, so the case is rejected (not counted as a pass).
 fn no_entity() -> Output {
-    Output::err("no_entity")
+    Output::rejected("no entity of the op's kind in this B-rep: nothing runs on either side")
 }
 
 fn ints_of(v: &[i64]) -> Vec<f64> {
@@ -331,7 +471,11 @@ fn list_of(v: &[i64]) -> Vec<f64> {
 fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
     let mut a = Vec::new();
     let code = match op {
-        OpIn::Lists { which, attr, targets } => {
+        OpIn::Lists {
+            which,
+            attr,
+            targets,
+        } => {
             a.extend([f64::from(*which), *attr as f64, targets.len() as f64]);
             for t in targets {
                 a.extend(ints_of(t));
@@ -346,8 +490,20 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             a.extend([f64::from(*kind), *value]);
             Op::SetSize
         }
-        OpIn::SetInf { set, mode, reset, flag } => {
-            a.extend([*set as f64, f64::from(*mode), *reset as f64, f64::from(*flag)]);
+        OpIn::SetInf {
+            set,
+            mode,
+            reset,
+            flag,
+            unsure,
+        } => {
+            a.extend([
+                *set as f64,
+                f64::from(*mode),
+                *reset as f64,
+                f64::from(*flag),
+                *unsure as f64,
+            ]);
             Op::SetInf
         }
         OpIn::Degenerate { tol } => {
@@ -375,7 +531,11 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             }
             Op::ObjMap
         }
-        OpIn::AddAttrs { target, ids, indexed } => {
+        OpIn::AddAttrs {
+            target,
+            ids,
+            indexed,
+        } => {
             a.extend(ints_of(target));
             a.extend(list_of(ids));
             a.extend(list_of(indexed));
@@ -397,7 +557,11 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             a.extend([*loop_ as f64, *level as f64]);
             Op::MarkLoops
         }
-        OpIn::SwapFaceUv { face, mark, premark } => {
+        OpIn::SwapFaceUv {
+            face,
+            mark,
+            premark,
+        } => {
             a.extend([*face as f64, f64::from(*mark), flag(*premark)]);
             Op::SwapFaceUv
         }
@@ -413,7 +577,12 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             a.push(*tol);
             Op::FindSide
         }
-        OpIn::FindSector { face, guess, p, dir } => {
+        OpIn::FindSector {
+            face,
+            guess,
+            p,
+            dir,
+        } => {
             a.push(*face as f64);
             a.push(flag(guess.is_some()));
             a.extend(guess.unwrap_or([0.0, 0.0]));
@@ -425,22 +594,44 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             a.push(*vertex as f64);
             Op::UpdateIvls
         }
-        OpIn::Redistribute { edge, has_uv, seam, dom } => {
+        OpIn::Redistribute {
+            edge,
+            has_uv,
+            seam,
+            dom,
+        } => {
             a.extend([*edge as f64, flag(*has_uv), f64::from(*seam)]);
             a.extend(dom);
             Op::Redistribute
         }
-        OpIn::SplitUv { eu_orig, eu_new, p, t, scaled_zero, orient, for_tess } => {
+        OpIn::SplitUv {
+            eu_orig,
+            eu_new,
+            p,
+            t,
+            scaled_zero,
+            orient,
+            for_tess,
+        } => {
             a.extend([*eu_orig as f64, *eu_new as f64]);
             a.extend(p);
             a.extend([*t, *scaled_zero, f64::from(*orient), flag(*for_tess)]);
             Op::SplitUv
         }
-        OpIn::BrepIntersect { tol, ang, want_points } => {
+        OpIn::BrepIntersect {
+            tol,
+            ang,
+            want_points,
+        } => {
             a.extend([*tol, *ang, flag(*want_points)]);
             Op::BrepIntersect
         }
-        OpIn::CornerBlend { eus, tangent, tol, ang } => {
+        OpIn::CornerBlend {
+            eus,
+            tangent,
+            tol,
+            ang,
+        } => {
             a.extend(list_of(eus));
             a.push(flag(tangent.is_some()));
             let tans = tangent.clone().unwrap_or_default();
@@ -449,11 +640,25 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             a.extend([*tol, *ang]);
             Op::CornerBlend
         }
-        OpIn::EdgeEdgeBlend { flag: f, eu1, eu2, dir } => {
+        OpIn::EdgeEdgeBlend {
+            flag: f,
+            eu1,
+            eu2,
+            dir,
+        } => {
             a.extend([f64::from(*f), *eu1 as f64, *eu2 as f64, f64::from(*dir)]);
             Op::EdgeEdgeBlend
         }
-        OpIn::ParallelProj { curve, vec, dist, tol, ang, want_3d, want_uv, want_faces } => {
+        OpIn::ParallelProj {
+            curve,
+            vec,
+            dist,
+            tol,
+            ang,
+            want_3d,
+            want_uv,
+            want_faces,
+        } => {
             push_curve(&mut a, curve)?;
             a.extend(vec);
             for v in [dist, tol, ang] {
@@ -484,7 +689,10 @@ fn export(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
 }
 
 fn build_failure(export: &[f64]) -> Output {
-    Output::err(format!("brep_build_status_{}", export.get(1).copied().unwrap_or(0.0)))
+    Output::err(format!(
+        "brep_build_status_{}",
+        export.get(1).copied().unwrap_or(0.0)
+    ))
 }
 
 /// The Rust B-rep of an upstream `.smb` file at `path`, imported through this unit's
@@ -509,7 +717,9 @@ fn import(ex: &[f64], graph_at: usize) -> Result<(Brep, ImportTypes), HarnessErr
     let mut graph = vec![0.0];
     graph.extend_from_slice(ex.get(graph_at..).ok_or_else(|| harness("short export"))?);
     let (mut b, types) = import_with_types(&graph)?;
-    let x = ex.get(1..1 + N_EXTRA_SCALARS).ok_or_else(|| harness("short extras"))?;
+    let x = ex
+        .get(1..1 + N_EXTRA_SCALARS)
+        .ok_or_else(|| harness("short extras"))?;
     let [inf, editing, est, ratio, head_is_inf] = *x else {
         return Err(harness("short extras"));
     };
@@ -518,13 +728,16 @@ fn import(ex: &[f64], graph_at: usize) -> Result<(Brep, ImportTypes), HarnessErr
     }
     // a freshly built SmBrep: its head region is the infinite one and its size
     // estimates are the defaults, which the Rust B-rep starts with
-    if editing != 0.0 || est != tol::USE_DEFAULT || ratio != tol::USE_DEFAULT || head_is_inf != 1.0 {
+    if editing != 0.0 || est != tol::USE_DEFAULT || ratio != tol::USE_DEFAULT || head_is_inf != 1.0
+    {
         return Err(harness("export: unexpected SmBrep state"));
     }
     // the exported head of the region list (`m_pList`) is the infinite region (or NULL
     // on a wire B-rep without regions), checked just above
     b.set_region_list_head(b.infinite_region());
-    let n_v = *ex.get(1 + N_EXTRA_SCALARS).ok_or_else(|| harness("short extras"))? as usize;
+    let n_v = *ex
+        .get(1 + N_EXTRA_SCALARS)
+        .ok_or_else(|| harness("short extras"))? as usize;
     let mut at = 2 + N_EXTRA_SCALARS;
     for v in 0..n_v {
         let n = *ex.get(at).ok_or_else(|| harness("short vertex list"))? as usize;
@@ -564,7 +777,12 @@ fn import(ex: &[f64], graph_at: usize) -> Result<(Brep, ImportTypes), HarnessErr
     // B-rep build upstream): the kernel's arena identities
     let edge_ids: Vec<EdgeId> = b.edges().ids().collect();
     for id in edge_ids {
-        if let Some(curve) = b.edge_mut(id).map_err(|e| harness(e.to_string()))?.curve.as_mut() {
+        if let Some(curve) = b
+            .edge_mut(id)
+            .map_err(|e| harness(e.to_string()))?
+            .curve
+            .as_mut()
+        {
             let _ = curve.set_owner(
                 Some(arena_identity(CacheObject::Edge(id))),
                 Some(arena_identity(CacheObject::Brep)),
@@ -573,7 +791,12 @@ fn import(ex: &[f64], graph_at: usize) -> Result<(Brep, ImportTypes), HarnessErr
     }
     let face_ids: Vec<FaceId> = b.faces().ids().collect();
     for id in face_ids {
-        if let Some(surface) = b.face_mut(id).map_err(|e| harness(e.to_string()))?.surface.as_mut() {
+        if let Some(surface) = b
+            .face_mut(id)
+            .map_err(|e| harness(e.to_string()))?
+            .surface
+            .as_mut()
+        {
             let _ = surface.set_owner(Some(arena_identity(CacheObject::Face(id))));
         }
     }
@@ -721,19 +944,24 @@ const SM_ERR_INVALID_INPUT: f64 = 1007.0;
 fn status_of(e: &SolidError) -> f64 {
     match e {
         SolidError::Upstream { code, .. } => f64::from(*code),
-        SolidError::InvalidInput { operation, .. } if *operation == "topology::brep::p1" => NULL_DEREF,
+        SolidError::InvalidInput { operation, .. } if *operation == "topology::brep::p1" => {
+            NULL_DEREF
+        }
         SolidError::InvalidInput { .. } => SM_ERR_INVALID_INPUT,
         _ => -9.0,
     }
 }
 
-fn mark_type(code: u8) -> MarkType {
+/// The `SmMarkType` of a resolved mark code (`SM_MT_MARK` 1, `MARK2` 2, `MARK3` 4,
+/// `MARKIO` 8, `MARKASSERT` 16); any other code is a harness error (lesson 22).
+fn mark_type(code: u8) -> Result<MarkType, HarnessError> {
     match code {
-        1 => MarkType::Mark,
-        2 => MarkType::Mark2,
-        4 => MarkType::Mark3,
-        16 => MarkType::MarkAssert,
-        _ => MarkType::MarkIo,
+        1 => Ok(MarkType::Mark),
+        2 => Ok(MarkType::Mark2),
+        4 => Ok(MarkType::Mark3),
+        8 => Ok(MarkType::MarkIo),
+        16 => Ok(MarkType::MarkAssert),
+        other => Err(harness(format!("unknown mark code {other}"))),
     }
 }
 
@@ -748,7 +976,10 @@ fn stand_in_uv_curve() -> Curve {
 }
 
 fn plane(k: f64) -> Surface {
-    Surface::from(Plane::from_normal(Vec3::new(0.0, 0.0, k), Vec3::new(0.0, 0.0, 1.0)))
+    Surface::from(Plane::from_normal(
+        Vec3::new(0.0, 0.0, k),
+        Vec3::new(0.0, 0.0, 1.0),
+    ))
 }
 
 /// Attaches a fresh attribute `id` to each target (as the shim), returning the store.
@@ -775,7 +1006,11 @@ fn attach(targets: &[[i64; 2]], id: i64) -> Result<AttributeStore, SolidError> {
 
 /// The deferral of an op evaluating inexact geometry: `faces` / `edges` name what it
 /// touches (`None`: every face / edge of the B-rep).
-fn inexact(types: &ImportTypes, faces: Option<&[FaceId]>, edges: Option<&[EdgeId]>) -> Option<Output> {
+fn inexact(
+    types: &ImportTypes,
+    faces: Option<&[FaceId]>,
+    edges: Option<&[EdgeId]>,
+) -> Option<Output> {
     let surface_types: Vec<i64> = match faces {
         None => types.face_surface_types.clone(),
         Some(fs) => fs
@@ -843,7 +1078,11 @@ fn eu_state(b: &Brep, eu: EdgeuseId, out: &mut Vec<f64>) -> Result<(), SolidErro
     out.push(1.0);
     let r = b.edgeuse(eu)?;
     curve_id(r.uv_trim_curve.as_ref(), out);
-    out.push(if r.uv_trim_curve.is_some() { f64::from(eu.index()) } else { -1.0 });
+    out.push(if r.uv_trim_curve.is_some() {
+        f64::from(eu.index())
+    } else {
+        -1.0
+    });
     match r.drop_curve_fail.as_deref() {
         Some(f) => out.extend([1.0, f64::from(f.fail_status), flag(f.brep.is_some())]),
         None => out.extend([0.0, 0.0, 0.0]),
@@ -870,7 +1109,9 @@ fn put_surface(o: &mut Vec<f64>, s: &Surface) -> Result<(), HarnessError> {
             o.extend([d.min().x, d.min().y, d.max().x, d.max().y]);
         }
         SurfaceKind::BSpline(bs) => {
-            let nurb = bs.gw_nurb().ok_or_else(|| harness("blend surface without NURBS data"))?;
+            let nurb = bs
+                .gw_nurb()
+                .ok_or_else(|| harness("blend surface without NURBS data"))?;
             let (p, q) = nurb.degrees();
             o.extend([
                 0.0,
@@ -951,7 +1192,12 @@ fn put_healed(k: &Kernel, b: &Brep, types: &ImportTypes, o: &mut Vec<f64>) -> Re
         o.push(idx(s.region));
     }
     for (_, fu) in b.faceuses().iter() {
-        o.extend([idx(fu.shell), idx(fu.face), idx(fu.mate), orient_code(fu.orientation)]);
+        o.extend([
+            idx(fu.shell),
+            idx(fu.face),
+            idx(fu.mate),
+            orient_code(fu.orientation),
+        ]);
         o.extend(ids(&fu.loopuses));
     }
     for (id, f) in b.faces().iter() {
@@ -961,7 +1207,12 @@ fn put_healed(k: &Kernel, b: &Brep, types: &ImportTypes, o: &mut Vec<f64>) -> Re
         }
         let d = &f.uv_domain;
         o.extend([d.min().x, d.min().y, d.max().x, d.max().y, f.tolerance]);
-        o.push(types.face_surface_types.get(id.index() as usize).map_or(-1.0, |&t| t as f64));
+        o.push(
+            types
+                .face_surface_types
+                .get(id.index() as usize)
+                .map_or(-1.0, |&t| t as f64),
+        );
     }
     for (_, lu) in b.loopuses().iter() {
         o.extend([idx(lu.faceuse), idx(lu.loop_), idx(lu.mate)]);
@@ -982,18 +1233,31 @@ fn put_healed(k: &Kernel, b: &Brep, types: &ImportTypes, o: &mut Vec<f64>) -> Re
             EdgeuseOwner::Shell(s) => o.extend([2.0, idx(s)]),
             EdgeuseOwner::Unknown => o.extend([0.0, -1.0]),
         }
-        o.extend([idx(eu.cw), idx(eu.ccw), idx(eu.vertexuse), orient_code(eu.orientation)]);
+        o.extend([
+            idx(eu.cw),
+            idx(eu.ccw),
+            idx(eu.vertexuse),
+            orient_code(eu.orientation),
+        ]);
         curve_id(eu.uv_trim_curve.as_ref(), o);
         match eu.drop_curve_fail.as_deref() {
             Some(f) => o.extend([1.0, f64::from(f.fail_status), flag(f.brep.is_some())]),
             None => o.extend([0.0, 0.0, 0.0]),
         }
-        o.extend([flag(eu.max_edge_face_gap.is_init()), flag(eu.edge_ccw_edge_gap.is_init())]);
+        o.extend([
+            flag(eu.max_edge_face_gap.is_init()),
+            flag(eu.edge_ccw_edge_gap.is_init()),
+        ]);
     }
     for (id, e) in b.edges().iter() {
         o.extend([e.tolerance, e.interval.min(), e.interval.max()]);
         o.extend(ids(&e.edgeuses));
-        o.push(types.edge_curve_types.get(id.index() as usize).map_or(-1.0, |&t| t as f64));
+        o.push(
+            types
+                .edge_curve_types
+                .get(id.index() as usize)
+                .map_or(-1.0, |&t| t as f64),
+        );
         curve_id(e.curve.as_ref(), o);
     }
     for (_, vu) in b.vertexuses().iter() {
@@ -1021,7 +1285,11 @@ fn run_rust_op(
 ) -> Result<Result<Vec<f64>, Output>, Fail> {
     let mut o: Vec<f64> = Vec::new();
     match op {
-        OpIn::Lists { which, attr, targets } => {
+        OpIn::Lists {
+            which,
+            attr,
+            targets,
+        } => {
             let store = attach(targets, *attr)?;
             let key = |e: EntityRef| key_of(e).key;
             let filter = (*attr >= 0).then_some(AttributeFilter {
@@ -1119,17 +1387,38 @@ fn run_rust_op(
                 o.push(b.this_large_small_size_ratio(k, true));
                 // SmContext::GetThisLargeSmallSizeRatio
                 let r = k.context.stored_large_small_size_ratio();
-                o.push(if r == tol::USE_DEFAULT { k.tolerances.large_small_size_ratio } else { r });
+                o.push(if r == tol::USE_DEFAULT {
+                    k.tolerances.large_small_size_ratio
+                } else {
+                    r
+                });
             }
         }
-        OpIn::SetInf { set, mode, reset, flag: void_flag } => {
+        OpIn::SetInf {
+            set,
+            mode,
+            reset,
+            flag: void_flag,
+            unsure,
+        } => {
+            // SmRegion::SetIsVoid(UNSURE) on the chosen region first
+            if *unsure >= 0 {
+                b.region_mut(RegionId::from_index(*unsure as u32))?.is_void = 2;
+            }
             if *set != -2 {
                 b.set_infinite_region((*set >= 0).then(|| RegionId::from_index(*set as u32)));
             }
+            // SmSetRegionVoidType: SM_VS_NESTEDSOLID 0, _INFINITEREGION_ONLY 1, _SWAP 2 (the FFI
+            // refuses anything else; lesson 22: never default an unknown code)
             let void_type = match void_flag {
                 0 => bp1::SetRegionVoidType::NestedSolid,
                 1 => bp1::SetRegionVoidType::InfiniteRegionOnly,
-                _ => bp1::SetRegionVoidType::InfiniteRegionSwap,
+                2 => bp1::SetRegionVoidType::InfiniteRegionSwap,
+                other => {
+                    return Err(Fail::Harness(harness(format!(
+                        "unknown SmSetRegionVoidType code {other}"
+                    ))))
+                }
             };
             let r = match mode {
                 1 => bp1::reset_infinite_region(
@@ -1153,8 +1442,17 @@ fn run_rust_op(
                 o.push(b.infinite_region().map_or(-1.0, |r| f64::from(r.index())));
                 o.extend(ids(&bp1::regions(b, None)?));
             }
-            // the void flags of a successful mode 1/2 are never reached: both go through
-            // SmRegion::SetIsVoid (unit topology.shell)
+            // a successful mode 1/2: every region's raw IsVoid flag, in the export's
+            // region order (the shim's traversal registry)
+            if *mode != 0 && status == 0.0 {
+                let flags: Vec<f64> = b
+                    .regions()
+                    .iter()
+                    .map(|(_, r)| f64::from(r.is_void))
+                    .collect();
+                o.push(flags.len() as f64);
+                o.extend(flags);
+            }
         }
         OpIn::Degenerate { tol } => {
             o.push(flag(bp1::is_degenerate(k, b, *tol)?));
@@ -1170,7 +1468,11 @@ fn run_rust_op(
             let mut votes: Vec<u64> = Vec::new();
             for &r in regions {
                 // a null vote (-1: the shim votes with a null pointer) is a region of its own
-                bp1::vote_for_region(&mut rs, &mut votes, (r >= 0).then(|| RegionId::from_index(r as u32)));
+                bp1::vote_for_region(
+                    &mut rs,
+                    &mut votes,
+                    (r >= 0).then(|| RegionId::from_index(r as u32)),
+                );
             }
             o.push(rs.len() as f64);
             o.extend(rs.iter().map(|r| r.map_or(-1.0, |r| f64::from(r.index()))));
@@ -1225,11 +1527,19 @@ fn run_rust_op(
             }
             o.extend(list_of(&v));
         }
-        OpIn::AddAttrs { target, ids: attr_ids, indexed } => {
+        OpIn::AddAttrs {
+            target,
+            ids: attr_ids,
+            indexed,
+        } => {
             let Some(t) = entity(*target) else {
                 // upstream dereferences the null object once per index; with no index
                 // it returns SM_SUCCESS (and the object has no attributes to list)
-                return Ok(Ok(if indexed.is_empty() { vec![0.0, 0.0] } else { vec![NULL_DEREF] }));
+                return Ok(Ok(if indexed.is_empty() {
+                    vec![0.0, 0.0]
+                } else {
+                    vec![NULL_DEREF]
+                }));
             };
             let mut store = AttributeStore::default();
             let mut handles = Vec::new();
@@ -1273,7 +1583,11 @@ fn run_rust_op(
                         .shells()
                         .ids()
                         .map(|s| {
-                            let n = b.faceuses().iter().filter(|(_, r)| r.shell == Some(s)).count();
+                            let n = b
+                                .faceuses()
+                                .iter()
+                                .filter(|(_, r)| r.shell == Some(s))
+                                .count();
                             if n == 0 {
                                 -1
                             } else {
@@ -1312,7 +1626,12 @@ fn run_rust_op(
         }
         OpIn::MarkLoops { loop_, level } => {
             let mut loops: Vec<LoopId> = Vec::new();
-            match bp1::mark_loops_to_delete(b, &mut loops, LoopId::from_index(*loop_ as u32), *level) {
+            match bp1::mark_loops_to_delete(
+                b,
+                &mut loops,
+                LoopId::from_index(*loop_ as u32),
+                *level,
+            ) {
                 Ok(()) => {
                     o.push(0.0);
                     o.extend(ids(&loops));
@@ -1326,18 +1645,36 @@ fn run_rust_op(
                 }
             }
         }
-        OpIn::SwapFaceUv { face, mark, premark } => {
+        OpIn::SwapFaceUv {
+            face,
+            mark,
+            premark,
+        } => {
             let f = FaceId::from_index(*face as u32);
-            let mark = mark_type(*mark);
+            let mark = mark_type(*mark)?;
             let mut marks = Marks::default();
             if *premark {
                 marks.mark(k, Entity::Face(f), mark);
             }
-            bp1::swap_face_uv(k, b, &mut marks, f, mark)?;
+            let swaps = !marks.is_marked(k, Entity::Face(f), mark);
+            match bp1::swap_face_uv(k, b, &mut marks, f, mark) {
+                Err(e) if !e.is_unported() => return Ok(Ok(vec![status_of(&e)])),
+                r => r?,
+            }
+            // a swap transforms the surface and mirrors the trim curves: compared only
+            // where the import is exact
+            if swaps {
+                if let Some(d) = inexact(types, None, None) {
+                    return Ok(Err(d));
+                }
+            }
             o.push(0.0);
             o.push(flag(marks.is_marked(k, Entity::Face(f), mark)));
             let d = b.face(f)?.uv_domain;
             o.extend([d.min().x, d.min().y, d.max().x, d.max().y]);
+            if swaps {
+                put_healed(k, b, types, &mut o)?;
+            }
         }
         OpIn::CheckUv { eu } => {
             let e = EdgeuseId::from_index(*eu as u32);
@@ -1362,19 +1699,32 @@ fn run_rust_op(
         }
         OpIn::FindSide { curve, p, dir, tol } => {
             let c = Curve::from(bspline_of(curve)?);
-            match bp1::find_side_of_curve(k, &c, Vec3::from_array(*p), Vec3::from_array(*dir), *tol) {
+            match bp1::find_side_of_curve(k, &c, Vec3::from_array(*p), Vec3::from_array(*dir), *tol)
+            {
                 Ok(right) => o.extend([0.0, flag(right)]),
                 Err(e) if e.is_unported() => return Err(e.into()),
                 Err(e) => o.extend([status_of(&e), 2.0]), // UNSURE
             }
         }
-        OpIn::FindSector { face, guess, p, dir } => {
+        OpIn::FindSector {
+            face,
+            guess,
+            p,
+            dir,
+        } => {
             let f = FaceId::from_index(*face as u32);
             if let Some(d) = inexact(types, Some(&[f]), Some(&[])) {
                 return Ok(Err(d));
             }
             let guess = guess.map(|[u, v]| Point2::new(u, v));
-            match bp1::find_sector_of_face(k, b, f, guess, Vec3::from_array(*p), Vec3::from_array(*dir)) {
+            match bp1::find_sector_of_face(
+                k,
+                b,
+                f,
+                guess,
+                Vec3::from_array(*p),
+                Vec3::from_array(*dir),
+            ) {
                 Ok((dist, region)) => {
                     o.extend([0.0, dist, region.map_or(-1.0, |r| f64::from(r.index()))]);
                 }
@@ -1385,7 +1735,10 @@ fn run_rust_op(
         OpIn::UpdateIvls { vertex } => {
             let v = VertexId::from_index(*vertex as u32);
             let edges = solidcore::topology::vertex::edges(b, v, None)?;
-            if edges.iter().any(|&e| b.edge(e).map_or(true, |r| r.curve.is_none())) {
+            if edges
+                .iter()
+                .any(|&e| b.edge(e).map_or(true, |r| r.curve.is_none()))
+            {
                 return Ok(Ok(vec![NULL_DEREF]));
             }
             if let Some(d) = inexact(types, Some(&[]), Some(&edges)) {
@@ -1412,7 +1765,12 @@ fn run_rust_op(
                 o.extend([r.interval.min(), r.interval.max(), r.tolerance]);
             }
         }
-        OpIn::Redistribute { edge, has_uv, seam, dom } => {
+        OpIn::Redistribute {
+            edge,
+            has_uv,
+            seam,
+            dom,
+        } => {
             let e = EdgeId::from_index(*edge as u32);
             let seam = SurfParamType::from_code(u64::from(*seam))
                 .ok_or_else(|| harness(format!("seam code {seam} outside SM_SP_U..=SM_SP_VMAX")))?;
@@ -1425,7 +1783,15 @@ fn run_rust_op(
                 Err(err) => o.push(status_of(&err)),
             }
         }
-        OpIn::SplitUv { eu_orig, eu_new, p, t, scaled_zero, orient, for_tess } => {
+        OpIn::SplitUv {
+            eu_orig,
+            eu_new,
+            p,
+            t,
+            scaled_zero,
+            orient,
+            for_tess,
+        } => {
             let eo = EdgeuseId::from_index(*eu_orig as u32);
             let en = EdgeuseId::from_index(*eu_new as u32);
             if b.edgeuse(eo)?.uv_trim_curve.is_some() {
@@ -1438,10 +1804,17 @@ fn run_rust_op(
                     return Ok(Err(d));
                 }
             }
+            // SmOrientType: SM_OT_UNKNOWN = 0, SM_OT_SAME = 1, SM_OT_OPPOSITE = 2 (the FFI
+            // refuses anything else; lesson 22: never default an unknown code)
             let orient = match orient {
+                0 => OrientType::Unknown,
                 1 => OrientType::Same,
                 2 => OrientType::Opposite,
-                _ => OrientType::Unknown,
+                other => {
+                    return Err(Fail::Harness(harness(format!(
+                        "unknown orientation code {other}"
+                    ))))
+                }
             };
             let r = bp1::make_vertex_split_uv_trim_curve(
                 k,
@@ -1468,23 +1841,57 @@ fn run_rust_op(
                 });
             }
         }
-        OpIn::BrepIntersect { tol, ang, want_points } => {
+        OpIn::BrepIntersect {
+            tol,
+            ang,
+            want_points,
+        } => {
             let other = b.clone();
             let (curves, points) = bp1::brep_intersect(k, b, &other, *tol, *ang, *want_points)?;
-            o.extend([0.0, curves.len() as f64, points.map_or(-1.0, |p| p.len() as f64)]);
+            o.extend([
+                0.0,
+                curves.len() as f64,
+                points.map_or(-1.0, |p| p.len() as f64),
+            ]);
         }
-        OpIn::CornerBlend { eus, tangent, tol, ang } => {
-            let ids: Vec<EdgeuseId> = eus.iter().map(|&i| EdgeuseId::from_index(i as u32)).collect();
+        OpIn::CornerBlend {
+            eus,
+            tangent,
+            tol,
+            ang,
+        } => {
+            let ids: Vec<EdgeuseId> = eus
+                .iter()
+                .map(|&i| EdgeuseId::from_index(i as u32))
+                .collect();
             match bp1::create_corner_blend(k, b, &ids, tangent.as_deref(), *tol, *ang) {
-                Ok(s) => o.extend([0.0, s.len() as f64]),
+                Ok(s) => {
+                    o.extend([0.0, s.len() as f64]);
+                    for blend in s {
+                        put_surface(&mut o, &Surface::from(blend))?;
+                    }
+                }
                 Err(e) if e.is_unported() => return Err(e.into()),
                 // upstream resets the output array before failing
                 Err(e) => o.extend([status_of(&e), 0.0]),
             }
         }
-        OpIn::EdgeEdgeBlend { flag: f, eu1, eu2, dir } => {
+        OpIn::EdgeEdgeBlend {
+            flag: f,
+            eu1,
+            eu2,
+            dir,
+        } => {
             let id = |i: i64| (i >= 0).then(|| EdgeuseId::from_index(i as u32));
-            match bp1::create_edge_edge_blend(k, b, u64::from(*f), id(*eu1), id(*eu2), u64::from(*dir), None) {
+            match bp1::create_edge_edge_blend(
+                k,
+                b,
+                u64::from(*f),
+                id(*eu1),
+                id(*eu2),
+                u64::from(*dir),
+                None,
+            ) {
                 Ok(s) => {
                     o.push(0.0);
                     put_surface(&mut o, &s)?;
@@ -1493,7 +1900,16 @@ fn run_rust_op(
                 Err(e) => o.push(status_of(&e)),
             }
         }
-        OpIn::ParallelProj { curve, vec, dist, tol, ang, want_3d, want_uv, want_faces } => {
+        OpIn::ParallelProj {
+            curve,
+            vec,
+            dist,
+            tol,
+            ang,
+            want_3d,
+            want_uv,
+            want_faces,
+        } => {
             if b.faces().iter().any(|(_, r)| r.surface.is_none()) {
                 return Ok(Ok(vec![NULL_DEREF]));
             }
@@ -1545,7 +1961,9 @@ fn run_rust_op(
         }
         OpIn::Heal { healer_op, make_uv } => {
             let healer_op = HealerOpType::from_code(i64::from(*healer_op)).ok_or_else(|| {
-                harness(format!("healer op {healer_op} outside SM_HO_NONE..=SM_HO_ALL (0..=26)"))
+                harness(format!(
+                    "healer op {healer_op} outside SM_HO_NONE..=SM_HO_ALL (0..=26)"
+                ))
             })?;
             bp1::heal_brep(k, b, healer_op, None, None, None, *make_uv)?;
             // the healer evaluates the geometry: compared only where the import is exact
@@ -1580,7 +1998,6 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     }
 }
 
-
 // ---- generated cases --------------------------------------------------------------------
 
 fn gen_sel(rng: &mut Rng) -> i64 {
@@ -1605,7 +2022,11 @@ fn gen_op(rng: &mut Rng) -> OpIn {
             let n = rng.below(4) as usize;
             OpIn::Lists {
                 which: rng.below(10) as u8,
-                attr: if rng.chance(0.5) { -1 } else { rng.below(50) as i64 },
+                attr: if rng.chance(0.5) {
+                    -1
+                } else {
+                    rng.below(50) as i64
+                },
                 targets: (0..n).map(|_| gen_target(rng)).collect(),
             }
         }
@@ -1622,18 +2043,28 @@ fn gen_op(rng: &mut Rng) -> OpIn {
                 4 => rng.uniform(0.5, 500.0),
                 _ => rng.uniform(1e5, 1e7),
             };
-            OpIn::SetSize { kind: rng.below(2) as u8, value }
+            OpIn::SetSize {
+                kind: rng.below(2) as u8,
+                value,
+            }
         }
         4 => OpIn::SetInf {
             set: rng.range_i64(-2, 1 << 10),
             mode: rng.below(3) as u8,
             reset: rng.range_i64(-1, 1 << 10),
             flag: rng.below(3) as u8,
+            unsure: if rng.chance(0.3) {
+                rng.range_i64(0, 1 << 10)
+            } else {
+                -1
+            },
         },
         5 => OpIn::Degenerate {
             tol: 10f64.powf(rng.uniform(-9.0, 9.0)),
         },
-        6 => OpIn::AddDeleted { n: rng.below(5) as u8 },
+        6 => OpIn::AddDeleted {
+            n: rng.below(5) as u8,
+        },
         7 => {
             let n = rng.below(10) as usize;
             OpIn::Vote {
@@ -1673,7 +2104,7 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         },
         14 => OpIn::SwapFaceUv {
             face: gen_sel(rng),
-            mark: rng.below(5) as u8,
+            mark: *rng.choose(&[1u8, 2, 4, 8, 16]).unwrap_or(&1),
             premark: rng.chance(0.7),
         },
         15 => OpIn::CheckUv { eu: gen_sel(rng) },
@@ -1695,11 +2126,15 @@ fn gen_op(rng: &mut Rng) -> OpIn {
         }
         18 => OpIn::FindSector {
             face: gen_sel(rng),
-            guess: rng.chance(0.5).then(|| [rng.uniform(-1.0, 2.0), rng.uniform(-1.0, 2.0)]),
+            guess: rng
+                .chance(0.5)
+                .then(|| [rng.uniform(-1.0, 2.0), rng.uniform(-1.0, 2.0)]),
             p: rng.point3(-5.0, 5.0),
             dir: rng.point3(-1.0, 1.0),
         },
-        19 => OpIn::UpdateIvls { vertex: gen_sel(rng) },
+        19 => OpIn::UpdateIvls {
+            vertex: gen_sel(rng),
+        },
         20 => OpIn::Redistribute {
             edge: gen_sel(rng),
             has_uv: rng.chance(0.5),
@@ -1725,7 +2160,9 @@ fn gen_op(rng: &mut Rng) -> OpIn {
             let n = rng.below(4) as usize;
             OpIn::CornerBlend {
                 eus: (0..n).map(|_| gen_sel(rng)).collect(),
-                tangent: rng.chance(0.5).then(|| (0..n).map(|_| rng.chance(0.7)).collect()),
+                tangent: rng
+                    .chance(0.5)
+                    .then(|| (0..n).map(|_| rng.chance(0.7)).collect()),
                 tol: 10f64.powf(rng.uniform(-6.0, -2.0)),
                 ang: rng.uniform(0.0, 0.1),
             }

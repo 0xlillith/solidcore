@@ -1,3 +1,5 @@
-//! `SmBrep` methods (upstream `source/SMLib/src/SmBrep.cpp`), split by plan unit.
+//! B-rep construction and editing, grouped by porting unit.
+
 pub mod p1;
 pub mod p2;
+pub mod p6;

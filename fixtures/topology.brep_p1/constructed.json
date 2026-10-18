@@ -10849,6 +10849,328 @@
     "tol": 0.0001,
     "ang": 0.01
    }
+  },
+  {
+   "name": "wire_line_split_uv_orient_unknown",
+   "upstream_ref": "TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       1,
+       1
+      ]
+     },
+     "t0": 0.0,
+     "t1": 1.0
+    },
+    "op": "split_uv",
+    "eu_orig": 0,
+    "eu_new": 1,
+    "p": [
+     0.5,
+     0,
+     0
+    ],
+    "t": 0.5,
+    "scaled_zero": 1e-06,
+    "orient": 0,
+    "for_tess": false
+   }
+  },
+  {
+   "name": "wire_cubic_sub_split_uv_orient_unknown",
+   "upstream_ref": "TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        2,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        2,
+        -1,
+        1,
+        -1.7976931348623157e+308
+       ],
+       [
+        3,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 3,
+      "u": [
+       0,
+       0,
+       0,
+       0,
+       1,
+       1,
+       1,
+       1
+      ]
+     },
+     "t0": 0.2,
+     "t1": 0.9
+    },
+    "op": "split_uv",
+    "eu_orig": 0,
+    "eu_new": 1,
+    "p": [
+     0.5,
+     0,
+     0
+    ],
+    "t": 0.5,
+    "scaled_zero": 1e-06,
+    "orient": 0,
+    "for_tess": false
+   }
+  },
+  {
+   "name": "face_plane_split_uv_orient_unknown",
+   "upstream_ref": "TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      -1,
+      -1,
+      1,
+      1
+     ]
+    },
+    "op": "split_uv",
+    "eu_orig": 0,
+    "eu_new": 1,
+    "p": [
+     0.5,
+     0,
+     0
+    ],
+    "t": 0.5,
+    "scaled_zero": 1e-06,
+    "orient": 0,
+    "for_tess": false
+   }
+  },
+  {
+   "name": "face_bspline_split_uv_orient_unknown",
+   "upstream_ref": "TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "bspline": {
+       "net": [
+        [
+         [
+          0,
+          0,
+          0,
+          -1.7976931348623157e+308
+         ],
+         [
+          0,
+          1,
+          0,
+          -1.7976931348623157e+308
+         ]
+        ],
+        [
+         [
+          1,
+          0,
+          0.5,
+          -1.7976931348623157e+308
+         ],
+         [
+          1,
+          1,
+          0,
+          -1.7976931348623157e+308
+         ]
+        ]
+       ],
+       "p": 1,
+       "q": 1,
+       "u": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "v": [
+        0,
+        0,
+        1,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "op": "split_uv",
+    "eu_orig": 0,
+    "eu_new": 1,
+    "p": [
+     0.5,
+     0,
+     0
+    ],
+    "t": 0.5,
+    "scaled_zero": 1e-06,
+    "orient": 0,
+    "for_tess": false
+   }
+  },
+  {
+   "name": "face_bspline_sub_split_uv_orient_unknown",
+   "upstream_ref": "TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "bspline": {
+       "net": [
+        [
+         [
+          0,
+          0,
+          0,
+          -1.7976931348623157e+308
+         ],
+         [
+          0,
+          1,
+          0,
+          -1.7976931348623157e+308
+         ]
+        ],
+        [
+         [
+          1,
+          0,
+          0.5,
+          -1.7976931348623157e+308
+         ],
+         [
+          1,
+          1,
+          0,
+          -1.7976931348623157e+308
+         ]
+        ]
+       ],
+       "p": 1,
+       "q": 1,
+       "u": [
+        0,
+        0,
+        1,
+        1
+       ],
+       "v": [
+        0,
+        0,
+        1,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0.2,
+      0.1,
+      0.8,
+      0.9
+     ]
+    },
+    "op": "split_uv",
+    "eu_orig": 0,
+    "eu_new": 1,
+    "p": [
+     0.5,
+     0,
+     0
+    ],
+    "t": 0.5,
+    "scaled_zero": 1e-06,
+    "orient": 0,
+    "for_tess": false
+   }
+  },
+  {
+   "name": "network_split_uv_orient_unknown",
+   "upstream_ref": "TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "split_uv",
+    "eu_orig": 0,
+    "eu_new": 1,
+    "p": [
+     0.5,
+     0,
+     0
+    ],
+    "t": 0.5,
+    "scaled_zero": 1e-06,
+    "orient": 0,
+    "for_tess": false
+   }
   }
  ]
 }

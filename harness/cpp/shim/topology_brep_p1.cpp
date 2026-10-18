@@ -800,6 +800,269 @@ void attach(Rd& rd, Graph& g, int64_t id)
 }
 
 
+// SmBrep::CreateCornerBlend (SmBrep.cpp:2488-2665) up to the end of its UV phase, replayed
+// read-only on a copy of the B-rep (surface types preserved): TRUE when the real call would
+// copy a NULL UV trim curve (`SM_ASSERT(pUVCurve != NULL)` is a release no-op and
+// `pUVCurve->Copy` dereferences it). The replay keeps upstream's ordering, statuses and
+// early returns, so it is TRUE exactly when the real call reaches that dereference.
+static bool corner_blend_uv_null(SmBrep* brep, const SmContext& ctx, const SmTArray<SmEdgeuse*>& eus,
+                                 const SmTArray<SmBoolean>* tans, double tol)
+{
+    SmCopyBrepMap rev;
+    SmBrep* copy = new (ctx) SmBrep(*brep, NULL, &rev, TRUE, FALSE);
+    SmObjDelete copy_clean(copy);
+    SmTArray<SmEdgeuse*> work;
+    for (ULONG i = 0; i < eus.GetSize(); i++)
+    {
+        SmEdgeuse* c = (SmEdgeuse*)rev.GetAt(eus[i]);
+        if (c == NULL)
+            return true; // (not expected: refuse rather than run unguarded)
+        work.Add(c);
+    }
+    SmTArray<SmEdgeuse*> ordered;
+    SmTArray<SmOrientType> orients;
+    SmTArray<SmBoolean> work_tan;
+    if (tans)
+        work_tan.Append(*tans);
+    else
+        work_tan.InsertAt(0, TRUE, eus.GetSize());
+    for (ULONG ii = 0; ii < work.GetSize(); ii++)
+    {
+        if (work[ii]->GetOrientation() == SM_OT_OPPOSITE)
+            work[ii] = work[ii]->GetMate();
+        if (work[ii]->GetEdge()->IsWire())
+            work_tan[ii] = FALSE;
+    }
+    SmTArray<SmBoolean> tangencies;
+    tangencies.Add(work_tan[0]);
+    ordered.Add(work[0]);
+    orients.Add(work[0]->GetOrientation());
+    work.RemoveAt(0);
+    work_tan.RemoveAt(0);
+    double tol_scale = 1.0;
+    while (work.GetSize() > 0)
+    {
+        SmBoolean found = FALSE;
+        for (ULONG ii = 0; ii < work.GetSize(); ii++)
+        {
+            SmEdgeuse* eu = work[ii];
+            SmEdgeuse* last = ordered.GetLast();
+            double param = (orients.GetLast() == SM_OT_SAME) ? 1.0 : 0.0;
+            SmPoint3d end_point;
+            if (last->NormalizedEvaluate(param, FALSE, end_point) != SM_SUCCESS)
+                return false;
+            SmPoint3d test_pt;
+            if (eu->NormalizedEvaluate(0.0, FALSE, test_pt) != SM_SUCCESS)
+                return false;
+            if (test_pt.DistanceBetween(end_point) < tol * tol_scale)
+            {
+                tangencies.Add(work_tan[ii]);
+                ordered.Add(work[ii]);
+                orients.Add(SM_OT_SAME);
+                work.RemoveAt(ii);
+                work_tan.RemoveAt(ii);
+                found = TRUE;
+                tol_scale = 1.0;
+                break;
+            }
+            if (eu->NormalizedEvaluate(1.0, FALSE, test_pt) != SM_SUCCESS)
+                return false;
+            if (test_pt.DistanceBetween(end_point) < tol * tol_scale)
+            {
+                tangencies.Add(work_tan[ii]);
+                ordered.Add(work[ii]);
+                orients.Add(SM_OT_OPPOSITE);
+                work.RemoveAt(ii);
+                work_tan.RemoveAt(ii);
+                found = TRUE;
+                tol_scale = 1.0;
+                break;
+            }
+        }
+        if (!found && tol_scale > 100.0)
+            return false;
+        if (!found)
+            tol_scale *= 2.5;
+    }
+    for (ULONG ii = 0; ii < ordered.GetSize(); ii++)
+    {
+        SmEdgeuse* eu = ordered[ii];
+        SmEdge* e = eu->GetEdge();
+        SmCurve* crv = NULL;
+        if (e->GetCurve()->Copy(ctx, crv) != SM_SUCCESS)
+            return false;
+        SmObjDelete crv_clean(crv);
+        SmExtent1d ivl = e->GetInterval();
+        if (crv->Trim(ivl) != SM_SUCCESS)
+            return false;
+        if (tangencies[ii])
+        {
+            SmBSplineCurve* uv = NULL;
+            eu->GetOrCreateUVTrimCurve(uv);
+            if (uv == NULL)
+                return true;
+            SmCurve* uv_copy = NULL;
+            if (uv->Copy(ctx, uv_copy) != SM_SUCCESS)
+                return false;
+            SmObjDelete uv_clean(uv_copy);
+            if (!SM_CAST_PTR(SmBSplineCurve, uv_copy))
+                return false;
+            if (eu->GetFace() == NULL)
+                return false;
+        }
+    }
+    return false;
+}
+
+// UB-157 (plan/upstream-issues.md): SmSurface::CreateBlendSurface ignores the statuses of its
+// two GetSampleValues calls, and CreateSkinnedSurface reads and writes sIntParams[numSections + ii]
+// past the array when SyncronizeKnotsOfCurves moves rail 2's natural interval. The probe of the
+// surface.surface_p8 shim (OP_BLEND), for CreateBlendSurface's default definition: SM_ERR for a
+// failing sample (the port fails at the first failing sample), 1007 for a moving rail 2 (the port's
+// InvalidInput "too few intersection parameters"), 0 when the blend is defined.
+static double blend_surface_ub157(const SmContext& ctx, const SmSurface& s1, const SmCurve& c1, SmExtent1d ivl1,
+                                  bool right, const SmSurface& s2, const SmCurve& c2, SmExtent1d ivl2, bool left)
+{
+    SmDerivSurfDefinition def;
+    def.m_lNumSamples = 100;
+    def.m_eTangencyType = SM_TT_DIR_TO_REFERENCE_CURVE;
+    def.m_dStartDerivDirAngleDeg = 0.0;
+    def.m_dEndDerivDirAngleDeg = 0.0;
+    def.m_dStartTanLength = 1.0;
+    def.m_dEndTanScale = 1.0;
+    def.m_dStartAngleDeg = 0.0;
+    def.m_dEndAngleDeg = 0.0;
+    def.m_vVector.Set(0, 0, 0);
+    def.m_eCurvatureType = SM_CT_G2_FROM_SURFACE;
+    def.m_eBlendEndType = SM_BE_NO_CUSP;
+    def.m_dStartRadius = 0.0;
+    def.m_dEndRadScale = 0.0;
+    def.m_pCurvatureReference = NULL;
+    def.m_bFlipCurvature = FALSE;
+    ULONG nd = def.GetNumDerivs();
+    SmTArray<double> params;
+    SmTArray<SmVector3d> p0, d0, p1, d1, s20, s30, s21, s31;
+    def.m_pTangentReference = &c2;
+    SmStatus r1 = def.GetSampleValues(s1, c1, ivl1, right ? TRUE : FALSE, TRUE, params, p0, d0,
+                                      nd >= 2 ? &s20 : NULL, nd >= 3 ? &s30 : NULL);
+    def.m_pTangentReference = &c1;
+    SmStatus r2 = def.GetSampleValues(s2, c2, ivl2, left ? TRUE : FALSE, FALSE, params, p1, d1,
+                                      nd >= 2 ? &s21 : NULL, nd >= 3 ? &s31 : NULL);
+    if (r1 != SM_SUCCESS || r2 != SM_SUCCESS)
+        return st(SM_ERR);
+    SmCurve* k1 = NULL;
+    SmCurve* k2 = NULL;
+    bool moves = false;
+    if (c1.Copy(ctx, k1) == SM_SUCCESS && c2.Copy(ctx, k2) == SM_SUCCESS && k1 != NULL && k2 != NULL)
+    {
+        SmBSplineCurve* b1 = (SmBSplineCurve*)k1;
+        SmBSplineCurve* b2 = (SmBSplineCurve*)k2;
+        SmExtent1d before = b2->GetNaturalInterval();
+        SmTArray<SmBSplineCurve*> rails;
+        rails.Add(b1);
+        rails.Add(b2);
+        if (SmBSplineCurve::SyncronizeKnotsOfCurves(rails, SM_EFF_ZERO * 100) == SM_SUCCESS)
+        {
+            SmExtent1d after = b2->GetNaturalInterval();
+            moves = fabs(after.GetMin() - before.GetMin()) > SM_EFF_ZERO ||
+                    fabs(after.GetMax() - before.GetMax()) > SM_EFF_ZERO;
+        }
+    }
+    delete k1;
+    delete k2;
+    return moves ? 1007.0 : 0.0;
+}
+
+// SmBrep::CreateEdgeEdgeBlend (SmBrep.cpp:2850-3020) for a blend flag != 0 and no definition,
+// replayed up to its CreateBlendSurface call on its own fresh rails (the edge uses are only read):
+// the UB-157 probe of that call, 0 when upstream returns before it or the blend is defined.
+// The probe's GetSampleValues may build and keep the face surfaces' caches before the real
+// call; the real CreateBlendSurface builds the same caches from the same surfaces at that
+// point, so the reference results are unchanged. A refusal is a status the shim decides (the
+// port's code for the same input): once the Rust side stops deferring, such a case is a guard
+// agreement, not a compared C++ run.
+static double edge_edge_blend_ub157(const SmContext& ctx, SmEdgeuse* e1, SmEdgeuse* e2, ULONG dir)
+{
+    SmEdge* edge1 = e1->GetEdge();
+    SmEdge* edge2 = e2->GetEdge();
+    if (edge1 == NULL || edge2 == NULL)
+        return 0.0;
+    SmExtent1d ivl1 = edge1->GetInterval();
+    SmExtent1d ivl2 = edge2->GetInterval();
+    SmBSplineCurve* rail1 = edge1->CreateTrimmedNURBSCurve(ctx);
+    SmBSplineCurve* rail2 = edge2->CreateTrimmedNURBSCurve(ctx);
+    SmObjDelete clean1(rail1), clean2(rail2);
+    if (rail1 == NULL || rail2 == NULL)
+        return 0.0;
+    SmBoolean same;
+    if (dir == 1)
+        same = TRUE;
+    else if (dir == 2)
+        same = FALSE;
+    else
+    {
+        ULONG ii, num(11);
+        SmTArray<SmPoint3d> pos1, pos2;
+        double d_same(0), d_opp(0);
+        pos1.SetSize(num);
+        pos2.SetSize(num);
+        for (ii = 0; ii < num; ii++)
+        {
+            rail1->EvaluatePoint(ivl1.Evaluate((double)ii / (double)(num - 1)), pos1[ii]);
+            rail2->EvaluatePoint(ivl2.Evaluate((double)ii / (double)(num - 1)), pos2[ii]);
+        }
+        for (ii = 0; ii < num; ii++)
+        {
+            d_same += pos1[ii].DistanceBetween(pos2[ii]);
+            d_opp += pos1[ii].DistanceBetween(pos2[num - 1 - ii]);
+        }
+        same = (d_same <= d_opp) ? TRUE : FALSE;
+    }
+    if (e1->GetFace() == NULL || e2->GetFace() == NULL)
+        return 0.0; // (the caller's null-dereference guard)
+    SmSurface* surf1 = e1->GetFace()->GetSurface();
+    SmSurface* surf2 = e2->GetFace()->GetSurface();
+    if (surf1 == NULL || surf2 == NULL)
+        return 0.0;
+    SmVector3d pos_1, pos_2, tan1, tan2, bin1, bin2, nrm1, nrm2;
+    e1->EvaluateBinormal(ivl1.Evaluate(.5), TRUE, pos_1, bin1, &tan1, &nrm1);
+    e2->EvaluateBinormal(ivl2.Evaluate(.5), TRUE, pos_2, bin2, &tan2, &nrm2);
+    if (e1->GetOrientation() == SM_OT_OPPOSITE)
+        tan1 = -tan1;
+    if (e2->GetOrientation() == SM_OT_OPPOSITE)
+        tan2 = -tan2;
+    if (e1->GetFaceuse()->GetOrientation() == SM_OT_OPPOSITE)
+        nrm1 = -nrm1;
+    if (e2->GetFaceuse()->GetOrientation() == SM_OT_OPPOSITE)
+        nrm2 = -nrm2;
+    SmVector3d left1 = nrm1 * tan1;
+    SmVector3d left2 = nrm2 * tan2;
+    SmBoolean right = bin1.Dot(left1) >= 0.0 ? TRUE : FALSE;
+    SmBoolean left = bin2.Dot(left2) >= 0.0 ? FALSE : TRUE;
+    auto rescale = [&]() {
+        if (!ivl1.AreEqual(ivl2))
+        {
+            double scale = (ivl1.GetMin() - ivl1.GetMax()) / (ivl2.GetMin() - ivl2.GetMax());
+            double offset = (ivl2.GetMin() * ivl1.GetMax()) -
+                            (ivl1.GetMin() * ivl2.GetMax()) / (ivl2.GetMin() - ivl2.GetMax());
+            SmExtent1d nat = rail2->GetNaturalInterval();
+            nat.SetMinMax(nat.GetMin() * scale + offset, nat.GetMax() * scale + offset);
+            rail2->EditParameterization(nat, FALSE);
+            ivl2 = ivl1;
+        }
+    };
+    if (same == FALSE)
+    {
+        rail2->ReverseParameterization(ivl2, ivl2);
+        left = (left == TRUE) ? FALSE : TRUE;
+    }
+    rescale();
+    if (same == FALSE)
+        rail2->ReverseParameterization(ivl2, ivl2);
+    rescale();
+    return blend_surface_ub157(ctx, *surf1, *rail1, ivl1, right == TRUE, *surf2, *rail2, ivl2, left == TRUE);
+}
+
 // The healed B-rep (OP_HEAL): a fresh walk, the extras of OP_EXPORT, then the fields the
 // Rust B-rep holds, in graph order (the order of the import, which the Rust side emits as
 // its arena order; a heal that leaves the topology lists as they are keeps the two equal).
@@ -1046,9 +1309,13 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         int64_t mode = rd.idx();
         int64_t reset_idx = rd.idx();
         int64_t flag = rd.idx();
+        int64_t unsure_idx = rd.idx();
         auto region_at = [&](int64_t i) -> SmRegion* {
             return i >= 0 && i < (int64_t)g.regions.size() ? g.regions[(size_t)i] : nullptr;
         };
+        // SmRegion::SetIsVoid(UNSURE) on the chosen region first
+        if (region_at(unsure_idx) != nullptr)
+            region_at(unsure_idx)->SetIsVoid((SmBoolean)2);
         if (set_idx != -2)
             brep->SetInfiniteRegion(region_at(set_idx));
         // GUARD: ResetInfiniteRegion(region, SM_VS_INFINITEREGION_SWAP) dereferences the old
@@ -1304,11 +1571,12 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         bool premark = rd.flag();
         if (premark)
             f->Mark(mark);
-        if (!f->IsMarked(mark))
+        bool swaps = !f->IsMarked(mark);
+        // SmFace::SwapUV dereferences the face's surface and upward face use
+        if (swaps && (f->GetSurface() == NULL || f->GetUpwardFaceuse() == NULL))
         {
-            // SmFace::SwapUV: the Rust side defers (unit topology.face_p1)
-            o.push_back(1.0);
-            break;
+            o.push_back(ST_NULL_DEREF);
+            return;
         }
         sc_brep_p1::sm_SwapFaceUV(f, mark);
         o.push_back(0.0);
@@ -1318,6 +1586,9 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         o.push_back(d.GetMin().y);
         o.push_back(d.GetMax().x);
         o.push_back(d.GetMax().y);
+        // an unmarked face was swapped (surface, trim curves, loop uses): the B-rep after it
+        if (swaps)
+            put_healed(brep, o);
         break;
     }
     case OP_CHECK_UV:
@@ -1479,9 +1750,10 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         double ang = rd.num();
         if (eus.GetSize() >= 2)
         {
-            // upstream dereferences the mate of an opposite edge use and each edge before
-            // the (unported) NormalizedEvaluate: -2 there, else the Rust side defers
-            bool null_deref = false;
+            // upstream dereferences the mate of an opposite edge use and each edge, indexes
+            // the tangent flags per edge use, and copies the UV trim curve of each tangent
+            // edge use unchecked: -2 there (the port's InvalidInput)
+            bool null_deref = has_tan && tans.GetSize() < eus.GetSize();
             for (ULONG i = 0; i < eus.GetSize(); i++)
             {
                 SmEdgeuse* p = eus[i];
@@ -1490,13 +1762,21 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
                 if (p == NULL || p->GetEdge() == NULL)
                     null_deref = true;
             }
-            o.push_back(null_deref ? ST_NULL_DEREF : -3.0);
-            break;
+            if (!null_deref && corner_blend_uv_null(brep, ctx, eus, has_tan ? &tans : NULL, tol))
+                null_deref = true;
+            if (null_deref)
+            {
+                o.push_back(ST_NULL_DEREF);
+                o.push_back(0.0); // upstream resets the output array first
+                break;
+            }
         }
         SmTArray<SmSurface*> blends;
         SmStatus s = brep->CreateCornerBlend(ctx, eus, has_tan ? &tans : NULL, tol, ang, blends);
         o.push_back(st(s));
         o.push_back((double)blends.GetSize());
+        for (ULONG i = 0; i < blends.GetSize(); i++)
+            put_surface(o, blends[i]);
         for (ULONG i = 0; i < blends.GetSize(); i++)
             delete blends[i];
         break;
@@ -1511,22 +1791,23 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         if (flag != 0 && e1 != nullptr && e2 != nullptr && e1->GetEdge() != NULL && e2->GetEdge() != NULL)
         {
             // the blend path: after the rails (CreateTrimmedNURBSCurve, failing -> SM_ERR_INVALID_INPUT
-            // upstream and in the port) it dereferences both faces, then reaches the
-            // unported SmEdgeuse::EvaluateBinormal
+            // upstream and in the port) it dereferences both faces: -2 there
             SmBSplineCurve* r1 = e1->GetEdge()->CreateTrimmedNURBSCurve(ctx);
             SmBSplineCurve* r2 = e2->GetEdge()->CreateTrimmedNURBSCurve(ctx);
             bool rails_ok = r1 != NULL && r2 != NULL;
             delete r1;
             delete r2;
-            if (!rails_ok)
-                o.push_back((double)SM_ERR_INVALID_INPUT);
-            else if (e1->GetFace() == NULL || e2->GetFace() == NULL)
+            if (rails_ok && (e1->GetFace() == NULL || e2->GetFace() == NULL))
+            {
                 o.push_back(ST_NULL_DEREF);
-            else if (e1->GetFace()->GetSurface() == NULL || e2->GetFace()->GetSurface() == NULL)
-                o.push_back((double)SM_ERR_INVALID_INPUT);
-            else
-                o.push_back(-3.0); // the Rust side defers
-            break;
+                break;
+            }
+            double ub157 = edge_edge_blend_ub157(ctx, e1, e2, (ULONG)dir);
+            if (ub157 != 0.0)
+            {
+                o.push_back(ub157);
+                break;
+            }
         }
         SmSurface* out = nullptr;
         SmStatus s = SmBrep::CreateEdgeEdgeBlend(ctx, (ULONG)flag, e1, e2, (ULONG)dir, NULL, out);

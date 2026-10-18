@@ -1089,7 +1089,7 @@ pub fn fix_trim_loop_order(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<bool> 
         let mut uv_box = Extent3d::new();
         for (jj, e) in lu1::loop_edges(b, l)?.into_iter().enumerate() {
             let e = e.ok_or_else(|| null("loop edge use without edge"))?;
-            let holder = crate::topology::edge::uv_trim_curve_of_surface(b, e, Some(f))?
+            let holder = crate::topology::edge::uv_trim_curve_of_surface(k, b, e, Some(f))?
                 .ok_or_else(|| null("edge without UV trim curve on the face's surface"))?;
             let crv = eu1::uv_trim_curve(b, holder)?
                 .0
@@ -1848,9 +1848,11 @@ pub fn is_loop_uv_gap_within_tolerance(
             Err(_) => return Ok(false),
         },
         SurfaceKind::SurfOfRevolution(s) => Cow::Borrowed(s.base()),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
-            return Ok(false)
-        }
+        // (dynamic_cast<const SmBSplineSurface*> fails: FALSE)
+        SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_)
+        | SurfaceKind::OffsetSurface(_) => return Ok(false),
     };
 
     let mut gap = Extent2d::new();

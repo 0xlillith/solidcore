@@ -91,12 +91,18 @@
 //!   point (upstream borrows it); `sm_FindSectorOfFace` returns the region as `Option`
 //!   (upstream hands back the shell's region pointer unchecked).
 //! - Calls into units not ported yet return [`SolidError::Unported`] (every site is
-//!   tagged `UNPORTED(<unit>)`): `SmRegion::GetShells`, `SetIsVoid`, `IsVoid`,
-//!   `SmShell::GetMatedShells` (`topology.shell`), `SmEdgeuse::GetOrCreateUVTrimCurve`,
-//!   `NormalizedEvaluate`, `EvaluateBinormal` (`topology.edgeuse_p3`),
-//!   `SmFace::SwapUV` (`topology.face_p1`), `SmFace::FaceIntersect`
-//!   (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
-//!   `UnLockBoundingBox` (`query.brep`).
+//!   tagged `UNPORTED(<unit>)`, one stub per call site with the code after it ported):
+//!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
+//!   `UnLockBoundingBox` (`query.brep`), `SmBSplineSurface::CreateCornerBlend` with a
+//!   non-B-spline neighbour surface (`nurbs.b_spline_surface_n_lib_p2`, whose port takes
+//!   B-spline neighbours only).
+//! - `CreateEdgeEdgeBlend` takes the B-rep mutably (the edge use evaluations of
+//!   `topology.edgeuse_p3` take it so); it ignores both `EvaluateBinormal` statuses as
+//!   upstream and goes on with the outputs upstream sees after a failure (undefined, or
+//!   zeroed point, tangent and normal).
+//! - `GetShells` dedups with a shell mark record local to the call (upstream marks the
+//!   `SmShell` objects); `SetRegionIsVoidFlagsForNestedSolids` bounds its shell queue at
+//!   `4 * shells + 16` passes.
 
 use std::collections::BTreeMap;
 
@@ -104,12 +110,13 @@ use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p1::GlobalPointSolveOptions;
 use crate::curve::curve::p3::PointSolveOptions;
 use crate::curve::curve::{Curve, CurveKind};
-use crate::error::{ignored, EntityRef, Result, SolidError};
+use crate::error::{ignore_status, ignored, EntityRef, Result, SolidError};
 use crate::geom::a_object::sag_is_kind_of;
 use crate::geom::attribute::{AttributeHandle, AttributeStore, ObjectKey};
-use crate::geom::context::MarkType;
+use crate::geom::context::{with_mark_lock, MarkType, ALL_MARKS};
 use crate::geom::extent1d::{Extent1d, ExtentPointType};
 use crate::geom::extent2d::Extent2d;
+use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::tol;
@@ -130,15 +137,23 @@ use crate::surface::surface::Surface;
 use crate::topology::brep_cache::{arena_identity, CacheObject};
 use crate::topology::edge::{self, AttributeFilter};
 use crate::topology::edgeuse::p1 as eu1;
+use crate::topology::edgeuse::p2::BinormalEval;
+use crate::topology::edgeuse::p3::{self as eu3, BinormalOptions};
+use crate::topology::face::p1 as face1;
 use crate::topology::face::p2 as face2;
 use crate::topology::loopuse;
 use crate::topology::proto_topology::p1::CopyBrepMap;
+use crate::topology::topology::Topology;
 use crate::topology::topology_traverser::{Entity, Marks};
 use crate::topology::vertex;
 use crate::topology::vertexuse;
 use crate::topology::{
     Brep, EdgeId, EdgeuseId, FaceId, LoopId, RegionId, ShellId, VertexId, Vertexuse, VertexuseId,
 };
+
+/// `SmBoolean` `TRUE` / `FALSE`.
+const TRUE: i32 = 1;
+const FALSE: i32 = 0;
 
 const OP: &str = "topology::brep::p1";
 
@@ -446,28 +461,35 @@ pub fn vertices(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: `SmRegion::GetShells` is unit `topology.shell`; a B-rep
-/// without regions returns the empty list, as upstream (the per-region loop never runs).
-///
-/// Takes `&Kernel` until `topology.shell` lands: upstream opens `SmNewMarkAndLock` on the
-/// context here, so that port widens this (and `boolean::merge::p1::boolean_post_process`)
-/// to `&mut Kernel`.
+/// [`SolidError::Unported`] from `SmRegion::GetShells` (unit `topology.shell`) for a
+/// B-rep with regions; a B-rep without regions returns the empty list, as upstream
+/// (the per-region loop never runs); the errors of the mark lock.
 pub fn shells(
-    k: &Kernel,
+    k: &mut Kernel,
     b: &Brep,
     attribute: Option<&AttributeFilter<'_>>,
 ) -> Result<Vec<ShellId>> {
-    let _ = (k, attribute);
     // get regions
     let regions = regions(b, None)?;
-    if regions.is_empty() {
-        return Ok(Vec::new());
-    }
-    // UNPORTED(topology.shell): SmRegion::GetShells
-    Err(SolidError::unported(
-        "SmRegion::GetShells",
-        "topology.shell",
-    ))
+    with_mark_lock(k, ALL_MARKS, |k, mark| -> Result<Vec<ShellId>> {
+        let mut marked: BTreeMap<ShellId, Topology> = BTreeMap::new();
+        let mut out = Vec::new();
+        // for every region
+        for r in regions {
+            // get this region's shells
+            for s in region_shells(b, r, attribute)? {
+                // skip marked shells
+                let rec = marked.entry(s).or_default();
+                if rec.is_marked(&k.context, mark) {
+                    continue;
+                }
+                // mark and add shell to output
+                rec.mark(Some(&k.context), mark);
+                out.push(s);
+            }
+        }
+        Ok(out)
+    })?
 }
 
 /// `GetWireEdges`: the wire edges of [`edges`] (`SmEdge::IsWire`).
@@ -614,7 +636,7 @@ pub fn curves<'b>(
 /// # Errors
 ///
 /// [`SolidError::Unported`] when the vertex check passes: the bounding box is
-/// `SmBrep::CalculateBoundingBox` (unit `query.brep`).
+/// `SmBrep::CalculateBoundingBox` (unit `query.brep`), then `SmExtent3d::IsPointSized`.
 pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
     let _ = k;
     let tol_sq = tol_3d * tol_3d;
@@ -630,12 +652,12 @@ pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
         }
     }
 
-    // If Brep might be degenerate - Do expensive full check
-    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox (then SmExtent3d::IsPointSized)
-    Err(SolidError::unported(
-        "SmBrep::CalculateBoundingBox",
-        "query.brep",
-    ))
+    // If Brep might be degenerate - Do expensive full check (CalculateBoundingBox's
+    // status is ignored: a failure leaves the default box)
+    // CalculateBoundingBox(sBBox): header defaults bApprox = FALSE, bTight = FALSE,
+    // bExpandByZoneTol3d = TRUE
+    let bbox = ignored(brep_bounding_box(b, false, false, true))?.unwrap_or_default();
+    Ok(bbox.is_point_sized(tol_3d))
 }
 
 // ---- infinite region ------------------------------------------------------------------
@@ -662,7 +684,9 @@ pub enum SetRegionVoidType {
 ///
 /// `SM_ERR_INVALID_INPUT` for no region (`NULL`) or one not on the B-rep's list;
 /// [`SolidError::Unported`] for the flag update (`SmRegion::SetIsVoid` / `IsVoid`,
-/// unit `topology.shell`), after the region and list head have been changed.
+/// unit `topology.shell`), after the region and list head have been changed. The
+/// nested-solid update's statuses are ignored as upstream (only `Unported` and the
+/// null-dereference `InvalidInput` propagate).
 pub fn reset_infinite_region(
     k: &mut Kernel,
     b: &mut Brep,
@@ -686,21 +710,29 @@ pub fn reset_infinite_region(
 
     // manage IsVoid region bits
     match void_setting {
-        SetRegionVoidType::NestedSolid => set_region_is_void_flags_for_nested_solids(k, b),
-        SetRegionVoidType::InfiniteRegionSwap if old_infinite_region.is_none() => {
-            // upstream dereferences the (null) old infinite region here
-            Err(null(
-                "ResetInfiniteRegion swap without an old infinite region",
-            ))
+        SetRegionVoidType::NestedSolid => {
+            // status ignored upstream; the port's null-dereference marker still propagates
+            match set_region_is_void_flags_for_nested_solids(k, b) {
+                Err(e @ SolidError::InvalidInput { .. }) => return Err(e),
+                r => ignore_status(r)?,
+            }
         }
-        SetRegionVoidType::InfiniteRegionOnly | SetRegionVoidType::InfiniteRegionSwap => {
-            // UNPORTED(topology.shell): SmRegion::SetIsVoid, SmRegion::IsVoid
-            Err(SolidError::unported(
-                "SmRegion::SetIsVoid",
-                "topology.shell",
-            ))
+        SetRegionVoidType::InfiniteRegionOnly => {
+            region_set_is_void(b, new_infinite_region, TRUE)?;
+        }
+        SetRegionVoidType::InfiniteRegionSwap => {
+            let Some(old) = old_infinite_region else {
+                // upstream dereferences the (null) old infinite region here
+                return Err(null(
+                    "ResetInfiniteRegion swap without an old infinite region",
+                ));
+            };
+            let new_is_void = region_is_void(b, new_infinite_region)?;
+            region_set_is_void(b, old, new_is_void)?;
+            region_set_is_void(b, new_infinite_region, TRUE)?;
         }
     }
+    Ok(())
 }
 
 /// `SetRegionIsVoidFlagsForNestedSolids`: with the infinite region first on the
@@ -710,10 +742,11 @@ pub fn reset_infinite_region(
 /// # Errors
 ///
 /// `SM_ERR` when the infinite region is not identified or not the list head;
-/// [`SolidError::Unported`] otherwise (`SmRegion::SetIsVoid`, `GetShells`,
-/// `SmShell::GetMatedShells`, unit `topology.shell`).
+/// [`SolidError::Unported`] from the region and shell calls (`SmRegion::SetIsVoid`,
+/// `IsVoid`, `GetShells`, `SetList`, `SmShell::GetMatedShells`: their data
+/// is unit `topology.shell`'s); [`SolidError::InvalidInput`] where upstream
+/// dereferences null, and past `4 * shells + 16` queue passes.
 pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) -> Result<()> {
-    let _ = k;
     // check state - look for a properly labeled infinite region
     let Some(infinite) = b.infinite_region() else {
         return Err(sm_err());
@@ -721,11 +754,54 @@ pub fn set_region_is_void_flags_for_nested_solids(k: &mut Kernel, b: &mut Brep) 
     if regions(b, None)?.first() != Some(&infinite) {
         return Err(sm_err());
     }
-    // UNPORTED(topology.shell): SmRegion::SetIsVoid, SmRegion::GetShells, SmShell::GetMatedShells
-    Err(SolidError::unported(
-        "SmRegion::SetIsVoid",
-        "topology.shell",
-    ))
+
+    // mark the infinite region as void
+    region_set_is_void(b, infinite, TRUE)?;
+
+    // get the infinite region's shells
+    let mut queue = region_shells(b, infinite, None)?;
+
+    // for every shell in the queue (bounded: a well-formed nesting visits each shell
+    // once)
+    let bound = b.shells().len().saturating_mul(4).saturating_add(16);
+    let mut passes = 0usize;
+    while !queue.is_empty() {
+        passes += 1;
+        if passes > bound {
+            return Err(null(
+                "SetRegionIsVoidFlagsForNestedSolids: shell nesting does not terminate",
+            ));
+        }
+        let shell = queue.remove(0);
+        let region = shell_region(b, shell)?
+            .ok_or_else(|| null("SetRegionIsVoidFlagsForNestedSolids: shell without region"))?;
+
+        // nested regions get the opposite flag (`!pRegion->IsVoid()` on the raw SmBoolean:
+        // UNSURE (2) gives FALSE)
+        let nested_is_void = i32::from(region_is_void(b, region)? == FALSE);
+
+        // the shells mated to this one (increments an unused mark value)
+        // (status ignored upstream: a failed call is read as no mated shells)
+        for mated in ignored(shell_mated_shells(k, b, shell))?.unwrap_or_default() {
+            let nested = shell_region(b, mated)?.ok_or_else(|| {
+                null("SetRegionIsVoidFlagsForNestedSolids: mated shell without region")
+            })?;
+            region_set_is_void(b, nested, nested_is_void)?;
+
+            // the mated shell is the nested region's outer shell
+            region_set_list(b, nested, mated)?;
+
+            // add all inner shells to the queue (the 1st shell is the outer shell)
+            let mut nested_shells = region_shells(b, nested, None)?;
+            // RemoveAt(0) of an empty array leaves it empty in the release build
+            // (SM_ASSERT_BREAK is a no-op)
+            if !nested_shells.is_empty() {
+                nested_shells.remove(0);
+            }
+            queue.extend(nested_shells);
+        }
+    }
+    Ok(())
 }
 
 // ---- region votes (sm_VoteForRegion, sm_FindHighestVote) -------------------------------
@@ -885,8 +961,15 @@ pub fn reverse_reflection_edgeuses(b: &mut Brep, e: EdgeId) -> Result<()> {
 }
 
 /// `sm_SwapReflectionShells`: when the face's two face uses sit in different shells,
-/// exchanges the shells they belong to (the face record's shell follows its first
-/// face use).
+/// exchanges the shells they belong to.
+///
+/// Upstream removes each face use from its shell's list and appends it to the other's
+/// (`Remove` / `PostInsert`): the membership is each face use's `shell`, swapped here.
+/// The order of a shell's face use list is `SmShell`'s (unit `topology.shell`) and is
+/// not modelled yet. `Face::shell` and `Shell::faces` have no upstream counterpart
+/// (`SmFace` holds no shell; the arena builders fill them, the import leaves
+/// `Shell::faces` empty): they follow the first face use, so the face moves to the
+/// other shell's list.
 ///
 /// # Errors
 ///
@@ -1081,12 +1164,14 @@ fn mark_loops_to_delete_bounded(
 // ---- face UV swap (sm_SwapFaceUV) --------------------------------------------------------
 
 /// `sm_SwapFaceUV`: flips the face's normal (`SmFace::SwapUV`) unless its `mark` is
-/// set, and sets the mark.
+/// set, and sets the mark. `SwapUV`'s failing status is ignored (upstream's release
+/// `SE`), so the face is marked whatever the swap did.
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for an unmarked face: `SmFace::SwapUV` is unit
-/// `topology.face_p1`.
+/// [`SolidError::NotFound`] for a dangling face; [`SolidError::Unported`] from
+/// `SwapUV`'s unported callees; [`SolidError::InvalidInput`] where `SwapUV`
+/// dereferences null upstream (a face without surface or face use).
 pub fn swap_face_uv(
     k: &Kernel,
     b: &mut Brep,
@@ -1099,9 +1184,25 @@ pub fn swap_face_uv(
     if marks.is_marked(k, Entity::Face(face), mark) {
         return Ok(());
     }
-    // swap and mark the face
-    // UNPORTED(topology.face_p1): SmFace::SwapUV
-    Err(SolidError::unported("SmFace::SwapUV", "topology.face_p1"))
+    // swap and mark the face (SE: the status is ignored). The port's InvalidInput marks
+    // a null pointer upstream's SwapUV dereferences (undefined there, not a status): it
+    // propagates, as this unit's own null dereferences.
+    match face1::swap_uv(k, b, face) {
+        // face_p1's own InvalidInput is its null-dereference marker; a callee's
+        // InvalidInput is that callee's SM_ERR_INVALID_INPUT status, ignored as SE
+        Err(SolidError::InvalidInput {
+            operation: "topology::face::p1",
+            ..
+        }) => {
+            return Err(SolidError::invalid_input(
+                OP,
+                "sm_SwapFaceUV: SmFace::SwapUV dereferences a null pointer",
+            ));
+        }
+        r => ignore_status(r)?,
+    }
+    marks.mark(k, Entity::Face(face), mark);
+    Ok(())
 }
 
 // ---- UV trim curve check (sm_CheckUVTrimCurve) -----------------------------------------
@@ -1246,45 +1347,168 @@ impl Drop for LockBrepBox<'_> {
     }
 }
 
-// ---- stubs into unit topology.edgeuse_p3 ------------------------------------------------
+// ---- calls into unit topology.edgeuse_p3 ------------------------------------------------
 
-/// `SmEdgeuse::NormalizedEvaluate(t, bUV, point)` (unit `topology.edgeuse_p3`).
-fn normalized_evaluate(b: &Brep, eu: EdgeuseId, t: f64, uv: bool) -> Result<Point3> {
-    b.edgeuse(eu)?;
-    let _ = (t, uv);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
-}
-
-/// `SmEdgeuse::GetOrCreateUVTrimCurve(curve)` (unit `topology.edgeuse_p3`).
-fn get_or_create_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<Curve> {
-    let _ = k;
-    b.edgeuse(eu)?;
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
-}
-
-/// `SmEdgeuse::EvaluateBinormal(t, bEdgeParam, point, binormal, &tangent, &normal)`
-/// (unit `topology.edgeuse_p3`): `(point, binormal, tangent, normal)`.
-fn evaluate_binormal(
+/// `SmEdgeuse::NormalizedEvaluate(t, bParameterSpaceEval, rPoint, pOptFirstDeriv)`
+/// (`topology::edgeuse::p3::normalized_evaluate`; header default
+/// `bOKToMakeUVTrimCurve = TRUE`): `rPoint`. `want_first_deriv` is
+/// `pOptFirstDeriv != NULL` (the derivative itself is unused by every caller here).
+fn normalized_evaluate(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     eu: EdgeuseId,
     t: f64,
-) -> Result<(Point3, Vec3, Vec3, Vec3)> {
-    let _ = (k, t);
-    b.edgeuse(eu)?;
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
+    parameter_space_eval: bool,
+    want_first_deriv: bool,
+) -> Result<Point3> {
+    Ok(eu3::normalized_evaluate(k, b, eu, t, parameter_space_eval, want_first_deriv, true)?.point)
+}
+
+/// `SmRegion::GetShells(rShells, pOptAttributeId)` (`Region::get_shells`, unit
+/// `topology.shell`): the region's shell list, those carrying `attribute` when given.
+fn region_shells(
+    b: &Brep,
+    region: RegionId,
+    attribute: Option<&AttributeFilter<'_>>,
+) -> Result<Vec<ShellId>> {
+    b.region(region)?
+        .get_shells(attribute.map(|f| f.attribute_id), |shell, _| {
+            Ok(attribute.is_some_and(|f| f.matches(EntityRef::Shell(shell))))
+        })
+}
+
+/// `SmRegion::SetIsVoid(flag)` (`Region::set_is_void`): the raw `SmBoolean` flag.
+fn region_set_is_void(b: &mut Brep, region: RegionId, is_void: i32) -> Result<()> {
+    b.region_mut(region)?.set_is_void(is_void);
+    Ok(())
+}
+
+/// `SmRegion::IsVoid()` (`Region::is_void`): the raw `SmBoolean` flag (2 is `UNSURE`).
+fn region_is_void(b: &Brep, region: RegionId) -> Result<i32> {
+    Ok(b.region(region)?.is_void())
+}
+
+/// `SmRegion::SetList(shell)` (`SmOwningTopology::SetList`, a header inline): makes
+/// `shell` the head of the region's circular shell list (a rotation of the typed list).
+fn region_set_list(b: &mut Brep, region: RegionId, shell: ShellId) -> Result<()> {
+    let shells = &mut b.region_mut(region)?.shells;
+    let at = shells
+        .iter()
+        .position(|&s| s == shell)
+        .ok_or_else(|| null("SmRegion::SetList: the shell is not on the region's list"))?;
+    shells.rotate_left(at);
+    Ok(())
+}
+
+/// `SmShell::GetRegion()`: the shell's `m_pListOwner` (co-ported as `Shell::region`).
+fn shell_region(b: &Brep, shell: ShellId) -> Result<Option<RegionId>> {
+    Ok(b.shell(shell)?.region)
+}
+
+/// `SmShell::GetMatedShells(rShells)` (`Shell::mated_shells`, unit `topology.shell`:
+/// claims a mark).
+fn shell_mated_shells(k: &mut Kernel, b: &Brep, shell: ShellId) -> Result<Vec<ShellId>> {
+    b.shell(shell)?.mated_shells(k, b)
+}
+
+/// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
+/// `query.brep`).
+fn brep_bounding_box(
+    b: &Brep,
+    approx: bool,
+    tight: bool,
+    expand_by_zone_tol_3d: bool,
+) -> Result<Extent3d> {
+    let _ = (b, approx, tight, expand_by_zone_tol_3d);
+    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
     Err(SolidError::unported(
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
+        "SmBrep::CalculateBoundingBox",
+        "query.brep",
     ))
+}
+
+/// `SmEdgeuse::GetOrCreateUVTrimCurve(rpUVTrimCurve, pdOptDistToSurf, pdOptDeviation,
+/// bUVSpaceOkay)` (`topology::edgeuse::p3::get_or_create_uv_trim_curve`; header defaults
+/// `NULL`, `NULL`, `TRUE`): the returned status, `None` for `SM_SUCCESS`. The curve
+/// upstream hands back in `rpUVTrimCurve` (also alongside a failure status) is the edge
+/// use's or its mate's attached one afterwards, [`eu1::uv_trim_curve`]. `want_dist` /
+/// `want_deviation` are `pdOpt... != NULL`. `Err` only where upstream has no status
+/// (`Unported`, dangling ids, null dereferences).
+fn get_or_create_uv_trim_curve(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    want_dist: bool,
+    want_deviation: bool,
+    uv_space_okay: bool,
+) -> Result<Option<SolidError>> {
+    Ok(
+        eu3::get_or_create_uv_trim_curve(k, b, eu, want_dist, want_deviation, uv_space_okay)?
+            .status
+            .err(),
+    )
+}
+
+/// `SmEdgeuse::EvaluateBinormal(dParameter, bUse3DOnly, rBinormalPoint, rBinormal,
+/// pOptEdgeuseTangent, pOptFaceuseNormal)` (`topology::edgeuse::p3::evaluate_binormal`;
+/// header defaults `pOptUVParameter = pOptUVDir = NULL`).
+fn evaluate_binormal(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    parameter: f64,
+    use_3d_only: bool,
+) -> Result<BinormalEval> {
+    eu3::evaluate_binormal(
+        k,
+        b,
+        eu,
+        parameter,
+        use_3d_only,
+        &BinormalOptions::default(),
+    )
+}
+
+/// `EvaluateBinormal(dParameter, TRUE, rPos, rBinormal, &rTangent, &rNormal)` with its
+/// status ignored, as `CreateEdgeEdgeBlend` calls it: the outputs upstream goes on with.
+/// The out-params start as `SM_UNDEF_DOUBLE` (`SmVector3d`'s default). `EvaluateBinormal`
+/// writes them all only on success; its one status before its "Init outputs" step (not
+/// a loop edge use) leaves them undefined, every later one leaves the point, tangent and
+/// normal zeroed and the binormal undefined. `Err` for [`SolidError::Unported`] and for
+/// `topology.edgeuse_p3`'s own [`SolidError::InvalidInput`] (an upstream null dereference).
+fn evaluate_binormal_status_ignored(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    parameter: f64,
+) -> Result<BinormalEval> {
+    let undefined = BinormalEval {
+        point: Vec3::UNDEF,
+        binormal: Vec3::UNDEF,
+        tangent: Vec3::UNDEF,
+        face_normal: Vec3::UNDEF,
+        uv: Point2::UNDEF,
+    };
+    if !eu1::is_loop_edgeuse(b, eu)? {
+        return Ok(undefined); // SER(SM_ERR_INVALID_INPUT) before the outputs are set
+    }
+    match evaluate_binormal(k, b, eu, parameter, true) {
+        Ok(eval) => Ok(eval),
+        Err(e) if e.is_unported() => Err(e),
+        Err(
+            e @ SolidError::InvalidInput {
+                operation: "topology::edgeuse::p3",
+                ..
+            },
+        ) => Err(e),
+        // a status after "Init outputs": point, tangent and normal set to zero
+        Err(_) => Ok(BinormalEval {
+            point: Vec3::new(0.0, 0.0, 0.0),
+            tangent: Vec3::new(0.0, 0.0, 0.0),
+            face_normal: Vec3::new(0.0, 0.0, 0.0),
+            ..undefined
+        }),
+    }
 }
 
 // ---- curve side (sm_FindSideOfCurve) ----------------------------------------------------
@@ -1491,9 +1715,7 @@ pub fn find_sector_of_face(
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] for an edge without curve (upstream dereferences it);
-/// those of the evaluations, drops and notifications; [`SolidError::Unported`] from
-/// `SmEdgeuse::GetOrCreateUVTrimCurve` (unit `topology.edgeuse_p3`) when an edited
-/// edge has a UV trim curve.
+/// those of the evaluations, drops and notifications.
 pub fn update_vertex_edge_intervals(
     k: &Kernel,
     b: &mut Brep,
@@ -1603,7 +1825,8 @@ pub fn update_vertex_edge_intervals(
                         true,
                         None,
                     ))?;
-                    ignored(get_or_create_uv_trim_curve(k, b, eu))?;
+                    let _ignored_status =
+                        get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
                 }
             }
         }
@@ -1625,10 +1848,8 @@ pub fn update_vertex_edge_intervals(
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] where upstream reads past the edge use list (fewer
-/// than four edge uses) or dereferences null; [`SolidError::Unported`] from
-/// `SmEdgeuse::GetOrCreateUVTrimCurve` / `NormalizedEvaluate` / `EvaluateBinormal`
-/// (unit `topology.edgeuse_p3`), reached for every seam edge with a trim curve; those
-/// of the singularity test and the trim curve swap.
+/// than four edge uses) or dereferences null; those of the UV trim curve creation,
+/// the singularity test and the trim curve swap.
 pub fn redistribute_seam_uv_trim_curves(
     k: &Kernel,
     b: &mut Brep,
@@ -1657,21 +1878,22 @@ pub fn redistribute_seam_uv_trim_curves(
 
     // GWC: Check if we need to make sure the PrevEdgeuses have UVTrimCurves for this to work?
     // (the statuses and curves are only SM_ASSERTed upstream)
-    ignored(get_or_create_uv_trim_curve(k, b, prev_this))?;
-    ignored(get_or_create_uv_trim_curve(k, b, prev_other))?;
+    let _this_status = get_or_create_uv_trim_curve(k, b, prev_this, false, false, true)?;
+    let _other_status = get_or_create_uv_trim_curve(k, b, prev_other, false, false, true)?;
 
     // Find the UV point for the two new starting Vertexuses (statuses not checked
-    // upstream: a failed evaluation leaves the point unset; undefined here)
+    // upstream: a failed evaluation leaves the point unset; undefined here; the first
+    // derivatives are requested but unused upstream)
     // NewE Start UV values from UVTrimCurves
     let this_point_uv =
-        ignored(normalized_evaluate(b, this_eu, 0.0, true))?.unwrap_or(Point3::UNDEF);
+        ignored(normalized_evaluate(k, b, this_eu, 0.0, true, true))?.unwrap_or(Point3::UNDEF);
     let other_point_uv =
-        ignored(normalized_evaluate(b, other_eu, 0.0, true))?.unwrap_or(Point3::UNDEF);
+        ignored(normalized_evaluate(k, b, other_eu, 0.0, true, true))?.unwrap_or(Point3::UNDEF);
     // Prev Start UV values from PrevUVtrimCurves
     let prev_this_point_uv =
-        ignored(normalized_evaluate(b, prev_this, 1.0, true))?.unwrap_or(Point3::UNDEF);
+        ignored(normalized_evaluate(k, b, prev_this, 1.0, true, true))?.unwrap_or(Point3::UNDEF);
     let prev_other_point_uv =
-        ignored(normalized_evaluate(b, prev_other, 1.0, true))?.unwrap_or(Point3::UNDEF);
+        ignored(normalized_evaluate(k, b, prev_other, 1.0, true, true))?.unwrap_or(Point3::UNDEF);
 
     // make sure sThisPointUV == sPrevThisPointUV, sOtherPointUV == sPrevOtherPointUV are
     // the same to tol by switching the UVTrimCurves if needed. Expect all 4 PointUVs to
@@ -1724,10 +1946,13 @@ pub fn redistribute_seam_uv_trim_curves(
         // (the three statuses are tested, not propagated)
         let uv = ignored(this_uv_trim_curve.evaluate_point(parameter))?;
         let binormal = match uv {
-            Some(_) => ignored(evaluate_binormal(k, b, this_eu, parameter))?,
+            Some(_) => ignored(evaluate_binormal(k, b, this_eu, parameter, true))?,
             None => None,
         };
-        if let (Some(uv), Some((_edge_point, binormal, _, _))) = (uv, binormal) {
+        if let (Some(uv), Some(BinormalEval { binormal, .. })) = (uv, binormal) {
+            // (the face surface fetched above; re-borrowed past the binormal evaluation)
+            let surface = face2::surface(b, face)?
+                .ok_or_else(|| null("sm_RedistributeSeamUVTrimCurves: face without surface"))?;
             if let Some((_surface_point, du, dv)) =
                 ignored(surface.evaluate_1st_derivatives(Point2::new(uv.x, uv.y), true, true))?
             {
@@ -1791,16 +2016,21 @@ fn bspline_part(curve: &Curve) -> Option<BSplineCurve> {
     }
 }
 
-/// The `SmBSplineSurface` part of a surface (`SmPlane` is one upstream).
+/// The neighbour surface `SmBSplineSurface::CreateCornerBlend` gets: the
+/// `SmBSplineSurface` part of a surface (`SmPlane` and `SmSurfOfRevolution` are B-splines
+/// upstream).
 fn bspline_surface(surface: &Surface) -> Result<&BSplineSurface> {
     match surface.kind() {
         SurfaceKind::BSpline(s) => Ok(s),
         SurfaceKind::Plane(p) => Ok(p.base()),
         SurfaceKind::SurfOfRevolution(s) => Ok(s.base()),
-        // DISPATCH GAP: an SmCrvOnSurf / corner blend over another SmSurface kind
+        // Upstream passes any SmSurface*; the port of SmBSplineSurface::CreateCornerBlend
+        // takes B-spline neighbours only (its Deviations): the other kinds are that
+        // partial unit's own unported part.
+        // UNPORTED(nurbs.b_spline_surface_n_lib_p2): SmBSplineSurface::CreateCornerBlend with a non-B-spline neighbour surface
         _ => Err(SolidError::unported(
-            "SmSurface (non-B-spline) in SmCrvOnSurf",
-            "curve.crv_on_surf",
+            "SmBSplineSurface::CreateCornerBlend (non-B-spline neighbour SmSurface)",
+            "nurbs.b_spline_surface_n_lib_p2",
         )),
     }
 }
@@ -1883,6 +2113,9 @@ pub fn make_vertex_split_uv_trim_curve(
         let mut reuse_trim_curve = false;
         if for_tesselation {
             let SurfaceKind::BSpline(bs) = surface.kind() else {
+                // the port of SmCrvOnSurf takes a B-spline surface only: that partial
+                // unit's own unported part
+                // UNPORTED(curve.crv_on_surf): SmCrvOnSurf::SmCrvOnSurf over a non-B-spline SmSurface
                 return Err(SolidError::unported(
                     "SmSurface (non-B-spline) in SmCrvOnSurf",
                     "curve.crv_on_surf",
@@ -2067,9 +2300,8 @@ fn face_intersect(
 ///
 /// # Errors
 ///
-/// `SM_ERR` for fewer than two edge uses or a gap in the chain; [`SolidError::Unported`]
-/// from `SmEdgeuse::NormalizedEvaluate` / `GetOrCreateUVTrimCurve` (unit
-/// `topology.edgeuse_p3`), reached for every valid input; [`SolidError::InvalidInput`]
+/// `SM_ERR` for fewer than two edge uses or a gap in the chain; those of the edge use
+/// evaluations; [`SolidError::InvalidInput`]
 /// where upstream dereferences null (an opposite edge use without mate, an edge
 /// without curve, a tangent edge use without face) or reads past
 /// `tangent_to_face`; those of the copies, trims and the blend.
@@ -2147,10 +2379,10 @@ pub fn create_corner_blend(
             };
 
             // lastEdgeuse endpoint (3d Eval)
-            let end_point = normalized_evaluate(b, last_eu, param, false)?;
+            let end_point = normalized_evaluate(k, b, last_eu, param, false, false)?;
 
             // TestEdgeuse StartPoint
-            let test_pt = normalized_evaluate(b, eu, 0.0, false)?;
+            let test_pt = normalized_evaluate(k, b, eu, 0.0, false, false)?;
 
             // when LastEdge EndPoint coincides with TestEdge Start
             if test_pt.distance(end_point) < approx_tol_3d * tol_scale {
@@ -2166,7 +2398,7 @@ pub fn create_corner_blend(
             }
 
             // TestEdgeuse EndPoint
-            let test_pt = normalized_evaluate(b, eu, 1.0, false)?;
+            let test_pt = normalized_evaluate(k, b, eu, 1.0, false, false)?;
 
             // When LastEdge EndPoint coincides with TestEdge End
             if test_pt.distance(end_point) < approx_tol_3d * tol_scale {
@@ -2225,8 +2457,13 @@ pub fn create_corner_blend(
         // When Needed, put in UVTrimCurve and Surface in sOrderedUV and sOrderedSurfs arrays
         let tangent = tangencies.get(i).copied().unwrap_or(true);
         if tangent {
-            // get Edgeuse->UVTrimCurve, copy UVTrimCurve
-            let uv_curve = get_or_create_uv_trim_curve(k, b, eu)?;
+            // get Edgeuse->UVTrimCurve (status ignored upstream; SM_ASSERT(pUVCurve != NULL)
+            // is a release no-op and the copy dereferences it), copy UVTrimCurve
+            // (the status is ignored: upstream copies whatever curve it returns)
+            let _ignored_status = get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
+            let uv_curve = eu1::uv_trim_curve(b, eu)?.0.ok_or_else(|| {
+                null("CreateCornerBlend: GetOrCreateUVTrimCurve left no UV trim curve")
+            })?;
             let uv_copy = uv_curve.copy(k)?;
             let Some(uv_bspline) = bspline_part(&uv_copy) else {
                 return Err(sm_err());
@@ -2310,13 +2547,12 @@ pub fn create_corner_blend(
 /// `SM_ERR_NULL_POINTER` for a null edge use (`NER`); `SM_ERR_INVALID_INPUT` for an
 /// edge use without edge, an edge without B-spline curve or a face without surface;
 /// [`SolidError::InvalidInput`] for a blend edge use without face (upstream
-/// dereferences it); those of the knot dampening and the ruled surface;
-/// [`SolidError::Unported`] from `SmEdgeuse::EvaluateBinormal` (unit
-/// `topology.edgeuse_p3`), reached for every blend.
+/// dereferences it); those of the knot dampening and the ruled surface (the binormal
+/// statuses are ignored as upstream).
 #[allow(clippy::too_many_arguments)]
 pub fn create_edge_edge_blend(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     blend_flag: u64,
     eu_1: Option<EdgeuseId>,
     eu_2: Option<EdgeuseId>,
@@ -2409,16 +2645,28 @@ pub fn create_edge_edge_blend(
         eu1::face(b, eu_1)?.ok_or_else(|| null("CreateEdgeEdgeBlend: edge use without face"))?;
     let face2_ =
         eu1::face(b, eu_2)?.ok_or_else(|| null("CreateEdgeEdgeBlend: edge use without face"))?;
-    let (Some(surface1), Some(surface2)) = (face2::surface(b, face1)?, face2::surface(b, face2_)?)
-    else {
+    let surfaces_present = (
+        face2::surface(b, face1)?.is_some(),
+        face2::surface(b, face2_)?.is_some(),
+    );
+    if !(surfaces_present.0 && surfaces_present.1) {
         return Err(status(SM_ERR_INVALID_INPUT)); // Could not fetch Surface from Edgeuse
-    };
+    }
 
     // set the bIntoFace values for curve/Surface pairs
-    let (_edge1_pos, edge1_binormal, mut edge1_tangent, mut face1_normal) =
-        evaluate_binormal(k, b, eu_1, ivl1.evaluate(0.5))?;
-    let (_edge2_pos, edge2_binormal, mut edge2_tangent, mut face2_normal) =
-        evaluate_binormal(k, b, eu_2, ivl2.evaluate(0.5))?;
+    // (both statuses ignored upstream: a failure leaves defined UNDEF / zero outputs)
+    let BinormalEval {
+        binormal: edge1_binormal,
+        tangent: mut edge1_tangent,
+        face_normal: mut face1_normal,
+        ..
+    } = evaluate_binormal_status_ignored(k, b, eu_1, ivl1.evaluate(0.5))?;
+    let BinormalEval {
+        binormal: edge2_binormal,
+        tangent: mut edge2_tangent,
+        face_normal: mut face2_normal,
+        ..
+    } = evaluate_binormal_status_ignored(k, b, eu_2, ivl2.evaluate(0.5))?;
     if eu1::orientation(b, eu_1)? == OrientType::Opposite {
         edge1_tangent = -edge1_tangent;
     }
@@ -2491,6 +2739,9 @@ pub fn create_edge_edge_blend(
     // build blend surface
     let curve1 = Curve::from(rail1);
     let curve2 = Curve::from(rail2);
+    // (the face surfaces fetched above; re-borrowed past the edge use evaluations)
+    let surface1 = face2::surface(b, face1)?.ok_or_else(|| SolidError::null_pointer(OP))?;
+    let surface2 = face2::surface(b, face2_)?.ok_or_else(|| SolidError::null_pointer(OP))?;
     surface1.create_blend_surface(
         k,
         &curve1,
@@ -2682,9 +2933,20 @@ mod tests {
     fn region_list_rotates_to_head() {
         let mut b = Brep::new();
         let r: Vec<RegionId> = (0..3)
-            .map(|_| b.add_region_record(Region { in_brep: true }).unwrap())
+            .map(|_| {
+                b.add_region_record(Region {
+                    in_brep: true,
+                    ..Region::default()
+                })
+                .unwrap()
+            })
             .collect();
-        let off = b.add_region_record(Region { in_brep: false }).unwrap();
+        let off = b
+            .add_region_record(Region {
+                in_brep: false,
+                ..Region::default()
+            })
+            .unwrap();
         assert_eq!(regions(&b, None).unwrap(), r);
         b.set_region_list_head(Some(r[1]));
         assert_eq!(regions(&b, None).unwrap(), vec![r[1], r[2], r[0]]);
