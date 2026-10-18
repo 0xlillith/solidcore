@@ -6975,11 +6975,11 @@ independent p6 integration.
   streams the brep_data guard accepts (pinned by a deterministic search: an overwritten
   digit of an integer token), the face makers' input errors, `MakeFace`'s null-surface
   status, the glue no-ops (compared as the B-rep's counts after the op) and
-  `MergeSelfIntersectionCurves` without curves. All 198 passes are no-ops, empty inputs or error statuses; none
-  completes a path that builds topology: 111 glue no-ops (null, identical or wrapped-to-identical
+  `MergeSelfIntersectionCurves` without curves. All 197 passes are no-ops, empty inputs or error statuses; none
+  completes a path that builds topology: 110 glue no-ops (null, identical or wrapped-to-identical
   edges; compared as the B-rep's counts and sorted edge and vertex tolerances after the op), 64
   `MergeSelfIntersectionCurves` without curves and 23 statuses (`with_values=198`,
-  `no_values=0`); the shim's `-2` guards are deferrals, not passes. Before the pre-review of
+  `no_values=0`; after the merge with #154 the shared fixture registers every edge, wires included, so the generated glue `gen0014` on a wire network resolves to two distinct wire edges and now defers at `SmBrep::Notify`, as upstream reaches it first); the shim's `-2` guards are deferrals, not passes. Before the pre-review of
   PR #155 no `ReadFromFile` case compared anything.
 - **C++ guards.** A damaged `.smb` stream goes through `topology.brep_data`'s stream guard
   on both sides (rejected streams are not generated). A damaged stream whose C++
@@ -7017,6 +7017,14 @@ independent p6 integration.
   same loop can be built in Rust.
 - **Back-edge wired:** `trimming_tools::trim_surface_with_model_space_curves` calls
   `make_face_with_curves` (its new face owns the surface as `(SmFace_TYPE, 1 + index)`).
+- **`topology.shell` wired** (after #154): `GlueEdgesGeneral`'s shell merge asks the ported
+  `Shell::is_inner_shell` (`SmShell::IsInnerShell`, status ignored as upstream: only a
+  successful TRUE swaps the shells). Its ray classification needs the kernel's mutable
+  state, so `glue_edges_general` and `merge_self_intersection_curves` take `&mut Kernel`.
+  Unreachable today: the shell merge comes after `SmBrep::Notify` (`topology.brep_p2`).
+- **Back-edge pending:** `boolean.topology_intersector_p1` (#146) has an
+  `UNPORTED(topology.brep_p7)` stub for `GlueEdgesGeneral` over its object handles; wiring
+  it needs an `IntersectorBrep` method that the B-rep owner implements.
 - **UB-165.** `MakeFaceWithCurves` with `pbOptCrvOnSurf` TRUE, 3D curves and no UV curves
   dereferences the null UV array once `MakeFace` succeeds; the shim returns `-2` for such
   calls and the Rust side defers them (`cpp-guard:ub-165`; the port itself returns

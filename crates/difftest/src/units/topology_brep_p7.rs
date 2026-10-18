@@ -727,7 +727,7 @@ fn new_face_record(b: &Brep, r: &Result<p7::NewFace, SolidError>) -> Record {
 }
 
 #[allow(clippy::too_many_lines)] // one record per op
-fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
+fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
     match i {
         Inputs::Read {
             file,
@@ -778,8 +778,11 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 None
             } else {
                 Some(
-                    b.add_region_record(Region { in_brep: true })
-                        .map_err(hfail)?,
+                    b.add_region_record(Region {
+                        in_brep: true,
+                        ..Region::default()
+                    })
+                    .map_err(hfail)?,
                 )
             };
             let mut c3 = Vec::new();
@@ -857,8 +860,11 @@ fn rust_record(k: &Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 None
             } else {
                 Some(
-                    b.add_region_record(Region { in_brep: true })
-                        .map_err(hfail)?,
+                    b.add_region_record(Region {
+                        in_brep: true,
+                        ..Region::default()
+                    })
+                    .map_err(hfail)?,
                 )
             };
             let surface = (*kind == 1).then(|| {
@@ -994,8 +1000,8 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
         Ok(x) => x,
         Err(o) => return Ok(o),
     };
-    let k = Kernel::default();
-    match rust_record(&k, &r, ex.as_deref().map(Vec::as_slice)) {
+    let mut k = Kernel::default();
+    match rust_record(&mut k, &r, ex.as_deref().map(Vec::as_slice)) {
         Ok(v) => Ok(Output::new().values("out", v)),
         Err(Fail::Deferred(o)) => Ok(*o),
         Err(Fail::Harness(h)) => Err(h),

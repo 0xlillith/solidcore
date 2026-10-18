@@ -64,15 +64,16 @@
 //!   (`topology.brep_p5`); `MakeFaceTopology`, `TestClosureSplitRegion(faceuse)`
 //!   (`topology.brep_p6`); `MakeShellVertex` (`topology.brep_p9`);
 //!   `MakeTopologyFromData`, `TestClosureSplitRegion(edge)` (`topology.brep_p10`);
-//!   `SmShell::IsInnerShell` (`topology.shell`); `SmFace::Notify`, `SetTolerance`,
+//!   `SmFace::Notify`, `SetTolerance`,
 //!   `CreateUVTrimCurves` (`topology.face_p3`); `SmFace::GetBrep`, `GetEdges`
 //!   (`topology.face_p4`); `SmMerge` (`boolean.merge_p2`); the curve constructor of
-//!   `SmCurveClassification` (`intersect.curve_class_p4`), which the classification and
-//!   merge helper of `MergeSelfIntersectionCurves` reaches first. `MergeSelfIntersectionCurves`' classification of a
-//!   UV curve against the faces and its merge are one stubbed helper returning the faces
-//!   made and the intervals classified to an edge; whoever ports `curve_class_p4/p5`
-//!   replaces it with the upstream interval loop (`GetSize() != 1` skips, `SM_ERR` after
-//!   the second merge, `SE(SM_ERR)` for a middle not on an edge).
+//!   `SmCurveClassification` (`intersect.curve_class_p4`), which
+//!   `MergeSelfIntersectionCurves` reaches first. Its classification of a UV curve
+//!   against the faces and the `SetCurve` + `MergeIntervals` that follows are two stubs
+//!   (`classify_on_faces`, `set_curve_and_merge`) over a stand-in interval type; the
+//!   upstream interval loop around them is ported (`GetSize() != 1` skips before the
+//!   second merge, `SM_ERR` after it, `SE(SM_ERR)` for a middle not on an edge).
+//!   `SmShell::IsInnerShell` (merged shells) calls `topology.shell`'s port.
 //! - **`MakeFace`** returns nothing when `MakeFaceTopology` fails; upstream still hands
 //!   back the region and shell it may have made (`MakeFaceWithCurves` warns about it).
 //! - **`GlueEdgesGeneral`**: the arena cannot share one curve between two edges, so
@@ -298,15 +299,6 @@ fn make_topology_from_data(
     ))
 }
 
-/// `pKeepShell->IsInnerShell(bIsInner)`.
-fn is_inner_shell(_b: &Brep, _s: ShellId) -> Result<bool> {
-    // UNPORTED(topology.shell): SmShell::IsInnerShell
-    Err(SolidError::unported(
-        "SmShell::IsInnerShell",
-        "topology.shell",
-    ))
-}
-
 /// `SmFace::Notify(op, data1, data2, data3)` on face `f` (`None` for a null datum or for
 /// the B-rep, which has no identity here).
 fn face_notify(
@@ -430,43 +422,29 @@ fn edge_remove(b: &mut Brep, e: EdgeId, eu: EdgeuseId) -> Result<()> {
     Ok(())
 }
 
-/// `SmRegion::Remove(shell)`: unlinks the shell from its region.
-fn region_remove_shell(b: &mut Brep, r: RegionId, s: ShellId) -> Result<()> {
-    let shell = b.shell_mut(s)?;
-    if shell.region != Some(r) {
-        return Err(SolidError::sm_err(OP));
-    }
-    shell.region = None;
-    Ok(())
-}
-
-/// `SmRegion::GetSize()`: the shells of region `r`.
-fn region_size(b: &Brep, r: RegionId) -> usize {
-    b.shells()
-        .iter()
-        .filter(|(_, s)| s.region == Some(r))
-        .count()
-}
-
 /// Merges `del_shell` into `keep_shell` and drops the empty region (the shell-merging
 /// tails of `GlueEdgesGeneral`).
-fn merge_shells(b: &mut Brep, mut del: ShellId, mut keep: ShellId) -> Result<()> {
+fn merge_shells(k: &mut Kernel, b: &mut Brep, mut del: ShellId, mut keep: ShellId) -> Result<()> {
     let inf = infinite_region(b)?;
     let keep_region = eu1::shell_region(b, keep)?;
     let del_region = eu1::shell_region(b, del)?;
     if keep_region == Some(inf) {
         // ok.
-    } else if del_region == Some(inf) || ignored(is_inner_shell(b, keep))? == Some(true) {
-        // (IsInnerShell is asked only when neither region is the infinite one)
+    } else if del_region == Some(inf)
+        // pKeepShell->IsInnerShell(bIsInner): swap when it succeeds with TRUE (asked
+        // only when neither region is the infinite one)
+        || ignored(b.shell(keep)?.is_inner_shell(k, b))? == Some(true)
+    {
         core::mem::swap(&mut del, &mut keep);
     }
 
-    tt::remove_shell(b, del, keep)?;
+    tt::remove_shell(k, b, del, keep)?;
 
     // remove it from its region, then the region when empty
     let reg = eu1::shell_region(b, del)?.ok_or_else(|| null("shell without region"))?;
-    region_remove_shell(b, reg, del)?;
-    if region_size(b, reg) == 0 {
+    // pReg->Remove(pDelShell), then pReg->GetSize()
+    crate::topology::shell::region_remove_shell(b, reg, del)?;
+    if b.region(reg)?.shells.is_empty() {
         b.region_mut(reg)?.in_brep = false;
         reset_infinite_region(b)?;
     }
@@ -1055,7 +1033,7 @@ pub fn make_face_with_curves(
 /// docs).
 #[allow(clippy::too_many_arguments, clippy::too_many_lines)] // one upstream routine
 pub fn glue_edges_general(
-    k: &Kernel,
+    k: &mut Kernel,
     b: &mut Brep,
     surviving: Option<EdgeId>,
     relative_orientation: OrientType,
@@ -1335,7 +1313,7 @@ pub fn glue_edges_general(
         let del_shell = eu1::shell(b, eu)?.ok_or_else(|| null("edge use without shell"))?;
         let keep_shell = eu1::shell(b, radial)?.ok_or_else(|| null("edge use without shell"))?;
         if del_shell != keep_shell {
-            merge_shells(b, del_shell, keep_shell)?;
+            merge_shells(k, b, del_shell, keep_shell)?;
         }
     }
 
@@ -1410,7 +1388,7 @@ pub fn copy_faces(
         };
         let s1 = fp2::surface(src, f)?.ok_or_else(|| null("face without surface"))?;
         // (status ignored upstream, which then dereferences the null copy)
-        let s2 = ignored(s1.copy_and_add_analytics())?
+        let s2 = ignored(s1.copy_and_add_analytics(k))?
             .ok_or_else(|| null("CopyAndAddAnalytics failed (upstream dereferences null)"))?;
         let dom = s2.natural_uv_domain();
         let input = FaceCurvesInput {
@@ -1478,7 +1456,7 @@ pub struct SelfIntersectionCurve {
 /// classifications, vertex and edge gluing; [`SolidError::Unported`] (the curve
 /// classification, `GlueVertices`, `GlueEdgesGeneral`'s callees).
 pub fn merge_self_intersection_curves(
-    k: &Kernel,
+    k: &mut Kernel,
     b: &mut Brep,
     face: Option<FaceId>,
     tol_3d: f64,
@@ -1584,7 +1562,7 @@ mod tests {
 
     #[test]
     fn glue_no_ops() {
-        let k = Kernel::default();
+        let mut k = Kernel::default();
         let mut b = Brep::new();
         let v0 = b.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
         let v1 = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
@@ -1604,7 +1582,7 @@ mod tests {
             (Some(e), Some(e)),
         ] {
             glue_edges_general(
-                &k,
+                &mut k,
                 &mut b,
                 s,
                 OrientType::Same,
@@ -1618,7 +1596,7 @@ mod tests {
         }
         let e2 = b.add_edge(v0, v1).unwrap();
         let r = glue_edges_general(
-            &k,
+            &mut k,
             &mut b,
             Some(e),
             OrientType::Same,
@@ -1676,7 +1654,12 @@ mod tests {
     fn face_with_curves_input_errors() {
         let k = Kernel::default();
         let mut b = Brep::new();
-        let r = b.add_region_record(Region { in_brep: true }).unwrap();
+        let r = b
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
         let run = |b: &mut Brep, input: FaceCurvesInput, region| {
             make_face_with_curves(
                 &k,
@@ -1734,7 +1717,7 @@ mod tests {
 
     #[test]
     fn merge_self_without_curves() {
-        let k = Kernel::default();
+        let mut k = Kernel::default();
         let mut b = Brep::new();
         let s = b.add_shell().unwrap();
         let f = b.add_face(s).unwrap();
@@ -1747,12 +1730,12 @@ mod tests {
             key_of: &key_of,
         };
         assert!(
-            merge_self_intersection_curves(&k, &mut b, Some(f), 1e-5, &[], &mut env)
+            merge_self_intersection_curves(&mut k, &mut b, Some(f), 1e-5, &[], &mut env)
                 .unwrap()
                 .is_empty()
         );
         assert!(
-            merge_self_intersection_curves(&k, &mut b, None, 1e-5, &[], &mut env)
+            merge_self_intersection_curves(&mut k, &mut b, None, 1e-5, &[], &mut env)
                 .unwrap()
                 .is_empty()
         );
