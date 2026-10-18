@@ -1211,7 +1211,8 @@ impl<O: ClassObject> PointClassification<O> {
         // the vertex the point merges into
         let new_v: O = match object.class_kind() {
             ClassObjectKind::Region => {
-                // UNPORTED(topology.shell): SmRegion::GetBrep
+                // Region owner lookup must accompany the future MakeShellVertex integration;
+                // typed region metadata is implemented in topology::shell.
                 // UNPORTED(topology.brep_p9): SmBrep::MakeShellVertex
                 return Err(SolidError::unported(
                     "SmBrep::MakeShellVertex",

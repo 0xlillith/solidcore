@@ -72,8 +72,9 @@
 //!   a loop on a face) runs with an empty attribute store and topology records and no
 //!   context or trimmed surface cache: the B-rep keeps none of them.
 //! - **Unported callees.** The `POST_EDIT` notification's `SmFace::GetUpwardEdgeuses`
-//!   (`topology.face_p4`) and `SmEdgeuse::GetOrCreateUVTrimCurve`
-//!   (`topology.edgeuse_p3`) return [`SolidError::Unported`]. `SmShell::GetRegion` is the co-port
+//!   (`topology.face_p4`) returns [`SolidError::Unported`]; `SmEdgeuse::GetOrCreateUVTrimCurve`
+//!   is wired (`topology.edgeuse_p3`, whose own deferred callees still return it).
+//!   `SmShell::GetRegion` is the co-port
 //!   [`eu1::shell_region`].
 //! - The `std::unordered_set` overloads of `GetEdges` / `GetVertices`,
 //!   `GetEdgeusesAndVertexuses`, `CalculateBoundingBox`, `GetTurningAngDeg`,
@@ -1131,17 +1132,14 @@ pub struct UvCorners {
     pub on_params: Vec<f64>,
 }
 
-/// `pEdgeuse->GetOrCreateUVTrimCurve(pUVTrimCurve)` (unit `topology.edgeuse_p3`).
-fn get_or_create_uv_trim_curve(
-    _k: &Kernel,
-    _b: &mut Brep,
-    _eu: EdgeuseId,
-) -> Result<Option<Curve>> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+/// `pEdgeuse->GetOrCreateUVTrimCurve(pUVTrimCurve)`: the curve after the call (its status
+/// is ignored upstream; `None` when it could not be made).
+fn get_or_create_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<Option<Curve>> {
+    let _ =
+        crate::topology::edgeuse::p3::get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
+    Ok(crate::topology::edgeuse::p1::uv_trim_curve(b, eu)?
+        .0
+        .cloned())
 }
 
 /// `pS->DropPoint(point, domain, NULL, bSuccess, uv, dGap, bIsMulti)` (unit
@@ -1319,10 +1317,15 @@ mod tests {
     /// `gap` along x on edge 1's end).
     fn square(gap: f64) -> Brep {
         let mut b = Brep::new();
-        b.add_region_record(Region { in_brep: true }).unwrap();
+        b.add_region_record(Region {
+            in_brep: true,
+            ..Region::default()
+        })
+        .unwrap();
         b.add_shell_record(Shell {
             faces: vec![FaceId::from_index(0)],
             region: Some(RegionId::from_index(0)),
+            ..Shell::default()
         })
         .unwrap();
         b.add_face_record(Face {
@@ -1349,6 +1352,7 @@ mod tests {
                 mate: Some(FaceuseId::from_index(1 - k)),
                 orientation: o,
                 loopuses: vec![lu(k)],
+                sibling_links: None,
             })
             .unwrap();
             b.add_loopuse_record(Loopuse {
