@@ -15,9 +15,7 @@ use solidcore::geom::context::{Context, NotifyCallback};
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
-use solidcore::topology::shell::{RegionLookup, RegionRef};
 use solidcore::topology::topology::Topology;
-use solidcore::topology::BrepId;
 use solidcore::topology::{
     ArenaId, Brep, EdgeId, EdgeuseOwner, FaceId, FaceuseId, LoopuseStart, RegionId, VertexId,
     VertexuseOwner,
@@ -254,6 +252,32 @@ impl NotifyCallback for Recorder {
         Some(self)
     }
 }
+struct TwoRegions {
+    primary: Brep,
+    other: Brep,
+}
+impl solidcore::topology::shell::RegionLookup for TwoRegions {
+    fn resolve_region(
+        &self,
+        object: ObjectKey,
+    ) -> solidcore::Result<solidcore::topology::shell::RegionRef<'_>> {
+        let (brep, index) = match object.0 {
+            1 => (&self.primary, 0),
+            2 => (&self.other, 1),
+            _ => {
+                return Err(SolidError::invalid_input(
+                    "difftest::region_lookup",
+                    "unknown region object",
+                ))
+            }
+        };
+        Ok(solidcore::topology::shell::RegionRef {
+            brep,
+            brep_id: solidcore::topology::BrepId::from_index(index),
+            region_id: RegionId::from_index(0),
+        })
+    }
+}
 fn append_events(context: &Context, out: &mut Vec<f64>) -> solidcore::Result<()> {
     let recorder = context
         .user_notify_callback()
@@ -264,31 +288,11 @@ fn append_events(context: &Context, out: &mut Vec<f64>) -> solidcore::Result<()>
     out.extend(recorder.events.iter().flatten().map(|&v| v as f64));
     Ok(())
 }
-// The callback keys used by the native fixture resolve to the actual imported
-// regions in two distinct operand arenas, including their native void flags.
-struct MergeRegions<'a>([(ObjectKey, &'a Brep, BrepId, RegionId); 2]);
-impl RegionLookup for MergeRegions<'_> {
-    fn resolve_region(&self, object: ObjectKey) -> solidcore::Result<RegionRef<'_>> {
-        let (_, brep, brep_id, region_id) = self
-            .0
-            .iter()
-            .find(|entry| entry.0 == object)
-            .ok_or_else(|| {
-                SolidError::invalid_input("boolean_merge_p1::regions", "unregistered region")
-            })?;
-        Ok(RegionRef {
-            brep,
-            brep_id: *brep_id,
-            region_id: *region_id,
-        })
-    }
-}
-
 fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidError> {
     let [a, c, d] = i.args;
     let mut other = other.clone();
     let other = &mut other;
-    let k = Kernel::default();
+    let mut k = Kernel::default();
     let mut out = Vec::new();
     let mut context = Context::default();
     context.set_user_notify_callback(Some(Box::new(Recorder::default())));
@@ -311,7 +315,7 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                 r.edges.push(EdgeId::from_index(u32::MAX));
                 r.vertices.push(VertexId::from_index(u32::MAX));
             }
-            port::boolean_post_process(&k, b, &r, a != 0)?;
+            port::boolean_post_process(&mut k, b, &r, a != 0)?;
         }
         2 => {
             let maps: BTreeMap<_, _> = if c != 0 {
@@ -422,17 +426,16 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                 let h = attrs.insert(Attribute::merge_region(r.key, 0, ObjectKey(2), 1))?;
                 attrs.add_attribute(r.key, h)?;
             }
-            b.region_mut(RegionId::from_index(0))?
+            // Object 1 is the primary's first region (with the case's void flag), object 2
+            // the other operand's first region, as the shim wires them.
+            let mut primary = b.clone();
+            primary
+                .region_mut(RegionId::from_index(0))?
                 .set_is_void(i32::from(a != 0));
-            let lookup = MergeRegions([
-                (r.key, &*b, BrepId::from_index(0), RegionId::from_index(0)),
-                (
-                    ObjectKey(2),
-                    other,
-                    BrepId::from_index(1),
-                    RegionId::from_index(0),
-                ),
-            ]);
+            let lookup = TwoRegions {
+                primary,
+                other: other.clone(),
+            };
             port::propagate_other_src_region_attribs(
                 &[port::RegionPropagation {
                     region: r,
