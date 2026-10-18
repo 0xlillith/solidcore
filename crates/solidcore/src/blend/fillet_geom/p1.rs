@@ -2474,7 +2474,7 @@ fn drop_vector(surface: &Surface, uv: Point2, direction: Vec3) -> Result<Vec2> {
 /// finds nothing; those of the step-off evaluation and point solve.
 pub fn find_stepoff_uv(
     k: &Kernel,
-    brep: &Brep,
+    brep: &mut Brep,
     solver: &ConstantRadiusAssistedFs,
     curve_param: f64,
     stepoff_dist: f64,
@@ -2483,8 +2483,7 @@ pub fn find_stepoff_uv(
     for (slot, edgeuse) in uvs.iter_mut().zip(solver.edgeuses) {
         let eu = edgeuse.ok_or_else(|| SolidError::null_pointer(OP_STEPOFF))?;
         let face = edgeuse_face(brep, eu)?.ok_or_else(|| SolidError::null_pointer(OP_STEPOFF))?;
-        let surface =
-            face2::surface(brep, face)?.ok_or_else(|| SolidError::null_pointer(OP_STEPOFF))?;
+        face2::surface(brep, face)?.ok_or_else(|| SolidError::null_pointer(OP_STEPOFF))?;
         // Step off the edge along the binormal direction
         let step = evaluate_binormal_step_off(
             k,
@@ -2494,6 +2493,10 @@ pub fn find_stepoff_uv(
             stepoff_dist.abs(),
             &StepOffOptions::default(),
         )?;
+        // The step-off needs the B-rep mutably, so the face's surface (checked above,
+        // in upstream's order) is borrowed again after it.
+        let surface =
+            face2::surface(brep, face)?.ok_or_else(|| SolidError::null_pointer(OP_STEPOFF))?;
         let tol = solver.approx_tol_3d;
         // Make the surface think that it is a standalone surface.
         let solutions = surface.global_point_solve::<NoObject>(
