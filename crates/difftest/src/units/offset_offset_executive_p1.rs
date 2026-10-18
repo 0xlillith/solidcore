@@ -1025,8 +1025,33 @@ fn rust_config(input: &Config) -> HResult<Output> {
         .ints("relate_statuses", statuses))
 }
 
+// Notification identities for the offset B-rep. No runner record observes them;
+// they only keep split notifications distinct per entity and curve.
+fn notify_key(entity: solidcore::error::EntityRef) -> ObjectRef {
+    match entity {
+        solidcore::error::EntityRef::Edge(id) => ObjectRef {
+            key: ObjectKey(100 + u64::from(id.index())),
+            type_code: solidcore::topology::edge::TYPE,
+        },
+        solidcore::error::EntityRef::Vertex(id) => ObjectRef {
+            key: ObjectKey(200 + u64::from(id.index())),
+            type_code: solidcore::topology::vertex::TYPE,
+        },
+        _ => ObjectRef {
+            key: ObjectKey(0),
+            type_code: 0,
+        },
+    }
+}
+fn curve_key(edge: EdgeId, type_code: i64) -> ObjectRef {
+    ObjectRef {
+        key: ObjectKey(300 + u64::from(edge.index())),
+        type_code,
+    }
+}
+
 fn rust_sync(input: &Synchronize) -> RResult<Output> {
-    let kernel = Kernel::default();
+    let mut kernel = Kernel::default();
     let mut original = Brep::new();
     let edge_a = unit_wire(&mut original, 0.0)?;
     let edge_b = unit_wire(&mut original, 1.0)?;
@@ -1056,6 +1081,7 @@ fn rust_sync(input: &Synchronize) -> RResult<Output> {
             executive.relate_edgeuses(b, use_id);
         }
     }
+    let edge_count = offset.edges().len();
     executive.set_offset_brep(offset);
     let first = (!input.null_original).then_some(a);
     let second = (!input.null_other).then_some(b);
@@ -1064,11 +1090,33 @@ fn rust_sync(input: &Synchronize) -> RResult<Output> {
     };
     let first_lookup = lookup(first);
     let second_lookup = lookup(second);
-    let (status, synchronized) =
-        operation(executive.synchronize_offset_edgeuses(&kernel, first, second))?;
+    let mut records = BTreeMap::new();
+    let mut attributes = AttributeStore::default();
+    let mut notifications = NotifyEnv {
+        records: &mut records,
+        attributes: &mut attributes,
+        context: None,
+        key_of: &notify_key,
+    };
+    let (status, synchronized) = operation(executive.synchronize_offset_edgeuses(
+        &mut kernel,
+        first,
+        second,
+        &mut notifications,
+        &curve_key,
+    ))?;
     let offset = executive
         .offset_brep()
         .ok_or_else(|| bad("synchronize lost its offset B-rep"))?;
+    if offset.edges().len() != edge_count {
+        // A completed split adds edges; the native records place them in
+        // SmBrep::GetEdges order, which no arena order may stand in for.
+        // UNPORTED(topology.brep_p1): SmBrep::GetEdges
+        return Err(RunError::Kernel(SolidError::unported(
+            "SmBrep::GetEdges",
+            "topology.brep_p1",
+        )));
+    }
     let mut output = Output::new()
         .ints("operation", vec![status, first_lookup, second_lookup])
         .ints(
@@ -1233,7 +1281,7 @@ fn rust_extend(input: &Extension) -> RResult<Output> {
 }
 
 fn rust_probe(branch: Probe, tolerance: f64) -> RResult<Output> {
-    let kernel = Kernel::default();
+    let mut kernel = Kernel::default();
     let mut original = Brep::new();
     let mut executive = OffsetExecutive::new(OffsetOperation::SolidOffset, 0.25, tolerance);
     executive.set_offset_brep(Brep::new());
@@ -1348,13 +1396,14 @@ fn rust_probe(branch: Probe, tolerance: f64) -> RResult<Output> {
                 key_of: &key_of,
             };
             executive.build_offset_of_edgeuses(
-                &kernel,
+                &mut kernel,
                 &original,
                 first,
                 other,
                 MarkType::Mark,
                 &mut notifications,
                 &key_of,
+                &curve_key,
             )
         }
     };
@@ -2186,7 +2235,7 @@ mod tests {
             null_other: false,
         });
         let output = Runner.run_rust(&case(&input)).unwrap();
-        assert_eq!(output.deferred.unwrap().unit, "topology.brep_p9");
+        assert_eq!(output.deferred.unwrap().unit, "topology.brep_p1");
         let output = Runner
             .run_rust(&case(&Inputs::Probe {
                 branch: Probe::ReplaceEmpty,
@@ -2335,7 +2384,7 @@ mod tests {
         assert!(normalize_sync_ties(missing).is_err());
         for output in [
             Output::err("operation failure"),
-            Output::deferred("topology.brep_p9", "SplitEdge"),
+            Output::deferred("topology.brep_p1", "sm_MakeVertexSplitUVTrimCurve"),
             Output::rejected("native fixture constructor status_1007"),
         ] {
             let output = output.int("edgeuse_count", -2);
