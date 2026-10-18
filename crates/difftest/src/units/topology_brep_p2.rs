@@ -1244,7 +1244,7 @@ mod tests {
     /// returning around `1e156` on a u-degree-2, three-span face (HANG-28, `--fuzz` case
     /// fuzz00497): the FFI refuses degree >= 2 faces with a corner past `1e154` under
     /// `init_gaps`, and nothing else. The compared control at the bound returns in about
-    /// 0.01 s.
+    /// 0.01 s. A rational corner is bounded at `1e151`, stored and Cartesian (stored / w).
     #[test]
     fn gap_initialisation_refuses_a_huge_curved_corner() {
         let now = -f64::MAX;
@@ -1283,6 +1283,36 @@ mod tests {
             let r = run_rust(&case(p, z, gaps)).unwrap();
             assert_eq!(format!("{c:?}"), format!("{r:?}"), "{p} {z} {gaps}");
         }
+        // a rational net is homogeneous (w x, w y, w z, w), bounded at 1e151 on both the
+        // stored and the Cartesian corner: the stored x of 1e154 with weight 1e-3 is a
+        // vertex at x = 1e157 (no return) and a stored 1e152 with weight 1e3 is past the
+        // stored bound, both refused; a stored 1e140 with weight 1e3 is compared
+        let rational = |x: f64, w: f64| -> Inputs {
+            let mut v = serde_json::to_value(case(2, 0.0, true)).unwrap();
+            let net = v["brep"]["surface"]["bspline"]["net"]
+                .as_array_mut()
+                .unwrap();
+            for row in net.iter_mut() {
+                for pt in row.as_array_mut().unwrap() {
+                    pt[3] = serde_json::json!(1.0);
+                }
+            }
+            let corner = &mut net.last_mut().unwrap()[1];
+            corner[0] = serde_json::json!(x);
+            corner[1] = serde_json::json!(w);
+            corner[3] = serde_json::json!(w);
+            serde_json::from_value(v).unwrap()
+        };
+        for (x, w) in [(1e154, 1e-3), (1e152, 1e3), (2e151, 1.0)] {
+            let err = run_cpp(&rational(x, w)).unwrap_err().to_string();
+            assert!(
+                err.contains("face too large for the gap initialisation"),
+                "{x} {w}: {err}"
+            );
+        }
+        let c = run_cpp(&rational(1e140, 1e3)).unwrap();
+        let r = run_rust(&rational(1e140, 1e3)).unwrap();
+        assert_eq!(format!("{c:?}"), format!("{r:?}"));
     }
 
     /// A mating surface so far from the lamina edge that the squared distance overflows

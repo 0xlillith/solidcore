@@ -345,10 +345,29 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
 /// refused.
 const MAX_GAP_COORD: f64 = 1e154;
 
+/// [`MAX_GAP_COORD`] for a rational net, applied both to the stored (homogeneous) corner
+/// coordinate `w c` and to the Cartesian one `c`. Measured on the pod with 30 s timeouts
+/// (u-degree 2 / 3, 3 / 6 spans, v-degree 1 / 2, x, y and z, corner weights `1e-3` to
+/// `1e3`, the other weights `1e-3`, `1` and `1e3`): a rational corner with a large
+/// coordinate costs a bounded 0.6-3.9 s on x (at `1e100` as at `1e151`; y and z stay below
+/// 0.1 s), while a stored coordinate past `sqrt(f64::MAX)` can stop returning (Cartesian
+/// `9.9e153` with weight 10, stored `9.9e154`, on y). The other weights do not change
+/// either. The `1e3` factor below [`MAX_GAP_COORD`] is the margin.
+const MAX_GAP_COORD_RATIONAL: f64 = 1e151;
+
+/// The weight of a non-rational control point (`NOW`, as `topology_vertexuse` reads it).
+const NOW: f64 = -f64::MAX;
+
 /// Refuses a B-spline face block (`kind 2`, surface kind `0`) with `init_gaps` set, a
-/// degree of at least 2 in u or v and a corner control point coordinate above
-/// [`MAX_GAP_COORD`]. `head` is the validated B-rep block plus `editing`, so `init_gaps`
-/// is its second-to-last value.
+/// degree of at least 2 in u or v and a corner too far out: a non-rational corner
+/// coordinate above [`MAX_GAP_COORD`], or for a rational net a corner whose stored
+/// (homogeneous) or Cartesian coordinate is above [`MAX_GAP_COORD_RATIONAL`]. The net is
+/// homogeneous (`w x, w y, w z, w`; `w = NOW` for a non-rational net) and the corner
+/// control point is the vertex position, so a small weight moves the vertex out (`1e154`
+/// stored with `w = 1e-3` is a vertex at `1e157`, which does not return) and a large one
+/// moves the stored value out; `|w c| <= R` and `|c| <= R` is `|w c| <= R * min(1, w)`.
+/// `head` is the validated B-rep block plus `editing`, so `init_gaps` is its
+/// second-to-last value.
 fn gap_guard(head: &[f64]) -> Result<(), FfiError> {
     let init_gaps = head.len().checked_sub(2).and_then(|i| head.get(i)) == Some(&1.0);
     if head.first() != Some(&2.0) || head.get(1) != Some(&0.0) || !init_gaps {
@@ -365,10 +384,16 @@ fn gap_guard(head: &[f64]) -> Result<(), FfiError> {
     let (n, m) = (n as usize, m as usize);
     for (a, b) in [(0, 0), (0, m), (n, 0), (n, m)] {
         let at = 10 + 4 * (a * (m + 1) + b);
-        let pt = head
-            .get(at..at + 3)
-            .ok_or_else(|| bad("surface net too short"))?;
-        if pt.iter().any(|&c| c != f64::MAX && c.abs() > MAX_GAP_COORD) {
+        let (Some(xyz), Some(&w)) = (head.get(at..at + 3), head.get(at + 3)) else {
+            return Err(bad("surface net too short"));
+        };
+        // the reader bounds a rational weight to [1e-3, 1e3]
+        let bound = if w == NOW {
+            MAX_GAP_COORD
+        } else {
+            MAX_GAP_COORD_RATIONAL * w.min(1.0)
+        };
+        if xyz.iter().any(|&c| c != f64::MAX && c.abs() > bound) {
             return Err(bad("face too large for the gap initialisation"));
         }
     }
