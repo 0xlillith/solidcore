@@ -108,7 +108,7 @@ use crate::intersect::point_class::ClassGeometry;
 use crate::intersect::point_class::{ClassObject, PointClassType};
 use crate::intersect::surface_intersector::p1::TsectPnt;
 use crate::kernel::Kernel;
-use crate::math::{Point3, Vec3, EFF_ZERO, EFF_ZERO_SQ, PI};
+use crate::math::{Point3, Vec3, EFF_ZERO, EFF_ZERO_SQ, PI, UNDEF_DOUBLE};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::SurfParamType;
@@ -122,6 +122,7 @@ use crate::surface::surface::p2::drop_vectors;
 use crate::surface::surface::Surface;
 use crate::surface::torus::Torus;
 use crate::topology::edgeuse::p1 as eu;
+use crate::topology::edgeuse::p3::{evaluate_binormal, BinormalOptions};
 use crate::topology::face::p2 as face_p2;
 use crate::topology::{edge, vertexuse, Brep, EdgeId, EdgeuseId, FaceId, VertexId};
 use crate::topology::{vertex, VertexuseId};
@@ -1034,7 +1035,7 @@ impl FilletSolver {
     /// offset of that face. Returns the new geometry (`*ppRetFilletGeom`).
     ///
     /// `b` is the B-rep being filleted (the side edge, its faces and the solver's edge
-    /// uses); `pseudo` is the executive's pseudo-B-rep holding the fillet vertex use,
+    /// uses; the side edge's binormal evaluation may build UV trim curves on it); `pseudo` is the executive's pseudo-B-rep holding the fillet vertex use,
     /// the rails and the fillet vertices.
     ///
     /// # Errors
@@ -1048,7 +1049,7 @@ impl FilletSolver {
     pub fn split_fillet_geom_at_side_edge(
         &mut self,
         k: &Kernel,
-        b: &Brep,
+        b: &mut Brep,
         pseudo: &mut Brep,
         fillet_geom: FilletGeomRef,
         split_vertexuse: VertexuseId,
@@ -1132,7 +1133,7 @@ impl FilletSolver {
         if adj_face != orig_face {
             // Mild assumption: closed surface is not Moebius...
             let (tangent, opposite) =
-                test_manifold_tangent_rollover(b, side_edge, self.tangency_tolerance)?;
+                test_manifold_tangent_rollover(k, b, side_edge, self.tangency_tolerance)?;
             opposite_normals = opposite;
             if !tangent {
                 return Err(SolidError::invalid_input(
@@ -2551,6 +2552,43 @@ pub fn test_analytic_surface(k: &Kernel, surface: AnalyticTestSurface<'_>) -> Re
     ))
 }
 
+/// `SE(pEU->EvaluateBinormal(dParameter, FALSE, rPnt, rBinVec, NULL, &rFaceuseNormal))`
+/// into outputs the caller default-constructed (`SM_UNDEF_DOUBLE` components): the
+/// point, binormal and face use normal. A failing status is ignored, and the outputs
+/// are then what upstream leaves in them: all undefined when the edge use is not in a
+/// loop (that check fails before the outputs are initialised); otherwise the point and
+/// the normal zeroed and the binormal undefined (they are assigned only on success).
+///
+/// # Errors
+///
+/// [`SolidError::Unported`]; `NotFound` and `InvalidInput` (a dangling id or a `NULL`
+/// upstream dereferences) also propagate.
+fn binormal_status_ignored(
+    k: &Kernel,
+    b: &mut Brep,
+    edge_use: EdgeuseId,
+    parameter: f64,
+) -> Result<(Point3, Vec3, Vec3)> {
+    let undefined = Vec3::new(UNDEF_DOUBLE, UNDEF_DOUBLE, UNDEF_DOUBLE);
+    let zero = Vec3::new(0.0, 0.0, 0.0);
+    let in_loop = eu::is_loop_edgeuse(b, edge_use)?;
+    let options = BinormalOptions::default();
+    match evaluate_binormal(k, b, edge_use, parameter, false, &options) {
+        Ok(r) => Ok((r.point, r.binormal, r.face_normal)),
+        Err(e)
+            if e.is_unported()
+                || matches!(
+                    e,
+                    SolidError::NotFound { .. } | SolidError::InvalidInput { .. }
+                ) =>
+        {
+            Err(e)
+        }
+        Err(_) if !in_loop => Ok((undefined, undefined, undefined)),
+        Err(_) => Ok((zero, undefined, zero)),
+    }
+}
+
 /// `sm_TestManifoldTangentRollover(pE, rbOppositeNormals, dTangencyTolRad,
 /// iDebugLevel)`: whether the faces at the edge are tangent (the second edge use's
 /// binormal is within `tangency_tol_rad` of perpendicular to the first face use
@@ -2560,37 +2598,28 @@ pub fn test_analytic_surface(k: &Kernel, surface: AnalyticTestSurface<'_>) -> Re
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] where upstream dereferences `NULL` (an edge without
-/// primary edge use, an edge use without face use, radial or mate);
-/// [`SolidError::Unported`] for the binormals (`SmEdgeuse::EvaluateBinormal`, status
-/// otherwise ignored).
+/// primary edge use, an edge use without face use, radial or mate); the binormal
+/// evaluation's [`SolidError::Unported`], `NotFound` and `InvalidInput` (its status
+/// is otherwise ignored, see [`binormal_status_ignored`]).
 pub fn test_manifold_tangent_rollover(
-    b: &Brep,
+    k: &Kernel,
+    b: &mut Brep,
     e: EdgeId,
     tangency_tol_rad: f64,
 ) -> Result<(bool, bool)> {
     let edge_use = eu::primary_edgeuse(b, e)?.ok_or_else(|| invalid("edge without edge use"))?;
     let test_param = edge::interval(b, e)?.evaluate(0.34);
     // SE(EvaluateBinormal(dTestParam, FALSE, sPnt, sBinVec, NULL, &sFaceuseNormal))
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-    let (_pnt, _bin_vec, mut faceuse_normal): (Point3, Vec3, Vec3) = ignored(unported_on(
-        (edge_use, test_param),
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
-    ))?
-    .ok_or_else(|| invalid("failed binormal evaluation: upstream reads uninitialised vectors"))?;
+    let (_pnt, _bin_vec, mut faceuse_normal) = binormal_status_ignored(k, b, edge_use, test_param)?;
     let fu = eu::faceuse(b, edge_use)?.ok_or_else(|| invalid("edge use without face use"))?;
     if eu::faceuse_orientation(b, fu)? == OrientType::Opposite {
         faceuse_normal = -faceuse_normal;
     }
     let radial = eu::radial(b, edge_use)?.ok_or_else(|| invalid("edge use without radial"))?;
     let other_eu = eu::mate(b, radial)?.ok_or_else(|| invalid("radial edge use without mate"))?;
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-    let (_pnt2, bin_vec2, mut faceuse_normal2): (Point3, Vec3, Vec3) = ignored(unported_on(
-        (other_eu, test_param),
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
-    ))?
-    .ok_or_else(|| invalid("failed binormal evaluation: upstream reads uninitialised vectors"))?;
+    // SE(EvaluateBinormal(dTestParam, FALSE, sPnt2, sBinVec2, NULL, &sFaceuseNormal2))
+    let (_pnt2, bin_vec2, mut faceuse_normal2) =
+        binormal_status_ignored(k, b, other_eu, test_param)?;
     let fu2 = eu::faceuse(b, other_eu)?.ok_or_else(|| invalid("edge use without face use"))?;
     if eu::faceuse_orientation(b, fu2)? == OrientType::Opposite {
         faceuse_normal2 = -faceuse_normal2;

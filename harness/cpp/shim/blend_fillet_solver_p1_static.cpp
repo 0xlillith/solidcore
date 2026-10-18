@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // difftest shim for unit `blend.fillet_solver_p1`: the file-static helpers and the
 // .cpp-local classes of upstream source/SMLib/src/SmFilletSolver.cpp (sm_FindNextGoodInterval,
-// sm_CheckEdgeCurveDomains, sm_TestAnalyticSurface, sm_TrimRail, SmRailRailIntersectENFO,
+// sm_CheckEdgeCurveDomains, sm_TestAnalyticSurface, sm_TrimRail, sm_TestManifoldTangentRollover,
+// SmRailRailIntersectENFO,
 // the SmFindClippedRadiusEFO constructor), plus the external sm_TestSideEdgeConvexity and the
 // solver's B-rep queries (GetVertex, FindIndexOfRailOnFace, FindIndexOfRailXSideEdgeuse).
 //
@@ -101,6 +102,7 @@ enum : int32_t
     S_TRIM_RAIL = 6,
     S_QUERIES = 7,
     S_ANALYTIC_REV = 8,
+    S_ROLLOVER = 9,
 };
 
 // An SmEdge outside any B-rep's lists (no edge uses); its context comes from the B-rep.
@@ -431,6 +433,31 @@ void run_trim_rail(Rd& rd, const char* path, std::vector<double>& o)
     delete b;
 }
 
+// `block edge tol` -> `0 tangent opposite` (`-2` where upstream dereferences NULL: no
+// primary edge use, an edge use without face use, no radial or no mate).
+void run_rollover(Rd& rd, const char* path, std::vector<double>& o)
+{
+    Graph g;
+    SmBrep* b = brep_of(rd, path, g, o);
+    if (b == NULL)
+        return;
+    SmEdge* e = at(g.edges, rd.idx());
+    double tol = rd.num();
+    SmEdgeuse* eu = e ? e->GetPrimaryEdgeuse() : NULL;
+    SmEdgeuse* radial = eu ? eu->GetRadial() : NULL;
+    SmEdgeuse* other = radial ? radial->GetMate() : NULL;
+    if (other == NULL || eu->GetFaceuse() == NULL || other->GetFaceuse() == NULL)
+        o.push_back(-2.0);
+    else
+    {
+        SmBoolean opposite = FALSE;
+        SmBoolean tangent = sm_TestManifoldTangentRollover(e, opposite, tol, 0);
+        o.push_back(flg(tangent));
+        o.push_back(flg(opposite));
+    }
+    delete b;
+}
+
 // `block eu0 eu1 face side` -> `0 v0 v1 on_face x_side` (vertices by export index).
 void run_queries(Rd& rd, const char* path, std::vector<double>& o)
 {
@@ -494,6 +521,7 @@ SC_EXPORT int32_t sc_blend_fillet_solver_p1_static_eval(int32_t op, const char* 
     case S_TRIM_RAIL: run_trim_rail(rd, path, o); break;
     case S_QUERIES: run_queries(rd, path, o); break;
     case S_ANALYTIC_REV: run_analytic_rev(rd, o); break;
+    case S_ROLLOVER: run_rollover(rd, path, o); break;
     default: return SC_ERR_ARG;
     }
     (void)n_in;

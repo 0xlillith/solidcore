@@ -586,6 +586,33 @@
     "y": [0.0, 1.0, 0.0],
     "p": [3.0, 1.0, 0.0, 0.0]
    }
+  },
+  {
+   "name": "rollover_box_with_large_fillet",
+   "inputs": {
+    "op": "rollover",
+    "brep": {"kind": "file", "file": "box_with_large_fillet.smb"},
+    "edge": 0,
+    "tol": 0.01
+   }
+  },
+  {
+   "name": "rollover_box_with_large_fillet_edge5_tight",
+   "inputs": {
+    "op": "rollover",
+    "brep": {"kind": "file", "file": "box_with_large_fillet.smb"},
+    "edge": 5,
+    "tol": 1e-6
+   }
+  },
+  {
+   "name": "rollover_small_box_wide",
+   "inputs": {
+    "op": "rollover",
+    "brep": {"kind": "file", "file": "SmallBox.smb"},
+    "edge": 3,
+    "tol": 2.0
+   }
   }
  ]
 }

@@ -57,6 +57,7 @@
 //! | `Convexity`     | `sm_TestSideEdgeConvexity` (the library's) | `block edge tangential` (`edge` `-1`: a fresh `SmEdge`) | `0 ret` |
 //! | `TrimRail`      | `sm_TrimRail` | `block edge t0 t1` | `0 status curve uv uv_mate` |
 //! | `Queries`       | `GetVertex(0/1)`, `FindIndexOfRailOnFace`, `FindIndexOfRailXSideEdgeuse` | `block eu0 eu1 face side` | `0 v0 v1 on_face x_side` |
+//! | `Rollover`      | `sm_TestManifoldTangentRollover` | `block edge tol` | `0 tangent opposite` (`-2`: no primary edge use, radial or mate, or an edge use without face use) |
 //!
 //! A curve is `1 t0 t1 P(t0) P(mid) P(t1)` or `-1`; a B-rep that cannot be built gives
 //! `-1 status`.
@@ -339,6 +340,8 @@ pub enum StaticOp {
     Queries,
     /// `sm_TestAnalyticSurface` on a cone, cylinder, sphere or torus.
     AnalyticRev,
+    /// `sm_TestManifoldTangentRollover`.
+    Rollover,
 }
 
 impl StaticOp {
@@ -353,6 +356,7 @@ impl StaticOp {
             StaticOp::TrimRail => 6,
             StaticOp::Queries => 7,
             StaticOp::AnalyticRev => 8,
+            StaticOp::Rollover => 9,
         }
     }
 
@@ -361,7 +365,11 @@ impl StaticOp {
     pub fn has_brep(self) -> bool {
         matches!(
             self,
-            StaticOp::CheckDomains | StaticOp::Convexity | StaticOp::TrimRail | StaticOp::Queries
+            StaticOp::CheckDomains
+                | StaticOp::Convexity
+                | StaticOp::TrimRail
+                | StaticOp::Queries
+                | StaticOp::Rollover
         )
     }
 }
@@ -433,6 +441,10 @@ fn validate_static_args(
         StaticOp::TrimRail => {
             rd.below(n_e)?;
             rd.finites(2)?;
+        }
+        StaticOp::Rollover => {
+            rd.below(n_e)?;
+            rd.finite()?;
         }
         StaticOp::Queries => {
             rd.below_or_none(n_eu)?;

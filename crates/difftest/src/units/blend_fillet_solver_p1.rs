@@ -28,7 +28,8 @@
 //! `SmSphere` (defers: no Rust type)), `SmRailRailIntersectENFO` (`rail_rail`, two loading solvers), the
 //! `SmFindClippedRadiusEFO` constructor (`clipped`), `sm_TestSideEdgeConvexity`
 //! (`convexity`: an edge without edge uses compares, others defer), `sm_TrimRail`
-//! (`trim_rail`, on a B-rep edge) and the solver's B-rep queries (`queries`: `GetVertex`,
+//! (`trim_rail`, on a B-rep edge), `sm_TestManifoldTangentRollover` (`rollover`, on a
+//! B-rep edge) and the solver's B-rep queries (`queries`: `GetVertex`,
 //! `FindIndexOfRailOnFace`, `FindIndexOfRailXSideEdgeuse` with edge uses of upstream test
 //! files, face and wire B-reps). B-rep cases build the C++ B-rep, export it through unit
 //! `topology.edgeuse_p1` and import the same records on the Rust side; entity selectors
@@ -42,7 +43,8 @@ use solidcore::blend::fillet_custom_solver::{JacobianLoad, OffsetSurface, Surfac
 use solidcore::blend::fillet_solver::p1::{
     check_edge_curve_domains, compute_uv_vectors, find_next_good_interval, test_analytic_surface,
     AnalyticTestSurface,
-    test_side_edge_convexity, tol_ang_tol_rad, trim_rail, FilStatus, FilletSolver,
+    test_manifold_tangent_rollover, test_side_edge_convexity, tol_ang_tol_rad, trim_rail, FilStatus,
+    FilletSolver,
     FilletSolverOffsetsData, FilletSolverOps, FilletSphereSolveEnfo, FilletSurfaceGenerator,
     FindClippedRadiusEfo, OffsetSurfaceSlot, RailRailIntersectEnfo, RailUvCurveIntersectEnfo,
 };
@@ -242,6 +244,12 @@ enum Inputs {
         face: i64,
         side: i64,
     },
+    /// `sm_TestManifoldTangentRollover` on an edge with tolerance `tol` (radians).
+    Rollover {
+        brep: BrepIn,
+        edge: i64,
+        tol: f64,
+    },
 }
 
 impl Inputs {
@@ -272,6 +280,7 @@ impl Inputs {
             Inputs::Convexity { .. } => StaticOp::Convexity,
             Inputs::TrimRail { .. } => StaticOp::TrimRail,
             Inputs::Queries { .. } => StaticOp::Queries,
+            Inputs::Rollover { .. } => StaticOp::Rollover,
             _ => return None,
         })
     }
@@ -281,7 +290,8 @@ impl Inputs {
             Inputs::CheckDomains { brep, .. }
             | Inputs::Convexity { brep, .. }
             | Inputs::TrimRail { brep, .. }
-            | Inputs::Queries { brep, .. } => Some(brep),
+            | Inputs::Queries { brep, .. }
+            | Inputs::Rollover { brep, .. } => Some(brep),
             _ => None,
         }
     }
@@ -349,7 +359,9 @@ fn brep_case(brep: &BrepIn) -> Result<Result<BrepCase, Output>, HarnessError> {
 fn resolve(i: &Inputs, c: &BrepCase) -> [i64; 4] {
     let [_, _, _, n_f, _, _, n_eu, n_e, _, _] = c.counts;
     match i {
-        Inputs::CheckDomains { edge, .. } | Inputs::TrimRail { edge, .. } => [sel(*edge, n_e), -1, -1, -1],
+        Inputs::CheckDomains { edge, .. } | Inputs::TrimRail { edge, .. } | Inputs::Rollover { edge, .. } => {
+            [sel(*edge, n_e), -1, -1, -1]
+        }
         Inputs::Convexity { edge, .. } => [if *edge < 0 { -1 } else { sel(*edge, n_e) }, -1, -1, -1],
         Inputs::Queries { eu, face, side, .. } => [
             sel(eu[0], n_eu),
@@ -422,6 +434,7 @@ fn static_input(i: &Inputs, c: Option<&BrepCase>) -> Result<Vec<f64>, HarnessErr
             o.extend([r[0] as f64, t0, t1]);
         }
         Inputs::Queries { .. } => o.extend(r.map(|v| v as f64)),
+        Inputs::Rollover { tol, .. } => o.extend([r[0] as f64, *tol]),
         _ => return Err(harness("not a static op")),
     }
     Ok(o)
@@ -832,6 +845,20 @@ fn rust_brep(i: &Inputs, c: &mut BrepCase, o: &mut Vec<f64>) -> Result<Result<()
                 o.push(one(fs.find_index_of_rail_x_side_edgeuse(&c.brep, side))?);
                 Ok(())
             })()
+        }
+        Inputs::Rollover { tol, .. } => {
+            let e = EdgeId::from_index(eid(r[0])?);
+            match test_manifold_tangent_rollover(&k, &mut c.brep, e, *tol) {
+                Ok((tangent, opposite)) => {
+                    o.extend([b(tangent), b(opposite)]);
+                    Ok(())
+                }
+                Err(SolidError::InvalidInput { .. }) => {
+                    o.push(-2.0);
+                    Ok(())
+                }
+                Err(e) => Err(e),
+            }
         }
         _ => return Err(harness("not a B-rep op")),
     };
@@ -1652,7 +1679,7 @@ fn gen_analytic_rev(rng: &mut Rng) -> Inputs {
 
 fn gen_static(rng: &mut Rng) -> Inputs {
     let s = |rng: &mut Rng| rng.below(64) as i64;
-    match rng.below(9) {
+    match rng.below(10) {
         0 => {
             let n = rng.below(6) as usize;
             let cls = (0..n)
@@ -1732,6 +1759,12 @@ fn gen_static(rng: &mut Rng) -> Inputs {
                 t: [a, a + rng.uniform(0.05, 0.7)],
             }
         }
+        // tolerances from tight to past a right angle (a negative cosine limit)
+        8 => Inputs::Rollover {
+            brep: gen_brep_case(rng),
+            edge: s(rng),
+            tol: *rng.choose(&[1e-6, 1e-3, 0.01, 0.1, 0.5, 1.0, 2.0]).unwrap_or(&0.01),
+        },
         _ => Inputs::Queries {
             brep: gen_brep_case(rng),
             eu: [if rng.chance(0.1) { -1 } else { s(rng) }, if rng.chance(0.2) { -1 } else { s(rng) }],
