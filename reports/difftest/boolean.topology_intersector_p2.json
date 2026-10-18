@@ -1588,12 +1588,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
       "max_rel_err": 0.0,
       "name": "gen0171",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2894391486768360591",
-      "values_compared": 12
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2184,16 +2188,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0237",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2894391486768360657",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -3588,12 +3588,16 @@
       "values_compared": 9
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CombineCoincidentVertices",
+        "unit": "topology.brep_p5"
+      },
       "max_rel_err": 0.0,
       "name": "gen0394",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2894391486768360814",
-      "values_compared": 18
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4692,16 +4696,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0520",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2894391486768360940",
-      "values_compared": 0
+      "values_compared": 152
     },
     {
       "max_rel_err": 0.0,
@@ -5581,7 +5581,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361042",
-      "values_compared": 9
+      "values_compared": 115
     },
     {
       "deferred": {
@@ -6305,7 +6305,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361124",
-      "values_compared": 15
+      "values_compared": 121
     },
     {
       "max_rel_err": 0.0,
@@ -6313,7 +6313,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361125",
-      "values_compared": 13
+      "values_compared": 16
     },
     {
       "deferred": {
@@ -6897,7 +6897,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361187",
-      "values_compared": 172
+      "values_compared": 169
     },
     {
       "max_rel_err": 0.0,
@@ -6964,20 +6964,28 @@
       "values_compared": 14
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CombineCoincidentVertices",
+        "unit": "topology.brep_p5"
+      },
       "max_rel_err": 0.0,
       "name": "gen0775",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2894391486768361195",
-      "values_compared": 20
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::MakeVertexSplitEdge",
+        "unit": "topology.brep_p9"
+      },
       "max_rel_err": 0.0,
       "name": "gen0776",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2894391486768361196",
-      "values_compared": 14
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -7461,14 +7469,14 @@
     }
   ],
   "cases_both_errored": 2,
-  "cases_deferred": 182,
+  "cases_deferred": 184,
   "cases_failed": 0,
-  "cases_passed": 659,
+  "cases_passed": 657,
   "cases_total": 841,
   "deferred_by_unit": {
     "topology.brep_p1": 126,
     "topology.brep_p5": 15,
-    "topology.brep_p9": 7,
+    "topology.brep_p9": 9,
     "topology.face_p3": 3,
     "topology.face_p4": 31
   },

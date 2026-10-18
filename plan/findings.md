@@ -6713,19 +6713,23 @@ PR #203 (on main's #146). Part 2 of `SmTopologyIntersector.cpp`: `RegisterExisti
   653 pass, 0 fail, 174 deferred). `SmTsectCurveType` inputs are bounded to the enum
   (0-6) in the FFI and an unknown code is a harness error (it mapped to `Unknown` before).
 - **Coverage (what the passes complete).** Per op occurrence in non-deferred cases:
-  `RemoveRelationship` 28 success / 36 `SM_ERR`; `CheckForSqueezeVertices` 76 success
-  without a conflicting mate (empty lists) / 25 `SM_ERR` (existing relationship better),
+  `RemoveRelationship` 29 success / 35 `SM_ERR`; `CheckForSqueezeVertices` 75 success
+  without a conflicting mate (empty lists) / 26 `SM_ERR` (existing relationship better),
   every conflict that combines defers (`CombineCoincidentVertices`, `topology.brep_p5`);
   `DeleteFaces` 68 success, all with an empty face list (a face reaches `SmFace::GetEdges`,
   `topology.face_p4`); `FixGaps` 119 success without a gap pair / 14
   `SM_ERR_NULL_POINTER` (gap pair with an unmated vertex); `SetRelationships` 39 success on
-  managers without definitions; `FixupClassMates` 54 success / 19 `SM_ERR` (sizes differ);
-  `FixupSplitVertexPair` 56 success, 6 removing the interval; `EdgeEdgeIntersect` 129
+  managers without definitions; `FixupClassMates` 56 success / 17 `SM_ERR` (sizes differ);
+  `FixupSplitVertexPair` 57 success, 6 removing the interval; `EdgeEdgeIntersect` 127
   success without a split (a split defers on `MakeVertexSplitEdge`, `topology.brep_p9`);
   `EdgeFaceCoincidence` 128 success without an imprint (`Point3DClassify`,
   `query.face_p1`); `IntersectTopology` and `IntersectInsertRelate`: no passing case (both
   start with `SmBrep::GetFaces`, `topology.brep_p1`). The census is the ignored test
-  `units::boolean_topology_intersector_p2::tests::census`.
+  `units::boolean_topology_intersector_p2::tests::census`. Since main's shell-state export
+  and import (`sc_topology_fixture::append_shell_state` / `topology_vertexuse::read_shell_state`),
+  the imported B-reps carry shell members, vertex-use lists and face-use links, so the same
+  generated scripts compare more values and follow upstream's path further (2 former
+  passes now defer at `MakeVertexSplitEdge`; 0 fail before and after).
 - **Guards.** The shim refuses (`-2`) what upstream dereferences: vertex members of a mate
   that is not a vertex, edges of a vertex without curve (`FixGaps`,
   `EdgeFaceCoincidence`), faces without surface, an interval index past a
