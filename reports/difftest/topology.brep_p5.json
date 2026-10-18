@@ -2375,6 +2375,30 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "tracker-preexisting-k0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#24 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:425)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tracker-preexisting-k1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#25 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:425)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "tracker-preexisting-k2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p5/review_notifications.json#26 (upstream source/SMLib/src/SmTrackTopologyChanges.cpp:425)",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -6525,8 +6549,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 54,
   "cases_failed": 0,
-  "cases_passed": 734,
-  "cases_total": 788,
+  "cases_passed": 737,
+  "cases_total": 791,
   "deferred_by_unit": {
     "topology.brep_p1": 10,
     "topology.brep_p2": 40,

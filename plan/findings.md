@@ -6852,16 +6852,10 @@ validation section below. These results do not certify the review fixes.
   faces. It is unreachable today (`MergeInterval` makes no topology until
   `intersect.curve_class_p2`); that unit's porter must give the healer a typed resolver.
 
-## topology.brep_p5 — review follow-up; source 64f9f549 evidence
-
-Current follow-up: the arena-only healer must preserve an already installed
-system callback, leaving its own native tracker arrays empty. Returning Unsupported
-there was a mismatch. Three native preexisting-observer cases and a healer
-regression are added; the unit is todo pending refreshed validation. The source
-64f9f549 sweep was interrupted to fix this; its results below are historical.
+## topology.brep_p5 — review validation (partial)
 
 PR #194 restores all twelve owned editing bodies and the internal pending-topology
-attribute cleanup. Source `64f9f549` includes official main `53ba102b`; no open
+attribute cleanup. Source `fd5a15a7` includes official main `53ba102b`; no open
 dependency PR is included. The earlier pre-review evidence above is historical.
 All owned continuations are present with per-call missing-dependency barriers,
 including combine tails, shell/vertex-use cleanup, curve joins/UV cleanup,
@@ -6889,27 +6883,37 @@ and foreign-callback replacement lifetimes. Geometry owner and edgeuse-to-edge
 metadata must come from the actual object store; missing metadata is an explicit
 capture failure, and chains are bounded to 64 links. Nonempty arena-only healer
 captures still require part 2's actual key-to-id routing; no arena-index encoding
-is guessed. All 24 native callback scripts pass, including list order, event
+is guessed. All 27 native callback scripts pass, including list order, event
 payload identities, destruction cleanup, curve-owner traversal, direct face
-notifications and tracker lifetimes.
+notifications and tracker lifetimes. A preexisting system callback is preserved;
+the new native tracker leaves its own arrays empty. Three native cases and a
+healer regression cover this behavior without fabricating changes.
 
-Coverage on source `64f9f549`, Linux runner 2 (Ubuntu 26.04 x86_64, Rust/rustdoc
+Following [issue #210](https://github.com/tangency-labs/solidcore/issues/210),
+**meaningful successful topology-mutation paths certified: 0/12 operations**.
+All twelve source-level control flows are present; that source review is distinct
+from runtime certification behind missing calls. Part 1's canonical editing fields
+remain an integration handoff after its independent PR merges. Part 2's Notify
+remains the critical dependency; its open PR is not bundled here.
+
+Coverage on source `fd5a15a7`, Linux runner 2 (Ubuntu 26.04 x86_64, Rust/rustdoc
 1.98.0, GCC 15.2.0; pinned `c9c5979` reference, C++17/O2 with FP contraction and
 fast math disabled):
 
-- **788 cases:** 276 fixtures + 512 generated; **734 pass, 54 deferred, 0 fail**,
+- **791 cases:** 279 fixtures + 512 generated; **737 pass, 54 deferred, 0 fail**,
   max relative error 0, fixed relative tolerance 1e-9, no absolute floors.
 - **409** passes compare only the coincident-vertex numerical target against a
-  real native merge's survivor. They do not certify the topology edit.
+  real native merge's survivor. They do not certify the topology edit or directly
+  compare the temporary-edge minimum-length threshold.
 - **301** compare whole-operation refusals/output lifecycle, empty selections,
   identity transforms and aliased-glue no-ops (with unchanged semantic graphs).
-- **24** compare supporting notification algorithms; they do not mutate topology.
+- **27** compare supporting notification algorithms; they do not mutate topology.
 - Deferred counts: B-rep part 1 **10**, part 2 **40**, part 4 **2**, part 9 **2**.
-- Sensitivity: **734/734** detected, 0 unperturbed, 54 deferred.
-- Extended 4096 generated: **4372 total, 4192 pass, 180 deferred, 0 fail**,
+- Sensitivity: **737/737** detected, 0 unperturbed, 54 deferred.
+- Extended 4096 generated: **4375 total, 4195 pass, 180 deferred, 0 fail**,
   max relative error 0.
 
-Formatting, strict plain/native Clippy, all **1325** kernel tests, WASM and all
+Formatting, strict plain/native Clippy, all **1326** kernel tests, WASM and all
 **3** native FFI guard tests pass. Ten affected differential units pass their gates
 (1 green, 9 partial, 0 failed); the full green/partial sweep is pending. Commands
 use `nice -n 10`, one Cargo job and sccache. The matching 1.98 rustdoc is selected
