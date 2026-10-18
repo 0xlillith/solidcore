@@ -435,6 +435,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes. The port emulates the x86-64 conversion and matches.
 - **Severity:** crash/UB (wrong voxel in practice).
 - **Rust port:** Emulates the x86-64 result (`ulong_from_f64`).
+- **Platform dependence:** confirmed 2026-10-18 on arm64 (Ubuntu 24.04 GCC 13.3 and Apple clang). AArch64 `fcvtzu` saturates, so negatives and NaN map to voxel 0 and `+inf` maps high. A degenerate (single-point) vertex box makes the quotient `0/0 = NaN` on every axis: x86-64 files the point in voxel `(cnt-1, cnt-1, cnt-1)` plus 3 low-side neighbours, arm64 in voxel `(0,0,0)` with no neighbours. The arm64 reference build therefore disagrees with x86-64 in `geom.hash_table` and `heal.heal_data_p1`-`p3`, and a full `geom.hash_table` run on arm64 segfaults in `FindCoincidentPairs` (see `plan/findings.md`, General).
 
 #### UB-36. `FindCoincidentPairs` reads `GetAt(0)` of an empty bucket list
 - **Location:** `SmHashTable.h:2360`, `SmObjsInVoxels<TYPE>::FindCoincidentPairs`.
@@ -1362,6 +1363,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **How found:** crash in the C++ reference run during the maintainer's step-33 sequence fuzzing ([PR #164, round 2](https://github.com/tangency-labs/solidcore/pull/164#pullrequestreview-5554396459)); source inspection confirmed the mismatched list sizes and resize boundary.
 - **Confirmed:** yes by that reference run: 31 crashing scripts (7 coincidence-cache, 21 harness reads of NULL props, 3 degeneracy-cache). Requires inconsistent caller-controlled healer state; ordinary end-to-end healing was not the trigger.
 - **Severity:** crash/UB.
+
+#### UB-175. `SM_HISTOGRAM_EDGELEN_INDEX` converts a negative `floor(log10(a))` to `ULONG`
+- **Location:** `source/SMLib/inc/SmTArray.h:2395`-`2397` (`SM_HISTOGRAM_EDGELEN_INDEX`), used at `source/SMLib/src/SmHealData.cpp:2523` (`SmHealData::Cache_EdgeProps`, edge-length histogram).
+- **What happens:** For `1e-5 <= a < 1` the macro computes `(ULONG)(smos_Floor(smos_Log10(a))) + 6` with a negative double inside the cast. That is UB. x86-64 g++ truncates signed and the `+ 6` wraps back to the intended bucket (0.01 -> 4). AArch64 `fcvtzu` saturates to 0, so every edge shorter than 1 lands in bucket 6 (`[1, 10)`). The sibling `SM_HISTOGRAM_GAPSIZE_INDEX` adds 9 before the cast and is fine.
+- **Trigger:** cache edge props of a B-rep with an edge of length in `[1e-5, 1)`, on an arm64 build.
+- **How found:** arm64 difftest failures of `heal.heal_data_p1`-`p3` (for example `heal.heal_data_p1` `gen0086`, bucket 4: arm64 C++ 0, x86-64 / Rust 4).
+- **Confirmed:** yes, by an arm64 C++ reference run (Ubuntu 24.04, GCC 13.3) and a standalone `fcvtzu` check. x86-64 CI matches the port.
+- **Severity:** crash/UB (wrong histogram bucket in practice, platform-dependent).
+- **Rust port:** Emulates the x86-64 result (`heal::heal_data::p2::edge_len_histogram_index`).
 
 ## Hang
 

@@ -26,6 +26,46 @@ are also logged, one entry each, in `plan/upstream-issues.md` for the upstream m
 - **difftest report `seeds` field.** It records the `--seeds` CLI value, not the number of
   generated cases a runner actually produced. `nlib.knots` overrides `cases()` to always
   generate at least 1200.
+- **difftest is x86-64-only where upstream converts out-of-range doubles to integers.**
+  Upstream relies on `(ULONG)double` / `(long)double` conversions that are UB for negative,
+  NaN or out-of-range values, and the port reproduces what x86-64 g++ emits for them
+  (`cvttsd2si`: a signed truncation, so `(ULONG)-3.0 = 2^64 - 3`, NaN `= 2^63`). On arm64
+  (AArch64 `fcvtzu` / `fcvtzs`, with GCC 13 or Apple clang) the same C++ saturates:
+  negatives and NaN give `0`, `+inf` gives `ULONG_MAX`. So arm64 hosts disagree with the
+  port wherever such a value is reached; macOS arm64 and Linux arm64 fail with identical
+  counts, while CI (x86-64) passes. Investigated on main `e1ae2640` in an Ubuntu 24.04 arm64
+  container (GCC 13.3), 2026-10-18:
+  - `heal.heal_data_p1` 3 failed, `heal.heal_data_p2` 104 failed, `heal.heal_data_p3`
+    7 failed. With the two Rust conversions temporarily switched to Rust's saturating
+    `as u64` (what `fcvtzu` does), all three units pass with 0 failed and unchanged
+    deferred counts (267 / 441 / 279 passed). Switching only one site at a time: the voxel
+    mapping alone (UB-35, `geom::hash_table::ulong_from_f64`) fixes 0 / 74 / 5 of the
+    failures, the edge-length histogram alone (UB-175,
+    `heal::heal_data::p2::edge_len_histogram_index`) fixes 2 / 26 / 1, and the remaining
+    1 / 4 / 1 cases need both.
+  - Example, `heal.heal_data_p2` fixture `wire_edge_degenerate` (`out.len` cpp 2818, rust
+    2833): `Cache_CoinVertices` sizes a 12x12x12 voxel model over the box of the wire's
+    single vertex, so the box has zero length and `(x - min) / len` is `0 / 0 = NaN` on all
+    three axes. x86-64 maps NaN to `2^63`, which clamps to voxel `(11, 11, 11)`. The point
+    then lies on that voxel's low boundary, and `Add` files 3 neighbour copies (4 point
+    items, 15 more output values in the voxel item dump). arm64 maps NaN to `0`, voxel
+    `(0, 0, 0)` has no lower neighbours, and C++ keeps 1 item.
+  - Example of the histogram: `SM_HISTOGRAM_EDGELEN_INDEX(0.01)` is
+    `(ULONG)floor(log10(0.01)) + 6`. That is bucket 4 on x86-64 (`2^64 - 2 + 6` wraps)
+    and bucket 6 on arm64 (`0 + 6`), so every edge in `[1e-5, 1)` lands in bucket 6
+    (for example `heal.heal_data_p1` `gen0086`: `out[3588]` cpp 0, rust 4).
+  - `geom.hash_table` (status green) fails the same way on arm64: 70-76 of every 100
+    generated cases fail. A run of all 619 cases segfaults in the C++
+    `SmObjsInVoxels::FindCoincidentPairs` (gdb backtrace through `sc_geom_hash_table_floats`),
+    but with the Rust conversion switched to saturating all 619 pass and nothing crashes.
+    The shim's guards were checked only on x86-64, so arm64's voxel choice probably reaches
+    a bucket read they never meant to allow. Not investigated further.
+  - Not a port bug: x86-64 Linux is the reference platform (`plan/upstream-issues.md`,
+    *Build*), and making the port follow the host would make Rust results depend on the
+    platform (wasm32 included). Use x86-64 (CI, or an x86-64 Linux VM/container) for any
+    difftest that reaches these conversions. Other x86-64 emulations of the same kind
+    (the `(long)` of a NaN quotient in `EvaluateBoundingBoxSimple`, under
+    `surface.twist_volume`) will disagree on arm64 in the same way.
 
 ## nlib.knots (green; no disagreements)
 
