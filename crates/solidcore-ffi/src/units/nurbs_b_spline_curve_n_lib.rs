@@ -48,7 +48,7 @@
 //! interior multiplicity at most `p`), finite bounded parameters, and per op the
 //! restrictions documented on [`validate_op`].
 
-use crate::validate::bad;
+use crate::validate::{bad, euclid};
 use crate::{call_with_buffer, FfiError};
 
 /// Largest control point index accepted by [`eval`].
@@ -235,15 +235,6 @@ impl CurveInfo {
 fn dist([ax, ay, az]: [f64; 3], [bx, by, bz]: [f64; 3]) -> f64 {
     let (x, y, z) = (ax - bx, ay - by, az - bz);
     (x * x + y * y + z * z).sqrt()
-}
-
-fn euclid([x, y, z, w]: [f64; 4]) -> [f64; 3] {
-    let z = if z == f64::MAX { 0.0 } else { z };
-    if w == -f64::MAX {
-        [x, y, z]
-    } else {
-        [x / w, y / w, z / w]
-    }
 }
 
 /// Reads and validates a curve `n p m cpts knots`.

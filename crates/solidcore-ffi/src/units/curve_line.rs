@@ -55,7 +55,7 @@
 
 use std::fmt::Write as _;
 
-use crate::validate::NOW;
+use crate::validate::{bad, NOW};
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -364,10 +364,6 @@ pub enum Op {
     SetScale(f64),
     /// `SetAnalyticDomain(SmExtent1d(a, b))`.
     SetDomain(f64, f64),
-}
-
-fn bad(msg: &str) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
 }
 
 fn finite(x: f64) -> Result<f64, FfiError> {
