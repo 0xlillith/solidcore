@@ -7140,11 +7140,12 @@ Coverage on source `a9f20328`, Linux runner 2 (Ubuntu 26.04 x86_64, Rust/rustdoc
 
 Formatting, strict plain/native Clippy, all **1331** kernel tests, WASM and all
 **3** native FFI guard tests pass. Eleven affected differential units pass their gates
-(1 green, 10 partial, 0 failed); the full green/partial sweep is pending. Commands
+(1 green, 10 partial, 0 failed). The full green/partial sweep also passes:
+**204 units: 113 green, 91 partial, 0 failed**. No additional unit needs promotion. Commands
 use `nice -n 10`, one Cargo job and sccache. The matching 1.98 rustdoc is selected
 explicitly. A worktree-owned temporary 4 GiB swap file supported compilation on the
-8 GiB runner and will be removed after validation. No permanent runner configuration
-is changed.
+8 GiB runner and was removed after validation. No permanent runner configuration
+was changed.
 
 Uncertified: successful topology mutations, nonidentity transformations,
 continuations behind dependency barriers, native geometry shared across separate
