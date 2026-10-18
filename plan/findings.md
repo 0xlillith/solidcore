@@ -5847,6 +5847,29 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   `Unported(surface.surface_p2)` for that adapter, as the cone's boundary path already
   does. `fuzz_general.json` retains those cases as dependency deferrals; no general
   intersection result is fabricated or counted as a pass.
+- Affected-unit comparison with the polar set-up bound passes on Linux:
+  `PASS surface.cone_p1 cases=20702 passed=20702 failed=0 deferred=0 max_rel_err=0e0`;
+  `PARTIAL surface.cone_p3 cases=1361 passed=1235 failed=0 deferred=126 max_rel_err=0e0`.
+  Part 3 has 1227 passes with values (18 of them the `far_angles.json` cones at the
+  `1e8`-degree FFI bound) and eight guard-only status assertions. All eight
+  status-1006 regressions and all four reduced plane intersections pass. Its 126
+  deferrals comprise 91 on `surface.cone_p2` and 35 on the typed Cone adapter in
+  `surface.surface_p2`; the latter includes the three general fuzz cases and two
+  valid-axis global neighbors whose native general fallback cannot yet be compared.
+- A 10,000-case fuzz of the final corpus found one timeout, fuzz02755: a global
+  cone/cone call whose second cone has start and end angles near `9.2e18` degrees. The
+  Rust side spun in `Ellipse::set_up_polar_conversion`'s whole-turn shift loop (upstream
+  `SmEllipse.cpp:278-289`), which never ends once adding 360 no longer changes the
+  midpoint; a well-formed native record with the same angles also does not return
+  (upstream-issues HANG-23). The fuzzed record itself had 18 doubles, so the native
+  wrapper refused it, but the harness still runs Rust on wrapper refusals. The Rust loop
+  now stops with `NotConverged` after `MAX_PERIOD_SHIFTS` (2^20) turns, and the
+  `surface.cone_p3` FFI rejects cone angles beyond `MAX_ANGLE` (`1e8` degrees), so every
+  accepted record stays below the Rust bound. No fixture uses angles beyond 720 degrees.
+  After the change: `FUZZ-PASS surface.cone_p3 cases=10000 rejected=4320 malformed=3054
+  ran=2626 differs=0 crashes=0 panics=0 timeouts=0`; `curve.ellipse_p1` (2028) and
+  `curve.ellipse_p2` (2102) still pass bit-identically; `--green` reports 202 units,
+  112 passed, 90 partial, 0 failed.
 - Linux validation uses Proxmox VM 107 (`runner-codex-02`, x86-64, GNU C++ 15.2), a fresh
   snapshot of official main `53ba102b` plus this change, and the shared C++ reference build.
   Its allowed source trees were byte-checked against pinned `c9c5979`. The first default
