@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**205 / 261 units ported** (113 green, 92 partial), **286,246 / 387,903 upstream lines (73.8%)**. 37 claimed, 0 blocked, 19 todo.
+**206 / 261 units ported** (113 green, 93 partial), **287,725 / 387,903 upstream lines (74.2%)**. 36 claimed, 0 blocked, 19 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -49,7 +49,6 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p1` (2454 lines) — in progress: #145 @bluecmd (ready for review)
-- [ ] 🔨 `topology.brep_p6` (1479 lines) — in progress: #169 @damgru (ready for review)
 - [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (draft)
 - [ ] 🔨 `topology.brep_p9` (2443 lines) — in progress: #183 @Karl-VonRichter (ready for review)
 - [ ] 🔨 `topology.brep_p2` (2443 lines) — in progress: #149 @bluecmd (draft)
@@ -230,7 +229,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [x] ✅ `surface.surface_point_solve_p2` (1882 lines) — green, 1320 cases
 - [x] ✅ `surface.surface_point_solve_p3` (1282 lines) — green, 1365 cases
 
-### topology (19/31)
+### topology (20/31)
 
 - [x] ✅ `topology.database_io` (363 lines) — green, 2059 cases
 - [x] ✅ `topology.topology` (389 lines) — green, 657 cases
@@ -254,7 +253,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p7` (2503 lines) — in progress: #155 @bluecmd (ready for review)
 - [ ] 🟡 `topology.face_p1` (2171 lines) — partial, 2312 cases
 - [ ] 🔨 `topology.brep_p1` (2454 lines) — in progress: #145 @bluecmd (ready for review)
-- [ ] 🔨 `topology.brep_p6` (1479 lines) — in progress: #169 @damgru (ready for review)
+- [ ] 🟡 `topology.brep_p6` (1479 lines) — partial, 0 cases
 - [ ] 🟡 `topology.brep_cache` (389 lines) — partial
 - [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (draft)
 - [ ] 🔨 `topology.brep_p9` (2443 lines) — in progress: #183 @Karl-VonRichter (ready for review)
