@@ -14,6 +14,7 @@
 //! | `3 validate_only init_gaps`                   | the wire network of `prog_test` `my_test_topology` |
 //! | `4 n points(x y z)*n validate_only init_gaps` | actual `MakeShellVertex` calls (0..64 vertices) |
 //! | `5 has_face [surface u0 v0 u1 v1] networks validate_only init_gaps` | an optional face (as kind 2) and `networks` (0..=3) copies of the wire network in one B-rep |
+//! | `6 surface u0 v0 u1 v1 validate_only init_gaps` | as kind 2 on a B-spline surface, every edge curve then an `SmCrvOnSurf` over its UV trim curve |
 //!
 //! A surface block is `0 oob form n m p q r s cpts(x y z w) u v` (`SmBSplineSurface`) or
 //! `1 O[3] N[3]` (`SmPlane(O, N)`); a curve block `dim n p m cpts(x y z w) knots`
@@ -338,8 +339,9 @@ pub(crate) fn brep_block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError
     brep_block_with_plane_limit(rd, path, 1e4)
 }
 
-/// The surface and parameter domain of a face block (`2`, and `5` with a face).
-fn face_block(rd: &mut Reader<'_>, plane_domain_limit: f64) -> Result<(), FfiError> {
+/// The surface and parameter domain of a face block (`2`, `6`, and `5` with a face):
+/// whether the surface is a B-spline surface (not a plane).
+fn face_block(rd: &mut Reader<'_>, plane_domain_limit: f64) -> Result<bool, FfiError> {
         let dom = surface(rd)?;
         let d = rd.finites(4)?;
         let (Some(&a), Some(&b2), Some(&c), Some(&e)) = (d.first(), d.get(1), d.get(2), d.get(3))
@@ -361,11 +363,11 @@ fn face_block(rd: &mut Reader<'_>, plane_domain_limit: f64) -> Result<(), FfiErr
                 }
             }
         }
-    Ok(())
+    Ok(dom.is_some())
 }
 
 fn brep_block_with_plane_limit(rd: &mut Reader<'_>, path: &str, plane_domain_limit: f64) -> Result<(), FfiError> {
-    match rd.index(5)? {
+    match rd.index(6)? {
         0 => {
             let p = Path::new(path);
             if p.extension().and_then(|e| e.to_str()) != Some("smb") || !p.is_file() {
@@ -381,7 +383,15 @@ fn brep_block_with_plane_limit(rd: &mut Reader<'_>, path: &str, plane_domain_lim
                 return Err(bad("wire edge interval outside the curve's"));
             }
         }
-        2 => face_block(rd, plane_domain_limit)?,
+        2 => {
+            face_block(rd, plane_domain_limit)?;
+        }
+        6 => {
+            // kind 6 (edges as `SmCrvOnSurf`) needs an `SmBSplineSurface` base
+            if !face_block(rd, plane_domain_limit)? {
+                return Err(bad("CrvOnSurf face: the base must be a B-spline surface"));
+            }
+        }
         5 => {
             if rd.flag()? {
                 face_block(rd, plane_domain_limit)?;
