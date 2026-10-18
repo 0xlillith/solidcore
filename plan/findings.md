@@ -7022,9 +7022,12 @@ independent p6 integration.
   successful TRUE swaps the shells). Its ray classification needs the kernel's mutable
   state, so `glue_edges_general` and `merge_self_intersection_curves` take `&mut Kernel`.
   Unreachable today: the shell merge comes after `SmBrep::Notify` (`topology.brep_p2`).
-- **Back-edge pending:** `boolean.topology_intersector_p1` (#146) has an
-  `UNPORTED(topology.brep_p7)` stub for `GlueEdgesGeneral` over its object handles; wiring
-  it needs an `IntersectorBrep` method that the B-rep owner implements.
+- **Back-edge wired: `boolean.topology_intersector_p1`** (#146). Its `GlueEdgesGeneral`
+  stub over object handles became `IntersectorBrep::brep_glue_edges_general` (every
+  upstream argument, `pInsideFaceuses` `NULL` explicit); the intersector runner's adapter
+  calls `glue_edges_general` on the handle's B-rep, and `face_face_intersect` takes the
+  kernel mutably. Recorded in COORD.md with the overlap of #145, #204 and #227 on the same
+  trait.
 - **UB-165.** `MakeFaceWithCurves` with `pbOptCrvOnSurf` TRUE, 3D curves and no UV curves
   dereferences the null UV array once `MakeFace` succeeds; the shim returns `-2` for such
   calls and the Rust side defers them (`cpp-guard:ub-165`; the port itself returns

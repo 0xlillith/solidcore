@@ -82,11 +82,15 @@
 //! - **The proto topology manager** (`m_pProtoTopoMgr`) is created by
 //!   `IntersectInsertRelate` (unit `boolean.topology_intersector_p2`); until that is
 //!   ported it is set with [`TopologyIntersector::set_proto_topology_manager`].
+//! - **`SmBrep::GlueEdgesGeneral`** (`topology.brep_p7`) goes through
+//!   [`IntersectorBrep::brep_glue_edges_general`], which the B-rep owner implements with
+//!   `topology::brep::p7::glue_edges_general` (so `face_face_intersect` takes the
+//!   kernel mutably).
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
 //!   each tagged `UNPORTED(<unit>)`: `SmBrep::GetEdges` / `GetVertices`
 //!   (`topology.brep_p1`), `SmBrep::MakeVertexLoop` / `MakeVertexSplitEdge`
 //!   (`topology.brep_p9`), `GlueVertices` / `MakeEdgeInFace` (`topology.brep_p5`),
-//!   `GlueEdgesGeneral` (`topology.brep_p7`), `DeleteFace` (`topology.brep_p3`),
+//!   `DeleteFace` (`topology.brep_p3`),
 //!   `SmFace::GetVertices` / `GetEdges` / `GetBrep` (`topology.face_p4`),
 //!   `SmFace::FaceIntersect` / `SetTolerance` (`topology.face_p3`),
 //!   `SmFace::CalculateBoundingBox` / `Point3DClassify` (`query.face_p1`),
@@ -336,6 +340,24 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
     /// The adapter the topology solver reads the B-reps' cache trees and geometry
     /// through (`SmTopologySolver::BrepPointSolve` / `BrepCurveSolve`).
     fn topology_objects(&self) -> &dyn TopologyObjects<O>;
+    /// `SmBrep::GlueEdgesGeneral(pSurvivingEdge, eRelativeOrientation, dEdgeGap,
+    /// bDoRegionNesting, pEdgeToDelete, pInsideFaceuses)` on B-rep `brep`
+    /// (`topology::brep::p7::glue_edges_general`; `pInsideFaceuses` defaults to `NULL`).
+    ///
+    /// # Errors
+    ///
+    /// Those of the glue; [`SolidError::InvalidInput`] for an unknown B-rep or edge.
+    fn brep_glue_edges_general(
+        &mut self,
+        k: &mut Kernel,
+        brep: O,
+        surviving: Option<O>,
+        relative_orientation: OrientType,
+        edge_gap: f64,
+        do_region_nesting: bool,
+        to_delete: Option<O>,
+        inside_faceuses: Option<&[O]>,
+    ) -> Result<()>;
 }
 
 // ---- unported callees -----------------------------------------------------------------------
@@ -402,22 +424,6 @@ fn brep_make_edge_in_face<O>(
     Err(SolidError::unported(
         "SmBrep::MakeEdgeInFace",
         "topology.brep_p5",
-    ))
-}
-
-/// `SmBrep::GlueEdgesGeneral(pEdge1, SM_OT_SAME, 0.0, bDoRegionNesting, pEdge2)`.
-fn brep_glue_edges_general<O>(
-    _brep: O,
-    _edge1: O,
-    _orientation: OrientType,
-    _dist_to_curve: f64,
-    _do_region_nesting: bool,
-    _edge2: O,
-) -> Result<()> {
-    // UNPORTED(topology.brep_p7): SmBrep::GlueEdgesGeneral
-    Err(SolidError::unported(
-        "SmBrep::GlueEdgesGeneral",
-        "topology.brep_p7",
     ))
 }
 
@@ -2149,7 +2155,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     #[allow(clippy::too_many_lines, clippy::too_many_arguments)]
     pub fn face_face_intersect(
         &mut self,
-        k: &Kernel,
+        k: &mut Kernel,
         brep: &mut impl IntersectorBrep<O>,
         input_verts: &[O],
         face_list1: &[O],
@@ -2423,13 +2429,17 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                         // We want only one edge shared between the faces (the status is
                         // ignored; a null edge from a failed MakeEdgeInFace is NER upstream)
                         if let (Some(e1), Some(e2)) = (new_edge1, new_edge2) {
-                            ignore_soft(brep_glue_edges_general(
+                            // m_pBrep->GlueEdgesGeneral(pNewEdge1, SM_OT_SAME, 0.0,
+                            // bDoRegionNesting, pNewEdge2) (pInsideFaceuses NULL)
+                            ignore_soft(brep.brep_glue_edges_general(
+                                k,
                                 this_brep,
-                                e1,
+                                Some(e1),
                                 OrientType::Same,
                                 0.0,
                                 do_region_nesting,
-                                e2,
+                                Some(e2),
+                                None,
                             ))?;
                         }
                         out.new_edges.push(new_edge1);
