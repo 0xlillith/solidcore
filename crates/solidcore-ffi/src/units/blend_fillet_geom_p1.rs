@@ -255,27 +255,31 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Sequential reader over the input.
+/// Sequential reader over the input: the shared [`crate::reader::Cursor`] plus this
+/// op's magnitude bound. `unit_reader!` takes a fixed bound, and this unit's bound
+/// depends on the op, so the newtype is spelled out here.
 struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
+    cursor: crate::reader::Cursor<'a>,
     /// The magnitude bound of this op's values: [`MAX_MAGNITUDE`] for the ops reaching
     /// HANG-29, [`MAX_SOLVER_MAGNITUDE`] for the global-solver ops (HANG-20), infinite
     /// otherwise.
     bound: f64,
 }
 
-impl Reader<'_> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
+impl<'a> core::ops::Deref for Reader<'a> {
+    type Target = crate::reader::Cursor<'a>;
+    fn deref(&self) -> &Self::Target {
+        &self.cursor
     }
+}
 
+impl core::ops::DerefMut for Reader<'_> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.cursor
+    }
+}
+
+impl Reader<'_> {
     fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
         if !v.is_finite() || v.abs() > self.bound {
@@ -300,15 +304,6 @@ impl Reader<'_> {
         (0..k).map(|_| self.finite()).collect()
     }
 
-    /// An integer in `0..=max`.
-    fn index(&mut self, max: usize) -> Result<usize, FfiError> {
-        let v = self.num()?;
-        if v.fract() != 0.0 || v < 0.0 || v > max as f64 {
-            return Err(bad(format!("bad index/count {v}")));
-        }
-        Ok(v as usize)
-    }
-
     /// An integer in `-1..max` as `None` / `Some`.
     fn opt_index(&mut self, len: usize) -> Result<Option<usize>, FfiError> {
         let v = self.num()?;
@@ -319,17 +314,6 @@ impl Reader<'_> {
             return Err(bad(format!("bad optional index {v} (len {len})")));
         }
         Ok(Some(v as usize))
-    }
-
-    fn flag(&mut self) -> Result<bool, FfiError> {
-        Ok(self.index(1)? == 1)
-    }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
     }
 }
 
@@ -821,8 +805,7 @@ fn validate_pseudo(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
 /// [`FfiError::Status`] for a shim error (`SC_ERR_*`).
 pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     let mut rd = Reader {
-        input,
-        at: 0,
+        cursor: crate::reader::Cursor::new(input),
         bound: match op {
             Op::ClassifyFacePoint | Op::FbSplitFace => MAX_MAGNITUDE,
             Op::SurfaceDropPoint | Op::TwoPnts | Op::FbVertOnVert | Op::FbCliff => {
