@@ -918,16 +918,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind4_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#109",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -1162,16 +1158,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind5_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#132",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -1398,16 +1390,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind6_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#154",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -2038,16 +2026,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "rational_kind8_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#230",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -2266,16 +2250,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "spherical_band_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#257",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -5498,16 +5478,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0185",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337251",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -5618,16 +5594,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0196",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337262",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -6274,16 +6246,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0262",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337328",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -7158,16 +7126,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0345",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337411",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -8470,16 +8434,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0473",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337539",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8534,16 +8494,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0479",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337545",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -11466,16 +11422,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0763",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337829",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11847,14 +11799,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 555,
+  "cases_deferred": 543,
   "cases_failed": 0,
-  "cases_passed": 648,
+  "cases_passed": 660,
   "cases_total": 1203,
   "deferred_by_unit": {
     "intersect.surface_drop_lib_p3": 7,
     "query.brep": 335,
-    "query.face_p1": 12,
     "query.face_p3": 45,
     "topology.brep_p1": 114,
     "topology.brep_p2": 42
