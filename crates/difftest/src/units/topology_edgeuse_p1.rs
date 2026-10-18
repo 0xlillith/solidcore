@@ -32,7 +32,6 @@ use solidcore::curve::crv_on_surf::CrvOnSurf;
 use solidcore::curve::curve::p2::{BSPLINE_CURVE_TYPE, CRV_ON_SURF_TYPE, LINE_TYPE};
 use solidcore::curve::curve::Curve as SmCurve;
 use solidcore::curve::line::Line;
-use solidcore::geom::attribute::ObjectKey;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::local_solve_nd::EvalNFunctions;
@@ -58,6 +57,7 @@ use solidcore::topology::{
     ShellId, Vertex, VertexId, Vertexuse, VertexuseId, VertexuseOwner,
 };
 use solidcore::{EntityRef, SolidError};
+use solidcore::geom::attribute::ObjectKey;
 use solidcore_ffi::units::topology_edgeuse_p1::{self as ffi, Op};
 
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -76,9 +76,7 @@ const EDGEUSE_TYPE: i64 = 16005;
 const VERTEXUSE_TYPE: i64 = 16006;
 
 /// The type codes `IsKindOf` is asked about (as the shim's `KIND_TYPES`).
-const KIND_TYPES: [i64; 9] = [
-    16005, 16022, 16001, 16010, 12060, 11001, 16013, 16004, 16999,
-];
+const KIND_TYPES: [i64; 9] = [16005, 16022, 16001, 16010, 12060, 11001, 16013, 16004, 16999];
 
 /// "Upstream would dereference null" in an output slot.
 const NULL_DEREF: i64 = -2;
@@ -151,28 +149,11 @@ pub(crate) struct FaceIn {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 enum OpIn {
-    EuQuery {
-        eu: i64,
-        vertex: i64,
-    },
-    Connected {
-        eu: i64,
-        ty: i64,
-        index: i64,
-    },
-    FuQuery {
-        fu: i64,
-        tgt_only: bool,
-        has_loops: bool,
-        loops: Vec<i64>,
-    },
-    Collect {
-        fu: i64,
-        threshold: Option<f64>,
-    },
-    UvLoopGap {
-        eu: i64,
-    },
+    EuQuery { eu: i64, vertex: i64 },
+    Connected { eu: i64, ty: i64, index: i64 },
+    FuQuery { fu: i64, tgt_only: bool, has_loops: bool, loops: Vec<i64> },
+    Collect { fu: i64, threshold: Option<f64> },
+    UvLoopGap { eu: i64 },
     /// `kind`: 0 NULL, 1 the attached curve, 2 a new curve, 3 `DeleteUVTrimCurve`, 4
     /// `SetMemberUVTrimCurve` with a new curve.
     SetUv {
@@ -185,37 +166,11 @@ enum OpIn {
     },
     /// `which`: 0 `GetMaxEdgeFaceGap`, 1 `GetEdgeCCWEdgeGap`, 2 `CalcMaxEdgeFaceGap`, 3
     /// `CalcEdgeCCWEdgeGap`.
-    Gaps {
-        eu: i64,
-        which: u8,
-        flag: bool,
-        want_out: bool,
-    },
-    SetOrient {
-        eu: i64,
-        orient: u8,
-    },
-    StepOff {
-        surface: SrfIn,
-        dist: f64,
-        p: [f64; 3],
-        n: [f64; 3],
-        x: [f64; 2],
-        jac: bool,
-    },
-    DistDev {
-        surface: SrfIn,
-        p: [f64; 3],
-        uv: [f64; 2],
-        value: f64,
-        obj: u8,
-        want_dev: bool,
-    },
-    Seam {
-        curves: Vec<CrvIn>,
-        dom: [f64; 2],
-        called: bool,
-    },
+    Gaps { eu: i64, which: u8, flag: bool, want_out: bool },
+    SetOrient { eu: i64, orient: u8 },
+    StepOff { surface: SrfIn, dist: f64, p: [f64; 3], n: [f64; 3], x: [f64; 2], jac: bool },
+    DistDev { surface: SrfIn, p: [f64; 3], uv: [f64; 2], value: f64, obj: u8, want_dev: bool },
+    Seam { curves: Vec<CrvIn>, dom: [f64; 2], called: bool },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -471,21 +426,12 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             has_loops,
             loops,
         } => {
-            v.extend([
-                *fu as f64,
-                flag(*tgt_only),
-                flag(*has_loops),
-                loops.len() as f64,
-            ]);
+            v.extend([*fu as f64, flag(*tgt_only), flag(*has_loops), loops.len() as f64]);
             v.extend(loops.iter().map(|&l| l as f64));
             Op::FuQuery
         }
         OpIn::Collect { fu, threshold } => {
-            v.extend([
-                *fu as f64,
-                flag(threshold.is_some()),
-                threshold.unwrap_or(0.0),
-            ]);
+            v.extend([*fu as f64, flag(threshold.is_some()), threshold.unwrap_or(0.0)]);
             Op::Collect
         }
         OpIn::UvLoopGap { eu } => {
@@ -502,17 +448,9 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
         } => {
             v.extend([*eu as f64, f64::from(*kind)]);
             if *kind == 2 || *kind == 4 {
-                push_curve(
-                    &mut v,
-                    curve.as_ref().ok_or_else(|| harness("set_uv: no curve"))?,
-                )?;
+                push_curve(&mut v, curve.as_ref().ok_or_else(|| harness("set_uv: no curve"))?)?;
             }
-            v.extend([
-                *dmax,
-                flag(*delete),
-                flag(fail.is_some()),
-                fail.unwrap_or(0) as f64,
-            ]);
+            v.extend([*dmax, flag(*delete), flag(fail.is_some()), fail.unwrap_or(0) as f64]);
             Op::SetUv
         }
         OpIn::Gaps {
@@ -811,9 +749,7 @@ fn read_surface(rd: &mut Rd<'_>) -> Result<Option<Surface>, HarnessError> {
         return Ok(Some(Surface::from(Plane::new(o, x, y, sc, &d))));
     }
     if kind != 0.0 {
-        return Err(harness(
-            "export: a surface is neither a plane nor a B-spline",
-        ));
+        return Err(harness("export: a surface is neither a plane nor a B-spline"));
     }
     let oob = rd.num()? != 0.0;
     let form = rd.num()?;
@@ -1263,10 +1199,7 @@ fn inexact_geometry(b: &Brep, types: &ImportTypes, op: &OpIn) -> Option<Output> 
             15012 | 15013 => ("surface.cone_p1", "SmCone (no SurfaceKind)"),
             15014 => ("surface.sphere", "SmSphere"),
             15015 => ("surface.torus", "SmTorus (no SurfaceKind)"),
-            15030 => (
-                "surface.surf_of_extrusion_p2",
-                "SurfaceKind::SurfOfExtrusion",
-            ),
+            15030 => ("surface.surf_of_extrusion_p2", "SurfaceKind::SurfOfExtrusion"),
             _ => ("topology.brep_p7", "SmBrep::ReadFromFile"),
         };
         return Some(Output::deferred(unit, symbol));
@@ -1373,9 +1306,7 @@ fn run_rust_brep(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
             q.push(slot(fail.clone(), |(f, _)| i64::from(f))?);
             q.push(slot(fail, |(_, o)| id(o, EdgeuseId::index))?);
             q.push(i64::from(eu1::uv_trim_curve_pointer(b, e)?.is_some()));
-            q.push(slot(eu1::corner_mate_edgeuse(b, e, v), |x| {
-                id(x, EdgeuseId::index)
-            })?);
+            q.push(slot(eu1::corner_mate_edgeuse(b, e, v), |x| id(x, EdgeuseId::index))?);
             q.push(eu1::TYPE);
             q.extend(KIND_TYPES.iter().map(|&t| i64::from(eu1::is_kind_of(t))));
             Ok(Output::new().ints("q", q).values("tol", vec![tol]))
@@ -1399,15 +1330,8 @@ fn run_rust_brep(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
                 orient_code(eu1::faceuse_orientation(b, f)?),
                 eu1::FACEUSE_TYPE,
             ];
-            q.extend(
-                KIND_TYPES
-                    .iter()
-                    .map(|&t| i64::from(eu1::faceuse_is_kind_of(t))),
-            );
-            let ls: Vec<LoopId> = loops
-                .iter()
-                .map(|&l| LoopId::from_index(l as u32))
-                .collect();
+            q.extend(KIND_TYPES.iter().map(|&t| i64::from(eu1::faceuse_is_kind_of(t))));
+            let ls: Vec<LoopId> = loops.iter().map(|&l| LoopId::from_index(l as u32)).collect();
             let tl = has_loops.then_some(ls.as_slice());
             let lists = vec![
                 eu1::faceuse_loopuses(b, f, *tgt_only, tl)?
@@ -1438,14 +1362,7 @@ fn run_rust_brep(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
                 .int("status", 0)
                 .ints("list", list.into_iter().map(|x| i64::from(x.index())).collect::<Vec<_>>()))
         }
-        OpIn::UvLoopGap { eu } => Ok(Output::new().values(
-            "gap",
-            vec![eu1::start_point_uv_loop_gap(
-                &Kernel::default(),
-                b,
-                eid(*eu),
-            )?],
-        )),
+        OpIn::UvLoopGap { eu } => Ok(Output::new().values("gap", vec![eu1::start_point_uv_loop_gap(&Kernel::default(), b, eid(*eu))?])),
         OpIn::SetUv {
             eu,
             kind,
@@ -1501,9 +1418,7 @@ fn run_rust_brep(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
                 Some(x) => b.edge(x)?.tolerance,
                 None => -1.0,
             });
-            out.push(flag(
-                *kind != 4 && arg_fail.as_ref().is_some_and(|f| f.brep.is_some()),
-            ));
+            out.push(flag(*kind != 4 && arg_fail.as_ref().is_some_and(|f| f.brep.is_some())));
             Ok(Output::new().values("state", out))
         }
         OpIn::Gaps {
@@ -1615,11 +1530,7 @@ fn surface_of(s: &SrfIn) -> Result<Surface, HarnessError> {
             let net = bs
                 .net
                 .iter()
-                .map(|r| {
-                    r.iter()
-                        .map(|&[x, y, z, w]| CPoint::new(x, y, z, w))
-                        .collect()
-                })
+                .map(|r| r.iter().map(|&[x, y, z, w]| CPoint::new(x, y, z, w)).collect())
                 .collect();
             let nl = NlSurface::new(net, bs.p, bs.q, bs.u.clone(), bs.v.clone())
                 .map_err(|e| harness(format!("surface input: {e}")))?;
@@ -1709,10 +1620,7 @@ fn run_rust_geom(op: &OpIn) -> Result<Output, Fail> {
                 .collect::<Result<Vec<_>, _>>()?;
             let refs: Vec<&SmCurve> = cs.iter().collect();
             let d = Extent1d::from_min_max(dom[0], dom[1]);
-            Ok(Output::new().ints(
-                "seam",
-                vec![i64::from(eu1::are_seam_curves(&refs, &d, *called))],
-            ))
+            Ok(Output::new().ints("seam", vec![i64::from(eu1::are_seam_curves(&refs, &d, *called))]))
         }
         _ => Err(harness("not a geometry op").into()),
     }
@@ -1830,17 +1738,11 @@ pub(crate) fn gen_brep(rng: &mut Rng) -> BrepIn {
         },
         6 => {
             let c = gen_curve(rng, 3, 1.0);
-            let (a, b) = (
-                c.u.first().copied().unwrap_or(0.0),
-                c.u.last().copied().unwrap_or(1.0),
-            );
+            let (a, b) = (c.u.first().copied().unwrap_or(0.0), c.u.last().copied().unwrap_or(1.0));
             let (t0, t1) = if rng.chance(0.5) {
                 (a, b)
             } else {
-                (
-                    a + (b - a) * rng.uniform(0.0, 0.3),
-                    b - (b - a) * rng.uniform(0.0, 0.3),
-                )
+                (a + (b - a) * rng.uniform(0.0, 0.3), b - (b - a) * rng.uniform(0.0, 0.3))
             };
             BrepIn::Wire { curve: c, t0, t1 }
         }
@@ -1881,9 +1783,7 @@ fn gen_uv(rng: &mut Rng, s: &SrfIn) -> [f64; 2] {
 }
 
 fn gen_op(rng: &mut Rng) -> OpIn {
-    let types = [
-        16012, 16013, 16022, 16002, 16004, 16003, 16005, 16016, 16006, 16021, 16011, 7,
-    ];
+    let types = [16012, 16013, 16022, 16002, 16004, 16003, 16005, 16016, 16006, 16021, 16011, 7];
     match rng.below(24) {
         0..=4 => OpIn::EuQuery {
             eu: gen_sel(rng),
@@ -1965,10 +1865,7 @@ fn gen_op(rng: &mut Rng) -> OpIn {
                 }
             }
             let (a, b) = curves.first().map_or((0.0, 1.0), |c| {
-                (
-                    c.u.first().copied().unwrap_or(0.0),
-                    c.u.last().copied().unwrap_or(1.0),
-                )
+                (c.u.first().copied().unwrap_or(0.0), c.u.last().copied().unwrap_or(1.0))
             });
             let slop = rng.uniform(0.0, 0.02) * (b - a);
             OpIn::Seam {
