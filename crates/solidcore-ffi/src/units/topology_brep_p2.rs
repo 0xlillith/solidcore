@@ -329,14 +329,20 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     raw(op, path, input)
 }
 
-/// Largest corner control point coordinate of a degree >= 2 B-spline face the fixture's
-/// gap initialisation is run on (`plan/upstream-issues.md` HANG-28). With a corner (a
-/// vertex position) far out, `SmVertexuse::GetVertexFaceGap` slows down and then stops
-/// returning: measured on the pod with 30 s timeouts (u-degree 2 and 3, 3 and 6 spans, v-degree 1 and 2, the last corner raised on x, y and z): every shape returns in at most 0.09 s up to `1.34e154` (about `sqrt(f64::MAX)`, where squared coordinates overflow); from `1e155` the v-degree-1 shapes slow down (0.3-1.1 s), and at `1e156` several of them do not return within 30 s (x and y), at `1.9e156` within 120 s (review of d12f88e9). The bound keeps a margin below that slow
-/// band (the old `2e156` cut-off was inside it). Planes, degree-1 surfaces and interior
-/// control points return even at `1e300`, and the v-degree-2 shapes measured stay fast
-/// at `1.9e156`; the exact loop is not pinned down (the pod cannot ptrace), so every
-/// degree >= 2 face with a corner past the bound is refused.
+/// Largest corner control point coordinate of a degree >= 2 B-spline face the fixture's gap
+/// initialisation is run on (`plan/upstream-issues.md` HANG-28). With a corner (a vertex
+/// position) far out, `SmVertexuse::GetVertexFaceGap` slows down and then stops returning.
+/// Measured on the pod with 30 s timeouts (u-degree 2 and 3, 3 and 6 spans, v-degree 1 and
+/// 2, the last corner raised on x, y and z): every shape returns in at most 0.09 s up to
+/// `1.34e154` (about `sqrt(f64::MAX)`, where squared coordinates overflow); from `1e155`
+/// the v-degree-1 shapes take 0.3-1.1 s; at `1e156` six do not return within 30 s (five on
+/// x or y, one on z) and at `1.9e156` nine (every v-degree-1 shape but the six-span
+/// u-degree-3 one); the review of d12f88e9 saw 103-114 s on z and no return within 120 s on
+/// x. The bound keeps a margin below that slow band (the first bound, `2e156`, was inside
+/// it). Planes, degree-1 surfaces and interior control points return even at `1e300`, and
+/// the v-degree-2 shapes measured stay fast at `1.9e156`; the exact loop is not pinned down
+/// (the pod cannot ptrace), so every degree >= 2 face with a corner past the bound is
+/// refused.
 const MAX_GAP_COORD: f64 = 1e154;
 
 /// Refuses a B-spline face block (`kind 2`, surface kind `0`) with `init_gaps` set, a
