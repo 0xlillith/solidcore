@@ -954,7 +954,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (null dereference).
 - **Rust port:** Represents optional tolerances with `Option`; coincident-boundary calls currently defer to the missing Cone/Cylinder adapter in `surface.surface_p2` (#76/#133); the boundary algorithm itself merged in #120. The FFI adapter rejects exactly the native undefined path before its boundary calls.
 
-#### UB-175. `SmCone::ConvertUVFromSTEPToNURBS` dereferences a missing polar curve
+#### UB-179. `SmCone::ConvertUVFromSTEPToNURBS` dereferences a missing polar curve
 - **Location:** `source/SMLib/src/SmCone.cpp:1808`, called by `IntersectWithCone` at `:2966-2967`; `source/SMLib/src/SmEllipse.cpp:491` (`SmPolarConversion::ConvertToNURBSParameter`). Construction ignores `RebuildPolarConverter`'s status at `SmSurfOfRevolution.cpp:1033`.
 - **What happens:** A degenerate sweep can leave the polar converter without a circle even though `MakeNurb` returns success. STEP-to-NURBS conversion unconditionally reads `m_cpCurve->GetSTEPInterval()` and segfaults. `HavePolarConversion()` alone does not identify this: a converter with a circle but no exact table can still perform a defined numerical conversion.
 - **Trigger:** Issue #207: equal-radius cones, first origin `(0,0,0)`, X `(1,0,0)`, Y `(0,-1e-300,0)`, radius `1.5628`, height `1.10780`, inside-out; second origin `(0,0.5539,0.5539)`, X `(1,0,0)`, Y `(0,0,1)`, same radius/height; full sweeps, tolerance `1e-7`, domains `[0,0,1,1, 0,0.125,1,0.875]`. Unitizing the tiny Y axis uses the `(0,0,1)` fallback, and the sweep iso curves used to build the converter are degenerate. Either operand can have the missing converter; direct cylinder intersection also reaches this call.

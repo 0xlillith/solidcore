@@ -63,7 +63,7 @@
 //!   `SM_ERR`.
 //!   Its two `while` loops that shift the NURB's angles by whole turns towards the
 //!   STEP interval are bounded: where upstream would loop forever (a shift that no
-//!   longer changes the midpoint, from STEP angles near `1e18` degrees) or for more
+//!   longer changes the midpoint, from STEP angles beyond about 2^61 (~2.3e18) degrees) or for more
 //!   than [`MAX_PERIOD_SHIFTS`] shifts, the set-up returns
 //!   [`SolidError::NotConverged`] with the converter left impossible.
 //! - **Notifications.** `SmBSplineCurve::SetFromGwNurb` and `Transform` send
@@ -2296,7 +2296,7 @@ mod tests {
             let mut e = arc(lo);
             e.set_step_interval(Extent1d::from_min_max(lo, hi));
             e.set_up_polar_conversion(&k)
-                .expect("set-up at the FFI bound");
+                .expect("largest angles that shift within MAX_PERIOD_SHIFTS");
             assert!(e.polar.is_polar_conversion_possible());
         }
         // Upstream never ends: adding a turn no longer changes the midpoint.

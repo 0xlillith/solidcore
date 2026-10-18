@@ -6033,7 +6033,7 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   ignores the converter rebuild's failure (`SmSurfOfRevolution.cpp:1033`). In the parallel
   cylinder branch, `IntersectWithCone` reaches `ConvertUVFromSTEPToNURBS` at
   `SmCone.cpp:2966-2967`, which enters `SmPolarConversion::ConvertToNURBSParameter` and
-  dereferences the missing circle at `SmEllipse.cpp:491` (upstream-issues UB-175).
+  dereferences the missing circle at `SmEllipse.cpp:491` (upstream-issues UB-179).
 - The native shim overrides that virtual conversion for real `SmCone` and `SmCylinder`
   subclasses and rejects only when the conversion is actually called with a null circle.
   This preserves self-intersection/disjoint early returns, constructor errors, and
@@ -6068,7 +6068,8 @@ checkout. The platform prerequisites remain excluded from the submitted branch.
   `PASS surface.cone_p1 cases=20702 passed=20702 failed=0 deferred=0 max_rel_err=0e0`;
   `PARTIAL surface.cone_p3 cases=1415 passed=1289 failed=0 deferred=126 max_rel_err=0e0`.
   Part 3 has 1281 passes with values (72 of them the `angle_bounds.json` cones) and
-  eight guard-only status assertions. All eight
+  eight native-guard status assertions (Rust runs on them; its result is not
+  compared). All eight
   status-1006 regressions and all four reduced plane intersections pass. Its 126
   deferrals comprise 91 on `surface.cone_p2` and 35 on the typed Cone adapter in
   `surface.surface_p2`; the latter includes the three general fuzz cases and two

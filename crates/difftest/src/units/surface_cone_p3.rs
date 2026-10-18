@@ -1,7 +1,8 @@
 //! Differential tests of analytic cone intersections, including full analytic and
 //! NURBS curve records, UV curve presence, classification and deviations.
 //! `rejected_*` fixtures assert native FFI guard rejection only; they do not
-//! compare geometry or execute the Rust intersection.
+//! compare geometry, but still execute the Rust intersection (result ignored) so
+//! a Rust panic or hang on those inputs fails the case.
 use crate::case::CaseContext;
 use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -19,7 +20,6 @@ use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::p2::SurfaceIntersection;
 use solidcore::SolidError;
 use solidcore_ffi::units::surface_cone_p3 as ffi;
-
 
 /// Cone intersection differential runner.
 pub struct Runner;
@@ -289,10 +289,12 @@ impl UnitDiff for Runner {
         output(&out)
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
+        let i: Inputs = case.parse()?;
         if case.name.starts_with("rejected_") {
+            // Upstream crashes on these inputs; only require that Rust returns.
+            let _ = rust(&i);
             return Ok(Output::err("ffi_rejected"));
         }
-        let i: Inputs = case.parse()?;
         match rust(&i) {
             Ok(v) => output(&v),
             Err(e) => Ok(Output::unported(&e).unwrap_or_else(|| {
