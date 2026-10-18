@@ -6805,8 +6805,8 @@ op family plus eight built-in ones, and ten new deferrals including the five abo
 `nurbs.b_spline_surface_p2` (touched): 764 cases, 759 pass, 5 deferred; its
 `three_arcs_about_two_centres` case (arcs about two centres, the first two sharing their
 start point) compares 94 values and fails with the first arc's centre captured by value, so
-it pins WR-103. All green/partial units: `green-par: 207 units, failed=0` on main 89dc103a +
-#147 + this PR.
+it pins WR-103. All green/partial units: `green-par: 208 units, failed=0` on main d045b293 +
+#147 (f0240ceb) + this PR; the 206 other units' reports keep main's per-case outcomes.
 
 ## boolean.topology_intersector_p1 (`SmTopologyIntersector.cpp` part 1, PR #146, 2026-10-16; partial, no disagreements)
 
