@@ -95,8 +95,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0003",
@@ -283,8 +283,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0021",
@@ -391,8 +391,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0032",
@@ -523,8 +523,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0044",
@@ -887,8 +887,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0079",
@@ -1131,8 +1131,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0102",
@@ -1647,8 +1647,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0151",
@@ -1843,8 +1843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0170",
@@ -2107,8 +2107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0195",
@@ -2395,8 +2395,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0225",
@@ -2543,8 +2543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0238",
@@ -2846,16 +2846,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0268",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763024",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
       "deferred": {
@@ -3131,8 +3127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0295",
@@ -3839,8 +3835,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0362",
@@ -3950,16 +3946,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0373",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763129",
-      "values_compared": 0
+      "values_compared": 255
     },
     {
       "max_rel_err": 0.0,
@@ -4223,8 +4215,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0398",
@@ -4254,16 +4246,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0401",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763157",
-      "values_compared": 0
+      "values_compared": 54
     },
     {
       "deferred": {
@@ -5119,8 +5107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0485",
@@ -6203,8 +6191,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0588",
@@ -6323,8 +6311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0600",
@@ -6710,16 +6698,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0638",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763394",
-      "values_compared": 0
+      "values_compared": 375
     },
     {
       "deferred": {
@@ -6883,8 +6867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0655",
@@ -7311,8 +7295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0695",
@@ -7559,8 +7543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0720",
@@ -7739,8 +7723,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0737",
@@ -8083,8 +8067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0769",
@@ -8607,8 +8591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "box_edgeuse_offset_shell",
@@ -8619,8 +8603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "torus_edgeuse_offset_plain",
@@ -8655,8 +8639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "torus_edgeuse_offset_shell",
@@ -8715,8 +8699,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "mouse_edgeuse_offset_plain",
@@ -8751,8 +8735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "mouse_edgeuse_offset_shell",
@@ -9027,19 +9011,19 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 534,
+  "cases_deferred": 530,
   "cases_failed": 0,
-  "cases_passed": 327,
+  "cases_passed": 331,
   "cases_total": 861,
   "deferred_by_unit": {
     "blend.fillet_standard_solver_p1": 4,
-    "harness:analytic-geometry-export": 62,
+    "curve.crv_on_surf": 21,
+    "harness:analytic-geometry-export": 63,
     "offset.offset_executive_p1": 138,
     "surface.cone_p2": 1,
-    "surface.offset_surface": 31,
-    "topology.brep_p2": 119,
+    "topology.brep_p2": 123,
     "topology.edgeuse_p3": 142,
-    "topology.face_p3": 37
+    "topology.face_p3": 38
   },
   "max_rel_err": 0.0,
   "pass": true,

@@ -508,7 +508,7 @@ fn surface_global_curve_intersect<O: ClassObject + SolutionObject>(
 /// [`OffsetSurface::new`]); the curve on it is not: the ported `SmCrvOnSurf` holds a
 /// B-spline surface only, so the call defers at its constructor with main's label for
 /// that gap, and the approximation after it is reached once it is lifted.
-fn offset_surface_rail<O>(
+fn offset_surface_rail<O: ClassObject>(
     k: &Kernel,
     brep: &mut impl OffsetBrep<O>,
     surface: O,
@@ -841,7 +841,7 @@ impl OffsetGeometryCreation {
             // skip surfaces which are already analytics
             if !surface_of(brep, offset_h)?.is_analytic()? {
                 // see if this surface is secretly an analytic - Copy pS, when possible as an analytic surface
-                let mut analytic = surface_of(brep, offset_h)?.copy_and_add_analytics()?;
+                let mut analytic = surface_of(brep, offset_h)?.copy_and_add_analytics(k)?;
                 if let SurfaceKind::OffsetSurface(offset) = analytic.kind_mut() {
                     // SM_CAST_PTR(SmOffsetSurface, pAnalyticS)
                     offset.set_allow_extension(false);
@@ -1348,7 +1348,7 @@ impl OffsetGeometryCreation {
         }
 
         // Need to replace it with the extended surface
-        let ext = surface_of(brep, extended_surface)?.copy()?;
+        let ext = surface_of(brep, extended_surface)?.copy(k)?;
         let ext_h = store_surface(brep, ext)?;
         brep_replace_surface(k, brep, face, ext_h, false, false, true)?;
 
@@ -3254,7 +3254,7 @@ impl OffsetGeometryCreation {
         // when working with analytics - turn NewSurface into Analytic when possible
         let final_surface = if self.make_analytics {
             // Copy pNewSurface, when possible as an analytic surface
-            Surface::from(new_surface).copy_and_add_analytics()?
+            Surface::from(new_surface).copy_and_add_analytics(k)?
         } else {
             Surface::from(new_surface)
         };
@@ -3346,7 +3346,7 @@ impl<O: ClassObject + SolutionObject> LocalOperationGeometryCreation<O> {
                 let _ = ignore_soft(s.reparameterize(k, &old_domain))?;
             }
             // Copy pS, when possible as an analytic surface (the listed surface is deleted)
-            let mut analytic = surface_of(brep, new_surface)?.copy_and_add_analytics()?;
+            let mut analytic = surface_of(brep, new_surface)?.copy_and_add_analytics(k)?;
             if let SurfaceKind::OffsetSurface(offset) = analytic.kind_mut() {
                 // SM_CAST_PTR(SmOffsetSurface, pAnalyticS)
                 offset.set_allow_extension(false);

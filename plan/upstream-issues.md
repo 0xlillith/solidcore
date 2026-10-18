@@ -1530,7 +1530,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **How found:** `difftest --fuzz 2000` of PR #156; gdb backtrace; replays with the distance substituted.
 - **Confirmed:** yes (reference build). Not proven infinite.
 - **Severity:** hang in practice.
-- **Rust port:** the rail is `UNPORTED(surface.offset_surface)` in the port. The difftest shim and runner treat an `EdgeuseOffset` with `|distance| > 1e6` as a hang guard (status `-6`, the script stops; the Rust defers under `upstream:HANG-27`), a bound chosen to keep every script under the fuzz's 20 s per side; the generator's distances (0.001 to 100) are far below it.
+- **Rust port:** the port builds the rail's `SmOffsetSurface` and defers at the curve on it (`UNPORTED(curve.crv_on_surf)`: the ported `CrvOnSurf` holds a B-spline surface only). The difftest shim and runner treat an `EdgeuseOffset` with `|distance| > 1e6` as a hang guard (status `-6`, the script stops; the Rust defers under `upstream:HANG-27`). The bound is chosen for the fuzz time budget (20 s per side), not the termination boundary (about 1e250); the generator's distances (0.001 to 100) are far below it.
 
 #### HANG-21. The surface cache of an offset of a small trimmed surface does not finish
 - **Location:** `source/SMLib/src/SmOffsetSurface.cpp:337` (`SmSurface::CalculateBoundingBox` on the offset), `smsurf_GetSurfaceCache` and the `SmSurfaceCache` tree build.

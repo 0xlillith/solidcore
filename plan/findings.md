@@ -6370,62 +6370,93 @@ curve and a null UV curve dereferences the UV curve only when the curves run opp
 the shim replicates the shape test (end-point matches, then the tangent dot product)
 and refuses only then. These refusals are C++ crash guards, not `UNPORTED` deferrals.
 
-**Deferred (Rust `Unported`, never compared).** `SmSurface::CreateOffsetSurface`
-(`surface.offset_surface`, PR #62: `FaceuseOffset` of the base class, the
-offset-surface rails of `EdgeuseOffset` without an offset edge use);
+**Deferred (Rust `Unported`, never compared).** `SmCrvOnSurf::SmCrvOnSurf` over a
+non-B-spline surface (`curve.crv_on_surf`, main's label for that dispatch gap): the
+offset-surface rail of `EdgeuseOffset` without an offset edge use builds its
+`SmOffsetSurface` (`surface.offset_surface`, PR #62, wired) but the ported `CrvOnSurf`
+holds an `SmBSplineSurface` only, so the curve on it and its `ApproximateCurve` defer;
 `SmFace::CreateUVTrimCurves` (`topology.face_p3`, inside `UpdateFaceSurfaceDomain`'s
-`CalculateUVDomainFromUVTrimCurves`, which is wired since `topology.face_p1` merged);
+`CalculateUVDomainFromUVTrimCurves`, wired since `topology.face_p1` merged);
 `SmOffsetExecutive::GetCreateExtendedSurface` (`offset.offset_executive_p1`:
 `ExtendTrimEdges`, `MateEdges` with non-null edge uses, the extended-surface candidates of
-`TrimExtendedEdge`); `SmEdgeuse::NormalizedEvaluate` and `CreateUVTrimCurve`
-(`topology.edgeuse_p3`, PR #117: `HaveTangentGaps`, the vertex moves after a new 3D curve
-in `ReplaceEdgeCurves`, the UV-curve candidates of a tangent neighbour without a UV trim
-curve); `SmBrep::MateLaminaEdgeToSurface` (`topology.brep_p2`, the inset-on-shell-face
+`TrimExtendedEdge`); `SmEdgeuse::NormalizedEvaluate`, `EvaluateBinormal` and
+`CreateUVTrimCurve` (`topology.edgeuse_p3`, PR #117: `HaveTangentGaps`, the vertex moves
+after a new 3D curve in `ReplaceEdgeCurves`, the UV-curve candidates of a tangent
+neighbour without a UV trim curve); `SmBrep::Notify` and `MateLaminaEdgeToSurface`
+(`topology.brep_p2`: the notification after an in-place edit, the inset-on-shell-face
 branch of `EdgeuseOffset`); `SmCircularCrossSectionFSG` (`blend.fillet_standard_solver_p1`,
-the general cap of `EdgeuseOffset`). `SmSurface::GlobalCurveIntersect`
-(`surface.surface_p8`, partial since the merge of `main`) is a real call, only reached
+the general cap of `EdgeuseOffset`); `SmCone::IsNurbSurfaceCone` (`surface.cone_p2`).
+`SmSurface::GlobalCurveIntersect` (`surface.surface_p8`) is a real call, only reached
 after the extended surface.
+
+**Offset surfaces.** `SmSurface::CreateOffsetSurface` dispatches through
+`Surface::create_offset_surface` (the plane, surface-of-revolution and B-spline
+overrides, else the base `SmOffsetSurface`), and `SetAllowExtension(FALSE)` is applied to
+an analytic copy that is an offset surface, as both `FaceuseOffset`s do. Wiring
+`surface.offset_surface` moved its 31 deferrals: 21 to `curve.crv_on_surf` (the rail
+above), 4 to `topology.brep_p2`, 1 to `topology.face_p3`, 1 to
+`harness:analytic-geometry-export` (`gen0044`, which reaches `CreateOffsetSurface` on an
+inexact face after the rail), and 4 now pass (`gen0268`, `gen0373`, `gen0401`, `gen0638`:
+the offset of an exact B-spline face, compared through its 3x3 samples).
 
 **Not compared by construction.** The script's store curves are plain
 `SmBSplineCurve`s, so a line or conic registered as a 3D or UV curve is never
 compared (the port slices such a curve to its B-spline part exactly as the
 `new SmBSplineCurve(*p)` copies upstream do; the edge curves of the file B-reps, which
-include `SmLine`s, are compared). `SmOffsetSurface` never appears (no surface kind is an
-offset surface until `surface.offset_surface` lands), so the `SetAllowExtension(FALSE)`
-branch of both `FaceuseOffset`s is dead in the port.
+include `SmLine`s, are compared). An offset surface's export is its kind code and 3x3
+sample (no NURB block), on both sides.
 
 **Analytic faces.** The `.smb` importer keeps a plane exactly but brings every other
 `SmBSplineSurface` subclass (cylinder, cone, sphere, torus, revolution, ...) in as its
-B-spline part, with `exact = false` in the per-face flag `import` returns. Where upstream
-dispatches a subclass-overridden virtual on such a face's own surface, the runner defers
-under `harness:analytic-geometry-export` instead of letting the port run the B-spline
-override: `CreateOffsetSurface` in the non-local `FaceuseOffset` (59 cases) and
-`IsClosed` in `SmEdge::IsSeam` (20 cases). The `IsClosed` deferral is conservative: only
-`SmSphere` overrides it, but the importer does not keep the subclass, so every inexact
-face defers there; it cost 5 cases that passed before (`gen0224`, `gen0300`, `gen0436`,
-`gen0514`, `gen0762`). Exporting the analytic kinds exactly would turn all 79 back into
-compares.
+B-spline part; `import_with_types` also returns each face's upstream surface type code.
+Where upstream dispatches a subclass-overridden virtual on such a face's own surface,
+the runner defers under `harness:analytic-geometry-export` instead of letting the port
+run the B-spline override: `CreateOffsetSurface` in the non-local `FaceuseOffset` (60
+cases) and `IsClosed` in `SmEdge::IsSeam` on an `SmSphere` face (3 cases; only
+`SmSphere` overrides `IsClosed`, so the other inexact faces are compared). Exporting the
+analytic kinds exactly would turn these 63 back into compares.
+
+**Hang guards (`-6`, the script stops; the Rust defers).** `difftest --fuzz 2000` found
+two upstream hangs (`plan/upstream-issues.md`): HANG-26, the self-intersection of the
+offset of an `SmSurfOfRevolution` face (slow at ordinary distances, erratic at large
+ones): the shim does not run a non-local `FaceuseOffset` on a face that is neither an
+`SmPlane` nor a plain `SmBSplineSurface`, which the Rust already defers under
+`harness:analytic-geometry-export`, so nothing comparable is lost; HANG-27,
+`SmCrvOnSurf::ApproximateCurve` of the offset-surface rail, which grows with the offset
+distance: an `EdgeuseOffset` with `|distance| > 1e6` stops with `-6` and the Rust defers
+under `upstream:HANG-27`. The bound is chosen for the fuzz time budget (20 s per side),
+not the termination boundary (about 1e250); the generator's distances (0.001 to 100)
+are far below it. Non-finite numbers (and magnitudes above 1e300) are malformed
+input to the FFI, refused before either side runs. `gen0577`
+takes 18 s in C++ (0.03 s in Rust) and is kept: it finishes inside the budget and is not
+a hang.
+
+**Performance: `gen0353` and PR #224.** One `TrimExtendedEdge` of `gen0353` took 27.2 s
+in Rust against 0.03 s in C++, which failed the fuzz time budget: the port rebuilt the
+curve cache for every `GlobalPointSolve` inside `GlobalCoincidenceChecker`'s split
+recursion, where upstream keeps it on the curve. PR #224 (`perf/curve-cache-reuse`,
+merged into this branch, which depends on it) keeps one cache per curve for the
+recursion; reports are byte-identical and `gen0353` now runs in under a second.
 
 **Results.** 861 cases (5 upstream-derived fixtures, 56 cases built in code, 800 generated
-two-B-rep scripts): 322 pass bit for bit (`max_rel_err 0`), 0 fail, 539 deferred, 0 cases
-where both sides reject the script. Every pass compares real values (306 of the 322
-compare more than six, 147 more than fifty; none is a constant-status compare, the
-hang-guard passes of the pre-review version having become deferrals). Deferred, by the
-unit that blocks: `offset.offset_executive_p1` 138 (the extended surface, now reached by
-every op that used to be refused), `topology.edgeuse_p3` 133, `topology.brep_p2` 116,
-`harness:analytic-geometry-export` 79 (above), `topology.face_p1` 37,
-`surface.offset_surface` 31 (exact B-spline faces only; plane faces are offset here),
-`blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 1. Ops with no successful pass
-(compared only through matching refusals or upstream statuses): `UpdateFaceSurfaceDomain`,
-`ExtendTrimEdges`, `MateEdges`, `HaveTangentGaps`; the others have 5
-(`LocalFaceuseOffset`) to 43 (`FaceuseOffset`) successes among the passing cases (counted
-at 31aaf333, before the five cases above became deferrals). A 4000-seed sweep (4061
-cases) passes 1576, fails 0, defers 2485, with no C++ crash or stall. Perturb:
-`SENSITIVE 322/322`. `nurbs.b_spline_surface_p2` (touched): 764 cases, 759 pass, 5
-deferred; its `three_arcs_about_two_centres` case (arcs meeting end to end about two
-centres) compares 94 values and fails with the first arc's centre captured by value, so
-it pins WR-103. All green/partial units: `green-par: 198 units, failed=0` on the tree
-merged with `main` at `54522f50`.
+two-B-rep scripts): 331 pass bit for bit (`max_rel_err 0`), 0 fail, 530 deferred, 0 cases
+where both sides reject the script. Every pass compares real values (`with_values=331
+no_values=0`; 315 compare more than six, 156 more than fifty). Deferred, by the unit that
+blocks: `topology.edgeuse_p3` 142, `offset.offset_executive_p1` 138, `topology.brep_p2`
+123, `harness:analytic-geometry-export` 63, `topology.face_p3` 38, `curve.crv_on_surf`
+21, `blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 1. Success-path coverage: at
+6ca4348a, 119 of the then 327 passes completed at least one successful call among the
+unit's ops (the rest compare matching refusals or upstream error statuses); the 4 new
+passes reach an exact B-spline face's offset surface. Ops with no successful pass (counted at
+31aaf333): `UpdateFaceSurfaceDomain`, `ExtendTrimEdges`, `MateEdges`, `HaveTangentGaps`;
+the others had 5 (`LocalFaceuseOffset`) to 43 (`FaceuseOffset`) successes. A 4000-seed sweep (4061 cases)
+passes 1619, fails 0, defers 2442, with no C++ crash or stall. Perturb:
+`SENSITIVE 331/331`. `--fuzz 2000`: `FUZZ-PASS cases=2000 rejected=243 malformed=635
+ran=1122 differs=0 crashes=0 panics=0 timeouts=0`. Valgrind on 54 sampled shim programs:
+clean. `nurbs.b_spline_surface_p2` (touched): 764 cases, 759 pass, 5 deferred; its
+`three_arcs_about_two_centres` case (arcs meeting end to end about two centres) compares
+94 values and fails with the first arc's centre captured by value, so it pins WR-103. All green/partial units: `green-par: 203 units,
+failed=0` on the tree merged with `main` at `a8958254`.
 
 ## boolean.topology_intersector_p1 (`SmTopologyIntersector.cpp` part 1, PR #146, 2026-10-16; partial, no disagreements)
 
