@@ -44,7 +44,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.face_p3` (1881 lines) — in progress: #139 @froglemonade2 (ready for review)
 - [ ] 🔨 `query.face_p3` (1620 lines) — in progress: #132 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p7` (2503 lines) — in progress: #155 @bluecmd (ready for review)
-- [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
+- [ ] 🔨 `query.face_p1` (465 lines) — in progress: #238 @denelson1-dot (draft)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p1` (2454 lines) — in progress: #145 @bluecmd (ready for review)
 - [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (draft)
@@ -306,7 +306,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `query.face_p2` (1161 lines) — partial, 1344 cases
 - [ ] 🔨 `query.face_p3` (1620 lines) — in progress: #132 @bherbruck (ready for review)
 - [ ] 🟡 `query.poly` (2119 lines) — partial, 671 cases
-- [ ] 🔨 `query.face_p1` (465 lines) — in progress: #105 @0xlillith (draft)
+- [ ] 🔨 `query.face_p1` (465 lines) — in progress: #238 @denelson1-dot (draft)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (ready for review)
 - [ ] 🟡 `query.tess` (838 lines) — partial, 676 cases
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
