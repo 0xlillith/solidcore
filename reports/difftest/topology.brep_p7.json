@@ -2751,8 +2751,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeFaceTopology",
-        "unit": "topology.brep_p6"
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_cos_no_uv_1_1",
@@ -3018,8 +3018,8 @@
     "topology.brep_p1": 12,
     "topology.brep_p10": 30,
     "topology.brep_p2": 51,
-    "topology.brep_p6": 1,
-    "topology.brep_p9": 19
+    "topology.brep_p9": 19,
+    "topology.face_p3": 1
   },
   "max_rel_err": 0.0,
   "pass": true,

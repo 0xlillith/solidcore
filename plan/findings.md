@@ -7296,8 +7296,9 @@ with owner-tagged `Unported` errors and documented continuations.
 
 - **Mostly deferred by design.** Every path that builds topology reaches an unported
   `SmBrep` part first: `MakeTopologyFromData` (`topology.brep_p10`) for every read past
-  `SmBrepData::ReadFromFile`, `MakeShellVertex` / `MakeFaceTopology` / `GetInfiniteRegion`
-  (`topology.brep_p9` / `_p6` / `_p1`) for every face made, `SmBrep::Notify`
+  `SmBrepData::ReadFromFile`, `MakeShellVertex` / `GetInfiniteRegion` (`topology.brep_p9`
+  / `_p1`), or `SmFace::SetTolerance` (`topology.face_p3`) inside `topology.brep_p6`'s
+  `MakeFaceTopology`, for every face made, `SmBrep::Notify`
   (`topology.brep_p2`) for every glue past its early returns, `SmBrep::SetTolerance`
   (`topology.brep_p2`) for every copy. The passing cases are 12 read errors of damaged
   streams the brep_data guard accepts (pinned by a deterministic search: an overwritten

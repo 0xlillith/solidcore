@@ -2035,8 +2035,8 @@ mod tests {
         let mut offset = Some(plane(1.0));
         assert_dependency(
             executive.build_offset_of_faceuse(&kernel, &mut original, Some(faceuse), &mut offset),
-            "SmBrep::MakeFaceWithCurves",
-            "topology.brep_p7",
+            "SmBrep::GetInfiniteRegion",
+            "topology.brep_p1",
         );
         let smaller = Surface::from(Plane::new(
             Vec3::ZERO,
@@ -2055,8 +2055,8 @@ mod tests {
         let mut offset = Some(smaller);
         assert_dependency(
             executive.build_offset_of_faceuse(&kernel, &mut original, Some(faceuse), &mut offset),
-            "SmBrep::MakeFaceWithCurves",
-            "topology.brep_p7",
+            "SmBrep::GetInfiniteRegion",
+            "topology.brep_p1",
         );
     }
 

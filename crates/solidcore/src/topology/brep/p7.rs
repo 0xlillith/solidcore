@@ -103,12 +103,12 @@ use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_curve_n_lib::InValueType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::{Surface, SurfaceKind};
+use crate::topology::brep::p6;
 use crate::topology::brep_data::BrepData;
 use crate::topology::database_io::FileType;
 use crate::topology::edge as ed;
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::face::p2 as fp2;
-use crate::topology::brep::p6;
 use crate::topology::topology_traverser::{self as tt, Marks};
 use crate::topology::{Brep, EdgeId, EdgeuseId, FaceId, FaceuseId, RegionId, ShellId, VertexId};
 
@@ -520,7 +520,8 @@ pub fn make_face(
     let old_owner = surface.owner();
     // the face p6 allocates next (arenas only append)
     let next_face = FaceId::from_index(
-        u32::try_from(b.faces().len()).map_err(|_| SolidError::invalid_input(OP, "too many faces"))?,
+        u32::try_from(b.faces().len())
+            .map_err(|_| SolidError::invalid_input(OP, "too many faces"))?,
     );
     let built = p6::make_face_topology(
         b,
