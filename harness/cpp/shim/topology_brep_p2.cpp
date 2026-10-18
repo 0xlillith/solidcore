@@ -12,6 +12,7 @@
 // by their index in the B-rep's face/edge/vertex lists, then in the fixture's walk (with
 // the vertex lists) of the B-rep before the op. Ops that may change the topology (Make,
 // Merge, Mate, Replace, RayFire, Notify) output only statuses and counts after the call
+// (Make: its topology summary, read through fresh list queries)
 // (Stale: whether each face's seeded trimmed-surface cache survived);
 // SetTol / Rebuild only read the entities they cannot delete (tolerances, UV curve
 // presence), so no pointer captured before a mutation is followed after it.
@@ -41,6 +42,85 @@ enum P2Op : int32_t
     P2_RAYFIRE = 13,
     P2_MATE_PROBE = 14,
 };
+
+// The B-rep's topology after a Make op, read through fresh list queries: per region
+// (GetRegions order) its shells (GetShells order) as `kind ref` (kind 0 unknown, 1 vertex
+// shell with ref = its vertex, 2 wire shell with ref = its first wire edge, 3 face-use
+// shell, ref -1); per vertex (GetVertices order) its vertex-use count; per edge
+// (GetEdges order) the start and end vertex (primary edge use and its mate) and the
+// shells of both edge uses (index in the flattened shell list, -1 none).
+void topology_summary(SmBrep* brep, std::vector<double>& o)
+{
+    SmTArray<SmRegion*> regions;
+    SmTArray<SmVertex*> vertices;
+    SmTArray<SmEdge*> edges;
+    brep->GetRegions(regions);
+    brep->GetVertices(vertices);
+    brep->GetEdges(edges);
+    auto vidx = [&](SmVertex* v) -> double {
+        for (ULONG i = 0; i < vertices.GetSize(); i++)
+            if (vertices[i] == v)
+                return (double)i;
+        return -1.0;
+    };
+    auto eidx = [&](SmEdge* e) -> double {
+        for (ULONG i = 0; i < edges.GetSize(); i++)
+            if (edges[i] == e)
+                return (double)i;
+        return -1.0;
+    };
+    std::vector<SmShell*> all;
+    o.push_back((double)regions.GetSize());
+    for (ULONG r = 0; r < regions.GetSize(); r++)
+    {
+        SmTArray<SmShell*> shells;
+        regions[r]->GetShells(shells);
+        o.push_back((double)shells.GetSize());
+        for (ULONG i = 0; i < shells.GetSize(); i++)
+        {
+            SmShell* s = shells[i];
+            all.push_back(s);
+            if (s->IsVertexShell())
+            {
+                o.push_back(1.0);
+                o.push_back(vidx(s->GetVertex()));
+            }
+            else if (s->IsWireShell())
+            {
+                o.push_back(2.0);
+                o.push_back(eidx(s->GetWireEdge()));
+            }
+            else
+            {
+                o.push_back(s->IsFaceuseShell() ? 3.0 : 0.0);
+                o.push_back(-1.0);
+            }
+        }
+    }
+    auto sidx = [&](SmShell* s) -> double {
+        for (size_t i = 0; i < all.size(); i++)
+            if (all[i] == s)
+                return (double)i;
+        return -1.0;
+    };
+    o.push_back((double)vertices.GetSize());
+    for (ULONG i = 0; i < vertices.GetSize(); i++)
+    {
+        SmTArray<SmVertexuse*> uses;
+        vertices[i]->GetVertexuses(uses);
+        o.push_back((double)uses.GetSize());
+    }
+    o.push_back((double)edges.GetSize());
+    for (ULONG i = 0; i < edges.GetSize(); i++)
+    {
+        SmEdgeuse* p = edges[i]->GetPrimaryEdgeuse();
+        SmEdgeuse* m = p ? p->GetMate() : nullptr;
+        for (SmEdgeuse* eu : {p, m})
+            o.push_back(eu && eu->GetVertexuse() ? vidx(eu->GetVertexuse()->GetVertex()) : -1.0);
+        for (SmEdgeuse* eu : {p, m})
+            o.push_back(eu ? sidx(eu->GetShell()) : -1.0);
+    }
+}
 
 struct EdgePeek : SmEdge
 {
@@ -254,6 +334,7 @@ void run(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
             s = brep->MakeEdgeTopology(r, v1, v2, pE);
         }
         o.push_back(st(s));
+        topology_summary(brep, o);
         break;
     }
     case P2_SECTOR:

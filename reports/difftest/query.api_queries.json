@@ -11356,8 +11356,7 @@
     "intersect.surface_drop_lib_p3": 7,
     "query.brep": 335,
     "query.face_p1": 12,
-    "query.face_p3": 45,
-    "topology.brep_p2": 42
+    "query.face_p3": 45
   },
   "max_rel_err": 0.0,
   "pass": true,

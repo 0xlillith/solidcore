@@ -325,10 +325,23 @@ impl<O: LoopObject> HealData<O> {
             FixSplitedgeAtseam,
             self.fix_split_edges_at_seam(k, b, marks, lock, HealerOpType::FixSplitedgeAtseam)
         );
-        step!(
-            FixBadsheets,
-            self.fix_bad_sheets(k, b, marks, lock, HealerOpType::FixBadsheets)
-        );
+        step!(FixBadsheets, {
+            // The heal path carries no attribute state at any level (no AttributeStore,
+            // no SmTopology records), so SmSAGObject attribute propagation during
+            // healing is not modelled anywhere in heal: the region split's
+            // SmBrep::Notify runs on default region records and an empty store. Thread
+            // an env from heal_targets once heal gains an AttributeStore
+            // (plan/findings.md, heal.heal_data_p3).
+            let mut state = crate::topology::brep::p2::RegionNotifyState::new(b);
+            self.fix_bad_sheets(
+                k,
+                b,
+                marks,
+                &mut state.env(),
+                lock,
+                HealerOpType::FixBadsheets,
+            )
+        });
         step!(
             CacheFaceprops3,
             self.cache_face_props_stage3(k, b, HealerOpType::CacheFaceprops3)

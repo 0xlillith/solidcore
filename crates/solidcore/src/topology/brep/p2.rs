@@ -16,6 +16,7 @@
 //! | [`check_and_fix_uv_trim_curves`] | `sm_CheckAndFixUVTrimCurves` (file static) |
 //! | [`swap_uv`]                  | `SmBrep::SwapUV`                          |
 //! | [`notify`], [`NotifyArg`], [`brep_ref`] | `SmBrep::Notify`               |
+//! | [`RegionNotifyState`], [`region_only_key`] | (port helper) the notify state of a caller without attribute state |
 //! | `add_to_spatial_tree` (private) | `sm_AddToSpatialTree`                  |
 //! | `rm_from_spatial_tree` (private) | `sm_RmFromSpatialTree`                |
 //! | [`delete_stale_caches`]      | `SmBrep::DeleteStaleCaches`               |
@@ -44,8 +45,10 @@
 //!
 //! Smaller deviations, none reachable as a difference today:
 //! - `MakeShellVertexTopology` / `MakeEdgeVertexTopology` / `MakeEdgeTopology` add their
-//!   records to the arenas before the shell calls (`topology.shell`), so a failure there
-//!   leaves those records in the B-rep; upstream's `SmObjDelete` guards delete them.
+//!   records to the arenas as they link them, not all up front; `MakeEdgeTopology`'s
+//!   `TransferChildrenTo` (the one shell call that can fail) runs before any new record
+//!   exists, so upstream's `SmObjDelete` guards have nothing to undo. Deleted records
+//!   (the merged end shell, a vertex shell's vertex use) stay in the arena, unlinked.
 //! - `MateLaminaEdgeToSurface` checks for the face's surface before the neighbour
 //!   (lamina / seam) checks; upstream binds the surface only for `IsSeam`, so a face
 //!   without surface there ends in the distance loop instead of
@@ -62,7 +65,8 @@ use std::collections::BTreeMap;
 use crate::curve::curve::p2::is_curve_class;
 use crate::curve::curve::{p8::CurveIntersectOptions, Curve, CurveKind};
 use crate::error::{EntityRef, Result, SolidError, SM_ERR};
-use crate::geom::a_object::{self, BREP_TYPE};
+use crate::geom::a_object::{self, BREP_TYPE, REGION_TYPE};
+use crate::geom::attribute::{AttributeStore, ObjectKey};
 use crate::geom::context::{MarkLock, ALL_MARKS};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
@@ -94,13 +98,16 @@ use crate::topology::brep_cache::{self, BrepCache, BrepObjects, CacheObject, Cac
 use crate::topology::edge::{self, AttributeFilter, NotifyEnv, SetCurveOptions};
 use crate::topology::edgeuse::p1::{self as eu1, UvTrimCurveArg};
 use crate::topology::edgeuse::p2 as eu2;
+use crate::topology::edgeuse::p3 as eu3;
 use crate::topology::face::p1 as face1;
 use crate::topology::face::p2 as face2;
+use crate::topology::shell::{self, ShellMembers, ShellType};
+use crate::topology::topology::Topology;
 use crate::topology::topology_traverser::Marks;
 use crate::topology::vertexuse as vu1;
 use crate::topology::{
-    vertex, Brep, Edge, EdgeId, Edgeuse, EdgeuseId, EdgeuseOwner, FaceId, ObjectHandle, RegionId,
-    Shell, ShellId, Vertex, VertexId, Vertexuse, VertexuseId, VertexuseOwner,
+    vertex, Brep, BrepId, Edge, EdgeId, Edgeuse, EdgeuseId, EdgeuseOwner, FaceId, ObjectHandle,
+    RegionId, Shell, ShellId, Vertex, VertexId, Vertexuse, VertexuseId, VertexuseOwner,
 };
 
 const OP: &str = "topology::brep::p2";
@@ -176,8 +183,8 @@ pub fn is_manifold_solid(b: &Brep) -> Result<bool> {
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for `SmBrep::GetShells` (`SmRegion::GetShells`,
-/// `topology.shell`); [`SolidError::NotFound`] for a dangling id.
+/// Those of `SmBrep::GetShells` ([`p1::shells`], the mark lock);
+/// [`SolidError::NotFound`] for a dangling id.
 pub fn is_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
     // sheets have just one shell
     if brep_shells(k, b)?.len() != 1 {
@@ -208,8 +215,8 @@ pub fn is_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for `SmBrep::GetShells` (`SmRegion::GetShells`,
-/// `topology.shell`); [`SolidError::InvalidInput`] where upstream dereferences null (a manifold edge's
+/// Those of `SmBrep::GetShells` ([`p1::shells`], the mark lock);
+/// [`SolidError::InvalidInput`] where upstream dereferences null (a manifold edge's
 /// primary edge use, its radial, or either face use missing);
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn is_oriented_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
@@ -626,6 +633,68 @@ pub fn notify(
     )
 }
 
+/// The identity of a region in a [`RegionNotifyState`]: `(SmRegion_TYPE, index)`. Any
+/// other entity maps to a key without record (`(0, u64::MAX)`), so notifying its
+/// `SmTopology` part through that state is [`SolidError::InvalidInput`], never a
+/// silent success.
+#[must_use]
+pub fn region_only_key(e: EntityRef) -> ObjectRef {
+    match e {
+        EntityRef::Region(r) => ObjectRef {
+            type_code: REGION_TYPE,
+            key: ObjectKey(u64::from(r.index())),
+        },
+        _ => ObjectRef {
+            type_code: 0,
+            key: ObjectKey(u64::MAX),
+        },
+    }
+}
+
+/// The notification state of a caller that holds no attribute state: the heal path
+/// (its API carries no `AttributeStore` at any level, so `SmSAGObject` attribute
+/// propagation during healing is not modelled) and difftest adapters. It is an empty
+/// attribute store plus a default `SmTopology` record for every region of the B-rep,
+/// which such a caller never changes, keyed by [`region_only_key`].
+#[derive(Debug, Default)]
+pub struct RegionNotifyState {
+    /// The regions' `SmTopology` records.
+    pub records: BTreeMap<ObjectKey, Topology>,
+    /// The (empty) attribute store.
+    pub attributes: AttributeStore,
+}
+
+impl RegionNotifyState {
+    /// A default record for every region of `b`.
+    #[must_use]
+    pub fn new(b: &Brep) -> Self {
+        let records = b
+            .regions()
+            .iter()
+            .map(|(r, _)| {
+                (
+                    region_only_key(EntityRef::Region(r)).key,
+                    Topology::default(),
+                )
+            })
+            .collect();
+        Self {
+            records,
+            attributes: AttributeStore::default(),
+        }
+    }
+
+    /// The [`NotifyEnv`] over this state (no context).
+    pub fn env(&mut self) -> NotifyEnv<'_> {
+        NotifyEnv {
+            records: &mut self.records,
+            attributes: &mut self.attributes,
+            context: None,
+            key_of: &region_only_key,
+        }
+    }
+}
+
 /// The identities a rebuilt cache keys its edge/face owners by.
 fn cache_keys(env: &NotifyEnv<'_>, object: CacheObject) -> ObjectRef {
     match object {
@@ -1011,7 +1080,7 @@ fn edgeuse_region(b: &Brep, eu: EdgeuseId) -> Result<Option<RegionId>> {
 /// the sectoring callees.
 pub fn local_curve_sector(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     curve: &Curve,
     interval: &Extent1d,
     orientation: OrientType,
@@ -1169,7 +1238,8 @@ fn cache_entity(object: CacheObject) -> Result<EntityRef> {
 }
 
 /// `RayFire`: fires a ray from `start` along `direction` through the B-rep (solver
-/// operation `SM_SO_RAYFIRE` on `objects`, the B-rep with its cache) and classifies
+/// operation `SM_SO_RAYFIRE` on the B-rep with its `cache`; `brep_id`, `keys` and
+/// `owner_of` as in [`BrepObjects`]) and classifies
 /// the start point: the infinite region (or the first region when there is none) when
 /// nothing is hit, else the region [`local_curve_sector`] finds stepping back from the
 /// closest, lowest dimensional hit along the ray. `answer_limit` bounds the distance
@@ -1180,10 +1250,14 @@ fn cache_entity(object: CacheObject) -> Result<EntityRef> {
 /// `SM_ERR` when the best hit is closer than `SM_EFF_ZERO * (1 + max |start|)`; errors
 /// of the B-rep box, the solve, the classification load and [`local_curve_sector`];
 /// [`SolidError::Unported`] from the B-rep box (`query.brep`).
+#[allow(clippy::too_many_arguments)] // one upstream routine
 pub fn ray_fire(
     k: &Kernel,
-    b: &Brep,
-    objects: &BrepObjects<'_>,
+    b: &mut Brep,
+    brep_id: BrepId,
+    cache: &BrepCache,
+    keys: &dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
     start: Point3,
     direction: Vec3,
     ray_zone_tol_3d: f64,
@@ -1201,9 +1275,16 @@ pub fn ray_fire(
     // cast ray through Brep
     let best_sq = answer_limit.map_or(BIG_DOUBLE, |l| l * l);
     let vectors = [ray];
+    let objects = BrepObjects {
+        brep: b,
+        brep_id,
+        cache,
+        keys,
+        owner_of,
+    };
     let solutions = TopologySolver::brep_point_solve(
         k,
-        objects,
+        &objects,
         Some(CacheObject::Brep),
         start,
         TopologySolveOptions {
@@ -1398,8 +1479,8 @@ fn region_or_infinite(b: &Brep, region: Option<RegionId>) -> Result<RegionId> {
 ///
 /// # Errors
 ///
-/// [`SolidError::InvalidInput`] without infinite region; [`SolidError::Unported`] for
-/// the region shell list and shell type (`topology.shell`); [`SolidError::NotFound`] for a dangling region.
+/// [`SolidError::InvalidInput`] without infinite region; [`SolidError::NotFound`] for a
+/// dangling region.
 pub fn make_shell_vertex_topology(
     b: &mut Brep,
     region: Option<RegionId>,
@@ -1513,9 +1594,8 @@ fn remove_vertexuse_from_vertex(b: &mut Brep, vu: VertexuseId) -> Result<()> {
 /// # Errors
 ///
 /// `SM_ERR` when `start` has no shell in the region; [`SolidError::InvalidInput`]
-/// without infinite region; [`SolidError::Unported`] for the shell type and members
-/// (`topology.shell`);
-/// [`SolidError::NotFound`] for a dangling id.
+/// without infinite region or where upstream dereferences null (a vertex shell without
+/// vertex use); [`SolidError::NotFound`] for a dangling id.
 pub fn make_edge_vertex_topology(
     b: &mut Brep,
     region: Option<RegionId>,
@@ -1528,8 +1608,6 @@ pub fn make_edge_vertex_topology(
 
     // Find the shell corresponding to the region from the Start vertex.
     let s = vertex::shell_in_region(b, start, Some(region))?.ok_or(SolidError::sm_err(OP))?;
-    // (the shell type is read before anything is linked)
-    shell_is_vertex_shell(b, s)?;
 
     // Put Vertex into Brep's vertex list and edge into edge list
     let new_v = b.add_vertex_record(Vertex::default())?;
@@ -1547,9 +1625,11 @@ pub fn make_edge_vertex_topology(
 /// # Errors
 ///
 /// `SM_ERR` when a vertex has no shell in the region; [`SolidError::InvalidInput`]
-/// without infinite region; [`SolidError::Unported`] for the shell type, members,
-/// child transfer and region shell list (`topology.shell`); [`SolidError::NotFound`] for a dangling id.
+/// without infinite region or where upstream dereferences null (a vertex shell without
+/// vertex use, a shell without region); those of `TransferChildrenTo`
+/// ([`shell::transfer_children`]); [`SolidError::NotFound`] for a dangling id.
 pub fn make_edge_topology(
+    k: &mut Kernel,
     b: &mut Brep,
     region: Option<RegionId>,
     start: VertexId,
@@ -1579,7 +1659,7 @@ pub fn make_edge_topology(
             remove_vertexuse_from_vertex(b, vu)?;
             shell_clear_members(b, end_shell)?;
         } else {
-            shell_transfer_children(b, end_shell, start_shell)?;
+            shell_transfer_children(k, b, end_shell, start_shell)?;
         }
         region_remove_shell(b, end_shell)?;
     }
@@ -1613,84 +1693,70 @@ fn face_create_uv_trim_curves(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<()>
     ))
 }
 
-/// `pRegion->PostInsert(pShell)` on the region's shell list (unit `topology.shell`).
+/// `pRegion->PostInsert(pShell)`: the new shell goes to the tail of the region's shell
+/// list (`SmOwningTopology::PostInsert`, inline in `SmOwningTopology.h`; the list of
+/// [`crate::topology::Region::shells`], as `topology::brep::p6` inserts a face shell).
+/// The shell's owner (`m_pListOwner`) is already the region.
 fn region_post_insert_shell(b: &mut Brep, r: RegionId, s: ShellId) -> Result<()> {
-    let _ = (b, r, s);
-    // UNPORTED(topology.shell): SmRegion shell list (SmOwningTopology::PostInsert)
-    Err(SolidError::unported(
-        "SmRegion::PostInsert",
-        "topology.shell",
-    ))
+    b.region_mut(r)?.shells.push(s);
+    b.shell_mut(s)?.region = Some(r);
+    Ok(())
 }
 
-/// `pRegion->Remove(pShell)` on the shell's region list (unit `topology.shell`).
+/// `pShell->GetRegion()->Remove(pShell)` ([`shell::region_remove_shell`]); the status
+/// is ignored upstream, so a shell missing from its region's list (`SM_ERR`, the
+/// port's [`SolidError::InvalidInput`]) goes on. A shell without region is a null
+/// dereference.
 fn region_remove_shell(b: &mut Brep, s: ShellId) -> Result<()> {
-    let _ = (b, s);
-    // UNPORTED(topology.shell): SmRegion shell list (SmOwningTopology::Remove)
-    Err(SolidError::unported("SmRegion::Remove", "topology.shell"))
+    let r = shell_region(b, s)?.ok_or(null_deref("shell without region"))?;
+    match shell::region_remove_shell(b, r, s) {
+        Err(SolidError::InvalidInput { .. }) | Ok(()) => Ok(()),
+        Err(e) => Err(e),
+    }
 }
 
-/// `SmShell::IsVertexShell` (unit `topology.shell`).
+/// `SmShell::IsVertexShell` (`m_tShellType == SmVertexuse_TYPE`).
 fn shell_is_vertex_shell(b: &Brep, s: ShellId) -> Result<bool> {
-    let _ = (b, s);
-    // UNPORTED(topology.shell): SmShell::IsVertexShell
-    Err(SolidError::unported(
-        "SmShell::IsVertexShell",
-        "topology.shell",
-    ))
+    Ok(b.shell(s)?.is_vertex_shell())
 }
 
-/// The vertex use of vertex shell `s` (`(SmVertexuse*)pShell->m_pList`, unit
-/// `topology.shell`).
+/// The vertex use of vertex shell `s` (`(SmVertexuse*)pShell->m_pList`); a NULL list
+/// (or a list of another class) is dereferenced upstream.
 fn shell_vertexuse(b: &Brep, s: ShellId) -> Result<VertexuseId> {
-    let _ = (b, s);
-    // UNPORTED(topology.shell): SmShell::m_pList (vertex shell)
-    Err(SolidError::unported(
-        "SmShell::GetVertexuse",
-        "topology.shell",
-    ))
+    match b.shell(s)?.members {
+        ShellMembers::Vertexuse(vu) => Ok(vu),
+        _ => Err(null_deref("vertex shell without vertex use")),
+    }
 }
 
-/// Makes `s` a vertex shell of `vu` (`m_tShellType = SmVertexuse_TYPE`, `m_pList`;
-/// unit `topology.shell`).
+/// Makes `s` a vertex shell of `vu` (`m_tShellType = SmVertexuse_TYPE`,
+/// `m_pList = pNewVU`; `UpdateListSize` has no Rust counterpart).
 fn shell_set_vertexuse(b: &mut Brep, s: ShellId, vu: VertexuseId) -> Result<()> {
-    let _ = (b, s, vu);
-    // UNPORTED(topology.shell): SmShell::m_tShellType / m_pList
-    Err(SolidError::unported(
-        "SmShell::SetShellType",
-        "topology.shell",
-    ))
+    let shell = b.shell_mut(s)?;
+    shell.shell_type = ShellType::Vertex;
+    shell.members = ShellMembers::Vertexuse(vu);
+    Ok(())
 }
 
-/// Makes `s` the wire shell of `eu` (`m_tShellType = SmEdgeuse_TYPE`, `m_pList`; unit
-/// `topology.shell`).
+/// Makes `s` the wire shell of `eu` (`m_pList = NULL`, `m_tShellType =
+/// SmEdgeuse_TYPE`, `m_pList = pNewEU1`).
 fn shell_set_wire_edgeuse(b: &mut Brep, s: ShellId, eu: EdgeuseId) -> Result<()> {
-    let _ = (b, s, eu);
-    // UNPORTED(topology.shell): SmShell::m_tShellType / m_pList
-    Err(SolidError::unported(
-        "SmShell::SetShellType",
-        "topology.shell",
-    ))
+    let shell = b.shell_mut(s)?;
+    shell.shell_type = ShellType::Wire;
+    shell.members = ShellMembers::Edgeuse(eu);
+    Ok(())
 }
 
-/// Empties shell `s` (`m_pList = NULL`; unit `topology.shell`).
+/// Empties shell `s` (`m_pList = NULL`; the type is left, as upstream).
 fn shell_clear_members(b: &mut Brep, s: ShellId) -> Result<()> {
-    let _ = (b, s);
-    // UNPORTED(topology.shell): SmShell::m_pList
-    Err(SolidError::unported(
-        "SmShell::SetShellType",
-        "topology.shell",
-    ))
+    b.shell_mut(s)?.members = ShellMembers::Empty;
+    Ok(())
 }
 
-/// `SmShell::TransferChildrenTo(pTo, NULL)` (unit `topology.shell`).
-fn shell_transfer_children(b: &mut Brep, from: ShellId, to: ShellId) -> Result<()> {
-    let _ = (b, from, to);
-    // UNPORTED(topology.shell): SmShell::TransferChildrenTo
-    Err(SolidError::unported(
-        "SmShell::TransferChildrenTo",
-        "topology.shell",
-    ))
+/// `SER(pFrom->TransferChildrenTo(pTo, NULL))` ([`shell::transfer_children`] without
+/// wire-edge candidates).
+fn shell_transfer_children(k: &mut Kernel, b: &mut Brep, from: ShellId, to: ShellId) -> Result<()> {
+    shell::transfer_children(k, b, from, to, None)
 }
 
 // ---- merging curves into faces ------------------------------------------------------------
@@ -2021,8 +2087,9 @@ fn give_edge_curve(
 /// `SM_ERR` when editing is disabled, the edge or a neighbour is not lamina (nor seam),
 /// or no intersection curve meets both extended curves; errors of the geometry calls;
 /// [`SolidError::InvalidInput`] where upstream dereferences null;
-/// [`SolidError::Unported`] from `SmFace::Notify` (`topology.face_p3`), `SmEdgeuse::GetOrCreateUVTrimCurve` and
-/// `NormalizedEvaluate` (`topology.edgeuse_p3`) and those of [`replace_surface`].
+/// [`SolidError::Unported`] from `SmFace::Notify` (`topology.face_p3`); those of
+/// `SmEdgeuse::GetOrCreateUVTrimCurve` / `NormalizedEvaluate`
+/// ([`crate::topology::edgeuse::p3`]) and of [`replace_surface`].
 #[allow(clippy::too_many_lines)]
 pub fn mate_lamina_edge_to_surface(
     k: &Kernel,
@@ -2061,7 +2128,7 @@ pub fn mate_lamina_edge_to_surface(
         .edgeuse(eu_ccw)?
         .edge
         .ok_or(null_deref("edge use without edge"))?;
-    if !eu1::edge_is_lamina(b, e_ccw)? && !edge::is_seam_of_surface(b, e_ccw, face)? {
+    if !eu1::edge_is_lamina(b, e_ccw)? && !edge::is_seam_of_surface(k, b, e_ccw, face)? {
         return Err(SolidError::sm_err(OP));
     }
     let eu_cw = b.edgeuse(eu)?.cw.ok_or(null_deref("edge use without CW"))?;
@@ -2069,7 +2136,7 @@ pub fn mate_lamina_edge_to_surface(
         .edgeuse(eu_cw)?
         .edge
         .ok_or(null_deref("edge use without edge"))?;
-    if !eu1::edge_is_lamina(b, e_cw)? && !edge::is_seam_of_surface(b, e_cw, face)? {
+    if !eu1::edge_is_lamina(b, e_cw)? && !edge::is_seam_of_surface(k, b, e_cw, face)? {
         return Err(SolidError::sm_err(OP));
     }
 
@@ -2141,7 +2208,7 @@ pub fn mate_lamina_edge_to_surface(
                 "negative surface extension distance",
             ));
         }
-        surf.create_extended_surface(ext_dist, ContinuityType::G1R)?
+        surf.create_extended_surface(k, ext_dist, ContinuityType::G1R)?
     };
     let ext_domain = ext_surface.natural_uv_domain();
 
@@ -2412,35 +2479,51 @@ fn set_vertex_point(b: &mut Brep, env: &mut NotifyEnv<'_>, v: VertexId, p: Point
     )
 }
 
-/// A copy of `GetOrCreateUVTrimCurve` (unit `topology.edgeuse_p3`).
+/// `pEU->GetOrCreateUVTrimCurve(pUV)` (status ignored; header defaults `NULL`, `NULL`,
+/// `TRUE`), then `SER(pUV->Copy(..))`: a copy of the edge use's UV trim curve. A
+/// missing curve is dereferenced upstream (after its `SM_ASSERT`). UV trim curves are
+/// made as B-splines (the `SmBSplineCurve*&` overload casts); a curve of another kind
+/// is [`SolidError::InvalidInput`].
 fn uv_trim_curve_copy(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<BSplineCurve> {
-    let _ = (k, b, eu);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+    let _ = eu3::get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
+    let curve = eu1::uv_trim_curve(b, eu)?
+        .0
+        .ok_or(null_deref("edge use without UV trim curve"))?;
+    match curve.kind() {
+        CurveKind::BSpline(c) => Ok(c.clone()),
+        _ => Err(SolidError::InvalidInput {
+            operation: OP,
+            reason: "UV trim curve is not a B-spline",
+        }),
+    }
 }
 
-/// `GetOrCreateUVTrimCurve(pUV)` then `pUV->Trim(ivl)` (status ignored; unit
-/// `topology.edgeuse_p3`).
+/// `SER(pEU->GetOrCreateUVTrimCurve(pUV))` then `pUV->Trim(ivl)` (`bNotify` default
+/// `TRUE`; status ignored, only [`SolidError::Unported`] propagates). The curve is the
+/// one of the edge use or its mate (the owner of the pair's curve); a missing curve is
+/// dereferenced upstream.
 fn trim_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId, ivl: &Extent1d) -> Result<()> {
-    let _ = (k, b, eu, ivl);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+    eu3::get_or_create_uv_trim_curve(k, b, eu, false, false, true)?.status?;
+    let (Some(_), Some(owner)) = eu1::uv_trim_curve(b, eu)? else {
+        return Err(null_deref("edge use without UV trim curve"));
+    };
+    let curve = b
+        .edgeuse_mut(owner)?
+        .uv_trim_curve
+        .as_mut()
+        .ok_or(null_deref("edge use without UV trim curve"))?;
+    // may snap sIvl by tol to existing knots
+    let mut trim_ivl = *ivl;
+    match curve.trim(k, &mut trim_ivl, TrimMode::Notify) {
+        Err(e) if e.is_unported() => Err(e),
+        _ => Ok(()),
+    }
 }
 
-/// `NormalizedEvaluate(t, FALSE, pnt)` (3D; unit `topology.edgeuse_p3`).
-fn normalized_evaluate_3d(k: &Kernel, b: &Brep, eu: EdgeuseId, t: f64) -> Result<Point3> {
-    let _ = (k, b, eu, t);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+/// `SER(pEU->NormalizedEvaluate(t, FALSE, pnt))` (3D; header defaults: no derivative,
+/// `bOKToMakeUVTrimCurve = TRUE`).
+fn normalized_evaluate_3d(k: &Kernel, b: &mut Brep, eu: EdgeuseId, t: f64) -> Result<Point3> {
+    Ok(eu3::normalized_evaluate(k, b, eu, t, false, false, true)?.point)
 }
 
 #[cfg(test)]
@@ -2541,10 +2624,10 @@ mod tests {
     fn notify_without_cache_only_propagates() {
         let (b, _, e, _) = brep();
         let mut records = BTreeMap::new();
-        let mut attrs = crate::geom::attribute::AttributeStore::default();
+        let mut attrs = AttributeStore::default();
         let key_of = |x: EntityRef| ObjectRef {
             type_code: 0,
-            key: crate::geom::attribute::ObjectKey(match x {
+            key: ObjectKey(match x {
                 EntityRef::Edge(e) => u64::from(e.index()) + 1,
                 _ => 0,
             }),

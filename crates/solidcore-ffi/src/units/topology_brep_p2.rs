@@ -18,7 +18,7 @@
 //! | `Query`    | `which`    | `0`: `n eu*` (`GetEdgeuses`), `1`: `n v*` (`GetShellVertices`), `2` `IsManifoldSolid`, `3` `IsSheet`, `4` `IsOrientedSheet`, `5`: `size edge` (`GetMinEdgeBBoxSize`) |
 //! | `SetTol`   | `tol only_larger cascade` | `brep_tol`, every face, edge and vertex tolerance |
 //! | `Rebuild`  |            | `status`, per edge use whether it has a UV trim curve, every edge tolerance |
-//! | `Make`     | `which region v1 v2` (`0` `MakeShellVertexTopology`, `1` `MakeEdgeVertexTopology`, `2` `MakeEdgeTopology`; region `-1` null) | `status` |
+//! | `Make`     | `which region v1 v2` (`0` `MakeShellVertexTopology`, `1` `MakeEdgeVertexTopology`, `2` `MakeEdgeTopology`; region `-1` null) | `status`, then the topology read back through fresh list queries: `n_regions`, per region `n_shells` and per shell `kind ref` (`1` vertex shell and its vertex, `2` wire shell and its first wire edge, `3` face-use shell, `0` unknown; ref `-1`), `n_vertices` and per vertex its vertex-use count, `n_edges` and per edge `start end shell shell` (the vertices and shells of the primary edge use and its mate; shells by position in the region-major shell list) |
 //! | `Sector`   | `curve t0 t1 orient class type index t u v` | `status region` (`LocalCurveSector`) |
 //! | `Merge`    | `face tol n curve*` | `status new_faces edges` (`MergeCurvesOnSurface`) |
 //! | `Mate`     | `edge surface ext_factor uv_factor` | `status` (`MateLaminaEdgeToSurface`) |
@@ -51,7 +51,31 @@
 
 use crate::{call_with_buffer, FfiError};
 
-use super::topology_vertexuse::{self as vu, Reader};
+use super::topology_vertexuse as vu;
+
+crate::reader::unit_reader!(vu::MAX_COORD);
+
+impl Reader<'_> {
+    /// An index below `count` (as `topology_vertexuse`'s reader).
+    fn below(&mut self, count: usize) -> Result<usize, FfiError> {
+        let i = self.index(usize::MAX >> 12)?;
+        if i >= count {
+            return Err(bad(format!("index {i} out of range ({count})")));
+        }
+        Ok(i)
+    }
+
+    /// A `topology_vertexuse` block read by `read` (`vu::curve_at`, `vu::surface_at`)
+    /// from the current position, which moves past it.
+    fn block<T>(
+        &mut self,
+        read: impl FnOnce(&[f64], usize) -> Result<(T, usize), FfiError>,
+    ) -> Result<T, FfiError> {
+        let (v, at) = read(self.input, self.at)?;
+        self.at = at;
+        Ok(v)
+    }
+}
 
 /// Largest number of curves of a `Merge`.
 pub const MAX_CURVES: usize = 8;
@@ -185,7 +209,7 @@ fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Res
                 return Err(bad("sector curve must be 3D"));
             }
             rd.at -= 1;
-            vu::curve(rd)?;
+            rd.block(vu::curve_at)?;
             let t0 = rd.finite()?;
             let t1 = rd.finite()?;
             if t0 >= t1 {
@@ -215,12 +239,12 @@ fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Res
                     return Err(bad("merge curves must be 3D"));
                 }
                 rd.at -= 1;
-                vu::curve(rd)?;
+                rd.block(vu::curve_at)?;
             }
         }
         Op::Mate | Op::MateProbe => {
             rd.below(n_e)?;
-            vu::surface(rd)?;
+            rd.block(vu::surface_at)?;
             // a negative factor is a negative extension distance for
             // CreateExtendedSurface, which never returns (N_SrfExtendByDist; HANG-18)
             if rd.finite()? < 0.0 {
@@ -236,7 +260,7 @@ fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Res
         }
         Op::Replace => {
             rd.below(n_f)?;
-            vu::surface(rd)?;
+            rd.block(vu::surface_at)?;
             rd.index(2)?;
             rd.flag()?;
         }
@@ -280,8 +304,8 @@ fn raw(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
 /// [`FfiError::InvalidArgument`] for a malformed input; [`FfiError::Status`] for a shim
 /// failure.
 pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
-    let mut rd = Reader { input, at: 0 };
-    vu::brep_block(&mut rd, path)?;
+    let mut rd = Reader::new(input);
+    rd.at = vu::brep_block_at(input, path)?;
     int(&mut rd, -1, 1)?;
     let head = input.get(..rd.at).ok_or_else(|| bad("input too short"))?;
     gap_guard(head)?;

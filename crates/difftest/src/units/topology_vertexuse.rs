@@ -38,9 +38,9 @@ use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::p2::{DropCurveFail, B_SPLINE_SURFACE_TYPE};
 use solidcore::surface::surface::Surface;
+use solidcore::topology::shell::{ShellMembers, ShellType};
 use solidcore::topology::topology::Topology;
 use solidcore::topology::vertexuse as vu1;
-use solidcore::topology::shell::{ShellMembers, ShellType};
 use solidcore::topology::{
     Brep, Edge, EdgeId, Edgeuse, EdgeuseId, EdgeuseOwner, Face, FaceId, Faceuse, FaceuseId, Loop,
     LoopId, Loopuse, LoopuseId, LoopuseStart, ObjectHandle, Region, RegionId, Shell, ShellId,
@@ -472,7 +472,10 @@ pub(crate) fn region_shell_list(list: Vec<i64>) -> Result<Vec<ShellId>, HarnessE
 }
 
 /// An exported shell record's type and face-use list (`m_tShellType`, `m_pList`).
-pub(crate) fn shell_members(ty: i64, list: Vec<i64>) -> Result<(ShellType, ShellMembers), HarnessError> {
+pub(crate) fn shell_members(
+    ty: i64,
+    list: Vec<i64>,
+) -> Result<(ShellType, ShellMembers), HarnessError> {
     let list = list
         .into_iter()
         .map(|x| opt(x, FaceuseId::from_index)?.ok_or_else(|| harness("null face use")))
@@ -1335,9 +1338,8 @@ fn run_rust_op(b: &mut Brep, op: &OpIn) -> Result<Output, Fail> {
             let r = match which {
                 0 => vu1::vertex_edge_gap(&k, b, v, *f).map(|g| vec![flag(g.is_some())]),
                 1 => vu1::vertex_face_gap(&k, b, v, *f).map(|g| vec![flag(g.is_some())]),
-                2 => vu1::calc_vertex_edge_gap(&k, b, v, *want_out, *f).map(|g| {
-                    vec![0.0, g.map_or(-1.0, |g| flag(g.is_init()))]
-                }),
+                2 => vu1::calc_vertex_edge_gap(&k, b, v, *want_out, *f)
+                    .map(|g| vec![0.0, g.map_or(-1.0, |g| flag(g.is_init()))]),
                 3 => match vu1::calc_vertex_face_gap(&k, b, v, *want_out, *f) {
                     Ok(g) => Ok(vec![0.0, g.map_or(-1.0, |g| flag(g.is_init()))]),
                     Err(e @ SolidError::Upstream { .. }) => {

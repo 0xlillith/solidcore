@@ -92,24 +92,10 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Sequential reader over the input (shared with `topology_brep_p2`).
-pub(crate) struct Reader<'a> {
-    pub(crate) input: &'a [f64],
-    pub(crate) at: usize,
-}
+crate::reader::unit_reader!(MAX_COORD);
 
 impl Reader<'_> {
-    pub(crate) fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
-    pub(crate) fn finite(&mut self) -> Result<f64, FfiError> {
+    fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
         if !v.is_finite() || v.abs() > MAX_COORD {
             return Err(bad("non-finite or huge value"));
@@ -117,15 +103,15 @@ impl Reader<'_> {
         Ok(v)
     }
 
-    pub(crate) fn finites(&mut self, k: usize) -> Result<Vec<f64>, FfiError> {
+    fn finites(&mut self, k: usize) -> Result<Vec<f64>, FfiError> {
         (0..k).map(|_| self.finite()).collect()
     }
 
-    pub(crate) fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
+    fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
         Ok([self.finite()?, self.finite()?, self.finite()?])
     }
 
-    pub(crate) fn nonzero3(&mut self) -> Result<[f64; 3], FfiError> {
+    fn nonzero3(&mut self) -> Result<[f64; 3], FfiError> {
         let v = self.vec3()?;
         if v.iter().map(|c| c * c).sum::<f64>() < 1e-12 {
             return Err(bad("zero vector"));
@@ -133,7 +119,7 @@ impl Reader<'_> {
         Ok(v)
     }
 
-    pub(crate) fn index(&mut self, max: usize) -> Result<usize, FfiError> {
+    fn index(&mut self, max: usize) -> Result<usize, FfiError> {
         let v = self.num()?;
         if v.fract() != 0.0 || v < 0.0 || v > max as f64 {
             return Err(bad(format!("bad index/count {v} (max {max})")));
@@ -142,7 +128,7 @@ impl Reader<'_> {
     }
 
     /// An index below `count`.
-    pub(crate) fn below(&mut self, count: usize) -> Result<usize, FfiError> {
+    fn below(&mut self, count: usize) -> Result<usize, FfiError> {
         let i = self.index(usize::MAX >> 12)?;
         if i >= count {
             return Err(bad(format!("index {i} out of range ({count})")));
@@ -150,15 +136,8 @@ impl Reader<'_> {
         Ok(i)
     }
 
-    pub(crate) fn flag(&mut self) -> Result<bool, FfiError> {
+    fn flag(&mut self) -> Result<bool, FfiError> {
         Ok(self.index(1)? == 1)
-    }
-
-    pub(crate) fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
     }
 }
 
@@ -233,10 +212,10 @@ fn check_points(rd: &mut Reader<'_>, k: usize, planar: bool, what: &str) -> Resu
 }
 
 /// The parameter domain `[u0, v0, u1, v1]` of a surface block, `None` for a plane.
-pub(crate) type Domain = Option<[f64; 4]>;
+type Domain = Option<[f64; 4]>;
 
 /// A surface block; returns its domain.
-pub(crate) fn surface(rd: &mut Reader<'_>) -> Result<Domain, FfiError> {
+fn surface(rd: &mut Reader<'_>) -> Result<Domain, FfiError> {
     let kind = rd.index(1)?;
     if kind == 1 {
         rd.vec3()?;
@@ -265,7 +244,7 @@ pub(crate) fn surface(rd: &mut Reader<'_>) -> Result<Domain, FfiError> {
 }
 
 /// A B-spline curve block; returns its parameter range.
-pub(crate) fn curve(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
+fn curve(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
     let dim = rd.index(3)?;
     if dim < 2 {
         return Err(bad("curve: dimension must be 2 or 3"));
@@ -281,8 +260,34 @@ pub(crate) fn curve(rd: &mut Reader<'_>) -> Result<(f64, f64), FfiError> {
     check_knots(&knots, p, "curve")
 }
 
+/// [`surface`] for a wrapper with its own reader (`topology_brep_p2`): validates the
+/// surface block of `input` at `at`; returns its domain and the position after it.
+pub(crate) fn surface_at(input: &[f64], at: usize) -> Result<(Domain, usize), FfiError> {
+    let mut rd = Reader::new(input);
+    rd.at = at;
+    let d = surface(&mut rd)?;
+    Ok((d, rd.at))
+}
+
+/// [`curve`] for a wrapper with its own reader: validates the curve block of `input` at
+/// `at`; returns its parameter range and the position after it.
+pub(crate) fn curve_at(input: &[f64], at: usize) -> Result<((f64, f64), usize), FfiError> {
+    let mut rd = Reader::new(input);
+    rd.at = at;
+    let r = curve(&mut rd)?;
+    Ok((r, rd.at))
+}
+
+/// [`brep_block`] for a wrapper with its own reader: validates the B-rep block at the
+/// start of `input`; returns the position after it.
+pub(crate) fn brep_block_at(input: &[f64], path: &str) -> Result<usize, FfiError> {
+    let mut rd = Reader::new(input);
+    brep_block(&mut rd, path)?;
+    Ok(rd.at)
+}
+
 /// A B-rep block.
-pub(crate) fn brep_block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError> {
+fn brep_block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError> {
     match rd.index(3)? {
         0 => {
             let p = Path::new(path);
@@ -436,7 +441,7 @@ fn raw(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
 /// [`FfiError::InvalidArgument`] for a malformed input; [`FfiError::Status`] for a shim
 /// failure.
 pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     brep_block(&mut rd, path)?;
     let block = input.get(..rd.at).ok_or_else(|| bad("input too short"))?;
     let export = raw(Op::Export, path, block)?;

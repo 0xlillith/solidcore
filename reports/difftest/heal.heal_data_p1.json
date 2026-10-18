@@ -4840,8 +4840,8 @@
   "cases_passed": 271,
   "cases_total": 493,
   "deferred_by_unit": {
+    "primitive.api_primitives": 7,
     "query.face_p4": 64,
-    "topology.brep_p2": 7,
     "topology.face_p2": 84,
     "topology.face_p3": 18,
     "topology.face_p4": 49

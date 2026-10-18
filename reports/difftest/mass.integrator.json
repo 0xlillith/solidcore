@@ -12262,8 +12262,7 @@
   "deferred_by_unit": {
     "harness:mass.integrator-face-construction": 2,
     "query.brep": 3,
-    "query.face_p1": 2,
-    "topology.brep_p2": 1
+    "query.face_p1": 2
   },
   "max_rel_err": 4.979280456316938e-14,
   "pass": true,

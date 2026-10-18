@@ -6990,15 +6990,20 @@ independent p6 integration.
   branches on those kinds (the one kind test, the `SmPlane` mating surface extension of
   `MateLaminaEdgeToSurface`, is built as a real `SmPlane`), but the geometry calls they reach are
   only compared on B-splines here.
-- **Ops without compared values.** `MakeShellVertexTopology`, `MakeEdgeVertexTopology` and
-  `MakeEdgeTopology` defer every case (region shell list and shell type: `topology.shell`),
-  `RayFire` every case (`SmBrep::CalculateBoundingBox`: `query.brep`) and `ReplaceSurface` every
-  case (`SmFace::Notify`: `topology.face_p3`). `MateLaminaEdgeToSurface` and
-  `MergeCurvesOnSurface` only compare their early statuses (editing disabled, not a lamina edge,
-  short or no curves); past those they defer on `SmFace::Notify` and the curve classification
-  constructor (`intersect.curve_class_p4`). `IsSheet` / `IsOrientedSheet` defer on
-  `SmRegion::GetShells` (`topology.shell`).
-- **Passes without numeric content.** Of the 920 passes, 262 compare no computed value: the 162
+- **Ops without compared values.** `RayFire` defers every case (`SmBrep::CalculateBoundingBox`:
+  `query.brep`) and `ReplaceSurface` every case (`SmFace::Notify`: `topology.face_p3`).
+  `MateLaminaEdgeToSurface` and `MergeCurvesOnSurface` only compare their early statuses
+  (editing disabled, not a lamina edge, short or no curves); past those they defer on
+  `SmFace::Notify` and the curve classification constructor (`intersect.curve_class_p4`).
+- **Make ops (after `topology.shell`, #154).** `MakeShellVertexTopology`,
+  `MakeEdgeVertexTopology` and `MakeEdgeTopology` run (76 cases flipped from the shell stubs)
+  and output, after the status, the B-rep's topology read back through fresh list queries on
+  both sides (per region its shells as kind and vertex / first wire edge, per vertex its
+  vertex-use count, per edge the vertices and shells of its primary edge use and that use's
+  mate): 17 to 86 values per case. A status alone would have been a vacuous pass (the makers
+  return `SM_SUCCESS` on every reachable input). `IsSheet` / `IsOrientedSheet` run through #145's
+  `GetShells` (66 cases, status and answer).
+- **Passes without numeric content.** Of the 1290 passes, 262 compare no computed value: the 162
   `Notify` passes compare the constant `0` the shim writes (no B-rep cache on either side, see
   below), the 91 `MateLaminaEdgeToSurface` passes the early `SM_ERR`, the 3
   `MergeCurvesOnSurface` passes a status (the generated curves are 1e-7-scale against
@@ -7036,7 +7041,9 @@ independent p6 integration.
   before (unit counts unchanged). For `topology.edgeuse_p3`: 32 of those deferrals
   (`SmEdgeuse::EvaluateBinormal`, edge/vertex classes) reach the one site where
   `SM_OT_UNKNOWN` acts as `SAME` (the tangent flip, `SmEdge.cpp:2110` =
-  `query/edge.rs:953`); re-check them when they flip to compared.
+  `query/edge.rs:953`); re-check them when they flip to compared. Re-checked after #117
+  merged: of the 52 orientation-0 fixtures 46 pass (27 of those 32 among them), 4 defer on
+  `SmSurface::DropCurve` (`intersect.surface_drop_lib_p3`) and 2 on `SmFace::GetTolerance`.
 - **`heal.heal_data_p1` box cases.** Wiring `SetTolerance` let `SmApiHealBrep` run past
   `Fix_TolSizes` on the heal_data_p1 runner's stand-in: an empty Rust `Brep` against the C++
   `SmApiCreateBox` box (7 cases, C++ status 1000 vs Rust success). The runner now defers those
@@ -7054,6 +7061,29 @@ independent p6 integration.
   `query.brep` lands.
 - **File statics.** `sm_GetPointFromSol` and `sm_CheckAndFixUVTrimCurves` cannot be called from a
   shim (static in `SmBrep.cpp`); they are covered by Rust unit tests only.
+- **Back-edges into this unit after the #145 / main merge.** `topology.brep_p6`'s
+  `TestClosureSplitRegion` (#169) now calls `brep::p2::notify` with `PRE_EDIT` and
+  `SPLIT_IN_BREP(old, old, new)` (statuses ignored, `SmBrep.cpp:27954-5`); its split API takes the
+  caller's `NotifyEnv` (overseer ruling: thread the env, the landing unit's job). The new region
+  gets its default `SmTopology` record when the split makes it (as `new SmRegion`), because
+  `SPLIT_IN_BREP` propagates the old region's record to it. The 6 brep_p6 cases that deferred on
+  `SmBrep::Notify` only relabel to the next call, `CalculateBoundingBox` (`query.brep`). The
+  `ShellRayWorld::shell_ray_sector` default of `topology.shell` is retagged
+  `UNPORTED(query.brep)`: the generic default has neither the B-rep nor an entity
+  classification, and the world over the B-rep cache (`query.brep`) overrides it with
+  `brep::p2::local_curve_sector`.
+
+## heal: no attribute state on the heal path (2026-10-18, PR #149)
+
+The Rust heal path carries no `AttributeStore` (and no `SmTopology` records) at any level: no
+`HealData` entry point (`heal_targets`, `heal_tgts`, `api_heal_brep`) takes one. So
+`SmSAGObject` attribute propagation during healing is not modelled anywhere in heal. This is a
+pre-existing design gap, not one #149 introduces. It became visible when
+`TestClosureSplitRegion`'s `SmBrep::Notify` was wired: `heal_data_p3`'s `Fix_BadSheets` step
+builds a `brep::p2::RegionNotifyState` (an empty attribute store and default region records,
+which no heal code changes) for the split, with a comment saying exactly this. No compared
+case observes attributes on that path (it defers at `CalculateBoundingBox` right after the
+notifications). Fix: thread an env from `heal_targets` once heal gains an `AttributeStore`.
 
 ## topology.brep_p6 — dependency boundaries and coverage (PR #169)
 
