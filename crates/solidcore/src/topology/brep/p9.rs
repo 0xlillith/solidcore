@@ -1098,17 +1098,8 @@ pub fn make_vertex_split_edge(
             Some(EntityRef::Edge(new_edge)),
             None,
         )?;
-        // Skeleton endpoint caches mirror the native primary/mate-derived endpoints.
-        let original_vertices = [
-            required(edge::start_vertex(b, edge_id)?, "split start missing")?,
-            required(edge::end_vertex(b, edge_id)?, "split end missing")?,
-        ];
-        let new_vertices = [
-            required(edge::start_vertex(b, new_edge)?, "new split start missing")?,
-            required(edge::end_vertex(b, new_edge)?, "new split end missing")?,
-        ];
-        b.edge_mut(edge_id)?.vertices = original_vertices;
-        b.edge_mut(new_edge)?.vertices = new_vertices;
+        sync_edge_cache(b, edge_id)?;
+        sync_edge_cache(b, new_edge)?;
         Ok(SplitEdgeOutput {
             split: true,
             edges: Some([edge_id, new_edge]),
@@ -1573,7 +1564,7 @@ pub fn make_edge_in_face_with_vu(
     if let Some(face) = output.face {
         sync_face_cache(b, face)?;
     }
-    b.edge_mut(edge_id)?.vertices = [start_vertex, end_vertex];
+    sync_edge_cache(b, edge_id)?;
     Ok(output)
 }
 
@@ -1747,6 +1738,21 @@ fn delete_loop_records(b: &mut Brep, loop_: LoopId, env: &mut edge::NotifyEnv<'_
         "SmBrep arena object retirement",
         "topology.brep_p1",
     ))
+}
+
+fn sync_edge_cache(b: &mut Brep, edge_id: EdgeId) -> Result<()> {
+    // The shared native-graph importer stores primary/mate VU order here,
+    // independently of their orientation relative to the 3D curve.
+    let primary_vertex = required(
+        edge::vertex(b, edge_id)?,
+        "edge cache without primary vertex",
+    )?;
+    let mate_vertex = required(
+        edge::other_vertex(b, edge_id, Some(primary_vertex))?,
+        "edge cache without mate vertex",
+    )?;
+    b.edge_mut(edge_id)?.vertices = [primary_vertex, mate_vertex];
+    Ok(())
 }
 
 fn sync_face_cache(b: &mut Brep, face: FaceId) -> Result<()> {
