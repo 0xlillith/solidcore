@@ -56,12 +56,12 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `topology.brep_p3` (2503 lines) — in progress: #204 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_solver_p1` (1861 lines) — in progress: #192 @froglemonade2 (ready for review)
 - [ ] 🔨 `blend.hcr` (1875 lines) — in progress: #191 @froglemonade2 (ready for review)
-- [ ] 🔨 `heal.stitch_p1` (2037 lines) — in progress: #196 @bluecmd (draft)
+- [ ] 🔨 `heal.stitch_p1` (2037 lines) — in progress: #196 @bluecmd (ready for review)
 - [ ] 🔨 `primitive.primitive_creation_p1` (2322 lines) — in progress: #213 @damgru (ready for review)
 - [ ] 🔨 `blend.fillet_intersector` (1708 lines) — in progress: #179 @bherbruck (ready for review)
 - [ ] 🔨 `blend.fillet_solver_p5` (848 lines) — in progress: #208 @damgru (ready for review)
 - [ ] 🔨 `blend.fillet_standard_solver_p1` (2336 lines) — in progress: #168 @bherbruck (ready for review)
-- [ ] 🔨 `heal.stitch_p2` (1906 lines) — in progress: #205 @bluecmd (draft)
+- [ ] 🔨 `heal.stitch_p2` (1906 lines) — in progress: #205 @bluecmd (ready for review)
 - [ ] 🔨 `blend.fillet_solver_p4` (1404 lines) — in progress: #212 @blackveilprecision (ready for review)
 - [ ] 🔨 `boolean.topology_intersector_p2` (2195 lines) — in progress: #203 @bluecmd (ready for review)
 - [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (ready for review)
@@ -330,9 +330,9 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `heal.face_props` (1410 lines) — partial, 1528 cases
 - [ ] 🟡 `heal.heal_data_p2` (2160 lines) — partial, 738 cases
 - [ ] 🟡 `heal.heal_data_p1` (922 lines) — partial, 493 cases
-- [ ] 🔨 `heal.stitch_p1` (2037 lines) — in progress: #196 @bluecmd (draft)
+- [ ] 🔨 `heal.stitch_p1` (2037 lines) — in progress: #196 @bluecmd (ready for review)
 - [ ] 🟡 `heal.heal_data_p3` (1967 lines) — partial, 474 cases
-- [ ] 🔨 `heal.stitch_p2` (1906 lines) — in progress: #205 @bluecmd (draft)
+- [ ] 🔨 `heal.stitch_p2` (1906 lines) — in progress: #205 @bluecmd (ready for review)
 
 ### offset (1/3)
 
