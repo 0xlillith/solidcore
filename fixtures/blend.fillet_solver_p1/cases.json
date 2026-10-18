@@ -606,10 +606,10 @@
    }
   },
   {
-   "name": "rollover_small_box_wide",
+   "name": "rollover_cone_wide",
    "inputs": {
     "op": "rollover",
-    "brep": {"kind": "file", "file": "SmallBox.smb"},
+    "brep": {"kind": "file", "file": "cone.smb"},
     "edge": 3,
     "tol": 2.0
    }
