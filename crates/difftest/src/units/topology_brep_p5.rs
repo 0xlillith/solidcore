@@ -316,25 +316,40 @@ fn rust_record(k: &mut Kernel, b: &mut Brep, i: &Inputs) -> SolidResult<Vec<f64>
 fn notification_record(b: &Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
     use solidcore::geom::attribute::ObjectKey;
     use solidcore::geom::context::NotifyCallback;
-    use solidcore::geom::object::{NotifyOperation::{AddToBrep, ChangeGeometry, MergeInBrep, PostEdit, Destruction, RegPropagation, Unknown, SplitInBrep, TrimNoSplitInBrep, RmFromBrep, Copy, Coincident, PreEdit, ChangeOwner, Construction, Split, Merge}, ObjectRef};
+    use solidcore::geom::object::{
+        NotifyOperation::{
+            AddToBrep, ChangeGeometry, ChangeOwner, Coincident, Construction, Copy, Destruction,
+            Merge, MergeInBrep, PostEdit, PreEdit, RegPropagation, RmFromBrep, Split, SplitInBrep,
+            TrimNoSplitInBrep, Unknown,
+        },
+        ObjectRef,
+    };
     use solidcore::topology::topology::TopologyChangeCallback;
-    let object = |type_code, key| ObjectRef { type_code, key: ObjectKey(key) };
+    let object = |type_code, key| ObjectRef {
+        type_code,
+        key: ObjectKey(key),
+    };
     let a = vertex(b, i.first).ok_or_else(|| SolidError::null_pointer("notification fixture"))?;
     let z = vertex(b, i.second).ok_or_else(|| SolidError::null_pointer("notification fixture"))?;
     let v1 = object(16021, 1_000_000 + u64::from(a.index()));
     let v2 = object(16021, 1_000_000 + u64::from(z.index()));
     let brep = object(16011, 0);
     if i.flag {
-        use solidcore::topology::{BrepId, topology::TrackTopologyChanges};
+        use solidcore::topology::{topology::TrackTopologyChanges, BrepId};
         let mut context = solidcore::geom::context::Context::default();
         // The fixture contains one B-rep at traversal index zero.
-        let mut tracker = TrackTopologyChanges::new(Some(BrepId::from_index(0)), 1, true, Some(&mut context));
-        context.sys_notify_callback_mut().ok_or_else(|| SolidError::sm_err("notification tracker"))?
+        let mut tracker =
+            TrackTopologyChanges::new(Some(BrepId::from_index(0)), 1, true, Some(&mut context));
+        context
+            .sys_notify_callback_mut()
+            .ok_or_else(|| SolidError::sm_err("notification tracker"))?
             .execute(PostEdit, v1, Some(v1), Some(brep), None)?;
         let mut out = notification_values(&tracker.lists());
         tracker.reset_arrays();
         out.extend(notification_values(&tracker.lists()));
-        context.sys_notify_callback_mut().ok_or_else(|| SolidError::sm_err("notification tracker"))?
+        context
+            .sys_notify_callback_mut()
+            .ok_or_else(|| SolidError::sm_err("notification tracker"))?
             .execute(PostEdit, v1, Some(v1), Some(brep), None)?;
         context.set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(2))));
         tracker.stop_tracking(Some(&mut context));
@@ -368,14 +383,28 @@ fn notification_record(b: &Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
     } else {
         let e = edge(b, i.aux).ok_or_else(|| SolidError::null_pointer("notification edge"))?;
         let edge_ref = object(16016, 2_000_000 + u64::from(e.index()));
-        let curve = b.edge(e)?.curve.as_ref().ok_or_else(|| SolidError::null_pointer("notification curve"))?;
+        let curve = b
+            .edge(e)?
+            .curve
+            .as_ref()
+            .ok_or_else(|| SolidError::null_pointer("notification curve"))?;
         let curve_ref = object(curve.type_code(), 3_000_000);
         // The native fixture constructs this curve owned by this actual edge.
         owners.insert(curve_ref.key, Some(edge_ref));
         callback = TopologyChangeCallback::with_owners(1, owners);
         callback.execute(PostEdit, curve_ref, Some(curve_ref), Some(edge_ref), None)?;
         callback.execute(Split, curve_ref, Some(curve_ref), None, Some(edge_ref))?;
-        callback.execute(Merge, curve_ref, Some(curve_ref), Some(curve_ref), Some(edge_ref))?;
+        callback.execute(
+            Merge,
+            curve_ref,
+            Some(curve_ref),
+            Some(curve_ref),
+            Some(edge_ref),
+        )?;
+        if let Some(face) = face(b, i.first) {
+            let face_ref = object(16002, 4_000_000 + u64::from(face.index()));
+            callback.execute(PostEdit, face_ref, Some(face_ref), Some(brep), None)?;
+        }
     }
     Ok(notification_values(&callback.lists()))
 }
@@ -384,12 +413,19 @@ fn notification_values(lists: &solidcore::topology::topology::TopologyChangeList
     use solidcore::geom::object::ObjectRef;
     let mut out = Vec::new();
     for list in [&lists.rm_list, &lists.add_list, &lists.chg_list] {
-        out.push(list.len() as f64); out.extend(list.iter().map(|key| key.0 as f64));
+        out.push(list.len() as f64);
+        out.extend(list.iter().map(|key| key.0 as f64));
     }
     out.push(lists.notify_events.len() as f64);
     let key = |object: Option<ObjectRef>| object.map_or(-1., |o| o.key.0 as f64);
     for event in &lists.notify_events {
-        out.extend([f64::from(event.operation as i32), key(event.caller), key(event.data1), key(event.data2), key(event.data3)]);
+        out.extend([
+            f64::from(event.operation as i32),
+            key(event.caller),
+            key(event.data1),
+            key(event.data2),
+            key(event.data3),
+        ]);
     }
     out
 }
@@ -405,7 +441,14 @@ impl UnitDiff for Runner {
             return Ok(out);
         }
         if matches!(i.op, 2 | 15) {
-            return Ok(Output::new().values(if i.op == 2 { "target_stage" } else { "notification_stage" }, raw));
+            return Ok(Output::new().values(
+                if i.op == 2 {
+                    "target_stage"
+                } else {
+                    "notification_stage"
+                },
+                raw,
+            ));
         }
         let n = *raw
             .first()
@@ -425,8 +468,12 @@ impl UnitDiff for Runner {
         let raw = ffi::eval(Op::Export, &i.fixture, &args(&i))
             .map_err(|e| HarnessError::new(e.to_string()))?;
         let (mut b, _) = import(&raw)?;
-        if i.op == 15 { return Ok(Output::new().values("notification_stage", notification_record(&b, &i)
-            .map_err(|e| HarnessError::new(e.to_string()))?)); }
+        if i.op == 15 {
+            return Ok(Output::new().values(
+                "notification_stage",
+                notification_record(&b, &i).map_err(|e| HarnessError::new(e.to_string()))?,
+            ));
+        }
         match rust_record(&mut Kernel::default(), &mut b, &i) {
             Ok(record) if i.op == 2 => Ok(Output::new().values("target_stage", record)),
             Ok(record) => Ok(graph(&b, record)),

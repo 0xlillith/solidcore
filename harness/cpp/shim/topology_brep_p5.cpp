@@ -96,6 +96,7 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
             if (object==b) return 0;
             for (size_t i=0;i<g.vertices.size();++i) if (g.vertices[i]==object) return 1000000+i;
             for (size_t i=0;i<g.edges.size();++i) if (g.edges[i]==object) return 2000000+i;
+            for (size_t i=0;i<g.faces.size();++i) if (g.faces[i]==object) return 4000000+i;
             if (object==curve) return 3000000;
             return -999;
         };
@@ -152,6 +153,7 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
             send(SM_NO_POST_EDIT,curve,curve,edge,nullptr);
             send(SM_NO_SPLIT,curve,curve,nullptr,edge);
             send(SM_NO_MERGE,curve,curve,curve,edge);
+            if (face) send(SM_NO_POST_EDIT,face,face,b,nullptr);
         }
         emit(&removed,&added,&changed,&events);
         return sc_copy_out(o.data(),o.size(),out,cap,out_len);

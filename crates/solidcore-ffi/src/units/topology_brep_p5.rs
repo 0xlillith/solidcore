@@ -158,8 +158,10 @@ pub fn eval(op: Op, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, F
     let v1 = select(args[1], counts[9]);
     let v2 = select(args[2], counts[9]);
     let face = select(args[1], counts[3]);
-    if matches!(op, Op::Combine | Op::CombineTarget | Op::GlueVertices | Op::TrackNotifications)
-        && (v1.is_none() || v2.is_none())
+    if matches!(
+        op,
+        Op::Combine | Op::CombineTarget | Op::GlueVertices | Op::TrackNotifications
+    ) && (v1.is_none() || v2.is_none())
         && !(op == Op::GlueVertices && v1 == v2)
     {
         return Err(invalid("null merge vertices"));
@@ -228,9 +230,9 @@ mod tests {
         let output = eval(Op::GlueVertices, &f, &a).unwrap();
         assert_eq!(output.get(1), Some(&0.));
         // Equal null pointers take the same native early return.
-        a[1] = -1.; a[2] = -1.;
+        a[1] = -1.;
+        a[2] = -1.;
         let output = eval(Op::GlueVertices, &f, &a).unwrap();
         assert_eq!(output.get(1), Some(&0.));
     }
-
 }
