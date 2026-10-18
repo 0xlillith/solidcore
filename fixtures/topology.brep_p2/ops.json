@@ -260,6 +260,150 @@
    }
   },
   {
+   "name": "mate_plane10_e0_noedit_z1e300",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:22166 (editing check returns before the HANG-9 extension)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "mate",
+    "editing": 0,
+    "edge": 0,
+    "surface": {
+     "plane": {
+      "o": [
+       0,
+       0,
+       1e+300
+      ],
+      "n": [
+       0,
+       0,
+       1
+      ]
+     }
+    },
+    "ext": 1.5,
+    "uv_ext": 10.0
+   }
+  },
+  {
+   "name": "mate_plane10_e0_noedit_zm1e300",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:22166 (editing check returns before the HANG-9 extension)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "mate",
+    "editing": 0,
+    "edge": 0,
+    "surface": {
+     "plane": {
+      "o": [
+       0,
+       0,
+       -1e+300
+      ],
+      "n": [
+       0,
+       0,
+       1
+      ]
+     }
+    },
+    "ext": 1.5,
+    "uv_ext": 10.0
+   }
+  },
+  {
+   "name": "mate_plane10_e0_noedit_z1e160",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:22166 (editing check returns before the HANG-9 extension)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "mate",
+    "editing": 0,
+    "edge": 0,
+    "surface": {
+     "plane": {
+      "o": [
+       0,
+       0,
+       1e+160
+      ],
+      "n": [
+       0,
+       0,
+       1
+      ]
+     }
+    },
+    "ext": 1.5,
+    "uv_ext": 10.0
+   }
+  },
+  {
    "name": "mate_plane10_e0",
    "upstream_ref": "tests/prog_test/src/smTopoTest.cpp:1640",
    "inputs": {

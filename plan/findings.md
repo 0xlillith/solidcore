@@ -6460,9 +6460,9 @@ independent p6 integration.
   short or no curves); past those they defer on `SmFace::Notify` and the curve classification
   constructor (`intersect.curve_class_p4`). `IsSheet` / `IsOrientedSheet` defer on
   `SmRegion::GetShells` (`topology.shell`).
-- **Passes without numeric content.** Of the 917 passes, 259 compare no computed value: the 162
+- **Passes without numeric content.** Of the 920 passes, 262 compare no computed value: the 162
   `Notify` passes compare the constant `0` the shim writes (no B-rep cache on either side, see
-  below), the 88 `MateLaminaEdgeToSurface` passes the early `SM_ERR`, the 3
+  below), the 91 `MateLaminaEdgeToSurface` passes the early `SM_ERR`, the 3
   `MergeCurvesOnSurface` passes a status (the generated curves are 1e-7-scale against
   `tol=1e-3`, so only the "too short" skip runs), `SwapUV` 2 passes on faceless B-reps and
   `RebuildUVTrimCurves` 4 on B-reps without UV curves. The queries, `SetTolerance`,
@@ -6480,8 +6480,13 @@ independent p6 integration.
   (`HANG-18` in `plan/upstream-issues.md`: the C++ never returns; the Rust returns
   `InvalidInput` there too), and a `Mate` whose extension distance `dMaxDist * factor`
   is not finite (`HANG-9`: a mating surface so far from the edge that the squared point
-  distance overflows, found by `--fuzz`; the FFI first runs a `MateProbe` op that computes
-  upstream's `dMaxDist` with the same calls; the Rust stops there with `NotConverged`). `LocalCurveSector` requires `t0 < t1` (finite; extrapolated
+  distance overflows, found by `--fuzz`; the FFI first runs a `MateProbe` op that replays
+  Mate's early returns and then computes upstream's `dMaxDist` with the same calls, so an
+  early `SM_ERR` is still compared; the Rust stops there with `NotConverged`), and a
+  degree >= 2 B-spline face under `init_gaps` with a corner control point coordinate past
+  `2e156` (`HANG-28`: the shared fixture's `GetVertexFaceGap` never returns on a three-span
+  u-degree-2 face with a corner at `5e156`; the exact condition is not pinned down, so
+  single- and two-span biquadratic patches that return are refused too). `LocalCurveSector` requires `t0 < t1` (finite; extrapolated
   intervals are allowed) and an integer point class 100..=110; the object kind must match only
   for face/edge/vertex classes (102/103/104), every other class takes upstream's default
   `SM_ERR` arm with a null or vertex object. The orientation is an `SmOrientType` code 0..=2

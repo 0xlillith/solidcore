@@ -27,7 +27,7 @@
 //! | `Swap`     |            | `status` (`SwapUV`) |
 //! | `Replace`  | `face surface keep create` (`keep`: `0` delete, `1` deleted list, `2` keep) | `status modified` (`ReplaceSurface`) |
 //! | `RayFire`  | `P V tol has_limit limit` | `status region class` (`RayFire`) |
-//! | `MateProbe` | as `Mate` | `status max_dist`: `MateLaminaEdgeToSurface`'s `dMaxDist` (`SmBrep.cpp:22200-22229`), nothing changed |
+//! | `MateProbe` | as `Mate` | `status max_dist`: `MateLaminaEdgeToSurface`'s `dMaxDist` (`SmBrep.cpp:22200-22229`) after replaying its early returns (`:22166-22195`, status `SM_ERR` when one is taken), nothing changed |
 //!
 //! [`eval`] accepts only what upstream handles without undefined behaviour: valid
 //! B-rep blocks, indices inside the B-rep (it exports the B-rep once more to count),
@@ -39,9 +39,12 @@
 //! `0 / 0`, a NaN parameter for the curve evaluator); a `Mate` extension factor must not
 //! be negative (a negative extension distance hangs the C++ in `N_SrfExtendByDist`,
 //! `plan/upstream-issues.md` HANG-18), and a `Mate` is refused when the `MateProbe`
-//! distance is at least `SM_EFF_ZERO` and its product with the factor is not finite
+//! distance is at least `SM_EFF_ZERO` and its product with the factor is not finite, i.e.
+//! only when upstream would get past its early returns and extend
 //! (an edge whose squared distance to the mating surface overflows: `dMaxDist` is
-//! infinite and `CreateExtendedSurface` never stops halving, HANG-9); a reference `type -1` is not accepted (the null
+//! infinite and `CreateExtendedSurface` never stops halving, HANG-9); a B-spline face of degree
+//! at least 2 with `init_gaps` set is refused when a corner control point coordinate
+//! exceeds `2e156` (the fixture's `GetVertexFaceGap` never returns, HANG-28); a reference `type -1` is not accepted (the null
 //! reference is `-1 -1`). `Merge` and `Mate` with editing enabled run the whole upstream
 //! algorithm: the callers keep their curves short of the tolerance (`Merge`) and pick
 //! lamina edges of upstream files (`Mate`).
@@ -281,6 +284,7 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     vu::brep_block(&mut rd, path)?;
     int(&mut rd, -1, 1)?;
     let head = input.get(..rd.at).ok_or_else(|| bad("input too short"))?;
+    gap_guard(head)?;
     let export = raw(Op::Export, path, head)?;
     if op == Op::Export {
         rd.done()?;
@@ -300,9 +304,49 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     raw(op, path, input)
 }
 
+/// Largest corner control point coordinate of a degree >= 2 B-spline face the fixture's
+/// gap initialisation is run on (`plan/upstream-issues.md` HANG-28): with a corner
+/// (a vertex position) at `5e156`, `SmVertexuse::GetVertexFaceGap` never returns on a
+/// u-degree-2 surface of three spans, and returns at `2e156`. Planes, degree-1 surfaces,
+/// interior control points and single- or two-span biquadratic patches return even at
+/// `1e300`; without a debugger on the pod the exact condition is not pinned down, so
+/// every degree >= 2 face with a huge corner is refused.
+const MAX_GAP_COORD: f64 = 2e156;
+
+/// Refuses a B-spline face block (`kind 2`, surface kind `0`) with `init_gaps` set, a
+/// degree of at least 2 in u or v and a corner control point coordinate above
+/// [`MAX_GAP_COORD`]. `head` is the validated B-rep block plus `editing`, so `init_gaps`
+/// is its second-to-last value.
+fn gap_guard(head: &[f64]) -> Result<(), FfiError> {
+    let init_gaps = head.len().checked_sub(2).and_then(|i| head.get(i)) == Some(&1.0);
+    if head.first() != Some(&2.0) || head.get(1) != Some(&0.0) || !init_gaps {
+        return Ok(());
+    }
+    let (Some(&n), Some(&m), Some(&p), Some(&q)) =
+        (head.get(4), head.get(5), head.get(6), head.get(7))
+    else {
+        return Err(bad("surface header too short"));
+    };
+    if p < 2.0 && q < 2.0 {
+        return Ok(());
+    }
+    let (n, m) = (n as usize, m as usize);
+    for (a, b) in [(0, 0), (0, m), (n, 0), (n, m)] {
+        let at = 10 + 4 * (a * (m + 1) + b);
+        let pt = head
+            .get(at..at + 3)
+            .ok_or_else(|| bad("surface net too short"))?;
+        if pt.iter().any(|&c| c != f64::MAX && c.abs() > MAX_GAP_COORD) {
+            return Err(bad("face too large for the gap initialisation"));
+        }
+    }
+    Ok(())
+}
+
 /// Refuses a `Mate` whose extension distance `dMaxDist * dSurfaceExtensionFactor`
-/// would not be finite (upstream returns before extending when `dMaxDist <
-/// SM_EFF_ZERO` or the distance computation fails, so those run).
+/// would not be finite (upstream returns before extending when editing is off, the
+/// edge or a neighbour is not lamina/seam, the copy or distance computation fails, or
+/// `dMaxDist < SM_EFF_ZERO`, so those run and their statuses are compared).
 fn mate_guard(path: &str, input: &[f64]) -> Result<(), FfiError> {
     let probe = raw(Op::MateProbe, path, input)?;
     let (Some(&status), Some(&max_dist)) = (probe.get(1), probe.get(2)) else {

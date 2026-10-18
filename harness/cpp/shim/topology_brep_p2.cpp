@@ -313,13 +313,31 @@ void run(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         // computed as SmBrep.cpp:22200-22229 does (extended copy of the mating surface,
         // 21 GlobalPointSolve distances). Outputs `status dMaxDist`. A distance whose
         // square overflows makes dMaxDist infinite, and CreateExtendedSurface then never
-        // stops halving (plan/upstream-issues.md HANG-9).
+        // stops halving (plan/upstream-issues.md HANG-9). The early returns of
+        // SmBrep.cpp:22166-22195 are replayed first (without the PRE_EDIT notify, which
+        // returns nothing): when Mate would stop there, the status is SM_ERR and the
+        // guard lets the Mate run, so its early status is still compared.
         SmEdge* e = at(g.edges, rd.idx());
         SmSurface* s = read_surface(rd, ctx);
         double f1 = rd.num();
         rd.num();
+        SmStatus ps = SM_SUCCESS;
+        if (brep->m_bEditingEnabled == FALSE || !e->IsLamina())
+            ps = SM_ERR;
+        SmEdgeuse* pEU = ps == SM_SUCCESS ? e->GetPrimaryEdgeuse() : NULL;
+        SmFace* pFace = pEU ? pEU->GetFace() : NULL;
+        if (pFace == NULL)
+            ps = SM_ERR;
+        for (int k = 0; k < 2 && ps == SM_SUCCESS; k++)
+        {
+            SmEdgeuse* pN = k == 0 ? pEU->GetCCWEdgeuse() : pEU->GetCWEdgeuse();
+            SmEdge* pNE = pN ? pN->GetEdge() : NULL;
+            if (pNE == NULL || (!pNE->IsLamina() && !pNE->IsSeam(*pFace->GetSurface())))
+                ps = SM_ERR;
+        }
         SmSurface* pExtendedMating = NULL;
-        SmStatus ps = s->Copy(ctx, pExtendedMating);
+        if (ps == SM_SUCCESS)
+            ps = s->Copy(ctx, pExtendedMating);
         SmObjDelete sCleanExtended(pExtendedMating);
         double dMaxDist = 0;
         SmCurve* pECurve = e->GetCurve();

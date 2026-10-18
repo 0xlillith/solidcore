@@ -1464,6 +1464,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** hang.
 - **Rust port:** `topology::brep::p2::mate_lamina_edge_to_surface` returns `InvalidInput` for a negative extension distance before `create_extended_surface`; the difftest FFI rejects a negative factor (`topology.brep_p2` runner test `mate_rejects_a_negative_extension_factor`).
 
+#### HANG-28. `SmVertexuse::GetVertexFaceGap` never returns for a curved face with a huge corner
+- **Location:** `SmVertexuse.cpp:1646` `SmVertexuse::GetVertexFaceGap` -> `CalcVertexFaceGap` (the vertex's drop onto the face surface).
+- **What happens:** the gap of a face vertex never finishes computing; the exact loop is not identified.
+- **Trigger:** `CreateFaceFromSurface` on a u-degree-2, v-degree-1 B-spline with three u spans (5 x 2 net, knots `0,0,0,.33,.66,1,1,1`) whose corner control point (a vertex position) has a coordinate of `5e156` or more, then `GetVertexFaceGap` on its vertex uses (the shared topology fixture's `init_gaps`). `2e156` returns. The same corner returns up to `1e300` on planes, degree-1 surfaces, single- and two-span biquadratic patches, and when the huge value is an interior control point.
+- **How found:** `topology.brep_p2`'s `difftest --fuzz 2000` (PR #149, case fuzz00497: control point `y = 1e300`, a `LocalCurveSector` op; plain queries on the same B-rep hang too).
+- **Confirmed:** yes, by C++ runs with 60-120 s timeouts and an `fprintf` trace inside the fixture build, which stops inside the third vertex use's `GetVertexFaceGap`. No gdb on the pod, so the inner loop is not pinned down.
+- **Severity:** hang.
+- **Rust port:** the Rust side returns (no gap initialisation in the difftest import). The `topology.brep_p2` FFI refuses a degree >= 2 B-spline face with a corner control point coordinate above `2e156` when `init_gaps` is set; this over-refuses the single- and two-span patches that return.
+
 #### HANG-13. `SmApiCreateLinearSweep` of a full circle over a negative distance never returns
 - **Location:** `source/SM_API/src/SmApiBrep.cpp:1196` `SmApiCreateLinearSweep` (and `SmApiCreateLinearSweepWithRepetitions`, `:1685`) -> `source/SMLib/src/SmPrimitiveCreation.cpp:1795` `SmPrimitiveCreation::CreateLinearSweep` -> (one repetition) `:1150` `CreateLinearSweep`, which builds the analytic domain `SmExtent2d(0, 0, 1, dSweepDist)` without ordering it.
 - **What happens:** The C++ reference run did not finish within 5 minutes. Which loop spins was not located. The same sweep with a positive distance, or with the direction reversed instead of the distance, finishes at once; arcs short of 360 degrees, lines and line rectangles with a negative distance also finish.

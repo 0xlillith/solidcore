@@ -2507,8 +2507,10 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     *capture,
                     *override_tol,
                 )?;
+                let tol = mgr.tolerance(&k);
                 ti.set_proto_topology_manager(Some(mgr));
                 o.push(0.0);
+                o.push(tol);
             }
             OpIn::Resolve => {
                 o.push(29.0);
