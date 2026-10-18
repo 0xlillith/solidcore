@@ -61024,7 +61024,7 @@
    }
   },
   {
-   "name": "classify_face_point_hang16_huge_rejected",
+   "name": "classify_face_point_hang29_huge_rejected",
    "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp",
    "inputs": {
     "expected_rejection": true,
@@ -61129,7 +61129,7 @@
    }
   },
   {
-   "name": "classify_face_point_hang16_tiny_weight_rejected",
+   "name": "classify_face_point_hang29_tiny_weight_rejected",
    "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp",
    "inputs": {
     "expected_rejection": true,
@@ -61234,7 +61234,7 @@
    }
   },
   {
-   "name": "classify_face_point_hang16_over_1e150_rejected",
+   "name": "classify_face_point_hang29_over_1e150_rejected",
    "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp",
    "inputs": {
     "expected_rejection": true,
@@ -61453,7 +61453,7 @@
    }
   },
   {
-   "name": "classify_face_point_hang16_large_1e50_accepted",
+   "name": "classify_face_point_hang29_large_1e50_accepted",
    "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp",
    "inputs": {
     "op": "classify_face_point",

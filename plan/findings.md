@@ -6849,7 +6849,7 @@ regression inputs below; 2000-seed sweep 2037 pass / 111 deferred / 0 failed / 1
   `sm_CreateCubicRailRailInterpolant` (no cases: they take an `SmFilletSolver`).
   `capping` with a cap (iso-parameter lines lifted through `sm_ExtractIsoCurve`)
   compares.
-- **Upstream hang HANG-16 and the magnitude guard.** The `fuzz_guards` sweep found a
+- **Upstream hang HANG-29 and the magnitude guard.** The `fuzz_guards` sweep found a
   face whose surface has a control point of magnitude 1e154: `sm_ClassifyFacePoint`'s
   C++ path (`CalculateUVDomainFromUVTrimCurves` -> `DropAndTrimCurve` ->
   `SmCurve::GlobalCoincidenceChecker`) splits the boundary forever once squared
@@ -6975,7 +6975,7 @@ regression inputs below; 2000-seed sweep 2037 pass / 111 deferred / 0 failed / 1
   returns at a homogeneous `-2e307` (Euclidean `1.3e307`) and never at `-3e307`; all
   return in 1-3 ms at `-1e300` and below (`-1e200`, `-1e150`, `-1e100`). So the trigger
   is the coordinate itself overflowing by a small factor in the solvers' box arithmetic,
-  not HANG-16's squared distances. The FFI bounds every value (Euclidean `Pw / w`) of
+  not HANG-29's squared distances. The FFI bounds every value (Euclidean `Pw / w`) of
   those four ops (`FbVertOnVert` drops a point too) by `MAX_SOLVER_MAGNITUDE = 1e307`,
   under every measured hang and at or under every measured return; the other ops are
   untouched (capping, the seam checks and the record ops ran the same values without

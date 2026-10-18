@@ -95,7 +95,7 @@
 //! telling them apart would mean replicating upstream's control flow. For
 //! `ClassifyFacePoint` and `FbSplitFace`, the
 //! ops that reach `sm_ClassifyFacePoint`, every value (control points as Euclidean
-//! `Pw / w`) is bounded by [`MAX_MAGNITUDE`], the overflow regime of HANG-16; inputs
+//! `Pw / w`) is bounded by [`MAX_MAGNITUDE`], the overflow regime of HANG-29; inputs
 //! under it are accepted even though those from about `1e15` can take seconds to about
 //! a minute. For `SurfaceDropPoint`, `TwoPnts`, `FbVertOnVert` and `FbCliff`, whose
 //! global solves never finish once a coordinate's own box arithmetic overflows
@@ -119,7 +119,7 @@ pub const MAX_LIST: usize = 64;
 /// `sm_ClassifyFacePoint`; rational control points are bounded as `Pw / w`. The
 /// boundary split in upstream `SmCurve::GlobalCoincidenceChecker` (reached through
 /// `SmFace::CalculateUVDomainFromUVTrimCurves`) never terminates once squared
-/// distances overflow to infinity (HANG-16: a control point of `1e153` returns, `1e154`
+/// distances overflow to infinity (HANG-29: a control point of `1e153` returns, `1e154`
 /// never), and that is the only non-termination established, so the bound sits at the
 /// overflow regime. It does not bound the runtime: the split is slow in a
 /// shape-dependent way from about `1e15` on (one control point of `-1e15` in every
@@ -140,7 +140,7 @@ pub const MAX_MAGNITUDE: f64 = 1e150;
 /// a homogeneous `2e307` (Euclidean `1.3e307`) and never at `3e307` (`2e307`), and all
 /// three return in milliseconds at `1e300` and below. The bound sits under every
 /// measured hang and at or under every measured return; it is not the squared-distance
-/// regime of HANG-16 (those three calls return at `1e150`..`1e300`).
+/// regime of HANG-29 (those three calls return at `1e150`..`1e300`).
 pub const MAX_SOLVER_MAGNITUDE: f64 = 1e307;
 /// `NL_NOZ`.
 const NOZ: f64 = f64::MAX;
@@ -260,7 +260,7 @@ struct Reader<'a> {
     input: &'a [f64],
     at: usize,
     /// The magnitude bound of this op's values: [`MAX_MAGNITUDE`] for the ops reaching
-    /// HANG-16, [`MAX_SOLVER_MAGNITUDE`] for the global-solver ops (HANG-20), infinite
+    /// HANG-29, [`MAX_SOLVER_MAGNITUDE`] for the global-solver ops (HANG-20), infinite
     /// otherwise.
     bound: f64,
 }
@@ -399,7 +399,7 @@ fn points(rd: &mut Reader<'_>, k: usize) -> Result<Vec<[f64; 4]>, FfiError> {
                 rd.marker_or_finite(NOW)?,
             ];
             // the bound is on the Euclidean point: a tiny weight under a bounded
-            // homogeneous coordinate reaches the HANG-16 regime just the same
+            // homogeneous coordinate reaches the HANG-29 regime just the same
             let w = pt[3];
             if rd.bound.is_finite() && w != NOW {
                 let oversized = |c: f64| {

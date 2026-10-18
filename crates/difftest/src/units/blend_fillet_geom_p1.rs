@@ -26,7 +26,7 @@
 //! stub prints `intersect.surface_drop_curve`). `fb` `examine` past its pre-checks is
 //! refused by the shim (no `SmFilletSolver`; see the FFI module). Fixtures flagged
 //! `expected_rejection` are regression inputs the FFI or the shim must refuse (upstream
-//! crashes or hangs: HANG-16, UB-166, the examine path); every other refusal is a
+//! crashes or hangs: HANG-29, UB-166, the examine path); every other refusal is a
 //! harness error; HANG-20 bounds the four global-solver ops at `MAX_SOLVER_MAGNITUDE`).
 //! Every run has at least [`MIN_GENERATED`] generated cases.
 
@@ -2976,11 +2976,11 @@ mod tests {
     /// Mutates generated and fixture programs and feeds them to the FFI: every program
     /// the guards accept must run without crashing (a crash kills the test process) or
     /// hanging (30 s per call; 180 s for `ClassifyFacePoint` and `FbSplitFace`, whose
-    /// accepted inputs can take up to about 100 s under the HANG-16 bound). `cargo test
+    /// accepted inputs can take up to about 100 s under the HANG-29 bound). `cargo test
     /// -p difftest --features cpp -- --ignored fuzz_guards`; `FUZZ_SEED` and
     /// `FUZZ_CALLS` override the seed (`0xfa11ba11`) and the call count (60k). A clean
     /// sweep is evidence, not proof: the pre-review's sweeps missed UB-166 and the slow
-    /// HANG-16 inputs that a different mutation mix found.
+    /// HANG-29 inputs that a different mutation mix found.
     #[test]
     #[ignore = "60k FFI calls; run on demand"]
     fn fuzz_guards() {
@@ -3031,7 +3031,7 @@ mod tests {
             64.0,
             63.0,
             -0.0,
-            // the HANG-16 slow range and the UB-166 knot fixup (scaled zero 2e-12 on [0, 1],
+            // the HANG-29 slow range and the UB-166 knot fixup (scaled zero 2e-12 on [0, 1],
             // spread tolerance 1.2e-8 and its 1.01 increment)
             1e15,
             -1e15,

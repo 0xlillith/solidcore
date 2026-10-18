@@ -1547,7 +1547,7 @@
         }
       },
       "max_rel_err": 0.0,
-      "name": "classify_face_point_hang16_huge_rejected",
+      "name": "classify_face_point_hang29_huge_rejected",
       "outcome": "rejected",
       "pass": false,
       "rejected": "non-finite or oversized value",
@@ -1593,7 +1593,7 @@
         }
       },
       "max_rel_err": 0.0,
-      "name": "classify_face_point_hang16_tiny_weight_rejected",
+      "name": "classify_face_point_hang29_tiny_weight_rejected",
       "outcome": "rejected",
       "pass": false,
       "rejected": "oversized Euclidean control point",
@@ -1661,7 +1661,7 @@
         }
       },
       "max_rel_err": 0.0,
-      "name": "classify_face_point_hang16_over_1e150_rejected",
+      "name": "classify_face_point_hang29_over_1e150_rejected",
       "outcome": "rejected",
       "pass": false,
       "rejected": "non-finite or oversized value",
@@ -1674,7 +1674,7 @@
         "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
-      "name": "classify_face_point_hang16_large_1e50_accepted",
+      "name": "classify_face_point_hang29_large_1e50_accepted",
       "outcome": "deferred",
       "pass": false,
       "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#142 (upstream source/SMLib/src/SmFilletGeom.cpp)",
