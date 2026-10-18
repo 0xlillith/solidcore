@@ -7234,7 +7234,8 @@ edge use without face, 3 swaps without an old infinite region, and 23 runner-sid
 through 89dc103a).
 `sm_SwapFaceUV` calls `topology.face_p1`'s `SmFace::SwapUV` (#148, wired after the merge; status ignored as upstream's release `SE`, `Unported` still propagates): on an unmarked face the shim now runs the C++ swap and both sides compare the swapped B-rep digest (the heal digest: surfaces, trim-curve fingerprints, loop-use links), but every such case defers at `SmFace::GetBrep` (`topology.face_p4`), the first call of face_p1's `swap_uv`, so none compares yet (the 16 former `topology.face_p1` deferrals are now `topology.face_p4` 16; no deferral flipped to pass).
 Every compared value is bit-identical; no absolute floors. Of the 2110 passes, 2065 compare
-values. The other 45 are guard agreements, not coverage: both sides report the null-dereference
+values (5 of them, `CreateCornerBlend` on three edge uses, compare only the C++ failure status
+and an empty surface list). The other 45 are guard agreements, not coverage: both sides report the null-dereference
 guard (`both_errored` in the report) and no C++ runs, because the shim stops before an upstream null
 dereference. 15 are `AddAttributes` on a null indexed target, where the runner itself writes the
 Rust side's `-2` before any port call (a runner-side mirror, no port code exercised). 27 are
@@ -7407,9 +7408,15 @@ rejected: nothing runs on either side.
   `sm_RedistributeSeamUVTrimCurves` requests the first derivative it never reads, as upstream),
   `GetOrCreateUVTrimCurve` (header defaults `NULL`, `NULL`, `TRUE`; the curve upstream returns
   beside the status is read back with `SmEdgeuse::GetUVTrimCurve`) and `EvaluateBinormal`
-  (`bUse3DOnly = TRUE` at both sites). `CreateEdgeEdgeBlend` propagates a failing
-  `EvaluateBinormal`, whose two statuses upstream ignores (it goes on with partly initialised
-  outputs), and takes the B-rep mutably. `offset_executive_p1`'s `SmBrep::GetEdges` stub now calls
+  (`bUse3DOnly = TRUE` at both sites). `CreateEdgeEdgeBlend` ignores both `EvaluateBinormal`
+  statuses as upstream (SmBrep.cpp:2926-2927) and goes on with the outputs upstream sees: they
+  start as `SM_UNDEF_DOUBLE`, the not-a-loop-edge-use status returns before
+  `EvaluateBinormal`'s "Init outputs" step (all undefined), every later status after it (point,
+  tangent and normal zero, binormal undefined: it is written only on success). That is defined
+  arithmetic in the flag tests that follow, not uninitialised data (review of e97b63fd, S1; an
+  earlier round propagated the failure on that wrong reasoning). Only `Unported` and
+  edgeuse_p3's own null-dereference `InvalidInput` propagate. No compared case reaches it yet
+  (all 45 blend-flag fixtures defer later). The B-rep is taken mutably. `offset_executive_p1`'s `SmBrep::GetEdges` stub now calls
   `topology::brep::p1::edges` (list order); its `CreateEdgeEdgeBlend` stub keeps the
   `topology.brep_p1` label, since upstream pairs an original-B-rep and an offset-B-rep edge use and
   this port takes both from one B-rep.
@@ -7423,17 +7430,26 @@ rejected: nothing runs on either side.
     for the same inputs. The corner blend replays upstream's ordering and UV phase on a copy of
     the B-rep (surface types kept) and reports the null-dereference guard only where upstream
     would copy a NULL UV trim curve; no fixture or sweep case reaches it (`cases_both_errored`
-    stays 45). The corner blend now also emits the blend surfaces after the count.
-  - **Flips against the previous report.** 240 new UNSURE cases pass. 11 deferrals pass: 5
+    stays 45). The corner blend now also emits the blend surfaces after the count. Both
+    probes' refusals are statuses the shim decides (the port's codes for those inputs): once
+    the Rust side stops deferring, such cases are guard agreements, not compared C++ runs. The
+    edge-edge probe's `GetSampleValues` may build the face surfaces' caches before the real
+    call, which builds the same caches at that point (results unchanged).
+  - **Flips against the previous report.** 240 new UNSURE cases pass (the raw `2` flag through
+    `ResetInfiniteRegion` and its copy in the swap; the nested-solids `!IsVoid()` of UNSURE is
+    unreachable upstream, not just uncovered: `SetRegionIsVoidFlagsForNestedSolids` sets the
+    infinite region first and every queued region to 0 or 1 before reading it). 11 deferrals pass: 5
     `CreateCornerBlend` on three edge uses, which compare the C++ failure status and an empty
     surface list, and 6 `sm_RedistributeSeamUVTrimCurves`, which compare the status and the swap
     flag. 82 deferrals moved to later units (69 `topology.face_p2`, 10
     `intersect.surface_drop_lib_p3`, 3 `topology.face_p3`). No pass changed. All 45 blend-flag
     `CreateEdgeEdgeBlend` fixtures still defer on the Rust side, so the blend path has no compared
     case.
-  - **valgrind** (`--error-exitcode=99`) on the corner-blend, redistribute, UNSURE and
-    infinite-region samples: clean. On the edge-edge blends: one report, UB-11 (`N_BasisInsertKnots`
-    reads one slot past `X`) under `CreateBlendSurface`, in a case that defers on the Rust side.
+  - **valgrind** (`--error-exitcode=99 --suppressions=harness/valgrind/ub11.supp`) on the
+    corner-blend, redistribute, UNSURE, infinite-region and edge-edge blend samples: 0 errors.
+    The suppression covers only UB-11 (`Memcheck:Cond` in `N_BasisInsertKnots`), which the
+    edge-edge blends reach under `CreateBlendSurface`; UB-11's entry records why that read
+    cannot change a result. Without it, the edge-edge sample reports exactly that one error.
 
 ## topology.face_p1 (`SmFace.cpp` part 1: `MoveSeam`, `SplitAtSeam`, `CreateOrientedTrimBoundary`, `CalculateUVDomainFromUVTrimCurves`, ...; PR #148, 2026-10-16; partial, no disagreements)
 

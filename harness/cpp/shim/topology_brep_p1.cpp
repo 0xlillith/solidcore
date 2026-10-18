@@ -976,6 +976,11 @@ static double blend_surface_ub157(const SmContext& ctx, const SmSurface& s1, con
 // SmBrep::CreateEdgeEdgeBlend (SmBrep.cpp:2850-3020) for a blend flag != 0 and no definition,
 // replayed up to its CreateBlendSurface call on its own fresh rails (the edge uses are only read):
 // the UB-157 probe of that call, 0 when upstream returns before it or the blend is defined.
+// The probe's GetSampleValues may build and keep the face surfaces' caches before the real
+// call; the real CreateBlendSurface builds the same caches from the same surfaces at that
+// point, so the reference results are unchanged. A refusal is a status the shim decides (the
+// port's code for the same input): once the Rust side stops deferring, such a case is a guard
+// agreement, not a compared C++ run.
 static double edge_edge_blend_ub157(const SmContext& ctx, SmEdgeuse* e1, SmEdgeuse* e2, ULONG dir)
 {
     SmEdge* edge1 = e1->GetEdge();

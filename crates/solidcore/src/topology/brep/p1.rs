@@ -96,9 +96,10 @@
 //!   `UnLockBoundingBox` (`query.brep`), `SmBSplineSurface::CreateCornerBlend` with a
 //!   non-B-spline neighbour surface (`nurbs.b_spline_surface_n_lib_p2`, whose port takes
 //!   B-spline neighbours only).
-//! - `CreateEdgeEdgeBlend` propagates a failing `EvaluateBinormal` (upstream ignores
-//!   both statuses and goes on with partly initialised outputs) and so takes the B-rep
-//!   mutably (edge use evaluations may attach UV trim curves).
+//! - `CreateEdgeEdgeBlend` takes the B-rep mutably (the edge use evaluations of
+//!   `topology.edgeuse_p3` take it so); it ignores both `EvaluateBinormal` statuses as
+//!   upstream and goes on with the outputs upstream sees after a failure (undefined, or
+//!   zeroed point, tangent and normal).
 //! - `GetShells` dedups with a shell mark record local to the call (upstream marks the
 //!   `SmShell` objects); `SetRegionIsVoidFlagsForNestedSolids` bounds its shell queue at
 //!   `4 * shells + 16` passes.
@@ -1468,6 +1469,48 @@ fn evaluate_binormal(
     )
 }
 
+/// `EvaluateBinormal(dParameter, TRUE, rPos, rBinormal, &rTangent, &rNormal)` with its
+/// status ignored, as `CreateEdgeEdgeBlend` calls it: the outputs upstream goes on with.
+/// The out-params start as `SM_UNDEF_DOUBLE` (`SmVector3d`'s default). `EvaluateBinormal`
+/// writes them all only on success; its one status before its "Init outputs" step (not
+/// a loop edge use) leaves them undefined, every later one leaves the point, tangent and
+/// normal zeroed and the binormal undefined. `Err` for [`SolidError::Unported`] and for
+/// `topology.edgeuse_p3`'s own [`SolidError::InvalidInput`] (an upstream null dereference).
+fn evaluate_binormal_status_ignored(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    parameter: f64,
+) -> Result<BinormalEval> {
+    let undefined = BinormalEval {
+        point: Vec3::UNDEF,
+        binormal: Vec3::UNDEF,
+        tangent: Vec3::UNDEF,
+        face_normal: Vec3::UNDEF,
+        uv: Point2::UNDEF,
+    };
+    if !eu1::is_loop_edgeuse(b, eu)? {
+        return Ok(undefined); // SER(SM_ERR_INVALID_INPUT) before the outputs are set
+    }
+    match evaluate_binormal(k, b, eu, parameter, true) {
+        Ok(eval) => Ok(eval),
+        Err(e) if e.is_unported() => Err(e),
+        Err(
+            e @ SolidError::InvalidInput {
+                operation: "topology::edgeuse::p3",
+                ..
+            },
+        ) => Err(e),
+        // a status after "Init outputs": point, tangent and normal set to zero
+        Err(_) => Ok(BinormalEval {
+            point: Vec3::new(0.0, 0.0, 0.0),
+            tangent: Vec3::new(0.0, 0.0, 0.0),
+            face_normal: Vec3::new(0.0, 0.0, 0.0),
+            ..undefined
+        }),
+    }
+}
+
 // ---- curve side (sm_FindSideOfCurve) ----------------------------------------------------
 
 /// `sm_FindSideOfCurve`: projects `point` onto `curve` along `projection_direction`
@@ -2504,8 +2547,8 @@ pub fn create_corner_blend(
 /// `SM_ERR_NULL_POINTER` for a null edge use (`NER`); `SM_ERR_INVALID_INPUT` for an
 /// edge use without edge, an edge without B-spline curve or a face without surface;
 /// [`SolidError::InvalidInput`] for a blend edge use without face (upstream
-/// dereferences it); those of the binormal evaluations (statuses upstream ignores),
-/// the knot dampening and the ruled surface.
+/// dereferences it); those of the knot dampening and the ruled surface (the binormal
+/// statuses are ignored as upstream).
 #[allow(clippy::too_many_arguments)]
 pub fn create_edge_edge_blend(
     k: &Kernel,
@@ -2611,20 +2654,19 @@ pub fn create_edge_edge_blend(
     }
 
     // set the bIntoFace values for curve/Surface pairs
-    // (upstream ignores both statuses and goes on with the partly initialised outputs;
-    // a failure is propagated here)
+    // (both statuses ignored upstream: a failure leaves defined UNDEF / zero outputs)
     let BinormalEval {
         binormal: edge1_binormal,
         tangent: mut edge1_tangent,
         face_normal: mut face1_normal,
         ..
-    } = evaluate_binormal(k, b, eu_1, ivl1.evaluate(0.5), true)?;
+    } = evaluate_binormal_status_ignored(k, b, eu_1, ivl1.evaluate(0.5))?;
     let BinormalEval {
         binormal: edge2_binormal,
         tangent: mut edge2_tangent,
         face_normal: mut face2_normal,
         ..
-    } = evaluate_binormal(k, b, eu_2, ivl2.evaluate(0.5), true)?;
+    } = evaluate_binormal_status_ignored(k, b, eu_2, ivl2.evaluate(0.5))?;
     if eu1::orientation(b, eu_1)? == OrientType::Opposite {
         edge1_tangent = -edge1_tangent;
     }

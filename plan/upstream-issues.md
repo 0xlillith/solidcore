@@ -179,7 +179,8 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **What happens:** After the last new knot is inserted, the merge step compares `X[mx+1]`. An empty `X` reads `X[-1]`.
 - **Trigger:** Any call: one slot past the end is always read. Or an empty insert vector.
 - **How found:** read during porting.
-- **Confirmed:** no. The read never changes the output in practice. valgrind reports the read as a conditional jump on an uninitialised value (`N_BasisInsertKnots` under `N_CreateSkinSrfBoundaryContinuity`, `topology.brep_p1` edge-edge blends through `CreateBlendSurface`, cases that defer on the Rust side).
+- **Confirmed:** yes, by valgrind: a conditional jump on an uninitialised value in `N_BasisInsertKnots` (under `N_CreateSkinSrfBoundaryContinuity`, `topology.brep_p1` edge-edge blends through `CreateBlendSurface`); no invalid read, the slot lies inside the allocation.
+- **Why the output cannot depend on it:** the read is in the merge's `else` branch (`NL_BasisAdv.cpp:291-295`). After `S[++ms] = X[j++]` takes the last insert knot (`j = mx + 1`), `R[i] LT X[j]` reads `X[mx+1]`. If it is true, `R[i]` is appended now; if it is false (or reads garbage), the loop continues (`i < mr - p` still holds) and the next pass takes the `j GT mx` branch, which appends the same `R[i]`. Either way `S` is identical, so running the reference through it is safe, and no exact guard exists (every knot insertion reads it). valgrind runs suppress exactly this frame with `harness/valgrind/ub11.supp` (`Memcheck:Cond`, `fun:N_BasisInsertKnots`).
 - **Severity:** crash/UB.
 - **Rust port:** Skips the comparison. Empty `X` is `InvalidInput`.
 
