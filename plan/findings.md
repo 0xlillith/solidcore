@@ -6335,6 +6335,18 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   the 366 deferrals move to `GetUpwardEdgeuses`, `topology.face_p4`),
   `heal.heal_data_p2` (`SetTolerance`, `IsDegenerate`; `Cache_DegenFaces` now takes the
   B-rep mutably, since `IsDegenerate`'s quick check may build UV trim curves).
+- **Probe (review round 2026-10-18, `--fuzz 2000`).** No crash and no panic; 0 differs
+  after two harness fixes: `SetTolerance` / `IsDegenerate` take an `SmZoneTol3d`, so the
+  shim's double is converted (`USE_DEFAULT`, then `fabs`) and the runner now does the same
+  with `geom::tol::zone_tol3d` (negative tolerances had differed; regression cases
+  `*_set_tol_negative*`, `triangle_pole_degenerate_negative_tol`), and the shared
+  `topology.vertexuse` block encoder returns a harness error for an empty knot vector
+  instead of overflowing. Two timeouts remain, both C++ (no result after 20 s) on a
+  B-spline face with one control point coordinate mutated to `±1e300`: `FaceIntersect` of
+  `biquadratic` with itself (coincidence TRUE) and `CreateComposites` of the closed
+  cylinder face. Not investigated further (slow or a hang); a magnitude bound in the shared
+  block validator of `topology.vertexuse` would reject them, but that guard is shared by
+  every runner using the blocks and was not changed in this round.
 - **Upstream defects.** UB-162 (`ComputeLoopOrientation` reads the last of an empty
   edge use array), UB-165 (`FaceIntersect` hands out deleted curves through
   `pOptCC3DCrvs` without classification arrays). `sVeryFirstUV` is defined (the

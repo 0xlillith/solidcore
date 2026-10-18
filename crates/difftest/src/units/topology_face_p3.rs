@@ -33,6 +33,7 @@ use solidcore::curve::curve::Curve as SmCurve;
 use solidcore::geom::attribute::{AttributeStore, ObjectKey};
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
+use solidcore::geom::tol::zone_tol3d;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::topology::edgeuse::p1 as eu1;
@@ -578,7 +579,10 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
             out.push(flag(value!(r)));
         }
         OpIn::SetTol { .. } => {
-            value!(p3::set_tolerance(&mut b, f, a[1], a[2] != 0.0, a[3] != 0.0));
+            // `SetTolerance(SmZoneTol3d, ..)`: the shim's double converts implicitly
+            // (USE_DEFAULT, then fabs)
+            let tol = zone_tol3d(&k, a[1]);
+            value!(p3::set_tolerance(&mut b, f, tol, a[2] != 0.0, a[3] != 0.0));
             put_tols(&b, &mut out);
         }
         OpIn::Notify { .. } => {
@@ -634,7 +638,8 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
             put_use_states(&b, &mut out);
         }
         OpIn::Degenerate { .. } => {
-            let tol = (a[2] != 0.0).then_some(a[3]);
+            // the shim's `SmZoneTol3d tol = a[3]` (USE_DEFAULT, then fabs)
+            let tol = (a[2] != 0.0).then_some(zone_tol3d(&k, a[3]));
             out.push(flag(value!(p3::is_degenerate(
                 &k,
                 &mut b,

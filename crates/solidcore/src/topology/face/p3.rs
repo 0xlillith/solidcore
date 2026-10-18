@@ -316,7 +316,8 @@ pub fn has_consecutive_lamina_edges(b: &Brep, f: FaceId) -> Result<bool> {
 /// `SetTolerance`: sets the face tolerance to `new_zone_tol_3d` (only when larger with
 /// `update_only_if_larger`); with `cascade_to_boundaries`, raises every face edge whose
 /// tolerance is below it ([`edge::set_tolerance`] with the same flags). Upstream
-/// defaults are `true`, `true`.
+/// defaults are `true`, `true`. `new_zone_tol_3d` is upstream's `SmZoneTol3d` argument:
+/// a caller passing a plain double converts it first ([`crate::geom::tol::zone_tol3d`]).
 ///
 /// # Errors
 ///
