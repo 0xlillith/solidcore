@@ -1924,6 +1924,7 @@ mod tests {
     use crate::intersect::point_class::{ClassObject, ClassObjectKind};
     use crate::surface::plane::Plane;
     use crate::surface::volume::Volume;
+    use crate::topology::{Faceuse, FaceuseId};
 
     #[derive(Debug, Clone, Copy, PartialEq)]
     struct H(LoopId);
@@ -2042,13 +2043,7 @@ mod tests {
     }
 
     /// `plane_face` with the pair of face uses (no loops) the edits walk.
-    fn plane_face_with_faceuses() -> (
-        Brep,
-        FaceId,
-        crate::topology::FaceuseId,
-        crate::topology::FaceuseId,
-    ) {
-        use crate::topology::{Faceuse, FaceuseId};
+    fn plane_face_with_faceuses() -> (Brep, FaceId, FaceuseId, FaceuseId) {
         let (mut b, f) = plane_face();
         let top = b
             .add_faceuse_record(Faceuse {
