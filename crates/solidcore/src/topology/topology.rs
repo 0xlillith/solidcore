@@ -570,9 +570,9 @@ impl TopologyChangeCallback {
         if operation == ChangeOwner {
             self.owners.insert(caller.key, data1);
         }
-        if operation == ChangeGeometry {
-            if let Some(geometry) = data1 {
-                self.owners.insert(geometry.key, Some(caller));
+        if operation == Destruction {
+            if let Some(object) = data1 {
+                self.owners.remove(&object.key);
             }
         }
         let Some(tracked) =
@@ -641,9 +641,6 @@ impl TopologyChangeCallback {
             Destruction => {
                 remove_key(&mut lists.add_list, data1);
                 remove_key(&mut lists.chg_list, data1);
-                if let Some(object) = data1 {
-                    self.owners.remove(&object.key);
-                }
             }
             _ => {}
         }
