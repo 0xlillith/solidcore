@@ -85,9 +85,10 @@
 //!   edge uses keep their (dangling) vertex use id.
 //! - **Constructors.** `SmFilletEdgeuse(SmFilletBrep*)` needs the pseudo B-rep's
 //!   infinite region and its first shell (`SmBrep::GetInfiniteRegion`,
-//!   `SmBrep::MakeShellVertexTopology`, `SmRegion::GetShells`): the units
-//!   `topology.brep_p1`, `topology.brep_p2` and `topology.shell` are not ported yet:
-//!   each call is a stub carrying upstream's arguments and the rest of the constructor
+//!   `SmBrep::MakeShellVertexTopology`, `SmRegion::GetShells`): `GetShells` is
+//!   `topology.shell`'s, with no attribute filter as upstream's default; the units
+//!   `topology.brep_p1` and `topology.brep_p2` are not ported yet: each of their calls
+//!   is a stub carrying upstream's arguments and the rest of the constructor
 //!   (the shell-owned edge use with no fillet geometry) is ported behind them, so
 //!   [`FilletBrep::new_fillet_edgeuse`] returns [`SolidError::Unported`] today and
 //!   completes once they are wired. `SmFilletGeom(pFilletSolver, eType)` copies the
@@ -1368,8 +1369,8 @@ impl FilletBrep {
     /// # Errors
     ///
     /// [`SolidError::Unported`]: `SmBrep::GetInfiniteRegion` (`topology.brep_p1`; then
-    /// `SmRegion::GetShells` of `topology.shell` and `SmBrep::MakeShellVertexTopology`
-    /// of `topology.brep_p2`); [`SolidError::Upstream`] (`SM_ERR_NULL_POINTER`) when the
+    /// `SmBrep::MakeShellVertexTopology` of `topology.brep_p2` when the region has no
+    /// shell); [`SolidError::Upstream`] (`SM_ERR_NULL_POINTER`) when the
     /// region still has no shell (upstream reads `sShells[0]` of an empty array).
     pub fn new_fillet_edgeuse(&mut self) -> Result<EdgeuseId> {
         // upstream dereferences m_pInfiniteRegion unchecked
@@ -3347,13 +3348,11 @@ fn infinite_region(_brep: &Brep) -> Result<Option<RegionId>> {
     ))
 }
 
-/// `SmRegion::GetShells(rShells)` (unit `topology.shell`).
-fn region_shells(_brep: &Brep, _region: RegionId) -> Result<Vec<ShellId>> {
-    // UNPORTED(topology.shell): SmRegion::GetShells
-    Err(SolidError::unported(
-        "SmRegion::GetShells",
-        "topology.shell",
-    ))
+/// `SmRegion::GetShells(rShells)` ([`Region::get_shells`](crate::topology::Region::get_shells))
+/// with upstream's default `pOptAttributeId = NULL`: no attribute filter, so the
+/// attribute lookup is never called.
+fn region_shells(brep: &Brep, region: RegionId) -> Result<Vec<ShellId>> {
+    brep.region(region)?.get_shells(None, |_, _| Ok(false))
 }
 
 /// `SmBrep::MakeShellVertexTopology(pRegion, rpShell, rpVertex)` (unit
