@@ -68,7 +68,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `blend.fillet_standard_solver_p1` (2336 lines) — in progress: #168 @bherbruck (ready for review)
 - [ ] 🔨 `heal.stitch_p2` (1906 lines) — in progress: #205 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_solver_p4` (1404 lines) — in progress: #212 @blackveilprecision (ready for review)
-- [ ] 🔨 `boolean.topology_intersector_p2` (2195 lines) — in progress: #203 @bluecmd (draft)
+- [ ] 🔨 `boolean.topology_intersector_p2` (2195 lines) — in progress: #203 @bluecmd (ready for review)
 - [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (draft)
 - [ ] 🔨 `sweep.topology_sweep` (2456 lines) — in progress: #222 @damgru (ready for review)
 - [ ] 🔨 `boolean.topology_intersector_p3` (1849 lines) — in progress: #211 @oursland (draft)
@@ -346,7 +346,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 ### boolean (4/9)
 
 - [ ] 🟡 `boolean.topology_intersector_p1` (2491 lines) — partial, 827 cases
-- [ ] 🔨 `boolean.topology_intersector_p2` (2195 lines) — in progress: #203 @bluecmd (draft)
+- [ ] 🔨 `boolean.topology_intersector_p2` (2195 lines) — in progress: #203 @bluecmd (ready for review)
 - [ ] 🔨 `boolean.topology_intersector_p3` (1849 lines) — in progress: #211 @oursland (draft)
 - [ ] 🟡 `boolean.merge_p1` (993 lines) — partial, 248 cases
 - [ ] ⏳ `boolean.merge_p2` (1967 lines) — waiting
