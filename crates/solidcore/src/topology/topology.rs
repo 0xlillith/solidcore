@@ -30,6 +30,8 @@
 //! | [`TopologyChangeLists`]                      | the arrays `SmTopologyChangeCallback` points at  |
 //! | [`TopologyChangeLists::reset_arrays`]        | `SmTopologyChangeCallback::ReSetArrays`, `~SmTopologyChangeCallback` |
 //! | [`TopologyChangeCallback`]                   | `SmTopologyChangeCallback` (constructor)         |
+//! | [`NotifyCallback::execute`] for `TopologyChangeCallback` | `SmTopologyChangeCallback::Execute` |
+//! | `add_unique`, `remove_key` (private) | `SmTopologyChangeCallback::AddUnique`, `Remove` |
 //! | [`TrackTopologyChanges`]                     | `SmTrackTopologyChanges`                         |
 //! | [`TrackTopologyChanges::new`]                | `SmTrackTopologyChanges::SmTrackTopologyChanges` |
 //! | [`TrackTopologyChanges::start_tracking`]     | `SmTrackTopologyChanges::StartTracking`          |

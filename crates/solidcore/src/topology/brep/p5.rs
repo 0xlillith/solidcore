@@ -18,7 +18,7 @@
 //! | [`transform`] | `SmBrep::Transform` |
 //! | [`PendingTopology`] | `SmPendingTopologyDelete` constructor/destructor |
 //!
-//! Deviations: **review WIP, plan status `todo`**. All twelve owned editing
+//! Deviations: dependency-limited editing. All twelve owned editing
 //! control flows are present, including continuations after missing calls.
 //! Individual missing callees remain explicit dependency deferrals. None of the
 //! deferred mutation paths is certified by numerical-target-only cases.
