@@ -219,6 +219,7 @@ pub fn face_properties(
         .as_ref()
         .ok_or_else(|| SolidError::null_pointer(OP))?;
     boundary_properties(
+        k,
         surface,
         &trims,
         &b.face(f)?.uv_domain,
@@ -240,6 +241,7 @@ fn valid_flags(flags: u64) -> Result<()> {
 /// Integrates the same precise face properties after oriented trim construction.
 /// `trims` must have the orientation and order returned by `CreateOrientedTrimBoundary`.
 pub fn boundary_properties(
+    k: &Kernel,
     surface: &Surface,
     trims: &[Curve],
     domain: &Extent2d,
@@ -267,6 +269,7 @@ pub fn boundary_properties(
             *s = estimated_area / 10.0;
         }
         let eval = OdeArea {
+            kernel: k,
             surface,
             uv_curve: trim,
             min_v: domain.min().y,
@@ -374,9 +377,9 @@ fn vertices(_b: &Brep) -> Result<Vec<VertexId>> {
         "topology.brep_p1",
     ))
 }
-fn region_void(_b: &Brep, _r: RegionId) -> Result<bool> {
-    // UNPORTED(topology.shell): SmRegion::IsVoid
-    Err(SolidError::unported("SmRegion::IsVoid", "topology.shell"))
+/// `SmRegion::IsVoid` as a C truth value (`UNSURE`, 2, counts as void).
+fn region_void(b: &Brep, r: RegionId) -> Result<bool> {
+    Ok(b.region(r)?.is_void() != 0)
 }
 fn manifold_solid(_b: &Brep) -> Result<bool> {
     // UNPORTED(topology.brep_p2): SmBrep::IsManifoldSolid

@@ -242,7 +242,10 @@ fn with_out_of_bounds_enabled(surface: &Surface) -> Option<Surface> {
         SurfaceKind::BSpline(s) => s.is_out_of_bounds_enabled(),
         SurfaceKind::Plane(p) => p.base().is_out_of_bounds_enabled(),
         SurfaceKind::SurfOfRevolution(s) => s.base().is_out_of_bounds_enabled(),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+        SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {
             return None;
         }
     };
@@ -254,7 +257,10 @@ fn with_out_of_bounds_enabled(surface: &Surface) -> Option<Surface> {
         SurfaceKind::BSpline(s) => *s.out_of_bounds_enabled_mut() = true,
         SurfaceKind::Plane(p) => *p.out_of_bounds_enabled_mut() = true,
         SurfaceKind::SurfOfRevolution(s) => *s.base_mut().out_of_bounds_enabled_mut() = true,
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
+        SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {}
     }
     // the copy constructor resets the owner; the temporary change keeps it
     copy.set_owner(surface.owner());
@@ -1062,6 +1068,7 @@ mod tests {
             mate: None,
             orientation: OrientType::Same,
             loopuses: vec![LoopuseId::from_index(0)],
+            sibling_links: None,
         })
         .unwrap();
         b.add_loopuse_record(Loopuse {
