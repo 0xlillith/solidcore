@@ -1129,12 +1129,11 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             if r.is_ok() {
                 o.push(0.0);
                 // as the shim: per surface P, du, dv, unit normal, UV; curve point, angle
-                for srf in 0..2 {
-                    let pv = &t.surface_pv[srf];
+                for (pv, uvc) in t.surface_pv.iter().zip(&t.uv_curve_pv) {
                     for p in [pv[0][0], pv[1][0], pv[0][1], pv[2][2]] {
                         o.extend_from_slice(&[p.x, p.y, p.z]);
                     }
-                    let uv = t.uv_curve_pv[srf][0];
+                    let uv = uvc[0];
                     o.extend_from_slice(&[uv.x, uv.y]);
                 }
                 let c = t.curve_pv[0];
