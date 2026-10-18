@@ -858,7 +858,7 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
         }
         Inputs::Analytic { surface } => {
             let s = surface_of(surface)?;
-            test_analytic_surface(AnalyticTestSurface::Surface(&s)).map(|v| o.push(b(v)))
+            test_analytic_surface(&Kernel::default(), AnalyticTestSurface::Surface(&s)).map(|v| o.push(b(v)))
         }
         Inputs::AnalyticRev { kind, origin, x, y, p } => {
             let k = Kernel::default();
@@ -866,7 +866,7 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
             let a2p = Axis2Placement::new(v(*origin), v(*x), v(*y));
             let tested = |s: AnalyticTestSurface<'_>, o: &mut Vec<f64>| {
                 o.push(0.0);
-                test_analytic_surface(s).map(|r| o.push(b(r)))
+                test_analytic_surface(&k, s).map(|r| o.push(b(r)))
             };
             let built = match kind {
                 0 => Cone::create_canonical(&k, &a2p, p[0], p[1], p[2], false, false).map(Rev::Cone),

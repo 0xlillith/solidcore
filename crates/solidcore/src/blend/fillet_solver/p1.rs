@@ -2348,7 +2348,11 @@ fn evaluate_point_out_of_bounds(base: &Surface, uv: Point2) -> Result<Point3> {
         SurfaceKind::BSpline(b) => *b.out_of_bounds_enabled_mut() = true,
         SurfaceKind::Plane(p) => *p.out_of_bounds_enabled_mut() = true,
         SurfaceKind::SurfOfRevolution(r) => *r.base_mut().out_of_bounds_enabled_mut() = true,
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
+        // an SmOffsetSurface is not an SmBSplineSurface either
+        SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_)
+        | SurfaceKind::OffsetSurface(_) => {}
     }
     s.evaluate_point(uv)
 }
@@ -2515,7 +2519,7 @@ pub enum AnalyticTestSurface<'a> {
 ///
 /// Those of `IsPlanar`; [`SolidError::Unported`] for the cone test of a non-planar
 /// surface (`SmCone::IsNurbSurfaceCone`).
-pub fn test_analytic_surface(surface: AnalyticTestSurface<'_>) -> Result<bool> {
+pub fn test_analytic_surface(k: &Kernel, surface: AnalyticTestSurface<'_>) -> Result<bool> {
     use crate::surface::surface::p2::{CONE_TYPE, PLANE_TYPE};
     let type_code = match surface {
         AnalyticTestSurface::Surface(s) => s.type_code(),
@@ -2532,10 +2536,10 @@ pub fn test_analytic_surface(surface: AnalyticTestSurface<'_>) -> Result<bool> {
     // cylinders, spheres and tori inherit it and the SmBSplineSurface bounding box,
     // which is that of their SmSurfOfRevolution base)
     let planar = match surface {
-        AnalyticTestSurface::Surface(s) => s.is_planar(EFF_ZERO)?,
-        AnalyticTestSurface::Cone(c) => Surface::from(c.rev().clone()).is_planar(EFF_ZERO)?,
-        AnalyticTestSurface::Sphere(s) => Surface::from(s.base().clone()).is_planar(EFF_ZERO)?,
-        AnalyticTestSurface::Torus(t) => Surface::from(t.base.clone()).is_planar(EFF_ZERO)?,
+        AnalyticTestSurface::Surface(s) => s.is_planar(k, EFF_ZERO)?,
+        AnalyticTestSurface::Cone(c) => Surface::from(c.rev().clone()).is_planar(k, EFF_ZERO)?,
+        AnalyticTestSurface::Sphere(s) => Surface::from(s.base().clone()).is_planar(k, EFF_ZERO)?,
+        AnalyticTestSurface::Torus(t) => Surface::from(t.base.clone()).is_planar(k, EFF_ZERO)?,
     };
     if planar.is_planar {
         return Ok(true);
