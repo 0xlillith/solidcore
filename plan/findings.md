@@ -6685,8 +6685,9 @@ offset-surface rail of `EdgeuseOffset` without an offset edge use builds its
 holds an `SmBSplineSurface` only, so the curve on it and its `ApproximateCurve` defer;
 `SmFace::CreateUVTrimCurves` (`topology.face_p3`, inside `UpdateFaceSurfaceDomain`'s
 `CalculateUVDomainFromUVTrimCurves`, wired since `topology.face_p1` merged); the
-trimmed surface cache of a face's own surface (`SmTrimSrfCache::BuildTree` reads the face's
-B-rep editing flag, `topology.brep_p1`, then `SmFace::CreateUVTrimCurves`): the seeded
+trimmed surface cache of a face's own surface (its construction first reaches
+`SmTol::GetZoneTol3d(const SmObject*)`, `topology.brep_p1`, the label all 78 print; then the
+face's B-rep editing flag and `SmFace::CreateUVTrimCurves`): the seeded
 `GetCreateExtendedSurface` hands `MateEdges` / `TrimExtendedEdge` the face's surface, and the
 surface intersections build that cache; `SmSurface::DropCurve` and the drop-curve tracer
 (`intersect.surface_drop_lib_p3`, `intersect.surface_drop_curve`) inside `CreateUVTrimCurve`;
@@ -6783,8 +6784,10 @@ follow-up once this PR merges.
 
 **Results.** 861 cases (5 upstream-derived fixtures, 56 cases built in code, 800 generated
 two-B-rep scripts): 428 pass bit for bit (`max_rel_err 0`), 0 fail, 433 deferred, 0 cases
-where both sides reject the script. Every pass compares real values (`with_values=428
-no_values=0`). Deferred, by the unit that blocks: `topology.brep_p2` 166,
+where both sides reject the script. 426 passes compare an upstream result; 2 (`gen0264`,
+`gen0685`) are guard agreements: the shim refuses the only op as an upstream null
+dereference, so no C++ runs and both sides compare `[0, op, -2]` (they count under
+`with_values=428 no_values=0` because the record has three values). Deferred, by the unit that blocks: `topology.brep_p2` 166,
 `topology.brep_p1` 78, `harness:analytic-geometry-export` 70, `topology.face_p3` 42,
 `intersect.surface_drop_curve` 27, `curve.crv_on_surf` 25, `topology.face_p2` 12,
 `intersect.surface_drop_lib_p3` 7, `blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 2.
@@ -6794,7 +6797,10 @@ upstream error statuses). Per op, the passing cases that contain a success / a r
 upstream error (a case can count in several): `FaceuseOffset` 30 / 15 / 0, `VertexOffset`
 48 / 24 / 18, `ReplaceEdgeCurves` 49 / 9 / 0, `TrimExtendedEdge` 44 / 50 / 0,
 `ExtendTrimEdges` 1 / 39 / 7, `HaveTangentGaps` 55 / 30 / 0, `EdgeuseOffset` 34 / 22 / 10,
-`LocalFaceuseOffset` 6 / 37 / 52; no successful pass: `UpdateFaceSurfaceDomain` (54
+`LocalFaceuseOffset` 6 / 37 / 52 (`HaveTangentGaps`' points: upstream ignores
+`NormalizedEvaluate`'s status and a failed evaluation leaves `sPnt` at `SM_UNDEF_DOUBLE`, which
+the port mirrors; an evaluator that wrote part of the point before failing would diverge, a
+theoretical case no input reaches); no successful pass: `UpdateFaceSurfaceDomain` (54
 refusals), `MateEdges` (18 refusals, 54 upstream errors). (This PR's earliest per-op
 counts swapped the `FaceuseOffset` and `ReplaceEdgeCurves` labels.) A 4000-seed sweep
 (4061 cases) passes 2114, fails 0, defers 1947, with no C++ crash or stall. Perturb:

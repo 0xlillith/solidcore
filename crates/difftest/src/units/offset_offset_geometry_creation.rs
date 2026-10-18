@@ -51,7 +51,7 @@
 //! (`SmFace::CreateUVTrimCurves` inside `CalculateUVDomainFromUVTrimCurves`,
 //! `topology.face_p3`), the trimmed surface cache of a face's own surface that the
 //! seeded `GetCreateExtendedSurface` hands to the surface intersections of `MateEdges`
-//! and `TrimExtendedEdge` (the B-rep editing flag, `topology.brep_p1`, and the face
+//! and `TrimExtendedEdge` (`SmTol::GetZoneTol3d`, `topology.brep_p1`, and the face
 //! handle, `topology.face_p2`), the drops inside `CreateUVTrimCurve`
 //! (`intersect.surface_drop_lib_p3`, `intersect.surface_drop_curve`), the offset-surface
 //! rails (`curve.crv_on_surf`) and the circular cross-section surface of `EdgeuseOffset`,
