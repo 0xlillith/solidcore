@@ -613,6 +613,15 @@
     "edge": 3,
     "tol": 2.0
    }
+  },
+  {
+   "name": "rollover_sphere_tight",
+   "inputs": {
+    "op": "rollover",
+    "brep": {"kind": "file", "file": "sphere.smb"},
+    "edge": 4,
+    "tol": 1e-12
+   }
   }
  ]
 }

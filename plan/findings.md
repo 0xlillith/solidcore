@@ -7306,3 +7306,18 @@ has no pseudo-B-rep model yet (PR #147 adds `FilletBrep`), so these calls are
 an unported `SmFilletGeom` / `SmFilletVertex` call in the same function, so no difftest
 case reaches them; wire them to the pseudo-B-rep's records when `blend.fillet_geom_p1`
 lands. No disagreement.
+
+## blend.fillet_solver_p1: probe notes (`--fuzz 2000`, PR #192, 2026-10-18; both outside the committed cases)
+
+Both are fuzz "differs" notes (no crash, no panic); the unit's cases and `--perturb` pass.
+
+1. **`trim_rail` after `ReadFromFile(.., rebuild = TRUE)`** (fuzz00617: `Mouse.smb`, edge 7 or 1, `t = [0.286464711202138, 1.0]`, `rebuild = true`).
+   The first control point of the trimmed 3D curve and of both UV trim curves differs: `values.flat[8]` cpp `6.134203293918636e-1`,
+   rust `6.137686398848857e-1` (rel 5.7e-4); the untrimmed curve (`t = [0, 1]`), `t = [0.2, 0.9]`, edges 0-6, 8, 9 and the same B-rep read without
+   `rebuild` all agree bit for bit. Both sides run `SmBSplineCurve::Trim` (unit `nurbs.b_spline_curve_n_lib`) on the same imported curve, so the
+   difference is in that trim for this interval, or in per-curve data the record-by-record import does not carry (zone tolerance of a rebuilt
+   curve, which the trim uses to remove knots near the cut). Not investigated further; not reachable from this unit's committed cases.
+2. **`rollover` on `sphere.smb` with a tolerance at the rounding floor** (`tol = +-1e-300`, edges 0 and 4): `|binormal . normal|` is compared
+   against `cos(pi/2 - tol) = 6.1e-17`; the C++ result is "tangent", the Rust one is not. Both dot products are below `1e-12` (the
+   committed fixture `rollover_sphere_tight`, `tol = 1e-12`, passes), so the flag flips only on rounding noise around zero (presumably the
+   sphere's evaluation of the normal or binormal); not investigated further.

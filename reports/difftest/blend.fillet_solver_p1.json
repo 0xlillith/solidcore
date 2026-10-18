@@ -111,6 +111,14 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "rollover_sphere_tight",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_solver_p1/cases.json#12",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -2873,8 +2881,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 53,
   "cases_failed": 0,
-  "cases_passed": 279,
-  "cases_total": 332,
+  "cases_passed": 280,
+  "cases_total": 333,
   "deferred_by_unit": {
     "blend.fillet_geom_p1": 10,
     "intersect.surface_drop_lib_p3": 2,
