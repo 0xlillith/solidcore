@@ -39,7 +39,7 @@ use solidcore::intersect::surface_tracer::{BoundaryCurve, TracePoint, TracePoint
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
@@ -47,7 +47,6 @@ use solidcore::surface::surface_cache::p1::{
     BezierAux2d, BezierPatch, SurfaceCache, SurfaceCacheOptions,
 };
 use solidcore::SolidError;
-use solidcore::nurbs::math::NOW;
 use solidcore_ffi::units::intersect_surface_silhouette::{self as ffi};
 
 use crate::case::CaseContext;

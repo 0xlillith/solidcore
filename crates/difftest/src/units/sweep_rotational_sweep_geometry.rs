@@ -41,7 +41,7 @@ use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::surface::plane::Plane;
@@ -52,7 +52,6 @@ use solidcore::topology::{
     Vertexuse, VertexuseOwner,
 };
 use solidcore::SolidError;
-use solidcore::nurbs::math::NOW;
 use solidcore_ffi::units::sweep_rotational_sweep_geometry::{self as ffi, Op};
 
 use crate::case::CaseContext;

@@ -24,14 +24,13 @@ use solidcore::geom::vector3d::Vec3;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::p2::SurfaceIntersection;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::database_io::{DatabaseReader, FileType};
 use solidcore::SolidError;
-use solidcore::nurbs::math::NOW;
 use solidcore_ffi::units::surface_plane_p2 as ffi;
 
 use crate::case::CaseContext;

@@ -24,6 +24,7 @@ use serde_json::Value;
 
 use solidcore::curve::crv_in_volume::{continuity_from_code, CrvInVolume};
 use solidcore::geom::transform::Transform;
+use solidcore::nurbs::math::{NOW, NOZ};
 use solidcore::surface::volume::{Volume, VolumeKind};
 use solidcore::curve::curve::p2::{Curve, CurveKind};
 use solidcore::curve::hermite_curve::HermiteCurve;
@@ -36,7 +37,6 @@ use solidcore::nurbs::b_spline_curve_n_lib::TrimMode;
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
 use solidcore::topology::database_io::{DatabaseReader, FileType, InputStream};
 use solidcore::SolidError;
-use solidcore::nurbs::math::{NOW, NOZ};
 use solidcore_ffi::units::curve_crv_in_volume::{self as ffi, Op};
 
 use crate::case::CaseContext;

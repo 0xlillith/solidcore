@@ -28,12 +28,12 @@ use solidcore::curve::curve::CurveKind;
 use solidcore::geom::attribute::{AttributeStore, ObjectKey};
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
 use solidcore::kernel::Kernel;
+use solidcore::nurbs::math::NOW;
 use solidcore::surface::surface::p2::DropCurveFail;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::edgeuse::p2 as eu2;
 use solidcore::topology::{Brep, EdgeuseId, ObjectHandle};
 use solidcore::SolidError;
-use solidcore::nurbs::math::NOW;
 use solidcore_ffi::units::topology_edgeuse_p1 as ffi1;
 use solidcore_ffi::units::topology_edgeuse_p2::{self as ffi, Op};
 

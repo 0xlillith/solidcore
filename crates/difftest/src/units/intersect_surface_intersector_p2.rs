@@ -40,14 +40,13 @@ use solidcore::kernel::Kernel;
 use solidcore::math::UNDEF_DOUBLE;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
 use solidcore::surface::curve_bounded_surface::CurveBoundedSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::surface::surface_cache::PatchBoundaryBoundingPlanes;
 use solidcore::SolidError;
-use solidcore::nurbs::math::NOW;
 use solidcore_ffi::units::intersect_surface_intersector_p2::{self as ffi};
 
 use crate::case::CaseContext;

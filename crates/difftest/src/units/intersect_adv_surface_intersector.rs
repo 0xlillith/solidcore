@@ -49,7 +49,7 @@ use solidcore::intersect::surface_intersector::p1::{
 };
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
@@ -57,7 +57,6 @@ use solidcore::surface::surface_cache::p1::{
     BezierAux2d, BezierPatch, SurfaceCache, SurfaceCacheOptions,
 };
 use solidcore::SolidError;
-use solidcore::nurbs::math::NOW;
 use solidcore_ffi::units::intersect_adv_surface_intersector::{self as ffi};
 use solidcore_ffi::units::intersect_surface_intersector_p1 as p1ffi;
 

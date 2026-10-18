@@ -31,10 +31,9 @@ use solidcore::geom::vector3d::Vec3;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::{BSplineCurve, BoundingBoxRequest, BoundingBoxes};
 use solidcore::nurbs::b_spline_curve_n_lib::{InValueType, TrimMode};
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::topology::database_io::{DatabaseReader, FileType};
 use solidcore::SolidError;
-use solidcore::nurbs::math::NOW;
 use solidcore_ffi::units::curve_line::{self as ffi};
 
 use crate::case::CaseContext;

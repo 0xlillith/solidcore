@@ -58,7 +58,7 @@ use solidcore::nurbs::b_spline_surface::p1::SurfParamType;
 use solidcore::nurbs::b_spline_surface::{BSplineSurface, BSplineSurfaceForm};
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW, NOZ};
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::surface::curve_bounded_surface::CurveBoundedSurface;
 use solidcore::surface::plane::Plane;
@@ -72,7 +72,6 @@ use solidcore::topology::trimming_tools::curve_loops::{
 use solidcore::topology::trimming_tools as tt;
 use solidcore::topology::{Brep, EdgeuseId, FaceId, LoopId};
 use solidcore::SolidError;
-use solidcore::nurbs::math::{NOW, NOZ};
 use solidcore_ffi::units::topology_trimming_tools::{self as ffi, Op};
 use solidcore_ffi::units::topology_vertexuse as fixture;
 

@@ -30,12 +30,11 @@ use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
 use solidcore::nurbs::crv_basic::Curve as NurbCurve;
-use solidcore::nurbs::math::{CPoint, NOW};
+use solidcore::nurbs::math::{CPoint, NOW, NOZ};
 use solidcore::primitive::api_curves;
 use solidcore::sweep::api_surfaces as api;
 use solidcore::topology::Brep;
 use solidcore::SolidError;
-use solidcore::nurbs::math::NOZ;
 use solidcore_ffi::units::sweep_api_surfaces::{self as ffi, Call, CurveSpec};
 
 use crate::case::CaseContext;

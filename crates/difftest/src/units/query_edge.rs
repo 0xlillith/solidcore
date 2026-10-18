@@ -38,12 +38,12 @@ use solidcore::geom::vector3d::Vec3;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::{BSplineCurve, BoundingBoxRequest, BoundingBoxes};
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
+use solidcore::nurbs::math::NOW;
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
 use solidcore::query::edge as qe;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::{Brep, EdgeId, EdgeuseId};
 use solidcore::SolidError;
-use solidcore::nurbs::math::NOW;
 use solidcore_ffi::units::query_edge::{self as ffi, Op};
 
 use crate::case::CaseContext;

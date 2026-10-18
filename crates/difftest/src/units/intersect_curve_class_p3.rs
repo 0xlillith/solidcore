@@ -46,14 +46,13 @@ use solidcore::intersect::point_class::{
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW, NOZ};
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::surface::volume::Volume;
 use solidcore::SolidError;
-use solidcore::nurbs::math::{NOW, NOZ};
 use solidcore_ffi::units::intersect_curve_class_p3::{self as ffi, kind, op};
 
 use crate::case::{CaseContext, CaseSource};
