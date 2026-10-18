@@ -91,6 +91,42 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
         auto send=[&](SmNotifyOperation op, SmObject* caller, SmObject* x,
                       SmObject* y, SmObject* z) { callback.Execute(op,caller,x,y,z); };
         SmCurve* curve=edge ? edge->GetCurve() : nullptr;
+        auto key=[&](SmObject* object)->double {
+            if (!object) return -1;
+            if (object==b) return 0;
+            for (size_t i=0;i<g.vertices.size();++i) if (g.vertices[i]==object) return 1000000+i;
+            for (size_t i=0;i<g.edges.size();++i) if (g.edges[i]==object) return 2000000+i;
+            if (object==curve) return 3000000;
+            return -999;
+        };
+        auto emit=[&](SmTArray<SmTopology*>* removed, SmTArray<SmTopology*>* added,
+                      SmTArray<SmTopology*>* changed, SmTArray<SmNotifyEvent>* events) {
+        for (auto* list : {removed,added,changed}) {
+            o.push_back(list->GetSize());
+            for (int i=0;i<list->GetSize();++i) o.push_back(key(list->GetAt(i)));
+        }
+        o.push_back(events->GetSize());
+        for (int i=0;i<events->GetSize();++i) {
+            auto& event=events->GetAt(i);
+            o.push_back(event.m_eAction); o.push_back(key(event.m_pCaller));
+            o.push_back(key(event.m_pData1)); o.push_back(key(event.m_pData2)); o.push_back(key(event.m_pData3));
+        }
+        };
+        if (a[20]!=0) {
+            auto* context=const_cast<SmContext*>(b->GetContext());
+            if (context->GetSysNotifyCallback()) return SC_ERR_ARG;
+            SmTrackTopologyChanges tracker(b,TRUE);
+            context->GetSysNotifyCallback()->Execute(SM_NO_POST_EDIT,v1,v1,b,nullptr);
+            emit(tracker.GetRmList(),tracker.GetAddList(),tracker.GetChgList(),tracker.GetNotifyEvents());
+            tracker.ReSetArrays();
+            emit(tracker.GetRmList(),tracker.GetAddList(),tracker.GetChgList(),tracker.GetNotifyEvents());
+            context->GetSysNotifyCallback()->Execute(SM_NO_POST_EDIT,v1,v1,b,nullptr);
+            context->SetSysNotifyCallback(&callback);
+            tracker.StopTracking(); // native clears the foreign callback too
+            emit(tracker.GetRmList(),tracker.GetAddList(),tracker.GetChgList(),tracker.GetNotifyEvents());
+            o.push_back(context->GetSysNotifyCallback()==nullptr ? 1.0 : 0.0);
+            return sc_copy_out(o.data(),o.size(),out,cap,out_len);
+        }
         if (a[4]==0) {
             send(SM_NO_ADD_TO_BREP,b,v1,b,nullptr);
             send(SM_NO_ADD_TO_BREP,b,v1,b,nullptr);
@@ -117,24 +153,7 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
             send(SM_NO_SPLIT,curve,curve,nullptr,edge);
             send(SM_NO_MERGE,curve,curve,curve,edge);
         }
-        auto key=[&](SmObject* object)->double {
-            if (!object) return -1;
-            if (object==b) return 0;
-            for (size_t i=0;i<g.vertices.size();++i) if (g.vertices[i]==object) return 1000000+i;
-            for (size_t i=0;i<g.edges.size();++i) if (g.edges[i]==object) return 2000000+i;
-            if (object==curve) return 3000000;
-            return -999;
-        };
-        for (auto* list : {&removed,&added,&changed}) {
-            o.push_back(list->GetSize());
-            for (int i=0;i<list->GetSize();++i) o.push_back(key(list->GetAt(i)));
-        }
-        o.push_back(events.GetSize());
-        for (int i=0;i<events.GetSize();++i) {
-            auto& event=events.GetAt(i);
-            o.push_back(event.m_eAction); o.push_back(key(event.m_pCaller));
-            o.push_back(key(event.m_pData1)); o.push_back(key(event.m_pData2)); o.push_back(key(event.m_pData3));
-        }
+        emit(&removed,&added,&changed,&events);
         return sc_copy_out(o.data(),o.size(),out,cap,out_len);
     }
     if (op==14) {

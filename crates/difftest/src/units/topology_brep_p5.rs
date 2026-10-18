@@ -324,6 +324,24 @@ fn notification_record(b: &Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
     let v1 = object(16021, 1_000_000 + u64::from(a.index()));
     let v2 = object(16021, 1_000_000 + u64::from(z.index()));
     let brep = object(16011, 0);
+    if i.flag {
+        use solidcore::topology::{BrepId, topology::TrackTopologyChanges};
+        let mut context = solidcore::geom::context::Context::default();
+        // The fixture contains one B-rep at traversal index zero.
+        let mut tracker = TrackTopologyChanges::new(Some(BrepId::from_index(0)), 1, true, Some(&mut context));
+        context.sys_notify_callback_mut().ok_or_else(|| SolidError::sm_err("notification tracker"))?
+            .execute(PostEdit, v1, Some(v1), Some(brep), None)?;
+        let mut out = notification_values(&tracker.lists());
+        tracker.reset_arrays();
+        out.extend(notification_values(&tracker.lists()));
+        context.sys_notify_callback_mut().ok_or_else(|| SolidError::sm_err("notification tracker"))?
+            .execute(PostEdit, v1, Some(v1), Some(brep), None)?;
+        context.set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(2))));
+        tracker.stop_tracking(Some(&mut context));
+        out.extend(notification_values(&tracker.lists()));
+        out.push(f(context.sys_notify_callback().is_none()));
+        return Ok(out);
+    }
     let mut owners = std::collections::BTreeMap::new();
     let mut callback = TopologyChangeCallback::new(1);
     let mut send = |op, caller, x, y, z| callback.execute(op, caller, x, y, z);
@@ -359,7 +377,11 @@ fn notification_record(b: &Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
         callback.execute(Split, curve_ref, Some(curve_ref), None, Some(edge_ref))?;
         callback.execute(Merge, curve_ref, Some(curve_ref), Some(curve_ref), Some(edge_ref))?;
     }
-    let lists = callback.lists();
+    Ok(notification_values(&callback.lists()))
+}
+
+fn notification_values(lists: &solidcore::topology::topology::TopologyChangeLists) -> Vec<f64> {
+    use solidcore::geom::object::ObjectRef;
     let mut out = Vec::new();
     for list in [&lists.rm_list, &lists.add_list, &lists.chg_list] {
         out.push(list.len() as f64); out.extend(list.iter().map(|key| key.0 as f64));
@@ -369,7 +391,7 @@ fn notification_record(b: &Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
     for event in &lists.notify_events {
         out.extend([f64::from(event.operation as i32), key(event.caller), key(event.data1), key(event.data2), key(event.data3)]);
     }
-    Ok(out)
+    out
 }
 
 impl UnitDiff for Runner {

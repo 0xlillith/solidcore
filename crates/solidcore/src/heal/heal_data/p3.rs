@@ -141,15 +141,15 @@ impl<O: LoopObject> HealData<O> {
                 entity: None,
             });
         }
-        if let Some(error) = tracker.failure(None) {
-            return Err(error.clone());
+        if let Some(error) = tracker.failure() {
+            return Err(error);
         }
         let removed: Vec<_> = tracker
-            .rm_list(None)
+            .rm_list()
             .iter()
             .filter_map(|&x| resolve(x))
             .collect();
-        let added: Vec<_> = tracker.add_list(None).iter().map(|&x| resolve(x)).collect();
+        let added: Vec<_> = tracker.add_list().iter().map(|&x| resolve(x)).collect();
         self.update_target_lists(k, b, &removed, &added, through)
     }
 
@@ -483,7 +483,7 @@ fn capture_changes<T>(
         .sys_notify_callback()
         .and_then(NotifyCallback::as_any)
         .and_then(|a| a.downcast_ref::<TopologyChangeCallback>())
-        .map(|callback| (callback.lists().clone(), callback.failure().cloned()));
+        .map(|callback| (callback.lists(), callback.failure()));
     k.context.set_sys_notify_callback(None);
     let value = result?;
     let (lists, failure) = captured.ok_or_else(|| invalid("edit replaced its topology tracker"))?;

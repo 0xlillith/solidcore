@@ -162,52 +162,6 @@
       "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:190"
     },
     {
-      "name": "notification-k0-m2-1-0",
-      "inputs": {
-        "op": 15,
-        "fixture": [
-          0,
-          0,
-          0,
-          0,
-          0.001,
-          0,
-          0,
-          1e-05,
-          2e-05,
-          1,
-          1
-        ],
-        "mode": 2,
-        "first": 1,
-        "second": 0
-      },
-      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:190"
-    },
-    {
-      "name": "notification-k0-m2-0-0",
-      "inputs": {
-        "op": 15,
-        "fixture": [
-          0,
-          0,
-          0,
-          0,
-          0.001,
-          0,
-          0,
-          1e-05,
-          2e-05,
-          1,
-          1
-        ],
-        "mode": 2,
-        "first": 0,
-        "second": 0
-      },
-      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:190"
-    },
-    {
       "name": "notification-k1-m0-0-1",
       "inputs": {
         "op": 15,
@@ -365,52 +319,6 @@
         "mode": 2,
         "first": 0,
         "second": 1
-      },
-      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:190"
-    },
-    {
-      "name": "notification-k1-m2-1-0",
-      "inputs": {
-        "op": 15,
-        "fixture": [
-          1,
-          0,
-          0,
-          0,
-          0.001,
-          0,
-          0,
-          1e-05,
-          2e-05,
-          1,
-          1
-        ],
-        "mode": 2,
-        "first": 1,
-        "second": 0
-      },
-      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:190"
-    },
-    {
-      "name": "notification-k1-m2-0-0",
-      "inputs": {
-        "op": 15,
-        "fixture": [
-          1,
-          0,
-          0,
-          0,
-          0.001,
-          0,
-          0,
-          1e-05,
-          2e-05,
-          1,
-          1
-        ],
-        "mode": 2,
-        "first": 0,
-        "second": 0
       },
       "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:190"
     },
@@ -576,11 +484,12 @@
       "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:190"
     },
     {
-      "name": "notification-k2-m2-1-0",
+      "name": "tracker-lifetime-k0",
+      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:425",
       "inputs": {
         "op": 15,
         "fixture": [
-          2,
+          0,
           0,
           0,
           0,
@@ -592,14 +501,37 @@
           1,
           1
         ],
-        "mode": 2,
-        "first": 1,
-        "second": 0
-      },
-      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:190"
+        "first": 0,
+        "second": 1,
+        "flag": true
+      }
     },
     {
-      "name": "notification-k2-m2-0-0",
+      "name": "tracker-lifetime-k1",
+      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:425",
+      "inputs": {
+        "op": 15,
+        "fixture": [
+          1,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          1,
+          1
+        ],
+        "first": 0,
+        "second": 1,
+        "flag": true
+      }
+    },
+    {
+      "name": "tracker-lifetime-k2",
+      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:425",
       "inputs": {
         "op": 15,
         "fixture": [
@@ -615,11 +547,10 @@
           1,
           1
         ],
-        "mode": 2,
         "first": 0,
-        "second": 0
-      },
-      "upstream_ref": "source/SMLib/src/SmTrackTopologyChanges.cpp:190"
+        "second": 1,
+        "flag": true
+      }
     }
   ]
 }

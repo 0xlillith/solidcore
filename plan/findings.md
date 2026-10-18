@@ -1082,14 +1082,14 @@ behaviour worth knowing:
 657 difftest cases (57 fixtures + 600 generated) agree exactly. Upstream behaviour
 worth knowing:
 
-- **`SmTopologyChangeCallback::Execute` belongs to no unit.** The call graph never
-  reaches it (it is in `harness/callgraph/unused_functions.txt` with `AddUnique`,
-  `Remove` and both `Dump`s), so the tracker's lists are only ever reset. The Rust
-  callback that `TrackTopologyChanges` installs returns `SolidError::Unsupported`
-  from `execute`, which `SmObject::Notify` ignores. Upstream `Execute` only records
-  faces, edges and vertices, so with the bare `SmTopology` objects in the difftest
-  the C++ lists stay empty too. A future unit that needs real change tracking has to
-  port `Execute` (it walks surface/curve owners and edgeuse edges).
+- **Callback support added by PR #194.** The original call graph classified
+  `SmTopologyChangeCallback::{Execute, AddUnique, Remove}` as unused, so the
+  original unit compared only empty tracker arrays on bare `SmTopology` objects.
+  The B-rep part 5 healer integration now co-ports those methods and compares real
+  face/edge/vertex callback scripts separately. Geometry walks require actual
+  owner metadata, with a 64-link bound; missing metadata is a capture failure.
+  Tracker/callback state uses a private shared notification-array allocation so
+  active resets and foreign-callback replacement preserve native array lifetimes.
 - **Starting a tracker twice leaves its callback installed after it dies.** The
   second `StartTracking` sees the tracker's own callback in the slot and stores it in
   `m_pLastNotifyCallback`; `StopTracking` (and so the destructor) then does nothing,
@@ -6881,8 +6881,8 @@ stale-identity removal and geometry-owner traversal. Owner metadata must be
 supplied by the actual object store; chains are bounded to 64 links. Missing
 metadata is an explicit failure. Nonempty captures in the arena-only healer
 still need part 2's actual key-to-id routing; no arena-index encoding is guessed.
-Twenty-seven callback-script fixtures compare this supporting algorithm separately
-from the twelve edits; they do not certify topology mutation.
+Twenty-four callback-script fixtures, including active reset and replacement
+lifetimes, compare this supporting algorithm separately from the twelve edits; they do not certify topology mutation.
 
 Coverage limits: successful topology edits, nonidentity transformations,
 post-deferral mutation continuations, shared native geometry across distinct

@@ -72,13 +72,17 @@
 //!   for `topology.brep_p5` healer integration. Geometry owner traversal requires
 //!   the caller's actual owner map, and is bounded to 64 links (no recursive stack
 //!   use). Missing metadata is recorded as a callback failure; it is never treated
-//!   as a null owner. Active lists live in the installed callback; stop snapshots
-//!   them into the tracker. `Dump` and debug index arrays remain omitted.
+//!   as a null owner. The tracker and its callback share only notification arrays
+//!   through a private `Arc<Mutex<_>>` (no entity graph pointers or threads). This
+//!   keeps captured events alive across callback replacement, matches active reset
+//!   and keeps `Kernel: Send`; getters return owned snapshots. `Dump` and debug
+//!   index arrays remain omitted.
 //! - `AssertValid`, `CheckPointerChain`, `Dump`, the obsolete `NewMark*` / `Mark2`
 //!   helpers, `UnMark`, `IsUnMarked`, `IsMarkLocked`, the flag bit helpers and the
 //!   placement `operator new` / `delete` are not part of this unit.
 
 use std::collections::BTreeMap;
+use std::sync::{Arc, Mutex, MutexGuard};
 
 use crate::error::{Result, SolidError};
 use crate::geom::a_object;
@@ -473,13 +477,27 @@ impl TopologyChangeLists {
 
 /// The system notify callback a [`TrackTopologyChanges`] installs
 /// (`SmTopologyChangeCallback`), tagged with its tracker's key.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug)]
 pub struct TopologyChangeCallback {
     tracker: u64,
+    state: Arc<Mutex<ChangeState>>,
+}
+
+#[derive(Debug, Default)]
+struct ChangeState {
     lists: TopologyChangeLists,
     // A present None is a known null owner; absent metadata is never guessed.
     owners: BTreeMap<ObjectKey, Option<ObjectRef>>,
     failure: Option<SolidError>,
+}
+
+fn change_state(state: &Mutex<ChangeState>) -> MutexGuard<'_, ChangeState> {
+    // These private locks never execute user code. Recovering the ordered state
+    // after poisoning also preserves partial native notification effects.
+    match state.lock() {
+        Ok(state) => state,
+        Err(poisoned) => poisoned.into_inner(),
+    }
 }
 
 impl TopologyChangeCallback {
@@ -496,9 +514,10 @@ impl TopologyChangeCallback {
     pub fn with_owners(tracker: u64, owners: BTreeMap<ObjectKey, Option<ObjectRef>>) -> Self {
         Self {
             tracker,
-            lists: TopologyChangeLists::default(),
-            owners,
-            failure: None,
+            state: Arc::new(Mutex::new(ChangeState {
+                owners,
+                ..ChangeState::default()
+            })),
         }
     }
 
@@ -510,15 +529,15 @@ impl TopologyChangeCallback {
 
     /// Captured native change lists, including stale identities in the remove list.
     #[must_use]
-    pub const fn lists(&self) -> &TopologyChangeLists {
-        &self.lists
+    pub fn lists(&self) -> TopologyChangeLists {
+        change_state(&self.state).lists.clone()
     }
 
     /// A missing owner mapping or excessive owner chain encountered while notifying.
     /// `SmObject::Notify` ignores callback statuses, so consumers must check this.
     #[must_use]
-    pub const fn failure(&self) -> Option<&SolidError> {
-        self.failure.as_ref()
+    pub fn failure(&self) -> Option<SolidError> {
+        change_state(&self.state).failure.clone()
     }
 
     fn capture(
@@ -533,6 +552,7 @@ impl TopologyChangeCallback {
             AddToBrep, ChangeGeometry, ChangeOwner, Destruction, Merge, MergeInBrep, PostEdit,
             RegPropagation, RmFromBrep, Split, SplitInBrep, TrimNoSplitInBrep,
         };
+        let mut state = change_state(&self.state);
         if operation == RegPropagation {
             return Ok(());
         }
@@ -557,7 +577,7 @@ impl TopologyChangeCallback {
                     ));
                 }
                 depth += 1;
-                tracked = *self
+                tracked = *state
                     .owners
                     .get(&object.key)
                     .ok_or(SolidError::Unsupported {
@@ -568,11 +588,11 @@ impl TopologyChangeCallback {
         }
         // Maintain actual metadata for later callbacks, without adding events.
         if operation == ChangeOwner {
-            self.owners.insert(caller.key, data1);
+            state.owners.insert(caller.key, data1);
         }
         if operation == Destruction {
             if let Some(object) = data1 {
-                self.owners.remove(&object.key);
+                state.owners.remove(&object.key);
             }
         }
         let Some(tracked) =
@@ -592,7 +612,7 @@ impl TopologyChangeCallback {
                 | Split
                 | Merge
         ) {
-            self.lists.notify_events.push(NotifyEvent {
+            state.lists.notify_events.push(NotifyEvent {
                 operation,
                 caller: Some(caller),
                 data1,
@@ -600,7 +620,7 @@ impl TopologyChangeCallback {
                 data3,
             });
         }
-        let lists = &mut self.lists;
+        let lists = &mut state.lists;
         match operation {
             AddToBrep => add_unique(&mut lists.add_list, data1),
             SplitInBrep => {
@@ -708,8 +728,9 @@ impl NotifyCallback for TopologyChangeCallback {
         data3: Option<ObjectRef>,
     ) -> Result<()> {
         let result = self.capture(operation, caller, data1, data2, data3);
-        if self.failure.is_none() {
-            self.failure = result.as_ref().err().cloned();
+        let mut state = change_state(&self.state);
+        if state.failure.is_none() {
+            state.failure = result.as_ref().err().cloned();
         }
         result
     }
@@ -720,15 +741,14 @@ impl NotifyCallback for TopologyChangeCallback {
 
 /// Tracks changes to a B-rep's topology graph through its context's system notify
 /// callback (`SmTrackTopologyChanges`).
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug)]
 pub struct TrackTopologyChanges {
     /// `m_pBrep`: the tracked B-rep (`None` for null).
     brep: Option<BrepId>,
     /// Identifies this tracker's callback in a context (upstream: its address).
     key: u64,
     /// The accumulated lists.
-    lists: TopologyChangeLists,
-    failure: Option<SolidError>,
+    state: Arc<Mutex<ChangeState>>,
     /// `m_pLastNotifyCallback != NULL`: a system callback was already installed when
     /// tracking last started.
     last_notify_callback: bool,
@@ -748,15 +768,14 @@ impl TrackTopologyChanges {
         let mut t = Self {
             brep,
             key,
-            lists: TopologyChangeLists::default(),
-            failure: None,
+            state: Arc::new(Mutex::new(ChangeState::default())),
             last_notify_callback: false,
         };
         // when asked start tracking now - else just init the Rm and Add arrays.
         if start_now {
             t.start_tracking(context);
         } else {
-            t.reset_arrays(None);
+            t.reset_arrays();
         }
         t
     }
@@ -787,15 +806,17 @@ impl TrackTopologyChanges {
     /// asserts; nested tracking is not supported).
     pub fn start_tracking(&mut self, context: Option<&mut Context>) {
         // init internal arrays
-        self.reset_arrays(None);
+        self.reset_arrays();
 
         // when m_pBrep and its Context exist
         if let (Some(_), Some(context)) = (self.brep, context) {
             // start TopoGraph Change Tracking
             self.last_notify_callback = context.sys_notify_callback().is_some();
             if !self.last_notify_callback {
-                context
-                    .set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(self.key))));
+                context.set_sys_notify_callback(Some(Box::new(TopologyChangeCallback {
+                    tracker: self.key,
+                    state: Arc::clone(&self.state),
+                })));
             }
         }
     }
@@ -822,73 +843,48 @@ impl TrackTopologyChanges {
         if let (Some(_), Some(context)) = (self.brep, context) {
             // when LastNotifyCallback was NULL (it was turned on by this object)
             if !self.last_notify_callback {
-                if let Some(callback) = context
-                    .sys_notify_callback()
-                    .and_then(NotifyCallback::as_any)
-                    .and_then(|a| a.downcast_ref::<TopologyChangeCallback>())
-                    .filter(|c| c.tracker == self.key)
-                {
-                    self.lists = callback.lists.clone();
-                    self.failure = callback.failure.clone();
-                }
                 // turn off SmObject::Notify() tracking
                 context.set_sys_notify_callback(None);
             }
         }
     }
 
-    fn active_callback<'a>(
-        &self,
-        context: Option<&'a Context>,
-    ) -> Option<&'a TopologyChangeCallback> {
-        context
-            .filter(|_| self.brep.is_some())?
-            .sys_notify_callback()
-            .and_then(NotifyCallback::as_any)
-            .and_then(|a| a.downcast_ref::<TopologyChangeCallback>())
-            .filter(|callback| callback.tracker == self.key)
+    /// Removed identities (which can be stale), captured even if a foreign
+    /// callback has replaced this tracker's callback since the event.
+    #[must_use]
+    pub fn rm_list(&self) -> Vec<ObjectKey> {
+        change_state(&self.state).lists.rm_list.clone()
     }
 
-    /// Removed identities, read from the live callback when `context` is supplied,
-    /// or from the snapshot after stopping. Removed keys may be stale.
+    /// Added identities in native first-insertion order.
     #[must_use]
-    pub fn rm_list<'a>(&'a self, context: Option<&'a Context>) -> &'a [ObjectKey] {
-        &self.lists(context).rm_list
+    pub fn add_list(&self) -> Vec<ObjectKey> {
+        change_state(&self.state).lists.add_list.clone()
     }
 
-    /// Added identities from the live callback, or the stopped snapshot.
+    /// A snapshot of all captured lists, active or stopped.
     #[must_use]
-    pub fn add_list<'a>(&'a self, context: Option<&'a Context>) -> &'a [ObjectKey] {
-        &self.lists(context).add_list
-    }
-
-    /// All captured lists. Active tracking requires the owning context; `None`
-    /// accesses the snapshot populated by [`Self::stop_tracking`].
-    #[must_use]
-    pub fn lists<'a>(&'a self, context: Option<&'a Context>) -> &'a TopologyChangeLists {
-        self.active_callback(context)
-            .map_or(&self.lists, |callback| &callback.lists)
+    pub fn lists(&self) -> TopologyChangeLists {
+        change_state(&self.state).lists.clone()
     }
 
     /// A capture failure, including one whose callback status native Notify ignores.
     #[must_use]
-    pub fn failure<'a>(&'a self, context: Option<&'a Context>) -> Option<&'a SolidError> {
-        self.active_callback(context)
-            .map_or(self.failure.as_ref(), |callback| callback.failure.as_ref())
+    pub fn failure(&self) -> Option<SolidError> {
+        change_state(&self.state).failure.clone()
     }
 
-    /// Empties the snapshot and this tracker's active callback, when its owning
-    /// context is supplied. Foreign system callbacks remain untouched.
-    pub fn reset_arrays(&mut self, context: Option<&mut Context>) {
-        self.lists.reset_arrays();
-        self.failure = None;
-        if let Some(context) = context {
-            if let Some(mut callback) = self.active_callback(Some(context)).cloned() {
-                callback.lists.reset_arrays();
-                callback.failure = None;
-                context.set_sys_notify_callback(Some(Box::new(callback)));
-            }
-        }
+    /// Supplies actual geometry owners and edgeuse-to-edge links for later events.
+    pub fn set_owner_metadata(&mut self, owners: BTreeMap<ObjectKey, Option<ObjectRef>>) {
+        change_state(&self.state).owners = owners;
+    }
+
+    /// Empties all captured lists (`ReSetArrays`), including the active callback's
+    /// arrays. The shared allocation survives callback replacement and stop.
+    pub fn reset_arrays(&mut self) {
+        let mut state = change_state(&self.state);
+        state.lists.reset_arrays();
+        state.failure = None;
     }
 
     /// The destructor `~SmTrackTopologyChanges`: stops tracking if this tracker's
@@ -1045,7 +1041,7 @@ mod tests {
         assert!(ctx.sys_notify_callback().is_none());
         let none = TrackTopologyChanges::new(None, 1, true, Some(&mut ctx));
         assert!(!none.is_tracking(Some(&ctx)));
-        assert!(none.rm_list(None).is_empty() && none.add_list(None).is_empty());
+        assert!(none.rm_list().is_empty() && none.add_list().is_empty());
     }
     #[test]
     fn tracker_snapshots_real_callback_changes_on_stop() {
@@ -1062,9 +1058,9 @@ mod tests {
             .execute(NotifyOperation::PostEdit, vertex, Some(vertex), None, None)
             .unwrap();
         tracker.stop_tracking(Some(&mut context));
-        assert_eq!(tracker.rm_list(None), &[vertex.key]);
-        assert_eq!(tracker.add_list(None), &[vertex.key]);
-        assert_eq!(tracker.lists(None).notify_events.len(), 1);
+        assert_eq!(tracker.rm_list(), &[vertex.key]);
+        assert_eq!(tracker.add_list(), &[vertex.key]);
+        assert_eq!(tracker.lists().notify_events.len(), 1);
         assert!(context.sys_notify_callback().is_none());
     }
 
@@ -1087,5 +1083,33 @@ mod tests {
             .execute(NotifyOperation::PostEdit, curve, Some(curve), None, None)
             .is_err());
         assert!(callback.lists().notify_events.is_empty());
+    }
+    #[test]
+    fn captured_lists_survive_callback_replacement_and_active_reset() {
+        let mut context = Context::default();
+        let mut tracker =
+            TrackTopologyChanges::new(Some(BrepId::from_index(0)), 91, true, Some(&mut context));
+        let vertex = ObjectRef {
+            type_code: 16021,
+            key: ObjectKey(77),
+        };
+        context
+            .sys_notify_callback_mut()
+            .unwrap()
+            .execute(NotifyOperation::PostEdit, vertex, Some(vertex), None, None)
+            .unwrap();
+        assert_eq!(tracker.add_list(), vec![vertex.key]);
+        tracker.reset_arrays();
+        assert!(tracker.add_list().is_empty());
+        context
+            .sys_notify_callback_mut()
+            .unwrap()
+            .execute(NotifyOperation::PostEdit, vertex, Some(vertex), None, None)
+            .unwrap();
+        context.set_sys_notify_callback(Some(Box::new(TopologyChangeCallback::new(92))));
+        tracker.stop_tracking(Some(&mut context));
+        assert_eq!(tracker.rm_list(), vec![vertex.key]);
+        assert_eq!(tracker.add_list(), vec![vertex.key]);
+        assert!(context.sys_notify_callback().is_none());
     }
 }
