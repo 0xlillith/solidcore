@@ -135,7 +135,7 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                     _,
                 >(
                     &mut k,
-                    &b,
+                    &mut b,
                     solidcore::topology::BrepId::from_index(0),
                     None,
                     None,

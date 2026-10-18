@@ -1,3 +1,4 @@
-//! B-rep operations, split into the upstream ownership units.
+//! B-rep construction and editing, grouped by porting unit.
 
+pub mod p6;
 pub mod p9;

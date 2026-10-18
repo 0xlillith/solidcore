@@ -84,7 +84,7 @@ impl SplitEdgeOutput {
 /// Returns the owning unit's `Unported` error, without selecting a guessed region.
 pub fn find_infinite_region<O, W>(
     k: &mut Kernel,
-    b: &Brep,
+    b: &mut Brep,
     brep_id: crate::topology::BrepId,
     shell: Option<ShellId>,
     bbox: Option<&crate::geom::extent3d::Extent3d>,
@@ -142,16 +142,24 @@ where
                         return Err(SolidError::sm_err(OP));
                     }
                     for edge_id in edges {
-                        let record = b.edge(edge_id)?;
-                        let curve =
-                            required(record.curve.as_ref(), "ray target edge without curve")?;
-                        // Preserve short-circuiting of both calls in each pass.
-                        let dubious = edge::is_seam(b, edge_id)?
-                            || curve
-                                .has_repeated_end_control_points(crate::geom::tol::ZONE_TOL_3D)?;
+                        required(
+                            b.edge(edge_id)?.curve.as_ref(),
+                            "ray target edge without curve",
+                        )?;
+                        // Preserve short-circuiting of both calls in each pass. IsSeam
+                        // may create UV trim curves, so it runs before the curve borrow.
+                        let dubious = edge::is_seam(k, b, edge_id)?
+                            || required(
+                                b.edge(edge_id)?.curve.as_ref(),
+                                "ray target edge without curve",
+                            )?
+                            .has_repeated_end_control_points(crate::geom::tol::ZONE_TOL_3D)?;
                         if (pass == 0 && dubious) || (pass == 1 && !dubious) {
                             continue;
                         }
+                        let record = b.edge(edge_id)?;
+                        let curve =
+                            required(record.curve.as_ref(), "ray target edge without curve")?;
                         for parameter in parameters {
                             let point =
                                 curve.evaluate_point(record.interval.evaluate(parameter))?;
@@ -247,7 +255,10 @@ where
                     let big_tolerance = record.tolerance > 1.01 * b.tolerance();
                     let repeated =
                         curve.has_repeated_end_control_points(crate::geom::tol::ZONE_TOL_3D)?;
-                    let seam = edge::is_seam(b, *edge_id)?;
+                    // IsSeam may create UV trim curves; reborrow the edge afterwards.
+                    let seam = edge::is_seam(k, b, *edge_id)?;
+                    let record = b.edge(*edge_id)?;
+                    let curve = required(record.curve.as_ref(), "ray target edge without curve")?;
                     let approximated = is_intersector_approx(curve)?;
                     let round = if !big_tolerance && !repeated && !seam && !approximated {
                         0
