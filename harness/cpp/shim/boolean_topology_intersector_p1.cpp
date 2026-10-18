@@ -827,7 +827,10 @@ template struct TiRob<TiMgr, &SmTopologyIntersector::m_pProtoTopoMgr>;
 // combined vertex keeps entries of edges that no longer end at it: those entries are freed
 // edges. Replays the unlisting on copies and returns whether any listed vertex keeps a
 // listed edge; with `unlink`, removes those entries first so the destructor stays defined
-// (the script's own manager: its teardown is ours, lesson 23).
+// (the script's own manager: its teardown is ours, lesson 23). Scope: only the edge-phase
+// unlisting is modelled; a proto vertex freed before the manager's destructor would be a
+// different use-after-free and is not flagged (no such path in source for these ops; the
+// pre-ready valgrind sample of the op-47 family covers it).
 static bool mgr_teardown_stale(SmProtoTopologyManager* mgr, bool unlink)
 {
     SmTArray<SmProtoVertex*>& pvs = mgr->GetProtoVertices();

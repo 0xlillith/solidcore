@@ -1765,6 +1765,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 /// coincide is listed twice there (`AddProtoEdge`, DD1) and a combined vertex keeps
 /// entries of edges that no longer end at it, so such an entry is a listed edge
 /// already freed. Replays the unlisting on copies of the vertex lists.
+///
+/// Only the edge-phase unlisting is modelled: a proto vertex freed before the
+/// manager's destructor would be a different use-after-free and is not flagged (no
+/// such path exists in source for these operations).
 fn teardown_reads_freed<O: ClassObject>(mgr: &ProtoTopologyManager<O>) -> bool {
     let mut lists: Vec<(ProtoVertexId, Vec<ProtoEdgeId>)> = Vec::new();
     for &pv in mgr.proto_vertices() {

@@ -146,7 +146,9 @@ bool fix_gaps_first_candidate_ok(SmTopologyIntersector* ti, const SmTArray<SmVer
 // combines in its B-rep unless the previous relationship is better, which returns SM_ERR),
 // or the second block would dereference a B-rep mate of the other vertex that is not a
 // vertex (the first block's SM_ERR returns before; a first block that combines is assumed
-// to reach the second, whose cases the port defers at CombineCoincidentVertices anyway).
+// to reach the second, whose cases the port defers at CombineCoincidentVertices anyway;
+// were RemoveRelationship or CombineCoincidentVertices to fail partway this would
+// over-refuse, so re-check the assumption when topology.brep_p5 lands).
 // The other mate of the B-rep vertex is checked by the caller: the first block
 // dereferences it at once.
 bool squeeze_breps_ok(SmTopologyIntersector* ti, SmVertex* bv, SmVertex* ov)
@@ -194,12 +196,14 @@ bool set_rels_maps_ok(SmProtoTopologyManager* mgr, int64_t ctor_kind)
     return true;
 }
 
-// IntersectInsertRelate (SmTopologyIntersector.cpp:1092-1270) VERBATIM, apart from the
+// IntersectInsertRelate (SmTopologyIntersector.cpp:1092-1270, upstream commit c9c5979)
+// VERBATIM, apart from the
 // SM_VALIDATE_TOPOLOGY, SM_DEBUG_CODE and SM_USE_TBB blocks (not defined in the reference
 // build) and the members reached through accessors, plus one addition: before the delete,
 // whether ~SmProtoTopologyManager would read a freed proto edge (UB-175); if so the stale
 // entries are unlinked first, so the run stays defined, and `ub` is set (the port answers
-// InvalidInput there).
+// InvalidInput there). The real IntersectInsertRelate is no longer exercised by this
+// difftest, so re-diff this copy against upstream whenever the pinned commit moves.
 SmStatus iir_verbatim(SmTopologyIntersector* ti, bool& ub)
 {
   SmProtoTopologyManager*& m_pProtoTopoMgr = ti->*ti_get(TiMgr());
