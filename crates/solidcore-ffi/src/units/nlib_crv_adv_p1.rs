@@ -40,6 +40,7 @@
 //!   ranges away): `ST_curxcrr` then exits before saving the input curve and frees an
 //!   uninitialised curve (`N_FreeCrv(&curA, SP)`, see `plan/findings.md`).
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 /// Largest control point index accepted by [`eval`].
@@ -102,10 +103,6 @@ mod sys {
             out_len: *mut i64,
         ) -> i32;
     }
-}
-
-fn bad(msg: impl Into<String>) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
 }
 
 crate::reader::unit_reader!();

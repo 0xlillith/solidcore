@@ -48,6 +48,7 @@
 //! interior multiplicity at most `p`), finite bounded parameters, and per op the
 //! restrictions documented on [`validate_op`].
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 /// Largest control point index accepted by [`eval`].
@@ -152,10 +153,6 @@ mod sys {
             out_len: *mut i64,
         ) -> i32;
     }
-}
-
-fn bad(msg: impl Into<String>) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
 }
 
 crate::reader::unit_reader!(MAX_COORD);

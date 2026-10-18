@@ -55,6 +55,7 @@
 
 use std::fmt::Write as _;
 
+use crate::validate::NOW;
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -776,9 +777,6 @@ impl Enc {
         Ok(())
     }
 }
-
-/// `NL_NOW`: the weight of a non-rational control point.
-const NOW: f64 = -f64::MAX;
 
 /// Checks a B-spline is clamped and well formed (what upstream assumes).
 fn validate_bspline(c: &BSplineData) -> Result<(), FfiError> {
