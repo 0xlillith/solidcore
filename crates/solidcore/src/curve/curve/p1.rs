@@ -14,7 +14,7 @@
 //! | [`Curve::classify_intersecting_range_solution`], [`TangentPoint`] | `SmCurve::ClassifyIntersectingRangeSolution` |
 //! | `CpGlobalSolver::local_solve_branch` ([`GlobalSolve::local_solve`] of [`CpGlobalSolver`]) | `SmCPGlobalSolver::LocalSolve` |
 //! | [`Curve::global_point_solve`], [`GlobalPointSolveOptions`] | `SmCurve::GlobalPointSolve`             |
-//! | [`Curve::global_point_solve_cached`]                     | `SmCurve::GlobalPointSolve` with the curve's cache kept by the caller |
+//! | `Curve::global_point_solve_cached` (crate)        | `SmCurve::GlobalPointSolve` (caller's cache)     |
 //! | [`Curve::tessellate_by_bisection`]                | `SmCurve::TessellateByBisection`                 |
 //! | [`Curve::tessellate`], [`Curve::tessellate_base`] | `Tessellate` (virtual), `SmCurve::Tessellate`    |
 //!
@@ -1548,7 +1548,7 @@ impl Curve {
     /// # Errors
     ///
     /// As [`Curve::global_point_solve`].
-    pub fn global_point_solve_cached<O: SolutionObject>(
+    pub(crate) fn global_point_solve_cached<O: SolutionObject>(
         &self,
         k: &Kernel,
         interval: &Extent1d,
