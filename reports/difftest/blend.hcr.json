@@ -822,12 +822,16 @@
       "values_compared": 19
     },
     {
+      "deferred": {
+        "symbol": "SmEdge::GetVertex",
+        "unit": "topology.edge"
+      },
       "max_rel_err": 0.0,
       "name": "gen0052",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=10620584185765354371",
-      "values_compared": 1
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -842,12 +846,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmEdge::GetVertex",
+        "unit": "topology.edge"
+      },
       "max_rel_err": 0.0,
       "name": "gen0054",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=10620584185765354373",
-      "values_compared": 25
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2513,16 +2521,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0238",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10620584185765354557",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -2714,12 +2718,16 @@
       "values_compared": 19
     },
     {
+      "deferred": {
+        "symbol": "SmEdge::GetVertex",
+        "unit": "topology.edge"
+      },
       "max_rel_err": 0.0,
       "name": "gen0260",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=10620584185765354579",
-      "values_compared": 25
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -3303,8 +3311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0322",
@@ -3482,12 +3490,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::GetSurfaces",
+        "unit": "topology.brep_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0342",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=10620584185765354661",
-      "values_compared": 25
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3996,16 +4008,12 @@
       "values_compared": 19
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::EvaluateBinormal",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0398",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=10620584185765354717",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -4017,15 +4025,15 @@
     }
   ],
   "cases_both_errored": 50,
-  "cases_deferred": 123,
+  "cases_deferred": 125,
   "cases_failed": 0,
-  "cases_passed": 311,
+  "cases_passed": 309,
   "cases_total": 434,
   "deferred_by_unit": {
     "intersect.curve_class_p2": 35,
-    "topology.brep_p1": 66,
-    "topology.edge": 18,
-    "topology.edgeuse_p3": 3,
+    "intersect.surface_drop_lib_p3": 1,
+    "topology.brep_p1": 67,
+    "topology.edge": 21,
     "topology.vertex": 1
   },
   "max_rel_err": 0.0,
