@@ -16,7 +16,7 @@
 //! | [`stitch_and_orient`] | `SmBrep::StitchAndOrient` |
 //! | [`squeeze_face`] | `SmBrep::SqueezeFace` |
 //! | [`transform`] | `SmBrep::Transform` |
-//! | [`PendingTopology`] | `SmPendingTopologyDelete` constructor/destructor |
+//! | [`PendingTopology`] | `SmPendingTopologyDelete` constructor/destructor and `Clear` (co-port) |
 //!
 //! Deviations: dependency-limited editing. All twelve owned editing
 //! control flows are present, including continuations after missing calls.
@@ -41,8 +41,8 @@
 //! where native deletion would invalidate its survivor. With incident edges it
 //! retains the native path. Explicit editing arguments are temporary: part 1's
 //! owning record/accessor will replace them without assuming that editing is on.
-//! Shell/region queries and transfers use the landed shell port. Stable shell
-//! record erasure still requires part 4's owning-storage lifecycle: the shared
+//! Shell/region queries and transfers use the landed shell port. Stable shell,
+//! vertex and vertex-use record erasure requires part 4's owning-storage lifecycle: the shared
 //! arena is append-only, so shifting ids or leaving a visible dummy is invalid.
 //! Debug drawing/assertions are omitted. No recursion is introduced.
 
@@ -905,15 +905,18 @@ pub fn glue_with_notifications(
             .shell(shell)?
             .region
             .ok_or_else(|| SolidError::null_pointer(OP))?;
-        remove_region_shell(b, region, shell)?;
-        destroy_shell_record(b, shell)?;
+        crate::error::ignore_status(remove_region_shell(b, region, shell))?;
+        destroy_topology_record(b, crate::error::EntityRef::Shell(shell))?;
         first = None;
         remove_vertexuse(b, survivor, vu)?;
-        destroy_vertexuse_record(b, vu)?;
+        destroy_topology_record(b, crate::error::EntityRef::Vertexuse(vu))?;
     }
     let wires = if let Some(given) = wire_edges {
         given.to_vec()
     } else {
+        // GetWireEdges always returns SM_SUCCESS upstream. Errors here mark
+        // missing callees or undefined pointer accesses, not an ignored native
+        // status; do not invent an empty/partial wire list on those errors.
         shell_wire_edges(k, b, last)?
     };
     for vu in vertex::vertexuses(b, deleted)? {
@@ -921,7 +924,7 @@ pub fn glue_with_notifications(
         post_insert_vertexuse(b, survivor, vu)?;
     }
     remove_owned_vertex(b, deleted)?;
-    destroy_vertex_record(b, deleted)?;
+    destroy_topology_record(b, crate::error::EntityRef::Vertex(deleted))?;
     if let Some(first) = first.filter(|&first| first != last) {
         if let Some(vu) = shell_vertexuse(b, last)? {
             let vertex = b
@@ -930,7 +933,7 @@ pub fn glue_with_notifications(
                 .ok_or_else(|| SolidError::null_pointer(OP))?;
             crate::error::ignore_status(remove_vertexuse(b, vertex, vu))?;
             clear_shell_list(b, last)?;
-            destroy_vertexuse_record(b, vu)?;
+            destroy_topology_record(b, crate::error::EntityRef::Vertexuse(vu))?;
         } else {
             transfer_shell_children(k, b, last, first, &wires)?;
         }
@@ -938,8 +941,8 @@ pub fn glue_with_notifications(
             .shell(last)?
             .region
             .ok_or_else(|| SolidError::null_pointer(OP))?;
-        remove_region_shell(b, region, last)?;
-        destroy_shell_record(b, last)?;
+        crate::error::ignore_status(remove_region_shell(b, region, last))?;
+        destroy_topology_record(b, crate::error::EntityRef::Shell(last))?;
     }
     Ok(())
 }
@@ -1002,15 +1005,15 @@ fn shell_vertexuse(b: &Brep, shell: ShellId) -> Result<Option<VertexuseId>> {
 fn remove_region_shell(b: &mut Brep, region: RegionId, shell: ShellId) -> Result<()> {
     crate::topology::shell::region_remove_shell(b, region, shell)
 }
-fn destroy_shell_record(_b: &mut Brep, _shell: ShellId) -> Result<()> {
-    // SmShell is ported, but Brep's Arena is append-only: removing an item must
-    // preserve every other ShellId and use the actual object lifetime/key routing.
-    // This is an owning-storage type gap, not a missing SmShell destructor body.
-    // UNPORTED(topology.brep_p1): SmBrep (stable owning shell-record removal).
-    missing(
-        "SmBrep (stable owning shell-record removal)",
-        "topology.brep_p1",
-    )
+fn destroy_topology_record(_b: &mut Brep, _entity: crate::error::EntityRef) -> Result<()> {
+    // These plain deletes follow detachment from the topology graph. They must
+    // not call DeleteVertex, which would repeat notifications/list removal, or
+    // delete a vertex when only its vertex-use is being destroyed. The owning
+    // arena is append-only: erasure must preserve every other typed id and use
+    // actual object lifetime/key routing. This storage integration belongs to
+    // the B-rep destructor, not the already ported entity destructor bodies.
+    // UNPORTED(topology.brep_p4): SmBrep::~SmBrep (stable owning record erasure).
+    missing("SmBrep::~SmBrep", "topology.brep_p4")
 }
 fn clear_shell_list(b: &mut Brep, shell: ShellId) -> Result<()> {
     // GlueVertices clears only the head and size, retaining m_tShellType.
@@ -1033,14 +1036,6 @@ fn transfer_shell_children(
 fn remove_owned_vertex(_b: &mut Brep, _vertex: VertexId) -> Result<()> {
     // UNPORTED(topology.brep_p1): SmBrep::m_pVertexListHead
     missing("SmBrep::m_pVertexListHead", "topology.brep_p1")
-}
-fn destroy_vertex_record(_b: &mut Brep, _vertex: VertexId) -> Result<()> {
-    // UNPORTED(topology.brep_p4): SmBrep::DeleteVertex (record deletion support)
-    missing("SmBrep::DeleteVertex", "topology.brep_p4")
-}
-fn destroy_vertexuse_record(_b: &mut Brep, _vu: VertexuseId) -> Result<()> {
-    // UNPORTED(topology.brep_p4): SmBrep::DeleteVertex (vertex-use deletion support)
-    missing("SmBrep::DeleteVertex", "topology.brep_p4")
 }
 
 /// Handle-only identity preflight. Nonaliases need the mutable owning arena,
@@ -1774,12 +1769,12 @@ pub fn squeeze_face(
 }
 
 fn lock_bounding_box(_b: &mut Brep) -> Result<()> {
-    // UNPORTED(topology.brep_p1): SmBrep::LockBoundingBox
-    missing("SmBrep::LockBoundingBox", "topology.brep_p1")
+    // UNPORTED(topology.brep_p1): SmLockBrepBox::SmLockBrepBox
+    missing("SmLockBrepBox::SmLockBrepBox", "topology.brep_p1")
 }
 fn unlock_bounding_box(_b: &mut Brep) -> Result<()> {
-    // UNPORTED(topology.brep_p1): SmBrep::UnLockBoundingBox
-    missing("SmBrep::UnLockBoundingBox", "topology.brep_p1")
+    // UNPORTED(topology.brep_p1): SmLockBrepBox::~SmLockBrepBox
+    missing("SmLockBrepBox::~SmLockBrepBox", "topology.brep_p1")
 }
 fn shell_size(b: &Brep, shell: ShellId) -> Result<usize> {
     crate::topology::shell::shell_list_size(b, shell)
@@ -1834,14 +1829,12 @@ fn stitch_edges_of_vertices(
     missing("SmStitch::StitchEdgesOfVertices", "heal.stitch_p1")
 }
 fn cleanup_status(result: Result<()>, failed: &mut bool) -> Result<()> {
-    match result {
-        Ok(()) => Ok(()),
-        Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => {
-            *failed = true;
-            Ok(())
-        }
-        Err(error) => Err(error),
+    // After deleting the face, every native stitch failure sets SM_ERR but
+    // continues cleanup and output appends. Only missing implementation defers.
+    if crate::error::ignored(result)?.is_none() {
+        *failed = true;
     }
+    Ok(())
 }
 
 /// Scales about the current origin then applies the placement. The identity exit
@@ -2088,6 +2081,36 @@ fn set_face_tolerance(
 mod tests {
     use super::*;
     use crate::topology::Vertex;
+
+    #[test]
+    fn squeeze_cleanup_continues_after_typed_native_failures() {
+        let errors = [
+            SolidError::sm_err("SmStitch::StitchVertexPairs"),
+            SolidError::NotFound {
+                operation: "SmStitch::SplitEdgesWithVertices",
+                entity: crate::error::EntityRef::Edge(EdgeId::from_index(2)),
+            },
+            SolidError::Degenerate {
+                operation: "SmStitch::StitchEdgesOfVertices",
+                entity: None,
+            },
+        ];
+        let mut failed = false;
+        for error in errors {
+            cleanup_status(Err(error), &mut failed).unwrap();
+            assert!(failed);
+        }
+        cleanup_status(Ok(()), &mut failed).unwrap();
+        assert!(failed);
+
+        let mut failed = false;
+        let missing = SolidError::unported("SmStitch::StitchVertexPairs", "heal.stitch_p2");
+        assert_eq!(
+            cleanup_status(Err(missing.clone()), &mut failed),
+            Err(missing)
+        );
+        assert!(!failed);
+    }
 
     #[test]
     fn failure_outputs_follow_native_lifecycle() {
