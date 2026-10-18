@@ -41,6 +41,9 @@
 //! where native deletion would invalidate its survivor. With incident edges it
 //! retains the native path. Explicit editing arguments are temporary: part 1's
 //! owning record/accessor will replace them without assuming that editing is on.
+//! Shell/region queries and transfers use the landed shell port. Stable shell
+//! record erasure still requires part 1's owning-storage lifecycle: the shared
+//! arena is append-only, so shifting ids or leaving a visible dummy is invalid.
 //! Debug drawing/assertions are omitted. No recursion is introduced.
 
 use crate::curve::curve::Curve;
@@ -809,9 +812,8 @@ fn find_infinite_region(
     missing("SmBrep::FindInfiniteRegion", "topology.brep_p9")
 }
 
-fn shell_is_faceuse_shell(_b: &Brep, _shell: ShellId) -> Result<bool> {
-    // UNPORTED(topology.shell): SmShell::IsFaceuseShell
-    missing("SmShell::IsFaceuseShell", "topology.shell")
+fn shell_is_faceuse_shell(b: &Brep, shell: ShellId) -> Result<bool> {
+    Ok(b.shell(shell)?.is_faceuse_shell())
 }
 
 fn reset_infinite_region(_b: &mut Brep, _region: RegionId, _mode: i32) -> Result<()> {
@@ -912,7 +914,7 @@ pub fn glue_with_notifications(
     let wires = if let Some(given) = wire_edges {
         given.to_vec()
     } else {
-        shell_wire_edges(b, last)?
+        shell_wire_edges(k, b, last)?
     };
     for vu in vertex::vertexuses(b, deleted)? {
         remove_vertexuse(b, deleted, vu)?;
@@ -930,7 +932,7 @@ pub fn glue_with_notifications(
             clear_shell_list(b, last)?;
             destroy_vertexuse_record(b, vu)?;
         } else {
-            transfer_shell_children(b, last, first, &wires)?;
+            transfer_shell_children(k, b, last, first, &wires)?;
         }
         let region = b
             .shell(last)?
@@ -986,34 +988,47 @@ fn notify_face_pre_edit(
     // UNPORTED(topology.face_p3): SmFace::Notify
     missing("SmFace::Notify", "topology.face_p3")
 }
-fn shell_vertexuse(_b: &Brep, _shell: ShellId) -> Result<Option<VertexuseId>> {
-    // UNPORTED(topology.shell): SmShell::m_pList
-    missing("SmShell::m_pList", "topology.shell")
+fn shell_vertexuse(b: &Brep, shell: ShellId) -> Result<Option<VertexuseId>> {
+    let shell = b.shell(shell)?;
+    Ok(if shell.is_vertex_shell() {
+        match shell.members {
+            crate::topology::shell::ShellMembers::Vertexuse(vu) => Some(vu),
+            _ => None,
+        }
+    } else {
+        None
+    })
 }
-fn remove_region_shell(_b: &mut Brep, _region: RegionId, _shell: ShellId) -> Result<()> {
-    // UNPORTED(topology.shell): SmRegion::m_pList
-    missing("SmRegion::m_pList", "topology.shell")
+fn remove_region_shell(b: &mut Brep, region: RegionId, shell: ShellId) -> Result<()> {
+    crate::topology::shell::region_remove_shell(b, region, shell)
 }
 fn destroy_shell_record(_b: &mut Brep, _shell: ShellId) -> Result<()> {
-    // UNPORTED(topology.shell): SmShell::~SmShell
-    missing("SmShell::~SmShell", "topology.shell")
+    // SmShell is ported, but Brep's Arena is append-only: removing an item must
+    // preserve every other ShellId and use the actual object lifetime/key routing.
+    // This is an owning-storage type gap, not a missing SmShell destructor body.
+    // UNPORTED(topology.brep_p1): SmBrep (stable owning shell-record removal).
+    missing(
+        "SmBrep (stable owning shell-record removal)",
+        "topology.brep_p1",
+    )
 }
-fn clear_shell_list(_b: &mut Brep, _shell: ShellId) -> Result<()> {
-    // UNPORTED(topology.shell): SmShell::m_pList
-    missing("SmShell::m_pList", "topology.shell")
+fn clear_shell_list(b: &mut Brep, shell: ShellId) -> Result<()> {
+    // GlueVertices clears only the head and size, retaining m_tShellType.
+    b.shell_mut(shell)?.members = crate::topology::shell::ShellMembers::Empty;
+    Ok(())
 }
-fn shell_wire_edges(_b: &Brep, _shell: ShellId) -> Result<Vec<EdgeId>> {
-    // UNPORTED(topology.shell): SmShell::GetWireEdges
-    missing("SmShell::GetWireEdges", "topology.shell")
+fn shell_wire_edges(k: &mut Kernel, b: &Brep, shell: ShellId) -> Result<Vec<EdgeId>> {
+    crate::topology::shell::wire_edges(k, b, shell)
 }
 fn transfer_shell_children(
-    _b: &mut Brep,
-    _source: ShellId,
-    _target: ShellId,
-    _wire_edges: &[EdgeId],
+    k: &mut Kernel,
+    b: &mut Brep,
+    source: ShellId,
+    target: ShellId,
+    wire_edges: &[EdgeId],
 ) -> Result<()> {
-    // UNPORTED(topology.shell): SmShell::TransferChildrenTo
-    missing("SmShell::TransferChildrenTo", "topology.shell")
+    let wires: Vec<_> = wire_edges.iter().copied().map(Some).collect();
+    crate::topology::shell::transfer_children(k, b, source, target, Some(&wires))
 }
 fn remove_owned_vertex(_b: &mut Brep, _vertex: VertexId) -> Result<()> {
     // UNPORTED(topology.brep_p1): SmBrep::m_pVertexListHead
@@ -1380,9 +1395,9 @@ fn delete_edge(_b: &mut Brep, _edge: EdgeId) -> Result<()> {
     // UNPORTED(topology.brep_p4): SmBrep::DeleteEdge
     missing("SmBrep::DeleteEdge", "topology.brep_p4")
 }
-fn set_region_is_void(_b: &mut Brep, _region: RegionId, _is_void: bool) -> Result<()> {
-    // UNPORTED(topology.shell): SmRegion::SetIsVoid
-    missing("SmRegion::SetIsVoid", "topology.shell")
+fn set_region_is_void(b: &mut Brep, region: RegionId, is_void: bool) -> Result<()> {
+    b.region_mut(region)?.set_is_void(i32::from(is_void));
+    Ok(())
 }
 
 /// Removes redundant edges/vertices, preserving optional keep lists. The native
@@ -1766,17 +1781,14 @@ fn unlock_bounding_box(_b: &mut Brep) -> Result<()> {
     // UNPORTED(topology.brep_p1): SmBrep::UnLockBoundingBox
     missing("SmBrep::UnLockBoundingBox", "topology.brep_p1")
 }
-fn shell_size(_b: &Brep, _shell: ShellId) -> Result<usize> {
-    // UNPORTED(topology.shell): SmShell::m_pList
-    missing("SmShell::m_pList", "topology.shell")
+fn shell_size(b: &Brep, shell: ShellId) -> Result<usize> {
+    crate::topology::shell::shell_list_size(b, shell)
 }
-fn region_size(_b: &Brep, _region: RegionId) -> Result<usize> {
-    // UNPORTED(topology.shell): SmRegion::m_pList
-    missing("SmRegion::m_pList", "topology.shell")
+fn region_size(b: &Brep, region: RegionId) -> Result<usize> {
+    Ok(b.region(region)?.shells.len())
 }
-fn region_is_infinite(_b: &Brep, _region: RegionId) -> Result<bool> {
-    // UNPORTED(topology.shell): SmRegion::IsInfiniteRegion
-    missing("SmRegion::IsInfiniteRegion", "topology.shell")
+fn region_is_infinite(b: &Brep, region: RegionId) -> Result<bool> {
+    Ok(b.region(region)?.is_infinite_region(b, region))
 }
 
 // Type boundary only: this is never constructed as a substitute manager. Wiring
