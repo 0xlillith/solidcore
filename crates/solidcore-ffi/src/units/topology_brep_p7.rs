@@ -82,38 +82,9 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
+crate::reader::unit_reader!(MAX_COORD);
 
 impl Reader<'_> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
-    fn finite(&mut self) -> Result<f64, FfiError> {
-        let v = self.num()?;
-        if !v.is_finite() || v.abs() > MAX_COORD {
-            return Err(bad("non-finite or huge value"));
-        }
-        Ok(v)
-    }
-
-    fn index(&mut self, max: usize) -> Result<usize, FfiError> {
-        let v = self.num()?;
-        if v.fract() != 0.0 || v < 0.0 || v > max as f64 {
-            return Err(bad(format!("bad index/count {v} (max {max})")));
-        }
-        Ok(v as usize)
-    }
-
     fn signed(&mut self, max: usize) -> Result<Option<usize>, FfiError> {
         let v = self.num()?;
         if v == -1.0 {
@@ -123,21 +94,10 @@ impl Reader<'_> {
         self.index(max).map(Some)
     }
 
-    fn flag(&mut self) -> Result<bool, FfiError> {
-        Ok(self.index(1)? == 1)
-    }
-
     fn orient(&mut self) -> Result<(), FfiError> {
         // SM_OT_UNKNOWN (0), SM_OT_SAME (1) or SM_OT_OPPOSITE (2): upstream tests for
         // SAME and treats anything else as the other branch
         self.index(2).map(|_| ())
-    }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
     }
 }
 
@@ -278,7 +238,7 @@ fn trusted(bytes: &[u8], binary: bool) -> bool {
 /// [`FfiError::InvalidArgument`] for a malformed input or an index outside the B-rep;
 /// [`FfiError::Status`] for a shim failure.
 pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     match op {
         Op::Read => {
             let n = rd.index(MAX_BYTES)?;
@@ -363,7 +323,7 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
                 return Ok(export);
             };
             let [_, _, _, n_f, _, _, _, n_e, ..] = c;
-            let mut ar = Reader { input: args, at: 0 };
+            let mut ar = Reader::new(args);
             match op {
                 Op::Glue => {
                     for _ in 0..2 {
