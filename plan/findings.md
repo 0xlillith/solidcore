@@ -7069,18 +7069,13 @@ validation section below. These results do not certify the review fixes.
   faces. It is unreachable today (`MergeInterval` makes no topology until
   `intersect.curve_class_p2`); that unit's porter must give the healer a typed resolver.
 
-## topology.brep_p5 — shell integration pending; prior fd5a15a7 evidence
-
-Official main advanced to `43e9e47a` with the landed shell port during the
-full sweep. Shell/region callees are now wired; the results below are historical
-for source `fd5a15a7` on main `53ba102b`. Fresh validation is pending.
-The remaining shell-record destruction barrier is an owning-storage type gap in
-B-rep part 4 (`SmBrep::~SmBrep`): the shared arena is append-only and must preserve stable ids and
-actual lifetime/key routing. It is not an unported `SmShell` destructor.
+## topology.brep_p5 — review validation (partial)
 
 PR #194 restores all twelve owned editing bodies and the internal pending-topology
-attribute cleanup. Source `fd5a15a7` includes official main `53ba102b`; no open
-dependency PR is included. The earlier pre-review evidence above is historical.
+attribute cleanup. Source `a9f20328` includes functional official main `43e9e47a`; no open
+dependency PR is included. Final main `85a60e00` differs only in generated
+`PROGRESS.md`; build and fixture files remain identical to the tested source.
+The earlier pre-review evidence above is historical.
 All owned continuations are present with per-call missing-dependency barriers,
 including combine tails, shell/vertex-use cleanup, curve joins/UV cleanup,
 manifold/face cleanup, the second stitch pass and orientation override, squeeze
@@ -7096,7 +7091,11 @@ native reproduction attempted).
 
 The boolean intersector's insertion calls the shared part 5 control flow with
 actual editing/tolerance getters, then defers at `FindVertexSector` (face part 4)
-and `MakeEdgeInFaceWithVU` (B-rep part 9). Opaque glue callers share the identity
+and `MakeEdgeInFaceWithVU` (B-rep part 9). Landed shell/region queries, list operations, wire traversal
+and child transfer are wired. Shell-record destruction still needs stable arena
+erasure and actual lifetime/key routing from B-rep part 4 (`SmBrep::~SmBrep`);
+the shared arena is append-only. This is not a missing `SmShell` destructor body.
+Opaque glue callers share the identity
 preflight; nonalias edits still need the mutable owning arena/kernel and part 2's
 notification routing. When that adapter lands, it must call the existing complete
 `glue_with_notifications` body, not just replace the preflight barrier with Notify.
@@ -7122,7 +7121,7 @@ from runtime certification behind missing calls. Part 1's canonical editing fiel
 remain an integration handoff after its independent PR merges. Part 2's Notify
 remains the critical dependency; its open PR is not bundled here.
 
-Coverage on source `fd5a15a7`, Linux runner 2 (Ubuntu 26.04 x86_64, Rust/rustdoc
+Coverage on source `a9f20328`, Linux runner 2 (Ubuntu 26.04 x86_64, Rust/rustdoc
 1.98.0, GCC 15.2.0; pinned `c9c5979` reference, C++17/O2 with
 `SM_USE_OLDTOL`, FP contraction and fast math disabled):
 
@@ -7139,13 +7138,13 @@ Coverage on source `fd5a15a7`, Linux runner 2 (Ubuntu 26.04 x86_64, Rust/rustdoc
 - Extended 4096 generated: **4375 total, 4195 pass, 180 deferred, 0 fail**,
   max relative error 0.
 
-Formatting, strict plain/native Clippy, all **1326** kernel tests, WASM and all
-**3** native FFI guard tests pass. Ten affected differential units pass their gates
-(1 green, 9 partial, 0 failed); the full green/partial sweep is pending. Commands
+Formatting, strict plain/native Clippy, all **1331** kernel tests, WASM and all
+**3** native FFI guard tests pass. Eleven affected differential units pass their gates
+(1 green, 10 partial, 0 failed); the full green/partial sweep is pending. Commands
 use `nice -n 10`, one Cargo job and sccache. The matching 1.98 rustdoc is selected
 explicitly. A worktree-owned temporary 4 GiB swap file supported compilation on the
-8 GiB runner and was removed after compilation. No permanent runner configuration
-was changed.
+8 GiB runner and will be removed after validation. No permanent runner configuration
+is changed.
 
 Uncertified: successful topology mutations, nonidentity transformations,
 continuations behind dependency barriers, native geometry shared across separate
