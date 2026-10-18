@@ -1458,7 +1458,14 @@ fn evaluate_binormal(
     parameter: f64,
     use_3d_only: bool,
 ) -> Result<BinormalEval> {
-    eu3::evaluate_binormal(k, b, eu, parameter, use_3d_only, &BinormalOptions::default())
+    eu3::evaluate_binormal(
+        k,
+        b,
+        eu,
+        parameter,
+        use_3d_only,
+        &BinormalOptions::default(),
+    )
 }
 
 // ---- curve side (sm_FindSideOfCurve) ----------------------------------------------------
