@@ -7075,7 +7075,7 @@ Official main advanced to `43e9e47a` with the landed shell port during the
 full sweep. Shell/region callees are now wired; the results below are historical
 for source `fd5a15a7` on main `53ba102b`. Fresh validation is pending.
 The remaining shell-record destruction barrier is an owning-storage type gap in
-B-rep part 1: the shared arena is append-only and must preserve stable ids and
+B-rep part 4 (`SmBrep::~SmBrep`): the shared arena is append-only and must preserve stable ids and
 actual lifetime/key routing. It is not an unported `SmShell` destructor.
 
 PR #194 restores all twelve owned editing bodies and the internal pending-topology

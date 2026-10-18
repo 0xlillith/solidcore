@@ -42,7 +42,7 @@
 //! retains the native path. Explicit editing arguments are temporary: part 1's
 //! owning record/accessor will replace them without assuming that editing is on.
 //! Shell/region queries and transfers use the landed shell port. Stable shell
-//! record erasure still requires part 1's owning-storage lifecycle: the shared
+//! record erasure still requires part 4's owning-storage lifecycle: the shared
 //! arena is append-only, so shifting ids or leaving a visible dummy is invalid.
 //! Debug drawing/assertions are omitted. No recursion is introduced.
 
