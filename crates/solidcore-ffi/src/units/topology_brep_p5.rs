@@ -195,7 +195,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn guards_refuse_native_aliasing_and_missing_geometry() {
+    fn guards_refuse_isolated_combine_aliases_and_missing_geometry() {
         let f = [0., 0., 0., 0., 1., 0., 0., 1e-5, 1e-5, 0., 0.];
         let mut a = [0.; 22];
         assert!(eval(Op::Combine, &f, &a).is_err());
@@ -220,4 +220,17 @@ mod tests {
         // constructor failure is not uninitialized state or a reason to refuse it.
         assert!(eval(Op::Transform, &f, &a).is_ok());
     }
+    #[test]
+    fn valid_glue_aliases_are_retained_before_notification() {
+        let f = [0., 0., 0., 0., 1., 0., 0., 1e-5, 1e-5, 1., 1.];
+        let mut a = [0.; 22];
+        // Equal actual vertex pointers are valid even with editing disabled.
+        let output = eval(Op::GlueVertices, &f, &a).unwrap();
+        assert_eq!(output.get(1), Some(&0.));
+        // Equal null pointers take the same native early return.
+        a[1] = -1.; a[2] = -1.;
+        let output = eval(Op::GlueVertices, &f, &a).unwrap();
+        assert_eq!(output.get(1), Some(&0.));
+    }
+
 }
