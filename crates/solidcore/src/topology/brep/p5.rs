@@ -1028,10 +1028,12 @@ fn destroy_vertexuse_record(_b: &mut Brep, _vu: VertexuseId) -> Result<()> {
     missing("SmBrep::DeleteVertex", "topology.brep_p4")
 }
 
-/// Common entry barrier for arena and opaque-handle callers. The first native
-/// action is the B-rep notification, before dereferencing either vertex; no
-/// temporary or substitute B-rep is constructed for handle-only adapters.
-pub(crate) fn glue_vertices_entry(aliases: bool) -> Result<()> {
+/// Handle-only identity preflight. Nonaliases need the mutable owning arena,
+/// kernel and notification routing, which these adapters cannot yet supply.
+/// When part 2 supplies them, call [`glue_vertices`] with the original vertices;
+/// replacing this barrier with Notify alone is not an implementation of glue.
+/// The complete owned continuation is in [`glue_with_notifications`].
+pub(crate) fn opaque_glue_preflight(aliases: bool) -> Result<()> {
     if aliases {
         return Ok(());
     }

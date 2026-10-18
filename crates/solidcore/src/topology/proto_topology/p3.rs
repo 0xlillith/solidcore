@@ -167,7 +167,7 @@ fn new_curve_classification<O: ClassObject>(
 
 /// `SmBrep::GlueVertices` of B-rep `which`.
 fn brep_glue_vertices<O: Copy + PartialEq>(_which: i32, v1: O, v2: O) -> Result<()> {
-    crate::topology::brep::p5::glue_vertices_entry(v1 == v2)
+    crate::topology::brep::p5::opaque_glue_preflight(v1 == v2)
 }
 
 /// `SmBrep::SqueezeEdge` of B-rep `which`.
