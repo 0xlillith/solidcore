@@ -476,7 +476,11 @@ pub fn make_shell_vertex(
     if let Some(region) = region {
         b.region(region)?;
     }
-    let (shell, vertex) = make_shell_vertex_topology(b, region)?;
+    let (shell, vertex) = make_shell_vertex_topology(b, region, env)?;
+    register_entities(env, &[EntityRef::Shell(shell), EntityRef::Vertex(vertex)]);
+    for vu in b.vertex(vertex)?.vertexuses.clone() {
+        register_entities(env, &[EntityRef::Vertexuse(vu)]);
+    }
     ignore_status(set_vertex_point(b, vertex, point, env))?;
     vertex::set_tolerance(b, vertex, b.tolerance(), true, true)?;
     brep_notify(
@@ -510,8 +514,9 @@ fn infinite_region(b: &Brep) -> Result<Option<RegionId>> {
 fn make_shell_vertex_topology(
     b: &mut Brep,
     region: Option<RegionId>,
+    env: &mut edge::NotifyEnv<'_>,
 ) -> Result<(ShellId, VertexId)> {
-    let _ = (b, region);
+    let _ = (b, region, env);
     // UNPORTED(topology.brep_p2): SmBrep::MakeShellVertexTopology
     Err(SolidError::unported(
         "SmBrep::MakeShellVertexTopology",
