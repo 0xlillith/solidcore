@@ -690,14 +690,15 @@ impl Two {
         self.breps.get(usize::try_from(h.b).ok()?)?.as_ref()
     }
 
-    /// Whether `face`'s surface is the upstream kind on this side (see `exact`).
-    fn face_exact(&self, face: H) -> bool {
+    /// Whether `face`'s surface is the upstream kind on this side (see `exact`);
+    /// `None` for a face outside the import table (no op creates faces, so a face
+    /// handle always names an imported face; the caller refuses the rest).
+    fn face_exact(&self, face: H) -> Option<bool> {
         usize::try_from(face.b)
             .ok()
             .and_then(|b| self.exact.get(b))
             .and_then(|v| v.get(usize::try_from(face.i).ok()?))
             .copied()
-            .unwrap_or(true)
     }
 
     /// Whether `face`'s surface is an `SmSphere` (see `types`).
@@ -2182,7 +2183,11 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                         }
                     }
                 }
-                if !is_local && !two.face_exact(face) {
+                if !is_local
+                    && !two
+                        .face_exact(face)
+                        .ok_or_else(|| Fail::Harness(harness("face outside the import table")))?
+                {
                     // CreateOffsetSurface is virtual and every SmBSplineSurface subclass
                     // the importer reduces to its B-spline part overrides it: the Rust
                     // would dispatch the B-spline override instead (the shim stops the
@@ -2504,7 +2509,7 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                 if i.dist.abs() > MAX_EDGEUSE_OFFSET_DISTANCE {
                     // the shim stops the script here (HANG-27)
                     return Err(Fail::Solid(SolidError::Unported {
-                        upstream: "SmCrvOnSurf::ApproximateCurve (EdgeuseOffset rail; HANG-27 distance bound)",
+                        upstream: "EdgeuseOffset beyond the HANG-27 distance bound (SmCrvOnSurf::ApproximateCurve of the rail)",
                         unit: HANG_27,
                     }));
                 }

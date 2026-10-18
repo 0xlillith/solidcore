@@ -6397,7 +6397,13 @@ an analytic copy that is an offset surface, as both `FaceuseOffset`s do. Wiring
 above), 4 to `topology.brep_p2`, 1 to `topology.face_p3`, 1 to
 `harness:analytic-geometry-export` (`gen0044`, which reaches `CreateOffsetSurface` on an
 inexact face after the rail), and 4 now pass (`gen0268`, `gen0373`, `gen0401`, `gen0638`:
-the offset of an exact B-spline face, compared through its 3x3 samples).
+the offset of an exact B-spline face, compared through its 3x3 samples; a review probe that
+scales the port's offset distance by 1 + 1e-9 fails two of them, so they compare values
+that depend on the offset surface's geometry). `SetAllowExtension(FALSE)` is unobserved
+by construction: the `SmOffsetSurface` constructor already sets it, the copy keeps it,
+and the exported samples lie inside the domain, where the extension never applies (the
+review flipped both sites to `TRUE` and the unit's results did not change); its placement
+is verified by reading only.
 
 **Not compared by construction.** The script's store curves are plain
 `SmBSplineCurve`s, so a line or conic registered as a 3D or UV curve is never
@@ -6414,7 +6420,9 @@ the runner defers under `harness:analytic-geometry-export` instead of letting th
 run the B-spline override: `CreateOffsetSurface` in the non-local `FaceuseOffset` (60
 cases) and `IsClosed` in `SmEdge::IsSeam` on an `SmSphere` face (3 cases; only
 `SmSphere` overrides `IsClosed`, so the other inexact faces are compared). Exporting the
-analytic kinds exactly would turn these 63 back into compares.
+analytic kinds exactly would turn these 63 back into compares. No op creates faces, so a
+face handle always names an imported face; a non-local `FaceuseOffset` on a face outside
+the import table is refused as a harness error rather than assumed exact.
 
 **Hang guards (`-6`, the script stops; the Rust defers).** `difftest --fuzz 2000` found
 two upstream hangs (`plan/upstream-issues.md`): HANG-26, the self-intersection of the
@@ -6424,7 +6432,8 @@ ones): the shim does not run a non-local `FaceuseOffset` on a face that is neith
 `harness:analytic-geometry-export`, so nothing comparable is lost; HANG-27,
 `SmCrvOnSurf::ApproximateCurve` of the offset-surface rail, which grows with the offset
 distance: an `EdgeuseOffset` with `|distance| > 1e6` stops with `-6` and the Rust defers
-under `upstream:HANG-27`. The bound is chosen for the fuzz time budget (20 s per side),
+under `upstream:HANG-27` ("EdgeuseOffset beyond the HANG-27 distance bound"; the guard
+sits at op entry, so it also stops calls that would not build a rail). The bound is chosen for the fuzz time budget (20 s per side),
 not the termination boundary (about 1e250); the generator's distances (0.001 to 100)
 are far below it. Non-finite numbers (and magnitudes above 1e300) are malformed
 input to the FFI, refused before either side runs. `gen0577`
@@ -6444,17 +6453,23 @@ where both sides reject the script. Every pass compares real values (`with_value
 no_values=0`; 315 compare more than six, 156 more than fifty). Deferred, by the unit that
 blocks: `topology.edgeuse_p3` 142, `offset.offset_executive_p1` 138, `topology.brep_p2`
 123, `harness:analytic-geometry-export` 63, `topology.face_p3` 38, `curve.crv_on_surf`
-21, `blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 1. Success-path coverage: at
-6ca4348a, 119 of the then 327 passes completed at least one successful call among the
-unit's ops (the rest compare matching refusals or upstream error statuses); the 4 new
-passes reach an exact B-spline face's offset surface. Ops with no successful pass (counted at
-31aaf333): `UpdateFaceSurfaceDomain`, `ExtendTrimEdges`, `MateEdges`, `HaveTangentGaps`;
-the others had 5 (`LocalFaceuseOffset`) to 43 (`FaceuseOffset`) successes. A 4000-seed sweep (4061 cases)
+21, `blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 1. Success-path coverage (counted at the PR head, the tree
+of 1c823d44 plus the review minors): 123 of the 331 passes complete at least one
+successful call among the unit's ops (the rest compare matching `-2` refusals or matching
+upstream error statuses), including the 4 new passes, each of which runs a successful
+non-local `FaceuseOffset`. Per op over the passing cases (successes / refusals /
+upstream errors): `FaceuseOffset` 21 / 13 / 0, `VertexOffset` 37 / 22 / 14,
+`ReplaceEdgeCurves` 43 / 6 / 0, `TrimExtendedEdge` 23 / 44 / 0, `EdgeuseOffset` 17 / 21 /
+7, `LocalFaceuseOffset` 5 / 28 / 43; no successful pass: `UpdateFaceSurfaceDomain` (43
+refusals), `ExtendTrimEdges` (33), `MateEdges` (18 refusals, 32 errors),
+`HaveTangentGaps` (28). (Earlier counts in this PR swapped the `FaceuseOffset` and
+`ReplaceEdgeCurves` labels.) A 4000-seed sweep (4061 cases)
 passes 1619, fails 0, defers 2442, with no C++ crash or stall. Perturb:
 `SENSITIVE 331/331`. `--fuzz 2000`: `FUZZ-PASS cases=2000 rejected=243 malformed=635
 ran=1122 differs=0 crashes=0 panics=0 timeouts=0`. Valgrind on 54 sampled shim programs:
 clean. `nurbs.b_spline_surface_p2` (touched): 764 cases, 759 pass, 5 deferred; its
-`three_arcs_about_two_centres` case (arcs meeting end to end about two centres) compares
+`three_arcs_about_two_centres` case (arcs about two centres, the first two sharing their
+start point) compares
 94 values and fails with the first arc's centre captured by value, so it pins WR-103. All green/partial units: `green-par: 203 units,
 failed=0` on the tree merged with `main` at `a8958254`.
 
@@ -6941,6 +6956,14 @@ independent p6 integration.
   (a surface cannot reach its owner's B-rep there) and `proto_topology::p2`'s
   `CalculateUVDomainFromUVTrimCurves` (a `ProtoBrep` face handle cannot reach a `Brep`
   face); both keep their `UNPORTED(topology.face_p1)` markers with that note.
+- **Open follow-up for this unit (found by the #147 round-6 and #156 round-4 reviews):**
+  upstream `SmFace::CalculateUVDomainFromUVTrimCurves` intersects the face domain with
+  the surface domain *before* `CreateUVTrimCurves`, ignoring the status
+  (`sThisDomain.Intersect(sSurfDomain, rNewFaceDomain)`), so when `CreateUVTrimCurves`
+  fails it returns face ∩ surface (or the `Init()`ed extent when they are disjoint); the
+  port (`topology/face/p1.rs`) returns the raw face domain on that path. Latent while
+  every caller defers at `CreateUVTrimCurves` (`topology.face_p3`; 38 cases in
+  `offset.offset_geometry_creation`); fix it in this unit, not in its callers.
 - **`heal.heal_data_p3` back-edges wired** (after #164): `Fix_MoveSeam` and
   `Fix_SplitFaceAtSeams` call `move_seam` / `split_at_seam` with upstream's arguments (the
   face properties' classifications, seam problems and the properties). Classification
