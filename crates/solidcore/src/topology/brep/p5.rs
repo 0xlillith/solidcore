@@ -37,9 +37,9 @@
 //! `PendingTopology` owns an allocation until release and borrows the actual
 //! attribute store so failure detaches borrowed attributes without deleting them.
 //! Its reader integration remains uncertified until `MakeTopologyFromData` lands.
-//! Aliased `CombineCoincidentVertices` is refused only for an isolated vertex,
-//! where native deletion would invalidate its survivor. With incident edges it
-//! retains the native path. Explicit editing arguments are temporary: part 1's
+//! Aliased `CombineCoincidentVertices` takes the native path in every case,
+//! including an isolated vertex, which upstream deletes along with its survivor
+//! before returning success. Explicit editing arguments are temporary: part 1's
 //! owning record/accessor will replace them without assuming that editing is on.
 //! Shell/region queries and transfers use the landed shell port. Stable shell,
 //! vertex and vertex-use record erasure requires part 4's owning-storage lifecycle: the shared
@@ -207,14 +207,15 @@ pub fn combine_with_notifications(
     let target = coincident_vertex_target(b, survivor, deleted)?;
     let edges = vertex::edges(b, survivor, None)?;
     let edges2 = vertex::edges(b, deleted, None)?;
-    if survivor == deleted && edges.is_empty() {
-        return Err(SolidError::invalid_input(
-            OP,
-            "isolated aliased merge would delete its survivor",
-        ));
-    }
     if edges2.is_empty() {
-        notify_merge(k, b, survivor, deleted, notifications.as_deref_mut())?;
+        // Upstream ignores Notify's status here.
+        crate::error::ignore_status(notify_merge(
+            k,
+            b,
+            survivor,
+            deleted,
+            notifications.as_deref_mut(),
+        ))?;
         set_vertex_point(k, b, survivor, target.point, notifications.as_deref_mut())?;
         crate::error::ignore_status(vertex::set_tolerance(
             b,
@@ -236,7 +237,14 @@ pub fn combine_with_notifications(
             crate::error::ignore_status(remove_vertexuse(b, deleted, vu))?;
             crate::error::ignore_status(post_insert_vertexuse(b, survivor, vu))?;
         }
-        notify_merge(k, b, survivor, deleted, notifications.as_deref_mut())?;
+        // Upstream ignores Notify's status here.
+        crate::error::ignore_status(notify_merge(
+            k,
+            b,
+            survivor,
+            deleted,
+            notifications.as_deref_mut(),
+        ))?;
         set_vertex_point(k, b, survivor, target.point, notifications.as_deref_mut())?;
         crate::error::ignore_status(vertex::set_tolerance(
             b,
@@ -1071,7 +1079,10 @@ pub(crate) fn opaque_glue_preflight(aliases: bool) -> Result<()> {
     if aliases {
         return Ok(());
     }
-    // UNPORTED(topology.brep_p2): SmBrep::Notify
+    // UNPORTED(topology.brep_p2): SmBrep::Notify, reached through glue_vertices.
+    // NOT a plain Notify stub: wiring part 2 here means giving the intersector and
+    // proto-topology handle adapters a mutable owning arena, kernel and notification
+    // routing, then calling glue_vertices. Replacing this line with Notify is wrong.
     missing("SmBrep::Notify", "topology.brep_p2")
 }
 
@@ -1801,8 +1812,9 @@ pub fn squeeze_face(
             Ok(())
         }
     })();
-    unlock_bounding_box(b)?;
-    result
+    // Upstream unlocks in a destructor; an unlock failure never hides `result`.
+    let unlocked = unlock_bounding_box(b);
+    result.and(unlocked)
 }
 
 fn lock_bounding_box(_b: &mut Brep) -> Result<()> {

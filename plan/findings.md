@@ -7645,11 +7645,12 @@ output lifecycle, transformation/reflection and tolerance work.
 
 Review fixes include the declaration's infinite-region default
 `SM_VS_INFINITEREGION_SWAP` (2), same-input glue before notification (including two
-null inputs), and refusing aliased combination only for isolated vertices where
-native deletion invalidates the survivor. A native incidence query enforces that
-precise guard; 40 alias fixtures retain valid aliases. The isolated-alias hazard
-is recorded as UB-176 in `plan/upstream-issues.md` (source finding; no undefined
-native reproduction attempted).
+null inputs), and aliased combination on the native path. The second review round
+corrected the isolated-alias case: upstream deletes the aliased survivor and returns
+success without touching it again, so the whole combine is defined and compared.
+Only the target-stage op, whose shim reads the survivor afterwards, refuses it (a
+native incidence query). The caller-side hazard is recorded as UB-191 in
+`plan/upstream-issues.md` (source finding; no native reproduction).
 
 The boolean intersector's insertion calls the shared part 5 control flow with
 actual editing/tolerance getters, then defers at `FindVertexSector` (face part 4)

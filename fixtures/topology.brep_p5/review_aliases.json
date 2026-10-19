@@ -919,6 +919,144 @@
         "first": 3,
         "second": 3
       }
+    },
+    {
+      "name": "combine_alias_isolated_00_False_0",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1354",
+      "inputs": {
+        "op": 1,
+        "fixture": [
+          0,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          0,
+          0
+        ],
+        "editing": false,
+        "first": 0,
+        "second": 0
+      }
+    },
+    {
+      "name": "combine_alias_isolated_00_True_0",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1354",
+      "inputs": {
+        "op": 1,
+        "fixture": [
+          0,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          0,
+          0
+        ],
+        "editing": true,
+        "first": 0,
+        "second": 0
+      }
+    },
+    {
+      "name": "combine_alias_isolated_00_False_1",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1354",
+      "inputs": {
+        "op": 1,
+        "fixture": [
+          0,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          0,
+          0
+        ],
+        "editing": false,
+        "first": 1,
+        "second": 1
+      }
+    },
+    {
+      "name": "combine_alias_isolated_00_True_1",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1354",
+      "inputs": {
+        "op": 1,
+        "fixture": [
+          0,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          0,
+          0
+        ],
+        "editing": true,
+        "first": 1,
+        "second": 1
+      }
+    },
+    {
+      "name": "combine_alias_isolated_02_False_0",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1354",
+      "inputs": {
+        "op": 1,
+        "fixture": [
+          0,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          0,
+          2
+        ],
+        "editing": false,
+        "first": 0,
+        "second": 0
+      }
+    },
+    {
+      "name": "combine_alias_isolated_02_True_0",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1354",
+      "inputs": {
+        "op": 1,
+        "fixture": [
+          0,
+          0,
+          0,
+          0,
+          0.001,
+          0,
+          0,
+          1e-05,
+          2e-05,
+          0,
+          2
+        ],
+        "editing": true,
+        "first": 0,
+        "second": 0
+      }
     }
   ]
 }

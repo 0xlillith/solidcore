@@ -124,7 +124,7 @@ fn raw_code(op: i32, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, 
 /// stitching tolerance, placement origin/X/Y, have-scale, scale xyz, scale-tols,
 /// flag, allow-spine-edges. Selectors use the shared raw graph's traversal order.
 ///
-/// Guards refuse null merge inputs and isolated aliased combinations (native
+/// Guards refuse null merge inputs and isolated aliased target stages (native
 /// use-after-free), the unsafe
 /// non-refusal null-geometry insertion branch, and a null face on enabled squeeze.
 /// Negative raw tolerances remain valid and convert through native zone-tol types.
@@ -166,12 +166,13 @@ pub fn eval(op: Op, fixture: &[f64; 11], args: &[f64; 22]) -> Result<Vec<f64>, F
     {
         return Err(invalid("null merge vertices"));
     }
-    if matches!(op, Op::Combine | Op::CombineTarget) && v1 == v2 {
-        // Inspect the actual selected native vertex. Fixture selectors can name
-        // star leaves as well as centers, so declared star counts are insufficient.
+    if op == Op::CombineTarget && v1 == v2 {
+        // Native combine deletes an isolated aliased survivor, which the target
+        // stage then reads. Inspect the actual selected native vertex: fixture
+        // selectors can name star leaves as well as centers.
         let isolated = raw_code(14, fixture, args)?;
         if isolated.first() != Some(&0.0) {
-            return Err(invalid("isolated aliased combination deletes its survivor"));
+            return Err(invalid("target stage reads a deleted isolated alias"));
         }
     }
     if op == Op::CombineTarget {
@@ -197,10 +198,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn guards_refuse_isolated_combine_aliases_and_missing_geometry() {
+    fn guards_refuse_isolated_target_aliases_and_missing_geometry() {
         let f = [0., 0., 0., 0., 1., 0., 0., 1e-5, 1e-5, 0., 0.];
         let mut a = [0.; 22];
-        assert!(eval(Op::Combine, &f, &a).is_err());
+        assert!(eval(Op::CombineTarget, &f, &a).is_err());
+        // The whole combine is defined: native deletes the alias and succeeds.
+        assert_eq!(eval(Op::Combine, &f, &a).unwrap().get(1), Some(&0.));
         a[0] = 1.;
         assert!(eval(Op::SqueezeFace, &f, &a).is_err());
         let mut face = f;

@@ -168,9 +168,9 @@ SC_EXPORT int32_t sc_topology_brep_p5_eval(int32_t op, const double* fixture, in
     }
     if (op==1 || op==2) {
         if (!v1 || !v2) return SC_ERR_ARG;
-        if (v1==v2) {
+        if (op==2 && v1==v2) {
             SmTArray<SmEdge*> edges; v1->GetEdges(edges);
-            // Only the isolated alias deletes the survivor before its next use.
+            // An isolated alias deletes the survivor, which op 2 reads afterwards.
             if (edges.GetSize()==0) return SC_ERR_ARG;
         }
         if (op==2) {

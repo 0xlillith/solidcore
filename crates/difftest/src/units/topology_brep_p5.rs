@@ -4,6 +4,7 @@
 //! vertex after real native `CombineCoincidentVertices`. Other operations compare
 //! status/output lifecycle and the semantic graph or explicitly defer. Successful
 //! topology mutation and nonidentity transformation are not certified here.
+//! Inputs the FFI guards refuse (undefined natively) are `rejected`, not failed.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -19,6 +20,7 @@ use solidcore::topology::brep::p5;
 use solidcore::topology::{Brep, EdgeId, FaceId, LoopId, RegionId, VertexId};
 use solidcore::{Result as SolidResult, SolidError};
 use solidcore_ffi::units::topology_brep_p5::{self as ffi, Op};
+use solidcore_ffi::FfiError;
 
 use super::boolean_merge_p1::graph;
 use super::topology_vertexuse::import;
@@ -146,8 +148,17 @@ fn refused_fixture(raw: &[f64]) -> Option<Output> {
         ))
     })
 }
-fn native(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
-    ffi::eval(op(i)?, &i.fixture, &args(i)).map_err(|e| HarnessError::new(e.to_string()))
+/// The native record, or `Err(output)` when the FFI guard refuses an input that is
+/// undefined natively. Nothing runs on the native side, so the case is rejected
+/// (as `topology.brep_p1`'s runner does), neither passed nor failed.
+fn native(i: &Inputs) -> Result<Result<Vec<f64>, Output>, HarnessError> {
+    match ffi::eval(op(i)?, &i.fixture, &args(i)) {
+        Ok(raw) => Ok(Ok(raw)),
+        Err(e @ FfiError::InvalidArgument(_)) => {
+            Ok(Err(Output::rejected(format!("ffi guard: {e}"))))
+        }
+        Err(e) => Err(HarnessError::new(e.to_string())),
+    }
 }
 
 fn rust_record(k: &mut Kernel, b: &mut Brep, i: &Inputs) -> SolidResult<Vec<f64>> {
@@ -442,7 +453,10 @@ impl UnitDiff for Runner {
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
-        let raw = native(&i)?;
+        let raw = match native(&i)? {
+            Ok(raw) => raw,
+            Err(refused) => return Ok(refused),
+        };
         if let Some(out) = refused_fixture(&raw) {
             return Ok(out);
         }

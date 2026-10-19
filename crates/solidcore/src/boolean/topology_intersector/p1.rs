@@ -451,11 +451,10 @@ impl<O: Copy, B: IntersectorBrep<O>> crate::topology::brep::p5::FaceEdgeBackend
     type UvCurve = O;
     type Vertexuse = O;
     type Output = Option<(O, Option<O>, Option<O>)>;
-    fn validate_face(&self, face: O) -> Result<()> {
-        self.backend
-            .face_surface(face)
-            .map(|_| ())
-            .ok_or_else(|| SolidError::null_pointer(OP))
+    fn validate_face(&self, _face: O) -> Result<()> {
+        // Upstream only checks the face pointer (`NER(pFace)`), never its surface;
+        // a handle is never null, and the caller has already rejected a missing face.
+        Ok(())
     }
     fn tolerance(&self) -> Result<f64> {
         self.backend.brep_tolerance(self.brep)

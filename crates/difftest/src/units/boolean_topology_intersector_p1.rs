@@ -1198,7 +1198,10 @@ impl IntersectorBrep<H> for Two {
         if brep.kind != K_BREP || self.breps.get(slot).and_then(Option::as_ref).is_none() {
             return Err(invalid("not a B-rep handle"));
         }
-        self.editing.get(slot).copied().ok_or_else(|| invalid("missing editing flag"))
+        self.editing
+            .get(slot)
+            .copied()
+            .ok_or_else(|| invalid("missing editing flag"))
     }
     fn brep_tolerance(&self, brep: H) -> solidcore::Result<f64> {
         Ok(self.brep_r(brep)?.tolerance())
