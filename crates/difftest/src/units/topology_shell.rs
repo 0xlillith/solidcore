@@ -538,7 +538,7 @@ impl TopologyObjects<RayObject> for RayWorld<'_> {
             k,
             self.brep,
             object.map(RayObject::cache_object).transpose()?,
-            &ray_key,
+            &self.keys,
             &|_| None,
         )
     }
@@ -583,16 +583,79 @@ impl TopologyObjects<RayObject> for RayWorld<'_> {
             return Err(ray_context_error("expected face handle"));
         };
         self.metadata.require_geometry()?;
-        solidcore::query::face::p1::point_3d_classify(
+        let Some(uv) = solidcore::intersect::topology_solver::p1::face_point_3d_uv_with_context(
+            k,
+            self,
+            face,
+            id,
+            point,
+            source_zone_tolerance,
+            classification,
+            None,
+        )?
+        else {
+            return Ok(());
+        };
+        solidcore::query::face::p1::point_3d_classify_finish(
             k,
             self.brep,
             id,
+            uv,
             point,
             source_zone_tolerance,
             do_boundaries,
             classification,
             solidcore::query::face::p1::Point3dClassifyOptions::default(),
         )
+    }
+
+    fn face_brep_editing_enabled(&self, face: RayObject) -> solidcore::Result<bool> {
+        let RayObject::Face(id) = face else {
+            return Err(ray_context_error("expected face handle"));
+        };
+        self.brep.face(id)?;
+        Ok(self.brep.editing_enabled())
+    }
+
+    fn set_face_brep_editing_enabled(
+        &mut self,
+        face: RayObject,
+        editing: bool,
+    ) -> solidcore::Result<()> {
+        let RayObject::Face(id) = face else {
+            return Err(ray_context_error("expected face handle"));
+        };
+        self.brep.face(id)?;
+        self.brep.set_editing_enabled(editing);
+        Ok(())
+    }
+
+    fn face_create_uv_trim_curves(&mut self, k: &Kernel, face: RayObject) -> solidcore::Result<()> {
+        let RayObject::Face(id) = face else {
+            return Err(ray_context_error("expected face handle"));
+        };
+        self.metadata.require_geometry()?;
+        solidcore::topology::face::p3::create_uv_trim_curves(k, self.brep, id, true, None)
+            .map(|_| ())
+    }
+
+    fn face_classification_object(
+        &self,
+        face: RayObject,
+        entity: EntityRef,
+    ) -> solidcore::Result<RayObject> {
+        let RayObject::Face(id) = face else {
+            return Err(ray_context_error("expected face handle"));
+        };
+        self.brep.face(id)?;
+        match entity {
+            EntityRef::Vertex(id) => self.brep.vertex(id).map(|_| RayObject::Vertex(id)),
+            EntityRef::Edge(id) => self.brep.edge(id).map(|_| RayObject::Edge(id)),
+            EntityRef::Face(id) => self.brep.face(id).map(|_| RayObject::Face(id)),
+            _ => Err(ray_context_error(
+                "classification entity is not face boundary topology",
+            )),
+        }
     }
 
     fn curve(&self, object: RayObject) -> solidcore::Result<&Curve> {
@@ -1976,13 +2039,72 @@ fn rust_region_filter(brep: &Brep, filter: &RegionFilter) -> Result<Output, Harn
 #[cfg(test)]
 mod ray_query_tests {
     use super::{
-        ray_key, Brep, BrepId, EntityRef, Kernel, QueryMetadata, RayQueryContext, Region, Shell,
-        SolidError,
+        arena_identity, ray_key, Brep, BrepId, CacheObject, Curve, EntityRef, Kernel, ObjectRef,
+        QueryMetadata, RayObject, RayQueryContext, Region, Shell, SolidError, TopologyObjects,
     };
     use solidcore::intersect::point_class::{PointClassType, PointClassification};
     use solidcore::math::{Point2, Point3, Vec3};
     use solidcore::topology::shell::{ShellRayInput, ShellRayState};
     use solidcore::topology::{Arena, Face};
+
+    #[test]
+    fn curve_tolerance_uses_the_callers_live_owner_registration() {
+        use solidcore::nurbs::b_spline_curve::BSplineCurve;
+        use solidcore::nurbs::crv_basic::Curve as NurbCurve;
+        use solidcore::nurbs::math::{CPoint, NOW};
+
+        fn caller_key(object: CacheObject) -> ObjectRef {
+            let mut key = arena_identity(object);
+            key.key.0 += 500;
+            key
+        }
+
+        let mut brep = Brep::new();
+        brep.set_key(caller_key(CacheObject::Brep).key);
+        let start = brep.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
+        let end = brep.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
+        let edge = brep.add_edge(start, end).unwrap();
+        let nurb = NurbCurve::new(
+            vec![
+                CPoint::new(0.0, 0.0, 0.0, NOW),
+                CPoint::new(1.0, 0.0, 0.0, NOW),
+            ],
+            1,
+            vec![0.0, 0.0, 1.0, 1.0],
+        )
+        .unwrap();
+        let mut curve = Curve::from(BSplineCurve::from_nurb(nurb, 3, false));
+        let _ = curve.set_owner(
+            Some(caller_key(CacheObject::Edge(edge))),
+            Some(caller_key(CacheObject::Brep)),
+        );
+        let record = brep.edge_mut(edge).unwrap();
+        record.curve = Some(curve);
+        record.tolerance = 0.125;
+        let mut breps = Arena::<BrepId, Brep>::default();
+        let id = breps.insert(brep).unwrap();
+        let brep = breps.get_mut(id).unwrap();
+        let mut context = RayQueryContext::new(brep, id, QueryMetadata::default(), caller_key);
+
+        assert_eq!(
+            context
+                .world(brep)
+                .object_zone_tol_3d(&Kernel::default(), Some(RayObject::Curve(edge))),
+            Ok(0.125),
+        );
+        // The geometry still has the actual caller owner; resolving its arena
+        // index with the shell runner's unrelated key namespace would fail.
+        assert_eq!(
+            brep.edge(edge)
+                .unwrap()
+                .curve
+                .as_ref()
+                .unwrap()
+                .edge(&|_| None)
+                .unwrap(),
+            Some(caller_key(CacheObject::Edge(edge))),
+        );
+    }
 
     #[test]
     fn real_ray_preserves_initial_state_on_error_and_retained_fields_on_no_hit() {

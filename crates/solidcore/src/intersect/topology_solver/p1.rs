@@ -66,6 +66,11 @@
 //!   separately. Point/face ignores ordinary native UV failures and retries failed
 //!   3D tests once at 100 times the raw solver tolerance. Curve/face propagates its
 //!   UV failure. Missing Rust identities and explicit unported errors propagate.
+//!   Owned-surface point solves use a numerical evaluation snapshot and retain
+//!   live owner/tolerance/editing access through the same provider. The concrete
+//!   trimmed cache survives deferred construction and point-test dispatch; missing
+//!   trim-creation dependencies remain visible instead of enabling standalone
+//!   surface-boundary solving by clearing the owner.
 //! - **Solution tolerances.** Rayfire insertion resolves the first and last
 //!   solution object's tolerance through the same live [`TopologyObjects`]. It
 //!   preserves native null/index handling and sums the actual owner tolerances
@@ -100,7 +105,8 @@ use crate::intersect::point_class::{PointClassType, PointClassification};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT, PI};
 use crate::surface::surface::p2::{surface_cache, Surface, SurfaceKind};
-use crate::surface::surface_cache::p1::{AltCacheKey, AltSrfCacheType};
+use crate::surface::surface_cache::p1::{AltCacheKey, AltSrfCacheType, SurfaceCacheContext};
+use crate::topology::FaceId;
 use crate::EntityRef;
 
 const OP_MAY: &str = "intersect::topology_solver::p1::TopologySolver::may_contain_answer";
@@ -213,6 +219,21 @@ pub trait TopologyObjects<O> {
         classification: &mut PointClassification<EntityRef>,
     ) -> Result<()>;
 
+    /// The editing state of the face's actual owning B-rep, read during trimmed
+    /// surface-cache construction.
+    fn face_brep_editing_enabled(&self, face: O) -> Result<bool>;
+
+    /// Update that same B-rep's editing state. Cache construction restores the
+    /// saved value on every return, including a failing trim-curve creation.
+    fn set_face_brep_editing_enabled(&mut self, face: O, editing: bool) -> Result<()>;
+
+    /// `CreateUVTrimCurves(TRUE, NULL, NULL, ...)` on the original mutable face.
+    fn face_create_uv_trim_curves(&mut self, kernel: &Kernel, face: O) -> Result<()>;
+
+    /// Map a classification entity scoped to `face`'s B-rep back to its exact
+    /// solver handle. Geometry and topology-owner handles remain distinct.
+    fn face_classification_object(&self, face: O, entity: EntityRef) -> Result<O>;
+
     /// The cache associated with a B-rep handle. Adapters that expose B-reps
     /// provide this, or override `brep_trees` with their own tree storage.
     fn brep_cache(
@@ -309,6 +330,145 @@ pub trait TopologyObjects<O> {
 
     /// The member an edge or face handle is for `SmShape::IsInShape`.
     fn shape_member(&self, object: O) -> ShapeMember;
+}
+
+/// A surface checkout uses this live provider while its numerical surface
+/// snapshot and cache trees remain independently owned by the solve.
+struct TopologySurfaceCacheContext<'a, O> {
+    objects: &'a mut dyn TopologyObjects<O>,
+}
+
+impl<O: SolutionObject> SurfaceCacheContext<O> for TopologySurfaceCacheContext<'_, O> {
+    fn surface_face(&self, _: &Surface, handle: Option<O>) -> Result<Option<O>> {
+        self.objects
+            .surface_face(handle.ok_or(SolidError::null_pointer(OP_PF))?)
+    }
+
+    fn surface_has_direct_face_owner(&self, _: &Surface, handle: Option<O>) -> Result<bool> {
+        let surface = self
+            .objects
+            .surface(handle.ok_or(SolidError::null_pointer(OP_PF))?)?;
+        Ok(surface
+            .owner()
+            .is_some_and(|owner| owner.type_code == crate::geom::assert_array::labels::FACE_TYPE))
+    }
+
+    fn surface_zone_tol_3d(&self, kernel: &Kernel, _: &Surface, handle: Option<O>) -> Result<f64> {
+        let handle = handle.ok_or(SolidError::null_pointer(OP_PF))?;
+        self.objects.object_zone_tol_3d(kernel, Some(handle))
+    }
+
+    fn surface_owner_zone_tol_3d(
+        &self,
+        kernel: &Kernel,
+        _: &Surface,
+        handle: Option<O>,
+    ) -> Result<f64> {
+        let handle = handle.ok_or(SolidError::null_pointer(OP_PF))?;
+        let owner = self.objects.surface_owner(handle)?;
+        if owner.is_none() && self.objects.surface(handle)?.owner().is_some() {
+            return Err(SolidError::invalid_input(
+                OP_PF,
+                "surface owner is not represented in the live object context",
+            ));
+        }
+        self.objects.object_zone_tol_3d(kernel, owner)
+    }
+
+    fn object_zone_tol_3d(&self, kernel: &Kernel, object: Option<O>) -> Result<f64> {
+        self.objects.object_zone_tol_3d(kernel, object)
+    }
+
+    fn face_brep_editing_enabled(&self, face: O) -> Result<bool> {
+        self.objects.face_brep_editing_enabled(face)
+    }
+
+    fn set_face_brep_editing_enabled(&mut self, face: O, editing: bool) -> Result<()> {
+        self.objects.set_face_brep_editing_enabled(face, editing)
+    }
+
+    fn face_create_uv_trim_curves(&mut self, kernel: &Kernel, face: O) -> Result<()> {
+        self.objects.face_create_uv_trim_curves(kernel, face)
+    }
+
+    fn face_point_classify(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        uv: Vec2,
+        tolerance: f64,
+        do_boundaries: bool,
+        use_uv: bool,
+        classification: &mut PointClassification<O>,
+    ) -> Result<()> {
+        // Every cache test constructs a new local classification upstream. Keep
+        // all scalar state while rejecting an unexpected preexisting handle.
+        let mut local = classification.try_map_objects(|_| {
+            Err(SolidError::invalid_input(
+                OP_PF,
+                "cache classification is not freshly initialized",
+            ))
+        })?;
+        let result = self.objects.face_point_classify(
+            kernel,
+            face,
+            uv,
+            tolerance,
+            do_boundaries,
+            use_uv,
+            &mut local,
+        );
+        *classification = local
+            .try_map_objects(|entity| self.objects.face_classification_object(face, entity))?;
+        result
+    }
+}
+
+/// Perform the initialisation and surface-drop phase of a face 3D classification
+/// through this solver's live owner context. `face_id` is the face's validated
+/// identity in its B-rep, supplied by the provider; it is not derived from `O`.
+/// The numerical surface snapshot preserves the original geometry and owner,
+/// while all owner, tolerance, editing and trim-creation callbacks use `objects`.
+///
+/// A returned UV is completed on the original B-rep by
+/// [`crate::query::face::p1::point_3d_classify_finish`]. `None` is the native
+/// successful unknown classification. In both cases the same classification
+/// record is retained, including fields written before an error.
+///
+/// # Errors
+///
+/// Propagates missing object identities, surface-cache and point-solve errors.
+/// UV-domain lookup precedes classification initialisation, which in turn
+/// precedes surface lookup and cache acquisition.
+pub fn face_point_3d_uv_with_context<O: SolutionObject>(
+    kernel: &Kernel,
+    objects: &mut dyn TopologyObjects<O>,
+    face: O,
+    face_id: FaceId,
+    point: Point3,
+    source_zone_tolerance: f64,
+    classification: &mut PointClassification<EntityRef>,
+    guess_uv: Option<Vec2>,
+) -> Result<Option<Vec2>> {
+    let uv_domain = objects.face_uv_domain(face)?;
+    crate::query::face::p1::point_3d_classify_initialize(
+        face_id,
+        source_zone_tolerance,
+        classification,
+    );
+    let handle = objects.face_surface(face)?;
+    let surface = objects.surface(handle)?.clone_for_evaluation()?;
+    let mut context = TopologySurfaceCacheContext { objects };
+    crate::query::face::p1::point_3d_classify_uv_with_context(
+        kernel,
+        &surface,
+        Some(handle),
+        &uv_domain,
+        point,
+        source_zone_tolerance,
+        guess_uv,
+        &mut context,
+    )
 }
 
 /// A curve a local solver works on (`m_pCurve`, `m_pCurve2`): the curve and the
@@ -1668,7 +1828,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             let solutions = surface_global_point_solve(
                 ts.kernel,
                 face_surface,
-                ts.objects.surface(face_surface)?,
+                &mut *ts.objects,
                 &uv_domain,
                 op,
                 self.point,
@@ -2000,14 +2160,19 @@ pub(super) fn face_silhouettes<O: Copy + PartialEq>(
 fn surface_global_point_solve<O: SolutionObject>(
     kernel: &Kernel,
     handle: O,
-    surface: &Surface,
+    objects: &mut dyn TopologyObjects<O>,
     uv_domain: &Extent2d,
     op: SolverOperation,
     point: Point3,
     tol: f64,
     best_answer: Option<f64>,
 ) -> Result<SolutionArray<O>> {
-    surface.global_point_solve::<O>(
+    // This is a numerical snapshot of the same geometry, not the native copy
+    // constructor (which deliberately clears ownership). All topology reads and
+    // writes during cache construction still use the live provider below.
+    let surface = objects.surface(handle)?.clone_for_evaluation()?;
+    let mut context = TopologySurfaceCacheContext { objects };
+    surface.global_point_solve_with_context::<O>(
         kernel,
         Some(handle),
         uv_domain,
@@ -2016,6 +2181,7 @@ fn surface_global_point_solve<O: SolutionObject>(
         tol,
         best_answer,
         SolutionRequested::All,
+        &mut context,
     )
 }
 
@@ -2227,6 +2393,18 @@ pub(crate) mod tests {
         ) -> Result<()> {
             Err(SolidError::invalid_input("test scene", "no faces in scene"))
         }
+        fn face_brep_editing_enabled(&self, _face: Obj) -> Result<bool> {
+            Err(SolidError::invalid_input("test scene", "no faces in scene"))
+        }
+        fn set_face_brep_editing_enabled(&mut self, _face: Obj, _editing: bool) -> Result<()> {
+            Err(SolidError::invalid_input("test scene", "no faces in scene"))
+        }
+        fn face_create_uv_trim_curves(&mut self, _kernel: &Kernel, _face: Obj) -> Result<()> {
+            Err(SolidError::invalid_input("test scene", "no faces in scene"))
+        }
+        fn face_classification_object(&self, _face: Obj, _entity: EntityRef) -> Result<Obj> {
+            Err(SolidError::invalid_input("test scene", "no faces in scene"))
+        }
         fn shape_member_object(&self, member: ShapeMember) -> Result<Obj> {
             match member {
                 ShapeMember::Vertex((_, key)) => Ok(Obj::Vertex(key.index() as usize)),
@@ -2330,7 +2508,7 @@ pub(crate) mod tests {
         let objects = scene();
         let brep = crate::topology::BrepId::from_index(0);
         let edge = ShapeMember::Edge((brep, crate::topology::EdgeId::from_index(0)));
-        let face = ShapeMember::Face((brep, crate::topology::FaceId::from_index(0)));
+        let face = ShapeMember::Face((brep, FaceId::from_index(0)));
         let vertex = ShapeMember::Vertex((brep, crate::topology::VertexId::from_index(0)));
         assert_eq!(objects.shape_member_object(edge).unwrap(), Obj::Edge(0));
         assert_eq!(
@@ -2506,6 +2684,390 @@ pub(crate) mod tests {
                 assert_eq!(last.objects[0], Some(CacheObject::Vertex(far)));
                 assert_eq!(last.start.solution_value, 1.0 + 1.0 / 64.0);
             }
+        }
+    }
+
+    fn cache_face_key(
+        object: crate::topology::brep_cache::CacheObject,
+    ) -> crate::geom::object::ObjectRef {
+        let mut key = crate::topology::brep_cache::arena_identity(object);
+        key.key.0 += 100_000;
+        key
+    }
+
+    /// A real owned quadratic patch. Its face key is deliberately unrelated to
+    /// the raw arena index, and its tolerance differs from the system default.
+    fn add_cache_face(brep: &mut crate::topology::Brep) -> FaceId {
+        use crate::nurbs::b_spline_surface::BSplineSurface;
+        use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
+        use crate::nurbs::math::{CPoint, NOW};
+        use crate::nurbs::srf_basic::Surface as NurbSurface;
+        use crate::topology::brep_cache::CacheObject;
+        use crate::topology::shell::{ShellMembers, ShellType};
+        use crate::topology::{Face, Faceuse, Region};
+
+        let net = (0..3)
+            .map(|u| {
+                (0..3)
+                    .map(|v| CPoint::new(f64::from(u) * 0.5, f64::from(v) * 0.5, 0.0, NOW))
+                    .collect()
+            })
+            .collect();
+        let nurb = NurbSurface::new(
+            net,
+            2,
+            2,
+            vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+            vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+        )
+        .unwrap();
+        let shell = brep.add_shell().unwrap();
+        let face = brep
+            .add_face_record(Face {
+                surface: Some(Surface::from(BSplineSurface::from_nurb(nurb, false))),
+                uv_domain: Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
+                tolerance: 1.0 / 128.0,
+                ..Face::new(shell)
+            })
+            .unwrap();
+        let faceuse = brep
+            .add_faceuse_record(Faceuse {
+                shell: Some(shell),
+                face: Some(face),
+                orientation: OrientType::Same,
+                ..Faceuse::default()
+            })
+            .unwrap();
+        let region = brep
+            .add_region_record(Region {
+                in_brep: true,
+                shells: vec![shell],
+                ..Region::default()
+            })
+            .unwrap();
+        let shell_record = brep.shell_mut(shell).unwrap();
+        shell_record.region = Some(region);
+        shell_record.shell_type = ShellType::Faceuse;
+        shell_record.members = ShellMembers::Faceuses(vec![faceuse]);
+        brep.set_key(cache_face_key(CacheObject::Brep).key);
+        brep.face_mut(face).unwrap().faceuse = Some(faceuse);
+        brep.face_mut(face)
+            .unwrap()
+            .surface
+            .as_mut()
+            .unwrap()
+            .set_owner(Some(cache_face_key(CacheObject::Face(face))));
+        face
+    }
+
+    #[test]
+    fn hinted_local_solve_uses_the_live_owner_tolerance_at_the_boundary() {
+        use crate::topology::brep_cache::{make_brep_cache, BrepObjects, CacheObject, CacheSource};
+        use crate::topology::{Arena, Brep, BrepId};
+
+        let kernel = Kernel::default();
+        let mut breps = Arena::<BrepId, Brep>::default();
+        let brep_id = breps.insert(Brep::new()).unwrap();
+        let brep = breps.get_mut(brep_id).unwrap();
+        let face = add_cache_face(brep);
+        let published = make_brep_cache(&kernel, CacheSource::Brep(brep), &cache_face_key).unwrap();
+        let mut objects = BrepObjects {
+            brep,
+            brep_id,
+            cache: &published,
+            keys: &cache_face_key,
+            owner_of: &|_| None,
+        };
+        let handle = CacheObject::Surface(face);
+        let surface = objects
+            .surface(handle)
+            .unwrap()
+            .clone_for_evaluation()
+            .unwrap();
+        let owner = Some(cache_face_key(CacheObject::Face(face)));
+        let domain = objects.face_uv_domain(CacheObject::Face(face)).unwrap();
+        let guess = Vec2::new(1.0, 0.5);
+        let point = Point3::new(1.0 + 1.0 / 64.0, 0.5, 0.0);
+
+        // This point's constrained drop lies at the patch boundary. The new
+        // solver's final loose-tolerance test accepts it only with the larger
+        // live Face tolerance. A system fallback or a tolerance captured with
+        // the geometry snapshot cannot reproduce both results.
+        for (tolerance, expected_found) in [(1.0 / 32.0, true), (1.0 / 128.0, false)] {
+            objects.brep.face_mut(face).unwrap().tolerance = tolerance;
+            let context = TopologySurfaceCacheContext {
+                objects: &mut objects,
+            };
+            let mut observed = Vec::new();
+            let mut seam_tolerances = Vec::new();
+            let result = surface
+                .local_point_solve_with_tolerance_context::<CacheObject>(
+                    &kernel,
+                    &domain,
+                    SolverOperation::Intersect,
+                    point,
+                    guess,
+                    &mut |evaluation_surface| {
+                        assert_eq!(evaluation_surface.owner(), owner);
+                        let tolerance = context.surface_owner_zone_tol_3d(
+                            &kernel,
+                            evaluation_surface,
+                            Some(handle),
+                        )?;
+                        observed.push(tolerance);
+                        Ok(tolerance)
+                    },
+                    &mut |evaluation_surface| {
+                        let tolerance = context.surface_zone_tol_3d(
+                            &kernel,
+                            evaluation_surface,
+                            Some(handle),
+                        )?;
+                        seam_tolerances.push(tolerance);
+                        Ok(Some(tolerance))
+                    },
+                )
+                .unwrap();
+            assert_eq!(observed, [tolerance]);
+            assert_eq!(
+                seam_tolerances,
+                if expected_found {
+                    Vec::new()
+                } else {
+                    vec![tolerance]
+                }
+            );
+            assert_eq!(result.found, expected_found, "{result:?}");
+            assert_eq!(result.solution.num_variables, 2);
+            assert_eq!(result.solution.start.parameters[0], 1.0);
+            assert_eq!(result.solution.start.parameters[1], 0.5);
+            assert_eq!(result.solution.start.solution_value, 1.0 / 64.0);
+            assert_eq!(context.objects.surface(handle).unwrap().owner(), owner);
+        }
+        assert_eq!(surface.owner(), owner);
+    }
+
+    #[test]
+    fn surface_checkout_keeps_the_live_owner_while_brep_editing_is_enabled() {
+        use crate::surface::surface::p1::{get_surface_cache_with_context, SurfaceCacheCheckout};
+        use crate::topology::brep_cache::{make_brep_cache, BrepObjects, CacheObject, CacheSource};
+        use crate::topology::{Arena, Brep, BrepId};
+
+        let kernel = Kernel::default();
+        let mut breps = Arena::<BrepId, Brep>::default();
+        let brep_id = breps.insert(Brep::new()).unwrap();
+        let brep = breps.get_mut(brep_id).unwrap();
+        let face = add_cache_face(brep);
+        brep.set_editing_enabled(true);
+        let published = make_brep_cache(&kernel, CacheSource::Brep(brep), &cache_face_key).unwrap();
+        let mut objects = BrepObjects {
+            brep,
+            brep_id,
+            cache: &published,
+            keys: &cache_face_key,
+            owner_of: &|_| None,
+        };
+        let handle = CacheObject::Surface(face);
+        let surface = objects
+            .surface(handle)
+            .unwrap()
+            .clone_for_evaluation()
+            .unwrap();
+        let owner = Some(cache_face_key(CacheObject::Face(face)));
+        let mut context = TopologySurfaceCacheContext {
+            objects: &mut objects,
+        };
+        assert_eq!(
+            context
+                .surface_zone_tol_3d(&kernel, &surface, Some(handle))
+                .unwrap(),
+            1.0 / 128.0
+        );
+        let mut cache =
+            get_surface_cache_with_context(&kernel, &surface, Some(handle), &mut context).unwrap();
+        assert!(matches!(cache, SurfaceCacheCheckout::Trimmed(_)));
+        assert_eq!(cache.base().surface().owner(), owner);
+        assert!(cache.base().tree().is_some());
+        assert!(cache.base().process_boundary_curves());
+        assert!(!cache.base().point_test_enabled);
+        cache.get_tree(&kernel, &mut context).unwrap();
+        assert!(context
+            .face_brep_editing_enabled(CacheObject::Face(face))
+            .unwrap());
+        assert_eq!(context.objects.surface(handle).unwrap().owner(), owner);
+
+        // A handle-space conversion is still a snapshot of that same surface;
+        // it must not reapply the owner-clearing native copy constructor.
+        let remapped = cache.base().map_handles(|_| Ok(17_u32)).unwrap();
+        assert_eq!(remapped.surface().owner(), owner);
+        assert_eq!(
+            remapped
+                .surface()
+                .evaluate_point(Vec2::new(0.25, 0.75))
+                .unwrap(),
+            Point3::new(0.25, 0.75, 0.0)
+        );
+    }
+
+    #[test]
+    fn delayed_trim_build_keeps_its_kind_and_restores_the_live_editing_flag() {
+        use crate::surface::surface::p1::{get_surface_cache_with_context, SurfaceCacheCheckout};
+        use crate::topology::brep_cache::{make_brep_cache, BrepObjects, CacheObject, CacheSource};
+        use crate::topology::{Arena, Brep, BrepId};
+
+        let mut kernel = Kernel::default();
+        kernel.context.set_doing_boolean(true);
+        let mut breps = Arena::<BrepId, Brep>::default();
+        let brep_id = breps.insert(Brep::new()).unwrap();
+        let brep = breps.get_mut(brep_id).unwrap();
+        let face = add_cache_face(brep);
+        assert!(!brep.editing_enabled());
+        let published = make_brep_cache(&kernel, CacheSource::Brep(brep), &cache_face_key).unwrap();
+        let mut objects = BrepObjects {
+            brep,
+            brep_id,
+            cache: &published,
+            keys: &cache_face_key,
+            owner_of: &|_| None,
+        };
+        let handle = CacheObject::Surface(face);
+        let surface = objects
+            .surface(handle)
+            .unwrap()
+            .clone_for_evaluation()
+            .unwrap();
+        let owner = Some(cache_face_key(CacheObject::Face(face)));
+        let mut context = TopologySurfaceCacheContext {
+            objects: &mut objects,
+        };
+        let mut cache =
+            get_surface_cache_with_context(&kernel, &surface, Some(handle), &mut context).unwrap();
+        assert!(matches!(cache, SurfaceCacheCheckout::Trimmed(_)));
+        assert!(cache.base().tree().is_none());
+        assert_eq!(cache.base().surface().owner(), owner);
+
+        // Construction reaches the real face routine. Its currently unported
+        // upward-loopuse dependency remains visible, without converting the
+        // already acquired TrimSrf cache into a successful ordinary fallback.
+        assert!(matches!(
+            cache.get_tree(&kernel, &mut context),
+            Err(SolidError::Unported {
+                upstream: "SmFace::GetUpwardLoopuses",
+                unit: "topology.face_p4",
+            })
+        ));
+        assert!(matches!(cache, SurfaceCacheCheckout::Trimmed(_)));
+        assert!(!context
+            .face_brep_editing_enabled(CacheObject::Face(face))
+            .unwrap());
+        assert_eq!(context.objects.surface(handle).unwrap().owner(), owner);
+        assert_eq!(cache.base().surface().owner(), owner);
+        assert!(cache.base().point_test_enabled);
+        assert_eq!(
+            cache.base().face_containment_done,
+            crate::surface::surface_cache::p1::FaceContainment::NotDone
+        );
+    }
+
+    #[test]
+    fn trimmed_point_test_uses_source_tolerance_instead_of_the_face_default() {
+        use crate::geom::tree::TreeOwner;
+        use crate::surface::surface::p1::{get_surface_cache_with_context, SurfaceCacheCheckout};
+        use crate::topology::brep_cache::{make_brep_cache, BrepObjects, CacheObject, CacheSource};
+        use crate::topology::{
+            Arena, Brep, BrepId, Loop, Loopuse, LoopuseStart, Vertex, Vertexuse, VertexuseOwner,
+        };
+
+        let mut kernel = Kernel::default();
+        kernel.context.set_doing_boolean(true);
+        let mut breps = Arena::<BrepId, Brep>::default();
+        let brep_id = breps.insert(Brep::new()).unwrap();
+        let brep = breps.get_mut(brep_id).unwrap();
+        let face = add_cache_face(brep);
+        let faceuse = brep.face(face).unwrap().faceuse.unwrap();
+        let vertex = brep
+            .add_vertex_record(Vertex {
+                point: Point3::new(0.25, 0.25, 0.0),
+                tolerance: 1.0 / 256.0,
+                ..Vertex::default()
+            })
+            .unwrap();
+        let loop_id = brep
+            .add_loop_record(Loop {
+                face,
+                edges: Vec::new(),
+                loopuse: None,
+            })
+            .unwrap();
+        let loopuse = brep
+            .add_loopuse_record(Loopuse {
+                faceuse: Some(faceuse),
+                loop_: Some(loop_id),
+                ..Loopuse::default()
+            })
+            .unwrap();
+        let vertexuse = brep
+            .add_vertexuse_record(Vertexuse {
+                vertex: Some(vertex),
+                owner: VertexuseOwner::Loopuse(Some(loopuse)),
+                ..Vertexuse::default()
+            })
+            .unwrap();
+        brep.vertex_mut(vertex).unwrap().vertexuses.push(vertexuse);
+        brep.loopuse_mut(loopuse).unwrap().start = LoopuseStart::Vertexuse(Some(vertexuse));
+        brep.loop_mut(loop_id).unwrap().loopuse = Some(loopuse);
+        brep.faceuse_mut(faceuse).unwrap().loopuses.push(loopuse);
+        brep.face_mut(face).unwrap().loops.push(loop_id);
+        assert_eq!(brep.face(face).unwrap().tolerance, 1.0 / 128.0);
+        assert_eq!(
+            crate::query::face::p2::face_vertices(brep, face, false, None).unwrap(),
+            vec![vertex]
+        );
+
+        let published = make_brep_cache(&kernel, CacheSource::Brep(brep), &cache_face_key).unwrap();
+        let mut objects = BrepObjects {
+            brep,
+            brep_id,
+            cache: &published,
+            keys: &cache_face_key,
+            owner_of: &|_| None,
+        };
+        let handle = CacheObject::Surface(face);
+        let surface = objects
+            .surface(handle)
+            .unwrap()
+            .clone_for_evaluation()
+            .unwrap();
+        let mut context = TopologySurfaceCacheContext {
+            objects: &mut objects,
+        };
+        let cache =
+            get_surface_cache_with_context(&kernel, &surface, Some(handle), &mut context).unwrap();
+        assert!(matches!(cache, SurfaceCacheCheckout::Trimmed(_)));
+        assert!(cache.base().tree().is_none());
+
+        // Native TrimSrfCache::PointTest explicitly works before BuildTree.
+        // A vertex loop contains no area: the point is accepted only when its
+        // 1/64 distance to the actual vertex fits the supplied source tolerance.
+        // None must instead use the face's smaller 1/128 tolerance.
+        let uv = Vec2::new(0.25 + 1.0 / 64.0, 0.25);
+        for (tolerance, expected) in [
+            (Some(1.0 / 32.0), true),
+            (None, false),
+            (Some(1.0 / 256.0), false),
+        ] {
+            assert_eq!(
+                cache
+                    .is_point_valid(
+                        &kernel,
+                        Some(TreeOwner::TrimSrfCache),
+                        uv,
+                        tolerance,
+                        &mut context,
+                    )
+                    .unwrap(),
+                expected
+            );
         }
     }
 

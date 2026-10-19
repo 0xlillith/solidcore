@@ -706,20 +706,108 @@ impl TopologyObjects<Object> for Objects<'_> {
         let CacheObject::Face(id) = face.1 else {
             return Err(SolidError::sm_err("face handle"));
         };
+        let Some(uv) = solidcore::intersect::topology_solver::p1::face_point_3d_uv_with_context(
+            k,
+            self,
+            face,
+            id,
+            point,
+            source_zone_tolerance,
+            classification,
+            None,
+        )?
+        else {
+            return Ok(());
+        };
         let brep = self
             .breps
             .get_mut(face.0)
             .ok_or(SolidError::sm_err("query api scene handle"))?;
-        solidcore::query::face::p1::point_3d_classify(
+        solidcore::query::face::p1::point_3d_classify_finish(
             k,
             brep,
             id,
+            uv,
             point,
             source_zone_tolerance,
             do_boundaries,
             classification,
             solidcore::query::face::p1::Point3dClassifyOptions::default(),
         )
+    }
+
+    fn face_brep_editing_enabled(&self, face: Object) -> Result<bool> {
+        let CacheObject::Face(id) = face.1 else {
+            return Err(SolidError::invalid_input(
+                "query api scene",
+                "expected face handle",
+            ));
+        };
+        let brep = self.b(face)?;
+        brep.face(id)?;
+        Ok(brep.editing_enabled())
+    }
+
+    fn set_face_brep_editing_enabled(&mut self, face: Object, editing: bool) -> Result<()> {
+        let CacheObject::Face(id) = face.1 else {
+            return Err(SolidError::invalid_input(
+                "query api scene",
+                "expected face handle",
+            ));
+        };
+        let brep = self
+            .breps
+            .get_mut(face.0)
+            .ok_or_else(|| SolidError::invalid_input("query api scene", "unregistered B-rep"))?;
+        brep.face(id)?;
+        brep.set_editing_enabled(editing);
+        Ok(())
+    }
+
+    fn face_create_uv_trim_curves(&mut self, k: &Kernel, face: Object) -> Result<()> {
+        let CacheObject::Face(id) = face.1 else {
+            return Err(SolidError::invalid_input(
+                "query api scene",
+                "expected face handle",
+            ));
+        };
+        let brep = self
+            .breps
+            .get_mut(face.0)
+            .ok_or_else(|| SolidError::invalid_input("query api scene", "unregistered B-rep"))?;
+        solidcore::topology::face::p3::create_uv_trim_curves(k, brep, id, true, None).map(|_| ())
+    }
+
+    fn face_classification_object(&self, face: Object, entity: EntityRef) -> Result<Object> {
+        let CacheObject::Face(id) = face.1 else {
+            return Err(SolidError::invalid_input(
+                "query api scene",
+                "expected face handle",
+            ));
+        };
+        let brep = self.b(face)?;
+        brep.face(id)?;
+        let object = match entity {
+            EntityRef::Vertex(id) => {
+                brep.vertex(id)?;
+                CacheObject::Vertex(id)
+            }
+            EntityRef::Edge(id) => {
+                brep.edge(id)?;
+                CacheObject::Edge(id)
+            }
+            EntityRef::Face(id) => {
+                brep.face(id)?;
+                CacheObject::Face(id)
+            }
+            _ => {
+                return Err(SolidError::invalid_input(
+                    "query api scene",
+                    "classification entity has no cached topology handle",
+                ))
+            }
+        };
+        Ok(Object(face.0, object))
     }
 
     fn brep_cache(&self, _kernel: &Kernel, o: Object) -> Result<&BrepCache<Object>> {

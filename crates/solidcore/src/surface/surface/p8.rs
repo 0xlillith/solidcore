@@ -1864,6 +1864,30 @@ impl<O: SolutionObject> SpGlobalSolver<'_, '_, O> {
         &mut self,
         branch: &crate::geom::global_solver::Branch,
     ) -> Result<bool> {
+        let cache = self.surface_cache;
+        self.local_solve_branch_with_point_test(branch, &mut |owner, uv, _tolerance| {
+            Ok(is_point_valid(
+                owner,
+                cache.ok_or(SolidError::null_pointer(OP_SP))?,
+                uv,
+            ))
+        })
+    }
+
+    /// The same leaf solve with its cache's virtual point test supplied by the
+    /// checkout. The test receives `m_d3dTolerance`, as in native
+    /// `SmSPGlobalSolver::LocalSolve`; numerical branches and solution insertion
+    /// remain shared.
+    #[allow(clippy::too_many_lines)]
+    pub(super) fn local_solve_branch_with_point_test(
+        &mut self,
+        branch: &crate::geom::global_solver::Branch,
+        point_test: &mut dyn FnMut(
+            Option<crate::geom::tree::TreeOwner>,
+            Point2,
+            f64,
+        ) -> Result<bool>,
+    ) -> Result<bool> {
         // locals
         let point_node = *self.base.branch_node(branch, 0)?;
         let surface_node = *self.base.branch_node(branch, 1)?;
@@ -2012,7 +2036,7 @@ impl<O: SolutionObject> SpGlobalSolver<'_, '_, O> {
             // Keep this solution if: Solution Point is within surface->Owner
             // trimBoundaries, or: surface has no owner trimBoundaries, or: Point
             // testing is off.
-            if is_point_valid(self.base.tree(1)?.owner(), cache, uv_found) {
+            if point_test(self.base.tree(1)?.owner(), uv_found, tol)? {
                 let key = if op == SolverOperation::Minimize || op == SolverOperation::Maximize {
                     SortKey::ByValueWithParameter
                 } else {

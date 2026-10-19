@@ -58,6 +58,9 @@
 //!   handle in the caller's object space (`O`, see [`crate::geom::tree`]) is optional;
 //!   it is what `mBA_pSurface` of a node compares against. Subdivision surfaces
 //!   (`m_sSubdivisionSurfaces`) are kept with their handles.
+//!   Contextual checkouts preserve exact geometry and ownership in these snapshots
+//!   while reading changing owner links, tolerances and editing state through
+//!   [`SurfaceCacheContext`]. Handle remapping preserves the same surface identity.
 //!   [`PatchBoundaryBoundingPlanes`] does not hold the surface: its methods take it.
 //! - **Node data.** `SmTreeNode::m_pData` points at an `SmBezierPatch` (in the cache's
 //!   `m_sBezMgr`) or an `SmBezierAux2d` (in `m_sAuxMgr`). Here the tree node keeps the
@@ -125,6 +128,7 @@ use crate::geom::tol::{zone_tol_3d, SmallTopoType};
 use crate::geom::tree::{
     AuxDataType, NodeClass, NodeData, NodeGeomType, NodeId, SplitDir, SurfaceAux, Tree, TreeNode,
 };
+use crate::intersect::point_class::PointClassification;
 use crate::kernel::Kernel;
 use crate::math::{Point2, Point3, Vec2, Vec3, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_curve::BSplineCurve;
@@ -136,6 +140,158 @@ use crate::nurbs::math::NOW;
 use crate::nurbs::nurbs_crv::to_euclid;
 use crate::nurbs::srf_basic::Surface as NurbSurface;
 use crate::surface::surface::{Surface, SurfaceKind};
+
+/// The live topology behind a surface-cache checkout. Geometry in the cache is
+/// an evaluation snapshot; ownership and mutable face queries are resolved here
+/// against the original objects. The context is borrowed by a query, never stored
+/// in the cache or substituted with a copy of its B-rep.
+pub trait SurfaceCacheContext<O: Copy + PartialEq> {
+    /// `SmSurface::GetFace`, including its current owner chain.
+    fn surface_face(&self, surface: &Surface, handle: Option<O>) -> Result<Option<O>>;
+
+    /// The direct owner test in `SmSurfaceCache::GetTree` and `DropPointFast`.
+    fn surface_has_direct_face_owner(&self, surface: &Surface, handle: Option<O>) -> Result<bool>;
+
+    /// `SmTol::GetZoneTol3d(m_cpSurface)` at the tolerance-test call site.
+    fn surface_zone_tol_3d(&self, k: &Kernel, surface: &Surface, handle: Option<O>) -> Result<f64>;
+
+    /// `SmTol::GetZoneTol3d(surface->GetOwner())` in `LocalPointSolve_1`.
+    /// Resolve the direct owner, which need not be the surface's enclosing face.
+    fn surface_owner_zone_tol_3d(
+        &self,
+        k: &Kernel,
+        surface: &Surface,
+        handle: Option<O>,
+    ) -> Result<f64>;
+
+    /// `SmTol::GetZoneTol3d` for a face, a node's face, or the null-object default.
+    fn object_zone_tol_3d(&self, k: &Kernel, object: Option<O>) -> Result<f64>;
+
+    /// The owning B-rep's live editing flag.
+    fn face_brep_editing_enabled(&self, face: O) -> Result<bool>;
+
+    /// Set that same B-rep flag; callers restore it on every return.
+    fn set_face_brep_editing_enabled(&mut self, face: O, editing: bool) -> Result<()>;
+
+    /// `CreateUVTrimCurves(TRUE, NULL, NULL, ...)` on the original mutable face.
+    fn face_create_uv_trim_curves(&mut self, k: &Kernel, face: O) -> Result<()>;
+
+    /// The actual status and complete partial output of `PointClassify` with
+    /// the native caller's boundary and UV-only flags.
+    fn face_point_classify(
+        &mut self,
+        k: &Kernel,
+        face: O,
+        uv: Point2,
+        tolerance: f64,
+        do_boundaries: bool,
+        use_uv: bool,
+        classification: &mut PointClassification<O>,
+    ) -> Result<()>;
+}
+
+/// Compatibility context for APIs that only received a surface value. An owned
+/// surface cannot resolve its face or B-rep through an opaque object key.
+#[derive(Debug, Default)]
+pub(crate) struct OpaqueSurfaceCacheContext;
+
+impl<O: Copy + PartialEq> SurfaceCacheContext<O> for OpaqueSurfaceCacheContext {
+    fn surface_face(&self, surface: &Surface, _: Option<O>) -> Result<Option<O>> {
+        match surface.face()? {
+            None => Ok(None),
+            Some(_) => {
+                // UNPORTED(topology.face_p2): an opaque SmFace handle has no B-rep mapping.
+                Err(SolidError::unported(
+                    "SmFace handle of a surface's face",
+                    "topology.face_p2",
+                ))
+            }
+        }
+    }
+
+    fn surface_has_direct_face_owner(&self, surface: &Surface, _: Option<O>) -> Result<bool> {
+        Ok(surface
+            .owner()
+            .is_some_and(|owner| owner.type_code == FACE_TYPE))
+    }
+
+    fn surface_zone_tol_3d(&self, k: &Kernel, surface: &Surface, _: Option<O>) -> Result<f64> {
+        if surface.face()?.is_some() {
+            // UNPORTED(surface.surface_cache_p2): SmTol::GetZoneTol3d on an opaque owner.
+            Err(SolidError::unported(
+                "SmTol::GetZoneTol3d(const SmObject*)",
+                "surface.surface_cache_p2",
+            ))
+        } else {
+            Ok(zone_tol_3d(k, SmallTopoType::NormalSize))
+        }
+    }
+
+    fn surface_owner_zone_tol_3d(
+        &self,
+        k: &Kernel,
+        surface: &Surface,
+        _: Option<O>,
+    ) -> Result<f64> {
+        // Retain the legacy Face-owner error, but never substitute a system
+        // tolerance for a different direct owner that this context cannot read.
+        if surface.owner().is_some() && surface.face()?.is_none() {
+            // UNPORTED(surface.surface_cache_p1): SmTol::GetZoneTol3d on an opaque owner.
+            return Err(SolidError::unported(
+                "SmTol::GetZoneTol3d(const SmObject*)",
+                "surface.surface_cache_p1",
+            ));
+        }
+        crate::surface::surface::p1::zone_tol_3d(k, surface)
+    }
+
+    fn object_zone_tol_3d(&self, k: &Kernel, object: Option<O>) -> Result<f64> {
+        if object.is_some() {
+            // UNPORTED(surface.surface_cache_p1): SmTol::GetZoneTol3d on an opaque handle.
+            Err(SolidError::unported(
+                "SmTol::GetZoneTol3d(const SmObject*)",
+                "surface.surface_cache_p1",
+            ))
+        } else {
+            Ok(zone_tol_3d(k, SmallTopoType::NormalSize))
+        }
+    }
+
+    fn face_brep_editing_enabled(&self, _: O) -> Result<bool> {
+        // UNPORTED(topology.face_p4): SmFace::GetBrep without live ownership context.
+        Err(SolidError::unported("SmFace::GetBrep", "topology.face_p4"))
+    }
+
+    fn set_face_brep_editing_enabled(&mut self, _: O, _: bool) -> Result<()> {
+        // UNPORTED(topology.face_p4): SmFace::GetBrep without live ownership context.
+        Err(SolidError::unported("SmFace::GetBrep", "topology.face_p4"))
+    }
+
+    fn face_create_uv_trim_curves(&mut self, _: &Kernel, _: O) -> Result<()> {
+        // UNPORTED(topology.face_p3): SmFace::CreateUVTrimCurves without live face context.
+        Err(SolidError::unported(
+            "SmFace::CreateUVTrimCurves",
+            "topology.face_p3",
+        ))
+    }
+
+    fn face_point_classify(
+        &mut self,
+        _: &Kernel,
+        _: O,
+        _: Point2,
+        _: f64,
+        _: bool,
+        _: bool,
+        _: &mut PointClassification<O>,
+    ) -> Result<()> {
+        // UNPORTED(query.face_p2): SmFace::PointClassify without live face context.
+        Err(SolidError::unported(
+            "SmFace::PointClassify",
+            "query.face_p2",
+        ))
+    }
+}
 
 /// `SmSurfaceCache_TYPE` (`SURF_BASE_TYPE + 100`).
 pub const TYPE: i64 = 15100;
@@ -1488,7 +1644,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// # Errors
     ///
-    /// Those of `map`.
+    /// Those of `map` and the bounded evaluation snapshot of nested surfaces.
     pub fn map_handles<P: Copy + PartialEq>(
         &self,
         map: impl Fn(O) -> Result<P>,
@@ -1540,7 +1696,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         }
         let mut subdivision_surfaces = Vec::new();
         for (o, s) in &self.subdivision_surfaces {
-            subdivision_surfaces.push((map(*o)?, s.clone()));
+            subdivision_surfaces.push((map(*o)?, s.clone_for_evaluation()?));
         }
         Ok(SurfaceCache {
             alt_caches: self.alt_caches.clone(),
@@ -1549,7 +1705,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 .as_ref()
                 .map(|t| t.map_objects(&map))
                 .transpose()?,
-            surface: self.surface.clone(),
+            surface: self.surface.clone_for_evaluation()?,
             surface_handle: self.surface_handle.map(&map).transpose()?,
             uv_domain: self.uv_domain,
             u_continuities: self.u_continuities.clone(),
@@ -2387,7 +2543,19 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     /// `GetTree` (a tree build needs `SmSurface::CalculateContinuities`) and
     /// `SmTol::GetZoneTol3d` of a face.
     pub fn mark_face_containment(&mut self, k: &Kernel) -> Result<()> {
-        self.get_tree(k)?;
+        self.mark_face_containment_with_context(k, &mut OpaqueSurfaceCacheContext, false)
+    }
+
+    /// `MarkFaceContainment` with live tolerances and the trimmed cache's virtual
+    /// point classifier. Trim construction calls this after it has implanted the
+    /// boundary lists, with `have_t_surface_cache` already set.
+    pub(crate) fn mark_face_containment_with_context(
+        &mut self,
+        k: &Kernel,
+        context: &mut dyn SurfaceCacheContext<O>,
+        trimmed: bool,
+    ) -> Result<()> {
+        self.get_tree_with_context(k, context)?;
         let top = self
             .tree_ref(OP_MARK)?
             .top_node()
@@ -2418,22 +2586,27 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
 
             // when no classified neighbor was found - cast a ray
             if found_class == NodeClass::Unknown {
-                let src_zone_tol_3d = if curr_fields.face.is_some() {
-                    // UNPORTED(surface.surface_cache_p1): SmTol::GetZoneTol3d(const SmObject*) on an opaque handle. Every
-                    // arm it dispatches to is ported (topology::{vertex, edge, face::p2, edgeuse::p1}::tolerance,
-                    // Brep::tolerance) but each takes `&Brep` and none is in scope here; wire once this code
-                    // receives the owning B-rep
-                    return Err(SolidError::unported(
-                        "SmTol::GetZoneTol3d(const SmObject*)",
-                        "surface.surface_cache_p1",
-                    ));
-                } else {
-                    zone_tol_3d(k, SmallTopoType::NormalSize)
-                };
+                let src_zone_tol_3d = context.object_zone_tol_3d(k, curr_fields.face)?;
 
                 let test_pt = self.aux(curr_node)?.uv_domain.evaluate(0.5, 0.5);
-                let (classification, object_in_or_on) =
-                    self.point_classify(test_pt, src_zone_tol_3d)?;
+                let (classification, object_in_or_on) = if trimmed {
+                    let face = context
+                        .surface_face(self.surface(), self.surface_handle())?
+                        .ok_or(SolidError::null_pointer(OP_MARK))?;
+                    let mut classification = PointClassification::new(src_zone_tol_3d);
+                    context.face_point_classify(
+                        k,
+                        face,
+                        test_pt,
+                        src_zone_tol_3d,
+                        false,
+                        true,
+                        &mut classification,
+                    )?;
+                    (classification.point_class().code(), classification.object())
+                } else {
+                    self.point_classify(test_pt, src_zone_tol_3d)?
+                };
 
                 // remember the Node is in or out of the Face (SM_PC_FACE)
                 if classification == POINT_CLASS_FACE {

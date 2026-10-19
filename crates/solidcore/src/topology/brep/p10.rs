@@ -2123,16 +2123,85 @@ impl TopologyObjects<ProjectSolveObject> for ProjectSolverObjects<'_> {
         do_boundaries: bool,
         classification: &mut PointClassification<EntityRef>,
     ) -> Result<()> {
-        crate::query::face::p1::point_3d_classify(
+        let face_id = Self::face_id(face)?;
+        let Some(uv) = crate::intersect::topology_solver::p1::face_point_3d_uv_with_context(
+            kernel,
+            self,
+            face,
+            face_id,
+            point,
+            source_zone_tolerance,
+            classification,
+            None,
+        )?
+        else {
+            return Ok(());
+        };
+        crate::query::face::p1::point_3d_classify_finish(
             kernel,
             self.brep,
-            Self::face_id(face)?,
+            face_id,
+            uv,
             point,
             source_zone_tolerance,
             do_boundaries,
             classification,
             crate::query::face::p1::Point3dClassifyOptions::default(),
         )
+    }
+    fn face_brep_editing_enabled(&self, face: ProjectSolveObject) -> Result<bool> {
+        self.brep.face(Self::face_id(face)?)?;
+        Ok(self.brep.editing_enabled)
+    }
+    fn set_face_brep_editing_enabled(
+        &mut self,
+        face: ProjectSolveObject,
+        editing: bool,
+    ) -> Result<()> {
+        self.brep.face(Self::face_id(face)?)?;
+        self.brep.editing_enabled = editing;
+        Ok(())
+    }
+    fn face_create_uv_trim_curves(
+        &mut self,
+        kernel: &Kernel,
+        face: ProjectSolveObject,
+    ) -> Result<()> {
+        crate::topology::face::p3::create_uv_trim_curves(
+            kernel,
+            self.brep,
+            Self::face_id(face)?,
+            true,
+            None,
+        )
+        .map(|_| ())
+    }
+    fn face_classification_object(
+        &self,
+        face: ProjectSolveObject,
+        entity: EntityRef,
+    ) -> Result<ProjectSolveObject> {
+        self.brep.face(Self::face_id(face)?)?;
+        let object = match entity {
+            EntityRef::Vertex(vertex) => {
+                self.brep.vertex(vertex)?;
+                CacheObject::Vertex(vertex)
+            }
+            EntityRef::Edge(edge) => {
+                self.brep.edge(edge)?;
+                CacheObject::Edge(edge)
+            }
+            EntityRef::Face(face) => {
+                self.brep.face(face)?;
+                CacheObject::Face(face)
+            }
+            _ => {
+                return Err(Self::context_error(
+                    "unsupported face classification entity",
+                ))
+            }
+        };
+        Ok(ProjectSolveObject::Object(object))
     }
     fn shape_member_object(&self, member: ShapeMember) -> Result<ProjectSolveObject> {
         let (id, object) = match member {

@@ -32,8 +32,11 @@
 //!   edge's end points and tolerance and the surface of its original face
 //!   (`SmPolyEdge::GetStartPoint`, `GetEndPoint`, `GetTolerance`,
 //!   `GetPolyFace()->GetOriginalFace()->GetSurface()`). [`TrimSrfCache::build_tree`],
-//!   the caller that walks the face, reaches those reads through
-//!   [`SolidError::Unported`] stubs. `BuildTree` reads the natural domain of
+//!   the caller that walks the face, still reaches the remaining loopuse and
+//!   implant-data reads through [`SolidError::Unported`] stubs. The contextual
+//!   entries resolve the actual surface owner, face tolerance, B-rep editing flag,
+//!   trim creation and point classification through [`SurfaceCacheContext`].
+//!   `BuildTree` reads the natural domain of
 //!   `GetFace()->GetSurface()`, which is the cache's own surface (the face is found
 //!   through the surface's owner).
 //! - **Node lists.** `SmTList::Prepend` onto a node's edge use, vertex and poly edge
@@ -43,22 +46,17 @@
 //!   explicit save / restore around the inner bodies; as upstream, the
 //!   `m_bPointTestEnabled` set at the end of the face branch is overwritten by the
 //!   restore when the branch ends.
-//! - **Virtual dispatch.** `MarkFaceContainment` (reached after the face's trim
-//!   curves are implanted) runs [`SurfaceCache::mark_face_containment`], whose
-//!   `PointClassify` is the base class body; upstream dispatches to
-//!   [`TrimSrfCache::point_classify`]. Both end in [`SolidError::Unported`] today
-//!   (`GetFace`, the face classification), see `plan/findings.md`.
-//! - **Unported callees** (all return [`SolidError::Unported`]): those reached through
-//!   `SmSurfaceCache::BuildTree`, `FindUVNodes` and `SubdivideNode`
-//!   ([`crate::surface::surface_cache::p3`]); `SmSurface::GetFace` (through
-//!   [`SurfaceCache::face`]) and `Evaluate1stDerivatives`, `SmTol::MapTo2d` over a
-//!   surface (`surface.surface_p1`); `SmPointClassification` (`intersect.point_class`) and
-//!   `SmFace::PointClassify` (`query.face_p2`); `SmTol::GetZoneTol3d` of a face
-//!   (`topology.brep_p1`, as in [`SurfaceCache::mark_face_containment`]); and the face
-//!   walk of `BuildTree` (`SmFace::GetBrep`, `CreateUVTrimCurves`,
-//!   `GetUpwardLoopuses`, `SmLoopuse::GetEdgeuses` / `GetVertexuses`,
-//!   `SmEdgeuse::GetUVTrimCurve`, `SmVertexuse::ComputeUVPoint`,
-//!   `SmVertex::GetTolerance`).
+//! - **Virtual dispatch.** Contextual `MarkFaceContainment` reuses the base walk
+//!   with the trimmed cache's real face classifier. A contextual surface checkout
+//!   retains this cache kind across deferred construction and leaf `PointTest`;
+//!   converting to [`TrimSrfCache::into_base`] explicitly drops that dispatch.
+//! - **Remaining integration.** The context-free entries cannot resolve an opaque
+//!   owner key and report that limitation. Contextual trim creation calls the
+//!   ported face implementation, whose dependencies remain visible. After it,
+//!   the cache's own face walk still needs `GetUpwardLoopuses`,
+//!   `SmLoopuse::GetEdgeuses` / `GetVertexuses`, `SmEdgeuse::GetUVTrimCurve`,
+//!   `SmVertexuse::ComputeUVPoint` and `SmVertex::GetTolerance` through live handles.
+//!   Numerical tree and implant operations call their existing implementations.
 //! - **Undefined behaviour.** Upstream dereferences a null face in `PointTest` /
 //!   `PointClassify` of a cache whose surface has no face; the port returns
 //!   `SM_ERR_NULL_POINTER`. A node without surface data in this cache gives
@@ -75,13 +73,17 @@ use crate::geom::extent3d::Extent3d;
 use crate::geom::tree::{NodeClass, NodeData, NodeId};
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::geom::vector3d::{Point3, Vec3};
+use crate::intersect::point_class::PointClassification;
 use crate::kernel::Kernel;
 use crate::math::{max2, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_curve::{BSplineCurve, BoundingBoxRequest};
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::surface::surface::p2::PLANE_TYPE;
 use crate::surface::surface::Surface;
-use crate::surface::surface_cache::p1::{self as sc, FaceContainment, SurfaceCacheOptions};
+use crate::surface::surface_cache::p1::{
+    self as sc, FaceContainment, OpaqueSurfaceCacheContext, SurfaceCacheContext,
+    SurfaceCacheOptions,
+};
 use crate::surface::surface_cache::{BezierAux2d, SurfaceCache};
 
 /// `SmTrimSrfCache_TYPE` (`SURF_BASE_TYPE + 120`).
@@ -241,9 +243,17 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
         uv_point: Point2,
         opt_zone_tol_3d: Option<f64>,
     ) -> Result<(bool, Option<O>)> {
-        // init output
-        let _ = k;
+        self.point_test_with_context(k, uv_point, opt_zone_tol_3d, &mut OpaqueSurfaceCacheContext)
+    }
 
+    /// [`TrimSrfCache::point_test`] with the original mutable face context.
+    pub fn point_test_with_context(
+        &self,
+        k: &Kernel,
+        uv_point: Point2,
+        opt_zone_tol_3d: Option<f64>,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<(bool, Option<O>)> {
         // when testing is off or cache is not current
         if !self.base.point_test_enabled || self.base.face_was_modified {
             // return TRUE so this point won't be culled
@@ -251,15 +261,25 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
         }
 
         // classify point (with optional tolerance) against face
-        let face = self
-            .base
-            .face()?
+        let face = context
+            .surface_face(self.base.surface(), self.base.surface_handle())?
             .ok_or(SolidError::null_pointer(OP_POINT_TEST))?;
         let src_zone_tol_3d = match opt_zone_tol_3d {
             Some(t) => t,
-            None => face_zone_tol_3d(face)?,
+            None => context.object_zone_tol_3d(k, Some(face))?,
         };
-        let (class, object) = face_point_classify(face, uv_point, src_zone_tol_3d)?;
+        let mut classification = PointClassification::new(src_zone_tol_3d);
+        context.face_point_classify(
+            k,
+            face,
+            uv_point,
+            src_zone_tol_3d,
+            false,
+            true,
+            &mut classification,
+        )?;
+        let class = classification.point_class().code();
+        let object = classification.object();
 
         // Point is ok when it classified to a topology object
         let ok =
@@ -282,15 +302,40 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
         uv_point: Point2,
         src_zone_tol_3d: f64,
     ) -> Result<(i32, Option<O>)> {
-        let _ = k;
+        self.point_classify_with_context(
+            k,
+            uv_point,
+            src_zone_tol_3d,
+            &mut OpaqueSurfaceCacheContext,
+        )
+    }
+
+    /// [`TrimSrfCache::point_classify`] with the original mutable face context.
+    pub fn point_classify_with_context(
+        &self,
+        k: &Kernel,
+        uv_point: Point2,
+        src_zone_tol_3d: f64,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<(i32, Option<O>)> {
         // local classification object
-        let face = self
-            .base
-            .face()?
+        let face = context
+            .surface_face(self.base.surface(), self.base.surface_handle())?
             .ok_or(SolidError::null_pointer(OP_CLASSIFY))?;
 
         // Classify the Point against the surface->Face
-        let (class, object) = face_point_classify(face, uv_point, src_zone_tol_3d)?;
+        let mut classification = PointClassification::new(src_zone_tol_3d);
+        context.face_point_classify(
+            k,
+            face,
+            uv_point,
+            src_zone_tol_3d,
+            false,
+            true,
+            &mut classification,
+        )?;
+        let class = classification.point_class().code();
+        let object = classification.object();
 
         // set output
         let object = if class == POINT_CLASS_UNKNOWN {
@@ -315,10 +360,20 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
     /// [`SolidError::Unported`] for the unported callees (`GetFace` and those of the tree
     /// construction).
     pub fn build_tree(&mut self, k: &Kernel) -> Result<()> {
+        self.build_tree_with_context(k, &mut OpaqueSurfaceCacheContext)
+    }
+
+    /// [`TrimSrfCache::build_tree`] with live ownership, tolerances and editing
+    /// state. The context also remains available to a deferred `GetTree` caller.
+    pub fn build_tree_with_context(
+        &mut self,
+        k: &Kernel,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<()> {
         // prevent bad recursion back into BuildTree
         let saved = self.base.face_containment_done;
         self.base.face_containment_done = FaceContainment::UnderConstruction;
-        let r = self.build_tree_body(k);
+        let r = self.build_tree_body(k, context);
         // SmTemporaryChangeValue: restore unless cleared
         if !matches!(r, Ok(true)) {
             self.base.face_containment_done = saved;
@@ -328,10 +383,17 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
 
     /// `BuildTree` inside the face containment guard; `true` when the guard was
     /// cleared (containment done).
-    fn build_tree_body(&mut self, k: &Kernel) -> Result<bool> {
+    fn build_tree_body(
+        &mut self,
+        k: &Kernel,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<bool> {
         // Build m_ptree surface subdivision tree when it does not exist
         let clean_up_build_data = if self.base.tree().is_none() {
-            surface_cache_build_tree(&mut self.base, k)?;
+            self.base
+                .build_tree_with(k, true, &mut |cache, kernel, node| {
+                    cache.test_against_tolerances_with_context(kernel, node, context)
+                })?;
             true
         } else {
             // The temporary array sBezierBlock will be empty: no clean up
@@ -341,12 +403,12 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
         // skip inserting UVTrimCurves and classifying node containment
         //   when Surface is not owned by a face (no UVTrimCurves to process)
         //     or Brep Editing is enabled (face data structure may be in an intermediate state)
-        let face = self.base.face()?;
+        let face = context.surface_face(self.base.surface(), self.base.surface_handle())?;
         let mut cleared = false;
         let editing_face = match face {
             None => None,
             Some(f) => {
-                if face_brep_editing_enabled(f)? {
+                if context.face_brep_editing_enabled(f)? {
                     None
                 } else {
                     Some(f)
@@ -364,7 +426,7 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
                 // prevent undesired recursion to BuildTree - turn off m_bPointTestEnabled
                 let saved_point_test = self.base.point_test_enabled;
                 self.base.point_test_enabled = false;
-                let r = self.implant_face(k, f);
+                let r = self.implant_face(k, f, context);
                 self.base.point_test_enabled = saved_point_test;
                 cleared = r?;
             }
@@ -383,18 +445,28 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
     /// The face branch of `BuildTree` (editing disabled in the brep): implant every
     /// edge use and vertex use, reduce the cache domain to the face domain and
     /// classify the nodes. `true` when the face containment is done.
-    fn implant_face(&mut self, k: &Kernel, face: O) -> Result<bool> {
-        let saved_editing = face_brep_editing_enabled(face)?;
-        set_face_brep_editing_enabled(face, true)?;
-        let result = self.implant_face_body(k, face);
+    fn implant_face(
+        &mut self,
+        k: &Kernel,
+        face: O,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<bool> {
+        let saved_editing = context.face_brep_editing_enabled(face)?;
+        context.set_face_brep_editing_enabled(face, true)?;
+        let result = self.implant_face_body(k, face, context);
         // SmTemporaryChangeValue restores the brep editing flag on errors too.
-        set_face_brep_editing_enabled(face, saved_editing)?;
+        context.set_face_brep_editing_enabled(face, saved_editing)?;
         result
     }
 
-    fn implant_face_body(&mut self, k: &Kernel, face: O) -> Result<bool> {
+    fn implant_face_body(
+        &mut self,
+        k: &Kernel,
+        face: O,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<bool> {
         // create UVTrimCurve for every face->edge
-        face_create_uv_trim_curves(face)?;
+        context.face_create_uv_trim_curves(k, face)?;
 
         // Now implant edgeuses and vertexuses into the cache tree
         let loopuses = face_upward_loopuses(face)?;
@@ -448,20 +520,9 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
             self.base.point_test_enabled = true;
             self.base.have_t_surface_cache = true;
 
-            // Classify every TrimSurfCache Node not on a boundary as INSIDE or OUTSIDE
-            //
-            // DISPATCH GAP: SmTrimSrfCache::PointClassify via MarkFaceContainment must
-            // dispatch to the trimmed override. Upstream (SmTrimSrfCache.cpp:343) calls
-            // the virtual `MarkFaceContainment`, whose `PointClassify` resolves to
-            // `SmTrimSrfCache::PointClassify` (SmTrimSrfCache.cpp:1048, ported here as
-            // `TrimSrfCache::point_classify`). `SurfaceCache::mark_face_containment`
-            // calls the base `SurfaceCache::point_classify` instead (surface_cache/p1.rs,
-            // always `SM_ERR`). No UNPORTED marker: the override is owned by this unit
-            // (surface.trim_srf_cache, per harness/callgraph/units.json) and is already
-            // ported; what is missing is the dispatch (e.g. a classifier argument to
-            // `mark_face_containment`). Unreachable today: the face path errors with
-            // `Unported` before this point. See plan/findings.md.
-            self.base.mark_face_containment(k)?;
+            // Classify every TrimSurfCache node not on a boundary as inside or outside.
+            self.base
+                .mark_face_containment_with_context(k, context, true)?;
             // set a permament value into m_bFaceContainment
             self.base.face_containment_done = FaceContainment::Done;
             Ok(true)
@@ -1039,15 +1100,6 @@ impl<O: Copy + PartialEq> TrimSrfCache<O> {
 
 // ---- unported callees ---------------------------------------------------------------
 
-/// `SmSurfaceCache::BuildTree(&sBezierBlock)` (base class tree construction for a derived
-/// cache, which finishes it).
-fn surface_cache_build_tree<O: Copy + PartialEq>(
-    cache: &mut SurfaceCache<O>,
-    k: &Kernel,
-) -> Result<()> {
-    cache.build_tree(k, true)
-}
-
 /// `SmSurfaceCache::FindUVNodes`.
 fn find_uv_nodes<O: Copy + PartialEq>(
     cache: &mut SurfaceCache<O>,
@@ -1081,63 +1133,6 @@ fn evaluate_1st_derivatives(surface: &Surface, uv: Point2) -> Result<(Point3, Ve
 /// `SmTol::MapTo2d(tol, uv, dir, surface)`.
 fn map_to_2d(tol_3d: f64, uv: Point2, dir: Vec2, surface: &Surface) -> Result<f64> {
     crate::surface::surface::p1::map_to_2d_dir(tol_3d, uv, dir, surface)
-}
-
-/// `SmTol::GetZoneTol3d(pFace)`.
-fn face_zone_tol_3d<O>(_face: O) -> Result<f64> {
-    // UNPORTED(surface.trim_srf_cache): SmTol::GetZoneTol3d(const SmObject*) on an opaque handle. Every
-    // arm it dispatches to is ported (topology::{vertex, edge, face::p2, edgeuse::p1}::tolerance,
-    // Brep::tolerance) but each takes `&Brep` and none is in scope here; wire once this code
-    // receives the owning B-rep
-    Err(SolidError::unported(
-        "SmTol::GetZoneTol3d(const SmObject*)",
-        "surface.trim_srf_cache",
-    ))
-}
-
-/// `SmFace::PointClassify(uv, tol, FALSE, TRUE, sPC)` into a fresh
-/// `SmPointClassification`: its class and object.
-///
-/// When wiring, keep upstream's flag arguments exactly: `(.., FALSE, TRUE, ..)`
-/// (`SmTrimSrfCache.cpp:91` and `:1089`). The classification is
-/// `intersect::point_class::PointClassification::new(src_zone_tol_3d)`; its
-/// `point_class()` and `object()` are the results.
-fn face_point_classify<O>(
-    _face: O,
-    _uv: Point2,
-    _src_zone_tol_3d: f64,
-) -> Result<(i32, Option<O>)> {
-    // UNPORTED(query.face_p2): SmFace::PointClassify(uv, tol, FALSE, TRUE, sPC)
-    Err(SolidError::unported(
-        "SmFace::PointClassify",
-        "query.face_p2",
-    ))
-}
-
-/// `GetFace()->GetBrep()->m_bEditingEnabled`.
-fn face_brep_editing_enabled<O>(_face: O) -> Result<bool> {
-    // UNPORTED(topology.face_p4): SmFace::GetBrep
-    Err(SolidError::unported("SmFace::GetBrep", "topology.face_p4"))
-}
-
-/// The temporary `GetFace()->GetBrep()->m_bEditingEnabled` assignment.
-fn set_face_brep_editing_enabled<O>(_face: O, _editing: bool) -> Result<()> {
-    // UNPORTED(topology.face_p4): SmFace::GetBrep (SmBrep::m_bEditingEnabled is
-    // Brep::set_editing_enabled once the face's B-rep is reachable)
-    Err(SolidError::unported("SmFace::GetBrep", "topology.face_p4"))
-}
-
-/// `SmFace::CreateUVTrimCurves(TRUE, NULL, NULL, ..)`.
-///
-/// When wiring, keep upstream's arguments exactly: `(TRUE, NULL, NULL, ..)`
-/// (`SmTrimSrfCache.cpp:209`).
-fn face_create_uv_trim_curves<O>(_face: O) -> Result<()> {
-    // UNPORTED(topology.face_p3): SmFace::CreateUVTrimCurves -- justified: findings.md topology.face_p3 "Stubs left for this unit"
-    // (`(TRUE, NULL, NULL, ..)`; the face is an opaque handle with no B-rep)
-    Err(SolidError::unported(
-        "SmFace::CreateUVTrimCurves",
-        "topology.face_p3",
-    ))
 }
 
 /// `SmFace::GetUpwardLoopuses`.

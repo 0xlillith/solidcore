@@ -925,6 +925,34 @@ mod tests {
                 "extraction test has no faces",
             ))
         }
+        fn face_brep_editing_enabled(&self, _face: Object) -> Result<bool> {
+            Err(SolidError::invalid_input(
+                OP,
+                "extraction test has no faces",
+            ))
+        }
+        fn set_face_brep_editing_enabled(&mut self, _face: Object, _editing: bool) -> Result<()> {
+            Err(SolidError::invalid_input(
+                OP,
+                "extraction test has no faces",
+            ))
+        }
+        fn face_create_uv_trim_curves(&mut self, _kernel: &Kernel, _face: Object) -> Result<()> {
+            Err(SolidError::invalid_input(
+                OP,
+                "extraction test has no faces",
+            ))
+        }
+        fn face_classification_object(
+            &self,
+            _face: Object,
+            _entity: crate::EntityRef,
+        ) -> Result<Object> {
+            Err(SolidError::invalid_input(
+                OP,
+                "extraction test has no faces",
+            ))
+        }
 
         fn curve(&self, _: Object) -> Result<&Curve> {
             Ok(&self.curve)

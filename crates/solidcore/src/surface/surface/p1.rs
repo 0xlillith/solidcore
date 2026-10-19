@@ -63,7 +63,12 @@
 //!   whose face state the caller passes in). The members that query a cache
 //!   (`CalculateBoundingBox`, `GetDomainWithContinuity`, `CreateSilhouetteCurves`)
 //!   build one as `smsurf_GetSurfaceCache` would: the trimmed surface cache. The
-//!   debug cache counters are not modelled.
+//!   debug cache counters are not modelled. Contextual checkouts keep the concrete
+//!   trimmed kind through delayed `GetTree` and leaf `PointTest`. Their numerical
+//!   snapshots preserve ownership; the live provider supplies owner resolution,
+//!   tolerances and B-rep editing/trim mutations. Native publication on the
+//!   original surface before `BuildTree`, cache-manager reuse and reentrant cache
+//!   lookup remain outside these fresh-cache factories.
 //! - **Owners.** `m_pOwner` is an [`ObjectRef`]. `SetOwner`'s `SM_NO_CHANGE_OWNER`
 //!   notification is the object layer's (see part 2's `notify`). `GetFace` follows
 //!   owner chains through surfaces upstream; the owning surfaces (`SmOffsetSurface`,
@@ -127,7 +132,9 @@ use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::surface::offset_surface::{OffsetSurface, SS_UNKNOWN};
 use crate::surface::plane::Plane;
-use crate::surface::surface_cache::p1::{SurfaceCache, SurfaceCacheOptions};
+use crate::surface::surface_cache::p1::{
+    OpaqueSurfaceCacheContext, SurfaceCache, SurfaceCacheContext, SurfaceCacheOptions,
+};
 use crate::surface::trim_srf_cache::TrimSrfCache;
 use crate::topology::database_io::{DatabaseReader, FileType};
 
@@ -789,10 +796,21 @@ pub struct CacheTolerances {
 ///
 /// Those of the evaluations.
 pub fn cache_tolerances(surface: &Surface) -> Result<CacheTolerances> {
+    cache_tolerances_for(surface, false)
+}
+
+/// The trimmed constructor evaluates the midpoint before the minimum corner;
+/// the ordinary constructor uses the opposite order. The size formula is shared.
+fn cache_tolerances_for(surface: &Surface, trimmed: bool) -> Result<CacheTolerances> {
     // Get some point positions scattered over the Surface's Natural Domain.
     let uv_domain = surface.natural_uv_domain();
-    let p1 = surface.evaluate_point(uv_domain.min())?;
-    let p_mid = surface.evaluate_point(uv_domain.evaluate(0.5, 0.5))?;
+    let (p1, p_mid) = if trimmed {
+        let mid = surface.evaluate_point(uv_domain.evaluate(0.5, 0.5))?;
+        (surface.evaluate_point(uv_domain.min())?, mid)
+    } else {
+        let min = surface.evaluate_point(uv_domain.min())?;
+        (min, surface.evaluate_point(uv_domain.evaluate(0.5, 0.5))?)
+    };
     let p_mid2 = surface.evaluate_point(uv_domain.evaluate(0.9, 0.1))?;
     let p_mid3 = surface.evaluate_point(uv_domain.evaluate(0.1, 0.9))?;
     let p2 = surface.evaluate_point(uv_domain.max())?;
@@ -866,15 +884,32 @@ pub fn make_surface_cache<O: Copy + PartialEq>(
     surface: &Surface,
     handle: Option<O>,
 ) -> Result<SurfaceCache<O>> {
+    make_surface_cache_with_context(k, surface, handle, &OpaqueSurfaceCacheContext)
+}
+
+/// The ordinary cache constructor with live surface tolerance resolution. The
+/// numerical snapshot represents the same surface and preserves its owner.
+pub fn make_surface_cache_with_context<O: Copy + PartialEq>(
+    k: &Kernel,
+    surface: &Surface,
+    handle: Option<O>,
+    context: &dyn SurfaceCacheContext<O>,
+) -> Result<SurfaceCache<O>> {
     let tol = cache_tolerances(surface)?;
 
     // construct new SurfaceCache Object
     let uv_domain = surface.natural_uv_domain();
-    let mut cache = SurfaceCache::new(surface.clone(), uv_domain, cache_options(tol));
+    let mut cache = SurfaceCache::new(
+        surface.clone_for_evaluation()?,
+        uv_domain,
+        cache_options(tol),
+    );
     cache.set_surface_handle(handle);
 
     // build the surface subdivision tree
-    cache.build_tree(k, false)?;
+    cache.build_tree_with(k, false, &mut |cache, kernel, node| {
+        cache.test_against_tolerances_with_context(kernel, node, context)
+    })?;
     Ok(cache)
 }
 
@@ -891,10 +926,21 @@ pub fn make_trim_srf_cache<O: Copy + PartialEq>(
     surface: &Surface,
     handle: Option<O>,
 ) -> Result<TrimSrfCache<O>> {
-    let tol = cache_tolerances(surface)?;
+    make_trim_srf_cache_with_context(k, surface, handle, &mut OpaqueSurfaceCacheContext)
+}
+
+/// The trimmed constructor with live face ownership and editing context. Native
+/// Boolean construction leaves this concrete trimmed cache unbuilt until use.
+pub fn make_trim_srf_cache_with_context<O: Copy + PartialEq>(
+    k: &Kernel,
+    surface: &Surface,
+    handle: Option<O>,
+    context: &mut dyn SurfaceCacheContext<O>,
+) -> Result<TrimSrfCache<O>> {
+    let tol = cache_tolerances_for(surface, true)?;
 
     // construct new SurfaceCache Object
-    let mut cache = TrimSrfCache::new(surface.clone(), cache_options(tol));
+    let mut cache = TrimSrfCache::new(surface.clone_for_evaluation()?, cache_options(tol));
     cache.base_mut().set_surface_handle(handle);
 
     // when we are not doing a boolean operation
@@ -902,7 +948,7 @@ pub fn make_trim_srf_cache<O: Copy + PartialEq>(
     //    until some function calls SmSurfaceCache::GetTree()
     if !k.context.doing_boolean() {
         // build the surface subdivision tree annotated with UVTrimBoundary classifications
-        cache.build_tree(k)?;
+        cache.build_tree_with_context(k, context)?;
     }
     Ok(cache)
 }
@@ -913,18 +959,120 @@ pub fn make_trim_srf_cache<O: Copy + PartialEq>(
 /// # Errors
 ///
 /// Those of [`make_surface_cache`] when both fail; [`SolidError::Unported`] from
-/// either.
+/// either. This compatibility entry returns the base view and has no live
+/// topology provider; owned-surface context limitations are not hidden. Use
+/// [`get_surface_cache_with_context`] when retaining trimmed virtual dispatch.
 pub fn get_surface_cache<O: Copy + PartialEq>(
     k: &Kernel,
     surface: &Surface,
     handle: Option<O>,
 ) -> Result<SurfaceCache<O>> {
-    // if possible - get or make TrimSrfCache
-    match make_trim_srf_cache(k, surface, handle) {
-        Ok(c) => Ok(c.into_base()),
-        Err(e @ SolidError::Unported { .. }) => Err(e),
-        // else - get or make SurfaceCache
-        Err(_) => make_surface_cache(k, surface, handle),
+    match get_surface_cache_with_context(k, surface, handle, &mut OpaqueSurfaceCacheContext)? {
+        SurfaceCacheCheckout::Surface(cache) => Ok(cache),
+        SurfaceCacheCheckout::Trimmed(cache) => Ok(cache.into_base()),
+    }
+}
+
+/// A native surface-cache checkout with its concrete cache kind retained. Keeping
+/// the trimmed variant matters when Boolean construction defers `BuildTree`, and
+/// when a leaf solve dispatches `PointTest` through the tree's cache owner.
+#[derive(Debug)]
+pub enum SurfaceCacheCheckout<O> {
+    /// The ordinary surface cache used by the native fallback.
+    Surface(SurfaceCache<O>),
+    /// A trimmed cache, including one whose tree is still deferred.
+    Trimmed(TrimSrfCache<O>),
+}
+
+impl<O: Copy + PartialEq> SurfaceCacheCheckout<O> {
+    /// The common cache data, without discarding its concrete kind.
+    #[must_use]
+    pub fn base(&self) -> &SurfaceCache<O> {
+        match self {
+            Self::Surface(cache) => cache,
+            Self::Trimmed(cache) => cache.base(),
+        }
+    }
+
+    /// Mutable common data, for a caller's temporary point-test mode.
+    pub fn base_mut(&mut self) -> &mut SurfaceCache<O> {
+        match self {
+            Self::Surface(cache) => cache,
+            Self::Trimmed(cache) => cache.base_mut(),
+        }
+    }
+
+    /// Native `GetTree`, dispatching a delayed build through the actual cache
+    /// kind and retaining the original mutable topology context.
+    pub fn get_tree(
+        &mut self,
+        k: &Kernel,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<&mut Tree<O>> {
+        if self.base().needs_tree_with_context(context)? {
+            match self {
+                Self::Surface(cache) => {
+                    cache.build_tree_with(k, false, &mut |cache, kernel, node| {
+                        cache.test_against_tolerances_with_context(kernel, node, context)
+                    })?;
+                }
+                Self::Trimmed(cache) => cache.build_tree_with_context(k, context)?,
+            }
+        }
+        self.base_mut()
+            .tree_mut()
+            .ok_or(SolidError::null_pointer(OP_CACHE))
+    }
+
+    /// `sm_IsPointValid`: the optional source tolerance is passed unchanged to
+    /// the cache's virtual point test (`None` is the native null pointer).
+    /// Ordinary native classification errors keep the point; missing
+    /// implementations and invalid Rust identities remain visible.
+    pub fn is_point_valid(
+        &self,
+        k: &Kernel,
+        owner: Option<TreeOwner>,
+        uv: Point2,
+        opt_zone_tol_3d: Option<f64>,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<bool> {
+        if !is_surface_cache_owner(owner) {
+            return Ok(true);
+        }
+        match self {
+            Self::Surface(cache) => Ok(cache.point_test(uv)),
+            Self::Trimmed(cache) => {
+                match cache.point_test_with_context(k, uv, opt_zone_tol_3d, context) {
+                    Ok((ok, _)) => Ok(ok),
+                    Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => Ok(true),
+                    Err(error) => Err(error),
+                }
+            }
+        }
+    }
+}
+
+/// `smsurf_GetSurfaceCache` with the original surface's live topology provider.
+/// The cache owns an exact numerical snapshot; it does not invoke the native copy
+/// constructor, which intentionally removes ownership. All ownership, tolerance
+/// and editing queries still resolve against the original objects in `context`.
+/// Only an ordinary native acquisition failure permits the base-cache fallback;
+/// a failed later [`SurfaceCacheCheckout::get_tree`] does not reacquire a cache.
+pub fn get_surface_cache_with_context<O: Copy + PartialEq>(
+    k: &Kernel,
+    surface: &Surface,
+    handle: Option<O>,
+    context: &mut dyn SurfaceCacheContext<O>,
+) -> Result<SurfaceCacheCheckout<O>> {
+    match make_trim_srf_cache_with_context(k, surface, handle, context) {
+        Ok(cache) => Ok(SurfaceCacheCheckout::Trimmed(cache)),
+        Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => {
+            // A native failed acquisition falls back to a fresh ordinary cache.
+            // Do not hide missing identity or a not-yet-ported callee here.
+            make_surface_cache_with_context(k, surface, handle, context)
+                .map(SurfaceCacheCheckout::Surface)
+        }
+        Err(error) => Err(error),
     }
 }
 

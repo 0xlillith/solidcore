@@ -337,7 +337,9 @@ pub struct PointClassification<O> {
     sss_point: Point3,
 }
 
-impl<O: ClassObject> PointClassification<O> {
+// State construction, inspection and translation do not dispatch on the object
+// kind. Geometry-dependent methods below keep the ClassObject requirement.
+impl<O: Copy> PointClassification<O> {
     /// Copy the complete classification state while translating object handles.
     ///
     /// This is a Rust data-model bridge between an application's geometry handles
@@ -346,7 +348,7 @@ impl<O: ClassObject> PointClassification<O> {
     ///
     /// # Errors
     /// Propagates a failed object/face translation without changing the source.
-    pub fn try_map_objects<P: ClassObject>(
+    pub fn try_map_objects<P>(
         &self,
         mut map: impl FnMut(O) -> Result<P>,
     ) -> Result<PointClassification<P>> {
@@ -372,7 +374,7 @@ impl<O: ClassObject> PointClassification<O> {
     /// # Errors
     ///
     /// Propagates a failed object/face translation without changing the source.
-    pub fn map_objects<P: ClassObject>(
+    pub fn map_objects<P>(
         &self,
         map: &mut dyn FnMut(O) -> Result<P>,
     ) -> Result<PointClassification<P>> {
@@ -402,6 +404,20 @@ impl<O: ClassObject> PointClassification<O> {
         }
     }
 
+    /// The classification type (`GetPointClass`).
+    #[must_use]
+    pub const fn point_class(&self) -> PointClassType {
+        self.point_class
+    }
+
+    /// The classification object (`GetObject`).
+    #[must_use]
+    pub const fn object(&self) -> Option<O> {
+        self.object
+    }
+}
+
+impl<O: ClassObject> PointClassification<O> {
     /// Resets every member to its initial value (`ReSet`); the source zone tolerance
     /// becomes `opt_zone_tol_3d`, or `SM_UNINIT_TOL` for `None`.
     pub fn reset(&mut self, k: &Kernel, opt_zone_tol_3d: Option<f64>) {
@@ -550,18 +566,6 @@ impl<O: ClassObject> PointClassification<O> {
     /// Sets the face the point was classified against (`SetFace`).
     pub fn set_face(&mut self, face: Option<O>) {
         self.face = face;
-    }
-
-    /// The classification type (`GetPointClass`).
-    #[must_use]
-    pub const fn point_class(&self) -> PointClassType {
-        self.point_class
-    }
-
-    /// The classification object (`GetObject`).
-    #[must_use]
-    pub const fn object(&self) -> Option<O> {
-        self.object
     }
 
     /// The curve of the classification object (`GetCurveObject`): the curve itself,
@@ -1747,6 +1751,70 @@ mod tests {
         assert_eq!(p.src_zone_tol_3d(), 0.25);
         assert_eq!(p.pre_snap_param(), BIG_DOUBLE);
         assert!(!p.are_parameters_set());
+    }
+
+    #[test]
+    fn state_mapping_accepts_handles_without_geometry_dispatch() {
+        // Cache handles can carry an identity without implementing ClassObject.
+        #[derive(Debug, Clone, Copy, PartialEq)]
+        struct CacheHandle(ClassObjectKind, u32);
+
+        let empty = PointClassification::<CacheHandle>::new(0.125);
+        assert_eq!(empty.point_class(), PointClassType::Unknown);
+        assert_eq!(empty.object(), None);
+
+        let mut original = pc();
+        original.set_class_object(PointClassType::Vertex, Some(H(ClassObjectKind::Vertex, 7)));
+        original.set_face(Some(H(ClassObjectKind::Face, 13)));
+        original.set_gap_3d(-0.0);
+        original.set_t_param(f64::INFINITY, false);
+        original.set_uv_param(Point2::new(0.25, 0.75));
+        original.set_uvw_param(Point3::new(2.0, 3.0, 4.0));
+        original.set_pre_snap_param(19.0);
+        original.set_sss_point(Point3::new(5.0, 6.0, 7.0));
+        original.unset_parameters();
+
+        let mut visits = Vec::new();
+        let mapped = original
+            .try_map_objects(|H(kind, id)| {
+                visits.push(id);
+                Ok(CacheHandle(kind, id))
+            })
+            .unwrap();
+        assert_eq!(visits, [7, 13]);
+        assert_eq!(mapped.point_class(), PointClassType::Vertex);
+        assert_eq!(
+            mapped.object(),
+            Some(CacheHandle(ClassObjectKind::Vertex, 7))
+        );
+        // The #139 compatibility entry uses the same mapping body and preserves
+        // unset parameter payloads, the SSS point and every other scalar field.
+        let restored = mapped
+            .map_objects(&mut |CacheHandle(kind, id)| Ok(H(kind, id)))
+            .unwrap();
+        assert_eq!(restored, original);
+        assert_eq!(restored.deviation().to_bits(), (-0.0_f64).to_bits());
+
+        visits.clear();
+        let error = mapped.try_map_objects(|CacheHandle(kind, id)| {
+            visits.push(id);
+            if id == 13 {
+                Err(SolidError::invalid_input(
+                    "point_class test",
+                    "unresolved face",
+                ))
+            } else {
+                Ok(H(kind, id))
+            }
+        });
+        assert!(matches!(error, Err(SolidError::InvalidInput { .. })));
+        assert_eq!(visits, [7, 13]);
+        assert_eq!(
+            mapped
+                .try_map_objects(|CacheHandle(kind, id)| Ok(H(kind, id)))
+                .unwrap(),
+            original
+        );
     }
 
     #[test]

@@ -1004,23 +1004,28 @@ mod tests {
             api_heal_brep(&mut k, None, &mut no_shell_ray),
             Err(SolidError::InvalidInput { .. })
         ));
-        // on a B-rep the whole-B-rep target lists are gathered (its one face) and the
-        // heal sequence of heal_data_p3 runs up to Fix_TolSizes, whose
-        // SmBrep::SetTolerance raises the face's tolerance through SmFace::SetTolerance
-        // (unit topology.face_p3; SmBrep::HealBrep ignores only native Upstream/Nlib
-        // statuses, preserving Unported and other Rust errors).
+        // Both entry points gather this face and run the heal sequence. With no
+        // edges, Fix_TolSizes keeps the B-rep's default 1e-5 tolerance and raises
+        // the face's tolerance from zero to that value through SmFace::SetTolerance.
+        // The face has no edges and is classified degenerate; Fix_DegenFaces then
+        // reaches its still-unported SmFace::GetEdges adapter.
         let mut b = Brep::default();
         let face = b
             .add_face_record(Face::new(ShellId::from_index(0)))
             .unwrap();
-        assert!(matches!(
-            api_heal_brep(&mut k, Some(&mut b), &mut no_shell_ray),
-            Err(SolidError::Unported {
-                upstream: "SmFace::SetTolerance",
-                unit: "topology.face_p3",
-                ..
-            })
-        ));
+        let api_result = api_heal_brep(&mut k, Some(&mut b), &mut no_shell_ray);
+        assert!(
+            matches!(
+                api_result,
+                Err(SolidError::Unported {
+                    upstream: "SmFace::GetEdges",
+                    unit: "topology.face_p4",
+                })
+            ),
+            "{api_result:?}"
+        );
+        assert_eq!(b.tolerance(), 1e-5);
+        assert_eq!(b.face(face).unwrap().tolerance, 1e-5);
         let r = h.heal_brep(
             &mut k,
             Some(&mut b),
@@ -1029,14 +1034,19 @@ mod tests {
             false,
             &mut no_shell_ray,
         );
-        assert!(matches!(
-            r,
-            Err(SolidError::Unported {
-                upstream: "SmFace::SetTolerance",
-                unit: "topology.face_p3",
-                ..
-            })
-        ));
+        assert!(
+            matches!(
+                r,
+                Err(SolidError::Unported {
+                    upstream: "SmFace::GetEdges",
+                    unit: "topology.face_p4",
+                })
+            ),
+            "{r:?}"
+        );
+        assert_eq!(h.done_heal_op, HealerOpType::CacheDegenFaces);
+        assert_eq!(b.tolerance(), 1e-5);
+        assert_eq!(b.face(face).unwrap().tolerance, 1e-5);
         assert_eq!(h.tgt_faces, vec![face]);
         let (v, e, f) = ids();
         let t = HealBrepTargets {

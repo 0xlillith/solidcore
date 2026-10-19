@@ -54,7 +54,6 @@ use crate::error::{Result, SolidError};
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::pseudo_box::PseudoBox;
-use crate::geom::tol::{zone_tol_3d, SmallTopoType};
 use crate::geom::tree::{
     AuxDataType, NodeClass, NodeData, NodeGeomType, NodeId, SplitDir, SurfaceAux, TreeNode,
 };
@@ -435,6 +434,17 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     /// surface calls.
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn test_against_tolerances(&mut self, k: &Kernel, node: NodeId) -> Result<ToleranceTest> {
+        self.test_against_tolerances_with_context(k, node, &super::p1::OpaqueSurfaceCacheContext)
+    }
+
+    /// The same tolerance test with the original surface's live object context.
+    /// Tolerance resolution stays after the node-state checks, as upstream.
+    pub fn test_against_tolerances_with_context(
+        &mut self,
+        k: &Kernel,
+        node: NodeId,
+        context: &dyn super::p1::SurfaceCacheContext<O>,
+    ) -> Result<ToleranceTest> {
         // init output
         let mut out = ToleranceTest {
             needs_subdivision: false,
@@ -467,18 +477,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         let chord_height_squared = chord_tol * chord_tol;
         let ang_tol_deg = opts.ang_tol_rad * 180.0 / PI;
         // SmTol::GetZoneTol3d(m_cpSurface): GetFace() ? its tolerance : the system's
-        let zone_tol = if self.surface().face()?.is_some() {
-            // UNPORTED(surface.surface_cache_p2): SmTol::GetZoneTol3d(const SmObject*) on an opaque handle. Every
-            // arm it dispatches to is ported (topology::{vertex, edge, face::p2, edgeuse::p1}::tolerance,
-            // Brep::tolerance) but each takes `&Brep` and none is in scope here; wire once this code
-            // receives the owning B-rep
-            return Err(SolidError::unported(
-                "SmTol::GetZoneTol3d(const SmObject*)",
-                "surface.surface_cache_p2",
-            ));
-        } else {
-            zone_tol_3d(k, SmallTopoType::NormalSize)
-        };
+        let zone_tol = context.surface_zone_tol_3d(k, self.surface(), self.surface_handle())?;
 
         // local tolerance state - a zero ChordHeight or Angle Tol value means to ignore the test
         {

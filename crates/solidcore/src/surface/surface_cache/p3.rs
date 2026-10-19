@@ -97,7 +97,7 @@ use crate::geom::geom_utility::p2::ContinuityType;
 
 use super::p1::{
     bspline_of, compute_bezier_approximation, invalid, BezierAux2d, BezierPatch, FaceContainment,
-    SurfaceCache, FACE_TYPE,
+    SurfaceCache,
 };
 use super::p2::{
     create_approximate_bezier_patch_block, create_bezier_patch_block, ToleranceTester,
@@ -1096,18 +1096,32 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// The errors of [`SurfaceCache::build_tree`] (upstream returns NULL).
     pub fn get_tree(&mut self, k: &Kernel) -> Result<&mut Tree<O>> {
-        let face_owned = self
-            .surface()
-            .owner()
-            .is_some_and(|o| o.type_code == FACE_TYPE);
-        if self.tree().is_none()
+        self.get_tree_with_context(k, &super::p1::OpaqueSurfaceCacheContext)
+    }
+
+    /// Whether native `GetTree` calls its virtual `BuildTree`. Ownership comes
+    /// from the original surface when a contextual checkout is in use.
+    pub(crate) fn needs_tree_with_context(
+        &self,
+        context: &dyn super::p1::SurfaceCacheContext<O>,
+    ) -> Result<bool> {
+        Ok(self.tree().is_none()
             || (!self.have_t_surface_cache
-                && face_owned
-                && self.face_containment_done != FaceContainment::UnderConstruction)
-        {
-            // DISPATCH GAP: the virtual BuildTree() (SmTrimSrfCache::BuildTree on a
-            // trimmed surface cache); this builds the base class tree
-            self.build_tree(k, false)?;
+                && context.surface_has_direct_face_owner(self.surface(), self.surface_handle())?
+                && self.face_containment_done != FaceContainment::UnderConstruction))
+    }
+
+    /// Base-cache `GetTree` with live tolerance resolution. A trimmed checkout
+    /// keeps its concrete cache kind and invokes the trimmed build override.
+    pub fn get_tree_with_context(
+        &mut self,
+        k: &Kernel,
+        context: &dyn super::p1::SurfaceCacheContext<O>,
+    ) -> Result<&mut Tree<O>> {
+        if self.needs_tree_with_context(context)? {
+            self.build_tree_with(k, false, &mut |cache, kernel, node| {
+                cache.test_against_tolerances_with_context(kernel, node, context)
+            })?;
         }
         self.tree_mut_or(OP_GET)
     }

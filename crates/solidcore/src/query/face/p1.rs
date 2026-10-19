@@ -36,6 +36,11 @@
 //! cache state or the surface owner. The local drop does not read that flag.
 //! The subsequent explicit UV `PointClassify` still runs on the original B-rep;
 //! this entry point supplies it with no trimmed surface cache.
+//! The drop and classification phases are shared with providers that can resolve
+//! a surface's actual owner and mutably access that owner's B-rep. The direct
+//! [`point_3d_classify`] entry has no object-key mapping; a cache needing such a
+//! mapping reports the unresolved context instead of treating an owned surface
+//! as a standalone copy.
 //! `EdgeCurveOnClassify` lifts a 2D curve to a curve on the
 //! face's surface only when an upward edge use of the face is found (upstream lifts it
 //! first and ignores `SetAll`'s status); an `SmCrvOnSurf` over a surface other than a
@@ -45,8 +50,10 @@ use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::{Curve, CurveKind};
 use crate::error::ignored;
 use crate::geom::extent1d::Extent1d;
+use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
+use crate::geom::solution_array::SolutionObject;
 use crate::geom::tol::xsect_tol_3d_from_zones;
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{Point3, Vec3};
@@ -56,9 +63,10 @@ use crate::nurbs::b_spline_curve::BoundingBoxRequest;
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::query::face::p3;
-use crate::surface::surface::p1::get_surface_cache;
+use crate::surface::surface::p1::get_surface_cache_with_context;
 use crate::surface::surface::p4::{FacePointTest, NoObject};
 use crate::surface::surface::{Surface, SurfaceKind};
+use crate::surface::surface_cache::p1::{OpaqueSurfaceCacheContext, SurfaceCacheContext};
 use crate::surface::volume::Volume;
 use crate::topology::face::p2 as fp2;
 use crate::topology::shell::{self, ShellType};
@@ -219,7 +227,7 @@ pub fn calculate_loose_bounding_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<E
 fn surface_box(
     k: &Kernel,
     surface: &Surface,
-    uv_domain: &crate::geom::extent2d::Extent2d,
+    uv_domain: &Extent2d,
     face_tolerance: f64,
 ) -> Result<Extent3d> {
     let missing = || SolidError::invalid_input(OP_FACE_BOX, "missing surface box");
@@ -469,66 +477,150 @@ pub fn point_3d_classify(
     opts: Point3dClassifyOptions<'_>,
 ) -> Result<()> {
     let uv_domain = fp2::uv_domain(b, f)?;
-
-    // init output - SM_PC_UNKNOWN is used for OUTSIDE the face's trim boundary
-    pc.set_class_object(PointClassType::Unknown, None);
-    pc.set_face(Some(EntityRef::Face(f)));
-    pc.set_src_zone_tol_3d(src_zone_tol_3d);
-
+    point_3d_classify_initialize(f, src_zone_tol_3d, pc);
     let uv = {
         let surface = fp2::surface(b, f)?
             .ok_or_else(|| SolidError::invalid_input(OP_POINT, "face without surface"))?;
+        point_3d_classify_uv_with_context(
+            k,
+            surface,
+            None::<NoObject>,
+            &uv_domain,
+            point,
+            src_zone_tol_3d,
+            opts.guess_uv,
+            &mut OpaqueSurfaceCacheContext,
+        )?
+    };
+    let Some(uv) = uv else {
+        return Ok(());
+    };
+    point_3d_classify_finish(
+        k,
+        b,
+        f,
+        uv,
+        point,
+        src_zone_tol_3d,
+        do_boundary_intersections,
+        pc,
+        opts,
+    )
+}
 
-        // Get or build the cache before even the hinted local solve. Upstream
-        // does not NER this pointer: an ordinary failure permits a null cache.
-        let mut cache = ignored(get_surface_cache(k, surface, None::<NoObject>))?;
+/// Initialise the fields written by `SmFace::Point3DClassify`, retaining all
+/// other fields of the caller's classification. Call this after reading the
+/// face's UV domain and before resolving its surface, as the native method does.
+pub fn point_3d_classify_initialize(
+    face: FaceId,
+    source_zone_tolerance: f64,
+    classification: &mut PointClassification<EntityRef>,
+) {
+    // SM_PC_UNKNOWN is also used for points outside the face's trim boundary.
+    classification.set_class_object(PointClassType::Unknown, None);
+    classification.set_face(Some(EntityRef::Face(face)));
+    classification.set_src_zone_tol_3d(source_zone_tolerance);
+}
 
-        // when given a hint - use it in LocalSolve
-        let mut found = None;
-        if let Some(guess) = opts.guess_uv {
-            // intersect 3dPoint with surface
-            let r = surface.local_point_solve::<NoObject>(
-                k,
-                &uv_domain,
-                SolverOperation::Intersect,
-                point,
-                guess,
-            )?;
-            if r.found {
-                found = Some(solution_uv(&r.solution.start.parameters)?);
-            }
+/// The surface-drop phase of `SmFace::Point3DClassify`, with the live owner and
+/// trim-creation context supplied separately from the numerical surface view.
+/// Cache acquisition precedes even a hinted local drop. The global drop reuses
+/// that checkout and disables its point filter; explicit UV classification is
+/// performed by [`point_3d_classify_finish`].
+///
+/// Returns `None` when there is no drop or it falls outside the face's UV domain.
+/// The caller must first use [`point_3d_classify_initialize`] so these successful
+/// early exits retain the native partial output.
+///
+/// # Errors
+///
+/// Propagates point-solve errors and unresolved owner/context errors. Ordinary
+/// native cache acquisition failures permit a null cache, as upstream does.
+pub fn point_3d_classify_uv_with_context<O: SolutionObject>(
+    k: &Kernel,
+    surface: &Surface,
+    surface_handle: Option<O>,
+    uv_domain: &Extent2d,
+    point: Point3,
+    src_zone_tol_3d: f64,
+    guess_uv: Option<Point2>,
+    context: &mut dyn SurfaceCacheContext<O>,
+) -> Result<Option<Point2>> {
+    let mut cache = match get_surface_cache_with_context(k, surface, surface_handle, context) {
+        Ok(cache) => Some(cache),
+        Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => None,
+        Err(error) => return Err(error),
+    };
+
+    // When given a hint, use it in LocalSolve before trying a global solve.
+    let mut found = None;
+    if let Some(guess) = guess_uv {
+        let result = surface.local_point_solve_with_tolerance_context::<NoObject>(
+            k,
+            uv_domain,
+            SolverOperation::Intersect,
+            point,
+            guess,
+            &mut |surface| context.surface_owner_zone_tol_3d(k, surface, surface_handle),
+            &mut |surface| {
+                context
+                    .surface_zone_tol_3d(k, surface, surface_handle)
+                    .map(Some)
+            },
+        )?;
+        if result.found {
+            found = Some(solution_uv(&result.solution.start.parameters)?);
         }
+    }
 
-        // when Local Solve did not get an answer - try global solves
-        if let Some(uv) = found {
-            uv
-        } else {
-            // The native guard disables only the drop's trim point test;
-            // PointClassify below still handles the resulting UV explicitly.
-            // There are no retries with larger tolerances.
-            let solutions = surface.global_point_intersect_with_cache(
-                k,
-                &uv_domain,
-                point,
-                src_zone_tol_3d,
-                SolutionRequested::Single,
-                FacePointTest::Disabled,
-                &mut cache,
-            )?;
-            let Some(first) = solutions.as_slice().first() else {
-                // Point may not be inside of the boundary of the face.
-                return Ok(());
-            };
-            solution_uv(&first.start.parameters)?
-        }
+    let uv = if let Some(uv) = found {
+        uv
+    } else {
+        let solutions = surface.global_point_intersect_with_cache_context(
+            k,
+            surface_handle,
+            uv_domain,
+            point,
+            src_zone_tol_3d,
+            SolutionRequested::Single,
+            FacePointTest::Disabled,
+            &mut cache,
+            context,
+        )?;
+        let Some(first) = solutions.as_slice().first() else {
+            return Ok(None);
+        };
+        solution_uv(&first.start.parameters)?
     };
 
     // low work - UVPoint not contained by Face's domain
     let size = uv_domain.size().length();
     if !uv_domain.contains_point(uv, size / 1000.0) {
-        return Ok(());
+        return Ok(None);
     }
+    Ok(Some(uv))
+}
 
+/// Complete `SmFace::Point3DClassify` after a successful in-domain surface drop.
+/// This is the shared explicit UV classification, 3D-gap update and final object
+/// tolerance check; `b` is the original B-rep, including trims created during
+/// cache acquisition. The same classification record is used throughout.
+///
+/// # Errors
+///
+/// Propagates UV classification, geometry and tolerance errors, retaining every
+/// field written to `pc` before a failure.
+pub fn point_3d_classify_finish(
+    k: &Kernel,
+    b: &mut Brep,
+    f: FaceId,
+    uv: Point2,
+    point: Point3,
+    src_zone_tol_3d: f64,
+    do_boundary_intersections: bool,
+    pc: &mut PointClassification<EntityRef>,
+    opts: Point3dClassifyOptions<'_>,
+) -> Result<()> {
     // else pass the call along to PointClassify to classify the UVPoint
     super::p2::point_classify(
         k,

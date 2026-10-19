@@ -625,19 +625,87 @@ impl crate::intersect::topology_solver::p1::TopologyObjects<CacheObject> for Bre
         do_boundaries: bool,
         classification: &mut crate::intersect::point_class::PointClassification<crate::EntityRef>,
     ) -> Result<()> {
-        let CacheObject::Face(face) = face else {
+        let CacheObject::Face(id) = face else {
             return Err(SolidError::invalid_input(OP, "expected face handle"));
         };
-        crate::query::face::p1::point_3d_classify(
+        let Some(uv) = crate::intersect::topology_solver::p1::face_point_3d_uv_with_context(
+            kernel,
+            self,
+            face,
+            id,
+            point,
+            source_zone_tolerance,
+            classification,
+            None,
+        )?
+        else {
+            return Ok(());
+        };
+        crate::query::face::p1::point_3d_classify_finish(
             kernel,
             self.brep,
-            face,
+            id,
+            uv,
             point,
             source_zone_tolerance,
             do_boundaries,
             classification,
             crate::query::face::p1::Point3dClassifyOptions::default(),
         )
+    }
+
+    fn face_brep_editing_enabled(&self, face: CacheObject) -> Result<bool> {
+        let CacheObject::Face(face) = face else {
+            return Err(SolidError::invalid_input(OP, "expected face handle"));
+        };
+        self.brep.face(face)?;
+        Ok(self.brep.editing_enabled())
+    }
+
+    fn set_face_brep_editing_enabled(&mut self, face: CacheObject, editing: bool) -> Result<()> {
+        let CacheObject::Face(face) = face else {
+            return Err(SolidError::invalid_input(OP, "expected face handle"));
+        };
+        self.brep.face(face)?;
+        self.brep.set_editing_enabled(editing);
+        Ok(())
+    }
+
+    fn face_create_uv_trim_curves(&mut self, kernel: &Kernel, face: CacheObject) -> Result<()> {
+        let CacheObject::Face(face) = face else {
+            return Err(SolidError::invalid_input(OP, "expected face handle"));
+        };
+        crate::topology::face::p3::create_uv_trim_curves(kernel, self.brep, face, true, None)
+            .map(|_| ())
+    }
+
+    fn face_classification_object(
+        &self,
+        face: CacheObject,
+        entity: crate::EntityRef,
+    ) -> Result<CacheObject> {
+        let CacheObject::Face(face) = face else {
+            return Err(SolidError::invalid_input(OP, "expected face handle"));
+        };
+        self.brep.face(face)?;
+        match entity {
+            crate::EntityRef::Vertex(id) => {
+                self.brep.vertex(id)?;
+                Ok(CacheObject::Vertex(id))
+            }
+            crate::EntityRef::Edge(id) => {
+                self.brep.edge(id)?;
+                Ok(CacheObject::Edge(id))
+            }
+            crate::EntityRef::Face(id) => {
+                self.brep.face(id)?;
+                Ok(CacheObject::Face(id))
+            }
+            _ => Err(SolidError::invalid_input(
+                OP,
+                "classification entity has no cached topology handle",
+            )),
+        }
     }
 
     fn brep_cache(&self, _kernel: &Kernel, object: CacheObject) -> Result<&BrepCache> {

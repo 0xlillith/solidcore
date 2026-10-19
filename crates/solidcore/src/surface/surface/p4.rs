@@ -90,6 +90,7 @@ use crate::geom::solution_array::{
 };
 use crate::geom::vector2d::Vec2;
 use crate::geom::vector3d::{asin, sqrt as sm_sqrt};
+use crate::intersect::point_class::{PointClassType, PointClassification};
 use crate::kernel::Kernel;
 use crate::math::{
     Point2, Point3, Vec3, EFF_ZERO, EFF_ZERO_RAD, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI, UNDEF_DOUBLE,
@@ -98,14 +99,15 @@ use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::surface::plane::Plane;
+use crate::surface::surface_cache::p1::SurfaceCacheContext;
 use crate::surface::surface_cache::SurfaceCache;
 
-use super::p1::get_surface_cache;
 use super::p1::{
     evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs,
     evaluate_normal_section, map_to_2d_dir, zone_tol_3d, CsIntersectEnfo, CsNormalizeEnfo,
     SsNormalizeEnfo, SsiNormalizeEnfo, SspIntersectEnfo,
 };
+use super::p1::{get_surface_cache, get_surface_cache_with_context, SurfaceCacheCheckout};
 use super::p2::{
     convert_to_parameter_delta, evaluate_geometric, LocalSurfaceType, SurfaceEval, TsectCurveType,
 };
@@ -1308,6 +1310,40 @@ impl Surface {
         )
     }
 
+    /// `GlobalPointSolve` with the original mutable topology behind the surface.
+    /// Geometry is an evaluation snapshot, while cache ownership, tolerances,
+    /// editing flags and face classification use `context` throughout the solve.
+    pub fn global_point_solve_with_context<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: Option<O>,
+        uv_domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        src_zone_tol_3d: f64,
+        opt_target_distance: Option<f64>,
+        requested: SolutionRequested,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<SolutionArray<O>> {
+        let mut solutions = SolutionArray::new();
+        self.global_point_solve_into_with_cache(
+            k,
+            surface,
+            uv_domain,
+            op,
+            test_point,
+            src_zone_tol_3d,
+            opt_target_distance,
+            requested,
+            FacePointTest::Enabled,
+            &mut None,
+            &mut None,
+            Some(context),
+            &mut solutions,
+        )?;
+        Ok(solutions)
+    }
+
     /// [`Surface::global_point_solve`] with a caller's scoped trim point-test mode.
     ///
     /// [`FacePointTest::Disabled`] corresponds to temporarily setting the surface
@@ -1412,6 +1448,8 @@ impl Surface {
             requested,
             point_test,
             &mut cache,
+            &mut None,
+            None,
             solutions,
         )
     }
@@ -1442,6 +1480,42 @@ impl Surface {
             requested,
             point_test,
             cache,
+            &mut None,
+            None,
+            &mut solutions,
+        )?;
+        Ok(solutions)
+    }
+
+    /// An intersection in an already acquired native cache scope, with its live
+    /// topology context. The caller keeps the same checkout for subsequent
+    /// endpoints or drops; a null acquisition may be retried by the fast path.
+    pub(crate) fn global_point_intersect_with_cache_context<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: Option<O>,
+        uv_domain: &Extent2d,
+        test_point: Point3,
+        src_zone_tol_3d: f64,
+        requested: SolutionRequested,
+        point_test: FacePointTest,
+        cache: &mut Option<SurfaceCacheCheckout<O>>,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<SolutionArray<O>> {
+        let mut solutions = SolutionArray::new();
+        self.global_point_solve_into_with_cache(
+            k,
+            surface,
+            uv_domain,
+            SolverOperation::Intersect,
+            test_point,
+            src_zone_tol_3d,
+            None,
+            requested,
+            point_test,
+            &mut None,
+            cache,
+            Some(context),
             &mut solutions,
         )?;
         Ok(solutions)
@@ -1459,6 +1533,8 @@ impl Surface {
         requested: SolutionRequested,
         point_test: FacePointTest,
         cache: &mut Option<SurfaceCache<NoObject>>,
+        contextual_cache: &mut Option<SurfaceCacheCheckout<O>>,
+        mut context: Option<&mut dyn SurfaceCacheContext<O>>,
         solutions: &mut SolutionArray<O>,
     ) -> Result<()> {
         // init output
@@ -1503,7 +1579,17 @@ impl Surface {
                 // If this surface belongs to a face, then check whether the returned UV
                 // values are within the trim boundaries of the face, unless flags in its
                 // surface cache indicate otherwise.
-                if self.owner().is_some_and(|o| o.type_code == FACE_TYPE) {
+                if let Some(context) = context.as_deref_mut() {
+                    self.trim_fast_solutions_with_context(
+                        k,
+                        surface,
+                        src_zone_tol_3d,
+                        point_test,
+                        contextual_cache,
+                        context,
+                        solutions,
+                    )?;
+                } else if self.owner().is_some_and(|o| o.type_code == FACE_TYPE) {
                     if cache.is_none() {
                         // No NER here: a failed native acquisition leaves a null
                         // cache and keeps the drop. Reuse a caller's successful
@@ -1553,17 +1639,32 @@ impl Surface {
                 None,
             )?
         } else if let Some(surface) = surface {
-            self.global_point_solve_0_with_point_test(
-                k,
-                surface,
-                uv_domain,
-                op,
-                test_point,
-                src_zone_tol_3d,
-                opt_target_distance,
-                requested,
-                point_test,
-            )?
+            if let Some(context) = context {
+                self.global_point_solve_0_with_context(
+                    k,
+                    surface,
+                    uv_domain,
+                    op,
+                    test_point,
+                    src_zone_tol_3d,
+                    opt_target_distance,
+                    requested,
+                    point_test,
+                    context,
+                )?
+            } else {
+                self.global_point_solve_0_with_point_test(
+                    k,
+                    surface,
+                    uv_domain,
+                    op,
+                    test_point,
+                    src_zone_tol_3d,
+                    opt_target_distance,
+                    requested,
+                    point_test,
+                )?
+            }
         } else {
             // no handle for the solutions' objects (upstream passes `this`): solve with
             // a stand-in and leave the objects null
@@ -1592,6 +1693,74 @@ impl Surface {
             }
             out
         };
+        Ok(())
+    }
+
+    /// The native fast-drop trim filter. A failed ordinary classification removes
+    /// that candidate; unlike `sm_IsPointValid`, this caller requires success.
+    fn trim_fast_solutions_with_context<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: Option<O>,
+        tolerance: f64,
+        point_test: FacePointTest,
+        cache: &mut Option<SurfaceCacheCheckout<O>>,
+        context: &mut dyn SurfaceCacheContext<O>,
+        solutions: &mut SolutionArray<O>,
+    ) -> Result<()> {
+        if !context.surface_has_direct_face_owner(self, surface)? {
+            return Ok(());
+        }
+        if cache.is_none() {
+            *cache = match get_surface_cache_with_context(k, self, surface, context) {
+                Ok(cache) => Some(cache),
+                Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => None,
+                Err(error) => return Err(error),
+            };
+        }
+        let Some(SurfaceCacheCheckout::Trimmed(trimmed)) = cache else {
+            return Ok(());
+        };
+        if point_test == FacePointTest::Disabled
+            || !trimmed.base().point_test_enabled
+            || trimmed.base().face_was_modified
+        {
+            return Ok(());
+        }
+        let face = context.surface_face(self, surface)?.ok_or_else(|| {
+            SolidError::invalid_input(
+                "surface::surface::p4::trim_fast_solutions_with_context",
+                "direct face owner could not be resolved",
+            )
+        })?;
+        let mut index = 0;
+        while let Some(solution) = solutions.get(index) {
+            let uv = Point2::new(solution.start.param(0)?, solution.start.param(1)?);
+            let mut classification = PointClassification::new(tolerance);
+            let success = match context.face_point_classify(
+                k,
+                face,
+                uv,
+                tolerance,
+                true,
+                false,
+                &mut classification,
+            ) {
+                Ok(()) => true,
+                Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => false,
+                Err(error) => return Err(error),
+            };
+            let good = success
+                && matches!(
+                    classification.point_class(),
+                    PointClassType::Face | PointClassType::Edge | PointClassType::Vertex
+                );
+            if good {
+                index += 1;
+            } else {
+                solutions.remove_at(index, 1);
+            }
+        }
         Ok(())
     }
 }
@@ -2204,7 +2373,7 @@ mod tests {
         // fixture exercises fast-drop dispatch; no subdivision tree is read.
         let mut cache = Some(
             crate::surface::trim_srf_cache::TrimSrfCache::new(
-                surface.clone(),
+                surface.clone_for_evaluation().unwrap(),
                 SurfaceCacheOptions::default(),
             )
             .into_base(),
@@ -2224,6 +2393,8 @@ mod tests {
                 SolutionRequested::Single,
                 mode,
                 cache,
+                &mut None,
+                None,
                 solutions,
             )
         };

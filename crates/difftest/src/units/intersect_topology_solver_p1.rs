@@ -681,6 +681,30 @@ impl TopologyObjects<Obj> for Scene {
         Err(not_found("no faces in the scene"))
     }
 
+    fn face_brep_editing_enabled(&self, _face: Obj) -> solidcore::Result<bool> {
+        Err(not_found("no faces in the scene"))
+    }
+
+    fn set_face_brep_editing_enabled(
+        &mut self,
+        _face: Obj,
+        _editing: bool,
+    ) -> solidcore::Result<()> {
+        Err(not_found("no faces in the scene"))
+    }
+
+    fn face_create_uv_trim_curves(
+        &mut self,
+        _kernel: &Kernel,
+        _face: Obj,
+    ) -> solidcore::Result<()> {
+        Err(not_found("no faces in the scene"))
+    }
+
+    fn face_classification_object(&self, _face: Obj, _entity: EntityRef) -> solidcore::Result<Obj> {
+        Err(not_found("no faces in the scene"))
+    }
+
     fn curve(&self, object: Obj) -> solidcore::Result<&Curve> {
         match object {
             Obj::Curve(i, _) => match self.items.get(i) {

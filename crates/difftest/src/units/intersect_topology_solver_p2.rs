@@ -129,27 +129,43 @@ fn static_output(flat: &[f64]) -> Output {
 /// The shim's `id(object)` of a solution object: the vertex index, `999` for the
 /// curve, `-2` for anything else (the faces and surfaces of face/face solves).
 fn static_object_id(h: StaticHandle) -> f64 {
-    if (0..=999).contains(&h.0) {
-        f64::from(h.0)
-    } else {
-        -2.0
+    match h {
+        StaticHandle::Fixture(id @ 0..=999) => f64::from(id),
+        _ => -2.0,
     }
 }
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct StaticHandle(i32);
+enum StaticHandle {
+    /// The identities explicitly listed by the native static fixture protocol.
+    Fixture(i32),
+    /// Other live topology reached through a face classification. The operand
+    /// and typed arena record preserve identity without aliasing the query edge.
+    Member(usize, CacheObject),
+}
+impl StaticHandle {
+    fn fixture_id(self) -> SolidResult<i32> {
+        match self {
+            Self::Fixture(id) => Ok(id),
+            Self::Member(_, _) => Err(static_error()),
+        }
+    }
+}
 impl SolutionObject for StaticHandle {
     fn kind(&self) -> ObjectKind {
-        match self.0 {
-            999 | -2 => ObjectKind::Curve,
-            1000 | 1001 => ObjectKind::Other,
-            2000 | 2001 => ObjectKind::Face,
-            2002 | 2003 => ObjectKind::Surface,
-            2004 => ObjectKind::Edge,
-            _ => ObjectKind::Vertex,
+        match *self {
+            Self::Member(_, object) => object.kind(),
+            Self::Fixture(id) => match id {
+                999 | -2 => ObjectKind::Curve,
+                1000 | 1001 => ObjectKind::Other,
+                2000 | 2001 => ObjectKind::Face,
+                2002 | 2003 => ObjectKind::Surface,
+                2004 => ObjectKind::Edge,
+                _ => ObjectKind::Vertex,
+            },
         }
     }
     fn natural_interval(&self) -> Option<Extent1d> {
-        (self.0 == 999 || self.0 == -2).then(|| Extent1d::from_min_max(0.0, 1.0))
+        matches!(self, Self::Fixture(999 | -2)).then(|| Extent1d::from_min_max(0.0, 1.0))
     }
 }
 struct NativeOperand {
@@ -253,7 +269,7 @@ fn static_tree(
         b.expand_absolute(tolerance);
         tree.add_to_spatial_tree(
             &b,
-            Some(StaticHandle((offset + index) as i32)),
+            Some(StaticHandle::Fixture((offset + index) as i32)),
             NodeGeomType::Default,
         )?;
     }
@@ -264,7 +280,7 @@ impl<'a> StaticScene<'a> {
         // These trees describe only the shell-vertex input of entries 0–4. The
         // face entries use explicit local solvers and never request B-rep trees.
         let [first, second, empty_first, empty_second] = self.trees.ok_or_else(static_error)?;
-        let (vertices, empty) = match brep.0 {
+        let (vertices, empty) = match brep.fixture_id()? {
             1000 => (first, empty_first),
             1001 => (second, empty_second),
             _ => return Err(static_error()),
@@ -281,18 +297,59 @@ impl<'a> StaticScene<'a> {
     }
 
     fn face_scope(&self, face: StaticHandle) -> SolidResult<(usize, FaceId)> {
-        let slot = match face.0 {
-            2000 => 0,
-            2001 => 1,
+        let (slot, id) = match face {
+            StaticHandle::Fixture(2000) => (0, self.native()?.operand(0)?.face),
+            StaticHandle::Fixture(2001) => (1, self.native()?.operand(1)?.face),
+            StaticHandle::Member(slot, CacheObject::Face(id)) => (slot, id),
             _ => return Err(static_error()),
         };
-        Ok((slot, self.native()?.operand(slot)?.face))
+        self.native()?.brep(slot)?.face(id)?;
+        Ok((slot, id))
+    }
+
+    fn surface_scope(&self, surface: StaticHandle) -> SolidResult<(usize, FaceId)> {
+        match surface {
+            StaticHandle::Fixture(2002) => self.face_scope(StaticHandle::Fixture(2000)),
+            StaticHandle::Fixture(2003) => self.face_scope(StaticHandle::Fixture(2001)),
+            StaticHandle::Member(slot, CacheObject::Surface(id)) => {
+                self.face_scope(StaticHandle::Member(slot, CacheObject::Face(id)))
+            }
+            _ => Err(static_error()),
+        }
+    }
+
+    fn edge_scope(&self, edge: StaticHandle) -> SolidResult<(usize, EdgeId)> {
+        let (slot, id) = match edge {
+            StaticHandle::Fixture(2004) => (0, self.query_edge()?.ok_or_else(static_error)?),
+            StaticHandle::Member(slot, CacheObject::Edge(id)) => (slot, id),
+            _ => return Err(static_error()),
+        };
+        self.native()?.brep(slot)?.edge(id)?;
+        Ok((slot, id))
+    }
+
+    fn curve_scope(&self, curve: StaticHandle) -> SolidResult<Option<(usize, EdgeId)>> {
+        match curve {
+            StaticHandle::Fixture(999) => self
+                .query_edge()?
+                .map(|id| self.edge_scope(StaticHandle::Member(0, CacheObject::Edge(id))))
+                .transpose(),
+            StaticHandle::Member(slot, CacheObject::Curve(id)) => self
+                .edge_scope(StaticHandle::Member(slot, CacheObject::Edge(id)))
+                .map(Some),
+            _ => Err(static_error()),
+        }
     }
 
     fn vertex_scope(&self, vertex: StaticHandle) -> SolidResult<(usize, VertexId)> {
-        let mut index = usize::try_from(vertex.0).map_err(|_| static_error())?;
+        if let StaticHandle::Member(slot, CacheObject::Vertex(id)) = vertex {
+            self.native()?.brep(slot)?.vertex(id)?;
+            return Ok((slot, id));
+        }
+        let mut index = usize::try_from(vertex.fixture_id()?).map_err(|_| static_error())?;
         for (slot, operand) in self.native()?.operands.iter().enumerate() {
             if let Some(id) = operand.vertices.get(index) {
+                self.native()?.brep(slot)?.vertex(*id)?;
                 return Ok((slot, *id));
             }
             index = index
@@ -306,6 +363,65 @@ impl<'a> StaticScene<'a> {
         self.native
             .as_ref()
             .map_or(Ok(None), |native| Ok(native.operand(0)?.curve_edge))
+    }
+
+    /// Prefer the native protocol's listed identity when this is that same
+    /// record. Unlisted boundary topology retains its typed, operand-local id.
+    fn member_handle(&self, slot: usize, object: CacheObject) -> SolidResult<StaticHandle> {
+        let native = self.native()?;
+        let operand = native.operand(slot)?;
+        let brep = native.brep(slot)?;
+        match object {
+            CacheObject::Face(id) | CacheObject::Surface(id) => {
+                let face = brep.face(id)?;
+                if matches!(object, CacheObject::Surface(_)) {
+                    face.surface.as_ref().ok_or_else(static_error)?;
+                }
+                if id == operand.face {
+                    let slot = i32::try_from(slot).map_err(|_| static_error())?;
+                    let base = if matches!(object, CacheObject::Surface(_)) {
+                        2002
+                    } else {
+                        2000
+                    };
+                    return Ok(StaticHandle::Fixture(base + slot));
+                }
+            }
+            CacheObject::Edge(id) | CacheObject::Curve(id) => {
+                let edge = brep.edge(id)?;
+                if matches!(object, CacheObject::Curve(_)) {
+                    edge.curve.as_ref().ok_or_else(static_error)?;
+                }
+                if slot == 0 && Some(id) == operand.curve_edge {
+                    return Ok(StaticHandle::Fixture(
+                        if matches!(object, CacheObject::Curve(_)) {
+                            999
+                        } else {
+                            2004
+                        },
+                    ));
+                }
+            }
+            CacheObject::Vertex(id) => {
+                brep.vertex(id)?;
+                if let Some(index) = operand
+                    .vertices
+                    .iter()
+                    .position(|candidate| *candidate == id)
+                {
+                    let offset: usize = native
+                        .operands
+                        .iter()
+                        .take(slot)
+                        .map(|operand| operand.vertices.len())
+                        .sum();
+                    let id = i32::try_from(offset + index).map_err(|_| static_error())?;
+                    return Ok(StaticHandle::Fixture(id));
+                }
+            }
+            _ => return Err(static_error()),
+        }
+        Ok(StaticHandle::Member(slot, object))
     }
 
     fn check_geometry(&self, slot: usize, curves: bool, surfaces: bool) -> SolidResult<()> {
@@ -389,42 +505,51 @@ impl TopologyObjects<StaticHandle> for StaticScene<'_> {
         let Some(object) = object else {
             return Ok(system());
         };
-        if object.0 == 999 && self.query_edge()?.is_none() {
+        if object == StaticHandle::Fixture(999) && self.query_edge()?.is_none() {
             self.curve(object)?;
             // The external query curve has no owner in the native constructor.
             return Ok(system());
         }
         if self.native.is_none() {
-            return match object.0 {
-                1000 | 1001 => Ok(1e-5),
+            return match object {
+                StaticHandle::Fixture(1000 | 1001) => Ok(1e-5),
                 _ => self.vertex_tolerance(object),
             };
         }
-        let (slot, source) = match object.0 {
-            999 | 2004 => {
+        let (slot, source) = match object {
+            StaticHandle::Member(slot, source) => {
+                self.member_handle(slot, source)?;
+                match source {
+                    CacheObject::Curve(_) => self.check_geometry(slot, true, false)?,
+                    CacheObject::Surface(_) => self.check_geometry(slot, false, true)?,
+                    _ => {}
+                }
+                (slot, source)
+            }
+            StaticHandle::Fixture(999 | 2004) => {
                 self.check_geometry(0, true, false)?;
                 let edge = self.query_edge()?.ok_or_else(static_error)?;
                 (
                     0,
-                    if object.0 == 999 {
+                    if object == StaticHandle::Fixture(999) {
                         CacheObject::Curve(edge)
                     } else {
                         CacheObject::Edge(edge)
                     },
                 )
             }
-            1000 => (0, CacheObject::Brep),
-            1001 => (1, CacheObject::Brep),
-            2000 | 2001 => {
+            StaticHandle::Fixture(1000) => (0, CacheObject::Brep),
+            StaticHandle::Fixture(1001) => (1, CacheObject::Brep),
+            StaticHandle::Fixture(2000 | 2001) => {
                 let (slot, face) = self.face_scope(object)?;
                 (slot, CacheObject::Face(face))
             }
-            2002 | 2003 => {
-                let (slot, face) = self.face_scope(StaticHandle(object.0 - 2))?;
+            StaticHandle::Fixture(2002 | 2003) => {
+                let (slot, face) = self.surface_scope(object)?;
                 self.check_geometry(slot, false, true)?;
                 (slot, CacheObject::Surface(face))
             }
-            _ => {
+            StaticHandle::Fixture(_) => {
                 let (slot, vertex) = self.vertex_scope(object)?;
                 (slot, CacheObject::Vertex(vertex))
             }
@@ -473,11 +598,26 @@ impl TopologyObjects<StaticHandle> for StaticScene<'_> {
         do_boundaries: bool,
         classification: &mut PointClassification<EntityRef>,
     ) -> SolidResult<()> {
-        let (brep, face) = self.live_face_mut(face)?;
-        solidcore::query::face::p1::point_3d_classify(
+        let (_, face_id) = self.face_scope(face)?;
+        let Some(uv) = solidcore::intersect::topology_solver::p1::face_point_3d_uv_with_context(
+            kernel,
+            self,
+            face,
+            face_id,
+            point,
+            source_zone_tolerance,
+            classification,
+            None,
+        )?
+        else {
+            return Ok(());
+        };
+        let (brep, face_id) = self.live_face_mut(face)?;
+        solidcore::query::face::p1::point_3d_classify_finish(
             kernel,
             brep,
-            face,
+            face_id,
+            uv,
             point,
             source_zone_tolerance,
             do_boundaries,
@@ -486,14 +626,57 @@ impl TopologyObjects<StaticHandle> for StaticScene<'_> {
         )
     }
 
+    fn face_brep_editing_enabled(&self, face: StaticHandle) -> SolidResult<bool> {
+        let (slot, _) = self.face_scope(face)?;
+        Ok(self.native()?.brep(slot)?.editing_enabled())
+    }
+
+    fn set_face_brep_editing_enabled(
+        &mut self,
+        face: StaticHandle,
+        editing: bool,
+    ) -> SolidResult<()> {
+        let (slot, _) = self.face_scope(face)?;
+        let native = self.native.as_mut().ok_or_else(static_error)?;
+        let id = native.operand(slot)?.id;
+        native
+            .breps
+            .get_mut(id)
+            .ok_or_else(static_error)?
+            .set_editing_enabled(editing);
+        Ok(())
+    }
+
+    fn face_create_uv_trim_curves(
+        &mut self,
+        kernel: &Kernel,
+        face: StaticHandle,
+    ) -> SolidResult<()> {
+        let (brep, face_id) = self.live_face_mut(face)?;
+        solidcore::topology::face::p3::create_uv_trim_curves(kernel, brep, face_id, true, None)
+            .map(|_| ())
+    }
+
+    fn face_classification_object(
+        &self,
+        face: StaticHandle,
+        entity: EntityRef,
+    ) -> SolidResult<StaticHandle> {
+        let (slot, _) = self.face_scope(face)?;
+        let object = match entity {
+            EntityRef::Vertex(id) => CacheObject::Vertex(id),
+            EntityRef::Edge(id) => CacheObject::Edge(id),
+            EntityRef::Face(id) => CacheObject::Face(id),
+            _ => return Err(static_error()),
+        };
+        self.member_handle(slot, object)
+    }
+
     fn curve(&self, object: StaticHandle) -> SolidResult<&Curve> {
-        if object.0 != 999 {
-            return Err(static_error());
-        }
-        if let Some(edge) = self.query_edge()? {
-            self.check_geometry(0, true, false)?;
+        if let Some((slot, edge)) = self.curve_scope(object)? {
+            self.check_geometry(slot, true, false)?;
             self.native()?
-                .brep(0)?
+                .brep(slot)?
                 .edge(edge)?
                 .curve
                 .as_ref()
@@ -502,15 +685,19 @@ impl TopologyObjects<StaticHandle> for StaticScene<'_> {
             Ok(&self.curve)
         }
     }
-    fn analytic_curve_handle(&self, _: StaticHandle) -> Option<StaticHandle> {
-        Some(StaticHandle(-2))
+    fn analytic_curve_handle(&self, curve: StaticHandle) -> Option<StaticHandle> {
+        match curve {
+            StaticHandle::Fixture(_) => Some(StaticHandle::Fixture(-2)),
+            StaticHandle::Member(_, CacheObject::Curve(_)) => Some(curve),
+            StaticHandle::Member(..) => None,
+        }
     }
     fn vertex_point(&self, vertex: StaticHandle) -> SolidResult<Point3> {
         if let Some(native) = &self.native {
             let (slot, vertex) = self.vertex_scope(vertex)?;
             return Ok(native.brep(slot)?.vertex(vertex)?.point);
         }
-        usize::try_from(vertex.0)
+        usize::try_from(vertex.fixture_id()?)
             .ok()
             .and_then(|i| self.points.get(i))
             .copied()
@@ -525,67 +712,54 @@ impl TopologyObjects<StaticHandle> for StaticScene<'_> {
         Ok(1e-5)
     }
     fn curve_edge(&self, curve: StaticHandle) -> SolidResult<Option<StaticHandle>> {
-        let owner = self.curve(curve)?.edge(&|_| None)?;
-        owner
-            .map(|owner| {
-                let edge = self.query_edge()?.ok_or_else(static_error)?;
-                if owner != arena_identity(CacheObject::Edge(edge)) {
-                    return Err(static_error());
-                }
-                Ok(StaticHandle(2004))
-            })
-            .transpose()
+        let Some(owner) = self.curve(curve)?.edge(&|_| None)? else {
+            return Ok(None);
+        };
+        let (slot, _) = self.curve_scope(curve)?.ok_or_else(static_error)?;
+        let edge = self
+            .native()?
+            .brep(slot)?
+            .edges()
+            .ids()
+            .find(|id| arena_identity(CacheObject::Edge(*id)) == owner)
+            .ok_or_else(static_error)?;
+        self.member_handle(slot, CacheObject::Edge(edge)).map(Some)
     }
     fn edge_curve(&self, edge: StaticHandle) -> SolidResult<Option<StaticHandle>> {
-        if edge.0 != 2004 {
-            return Err(static_error());
-        }
-        let edge = self.query_edge()?.ok_or_else(static_error)?;
-        self.check_geometry(0, true, false)?;
-        Ok(self
-            .native()?
-            .brep(0)?
-            .edge(edge)?
+        let (slot, id) = self.edge_scope(edge)?;
+        self.check_geometry(slot, true, false)?;
+        self.native()?
+            .brep(slot)?
+            .edge(id)?
             .curve
             .as_ref()
-            .map(|_| StaticHandle(999)))
+            .map(|_| self.member_handle(slot, CacheObject::Curve(id)))
+            .transpose()
     }
     fn edge_interval(&self, edge: StaticHandle) -> SolidResult<Extent1d> {
-        if edge.0 != 2004 {
-            return Err(static_error());
-        }
-        let edge = self.query_edge()?.ok_or_else(static_error)?;
-        Ok(self.native()?.brep(0)?.edge(edge)?.interval)
+        let (slot, id) = self.edge_scope(edge)?;
+        Ok(self.native()?.brep(slot)?.edge(id)?.interval)
     }
     fn surface_face(&self, surface: StaticHandle) -> SolidResult<Option<StaticHandle>> {
-        let owner = self.surface(surface)?.face()?;
-        owner
-            .map(|owner| {
-                let face_handle = StaticHandle(surface.0 - 2);
-                let (_, face) = self.face_scope(face_handle)?;
-                if owner != arena_identity(CacheObject::Face(face)) {
-                    return Err(static_error());
-                }
-                Ok(face_handle)
-            })
-            .transpose()
+        let Some(owner) = self.surface(surface)?.face()? else {
+            return Ok(None);
+        };
+        let (slot, _) = self.surface_scope(surface)?;
+        let face = self
+            .native()?
+            .brep(slot)?
+            .faces()
+            .ids()
+            .find(|id| arena_identity(CacheObject::Face(*id)) == owner)
+            .ok_or_else(static_error)?;
+        self.member_handle(slot, CacheObject::Face(face)).map(Some)
     }
     fn face_surface(&self, face: StaticHandle) -> SolidResult<StaticHandle> {
         let (slot, id) = self.face_scope(face)?;
-        self.native()?
-            .brep(slot)?
-            .face(id)?
-            .surface
-            .as_ref()
-            .ok_or_else(static_error)?;
-        Ok(StaticHandle(face.0 + 2))
+        self.member_handle(slot, CacheObject::Surface(id))
     }
     fn surface(&self, surface: StaticHandle) -> SolidResult<&Surface> {
-        let face = match surface.0 {
-            2002 | 2003 => StaticHandle(surface.0 - 2),
-            _ => return Err(static_error()),
-        };
-        let (slot, face) = self.face_scope(face)?;
+        let (slot, face) = self.surface_scope(surface)?;
         self.check_geometry(slot, false, true)?;
         self.native()?
             .brep(slot)?
@@ -603,45 +777,54 @@ impl TopologyObjects<StaticHandle> for StaticScene<'_> {
         Ok(self.native()?.brep(slot)?.face(face)?.tolerance)
     }
     fn surface_owner(&self, surface: StaticHandle) -> SolidResult<Option<StaticHandle>> {
-        let owner = self.surface(surface)?.owner();
-        owner
-            .map(|owner| {
-                let face_handle = StaticHandle(surface.0 - 2);
-                let (_, face) = self.face_scope(face_handle)?;
-                if owner != arena_identity(CacheObject::Face(face)) {
-                    return Err(static_error());
-                }
-                Ok(face_handle)
-            })
-            .transpose()
+        let Some(owner) = self.surface(surface)?.owner() else {
+            return Ok(None);
+        };
+        let (slot, _) = self.surface_scope(surface)?;
+        let face = self
+            .native()?
+            .brep(slot)?
+            .faces()
+            .ids()
+            .find(|id| arena_identity(CacheObject::Face(*id)) == owner)
+            .ok_or_else(static_error)?;
+        self.member_handle(slot, CacheObject::Face(face)).map(Some)
     }
     fn shape_member(&self, object: StaticHandle) -> ShapeMember {
         let Some(native) = &self.native else {
             return ShapeMember::Other;
         };
-        match object.0 {
-            2000 | 2001 => self.face_scope(object).ok().and_then(|(slot, face)| {
-                native
-                    .operands
-                    .get(slot)
-                    .map(|operand| ShapeMember::Face((operand.id, face)))
-            }),
-            2004 => native.operands.first().and_then(|operand| {
-                operand
-                    .curve_edge
-                    .map(|edge| ShapeMember::Edge((operand.id, edge)))
-            }),
-            0..=127 => self.vertex_scope(object).ok().and_then(|(slot, vertex)| {
-                native
-                    .operands
-                    .get(slot)
-                    .map(|operand| ShapeMember::Vertex((operand.id, vertex)))
-            }),
+        let scoped = match object {
+            StaticHandle::Fixture(2000 | 2001) | StaticHandle::Member(_, CacheObject::Face(_)) => {
+                self.face_scope(object)
+                    .ok()
+                    .map(|(slot, id)| (slot, CacheObject::Face(id)))
+            }
+            StaticHandle::Fixture(2004) | StaticHandle::Member(_, CacheObject::Edge(_)) => self
+                .edge_scope(object)
+                .ok()
+                .map(|(slot, id)| (slot, CacheObject::Edge(id))),
+            StaticHandle::Fixture(0..=127) | StaticHandle::Member(_, CacheObject::Vertex(_)) => {
+                self.vertex_scope(object)
+                    .ok()
+                    .map(|(slot, id)| (slot, CacheObject::Vertex(id)))
+            }
             _ => None,
-        }
-        .unwrap_or(ShapeMember::Other)
+        };
+        scoped
+            .and_then(|(slot, object)| {
+                let brep = native.operands.get(slot)?.id;
+                match object {
+                    CacheObject::Face(id) => Some(ShapeMember::Face((brep, id))),
+                    CacheObject::Edge(id) => Some(ShapeMember::Edge((brep, id))),
+                    CacheObject::Vertex(id) => Some(ShapeMember::Vertex((brep, id))),
+                    _ => None,
+                }
+            })
+            .unwrap_or(ShapeMember::Other)
     }
 }
+
 fn static_rust(case: &Case) -> Result<Output, HarnessError> {
     let input = static_input(case)?;
     // These bounds match the native protocol. Face inputs additionally use its
@@ -722,21 +905,21 @@ fn static_rust(case: &Case) -> Result<Output, HarnessError> {
         opt_vectors: &vectors,
     };
     let point = Point3::new(i.point[0], i.point[1], i.point[2]);
-    let curve = SolverCurve::Object(StaticHandle(999));
+    let curve = SolverCurve::Object(StaticHandle::Fixture(999));
     let interval = Extent1d::from_min_max(0.0, 1.0);
     let shape = Shape::empty().map_err(|e| HarnessError::new(e.to_string()))?;
     let result = match i.entry {
         0 => TopologySolver::brep_point_solve(
             &kernel,
             &mut scene,
-            Some(StaticHandle(1000)),
+            Some(StaticHandle::Fixture(1000)),
             point,
             options,
         ),
         1 => TopologySolver::brep_curve_solve(
             &kernel,
             &mut scene,
-            Some(StaticHandle(1000)),
+            Some(StaticHandle::Fixture(1000)),
             curve,
             &interval,
             options,
@@ -744,8 +927,8 @@ fn static_rust(case: &Case) -> Result<Output, HarnessError> {
         2 => TopologySolver::brep_brep_solve(
             &kernel,
             &mut scene,
-            Some(StaticHandle(1000)),
-            Some(StaticHandle(1001)),
+            Some(StaticHandle::Fixture(1000)),
+            Some(StaticHandle::Fixture(1001)),
             options,
         ),
         3 => TopologySolver::shape_point_solve(&kernel, &mut scene, &shape, point, options),
@@ -772,12 +955,12 @@ fn static_rust(case: &Case) -> Result<Output, HarnessError> {
             let mut local =
                 LocalSolver::new(kind, i.swap, if i.included { None } else { Some(&shape) });
             if i.entry == 6 {
-                local.set_curve_object(Some(StaticHandle(999)), interval);
+                local.set_curve_object(Some(StaticHandle::Fixture(999)), interval);
             }
             let (first, second) = match i.entry {
-                5 => (StaticHandle(0), StaticHandle(2002)),
-                6 | 7 => (StaticHandle(999), StaticHandle(2002)),
-                _ => (StaticHandle(2002), StaticHandle(2003)),
+                5 => (StaticHandle::Fixture(0), StaticHandle::Fixture(2002)),
+                6 | 7 => (StaticHandle::Fixture(999), StaticHandle::Fixture(2002)),
+                _ => (StaticHandle::Fixture(2002), StaticHandle::Fixture(2003)),
             };
             let (first, second) = if i.swap {
                 (second, first)
@@ -802,7 +985,7 @@ fn static_rust(case: &Case) -> Result<Output, HarnessError> {
     for index in 0..scene.points.len() {
         flat.push(
             scene
-                .vertex_tolerance(StaticHandle(index as i32))
+                .vertex_tolerance(StaticHandle::Fixture(index as i32))
                 .map_err(|e| HarnessError::new(e.to_string()))?,
         );
     }
@@ -852,4 +1035,103 @@ fn static_rust(case: &Case) -> Result<Output, HarnessError> {
         }
     }
     Ok(static_output(&flat))
+}
+
+#[cfg(test)]
+mod context_tests {
+    use super::*;
+
+    #[test]
+    fn classification_handles_keep_unlisted_topology_in_its_live_operand() {
+        fn operand(
+            breps: &mut Arena<BrepId, Brep>,
+            tolerance: f64,
+        ) -> (NativeOperand, EdgeId, VertexId) {
+            let mut brep = Brep::new();
+            let shell = brep.add_shell().unwrap();
+            let face = brep.add_face(shell).unwrap();
+            let listed = brep.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
+            let boundary = brep.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
+            let edge = brep.add_edge(listed, boundary).unwrap();
+            brep.vertex_mut(boundary).unwrap().tolerance = tolerance;
+            brep.edge_mut(edge).unwrap().tolerance = tolerance * 2.0;
+            let id = breps.insert(brep).unwrap();
+            (
+                NativeOperand {
+                    id,
+                    face,
+                    vertices: vec![listed],
+                    curve_edge: None,
+                    metadata: QueryMetadata::default(),
+                },
+                edge,
+                boundary,
+            )
+        }
+
+        let mut breps = Arena::default();
+        let (first, edge0, vertex0) = operand(&mut breps, 0.125);
+        let (second, edge1, vertex1) = operand(&mut breps, 0.5);
+        // Both arena-local ids coincide; they denote distinct live objects.
+        assert_eq!(edge0, edge1);
+        assert_eq!(vertex0, vertex1);
+        let second_id = second.id;
+        let curve = Curve::from(BSplineCurve::from_nurb(
+            NlCurve::new(
+                vec![
+                    CPoint::new(0.0, 0.0, 0.0, NOW),
+                    CPoint::new(1.0, 0.0, 0.0, NOW),
+                ],
+                1,
+                vec![0.0, 0.0, 1.0, 1.0],
+            )
+            .unwrap(),
+            3,
+            false,
+        ));
+        let scene = StaticScene {
+            points: Vec::new(),
+            trees: None,
+            curve,
+            native: Some(NativeScene {
+                breps,
+                operands: [first, second],
+            }),
+            geometry_failure: Cell::new(None),
+        };
+        let kernel = Kernel::default();
+        let face0 = StaticHandle::Fixture(2000);
+        let face1 = StaticHandle::Fixture(2001);
+        let boundary0 = scene
+            .face_classification_object(face0, EntityRef::Edge(edge0))
+            .unwrap();
+        let boundary1 = scene
+            .face_classification_object(face1, EntityRef::Edge(edge1))
+            .unwrap();
+        assert_ne!(boundary0, boundary1);
+        assert_eq!(scene.object_zone_tol_3d(&kernel, Some(boundary0)), Ok(0.25));
+        assert_eq!(scene.object_zone_tol_3d(&kernel, Some(boundary1)), Ok(1.0));
+        assert_eq!(
+            scene.shape_member(boundary1),
+            ShapeMember::Edge((second_id, edge1))
+        );
+        assert_eq!(static_object_id(boundary0), -2.0);
+
+        let vertex = scene
+            .face_classification_object(face1, EntityRef::Vertex(vertex1))
+            .unwrap();
+        assert_eq!(scene.vertex_tolerance(vertex), Ok(0.5));
+        assert_eq!(static_object_id(vertex), -2.0);
+        let listed = scene.native().unwrap().operand(1).unwrap().vertices[0];
+        let listed_handle = scene
+            .face_classification_object(face1, EntityRef::Vertex(listed))
+            .unwrap();
+        assert_eq!(static_object_id(listed_handle), 1.0);
+
+        let missing = VertexId::from_index(200);
+        assert!(matches!(
+            scene.face_classification_object(face1, EntityRef::Vertex(missing)),
+            Err(SolidError::NotFound { .. }),
+        ));
+    }
 }

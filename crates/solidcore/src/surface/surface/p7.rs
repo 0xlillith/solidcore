@@ -99,7 +99,7 @@ use crate::geom::local_solve_nd::{BoundaryHandler, LocalSolveNd};
 use crate::geom::polar_box::PolarBox;
 use crate::geom::pseudo_box::{Planar, PseudoBox};
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionEnd, SolutionObject};
-use crate::geom::tree::{AuxDataType, Tree};
+use crate::geom::tree::{AuxDataType, Tree, TreeOwner};
 use crate::geom::vector2d::Vec2;
 use crate::geom::vector3d::sqrt as sm_sqrt;
 use crate::kernel::Kernel;
@@ -110,12 +110,14 @@ use crate::nurbs::b_spline_surface::{
 };
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
+use crate::surface::surface_cache::p1::SurfaceCacheContext;
 use crate::surface::surface_cache::SurfaceCache;
 use crate::topology::BrepId;
 
 use super::p1::{
-    evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs, is_node_valid,
-    CsNormalizeEnfo, SecondDerivatives,
+    evaluate_1st_derivatives, evaluate_2nd_derivatives, evaluate_directional_derivs,
+    get_surface_cache_with_context, is_node_valid, is_point_valid, CsNormalizeEnfo,
+    SecondDerivatives,
 };
 use super::p2::{derivative_limit, drop_vectors, normal_limit, SurfaceEvaluate};
 use super::p4::FacePointTest;
@@ -1139,6 +1141,79 @@ impl Surface {
             Err(e) if e.is_unported() => return Err(e),
             Err(_) => return Err(SolidError::null_pointer(OP_SOLVE)),
         }
+        self.global_point_solve_0_on_cache(
+            k,
+            uv_domain,
+            op,
+            test_point,
+            distance_tolerance,
+            opt_target_distance,
+            requested,
+            &cache,
+            &mut |owner, uv, _tolerance| Ok(is_point_valid(owner, &cache, uv)),
+        )
+    }
+
+    /// The original point solver with a live cache context. Acquisition may use
+    /// the native base-cache fallback; a later failed `GetTree` does not repeat
+    /// acquisition or discard the original B-rep's trim mutations.
+    #[allow(clippy::too_many_arguments)]
+    pub fn global_point_solve_0_with_context<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: O,
+        uv_domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        distance_tolerance: f64,
+        opt_target_distance: Option<f64>,
+        requested: SolutionRequested,
+        point_test: FacePointTest,
+        context: &mut dyn SurfaceCacheContext<O>,
+    ) -> Result<SolutionArray<O>> {
+        let mut cache = match get_surface_cache_with_context(k, self, Some(surface), context) {
+            Ok(cache) => cache,
+            Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => {
+                return Err(SolidError::null_pointer(OP_SOLVE));
+            }
+            Err(error) => return Err(error),
+        };
+        point_test.apply(cache.base_mut());
+        match cache.get_tree(k, context) {
+            Ok(_) => {}
+            Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => {
+                return Err(SolidError::null_pointer(OP_SOLVE));
+            }
+            Err(error) => return Err(error),
+        }
+        self.global_point_solve_0_on_cache(
+            k,
+            uv_domain,
+            op,
+            test_point,
+            distance_tolerance,
+            opt_target_distance,
+            requested,
+            cache.base(),
+            &mut |owner, uv, tolerance| {
+                cache.is_point_valid(k, owner, uv, Some(tolerance), context)
+            },
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn global_point_solve_0_on_cache<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        uv_domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        distance_tolerance: f64,
+        opt_target_distance: Option<f64>,
+        requested: SolutionRequested,
+        cache: &SurfaceCache<O>,
+        point_test: &mut dyn FnMut(Option<TreeOwner>, Point2, f64) -> Result<bool>,
+    ) -> Result<SolutionArray<O>> {
         let surface_tree = cache.tree().ok_or(SolidError::null_pointer(OP_SOLVE))?;
 
         // put point into a single node PointTree
@@ -1146,7 +1221,7 @@ impl Surface {
 
         // instance global Surface/Point solver
         let mut gs = SpGlobalSolver::new(&point_tree, surface_tree, Some(self), *uv_domain);
-        gs.surface_cache = Some(&cache);
+        gs.surface_cache = Some(cache);
         gs.kernel = Some(k);
 
         // init solver.dBestAnswerSoFarSq to properly handle SM_SR_SINGLE requests
@@ -1159,7 +1234,11 @@ impl Surface {
 
         // solve it
         let mut solutions = SolutionArray::new();
-        gs.solve_it(
+        let mut solver = PointTestSpGlobalSolver {
+            solver: gs,
+            point_test,
+        };
+        solver.solve_it(
             &SolveRequest {
                 operation: op,
                 solution_requested: requested,
@@ -2402,6 +2481,40 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for SpGlobalSolver<'t, '_, O
     }
 }
 
+/// Splits the immutable cache/tree borrow from its mutable face-classification
+/// provider without making the public solver own or clone either one.
+struct PointTestSpGlobalSolver<'a, 't, 's, O> {
+    solver: SpGlobalSolver<'t, 's, O>,
+    point_test: &'a mut dyn FnMut(Option<TreeOwner>, Point2, f64) -> Result<bool>,
+}
+
+impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for PointTestSpGlobalSolver<'_, 't, '_, O> {
+    fn solver(&self) -> &GlobalSolver<'t, O> {
+        &self.solver.base
+    }
+
+    fn solver_mut(&mut self) -> &mut GlobalSolver<'t, O> {
+        &mut self.solver.base
+    }
+
+    fn branch_may_contain_answers(&mut self, branch: &Branch) -> Result<bool> {
+        self.solver.may_contain_answers(branch)
+    }
+
+    fn local_solve(&mut self, branch: &Branch) -> Result<bool> {
+        self.solver
+            .local_solve_branch_with_point_test(branch, self.point_test)
+    }
+
+    fn identical_solutions(
+        &self,
+        sol1: &Solution<O>,
+        sol2: &Solution<O>,
+    ) -> Result<(SolutionPairType, Option<PreferredSolution>)> {
+        self.solver.surface_identical_solutions(sol1, sol2)
+    }
+}
+
 /// The surface/surface global solver (`SmSSGlobalSolver`): two surface cache trees.
 /// Its constructor belongs to unit `surface.surface_p1`; the fields are public.
 #[derive(Debug, Clone)]
@@ -2637,6 +2750,56 @@ mod tests {
             -4.0
         );
         assert!(point_solve_best_answer_sq(SolverOperation::AtDistance, None).is_err());
+    }
+
+    #[test]
+    fn point_solve_passes_its_tolerance_to_each_leaf_point_test() {
+        use crate::surface::surface::p1::make_surface_cache;
+        use crate::surface::surface::p4::NoObject;
+
+        let kernel = Kernel::default();
+        let surface = Surface::from(
+            BSplineSurface::create_bilinear_surface(
+                Point3::new(0.0, 0.0, 0.0),
+                Point3::new(1.0, 0.0, 0.0),
+                Point3::new(0.0, 1.0, 0.0),
+                Point3::new(1.0, 1.0, 0.0),
+            )
+            .unwrap(),
+        );
+        let cache = make_surface_cache(&kernel, &surface, Some(NoObject)).unwrap();
+        let uv = Point2::new(0.25, 0.5);
+        let point = surface.evaluate_point(uv).unwrap();
+
+        for tolerance in [1e-5, 2e-3] {
+            let mut observed = Vec::new();
+            let solutions = surface
+                .global_point_solve_0_on_cache(
+                    &kernel,
+                    &surface.natural_uv_domain(),
+                    SolverOperation::Intersect,
+                    point,
+                    tolerance,
+                    None,
+                    SolutionRequested::All,
+                    &cache,
+                    &mut |owner, found, source_tolerance| {
+                        observed.push(source_tolerance);
+                        // Exercise the real untrimmed test after the numerical
+                        // solve; the observer does not choose accepted points.
+                        Ok(is_point_valid(owner, &cache, found))
+                    },
+                )
+                .unwrap();
+            assert!(!observed.is_empty());
+            for actual in observed {
+                assert_eq!(actual, tolerance);
+            }
+            assert_eq!(solutions.len(), 1);
+            let found = &solutions.as_slice()[0];
+            assert!((found.start.param(0).unwrap() - uv.x).abs() < 1e-10);
+            assert!((found.start.param(1).unwrap() - uv.y).abs() < 1e-10);
+        }
     }
 
     #[test]

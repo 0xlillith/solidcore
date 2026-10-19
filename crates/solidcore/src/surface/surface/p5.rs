@@ -78,7 +78,7 @@ use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 
-use super::p1::{evaluate_1st_derivatives, get_surface_cache, FindPsNormalEnfo};
+use super::p1::{evaluate_1st_derivatives, get_surface_cache, zone_tol_3d, FindPsNormalEnfo};
 use super::p2::{LsiGlobalSolver, SurfaceEval};
 use super::p4::is_point_on_normal;
 use super::p4::NoObject;
@@ -801,12 +801,46 @@ impl Surface {
         test_point: Point3,
         guess_uv: Point2,
     ) -> Result<PointSolve<O>> {
+        self.local_point_solve_with_tolerance_context(
+            k,
+            domain,
+            op,
+            test_point,
+            guess_uv,
+            &mut |surface| zone_tol_3d(k, surface),
+            &mut |_| Ok(None),
+        )
+    }
+
+    /// Preserve the native local-solver dispatch while resolving the new
+    /// solver's direct-owner and seam-test tolerances through the caller's live
+    /// context. `Maximize` still uses the old solver and evaluates neither
+    /// callback. `None` retains the seam test's surface-only default lookup.
+    pub(crate) fn local_point_solve_with_tolerance_context<O: Copy>(
+        &self,
+        k: &Kernel,
+        domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        guess_uv: Point2,
+        owner_tolerance: &mut dyn FnMut(&Surface) -> Result<f64>,
+        surface_tolerance: &mut dyn FnMut(&Surface) -> Result<Option<f64>>,
+    ) -> Result<PointSolve<O>> {
         // Don't use new solvers for MAXIMIZE, but always use them for DIRECTED
         let use_new =
             op != SolverOperation::Maximize || op == SolverOperation::Signed3dDirectedMaximize;
 
         if use_new {
-            let r = self.local_point_solve_1(k, domain, op, test_point, guess_uv, None)?;
+            let r = self.local_point_solve_1_with_tolerance_context(
+                k,
+                domain,
+                op,
+                test_point,
+                guess_uv,
+                None,
+                owner_tolerance,
+                surface_tolerance,
+            )?;
             let mut solution = r.solution;
             solution.num_variables = 2;
             return Ok(PointSolve {
