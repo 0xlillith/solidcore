@@ -1,14 +1,20 @@
 //! Differential tests for merge orchestration. Leaf-only trees move stable
-//! handles into an immutable input pool; each handle identifies a complete real
-//! native fixture imported before running the port. No merge result is imported.
+//! handles into an input pool imported before running the port. Results compare
+//! identity/order/null slots, face/edge/vertex counts and ordered vertex positions
+//! read from the actual Rust B-rep. Native result graphs are freshly imported and
+//! projected to the same digest. Curve/surface values and adjacency are not compared.
 //! Geometric merges remain deferred at the exact missing dependency call.
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
 use port::{BooleanDriver, PiecewiseAccess};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use solidcore::boolean::merge::{p1::MergeOptions, p3 as port};
+use solidcore::boolean::topology_intersector::p1::TopologyIntersector;
 use solidcore::geom::a_object::BooleanOperation;
+use solidcore::geom::attribute::{ids, Attribute, AttributeStore, Behavior, ObjectKey};
 use solidcore::geom::context::MarkLock;
+use solidcore::geom::solution_array::{ObjectKind, SolutionObject};
+use solidcore::intersect::point_class::{ClassObject, ClassObjectKind};
 use solidcore::kernel::Kernel;
 use solidcore::topology::{brep::p1 as bp, Brep};
 use solidcore::SolidError;
@@ -93,35 +99,179 @@ fn output(raw: &[f64], family: u8) -> Result<Output, HarnessError> {
     if status != 0.0 {
         return Ok(Output::err(format!("status={status}")));
     }
+    let mut input = rest;
+    let mut controls = Vec::new();
+    if family >= 3 {
+        controls.push(take_count(&mut input)? as i64);
+        controls.push(take_count(&mut input)? as i64);
+    }
+    let count = take_count(&mut input)?;
     let mut identities = Vec::new();
-    if family == 0 {
-        let (&count, mut remaining) = rest
-            .split_first()
-            .ok_or_else(|| harness("missing tree count"))?;
-        for _ in 0..count as usize {
-            let (&id, next) = remaining
-                .split_first()
-                .ok_or_else(|| harness("missing identity"))?;
-            let (&length, next) = next
-                .split_first()
-                .ok_or_else(|| harness("missing graph size"))?;
-            identities.push(id as i64);
-            remaining = next
-                .get(length as usize..)
-                .ok_or_else(|| harness("truncated graph"))?;
+    let mut topology_counts = Vec::new();
+    for _ in 0..count {
+        identities.push(take_number(&mut input)? as i64);
+        let length = take_count(&mut input)?;
+        let record = input
+            .get(..length)
+            .ok_or_else(|| harness("truncated result digest"))?;
+        input = input
+            .get(length..)
+            .ok_or_else(|| harness("truncated result digest"))?;
+        if length == 0 {
+            topology_counts.extend([-1, -1, -1]);
+        } else {
+            let mut counts = record;
+            for _ in 0..3 {
+                topology_counts.push(take_count(&mut counts)? as i64);
+            }
+            if record.len() != 3 + 3 * topology_counts.last().copied().unwrap_or(0) as usize {
+                return Err(harness("invalid result digest shape"));
+            }
         }
-        if !remaining.is_empty() {
-            return Err(harness("trailing tree output"));
-        }
+    }
+    let surface_count = if family == 2 {
+        take_count(&mut input)?
+    } else {
+        0
+    };
+    if !input.is_empty() {
+        return Err(harness("trailing result output"));
     }
     Ok(Output::new()
         .int("status", status as i64)
         .ints("operand_identity", identities)
+        .ints("topology_counts", topology_counts)
+        .ints("controls", controls)
+        .int("surface_count", surface_count as i64)
         .values("record", rest.to_vec()))
 }
+
+fn record_brep(brep: &Brep, identity: i64, values: &mut Vec<f64>) -> solidcore::Result<()> {
+    let mut digest = Vec::new();
+    super::heal_stitch_p1::digest(brep, &mut digest)?;
+    values.extend([identity as f64, digest.len() as f64]);
+    values.extend(digest);
+    Ok(())
+}
+
+fn take_number(input: &mut &[f64]) -> Result<f64, HarnessError> {
+    let (&number, rest) = input
+        .split_first()
+        .ok_or_else(|| harness("truncated record"))?;
+    *input = rest;
+    Ok(number)
+}
+
+fn take_count(input: &mut &[f64]) -> Result<usize, HarnessError> {
+    let value = take_number(input)?;
+    if !value.is_finite() || value < 0.0 || value.fract() != 0.0 || value > 16384.0 {
+        return Err(harness("invalid native record count"));
+    }
+    Ok(value as usize)
+}
+
+fn native_brep(input: &mut &[f64], values: &mut Vec<f64>) -> Result<(), HarnessError> {
+    let identity = take_number(input)?;
+    let count = take_count(input)?;
+    let graph = input
+        .get(..count)
+        .ok_or_else(|| harness("truncated native graph"))?;
+    *input = input
+        .get(count..)
+        .ok_or_else(|| harness("truncated native graph"))?;
+    if count == 0 {
+        if identity != -1.0 {
+            return Err(harness("null native result has an identity"));
+        }
+        values.extend([-1.0, 0.0]);
+        return Ok(());
+    }
+    let mut tagged = vec![0.0];
+    tagged.extend(graph);
+    let (brep, _) = super::topology_vertexuse::import(&tagged)?;
+    record_brep(&brep, identity as i64, values).map_err(|error| harness(&error))
+}
+
+fn native_output(raw: &[f64], family: u8) -> Result<Output, HarnessError> {
+    let mut input = raw;
+    let status = take_number(&mut input)?;
+    if status != 0.0 {
+        return Ok(Output::err(format!("status={status}")));
+    }
+    let mut values = vec![status];
+    if family == 3 || family == 4 {
+        values.push(take_number(&mut input)?); // native manifold flag
+        values.push(take_number(&mut input)?); // native lamina mode
+    }
+    let count = take_count(&mut input)?;
+    if (family == 1 || family >= 3) && count > 1 {
+        return Err(harness("invalid single-result flag"));
+    }
+    values.push(count as f64);
+    for _ in 0..count {
+        native_brep(&mut input, &mut values)?;
+    }
+    if family == 2 {
+        values.push(take_count(&mut input)? as f64);
+    }
+    if !input.is_empty() {
+        return Err(harness("trailing native output"));
+    }
+    output(&values, family)
+}
+
+fn single_result(
+    pool: &Pool,
+    result: Option<usize>,
+    manifold: bool,
+    lamina: u64,
+    values: &mut Vec<f64>,
+) -> solidcore::Result<()> {
+    values.extend([f64::from(u8::from(manifold)), lamina as f64]);
+    values.push(f64::from(u8::from(result.is_some())));
+    if let Some(id) = result {
+        pool.record(id, values)?;
+    }
+    Ok(())
+}
+
+fn list_result(result: &port::BooleanListsResult, values: &mut Vec<f64>) -> solidcore::Result<()> {
+    values.push(result.breps.len() as f64);
+    for brep in &result.breps {
+        // BooleanLists returns independent copies, so no input pointer identity.
+        record_brep(brep, -1, values)?;
+    }
+    values.push(result.surfaces.len() as f64);
+    Ok(())
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+enum PoolRef {
+    Brep(usize),
+    Surface(usize, usize),
+}
+impl ClassObject for PoolRef {
+    fn class_kind(&self) -> ClassObjectKind {
+        match self {
+            Self::Surface(..) => ClassObjectKind::Surface,
+            Self::Brep(..) => ClassObjectKind::Other,
+        }
+    }
+}
+impl SolutionObject for PoolRef {
+    fn kind(&self) -> ObjectKind {
+        match self {
+            Self::Surface(..) => ObjectKind::Surface,
+            Self::Brep(..) => ObjectKind::Other,
+        }
+    }
+}
+
 struct Pool {
     breps: Vec<Brep>,
-    raw: Vec<Vec<f64>>,
+    original_count: usize,
+    intersector: TopologyIntersector<PoolRef>,
+    attributes: AttributeStore,
     primary: Option<usize>,
     other: Option<usize>,
     manifold: bool,
@@ -129,7 +279,7 @@ struct Pool {
 impl Pool {
     fn load(i: &Inputs) -> Result<Self, HarnessError> {
         let mut breps = Vec::new();
-        let mut raw = Vec::new();
+
         for operand in i.a.iter().chain(&i.b) {
             let exported = ffi::eval(&encode(&Inputs {
                 family: 5,
@@ -147,24 +297,58 @@ impl Pool {
             tagged.extend(&exported);
             let (brep, _) = super::topology_vertexuse::import(&tagged)?;
             breps.push(brep);
-            raw.push(exported);
         }
         Ok(Self {
             breps,
-            raw,
+            original_count: i.a.len() + i.b.len(),
+            intersector: TopologyIntersector::new(
+                Some(PoolRef::Brep(0)),
+                Some(PoolRef::Brep(i.a.len())),
+                0.0,
+                0.0,
+            ),
+            attributes: AttributeStore::new(),
             primary: Some(0),
             other: Some(i.a.len()),
             manifold: true,
         })
     }
+    fn surface_key(&self, surface: (usize, usize)) -> solidcore::Result<ObjectKey> {
+        let brep = self
+            .breps
+            .get(surface.0)
+            .ok_or_else(|| SolidError::null_pointer("harness::merge_p3"))?;
+        if surface.1 >= bp::surfaces(brep, None)?.len() {
+            return Err(SolidError::invalid_input(
+                "harness::merge_p3",
+                "bad surface handle",
+            ));
+        }
+        let b = u32::try_from(surface.0).map_err(|_| {
+            SolidError::invalid_input("harness::merge_p3", "surface owner overflow")
+        })?;
+        let s = u32::try_from(surface.1).map_err(|_| {
+            SolidError::invalid_input("harness::merge_p3", "surface index overflow")
+        })?;
+        Ok(ObjectKey(
+            ((u64::from(b) << 32) | u64::from(s))
+                .checked_add(1)
+                .ok_or_else(|| {
+                    SolidError::invalid_input("harness::merge_p3", "surface key overflow")
+                })?,
+        ))
+    }
     fn record(&self, id: usize, values: &mut Vec<f64>) -> solidcore::Result<()> {
-        let raw = self
-            .raw
+        let brep = self
+            .breps
             .get(id)
             .ok_or_else(|| SolidError::invalid_input("harness::merge_p3", "bad pool handle"))?;
-        values.extend([id as f64, raw.len() as f64]);
-        values.extend(raw);
-        Ok(())
+        let identity = if id < self.original_count {
+            id as i64
+        } else {
+            -1
+        };
+        record_brep(brep, identity, values)
     }
 }
 impl BooleanDriver for Pool {
@@ -201,12 +385,6 @@ impl BooleanDriver for Pool {
         ))
     }
 }
-fn absent<T>() -> solidcore::Result<T> {
-    Err(SolidError::invalid_input(
-        "harness::merge_p3",
-        "surface path outside this fixture adapter",
-    ))
-}
 impl PiecewiseAccess for Pool {
     type Surface = (usize, usize);
     fn operands(&self) -> (Option<usize>, Option<usize>) {
@@ -215,6 +393,8 @@ impl PiecewiseAccess for Pool {
     fn set_operands(&mut self, a: Option<usize>, b: Option<usize>) {
         self.primary = a;
         self.other = b;
+        self.intersector.set_primary_brep(a.map(PoolRef::Brep));
+        self.intersector.set_other_brep(b.map(PoolRef::Brep));
     }
     fn surfaces(&self, id: usize) -> solidcore::Result<Vec<Self::Surface>> {
         let brep = self
@@ -234,53 +414,192 @@ impl PiecewiseAccess for Pool {
             "boolean.topology_intersector_p2",
         ))
     }
-    // No fixture reaches these methods: all piecewise cases defer at the real
-    // IntersectInsertRelate dependency above. Unsupported adapter paths fail loudly.
     fn clear_relationships(&mut self) -> solidcore::Result<()> {
-        absent()
+        self.intersector.clear_relationships()
     }
-    fn set_subset(&mut self, _surfaces: &[Self::Surface]) {}
-    fn surface_map(&mut self, _s: Self::Surface, _missing: bool) -> solidcore::Result<()> {
-        absent()
+    fn set_subset(&mut self, surfaces: &[Self::Surface]) {
+        let handles: Vec<_> = surfaces
+            .iter()
+            .map(|&(b, s)| PoolRef::Surface(b, s))
+            .collect();
+        self.intersector.set_subset(&handles);
+    }
+    fn surface_map(
+        &mut self,
+        surface: Self::Surface,
+        only_if_missing: bool,
+    ) -> solidcore::Result<()> {
+        let key = self.surface_key(surface)?;
+        if only_if_missing
+            && self
+                .attributes
+                .find_attribute(key, ids::SURFACEMAP)
+                .is_some()
+        {
+            return Ok(());
+        }
+        let attribute = self.attributes.insert(Attribute::pointer(
+            ids::SURFACEMAP,
+            key.0,
+            Behavior::Reference,
+        ))?;
+        self.attributes.add_attribute(key, attribute)
     }
     fn surface_map_users(
         &self,
-        _s: Self::Surface,
+        surface: Self::Surface,
     ) -> solidcore::Result<Option<Vec<Self::Surface>>> {
-        absent()
+        let key = self.surface_key(surface)?;
+        let Some(attribute) = self.attributes.find_attribute(key, ids::SURFACEMAP) else {
+            return Ok(None);
+        };
+        let users = self.attributes.users(attribute)?;
+        users
+            .into_iter()
+            .map(|key| {
+                let key = key.0.checked_sub(1).ok_or_else(|| {
+                    SolidError::invalid_input("harness::merge_p3", "bad attribute user")
+                })?;
+                let surface = ((key >> 32) as usize, (key & u64::from(u32::MAX)) as usize);
+                self.surface_key(surface)?;
+                Ok(surface)
+            })
+            .collect::<solidcore::Result<Vec<_>>>()
+            .map(Some)
     }
-    fn new_face_brep(&mut self, _k: &mut Kernel, _s: usize) -> solidcore::Result<usize> {
-        absent()
+    fn new_face_brep(&mut self, k: &mut Kernel, source: usize) -> solidcore::Result<usize> {
+        let mut result = empty_brep(
+            k,
+            solidcore::geom::tol::USE_DEFAULT,
+            solidcore::geom::tol::USE_DEFAULT,
+            None,
+        )?;
+        let tolerance = self
+            .breps
+            .get(source)
+            .ok_or_else(|| SolidError::null_pointer("harness::merge_p3"))?
+            .tolerance();
+        set_tolerance(k, &mut result, tolerance, true, true)?;
+        result.set_editing_enabled(true);
+        let id = self.breps.len();
+        self.breps.push(result); // append only: a handle is never reused
+        Ok(id)
     }
     fn manifold_flag(&self) -> bool {
         self.manifold
     }
-    fn set_controls(&mut self, manifold: bool, _wires: bool, _lamina: u64) {
+    fn set_controls(&mut self, manifold: bool, wires: bool, lamina: u64) {
         self.manifold = manifold;
+        self.intersector.intersect_wire_edges = wires;
+        self.intersector.intersect_lamina_edges = lamina;
     }
     fn process_wires(&mut self, _k: &mut Kernel, _lock: &MarkLock) -> solidcore::Result<()> {
-        absent()
+        // ProcessWiresAndShellVertices is already ported in merge_p5. Its canonical
+        // engine-owned Relations/VertexCopy environment must come from merge_p2;
+        // this fixture adapter must not invent a second mate map.
+        // UNPORTED(boolean.merge_p2): SmMerge::SmMerge (wire-processing environment)
+        Err(SolidError::unported(
+            "SmMerge::SmMerge (wire-processing environment)",
+            "boolean.merge_p2",
+        ))
     }
-    fn release_marks(&mut self, _k: &mut Kernel, _lock: &mut MarkLock) -> solidcore::Result<()> {
-        absent()
+    fn release_marks(&mut self, k: &mut Kernel, lock: &mut MarkLock) -> solidcore::Result<()> {
+        lock.release(std::slice::from_mut(&mut k.context))
     }
-    fn register_empty_ssi(
-        &mut self,
-        _a: Self::Surface,
-        _b: Self::Surface,
-    ) -> solidcore::Result<()> {
-        absent()
+    fn register_empty_ssi(&mut self, a: Self::Surface, b: Self::Surface) -> solidcore::Result<()> {
+        register_ssi(&mut self.intersector, a, b, &[], &[], &[], &[], &[])
     }
     fn clear_existing_ssi(&mut self) -> solidcore::Result<()> {
-        absent()
+        // The fixture adapter only registers empty curve arrays. No curve handles
+        // can be created here until RegisterExistingSSI is wired above.
+        let deleted = self.intersector.clear_existing_ssi();
+        if !deleted.is_empty() {
+            // UNPORTED(boolean.topology_intersector_p2): SmTopologyIntersector::RegisterExistingSSI (curve storage)
+            return Err(SolidError::unported(
+                "SmTopologyIntersector::RegisterExistingSSI (curve storage)",
+                "boolean.topology_intersector_p2",
+            ));
+        }
+        Ok(())
     }
-    fn notify_pre_edit(&mut self, _k: &mut Kernel, _a: usize) -> solidcore::Result<()> {
-        absent()
+    fn notify_pre_edit(&mut self, k: &mut Kernel, a: usize) -> solidcore::Result<()> {
+        let brep = self
+            .breps
+            .get_mut(a)
+            .ok_or_else(|| SolidError::null_pointer("harness::merge_p3"))?;
+        let caller = solidcore::geom::object::ObjectRef {
+            key: brep.key(),
+            type_code: solidcore::geom::a_object::BREP_TYPE,
+        };
+        notify(
+            k,
+            brep,
+            solidcore::geom::object::NotifyOperation::PreEdit,
+            caller,
+            None,
+            None,
+        )
     }
-    fn delete_other(&mut self) -> solidcore::Result<()> {
-        absent()
+    fn delete_other(&mut self, _k: &mut Kernel) -> solidcore::Result<()> {
+        // UNPORTED(topology.brep_p4): SmBrep::~SmBrep
+        Err(SolidError::unported("SmBrep::~SmBrep", "topology.brep_p4"))
     }
 }
+
+fn empty_brep(
+    _k: &mut Kernel,
+    _model_size_estimate: f64,
+    _large_small_size_ratio: f64,
+    _stack_context: Option<&Kernel>,
+) -> solidcore::Result<Brep> {
+    // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    Err(SolidError::unported("SmBrep::SmBrep", "topology.brep_p3"))
+}
+
+fn set_tolerance(
+    _k: &mut Kernel,
+    _brep: &mut Brep,
+    _tolerance: f64,
+    _topology: bool,
+    _check: bool,
+) -> solidcore::Result<()> {
+    // UNPORTED(topology.brep_p2): SmBrep::SetTolerance
+    Err(SolidError::unported(
+        "SmBrep::SetTolerance",
+        "topology.brep_p2",
+    ))
+}
+
+#[allow(clippy::too_many_arguments)] // all five native SSI arrays remain explicit
+fn register_ssi(
+    _intersector: &mut TopologyIntersector<PoolRef>,
+    _a: (usize, usize),
+    _b: (usize, usize),
+    _curves_3d: &[PoolRef],
+    _uv1: &[PoolRef],
+    _uv2: &[PoolRef],
+    _orientations: &[solidcore::surface::surface::p2::TsectCurveType],
+    _deviations: &[f64],
+) -> solidcore::Result<()> {
+    // UNPORTED(boolean.topology_intersector_p2): SmTopologyIntersector::RegisterExistingSSI
+    Err(SolidError::unported(
+        "SmTopologyIntersector::RegisterExistingSSI",
+        "boolean.topology_intersector_p2",
+    ))
+}
+
+fn notify(
+    _k: &mut Kernel,
+    _brep: &mut Brep,
+    _operation: solidcore::geom::object::NotifyOperation,
+    _caller: solidcore::geom::object::ObjectRef,
+    _data1: Option<solidcore::geom::object::ObjectRef>,
+    _data2: Option<solidcore::geom::object::ObjectRef>,
+) -> solidcore::Result<()> {
+    // UNPORTED(topology.brep_p2): SmBrep::Notify
+    Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
+}
+
 fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     if i.family > 4 {
         return Err(harness("fixture-only family is not a unit operation"));
@@ -328,7 +647,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             i.operation,
             opts.as_ref(),
         )
-        .map(|_| ()),
+        .and_then(|result| list_result(&result, &mut values)),
         3 => {
             let mut primary = Some(0);
             let mut other = Some(1);
@@ -357,7 +676,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                 &mut lamina,
                 operation,
             )
-            .map(|_| ())
+            .and_then(|result| single_result(&pool, result, manifold, lamina, &mut values))
         }
         4 => port::piecewise_merge(
             &mut k,
@@ -366,7 +685,15 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             i.options.unwrap_or(0) & 1 != 0,
             i.options.unwrap_or(0) & 2 != 0,
         )
-        .map(|_| ()),
+        .and_then(|result| {
+            single_result(
+                &pool,
+                result,
+                pool.manifold,
+                pool.intersector.intersect_lamina_edges,
+                &mut values,
+            )
+        }),
         _ => return Err(harness("fixture-only family")),
     };
     match result {
@@ -405,7 +732,7 @@ impl UnitDiff for Runner {
         if let Some(expected) = &i.expected_refusal {
             return refusal(&i, expected);
         }
-        output(
+        native_output(
             &ffi::eval(&encode(&i)).map_err(|error| harness(&error))?,
             i.family,
         )
@@ -467,5 +794,178 @@ impl UnitDiff for Runner {
             tree,
             expected_refusal: None,
         }))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn inputs() -> Inputs {
+        Inputs {
+            family: 3,
+            operation: 1,
+            options: None,
+            a: vec![Operand {
+                point: [0.0, 0.0, 0.0],
+                size: Some([2.0, 3.0, 4.0]),
+            }],
+            b: vec![Operand {
+                point: [5.0, 0.0, 0.0],
+                size: None,
+            }],
+            tree: Vec::new(),
+            expected_refusal: None,
+        }
+    }
+
+    fn fixture_graph() -> Vec<f64> {
+        let mut input = inputs();
+        input.family = 5;
+        input.b.clear();
+        ffi::eval(&encode(&input)).unwrap()
+    }
+
+    #[test]
+    fn single_success_records_compare_rust_geometry_controls_and_nulls() {
+        let mut pool = Pool::load(&inputs()).unwrap();
+        let graph = fixture_graph();
+        let mut native = vec![0.0, 1.0, 1.0, 1.0, 0.0, graph.len() as f64];
+        native.extend(&graph);
+        let mut rust = vec![0.0];
+        single_result(&pool, Some(0), true, 1, &mut rust).unwrap();
+        for family in [3, 4] {
+            assert_eq!(
+                output(&rust, family).unwrap(),
+                native_output(&native, family).unwrap()
+            );
+            let mut changed = vec![0.0];
+            single_result(&pool, Some(0), false, 3, &mut changed).unwrap();
+            assert_ne!(
+                output(&changed, family).unwrap(),
+                native_output(&native, family).unwrap()
+            );
+            let mut null = vec![0.0];
+            single_result(&pool, None, true, 1, &mut null).unwrap();
+            assert_eq!(
+                output(&null, family).unwrap(),
+                native_output(&[0.0, 1.0, 1.0, 0.0], family).unwrap()
+            );
+        }
+        let vertex = pool.breps[0].vertices().ids().next().unwrap();
+        pool.breps[0].vertex_mut(vertex).unwrap().point.x += 0.125;
+        let mut changed = vec![0.0];
+        single_result(&pool, Some(0), true, 1, &mut changed).unwrap();
+        assert_ne!(
+            output(&changed, 3).unwrap(),
+            native_output(&native, 3).unwrap()
+        );
+    }
+
+    #[test]
+    fn list_success_records_compare_actual_outputs_and_surface_count() {
+        let pool = Pool::load(&inputs()).unwrap();
+        let graph = fixture_graph();
+        let mut native = vec![0.0, 1.0, -1.0, graph.len() as f64];
+        native.extend(&graph);
+        native.push(0.0);
+        let mut result = port::BooleanListsResult {
+            breps: vec![pool.breps[0].clone()],
+            surfaces: Vec::new(),
+        };
+        let mut rust = vec![0.0];
+        list_result(&result, &mut rust).unwrap();
+        assert_eq!(
+            output(&rust, 2).unwrap(),
+            native_output(&native, 2).unwrap()
+        );
+        result.surfaces.push(
+            solidcore::surface::plane::Plane::from_normal(
+                solidcore::math::Vec3::ZERO,
+                solidcore::math::Vec3::new(0.0, 0.0, 1.0),
+            )
+            .into(),
+        );
+        let mut changed = vec![0.0];
+        list_result(&result, &mut changed).unwrap();
+        assert_ne!(
+            output(&changed, 2).unwrap(),
+            native_output(&native, 2).unwrap()
+        );
+        assert_eq!(
+            native_output(&[0.0, 0.0, 0.0], 2).unwrap(),
+            output(&[0.0, 0.0, 0.0], 2).unwrap()
+        );
+    }
+
+    #[test]
+    fn piecewise_adapter_uses_canonical_subset_attributes_controls_and_marks() {
+        let mut pool = Pool::load(&inputs()).unwrap();
+        pool.set_subset(&[(0, 0), (0, 0)]);
+        assert_eq!(pool.intersector.subset().unwrap().len(), 1);
+        pool.set_subset(&[]);
+        assert!(pool.intersector.subset().is_none());
+        pool.surface_map((0, 0), false).unwrap();
+        assert_eq!(pool.surface_map_users((0, 0)).unwrap(), Some(vec![(0, 0)]));
+        let key = pool.surface_key((0, 0)).unwrap();
+        pool.surface_map((0, 0), true).unwrap();
+        assert_eq!(pool.attributes.attributes(key).len(), 1);
+        pool.surface_map((0, 0), false).unwrap();
+        assert_eq!(pool.attributes.attributes(key).len(), 2);
+        pool.set_controls(false, false, 3);
+        assert!(!pool.manifold_flag() && !pool.intersector.intersect_wire_edges);
+        assert_eq!(pool.intersector.intersect_lamina_edges, 3);
+        pool.clear_relationships().unwrap();
+        pool.clear_existing_ssi().unwrap();
+        let mut k = Kernel::default();
+        let mut lock = MarkLock::new(
+            std::slice::from_mut(&mut k.context),
+            0,
+            solidcore::geom::context::ALL_MARKS,
+        )
+        .unwrap();
+        pool.release_marks(&mut k, &mut lock).unwrap();
+        assert_eq!(lock, MarkLock::unbound());
+    }
+
+    #[test]
+    fn piecewise_dependency_errors_name_the_next_missing_owner() {
+        let mut pool = Pool::load(&inputs()).unwrap();
+        let mut k = Kernel::default();
+        assert!(matches!(
+            pool.new_face_brep(&mut k, 0),
+            Err(SolidError::Unported {
+                unit: "topology.brep_p3",
+                ..
+            })
+        ));
+        assert!(matches!(
+            pool.notify_pre_edit(&mut k, 0),
+            Err(SolidError::Unported {
+                unit: "topology.brep_p2",
+                ..
+            })
+        ));
+        assert!(matches!(
+            pool.register_empty_ssi((0, 0), (0, 1)),
+            Err(SolidError::Unported {
+                unit: "boolean.topology_intersector_p2",
+                ..
+            })
+        ));
+        assert!(matches!(
+            pool.process_wires(&mut k, &MarkLock::unbound()),
+            Err(SolidError::Unported {
+                unit: "boolean.merge_p2",
+                ..
+            })
+        ));
+        assert!(matches!(
+            pool.delete_other(&mut k),
+            Err(SolidError::Unported {
+                unit: "topology.brep_p4",
+                ..
+            })
+        ));
     }
 }

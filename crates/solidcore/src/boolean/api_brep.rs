@@ -69,13 +69,7 @@ pub struct BooleanOutcome {
 }
 
 /// The outputs of [`boolean_lists`].
-#[derive(Debug, Clone, Default)]
-pub struct BooleanListsResult {
-    /// `rResultBreps`: one B-rep per separate solid, for 3D (or non-planar) inputs.
-    pub breps: Vec<Brep>,
-    /// `rResultSurfaces`: one surface per face, when every input is 2D coplanar.
-    pub surfaces: Vec<Surface>,
-}
+pub use crate::boolean::merge::p3::BooleanListsResult;
 
 /// Validates a public N-ary boolean input list without consuming it
 /// (`SmApiMergeBrepsInputsAreValid`): at least two B-reps. Upstream also rejects a
@@ -196,7 +190,7 @@ pub fn boolean_merge(k: &Kernel, brep1: Brep, brep2: Brep) -> Result<Brep> {
 ///
 /// [`SolidError::InvalidInput`] for fewer than two B-reps or an operation other than
 /// union, intersection, difference or merge; otherwise the merge's error
-/// ([`SolidError::Unported`] until `SmMerge::merge_breps` is ported).
+/// (including [`SolidError::Unported`] for missing merge-engine dependencies).
 #[allow(clippy::ptr_arg)] // the list is drained on success, as upstream consumes it
 pub fn merge_breps(
     k: &mut Kernel,

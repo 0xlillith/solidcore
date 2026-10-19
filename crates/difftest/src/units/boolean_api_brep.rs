@@ -15,7 +15,7 @@
 //! points, short lists and operations other than union / intersection / difference /
 //! merge for `SmApiMergeBreps`, which must leave the list untouched). Cases that pass
 //! validation reach `SmMerge` and are deferred on the Rust side (`boolean.merge_p2`,
-//! `boolean.merge_p3`). Every run has at least [`MIN_GENERATED`] generated cases.
+//! `topology.brep_p2`, `topology.brep_p3`). Every run has at least [`MIN_GENERATED`] generated cases.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

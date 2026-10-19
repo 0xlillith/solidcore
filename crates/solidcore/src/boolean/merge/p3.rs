@@ -25,13 +25,17 @@
 //! query order, rather than upstream's address-dependent hash order.
 
 use super::p1::MergeOptions;
-use crate::error::{Result, SolidError};
+use crate::error::{ignored, EntityRef, Result, SolidError};
 use crate::geom::a_object::BooleanOperation;
-use crate::geom::context::MarkLock;
+use crate::geom::context::{with_mark_lock, MarkLock, ALL_MARKS};
+use crate::geom::extent2d::Extent2d;
 use crate::geom::tol::Relation;
 use crate::kernel::Kernel;
-use crate::surface::surface::Surface;
-use crate::topology::Brep;
+use crate::surface::surface::{Surface, SurfaceKind};
+use crate::topology::brep::{p1 as bp, p7 as bp7};
+use crate::topology::proto_topology::p1::CopyBrepMap;
+use crate::topology::topology_traverser::{collect_faces, Marks};
+use crate::topology::{Brep, FaceId};
 
 const OP: &str = "boolean::merge::p3";
 
@@ -250,12 +254,16 @@ pub fn non_manifold_boolean<D: BooleanDriver>(
 /// stable handles in the implementation's canonical storage. Attribute methods
 /// refer to the shared `SM_AI_SURFACEMAP` attribute and its live user list.
 /// No second relationship map or surface table is maintained by this unit.
+/// No kernel implementation exists yet: the canonical engine integration belongs
+/// with `boolean.merge_p2` / `boolean.merge_p4`.
 pub trait PiecewiseAccess: BooleanDriver {
     /// Stable surface identity (including the containing B-rep).
     type Surface: Copy;
     /// Current `m_vTI.m_pBrep` and `m_vTI.m_pOther` handles.
     fn operands(&self) -> (Option<Self::Operand>, Option<Self::Operand>);
-    /// Replace the intersector's operand pointers.
+    /// Replace the intersector's operand pointers. Deleted handles must remain
+    /// invalid: a saved handle reinstalled after an upstream deletion must be
+    /// rejected on access, never alias a subsequently allocated arena slot.
     fn set_operands(&mut self, primary: Option<Self::Operand>, other: Option<Self::Operand>);
     /// `GetSurfaces`, in B-rep list order.
     fn surfaces(&self, brep: Self::Operand) -> Result<Vec<Self::Surface>>;
@@ -291,15 +299,7 @@ pub trait PiecewiseAccess: BooleanDriver {
     /// `Notify(PreEdit, primary, NULL, NULL)`; ordinary failure is ignored.
     fn notify_pre_edit(&mut self, k: &mut Kernel, primary: Self::Operand) -> Result<()>;
     /// Delete the current other operand, then set that pointer to null.
-    fn delete_other(&mut self) -> Result<()>;
-}
-
-fn ignored<T>(result: Result<T>) -> Result<Option<T>> {
-    match result {
-        Ok(value) => Ok(Some(value)),
-        Err(error) if error.is_unported() => Err(error),
-        Err(_) => Ok(None),
-    }
+    fn delete_other(&mut self, k: &mut Kernel) -> Result<()>;
 }
 
 /// Merge each surface of the other operand, optionally through a stand-alone
@@ -363,7 +363,7 @@ where
         });
         let release = driver.release_marks(k, &mut lock);
         stage?;
-        release?;
+        ignored(release)?;
         driver.clear_relationships()?;
         if create_new_breps_for_faces {
             if let Some(pairs) = skip_pairs {
@@ -398,7 +398,7 @@ where
             driver.set_operands(primary, other);
             if let Err(error) = merged {
                 if driver.operands().1.is_some() {
-                    driver.delete_other()?;
+                    driver.delete_other(k)?;
                 }
                 return Err(error);
             }
@@ -414,15 +414,6 @@ where
     }
     Ok(result)
 }
-
-use crate::error::EntityRef;
-use crate::geom::context::{with_mark_lock, ALL_MARKS};
-use crate::geom::extent2d::Extent2d;
-use crate::surface::surface::SurfaceKind;
-use crate::topology::brep::{p1 as bp, p7 as bp7};
-use crate::topology::proto_topology::p1::CopyBrepMap;
-use crate::topology::topology_traverser::{collect_faces, Marks};
-use crate::topology::FaceId;
 
 fn empty_brep(
     _allocation_context: &mut Kernel,
@@ -567,6 +558,15 @@ fn list_operand(k: &mut Kernel, breps: &[Brep], surfaces: &[Surface]) -> Result<
     Ok((result, planar))
 }
 
+/// The independent B-rep or planar surface outputs of [`boolean_lists`].
+#[derive(Debug, Clone, Default)]
+pub struct BooleanListsResult {
+    /// One B-rep per separate solid, for 3D or non-planar inputs.
+    pub breps: Vec<Brep>,
+    /// One surface per face when every input is 2D coplanar.
+    pub surfaces: Vec<Surface>,
+}
+
 /// Combine copies of two B-rep/surface lists, run the requested Boolean, and
 /// return either planar surfaces or one B-rep per connected component. Operation
 /// 0 intersection, 1 union, 2 xor, 3 A minus B, 4 B minus A. Nonempty B-rep lists
@@ -579,7 +579,7 @@ pub fn boolean_lists(
     surfaces2: &[Surface],
     operation: i32,
     options: Option<&MergeOptions>,
-) -> Result<crate::boolean::api_brep::BooleanListsResult> {
+) -> Result<BooleanListsResult> {
     let (mut primary, planar1) = list_operand(k, breps1, surfaces1)?;
     let (mut other, planar2) = list_operand(k, breps2, surfaces2)?;
     let both_planar = planar1 && planar2;
@@ -618,7 +618,7 @@ pub fn boolean_lists(
     };
     shrink_geometry(k, &mut result)?;
     stitch_and_orient(k, &mut result, -0.1, false, None, None)?;
-    let mut output = crate::boolean::api_brep::BooleanListsResult::default();
+    let mut output = BooleanListsResult::default();
     if both_planar {
         for surface in bp::surfaces(&result, None)? {
             output.surfaces.push(copy_base_surface(k, surface)?);

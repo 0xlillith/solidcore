@@ -33,6 +33,7 @@
 //! | [`TopologyIntersector::relate`]                        | `Relate`                                             |
 //! | [`TopologyIntersector::fixup_end_point_class_mates`]   | `FixupEndPointClassMates`                            |
 //! | [`TopologyIntersector::fixup_mid_point_class_mates`]   | `FixupMidPointClassMates`                            |
+//! | [`TopologyIntersector::clear_relationships`] | mate maps `RemoveAll` (inline call sites) |
 //! | [`TopologyIntersector::set_subset`]                    | `SetSubset`                                          |
 //! | [`check_interior_edge`]                                | `sm_CheckInteriorEdge`                               |
 //! | [`test_and_split_two_edges`]                           | `sm_TestAndSplitTwoEdges`                            |
@@ -1353,6 +1354,21 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 set.insert(obj);
             }
         }
+    }
+
+    /// Clears both canonical mate maps (`m_pBToO->RemoveAll`,
+    /// `m_pOToB->RemoveAll`) without replacing the intersector or its controls.
+    /// The operand constructor must have created both maps first.
+    pub fn clear_relationships(&mut self) -> Result<()> {
+        self.b_to_o
+            .as_mut()
+            .ok_or(dangling("no mate maps"))?
+            .clear();
+        self.o_to_b
+            .as_mut()
+            .ok_or(dangling("no mate maps"))?
+            .clear();
+        Ok(())
     }
 
     /// `GetSubset`: the subset, if one was set.
@@ -3824,6 +3840,12 @@ mod tests {
             .mapped_brep_objects(ClassObjectKind::Edge)
             .unwrap()
             .is_empty());
+        ti.set_subset(&[F0]);
+        ti.clear_relationships().unwrap();
+        assert_eq!(ti.other_mate(Some(F0)), None);
+        assert_eq!(ti.this_mate(Some(F1)), None);
+        assert_eq!(ti.primary_brep(), Some(H(9, 0)));
+        assert!(ti.subset().unwrap().contains(&F0));
     }
 
     #[test]
