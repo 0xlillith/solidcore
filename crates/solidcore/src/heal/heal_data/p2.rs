@@ -73,13 +73,13 @@
 //!   [`HealData::cache_coin_vertices`] returns `false` there. Its only caller,
 //!   `HealTgts`, initialises that flag to `FALSE` once per call and runs the step
 //!   at most once, so the caller sees the same value.
-//! - **Unported callees** (`UNPORTED` stubs): `SmFace::SetTolerance` and
-//!   `SmFace::IsDegenerate` (`topology.face_p3`), reached through `SmBrep::SetTolerance`
-//!   (wired to `topology.brep_p2`). The `SmBrep` overloads of `SmTol::GetModelSizeEstimate`,
-//!   `SetModelSizeEstimate` and `GetZoneTol3d` (`SmBrep::GetThisModelSizeEstimate`,
-//!   `SetThisModelSizeEstimate`, `GetTolerance`; `topology.brep_p1`) are wired.
-//!   `Fix_TolSizes` therefore stops at the first face whose tolerance
-//!   `SmBrep::SetTolerance` raises, and `Cache_DegenFaces` at its first face.
+//! - **Callees.** `SmBrep::SetTolerance` (`topology.brep_p2`), `SmFace::SetTolerance`
+//!   and `SmFace::IsDegenerate` (`topology.face_p3`) and the `SmBrep` overloads of
+//!   `SmTol::GetModelSizeEstimate`, `SetModelSizeEstimate` and `GetZoneTol3d`
+//!   (`SmBrep::GetThisModelSizeEstimate`, `SetThisModelSizeEstimate`, `GetTolerance`;
+//!   `topology.brep_p1`) are wired; [`SolidError::Unported`] from their own unported
+//!   callees propagates. `Cache_DegenFaces` defers where `IsDegenerate` does
+//!   (`SmCurveClassification`).
 //! - No recursion; no allocation from caller counts beyond the target lists given.
 
 use crate::error::{Result, SolidError};
@@ -1986,27 +1986,20 @@ fn set_brep_tolerance(k: &Kernel, b: &mut Brep, zone_tol_3d: f64) -> Result<()> 
     crate::topology::brep::p2::set_tolerance(k, b, zone_tol_3d, true, true)
 }
 
-/// `SmFace::SetTolerance(sNewZoneTol3d, bUpdateOnlyIfLarger)`.
+/// `SmFace::SetTolerance(sNewZoneTol3d, bUpdateOnlyIfLarger)` (`bCascadeToBndries`
+/// default `TRUE`).
 fn set_face_tolerance(
-    _b: &mut Brep,
-    _f: FaceId,
-    _zone_tol_3d: f64,
-    _only_if_larger: bool,
+    b: &mut Brep,
+    f: FaceId,
+    zone_tol_3d: f64,
+    only_if_larger: bool,
 ) -> Result<()> {
-    // UNPORTED(topology.face_p3): SmFace::SetTolerance
-    Err(SolidError::Unported {
-        upstream: "SmFace::SetTolerance",
-        unit: "topology.face_p3",
-    })
+    crate::topology::face::p3::set_tolerance(b, f, zone_tol_3d, only_if_larger, true)
 }
 
-/// `SmFace::IsDegenerate(bSkipQuickCheck, pOptZoneTol3d)`.
-fn face_is_degenerate(_k: &Kernel, _b: &Brep, _f: FaceId, _skip_quick_check: bool) -> Result<bool> {
-    // UNPORTED(topology.face_p3): SmFace::IsDegenerate
-    Err(SolidError::Unported {
-        upstream: "SmFace::IsDegenerate",
-        unit: "topology.face_p3",
-    })
+/// `SmFace::IsDegenerate(bSkipQuickCheck)` (`pOptZoneTol3d` default `NULL`).
+fn face_is_degenerate(k: &Kernel, b: &mut Brep, f: FaceId, skip_quick_check: bool) -> Result<bool> {
+    crate::topology::face::p3::is_degenerate(k, b, f, skip_quick_check, None)
 }
 
 /// `SmTol::CalcEdgeZoneTol3d` / `CalcVertexZoneTol3d` with an `SmBrep`: the context
@@ -3008,8 +3001,8 @@ impl<O: LoopObject> HealData<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for `SmFace::SetTolerance` (`topology.face_p3`, reached
-    /// through `SmBrep::SetTolerance`); [`SolidError::InvalidInput`] for a dangling props record
+    /// [`SolidError::Unported`] from what `SmBrep::SetTolerance` and the face tolerance
+    /// setter reach; [`SolidError::InvalidInput`] for a dangling props record
     /// or one without its topology.
     #[allow(clippy::too_many_lines)]
     pub fn fix_tol_sizes(
@@ -3354,13 +3347,13 @@ impl<O: LoopObject> HealData<O> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] for `SmFace::IsDegenerate` (`topology.face_p3`);
+    /// Those of `SmFace::IsDegenerate` (`topology.face_p3`);
     /// [`SolidError::InvalidInput`] when the target face list is shorter than the
     /// props list or for a dangling record.
     pub fn cache_degen_faces(
         &mut self,
         k: &Kernel,
-        b: &Brep,
+        b: &mut Brep,
         this_healer_op: HealerOpType,
     ) -> Result<bool> {
         let _ = this_healer_op;
