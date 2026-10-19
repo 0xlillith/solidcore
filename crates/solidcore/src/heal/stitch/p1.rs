@@ -55,11 +55,13 @@
 //!   writes them only after its last status), [`Point3::UNDEF`] / [`Vec3::UNDEF`] here.
 //! - The calls into `SmBrep::GlueVertices`, `RemoveFaces`, `StitchAndOrient`
 //!   (`topology.brep_p5`), `GlueEdgesGeneral` (`topology.brep_p7`), `SqueezeEdge`
-//!   (`topology.brep_p3`), `MakeVertexSplitEdge` (`topology.brep_p9`), `Notify`
-//!   (`topology.brep_p2`), `CalculateBoundingBox` (`query.brep`), `SmFace::GetBrep`,
+//!   (`topology.brep_p3`), `MakeVertexSplitEdge` (`topology.brep_p9`),
+//!   `CalculateBoundingBox` (`query.brep`), `SmFace::GetBrep`,
 //!   `GetVertices`, `GetEdges` (`topology.face_p4`), `SmMerge::MergeAddedFace`
 //!   (`boolean.merge_p2`) and `SmStitch::DoStitching`, `StitchIntoSolid`,
 //!   `StitchIntoShell` (`heal.stitch_p2`) return [`SolidError::Unported`].
+//!   `SmBrep::Notify(SM_NO_PRE_EDIT)` is `topology::brep::p2::notify` on an empty notify
+//!   state (no B-rep cache, no attribute state on the heal path).
 
 use std::collections::BTreeMap;
 
@@ -2045,11 +2047,22 @@ pub(crate) fn make_vertex_split_edge(
     ))
 }
 
-/// `SmBrep::Notify(SM_NO_PRE_EDIT, this, NULL, NULL)` (unit `topology.brep_p2`).
+/// `SmBrep::Notify(SM_NO_PRE_EDIT, this, NULL, NULL)` ([`crate::topology::brep::p2::notify`]).
+/// No Rust caller holds the B-rep's `SM_OC_BREP` cache, and the stitcher, like the rest
+/// of the heal path, carries no attribute state (`plan/findings.md`, "heal: no attribute
+/// state on the heal path"), so the notification runs on an empty state; `PRE_EDIT` reads
+/// no topology record.
 pub(crate) fn brep_notify_pre_edit(b: &mut Brep) -> Result<()> {
-    let _ = b;
-    // UNPORTED(topology.brep_p2): SmBrep::Notify
-    Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
+    use crate::topology::brep::p2;
+    let mut state = p2::RegionNotifyState::new(b);
+    let this = Some(p2::NotifyArg::Object(p2::brep_ref(b)));
+    p2::notify(
+        b,
+        &mut state.env(),
+        None,
+        crate::geom::object::NotifyOperation::PreEdit,
+        [this, None, None],
+    )
 }
 
 /// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit

@@ -139,8 +139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmBrep::DeleteEdge",
+        "unit": "topology.brep_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0014",
@@ -151,8 +151,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetTolerance",
-        "unit": "topology.brep_p2"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0015",
@@ -227,8 +227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_Mouse.smb_5",
@@ -239,8 +239,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_Mouse.smb_6",
@@ -251,8 +251,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_Mouse.smb_7",
@@ -263,8 +263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_Mouse.smb_8",
@@ -275,8 +275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_Mouse.smb_9",
@@ -519,8 +519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_box_with_large_fillet.smb_5",
@@ -531,8 +531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_box_with_large_fillet.smb_6",
@@ -543,8 +543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_box_with_large_fillet.smb_7",
@@ -555,8 +555,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_box_with_large_fillet.smb_8",
@@ -567,8 +567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_box_with_large_fillet.smb_9",
@@ -675,8 +675,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_cone.smb_5",
@@ -695,8 +695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_cone.smb_7",
@@ -715,8 +715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_cone.smb_9",
@@ -823,8 +823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_disk.smb_5",
@@ -843,8 +843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_disk.smb_7",
@@ -863,8 +863,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_disk.smb_9",
@@ -971,8 +971,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_ellips_ts2.smb_5",
@@ -983,8 +983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_ellips_ts2.smb_6",
@@ -995,8 +995,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_ellips_ts2.smb_7",
@@ -1007,8 +1007,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_ellips_ts2.smb_8",
@@ -1019,8 +1019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_ellips_ts2.smb_9",
@@ -1263,8 +1263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_plane_square.smb_5",
@@ -1283,8 +1283,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_plane_square.smb_7",
@@ -1303,8 +1303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_plane_square.smb_9",
@@ -1547,8 +1547,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_surf_extrude.smb_5",
@@ -1567,8 +1567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_surf_extrude.smb_7",
@@ -1587,8 +1587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_surf_extrude.smb_9",
@@ -1695,8 +1695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_surf_rev.smb_5",
@@ -1715,8 +1715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_surf_rev.smb_7",
@@ -1735,8 +1735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_surf_rev.smb_9",
@@ -1843,8 +1843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_surf_sphere150.smb_5",
@@ -1863,8 +1863,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_surf_sphere150.smb_7",
@@ -1883,8 +1883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_surf_sphere150.smb_9",
@@ -1991,8 +1991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_torus.smb_5",
@@ -2011,8 +2011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_torus.smb_7",
@@ -2031,8 +2031,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_torus.smb_9",
@@ -2139,8 +2139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_toruswvy.smb_5",
@@ -2159,8 +2159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_toruswvy.smb_7",
@@ -2179,8 +2179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_toruswvy.smb_9",
@@ -2287,8 +2287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_vase_rev.smb_5",
@@ -2299,8 +2299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_vase_rev.smb_6",
@@ -2311,8 +2311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_vase_rev.smb_7",
@@ -2323,8 +2323,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::Notify",
-        "unit": "topology.brep_p2"
+        "symbol": "SmFace::Notify",
+        "unit": "topology.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "glue_vase_rev.smb_8",
@@ -2375,8 +2375,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetTolerance",
-        "unit": "topology.brep_p2"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "copy_plane_square.smb_0",
@@ -2387,8 +2387,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetTolerance",
-        "unit": "topology.brep_p2"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "copy_plane_square.smb_1",
@@ -2399,8 +2399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetTolerance",
-        "unit": "topology.brep_p2"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "copy_disk.smb_0",
@@ -2411,8 +2411,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetTolerance",
-        "unit": "topology.brep_p2"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "copy_disk.smb_1",
@@ -2423,8 +2423,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetTolerance",
-        "unit": "topology.brep_p2"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "copy_plane_circ.smb_0",
@@ -2435,8 +2435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::SetTolerance",
-        "unit": "topology.brep_p2"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "copy_plane_circ.smb_1",
@@ -3017,11 +3017,11 @@
     "curve.curve_p6": 2,
     "surface.sphere": 20,
     "surface.surface_p2": 4,
-    "topology.brep_p1": 12,
-    "topology.brep_p2": 51,
+    "topology.brep_p1": 19,
+    "topology.brep_p4": 1,
     "topology.brep_p9": 19,
     "topology.face_p2": 6,
-    "topology.face_p3": 1
+    "topology.face_p3": 44
   },
   "max_rel_err": 0.0,
   "pass": true,

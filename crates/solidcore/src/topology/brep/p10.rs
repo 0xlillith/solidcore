@@ -472,11 +472,8 @@ fn make_topology(
 
     // Set isManifold after all objects are created and connected to one another
     if calculate_is_manifold {
-        // UNPORTED(topology.brep_p2): SmBrep::IsManifoldSolid
-        return Err(SolidError::Unported {
-            upstream: "SmBrep::IsManifoldSolid",
-            unit: "topology.brep_p2",
-        });
+        // pBrepData->m_bManifold = IsManifoldSolid()
+        data.manifold = i32::from(crate::topology::brep::p2::is_manifold_solid(b)?);
     }
 
     // When requested and needed - find and heal common AssertValid problems
@@ -1718,6 +1715,9 @@ fn create_parallel_projection_curves(
     })
 }
 
+/// `MergeCurvesOnSurface(pFace, tol, curves, uvCurves, ..)`. The port
+/// ([`crate::topology::brep::p2::merge_curves_on_surface`]) classifies through a
+/// `MergeCurvesObjects` world over the B-rep's cache, which only `query.brep` provides.
 fn merge_curves_on_surface(
     _k: &mut Kernel,
     _b: &mut Brep,
@@ -1726,10 +1726,10 @@ fn merge_curves_on_surface(
     _curves_3d: &[Curve],
     _uv_curves: &[Curve],
 ) -> Result<(Vec<FaceId>, Vec<EdgeId>)> {
-    // UNPORTED(topology.brep_p2): SmBrep::MergeCurvesOnSurface
+    // UNPORTED(query.brep): MergeCurvesObjects world over the B-rep cache (SmBrep::MergeCurvesOnSurface)
     Err(SolidError::Unported {
-        upstream: "SmBrep::MergeCurvesOnSurface",
-        unit: "topology.brep_p2",
+        upstream: "MergeCurvesObjects world over the B-rep cache (SmBrep::MergeCurvesOnSurface)",
+        unit: "query.brep",
     })
 }
 
@@ -1773,12 +1773,9 @@ fn brep_bounding_box(_k: &Kernel, _b: &Brep) -> Result<Extent3d> {
     })
 }
 
-fn point_from_solution(_solution: &Solution<CacheObject>, _start: usize) -> Result<Point3> {
-    // UNPORTED(topology.brep_p2): sm_GetPointFromSol
-    Err(SolidError::Unported {
-        upstream: "sm_GetPointFromSol",
-        unit: "topology.brep_p2",
-    })
+/// `sm_GetPointFromSol(sSol, start)` ([`crate::topology::brep::p2::point_from_solution`]).
+fn point_from_solution(b: &Brep, solution: &Solution<CacheObject>, start: usize) -> Result<Point3> {
+    crate::topology::brep::p2::point_from_solution(b, solution, start)
 }
 
 fn remove_faces(_k: &mut Kernel, _b: &mut Brep, _faces: &[FaceId]) -> Result<()> {
@@ -1993,7 +1990,7 @@ fn faces_to_delete(
             let Some(first) = solutions.as_slice().first() else {
                 continue;
             };
-            let p = point_from_solution(first, 1)?;
+            let p = point_from_solution(b, first, 1)?;
             let tol1 = 5.0 * (b.face(face)?.tolerance + tol);
             match ignored(find_side_of_curve(k, curve, p, direction, tol1))? {
                 Some(side) => face_right_side = side,
@@ -2027,12 +2024,9 @@ fn delete_edge(_k: &mut Kernel, _b: &mut Brep, _e: EdgeId) -> Result<()> {
     })
 }
 
-fn brep_shell_vertices(_b: &Brep) -> Result<Vec<VertexId>> {
-    // UNPORTED(topology.brep_p2): SmBrep::GetShellVertices
-    Err(SolidError::Unported {
-        upstream: "SmBrep::GetShellVertices",
-        unit: "topology.brep_p2",
-    })
+/// `GetShellVertices` ([`crate::topology::brep::p2::shell_vertices`], no attribute filter).
+fn brep_shell_vertices(b: &Brep) -> Result<Vec<VertexId>> {
+    crate::topology::brep::p2::shell_vertices(b, None)
 }
 
 fn delete_vertex(_k: &mut Kernel, _b: &mut Brep, _v: VertexId) -> Result<()> {
@@ -2440,7 +2434,7 @@ mod tests {
     }
 
     #[test]
-    fn healing_runs_and_manifold_is_unported() {
+    fn healing_runs_and_manifold_is_computed() {
         // HealBrep (topology.brep_p1) runs; only the healer's own later stubs defer
         let mut d = square(1);
         d.healer_version = 0;
@@ -2456,10 +2450,10 @@ mod tests {
             ..MakeTopologyOptions::default()
         };
         assert!(build(&mut d, opts).is_ok());
+        // an UNSURE manifold flag is computed (IsManifoldSolid): a sheet is not a
+        // manifold solid
         let mut d = square(UNSURE);
-        assert!(build(&mut d, MakeTopologyOptions::default())
-            .unwrap_err()
-            .is_unported());
+        assert!(build(&mut d, MakeTopologyOptions::default()).is_ok());
         assert_eq!(d.manifold, 0);
         // sm_AddAttributes: an index past rAllAttributes (empty here)
         let mut d = square(1);
