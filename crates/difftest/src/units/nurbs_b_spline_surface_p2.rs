@@ -33,8 +33,8 @@ use solidcore::geom::vector3d::{Point3, Vec3};
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::{BSplineCurve, ControlPointForm, KnotType};
 use solidcore::nurbs::b_spline_surface::{
-    BSplineSurface, BSplineSurfaceForm, CanonicalSurfaceData, ControlPointBlock,
-    IsoCurveOptions, SurfParamType,
+    BSplineSurface, BSplineSurfaceForm, CanonicalSurfaceData, ControlPointBlock, IsoCurveOptions,
+    SurfParamType,
 };
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::nurbs::crv_basic::Curve;
@@ -233,7 +233,10 @@ struct Inputs {
 fn numbers(path: &str) -> Result<Vec<f64>, HarnessError> {
     let text = std::fs::read_to_string(path).map_err(|e| harness(format!("{path}: {e}")))?;
     text.split_whitespace()
-        .map(|t| t.parse::<f64>().map_err(|e| harness(format!("{path}: {e}"))))
+        .map(|t| {
+            t.parse::<f64>()
+                .map_err(|e| harness(format!("{path}: {e}")))
+        })
         .collect()
 }
 
@@ -250,7 +253,10 @@ fn int(path: &str, v: f64) -> Result<usize, HarnessError> {
 fn read_sms(path: &str) -> Result<InlineSrf, HarnessError> {
     let v = numbers(path)?;
     let mut it = v.into_iter();
-    let mut num = || it.next().ok_or_else(|| harness(format!("{path}: truncated")));
+    let mut num = || {
+        it.next()
+            .ok_or_else(|| harness(format!("{path}: truncated")))
+    };
     let n = int(path, num()?)?;
     let m = int(path, num()?)?;
     let p = int(path, num()?)?;
@@ -266,8 +272,12 @@ fn read_sms(path: &str) -> Result<InlineSrf, HarnessError> {
         }
         net.push(row);
     }
-    let u = (0..n + p + 2).map(|_| num()).collect::<Result<Vec<_>, _>>()?;
-    let v = (0..m + q + 2).map(|_| num()).collect::<Result<Vec<_>, _>>()?;
+    let u = (0..n + p + 2)
+        .map(|_| num())
+        .collect::<Result<Vec<_>, _>>()?;
+    let v = (0..m + q + 2)
+        .map(|_| num())
+        .collect::<Result<Vec<_>, _>>()?;
     Ok(InlineSrf { net, p, q, u, v })
 }
 
@@ -276,7 +286,10 @@ fn read_sms(path: &str) -> Result<InlineSrf, HarnessError> {
 fn read_smc(path: &str) -> Result<InlineCrv, HarnessError> {
     let v = numbers(path)?;
     let mut it = v.into_iter();
-    let mut num = || it.next().ok_or_else(|| harness(format!("{path}: truncated")));
+    let mut num = || {
+        it.next()
+            .ok_or_else(|| harness(format!("{path}: truncated")))
+    };
     let n = int(path, num()?)?;
     let p = int(path, num()?)?;
     let rat = num()? != 0.0;
@@ -289,7 +302,9 @@ fn read_smc(path: &str) -> Result<InlineCrv, HarnessError> {
         let w = if rat { num()? } else { NOW };
         cpts.push([x, y, z, w]);
     }
-    let u = (0..n + p + 2).map(|_| num()).collect::<Result<Vec<_>, _>>()?;
+    let u = (0..n + p + 2)
+        .map(|_| num())
+        .collect::<Result<Vec<_>, _>>()?;
     Ok(InlineCrv { cpts, p, u })
 }
 
@@ -308,9 +323,15 @@ fn crv(c: &CrvIn) -> Result<InlineCrv, HarnessError> {
 }
 
 fn shape(s: &InlineSrf) -> Result<(usize, usize), HarnessError> {
-    let n = s.net.len().checked_sub(1).ok_or_else(|| harness("empty net"))?;
+    let n = s
+        .net
+        .len()
+        .checked_sub(1)
+        .ok_or_else(|| harness("empty net"))?;
     let cols = s.net.first().map_or(0, Vec::len);
-    let m = cols.checked_sub(1).ok_or_else(|| harness("empty net row"))?;
+    let m = cols
+        .checked_sub(1)
+        .ok_or_else(|| harness("empty net row"))?;
     if s.net.iter().any(|r| r.len() != cols) {
         return Err(harness("net rows differ in length"));
     }
@@ -326,8 +347,15 @@ fn flag(b: bool) -> f64 {
 fn push_srf(o: &mut Vec<f64>, s: &InlineSrf) -> Result<(), HarnessError> {
     let (n, m) = shape(s)?;
     o.extend(
-        [n, m, s.p, s.q, s.u.len().saturating_sub(1), s.v.len().saturating_sub(1)]
-            .map(|x| x as f64),
+        [
+            n,
+            m,
+            s.p,
+            s.q,
+            s.u.len().saturating_sub(1),
+            s.v.len().saturating_sub(1),
+        ]
+        .map(|x| x as f64),
     );
     for row in &s.net {
         for p in row {
@@ -524,7 +552,10 @@ impl Split<'_> {
                 return Err(harness(format!("bad surface dims {dims:?}")));
             }
             self.put(&format!("{pfx}dims"), dims);
-            self.vals(&format!("{pfx}cpts"), 4 * (n as usize + 1) * (m as usize + 1))?;
+            self.vals(
+                &format!("{pfx}cpts"),
+                4 * (n as usize + 1) * (m as usize + 1),
+            )?;
             self.vals(&format!("{pfx}u"), r as usize + 1)?;
             self.vals(&format!("{pfx}v"), s as usize + 1)?;
         }
@@ -643,7 +674,11 @@ fn surface_of(s: &InlineSrf) -> Result<Surface, HarnessError> {
     let net = s
         .net
         .iter()
-        .map(|r| r.iter().map(|&[x, y, z, w]| CPoint::new(x, y, z, w)).collect())
+        .map(|r| {
+            r.iter()
+                .map(|&[x, y, z, w]| CPoint::new(x, y, z, w))
+                .collect()
+        })
         .collect();
     Surface::new(net, s.p, s.q, s.u.clone(), s.v.clone())
         .map_err(|e| harness(format!("surface input: {e}")))
@@ -920,19 +955,17 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             }
             return to_output(i, &o);
         }
-        (OpIn::SubPatch { dom }, Some(t)) => {
-            this_of(t)?.copy_sub_patch(&dom_of(dom)).map(|s| {
-                o.push(1.0);
-                dump_state(&mut o, &s);
-            })
-        }
-        (OpIn::Split { t: par, param }, Some(t)) => this_of(t)?
-            .split_at(*par, param_of(*param)?)
-            .map(|(l, r)| {
+        (OpIn::SubPatch { dom }, Some(t)) => this_of(t)?.copy_sub_patch(&dom_of(dom)).map(|s| {
+            o.push(1.0);
+            dump_state(&mut o, &s);
+        }),
+        (OpIn::Split { t: par, param }, Some(t)) => {
+            this_of(t)?.split_at(*par, param_of(*param)?).map(|(l, r)| {
                 o.push(1.0);
                 dump_state(&mut o, &l);
                 dump_state(&mut o, &r);
-            }),
+            })
+        }
         (OpIn::Sphere { arcs, tol }, None) => {
             let cs = arcs.iter().map(bsc_of).collect::<Result<Vec<_>, _>>()?;
             BSplineSurface::create_sphere_from_arcs(&cs, *tol).map(|r| {
@@ -1005,7 +1038,9 @@ fn gen_knots(rng: &mut Rng, n: usize, p: usize, a: f64, b: f64) -> Vec<f64> {
     let interior = n - p;
     let mut inner: Vec<f64> = (0..interior).map(|_| rng.uniform(0.05, 0.95)).collect();
     if rng.chance(0.4) {
-        inner = (1..=interior).map(|i| i as f64 / (interior + 1) as f64).collect();
+        inner = (1..=interior)
+            .map(|i| i as f64 / (interior + 1) as f64)
+            .collect();
     }
     inner.sort_by(f64::total_cmp);
     let mut prev = f64::NEG_INFINITY;
@@ -1079,7 +1114,12 @@ fn gen_this(rng: &mut Rng) -> InlineSrf {
     let mut s = gen_srf(rng, rational, 4);
     if rng.chance(0.08) {
         // point-sized surface
-        let pt = s.net.first().and_then(|r| r.first()).copied().unwrap_or([0.0; 4]);
+        let pt = s
+            .net
+            .first()
+            .and_then(|r| r.first())
+            .copied()
+            .unwrap_or([0.0; 4]);
         for row in &mut s.net {
             for p in row.iter_mut() {
                 *p = pt;
@@ -1612,9 +1652,7 @@ fn gen_sphere(rng: &mut Rng) -> Inputs {
         2 => 4,
         _ => 3,
     };
-    let arcs = (0..k)
-        .map(|_| CrvIn::Inline(gen_gen_curve(rng)))
-        .collect();
+    let arcs = (0..k).map(|_| CrvIn::Inline(gen_gen_curve(rng))).collect();
     Inputs {
         this: None,
         op: OpIn::Sphere {
@@ -1702,9 +1740,7 @@ mod tests {
             "Revolution",
             "TrimPlane",
         ] {
-            let ok = tally
-                .iter()
-                .any(|((o, k), _)| o == op && k == "status:0");
+            let ok = tally.iter().any(|((o, k), _)| o == op && k == "status:0");
             assert!(ok, "{op} never succeeds");
         }
     }

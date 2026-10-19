@@ -381,9 +381,7 @@ fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
 
 /// Splits a record into `build`, `status` and `out`.
 fn to_output(flat: &[f64]) -> Result<Output, HarnessError> {
-    let (b, rest) = flat
-        .split_first()
-        .ok_or_else(|| harness("empty record"))?;
+    let (b, rest) = flat.split_first().ok_or_else(|| harness("empty record"))?;
     let out = Output::new().values("build", vec![*b]);
     if *b != SUCCESS {
         if !rest.is_empty() {
@@ -718,14 +716,7 @@ fn trim_domain(s: &Cone, f: [f64; 4]) -> Extent2d {
 
 /// The shim's `trim_defined`: the domain conversion and the two seam line / ellipse
 /// plane intersections succeed.
-fn trim_defined(
-    k: &Kernel,
-    s: &Cone,
-    x: Vec3,
-    y: Vec3,
-    origin: Vec3,
-    dom: &Extent2d,
-) -> bool {
+fn trim_defined(k: &Kernel, s: &Cone, x: Vec3, y: Vec3, origin: Vec3, dom: &Extent2d) -> bool {
     let z = x.cross(y);
     let (Ok(a), Ok(b)) = (
         s.convert_uv_from_nurbs_to_step(k, dom.min()),
@@ -818,8 +809,7 @@ fn rust_op(k: &Kernel, s: &mut Cone, op: &OpIn, o: &mut Vec<f64>) -> solidcore::
                 o.push(SC_ERR_ARG);
                 return Ok(());
             }
-            match ellipse_trim_intervals(k, origin, x, y, *rx, *ry, *start, *end, s, &dom, *tol)
-            {
+            match ellipse_trim_intervals(k, origin, x, y, *rx, *ry, *start, *end, s, &dom, *tol) {
                 Ok(ivls) => {
                     o.push(SUCCESS);
                     o.push(ivls.len() as f64);
@@ -905,7 +895,10 @@ fn frame(rng: &mut Rng, scale: f64, skew: bool) -> ([f64; 3], [f64; 3], [f64; 3]
     }
     if skew && rng.chance(0.1) {
         let x2 = scale3(x, rng.uniform(0.5, 2.0));
-        let y2 = add3(scale3(y, rng.uniform(0.5, 2.0)), scale3(x, rng.uniform(-0.3, 0.3)));
+        let y2 = add3(
+            scale3(y, rng.uniform(0.5, 2.0)),
+            scale3(x, rng.uniform(-0.3, 0.3)),
+        );
         return (origin, x2, y2);
     }
     (origin, x, y)
@@ -1381,7 +1374,10 @@ mod tests {
     /// Every fixture case builds its cone and compares real values.
     #[test]
     fn fixtures_compare_values() {
-        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../fixtures/surface.cone_p2/cases.json");
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../fixtures/surface.cone_p2/cases.json"
+        );
         let text = std::fs::read_to_string(path).expect("fixtures");
         let v: Value = serde_json::from_str(&text).expect("json");
         let cases = v["cases"].as_array().expect("cases");
