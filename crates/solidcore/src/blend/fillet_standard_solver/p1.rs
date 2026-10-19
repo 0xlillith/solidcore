@@ -29,6 +29,7 @@
 //! | [`ConstantDistanceFs::load_jacobian`]                    | `SmConstantDistanceFS::LoadJacobian`                  |
 //! | [`ConstantDistanceFs::jacobian_size`]                    | `SmConstantDistanceFS::GetJacobianSize`               |
 //! | [`ConstantDistanceFs::load_initial_values`]              | `SmConstantDistanceFS::LoadInitialValues`             |
+//! | [`InitialSurface`]                                       | the `crSurface1` argument of `LoadInitialValues`      |
 //! | [`ConstantDistanceFs::is_kind_of`], [`ConstantDistanceFs::type_code`], [`ConstantDistanceFs::type_string`] | `IsKindOf`, `GetType`, `GetTypeString` |
 //! | [`CurveBasedFs`], [`CurveBasedFs::new`]                  | `SmCurveBasedFS`, `SmCurveBasedFS::SmCurveBasedFS` (`Drop` is the destructor) |
 //! | [`CurveBasedFs::original_curve`], [`CurveBasedFs::set_original_curve`] | `GetOriginalCurve`, `SetOriginalCurve`  |
@@ -71,7 +72,10 @@
 //!   surface constructor (`SM_SS_UNKNOWN` singularities) evaluates its base.
 //! - **Offset surfaces.** The rails are the ported `SmOffsetSurface`
 //!   (`surface.offset_surface`) through [`OffsetSurface`]. Evaluations store the base
-//!   extension they make, so `crSurface1` of `LoadInitialValues` is `&mut`. Its
+//!   extension they make, so `crSurface1` of `LoadInitialValues` names the solver's own
+//!   rail surface or another one ([`InitialSurface`]): upstream's callers pass
+//!   `*GetSurface(lRailIndex)`, whose extension (and grown natural UV domain) then stays
+//!   on the solver, and the other rail's surface is `rpSurface2` itself. Its
 //!   `rpSurface2->LocalPointSolve` / `GlobalPointSolve` run on a copy of the other
 //!   rail's offset (the generic point solvers take the surface shared), so an extension
 //!   made there is not kept by the solver. The `SmTemporaryChangeValue` on the
@@ -887,6 +891,30 @@ pub struct DistanceInitialValues {
     pub surface2_index: usize,
 }
 
+/// `crSurface1` of [`ConstantDistanceFs::load_initial_values`]: which offset surface
+/// the guess is on. Upstream's callers pass the solver's own rail surface
+/// (`*GetSurface(lRailIndex)`), so what the call does to it (a base extension made by
+/// its evaluation, which grows its natural UV domain) stays on the solver, and when it
+/// is the other rail's surface it is `rpSurface2` itself.
+#[derive(Debug)]
+pub enum InitialSurface<'a> {
+    /// The solver's own offset surface of a rail (`GetSurface(i)`).
+    Rail(usize),
+    /// Another offset surface.
+    Other(&'a mut OffsetSurface),
+}
+
+/// The offset surface `surface1` denotes.
+fn initial_surface<'b>(
+    solver: &'b mut FilletSolverData,
+    surface1: &'b mut InitialSurface<'_>,
+) -> Result<&'b mut OffsetSurface> {
+    match surface1 {
+        InitialSurface::Rail(i) => solver.surface_mut(*i),
+        InitialSurface::Other(s) => Ok(&mut **s),
+    }
+}
+
 impl ConstantDistanceFs {
     /// `SmConstantDistanceFS::GetType`.
     pub const TYPE: i64 = CONSTANT_DISTANCE_FS_TYPE;
@@ -1163,7 +1191,7 @@ impl ConstantDistanceFs {
         brep: Option<&Brep>,
         do_surf2_calcs: bool,
         rail_index: usize,
-        surface1: &mut OffsetSurface,
+        mut surface1: InitialSurface<'_>,
         surface1_index: usize,
         surface2_index: usize,
         intervals: &mut ExtentNd,
@@ -1176,14 +1204,14 @@ impl ConstantDistanceFs {
         if do_surf2_calcs {
             // Now find the UV guess on the other Rail's surface
             let uv = uv_at(guess_t, surface1_index, OP)?;
-            let pnt = offset_evaluate_point(surface1, uv)?;
+            let pnt = offset_evaluate_point(initial_surface(&mut self.solver, &mut surface1)?, uv)?;
 
             if rail_index > 1 {
                 return Err(SolidError::invalid_input(OP, "rail index out of range"));
             }
             let other_rail = 1 - rail_index;
             surface2_rail = Some(other_rail);
-            let uv2 = self.surface2_guess(k, brep, other_rail, surface1, uv, pnt)?;
+            let uv2 = self.surface2_guess(k, brep, other_rail, &mut surface1, uv, pnt)?;
 
             let domain = self
                 .solver
@@ -1231,21 +1259,29 @@ impl ConstantDistanceFs {
         k: &Kernel,
         brep: Option<&Brep>,
         other_rail: usize,
-        surface1: &mut OffsetSurface,
+        surface1: &mut InitialSurface<'_>,
         uv: Point2,
         pnt: Point3,
     ) -> Result<Point2> {
         let base2_id = self.solver.surface(other_rail)?.base_id;
-        let same_base = surface1.base_id == base2_id;
+        // (`rpSurface2` itself: its base is the one changed)
+        let aliased = matches!(surface1, InitialSurface::Rail(i) if *i == other_rail);
+        let same_base =
+            !aliased && initial_surface(&mut self.solver, surface1)?.base_id == base2_id;
         let saved2 = enable_out_of_bounds(self.solver.surface_mut(other_rail)?);
         let saved1 = if same_base {
-            enable_out_of_bounds(surface1)
+            enable_out_of_bounds(initial_surface(&mut self.solver, surface1)?)
         } else {
             None
         };
         let r = self.surface2_guess_body(k, brep, other_rail, surface1, uv, pnt);
         if let Some(old) = saved1 {
-            set_out_of_bounds_enabled(surface1.surface.base_surface_mut(), old);
+            set_out_of_bounds_enabled(
+                initial_surface(&mut self.solver, surface1)?
+                    .surface
+                    .base_surface_mut(),
+                old,
+            );
         }
         if let Some(old) = saved2 {
             set_out_of_bounds_enabled(
@@ -1261,25 +1297,23 @@ impl ConstantDistanceFs {
 
     /// [`Self::surface2_guess`] inside the temporary change.
     fn surface2_guess_body(
-        &self,
+        &mut self,
         k: &Kernel,
         brep: Option<&Brep>,
         other_rail: usize,
-        surface1: &mut OffsetSurface,
+        surface1: &mut InitialSurface<'_>,
         uv: Point2,
         pnt: Point3,
     ) -> Result<Point2> {
         const OP: &str = OP_CD_INIT;
-        let solver = &self.solver;
-        let surface2 = solver.surface(other_rail)?;
-        let base2_id = surface2.base_id;
-        let base2 = surface2.base_surface();
+        let base2_id = self.solver.surface(other_rail)?.base_id;
+        let approx_tol_3d = self.solver.approx_tol_3d;
 
         // If we have edgeuses then use them to compute a point on the other surfaces
         // If not then drop the point to the other surface.
         let mut found_uv = false;
         let mut uv2 = Point2::new(0.0, 0.0);
-        let mut other_eu = solver.edgeuses.get(other_rail).copied().flatten();
+        let mut other_eu = self.solver.edgeuses.get(other_rail).copied().flatten();
         let need_brep = || SolidError::invalid_input(OP, "edge uses without their B-rep");
         if let Some(eu) = other_eu {
             let b = brep.ok_or_else(need_brep)?;
@@ -1315,7 +1349,7 @@ impl ConstantDistanceFs {
                 &ivl,
                 SolverOperation::Minimize,
                 pnt,
-                solver.approx_tol_3d,
+                approx_tol_3d,
                 SolutionRequested::Single,
                 &GlobalPointSolveOptions::<crate::topology::ObjectHandle>::default(),
             )?;
@@ -1334,13 +1368,14 @@ impl ConstantDistanceFs {
             // curve also moves generally towards the interior of the surface.
             if curve.is_closed(&ivl, 0.0)? {
                 let p3 = curve.evaluate_point(t)?;
-                let inward = offset_compute_inward_vector(surface1, uv)?;
+                let inward =
+                    offset_compute_inward_vector(initial_surface(&mut self.solver, surface1)?, uv)?;
                 let dropped = curve.drop_point(
                     k,
                     &ivl,
                     p3,
                     Some(inward),
-                    solver.approx_tol_3d,
+                    approx_tol_3d,
                     None,
                     SolverOperation::Minimize,
                 )?;
@@ -1357,6 +1392,7 @@ impl ConstantDistanceFs {
             let p2d = uv_curve.evaluate_point(t)?;
             uv2 = Point2::new(p2d.x, p2d.y);
             found_uv = true;
+            let surface2 = self.solver.surface(other_rail)?;
             let domain2 = offset_natural_uv_domain(surface2);
             if let Some((sol_uv, dist)) = offset_local_point_solve(k, surface2, &domain2, pnt, uv2)?
             {
@@ -1373,6 +1409,7 @@ impl ConstantDistanceFs {
                 only_upper_half: true,
                 non_zero_tangents: true,
             };
+            let base2 = self.solver.surface(other_rail)?.base_surface();
             let mat = base2.evaluate(uv2, 1, 1, flags)?;
             let du = mat
                 .get(1)
@@ -1400,6 +1437,7 @@ impl ConstantDistanceFs {
         }
 
         if !found_uv {
+            let surface2 = self.solver.surface(other_rail)?;
             let domain2 = offset_natural_uv_domain(surface2);
             let sols = surface_global_point_solve(
                 k,
@@ -3230,7 +3268,16 @@ mod tests {
         let mut guess = vec![0.1, 0.2];
         let v = fs
             .load_initial_values(
-                &k, None, false, 0, &mut s1, 0, 1, &mut ivls, &mut per, &mut guess,
+                &k,
+                None,
+                false,
+                0,
+                InitialSurface::Other(&mut s1),
+                0,
+                1,
+                &mut ivls,
+                &mut per,
+                &mut guess,
             )
             .expect("init");
         assert_eq!(v.surface2_rail, None);
@@ -3244,7 +3291,16 @@ mod tests {
 
         // out of range interval index: upstream writes past rIntervals
         let r = fs.load_initial_values(
-            &k, None, false, 0, &mut s1, 0, 3, &mut ivls, &mut per, &mut guess,
+            &k,
+            None,
+            false,
+            0,
+            InitialSurface::Other(&mut s1),
+            0,
+            3,
+            &mut ivls,
+            &mut per,
+            &mut guess,
         );
         assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
 
@@ -3255,7 +3311,16 @@ mod tests {
         let mut guess = vec![0.1, 0.2];
         let v = fs
             .load_initial_values(
-                &k, None, true, 0, &mut s1, 0, 0, &mut ivls, &mut per, &mut guess,
+                &k,
+                None,
+                true,
+                0,
+                InitialSurface::Rail(0),
+                0,
+                0,
+                &mut ivls,
+                &mut per,
+                &mut guess,
             )
             .expect("surface 2 guess");
         assert_eq!(v.surface2_rail, Some(1));

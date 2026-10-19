@@ -6983,8 +6983,8 @@ independent p6 integration.
 
 ## blend.fillet_standard_solver_p1 (`SmFilletStandardSolver.cpp` part 1, 2026-10-16; partial, no disagreements)
 
-- **Corpus.** 1214 cases (25 fixture, 709 review fixtures, 480 generated): no failure at
-  max_rel_err 0. After
+- **Corpus.** 3839 cases (25 fixture, 709 first-review and 2625 second-review fixtures,
+  480 generated): no failure at max_rel_err 0, 42 deferred, 11 rejected. After
   surface.offset_surface landed (merge of main, 2026-10-18) the Jacobians and
   `SmConstantDistanceFS::LoadInitialValues` with `rbDoSurf2Calcs` run on the ported
   `SmOffsetSurface` and are compared; the variable-radius `SetupOffsetValues` stays
@@ -7038,7 +7038,9 @@ independent p6 integration.
   `SmConstantDistanceFS::LoadInitialValues` run on a copy of the solver's offset (the
   generic point solvers take the surface shared), so an extension made there is not
   kept, as blend.fillet_custom_solver. The out-of-bounds `SmTemporaryChangeValue` is
-  applied in place and restored. No case disagrees.
+  applied in place and restored. `crSurface1` is an `InitialSurface` (the solver's own
+  rail, or another offset) because upstream's callers always pass
+  `*GetSurface(lRailIndex)` (see the second review below). No case disagrees.
 - **Not compared.** `SmVariableRadiusFS::SetExtensionFlags` starts with
   `SmFilletSolver::SetExtensionFlags`, which dereferences the fillet executive
   (blend.fillet_solver_p1): unit tested only. The Jacobians and the edge-use branch
@@ -7089,6 +7091,37 @@ independent p6 integration.
     `SsExt` cases) and a planes `cr_jac` case are fixtures
     (`fixtures/blend.fillet_standard_solver_p1/review_adversarial.json`): all pass
     at max_rel_err 0.
+- **PR #168 second review fixes (2026-10-19).**
+  - *`crSurface1` identity.* `load_initial_values` took `crSurface1` as a separate
+    `&mut OffsetSurface`, and the runner passed a clone of the solver's rail. Every
+    upstream caller passes `*GetSurface(lRailIndex)` (SmFilletSolver.cpp:3009, 3372,
+    3997, 4011), so the base extension made by `crSurface1.EvaluatePoint` stays on
+    the solver and grows that rail's natural UV domain; when `crSurface1` is the
+    other rail it is `rpSurface2` itself, whose `GlobalPointSolve` then runs on the
+    extended domain. 72 of 960 new `cd_init` cases (`rail 0, sel1 2` / `rail 1,
+    sel1 1`, guess (1.2, -0.3) outside the domain) disagreed: e.g.
+    `rv2i_cdinit_bump_pl_1_[1.2, -0.3]_1_0.5` out[21] cpp 1.2000000000000002, rust
+    1.0; out[22] cpp -0.2999999999999998, rust 0.0 (Rust extended the clone and
+    clamped). Now `InitialSurface::{Rail(i), Other(&mut OffsetSurface)}` resolved
+    against the solver; when it is `rpSurface2` the out-of-bounds change is applied
+    once. The runner passes `Rail(0/1)` for `sel1` 1/2, as the shim does.
+  - *Fixtures.* `review2_cd_init.json` (960 `cd_init` cases over bump, cone, cylinder
+    and plane rails, guesses inside, on and outside the domain, all three `sel1`),
+    `review2_jac_ext.json` (1560 Jacobian / extension cases) and
+    `review2_closed_torus_base.json` (105 closed / torus-base cases; its 18 `G1`
+    blend-curve skins are UB-159b and are left out). All pass at max_rel_err 0.
+  - *Same gap in blend.fillet_custom_solver (not fixed here).* `EiffelTowerFs` /
+    `SecantConstantRadiusFs::load_initial_values` take `surface1: &mut OffsetSurface`
+    with a cloned rail in the runner, so they very likely have the same identity gap;
+    a follow-up there should use the same `InitialSurface` model.
+  - *Not compared.* `EvaluateBaseCurve`'s B-spline-based branch on `SmEllipse` /
+    `SmCircle` bases: the reviewer's 48 ellipse/circle extension cases pass with real
+    values, but the FFI validator first needs radius > 0 and a bounded increasing
+    domain (`--fuzz` segfaulted at radius 0 and hung at domain min 1e300), so they are
+    not in this PR. The production `SmBlendCurveCrossSectionFSG` path with
+    `bNeedG1Continuity = TRUE` (constant-radius solvers) is never compared, because
+    every `G1` blend-curve skin is UB-159b and the shim rejects it. UB-186 is still
+    not detected by the shim; no fixture reaches it.
 
 ## heal.heal_data_p3 (healer sequencing, target refresh and repair stages; PR #164, 2026-10-16; partial, no disagreements)
 

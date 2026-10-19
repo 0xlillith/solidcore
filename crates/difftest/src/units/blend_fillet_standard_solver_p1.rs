@@ -37,7 +37,7 @@ use solidcore::blend::fillet_custom_solver::{OffsetSurface, SurfaceId};
 use solidcore::blend::fillet_standard_solver::p1::{
     constant_radius_from_edgeuse, constant_radius_is_kind_of, BlendCurveCrossSectionFsg, CircularCrossSectionFsg,
     ConstantDistanceFs, ConstantRadiusFs, CurveBasedFs, FilletLaw, FilletLawKind,
-    FilletSolverData, FilletSurfaceGeneratorType, LinearCrossSectionFsg, RailSurface,
+    FilletSolverData, FilletSurfaceGeneratorType, InitialSurface, LinearCrossSectionFsg, RailSurface,
     SurfaceSurfaceFs, VariableRadiusFs, BoundaryTrimmingType, CONSTANT_RADIUS_FS_TYPE,
     CONSTANT_RADIUS_FS_TYPE_STRING,
 };
@@ -1247,10 +1247,11 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
             guess,
         } => {
             let mut fs = cd_of(&k, solver)?;
-            let mut surface1 = match sel1 {
-                1 => fs.solver.surface(0).cloned().map_err(|e| he(&e))?,
-                2 => fs.solver.surface(1).cloned().map_err(|e| he(&e))?,
-                _ => offset_of(
+            // (`GetSurface(0)` / `GetSurface(1)` are the solver's own surfaces, as the shim
+            // passes them)
+            let mut extra = match sel1 {
+                1 | 2 => None,
+                _ => Some(offset_of(
                     &k,
                     solver.d[0],
                     surface_of(&solver.a)?,
@@ -1259,7 +1260,12 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
                     } else {
                         SurfaceId::Free(2)
                     },
-                )?,
+                )?),
+            };
+            let surface1 = match (sel1, extra.as_mut()) {
+                (_, Some(s)) => InitialSurface::Other(s),
+                (1, None) => InitialSurface::Rail(0),
+                _ => InitialSurface::Rail(1),
             };
             let mut ivls = ExtentNd::new(intervals.len());
             for (n, [a, b]) in intervals.iter().enumerate() {
@@ -1273,7 +1279,7 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
                 None,
                 *do2,
                 *rail,
-                &mut surface1,
+                surface1,
                 *s1_index,
                 *s2_index,
                 &mut ivls,
