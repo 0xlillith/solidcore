@@ -1244,7 +1244,8 @@ fn cache_entity(object: CacheObject) -> Result<EntityRef> {
 ///
 /// `SM_ERR` when the best hit is closer than `SM_EFF_ZERO * (1 + max |start|)`; errors
 /// of the B-rep box, the solve, the classification load and [`local_curve_sector`];
-/// [`SolidError::Unported`] from the B-rep box (`query.brep`).
+/// [`SolidError::Unported`] from unavailable geometric dependencies reached by
+/// the B-rep box computation.
 #[allow(clippy::too_many_arguments)] // one upstream routine
 pub fn ray_fire(
     k: &Kernel,

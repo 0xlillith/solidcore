@@ -176,7 +176,9 @@ pub struct HealBrepTargets<'a> {
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] (`SM_ERR_INVALID_INPUT`) without a B-rep; otherwise
-/// those of [`HealData::heal_brep`] (`SmBrep::HealBrep` ignores every status but `Unported`).
+/// those of [`HealData::heal_brep`] except native [`SolidError::Upstream`] and
+/// [`SolidError::Nlib`] statuses, which `SmBrep::HealBrep` ignores. Rust errors,
+/// including [`SolidError::Unported`], propagate.
 pub fn api_heal_brep(
     k: &mut Kernel,
     b: Option<&mut Brep>,
@@ -1011,8 +1013,8 @@ mod tests {
         // on a B-rep the whole-B-rep target lists are gathered (its one face) and the
         // heal sequence of heal_data_p3 runs up to Fix_TolSizes, whose
         // SmBrep::SetTolerance raises the face's tolerance through SmFace::SetTolerance
-        // (unit topology.face_p3; SmBrep::HealBrep passes Unported through, ignoring
-        // every other status)
+        // (unit topology.face_p3; SmBrep::HealBrep ignores only native Upstream/Nlib
+        // statuses, preserving Unported and other Rust errors).
         let mut b = Brep::default();
         let face = b
             .add_face_record(Face::new(ShellId::from_index(0)))

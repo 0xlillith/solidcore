@@ -69,7 +69,7 @@
 //!   records, attribute store, context and the identity of each entity).
 //!   `SmBrep::Notify` is [`crate::topology::brep::p2::notify`] without B-rep
 //!   cache (the caller-held `SM_OC_BREP` cache is not threaded through
-//!   [`NotifyEnv`]; no Rust caller can build one yet); in `Notify(SM_NO_CHANGE_GEOMETRY)` the B-rep's
+//!   [`NotifyEnv`]); in `Notify(SM_NO_CHANGE_GEOMETRY)` the B-rep's
 //!   `data3` (`this->GetCurve()`) is the old curve's identity, as in `SetCurve`.
 //!   The constructor's and destructor's notifications and the destructor's context
 //!   `DoingBoolean` toggling are not modelled; the record owns its curve, which is
@@ -214,8 +214,8 @@ fn brep_notify(
     data3: Option<ObjectRef>,
 ) -> Result<()> {
     let brep = BrepNotifyArg::Object(brep_p2::brep_ref(b));
-    // the caller-held SM_OC_BREP cache is not threaded through `NotifyEnv` (no Rust
-    // caller can build one yet: `make_brep_cache` needs `query.brep`)
+    // The caller-held SM_OC_BREP cache is not threaded through `NotifyEnv`, so
+    // this notification supplies no cache.
     brep_p2::notify(
         b,
         env,

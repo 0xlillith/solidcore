@@ -7944,3 +7944,126 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   unchanged with 0 flips: 300/206/0/94, 1000 seeds 1284/868/0/410, perturb 333/333, fuzz 2000 pass.
   valgrind with `harness/valgrind/ub11.supp` gives 0 errors on the simple, unify, select and split
   samples.
+
+## query.brep: live contexts, representation limits and pending point-face wiring (PR #101, 2026-10-19)
+
+This records the integration checkpoint after main `b6b6f7dd` and #149 `3770f4b1`
+were merged into #101 (`d63d3499`). **The PR remains draft.** Final validation and
+case figures are pending, and the point-face bridge below remains an integration
+requirement under `AGENTS.md` §4.5.9 and step 4a. Earlier reports in this document
+and in `modules.toml` remain historical evidence; their figures are not the result
+of this checkpoint.
+
+### Live ownership, shape marks and cache publication
+
+`query::brep::{BrepPointObjects, BrepQueryContext}` bind the caller's mutable
+B-rep to its registered `BrepId`, cache slot, object-key mapping and owner lookup.
+Boundary classification, effective region lists and ray firing call the actual
+implementations. Handle conversion preserves all `PointClassification` fields,
+including partially written state. The adapters borrow the live geometry and use
+the caller's `Kernel`; they do not clone a B-rep or construct a default context to
+stand in for its owner.
+
+`ray_fire_with_cache` obtains the B-rep cache after the native bounding-box,
+sphere and direction checks. Building it earlier would change which failure or
+early return is observed. The cache factory publishes a newly built cache only
+after successful construction; `BrepCache::BuildTrees` likewise publishes its
+three trees only after their construction succeeds. `TopologyObjects` cache
+callbacks now receive the caller's `Kernel`. The no-hit region fallback uses the
+effective region-list head, including a head represented implicitly by the list.
+
+Nonempty shapes use `Shape::new_with_objects` and a `ShapeObjects` provider for
+live B-reps, concrete geometry, owner resolution and persistent `Topology` marks.
+`Shape::empty` covers the empty constructor; the context-free nonempty constructor
+has been removed. The shell harness's `RayQueryContext` keeps marks across rays
+and registers newly appended topology records without resetting existing marks
+or reimporting the B-rep. Shape trees retain their real geometry handles until the
+native owner-resolution point. Sector classification does not resolve an unused
+retained auxiliary face from a previous classification, while preserving that
+field in the caller's state.
+
+### Co-ported region splitting and circular lists
+
+The faceuse overload of `SmBrep::TestClosureSplitRegion` now continues beyond its
+former bounding-box stop: residual faceuses, connected wires and nested shells
+use a required `RegionSplitQueries` provider. That same provider passes through
+the p7 and Heal callers. Native retry state, partial outputs, editing scopes,
+ordinary ignored statuses and cleanup order are retained. In the `IsInnerShell`
+path, an ordinary failed call leaves the native `UNSURE` value truthy: `SmBoolean`
+is an integer and `SmTypes.h` defines `UNSURE` as 2. Rust representation/context
+failures and `Unported` still propagate. The separate edge overload is outside
+this co-port.
+
+Native circular region-list membership and order are represented independently
+of arena ids. `Brep::{add_region_record, set_region_list,
+remove_region_from_list}` and `topology::brep::p1::regions` preserve insertion
+relative to the current head and retain the links when the head changes.
+Unlinking an empty region does not renumber retained or detached records. This
+also implements the B-rep-owned Region branch of `SmOwningTopology::PostInsert`
+and `Remove`; it does not replace the general owning-topology implementation.
+The relevant owner entries in `modules.toml` record these co-ports, the nonempty
+Shape constructor and the source-aware cache-factory dispatch.
+
+### Native input metadata and the scope of deferrals
+
+The shared `sc_brep_query_metadata.h` export and
+`topology_vertexuse/query_metadata.rs` decoder carry native owned-list order and
+membership, the infinite region and void flags, concrete geometry kinds, known
+direct owner links, primary faceuses and rectangular-trim flags. Metadata is
+taken from the same prepared native input used by the C++ call. In the Heal
+harness, existing native fixture normalization remains part of that common input
+preparation; it is not a new Rust-side conversion made to match an answer.
+
+Malformed metadata is an error. Valid input that the export cannot faithfully
+represent produces a harness representation limitation, with its cause retained
+in the report. Topology limitations are checked before the operation first uses
+those lists or links, after any earlier native null guard. Geometry limitations
+are checked at the corresponding read: for example before source midpoint
+evaluation or target boundary/ray classification. Region-only and empty/no-sample
+paths retain their early returns. The geometry hook is conservative at operand
+scope: it can defer a ray with a locked box even if that particular ray would
+avoid the unrepresented geometry. Such a case is uncovered comparison coverage,
+not a changed geometric result.
+
+This supersedes the following **specific historical first-stop descriptions** in
+the now-wired callers: every nonempty `geom.object` Shape deferring at
+`query.brep` or already-ported topology getters; exact `BrepCache::BuildTrees`
+stopping at `UNPORTED(query.brep)`; the shell's `EmptyRayWorld`/default-sector
+compatibility stubs; and the initial query.brep bounding-box or
+`Point3DClassify` stops in p6, Proto, merge, API, Heal and `UnifyNormals`.
+Their old notes and reports are preserved, but do not describe the current
+boundary. Other unavailable mutation calls and analytic-export limitations are
+not closed by these connections.
+
+### Remaining TopologySolver point-face integration gate
+
+Real RayFire/Shape paths now reach the existing point-face solver in
+`intersect/topology_solver/p1.rs`. Its following helpers still stop before
+calling algorithms that already exist:
+
+| Helper | Existing callee or dispatch | Missing context |
+| --- | --- | --- |
+| `object_zone_tol_3d` | Ported topology/B-rep tolerance accessors | Owning B-rep and typed resolution of the optional opaque object |
+| `face_point_classify` | `query::face::p2::point_classify` | Mutable owning B-rep, face identity and classification options |
+| `face_classifies_on_face` | `query::face::p1::point_3d_classify` | Mutable owning B-rep and the native retry/classification contract |
+
+`TopologySolver` holds a read-only `TopologyObjects` provider. The actual face
+classifiers require `&mut Brep`, including paths that may create UV trim curves.
+Consequently the self-tagged `UNPORTED(intersect.topology_solver_p1)` tolerance
+stub and the following `UNPORTED(query.face_p2)` / `UNPORTED(query.face_p1)` calls
+are **pending ownership/context wiring into partial units**, not evidence that
+the numerical algorithms are absent. They do not satisfy §4.5.9 by being labelled
+as deferrals, and changing the tags would not complete the integration.
+
+The eventual bridge must supply the real owner, identities, tolerances, mutable
+geometry and cache state. It must also retain the native status contract:
+`SmTLSPointFace` ignores ordinary `PointClassify` failure and consumes the class
+left in its output; Rust representation failures must still propagate. The
+3D face test retains its retry at the enlarged tolerance. No result prediction,
+synthetic owner or default context can replace those calls.
+
+`geom.object`, `geom.a_object` and `topology.brep_cache` are candidates for status
+promotion only after final reports establish their own zero-failure,
+zero-deferral coverage. That would not certify the point-face pipeline or make
+#101 ready while this incoming-backedge requirement remains open. This note
+changes no unit status, report figure, `STATUS` or generated `PROGRESS` output.

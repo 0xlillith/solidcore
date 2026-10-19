@@ -73,7 +73,7 @@ pub fn copy_edges(
 ) -> Result<Vec<EdgeId>> {
     let result = Vec::new();
     if let Some(&edge) = edges.first() {
-        let _curve = required(crate::topology::edge::create_trimmed_nurbs_curve(
+        let _curve = required(edge::create_trimmed_nurbs_curve(
             destination_kernel,
             source,
             edge,

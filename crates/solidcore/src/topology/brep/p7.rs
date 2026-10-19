@@ -1732,16 +1732,35 @@ mod tests {
             context: None,
             key_of: &key_of,
         };
-        assert!(
-            merge_self_intersection_curves(&mut k, &mut b, Some(f), 1e-5, &[], &mut env)
-                .unwrap()
-                .is_empty()
-        );
-        assert!(
-            merge_self_intersection_curves(&mut k, &mut b, None, 1e-5, &[], &mut env)
-                .unwrap()
-                .is_empty()
-        );
+        let mut queries = |_: &mut Kernel,
+                           _: &mut Brep,
+                           _: ShellId,
+                           _: crate::topology::shell::ShellRayInput<EntityRef>|
+         -> crate::topology::shell::ShellRayAttempt<EntityRef> {
+            panic!("a merge without curves must not fire a shell ray")
+        };
+        assert!(merge_self_intersection_curves(
+            &mut k,
+            &mut b,
+            Some(f),
+            1e-5,
+            &[],
+            &mut env,
+            &mut queries,
+        )
+        .unwrap()
+        .is_empty());
+        assert!(merge_self_intersection_curves(
+            &mut k,
+            &mut b,
+            None,
+            1e-5,
+            &[],
+            &mut env,
+            &mut queries,
+        )
+        .unwrap()
+        .is_empty());
     }
 
     #[test]
