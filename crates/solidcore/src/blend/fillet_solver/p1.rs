@@ -3110,6 +3110,9 @@ mod tests {
     use super::*;
     use crate::surface::plane::Plane;
 
+    /// `Evaluate`'s result and the EFO's `(F, F', found, guess_t)` after it.
+    type Evaluated = (Result<(f64, f64, bool)>, (f64, f64, bool, f64));
+
     /// A solver with offsets of `bases` (orientations `orient`) and an EFO on surface 0,
     /// `SM_SP_U`, `iso = 0`, evaluated at `radius`; returns the result and the EFO's
     /// `(F, F', found, guess_t)` after the call.
@@ -3118,7 +3121,7 @@ mod tests {
         orient: [f64; 2],
         other_dom: Extent2d,
         radius: f64,
-    ) -> (Result<(f64, f64, bool)>, (f64, f64, bool, f64)) {
+    ) -> Evaluated {
         let kern = Kernel::default();
         let mut fs = FilletSolver::new(1e-6, 0.1, 0.01);
         for (k, base) in bases.into_iter().enumerate() {
