@@ -13,9 +13,7 @@
 //! * [`Op::Combine`]: a B-spline curve, hand-built curve tree nodes (`SmTreeNode` with an
 //!   `SmBezierAux1d` of the given interval), a hand-built surface cache tree, the solutions
 //!   (objects: the curve and the surface) and the verbatim
-//!   `sm_GlobalCurveIntersectCombineSolutions`. Record: `status [n sol*n]`, or the single
-//!   value [`CLASSIFY_REACHED`] when the run reached the stand-in of the unported
-//!   `sm_ClassifyCurveSurfaceXSectPoint`.
+//!   `sm_GlobalCurveIntersectCombineSolutions`. Record: `status [n sol*n]`.
 //!
 //! Statuses are `0` (`SM_SUCCESS`) or the `SmStatus`. A solution is `type nvars nobjs
 //! start_value start[3] end_value end[3] node0 node1 obj0 obj1`: nodes are indices into the
@@ -75,9 +73,6 @@ pub const MAX_CONTINUITY: u8 = 13;
 pub const MAX_NODE_CLASS: u8 = 3;
 /// Largest `SmSolutionType` code (`SM_ST_UNKNOWN`).
 pub const MAX_SOLUTION_TYPE: u8 = 4;
-/// The status reported when the combination reached the stand-in of
-/// `sm_ClassifyCurveSurfaceXSectPoint`.
-pub const CLASSIFY_REACHED: f64 = -999.0;
 
 /// A clamped B-spline surface: `SmBSplineSurface(gw_SURFACE*, FALSE, ctx)`.
 #[derive(Debug, Clone, PartialEq)]
@@ -377,7 +372,12 @@ fn check_tree(nodes: &[NodeIn], nat: [f64; 4]) -> Result<(), FfiError> {
         if nd.aux > MAX_AUX_TYPE || nd.class > MAX_NODE_CLASS {
             return Err(bad("aux type or node class"));
         }
-        if nd.u_conts.iter().chain(&nd.v_conts).any(|&c| c > MAX_CONTINUITY) {
+        if nd
+            .u_conts
+            .iter()
+            .chain(&nd.v_conts)
+            .any(|&c| c > MAX_CONTINUITY)
+        {
             return Err(bad("continuity code"));
         }
         check_domain(nd.domain, Some(nat), true)?;
@@ -607,10 +607,16 @@ fn encode_lsi(e: &mut Enc, l: &LsiIn, nat: [f64; 4]) -> Result<(), FfiError> {
     e.num(nonneg(l.tolerance_3d)?)
 }
 
-fn encode_combine(e: &mut Enc, c: &CombineIn, nat: [f64; 4], bspline: bool) -> Result<(), FfiError> {
+fn encode_combine(
+    e: &mut Enc,
+    c: &CombineIn,
+    nat: [f64; 4],
+    bspline: bool,
+) -> Result<(), FfiError> {
     let (k0, k1) = e.curve(&c.curve)?;
     let inside_t = |t: f64| t >= k0 && t <= k1;
-    let inside_uv = |u: f64, v: f64| !bspline || (u >= nat[0] && u <= nat[2] && v >= nat[1] && v <= nat[3]);
+    let inside_uv =
+        |u: f64, v: f64| !bspline || (u >= nat[0] && u <= nat[2] && v >= nat[1] && v <= nat[3]);
     check_domain(c.uv_domain, None, false)?;
     e.nums(&c.uv_domain)?;
     if !(c.interval[0] < c.interval[1] && inside_t(c.interval[0]) && inside_t(c.interval[1])) {

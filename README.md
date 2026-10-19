@@ -2,6 +2,8 @@
 
 # solidcore
 
+**📊 Live progress: [tangency-labs.github.io/solidcore](https://tangency-labs.github.io/solidcore/)**: every unit's port status and difftest results, the upstream-issues log, and the surface/surface intersection corpus scores, regenerated on every merge.
+
 solidcore is a Rust port of NVIDIA's SMLib: a boundary-representation (B-rep) solid
 modeling kernel in safe Rust (SMLib is from [USD BRep](https://github.com/NVIDIA-Omniverse/usd-brep), Apache-2.0).
 
@@ -27,6 +29,8 @@ C++ to `1e-9` relative with identical topology, verified unit by unit.
 About a third ported and verified against the C++: the math, NURBS and curve layers,
 with surfaces and topology under way. **Checklist: [`plan/PROGRESS.md`](plan/PROGRESS.md)**
 (updated automatically). Notes and handoff: [`plan/STATUS.md`](plan/STATUS.md).
+The same data, browsable, is on the progress site built by
+[`site/build.py`](site/README.md) (`python3 site/build.py` -> `bin/site/`).
 Nothing is usable end to end yet (no primitives, booleans or fillets).
 
 ## Layout
@@ -38,6 +42,7 @@ Nothing is usable end to end yet (no primitives, booleans or fillets).
 | `crates/difftest`       | Runs Rust and C++ side by side on the same inputs           |
 | `harness/cpp`           | Builds the upstream C++ reference into `bin/cpp`; FFI shims  |
 | `plan/`                 | Unit list, port order, status, findings                      |
+| `site/`                  | Generator for the GitHub Pages progress site                 |
 | `upstream/`             | Local clone of usd-brep at `c9c5979` (gitignored)           |
 | `bin/`                  | All build output (gitignored)                                |
 
@@ -71,6 +76,12 @@ rustflags = ["-C", "link-arg=-zstack-size=8388608"]   # 8 MiB, as a native main 
 ```
 
 ## Difftest (Rust vs C++)
+
+The C++ reference build requires Bash, CMake 3.20 or newer, and a C++17 toolchain.
+Ninja is optional: when absent, CMake uses its default generator (typically Unix
+Makefiles, which requires `make`). Linux with GNU C++ is the parity reference used
+in CI; shell compatibility on macOS does not establish Apple-Clang difftest parity.
+Rust-only builds do not need these C++ build tools.
 
 ```sh
 git clone https://github.com/NVIDIA-Omniverse/usd-brep upstream

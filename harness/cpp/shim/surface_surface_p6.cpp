@@ -13,8 +13,8 @@
 // reads (m_pSurf1, m_pSurf2, m_d3dTolerance of its SmGlobalSolver base). sm_SCLocalSolve takes
 // what it reads from its nodes and patch instead of them (lines marked ADAPTED): the surface to
 // evaluate (sm_GetSurfaceToEvaluate), the patch surface (mBA_pSurface) and the node boxes; its
-// call of sm_SpLocalSolve (static, unit surface.surface_p5, which needs a surface cache) is
-// replaced by status SC_SP_LOCAL_SOLVE (the Rust side defers there).
+// call of sm_SpLocalSolve uses the shared verbatim surface_p5 reference body,
+// with the same resolved surface as the Rust path.
 //
 // One entry point, sc_surface_surface_p6_eval(op, in, n_in, out, cap, out_len). Layouts are
 // documented in crates/solidcore-ffi/src/units/surface_surface_p6.rs, which validates every
@@ -48,12 +48,15 @@
 
 #include <vector>
 
-// Status written when sm_SCLocalSolve reaches sm_SpLocalSolve.
-#define SC_SP_LOCAL_SOLVE (-2.0)
+#include "sc_sm.h"
+
+using sc::put_vec;
 
 namespace sc_srf_p6
 {
 // clang-format off
+#include "surface_sp_local_solve.hpp"
+
 // ---- verbatim: SmSurface.cpp lines 3826-3940: sm_CCLocalSolve
 static SmStatus sm_CCLocalSolve
   (const SmCurve         & crCurve1,
@@ -249,8 +252,7 @@ static SmStatus sm_SCLocalSolve
    SmBoolean               bSkipNormalize,          // in :
    SmBoolean               bProcessBoundaryCurves,  // in :
    double                & rdBestAnswerSoFarSq,     // NotUsed: out:
-   SmSolutionArray       & rSolutions,              // out:
-   bool                  & rbSpLocalSolve)          // ADAPTED: out: TRUE = stopped at sm_SpLocalSolve
+   SmSolutionArray       & rSolutions)              // out:
 {
   SM_REF1(rdBestAnswerSoFarSq) ;
   // check input
@@ -288,7 +290,17 @@ static SmStatus sm_SCLocalSolve
 
           SmPoint3d sPnt;
           SER( crCurve.EvaluatePoint( dT, sPnt ));
-          rbSpLocalSolve = true; return SM_ERR;     // ADAPTED: SER( sm_SpLocalSolve( ... sSolutions ));
+          // ADAPTED: node/patch resolution supplies pSrfEval, as above.
+          SER( sm_SpLocalSolve( pSrfEval,
+                                crUVDomain,
+                                aeUConts,
+                                aeVConts,
+                                sPnt,
+                                d3dTolerance,
+                                eSolverOperation,
+                                TRUE,
+                                bProcessBoundaryCurves,
+                                sSolutions ));
 
           for ( ULONG k=0; k<sSolutions.GetSize(); k++ )
             {
@@ -706,13 +718,6 @@ struct Rd
 double st(SmStatus s) { return s == SM_SUCCESS ? 0.0 : (double)s; }
 double flg(SmBoolean b) { return b ? 1.0 : 0.0; }
 
-void put_vec(std::vector<double>& o, const SmVector3d& v)
-{
-    o.push_back(v.x);
-    o.push_back(v.y);
-    o.push_back(v.z);
-}
-
 const SmContext& the_context()
 {
     static SmContext* p = new SmContext();
@@ -1117,15 +1122,8 @@ void run(int32_t op, Rd& rd, std::vector<double>& o)
         }
         double best = 0.0;
         SmSolutionArray sols;
-        bool sp = false;
         SmStatus r = sc_srf_p6::sm_SCLocalSolve(s, *s, sbox, d, uc, vc, has_cbox ? &cbox : NULL, *c, ivl, tc, tol,
-                                                has_vec ? &vec : NULL, sop, skip, process, best, sols, sp);
-        if (sp)
-        {
-            o.push_back(SC_SP_LOCAL_SOLVE);
-            delete c;
-            break;
-        }
+                                                has_vec ? &vec : NULL, sop, skip, process, best, sols);
         o.push_back(st(r));
         if (r == SM_SUCCESS)
         {

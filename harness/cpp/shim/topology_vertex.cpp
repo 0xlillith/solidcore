@@ -22,6 +22,7 @@
 // pointer-to-member access), never the functions under test. Ops whose upstream path
 // would dereference null (or read an uninitialised value) output -2 instead of calling it.
 #include "sc_shim.h"
+#include "support/topology_fixture.h"
 
 
 #include "StdAfx.h"
@@ -202,6 +203,7 @@ struct LuPeek : SmLoopuse
     static SmLoopuse* SmLoopuse::*mate() { return &LuPeek::m_pLUMate; }
     static SM_TYPE SmLoopuse::*type() { return &LuPeek::m_tLoopuseType; }
     static SmTopology* SmLoopuse::*start() { return &LuPeek::m_pEUorVU; }
+    static SmOrientType SmLoopuse::*orient() { return &LuPeek::m_eOrientation; }
 };
 struct VuPeek : SmVertexuse
 {
@@ -428,6 +430,12 @@ void walk(SmBrep* brep, Graph& g)
     brep->GetRegions(regs);
     for (ULONG i = 0; i < regs.GetSize(); i++)
         g.region(regs[i]);
+    // SmBrep::GetEdges order is observable (SmShell::GetWireEdges, shell wire ownership), and a
+    // wire owned by a face shell may be unreachable from faces/vertex lists: register it first.
+    SmTArray<SmEdge*> all_edges;
+    brep->GetEdges(all_edges);
+    for (ULONG i = 0; i < all_edges.GetSize(); ++i)
+        g.edge(all_edges[i]);
     size_t r = 0, s = 0, fu = 0, lu = 0, eu = 0, vu = 0, l = 0, e = 0, f = 0, v = 0;
     bool more = true;
     while (more)
@@ -549,6 +557,26 @@ void put_curve(std::vector<double>& o, const SmCurve* c)
 
 void put_surface(std::vector<double>& o, const SmSurface* s)
 {
+    // An SmPlane derives from SmBSplineSurface: exported as the whole plane (frame, UV
+    // scale and analytic domain) like sc_edgeuse_graph.h, not as its B-spline part, so the
+    // Rust side sees the kind the C++ code branches on (`3 O X Y su sv umin vmin umax vmax`)
+    if (s != nullptr && s->GetType() == SmPlane_TYPE)
+    {
+        const SmPlane* pl = (const SmPlane*)s;
+        o.push_back(3.0);
+        put_vec(o, pl->GetPosition().GetOrigin());
+        put_vec(o, pl->GetPosition().GetXAxisRef());
+        put_vec(o, pl->GetPosition().GetYAxisRef());
+        SmVector2d sc = pl->GetUVScale();
+        SmExtent2d dom = pl->GetSTEPUVDomain();
+        o.push_back(sc.x);
+        o.push_back(sc.y);
+        o.push_back(dom.GetUMin());
+        o.push_back(dom.GetVMin());
+        o.push_back(dom.GetUMax());
+        o.push_back(dom.GetVMax());
+        return;
+    }
     if (s == nullptr || !s->IsKindOf(SmBSplineSurface_TYPE))
     {
         o.push_back(s == nullptr ? -1.0 : -2.0);
@@ -556,7 +584,15 @@ void put_surface(std::vector<double>& o, const SmSurface* s)
     }
     const SmBSplineSurface* b = (const SmBSplineSurface*)s;
     gw_SURFACE* sur = b->GetGwNurbPointer();
-    o.push_back(0.0);
+    // `4 type` marks a subclass (cone, sphere, torus, revolution, extrusion, ...) exported as
+    // its B-spline part only; the block follows as for kind 0
+    if (s->GetType() != SmBSplineSurface_TYPE)
+    {
+        o.push_back(4.0);
+        o.push_back((double)s->GetType());
+    }
+    else
+        o.push_back(0.0);
     o.push_back(flg(((SmBSplineSurface*)b)->GetOutOfBoundsEnabled()));
     o.push_back((double)b->GetBSplineSurfaceForm());
     o.push_back((double)sur->net->n);
@@ -626,6 +662,13 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
     for (SmFace* p : g.faces)
     {
         put_surface(o, p->GetSurface());
+        // the face's UV domain and tolerance (the vertex/face gaps solve against them)
+        SmExtent2d d = p->GetUVDomain();
+        o.push_back(d.GetMin().x);
+        o.push_back(d.GetMin().y);
+        o.push_back(d.GetMax().x);
+        o.push_back(d.GetMax().y);
+        o.push_back((double)p->GetTolerance());
         o.push_back((double)g.find(2, p->GetUpwardFaceuse()));
     }
     for (SmLoopuse* p : g.loopuses)
@@ -637,6 +680,7 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
         o.push_back((double)ty);
         SmTopology* start = p->*LuPeek::start();
         o.push_back((double)(ty == SmEdgeuse_TYPE ? g.find(6, start) : ty == SmVertexuse_TYPE ? g.find(8, start) : -1));
+        o.push_back((double)(p->*LuPeek::orient()));
     }
     for (SmLoop* p : g.loops)
         o.push_back((double)g.find(4, p->GetLoopuse()));
@@ -718,6 +762,12 @@ void export_graph(SmBrep* brep, Graph& g, std::vector<double>& o)
             v.push_back(g.find(8, t));
         put_list(o, v);
     }
+    // Version 3 shell/region state (infinite region, void flags, wire/vertex shell heads, vertex-use
+    // lists, face-use links), read from the native records by the shared exporter.
+    sc_topology_fixture::append_shell_state(
+        {*brep, g.regions, g.shells, g.faceuses, g.faces, g.loopuses, g.loops, g.edgeuses, g.edges,
+         g.vertexuses, g.vertices},
+        o);
 }
 
 // Builds the B-rep of a B-rep block; nullptr (status in `st`) when construction fails.

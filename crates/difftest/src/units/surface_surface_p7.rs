@@ -25,12 +25,16 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use solidcore::curve::curve::Curve as SmCurve;
+use solidcore::curve::line::Line;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::global_solver::{SolutionRequested, SolverOperation};
-use solidcore::geom::solution_array::{SolutionArray, SolutionEnd, SolutionObject, ObjectKind};
+use solidcore::geom::solution_array::{
+    ObjectKind, SolutionArray, SolutionEnd, SolutionObject, SolutionType,
+};
 use solidcore::geom::vector2d::{Point2, Vec2};
 use solidcore::geom::vector3d::Vec3;
+use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::{
     BSplineSurface, BSplineSurfaceForm, LocationType, SurfParamType,
@@ -41,6 +45,7 @@ use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::surface::curve_bounded_surface::CurveBoundedSurface;
 use solidcore::surface::plane::Plane;
+use solidcore::surface::surf_of_revolution::SurfOfRevolution;
 use solidcore::surface::surface::p7::{
     approx_derivative_lengths, base_evaluate_normal, base_is_closed, check_seam_drop,
     compute_higher_order_derivs, compute_inward_vector, drop_points_to_tangent_plane,
@@ -64,7 +69,7 @@ pub const MIN_GENERATED: usize = 3000;
 /// `surface.surface_p7` runner.
 pub struct Runner;
 
-fn harness(msg: impl Into<String>) -> HarnessError {
+pub(crate) fn harness(msg: impl Into<String>) -> HarnessError {
     HarnessError::new(msg)
 }
 
@@ -74,25 +79,25 @@ const SM_ERR: f64 = 1001.0;
 // ---- inputs -----------------------------------------------------------------------
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct BssIn {
+pub(crate) struct BssIn {
     #[serde(default)]
-    oob: bool,
+    pub(crate) oob: bool,
     #[serde(default = "default_form")]
-    form: u8,
-    net: Vec<Vec<[f64; 4]>>,
-    p: usize,
-    q: usize,
-    u: Vec<f64>,
-    v: Vec<f64>,
+    pub(crate) form: u8,
+    pub(crate) net: Vec<Vec<[f64; 4]>>,
+    pub(crate) p: usize,
+    pub(crate) q: usize,
+    pub(crate) u: Vec<f64>,
+    pub(crate) v: Vec<f64>,
 }
 
-fn default_form() -> u8 {
+pub(crate) fn default_form() -> u8 {
     BSplineSurfaceForm::Unspecified as u8
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-enum SrfIn {
+pub(crate) enum SrfIn {
     Bspline(BssIn),
     Plane { o: [f64; 3], n: [f64; 3] },
     /// An upstream `.sms` file (absolute path after fixture expansion), as a B-spline
@@ -100,6 +105,16 @@ enum SrfIn {
     Sms(String),
     /// An `SmCurveBoundedSurface` without boundary curves over `basis`.
     Bounded { basis: Box<SrfIn>, implicit: bool },
+    /// An `SmSurfOfRevolution` (`CreateCanonical`) of the line `a`-`b` about the axis
+    /// through `p` along `axis`, with `SetOutOfBoundsEnabled(oob)` (surface and generator).
+    Revolution {
+        a: [f64; 3],
+        b: [f64; 3],
+        p: [f64; 3],
+        axis: [f64; 3],
+        swap: bool,
+        oob: bool,
+    },
 }
 
 fn numbers(path: &str) -> Result<Vec<f64>, HarnessError> {
@@ -152,7 +167,7 @@ fn read_sms(path: &str) -> Result<BssIn, HarnessError> {
 }
 
 /// `s` with a file replaced by its inline B-spline.
-fn resolve(s: &SrfIn) -> Result<SrfIn, HarnessError> {
+pub(crate) fn resolve(s: &SrfIn) -> Result<SrfIn, HarnessError> {
     match s {
         SrfIn::Sms(path) => Ok(SrfIn::Bspline(read_sms(path)?)),
         _ => Ok(s.clone()),
@@ -160,11 +175,11 @@ fn resolve(s: &SrfIn) -> Result<SrfIn, HarnessError> {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct CrvIn {
-    dim: u64,
-    cpts: Vec<[f64; 4]>,
-    p: usize,
-    u: Vec<f64>,
+pub(crate) struct CrvIn {
+    pub(crate) dim: u64,
+    pub(crate) cpts: Vec<[f64; 4]>,
+    pub(crate) p: usize,
+    pub(crate) u: Vec<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -270,11 +285,11 @@ mod non_finite3 {
 
 // ---- C++ side -----------------------------------------------------------------------
 
-fn b(x: bool) -> f64 {
+pub(crate) fn b(x: bool) -> f64 {
     f64::from(u8::from(x))
 }
 
-fn shape(s: &BssIn) -> Result<(usize, usize), HarnessError> {
+pub(crate) fn shape(s: &BssIn) -> Result<(usize, usize), HarnessError> {
     let n = s.net.len().checked_sub(1).ok_or_else(|| harness("empty net"))?;
     let cols = s.net.first().map_or(0, Vec::len);
     let m = cols.checked_sub(1).ok_or_else(|| harness("empty net row"))?;
@@ -284,13 +299,20 @@ fn shape(s: &BssIn) -> Result<(usize, usize), HarnessError> {
     Ok((n, m))
 }
 
-fn push_srf(o: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
+pub(crate) fn push_srf(o: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
     match &resolve(s)? {
         SrfIn::Sms(_) => return Err(harness("unresolved surface file")),
         SrfIn::Bounded { basis, implicit } => {
             o.push(2.0);
             push_srf(o, basis)?;
             o.push(b(*implicit));
+        }
+        SrfIn::Revolution { a, b: bb, p, axis, swap, oob } => {
+            o.push(3.0);
+            for v in [a, bb, p, axis] {
+                o.extend_from_slice(v);
+            }
+            o.extend([b(*swap), b(*oob)]);
         }
         SrfIn::Plane { o: org, n } => {
             o.push(1.0);
@@ -316,7 +338,7 @@ fn push_srf(o: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessError> {
     Ok(())
 }
 
-fn push_crv(o: &mut Vec<f64>, c: &CrvIn) {
+pub(crate) fn push_crv(o: &mut Vec<f64>, c: &CrvIn) {
     let n = c.cpts.len().saturating_sub(1);
     let m = c.u.len().saturating_sub(1);
     o.extend([c.dim as f64, n as f64, c.p as f64, m as f64]);
@@ -326,14 +348,14 @@ fn push_crv(o: &mut Vec<f64>, c: &CrvIn) {
     o.extend_from_slice(&c.u);
 }
 
-fn push_vecs(o: &mut Vec<f64>, v: &[[f64; 3]]) {
+pub(crate) fn push_vecs(o: &mut Vec<f64>, v: &[[f64; 3]]) {
     o.push(v.len() as f64);
     for x in v {
         o.extend_from_slice(x);
     }
 }
 
-fn push_opt(o: &mut Vec<f64>, x: Option<f64>) {
+pub(crate) fn push_opt(o: &mut Vec<f64>, x: Option<f64>) {
     o.extend([b(x.is_some()), x.unwrap_or(0.0)]);
 }
 
@@ -570,19 +592,19 @@ fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
 
 // ---- Rust side ----------------------------------------------------------------------
 
-fn v3(p: [f64; 3]) -> Vec3 {
+pub(crate) fn v3(p: [f64; 3]) -> Vec3 {
     Vec3::from_array(p)
 }
 
-fn p2(p: [f64; 2]) -> Point2 {
+pub(crate) fn p2(p: [f64; 2]) -> Point2 {
     Point2::new(p[0], p[1])
 }
 
-fn dom_of(d: [f64; 4]) -> Extent2d {
+pub(crate) fn dom_of(d: [f64; 4]) -> Extent2d {
     Extent2d::from_points(Point2::new(d[0], d[1]), Point2::new(d[2], d[3]))
 }
 
-fn side(left: bool) -> Side {
+pub(crate) fn side(left: bool) -> Side {
     if left {
         Side::Left
     } else {
@@ -590,7 +612,7 @@ fn side(left: bool) -> Side {
     }
 }
 
-fn surface_of(s: &SrfIn) -> Result<Surface, HarnessError> {
+pub(crate) fn surface_of(s: &SrfIn) -> Result<Surface, HarnessError> {
     match &resolve(s)? {
         SrfIn::Sms(_) => Err(harness("unresolved surface file")),
         SrfIn::Bounded { basis, implicit } => Ok(Surface::from(CurveBoundedSurface::new(
@@ -600,6 +622,21 @@ fn surface_of(s: &SrfIn) -> Result<Surface, HarnessError> {
             *implicit,
         ))),
         SrfIn::Plane { o, n } => Ok(Surface::from(Plane::from_normal(v3(*o), v3(*n)))),
+        SrfIn::Revolution { a, b, p, axis, swap, oob } => {
+            let k = Kernel::default();
+            let mut l = Line::from_points(v3(*a), v3(*b), 3);
+            l.make_nurb().map_err(|e| harness(format!("line nurb: {e}")))?;
+            let mut r = SurfOfRevolution::create_canonical(
+                &k,
+                SmCurve::from(l),
+                v3(*p),
+                v3(*axis),
+                *swap,
+            )
+            .map_err(|e| harness(format!("revolution: {e}")))?;
+            r.set_out_of_bounds_enabled(*oob);
+            Ok(Surface::from(r))
+        }
         SrfIn::Bspline(bs) => {
             let net = bs
                 .net
@@ -618,7 +655,7 @@ fn surface_of(s: &SrfIn) -> Result<Surface, HarnessError> {
     }
 }
 
-fn curve_of(c: &CrvIn) -> Result<SmCurve, HarnessError> {
+pub(crate) fn curve_of(c: &CrvIn) -> Result<SmCurve, HarnessError> {
     let pw = c
         .cpts
         .iter()
@@ -628,11 +665,11 @@ fn curve_of(c: &CrvIn) -> Result<SmCurve, HarnessError> {
     Ok(SmCurve::from(BSplineCurve::from_nurb(cur, c.dim, false)))
 }
 
-fn sop_of(v: u8) -> Result<SolverOperation, HarnessError> {
+pub(crate) fn sop_of(v: u8) -> Result<SolverOperation, HarnessError> {
     SolverOperation::from_code(i32::from(v)).ok_or_else(|| harness(format!("bad solver op {v}")))
 }
 
-fn param_of(v: u8) -> Result<SurfParamType, HarnessError> {
+pub(crate) fn param_of(v: u8) -> Result<SurfParamType, HarnessError> {
     SurfParamType::from_code(u64::from(v)).ok_or_else(|| harness(format!("bad param {v}")))
 }
 
@@ -649,7 +686,7 @@ fn loc_of(v: u8) -> Result<LocationType, HarnessError> {
     })
 }
 
-fn req_of(v: u8) -> Result<SolutionRequested, HarnessError> {
+pub(crate) fn req_of(v: u8) -> Result<SolutionRequested, HarnessError> {
     SolutionRequested::ALL
         .get(usize::from(v))
         .copied()
@@ -658,7 +695,7 @@ fn req_of(v: u8) -> Result<SolutionRequested, HarnessError> {
 
 /// The `SmStatus` of a Rust error; `1007` for `InvalidInput`, `-1` for one upstream
 /// cannot return.
-fn status(e: &SolidError) -> f64 {
+pub(crate) fn status(e: &SolidError) -> f64 {
     match e {
         SolidError::InvalidInput { .. } => 1007.0,
         SolidError::Upstream { code, .. } => f64::from(*code),
@@ -667,7 +704,7 @@ fn status(e: &SolidError) -> f64 {
 }
 
 /// A Rust failure: deferred for `Unported`, else a harness error.
-enum Fail {
+pub(crate) enum Fail {
     Deferred(Box<Output>),
     Harness(HarnessError),
 }
@@ -679,7 +716,7 @@ impl From<HarnessError> for Fail {
 }
 
 /// `Ok(v)` or the status; `Unported` defers the case.
-fn st<T>(r: solidcore::Result<T>) -> Result<Result<T, f64>, Fail> {
+pub(crate) fn st<T>(r: solidcore::Result<T>) -> Result<Result<T, f64>, Fail> {
     match r {
         Ok(v) => Ok(Ok(v)),
         Err(e) => match Output::unported(&e) {
@@ -689,11 +726,11 @@ fn st<T>(r: solidcore::Result<T>) -> Result<Result<T, f64>, Fail> {
     }
 }
 
-fn pv(o: &mut Vec<f64>, v: Vec3) {
+pub(crate) fn pv(o: &mut Vec<f64>, v: Vec3) {
     o.extend([v.x, v.y, v.z]);
 }
 
-fn puv(o: &mut Vec<f64>, v: Vec2) {
+pub(crate) fn puv(o: &mut Vec<f64>, v: Vec2) {
     o.extend([v.x, v.y]);
 }
 
@@ -705,6 +742,61 @@ impl SolutionObject for Obj {
     fn kind(&self) -> ObjectKind {
         ObjectKind::Surface
     }
+}
+
+/// The handles of the global curve and surface solves (wired by unit
+/// `surface.surface_p11`): the solved curve or surface, with the natural interval or
+/// domain upstream reads through the object pointer.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct Handle {
+    id: u8,
+    interval: Option<Extent1d>,
+    domain: Option<Extent2d>,
+}
+
+impl SolutionObject for Handle {
+    fn kind(&self) -> ObjectKind {
+        if self.interval.is_some() {
+            ObjectKind::Curve
+        } else {
+            ObjectKind::Surface
+        }
+    }
+    fn natural_interval(&self) -> Option<Extent1d> {
+        self.interval
+    }
+    fn natural_uv_domain(&self) -> Option<Extent2d> {
+        self.domain
+    }
+}
+
+fn surface_handle(id: u8, s: &Surface) -> Handle {
+    Handle {
+        id,
+        interval: None,
+        domain: Some(s.natural_uv_domain()),
+    }
+}
+
+/// The first [`SOLS_OUT`] solutions of a global solve, as the shim's `put_sols`
+/// writes them: type, value, variable count (at most 4), the start parameters and,
+/// for a range, the end parameters.
+const SOLS_OUT: usize = 16;
+
+fn put_sols(o: &mut Vec<f64>, sols: &SolutionArray<Handle>) -> Result<(), Fail> {
+    for s in sols.as_slice().iter().take(SOLS_OUT) {
+        let n = s.num_variables.min(4);
+        o.extend([f64::from(s.solution_type as i32), s.start.solution_value, n as f64]);
+        for j in 0..n {
+            o.push(s.start.param(j).map_err(|e| harness(e.to_string()))?);
+        }
+        if s.solution_type == SolutionType::RangeOfValues {
+            for j in 0..n {
+                o.push(s.end.param(j).map_err(|e| harness(e.to_string()))?);
+            }
+        }
+    }
+    Ok(())
 }
 
 fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
@@ -786,7 +878,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
             if *base && matches!(i.surface, SrfIn::Plane { .. }) {
                 return Err(harness("base IsPlanar of a plane is not compared").into());
             }
-            let pl = st(s.is_planar(*tol))?.map_err(|c| harness(format!("IsPlanar failed: {c}")))?;
+            let pl = st(s.is_planar(&Kernel::default(), *tol))?.map_err(|c| harness(format!("IsPlanar failed: {c}")))?;
             o.extend([0.0, b(pl.is_planar)]);
             pv(&mut o, pl.point);
             pv(&mut o, pl.normal);
@@ -873,7 +965,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
             }
         }
         OpIn::Flat { angle, want } => {
-            let f = st(s.flat_corners(&solidcore::kernel::Kernel::default(), *angle, *want))?
+            let f = st(s.flat_corners(&Kernel::default(), *angle, *want))?
                 .map_err(|c| harness(format!("GetFlatCorners failed: {c}")))?;
             o.extend([0.0, f64::from(f.flags)]);
             if let Some(pts) = f.points {
@@ -894,7 +986,10 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
             target,
             req,
         } => {
+            let k = Kernel::default();
             let r: solidcore::Result<SolutionArray<Obj>> = s.global_point_solve_0(
+                &k,
+                Obj,
                 &dom_of(*dom),
                 sop_of(*sop)?,
                 v3(*p),
@@ -903,7 +998,16 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
                 req_of(*req)?,
             );
             match st(r)? {
-                Ok(a) => o.extend([0.0, a.len() as f64]),
+                Ok(a) => {
+                    o.extend([0.0, a.len() as f64]);
+                    for sol in a.as_slice() {
+                        o.extend([
+                            sol.start.solution_value,
+                            sol.start.parameters.first().copied().unwrap_or(0.0),
+                            sol.start.parameters.get(1).copied().unwrap_or(0.0),
+                        ]);
+                    }
+                }
                 Err(c) => o.extend([c, 0.0]),
             }
         }
@@ -919,7 +1023,14 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
         } => {
             let c = curve_of(curve)?;
             let vecs: Vec<Vec3> = vecs.iter().map(|p| v3(*p)).collect();
-            let r: solidcore::Result<SolutionArray<Obj>> = s.global_curve_solve(
+            let k = Kernel::default();
+            let curve_handle = Some(Handle {
+                id: 0,
+                interval: Some(c.natural_interval()),
+                domain: None,
+            });
+            let r: solidcore::Result<SolutionArray<Handle>> = s.global_curve_solve(
+                &k,
                 &dom_of(*dom),
                 &c,
                 &Extent1d::from_min_max(ivl[0], ivl[1]),
@@ -928,9 +1039,13 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
                 *target,
                 &vecs,
                 req_of(*req)?,
+                [curve_handle, Some(surface_handle(1, &s))],
             );
             match st(r)? {
-                Ok(a) => o.extend([0.0, a.len() as f64]),
+                Ok(a) => {
+                    o.extend([0.0, a.len() as f64]);
+                    put_sols(&mut o, &a)?;
+                }
                 Err(c) => o.extend([c, 0.0]),
             }
         }
@@ -946,7 +1061,10 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
         } => {
             let s2 = surface_of(other)?;
             let vecs: Vec<Vec3> = vecs.iter().map(|p| v3(*p)).collect();
-            let r: solidcore::Result<SolutionArray<Obj>> = s.global_surface_solve(
+            let k = Kernel::default();
+            let handles = [Some(surface_handle(1, &s)), Some(surface_handle(2, &s2))];
+            let r: solidcore::Result<SolutionArray<Handle>> = s.global_surface_solve(
+                &k,
                 &dom_of(*dom),
                 &s2,
                 &dom_of(*dom2),
@@ -955,9 +1073,13 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
                 *target,
                 &vecs,
                 req_of(*req)?,
+                handles,
             );
             match st(r)? {
-                Ok(a) => o.extend([0.0, a.len() as f64]),
+                Ok(a) => {
+                    o.extend([0.0, a.len() as f64]);
+                    put_sols(&mut o, &a)?;
+                }
                 Err(c) => o.extend([c, 0.0]),
             }
         }
@@ -1003,7 +1125,7 @@ fn rust_run(i: &Inputs) -> Result<Vec<f64>, Fail> {
             let cur = Curve::new(pw, curve.p, curve.u.clone())
                 .map_err(|e| harness(format!("curve input: {e}")))?;
             let bc = BSplineCurve::from_nurb(cur, curve.dim, false);
-            let k = solidcore::kernel::Kernel::default();
+            let k = Kernel::default();
             match st(s.create_parallel_projection_curves(&k, &dom_of(*dom), &bc, v3(*vec), *dist, None, None))? {
                 Ok((c3d, _)) => o.extend([0.0, c3d.len() as f64]),
                 Err(c) => o.extend([c, 0.0]),
@@ -1088,7 +1210,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
 
 // ---- generator --------------------------------------------------------------------
 
-fn gen_knots(rng: &mut Rng, p: usize, n: usize) -> Vec<f64> {
+pub(crate) fn gen_knots(rng: &mut Rng, p: usize, n: usize) -> Vec<f64> {
     let interior = n - p;
     let mut inner: Vec<f64> = (0..interior).map(|_| rng.uniform(0.05, 0.95)).collect();
     if rng.chance(0.2) && interior >= 2 && p >= 2 {
@@ -1113,7 +1235,7 @@ fn gen_knots(rng: &mut Rng, p: usize, n: usize) -> Vec<f64> {
 
 /// The surface shapes the generator makes.
 #[derive(Debug, Clone, Copy, PartialEq)]
-enum Shape {
+pub(crate) enum Shape {
     /// A random bumpy net.
     Bumpy,
     /// A flat net (planar within noise or exactly).
@@ -1129,7 +1251,7 @@ enum Shape {
     Pinched,
 }
 
-fn gen_bss(rng: &mut Rng, shape: Shape) -> BssIn {
+pub(crate) fn gen_bss(rng: &mut Rng, shape: Shape) -> BssIn {
     let p = 1 + rng.below(3) as usize;
     let q = 1 + rng.below(3) as usize;
     let n = p + rng.below(3) as usize;
@@ -1225,7 +1347,7 @@ fn gen_bss(rng: &mut Rng, shape: Shape) -> BssIn {
     }
 }
 
-fn gen_plane(rng: &mut Rng) -> SrfIn {
+pub(crate) fn gen_plane(rng: &mut Rng) -> SrfIn {
     let mut n = rng.point3(-1.0, 1.0);
     if n.iter().map(|c| c * c).sum::<f64>() < 1e-2 {
         n = [0.0, 0.0, 1.0];
@@ -1236,7 +1358,7 @@ fn gen_plane(rng: &mut Rng) -> SrfIn {
     }
 }
 
-fn gen_surface(rng: &mut Rng) -> SrfIn {
+pub(crate) fn gen_surface(rng: &mut Rng) -> SrfIn {
     if rng.chance(0.08) {
         let basis = match rng.below(4) {
             0 => gen_plane(rng),
@@ -1260,7 +1382,7 @@ fn gen_surface(rng: &mut Rng) -> SrfIn {
 }
 
 /// The natural domain `[u0, v0, u1, v1]` of a surface input.
-fn natural(s: &SrfIn) -> [f64; 4] {
+pub(crate) fn natural(s: &SrfIn) -> [f64; 4] {
     match s {
         SrfIn::Sms(_) => [0.0, 0.0, 1.0, 1.0],
         SrfIn::Bounded { basis, .. } => natural(basis),
@@ -1270,7 +1392,7 @@ fn natural(s: &SrfIn) -> [f64; 4] {
             bs.u.last().copied().unwrap_or(1.0),
             bs.v.last().copied().unwrap_or(1.0),
         ],
-        SrfIn::Plane { .. } => {
+        SrfIn::Plane { .. } | SrfIn::Revolution { .. } => {
             let d = surface_of(s).map_or_else(
                 |_| Extent2d::from_points(Point2::new(0.0, 0.0), Point2::new(1.0, 1.0)),
                 |x| x.natural_uv_domain(),
@@ -1281,7 +1403,7 @@ fn natural(s: &SrfIn) -> [f64; 4] {
 }
 
 /// A parameter in `[a, b]`: interior, at an end, at a knot.
-fn gen_param(rng: &mut Rng, a: f64, b: f64, knots: Option<&[f64]>) -> f64 {
+pub(crate) fn gen_param(rng: &mut Rng, a: f64, b: f64, knots: Option<&[f64]>) -> f64 {
     match rng.below(10) {
         0 => a,
         1 => b,
@@ -1291,7 +1413,7 @@ fn gen_param(rng: &mut Rng, a: f64, b: f64, knots: Option<&[f64]>) -> f64 {
     }
 }
 
-fn gen_uv(rng: &mut Rng, s: &SrfIn) -> [f64; 2] {
+pub(crate) fn gen_uv(rng: &mut Rng, s: &SrfIn) -> [f64; 2] {
     let [u0, v0, u1, v1] = natural(s);
     let base = match s {
         SrfIn::Bounded { basis, .. } => basis.as_ref(),
@@ -1299,13 +1421,15 @@ fn gen_uv(rng: &mut Rng, s: &SrfIn) -> [f64; 2] {
     };
     let (ku, kv) = match base {
         SrfIn::Bspline(bs) => (Some(bs.u.as_slice()), Some(bs.v.as_slice())),
-        SrfIn::Plane { .. } | SrfIn::Sms(_) | SrfIn::Bounded { .. } => (None, None),
+        SrfIn::Plane { .. } | SrfIn::Revolution { .. } | SrfIn::Sms(_) | SrfIn::Bounded { .. } => {
+            (None, None)
+        }
     };
     [gen_param(rng, u0, u1, ku), gen_param(rng, v0, v1, kv)]
 }
 
 /// A `uv` point on a domain boundary or corner half the time.
-fn gen_boundary_uv(rng: &mut Rng, s: &SrfIn) -> [f64; 2] {
+pub(crate) fn gen_boundary_uv(rng: &mut Rng, s: &SrfIn) -> [f64; 2] {
     let [u0, v0, u1, v1] = natural(s);
     let mut uv = gen_uv(rng, s);
     if rng.chance(0.5) {
@@ -1318,7 +1442,7 @@ fn gen_boundary_uv(rng: &mut Rng, s: &SrfIn) -> [f64; 2] {
     uv
 }
 
-fn gen_dom(rng: &mut Rng, s: &SrfIn) -> [f64; 4] {
+pub(crate) fn gen_dom(rng: &mut Rng, s: &SrfIn) -> [f64; 4] {
     let [u0, v0, u1, v1] = natural(s);
     if rng.chance(0.6) {
         return [u0, v0, u1, v1];
@@ -1331,7 +1455,7 @@ fn gen_dom(rng: &mut Rng, s: &SrfIn) -> [f64; 4] {
     [a, b, c, e]
 }
 
-fn gen_curve(rng: &mut Rng) -> CrvIn {
+pub(crate) fn gen_curve(rng: &mut Rng) -> CrvIn {
     let p = 1 + rng.below(3) as usize;
     let n = p + rng.below(4) as usize;
     let cpts = (0..=n)
@@ -1352,7 +1476,7 @@ fn gen_curve(rng: &mut Rng) -> CrvIn {
     }
 }
 
-fn gen_point_near(rng: &mut Rng, s: &SrfIn) -> [f64; 3] {
+pub(crate) fn gen_point_near(rng: &mut Rng, s: &SrfIn) -> [f64; 3] {
     if let Ok(srf) = surface_of(s) {
         let uv = gen_uv(rng, s);
         if let Ok(p) = srf.evaluate_point(p2(uv)) {
@@ -1364,7 +1488,7 @@ fn gen_point_near(rng: &mut Rng, s: &SrfIn) -> [f64; 3] {
     rng.point3(-5.0, 5.0)
 }
 
-fn gen_vecs(rng: &mut Rng, n: usize) -> Vec<[f64; 3]> {
+pub(crate) fn gen_vecs(rng: &mut Rng, n: usize) -> Vec<[f64; 3]> {
     (0..n)
         .map(|_| {
             if rng.chance(0.1) {
@@ -1374,6 +1498,33 @@ fn gen_vecs(rng: &mut Rng, n: usize) -> Vec<[f64; 3]> {
             }
         })
         .collect()
+}
+
+/// A non-zero direction (the signed directed solves' `m_cpOptVectors[0]`).
+fn gen_direction(rng: &mut Rng) -> [f64; 3] {
+    let mut d = rng.point3(-1.0, 1.0);
+    d[2] += if d[2] < 0.0 { -0.5 } else { 0.5 };
+    d
+}
+
+/// The `z` range of a B-spline surface's control points (homogeneous, weight `NOW`
+/// for non-rational).
+fn z_range(bs: &BssIn) -> (f64, f64) {
+    bs.net
+        .iter()
+        .flatten()
+        .map(|p| p[2] / if p[3] == NOW { 1.0 } else { p[3] })
+        .fold((f64::INFINITY, f64::NEG_INFINITY), |(lo, hi), z| (lo.min(z), hi.max(z)))
+}
+
+/// Moves `other` in `z` so its control hull (and so the surface) lies `gap` above
+/// `below`'s.
+fn lift_above(other: &mut BssIn, below: &BssIn, gap: f64) {
+    let dz = z_range(below).1 - z_range(other).0 + gap;
+    for p in other.net.iter_mut().flatten() {
+        let w = if p[3] == NOW { 1.0 } else { p[3] };
+        p[2] += dz * w;
+    }
 }
 
 fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
@@ -1480,13 +1631,16 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
         32 if !is_plane => {
             let c = gen_curve(rng);
             let (a, bb) = (c.u.first().copied().unwrap_or(0.0), c.u.last().copied().unwrap_or(1.0));
+            // minimize, maximize, normalize and signed directed minimize (along a
+            // non-zero vector) reach every branch of SmCSGlobalSolver::LocalSolve
+            let sop = *rng.choose(&[3u8, 4, 5, 9]).unwrap_or(&3);
             OpIn::Gcs {
                 dom: gen_dom(rng, s),
                 curve: c,
                 ivl: [a, bb],
-                sop: *rng.choose(&[3u8, 4]).unwrap_or(&3),
+                sop,
                 tol: 1e-6,
-                vecs: Vec::new(),
+                vecs: if sop == 9 { vec![gen_direction(rng)] } else { Vec::new() },
                 target: None,
                 req: 0,
             }
@@ -1506,9 +1660,32 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
                 guess_t: 0.5 * (a + bb),
             }
         }
-        // surface/surface global solves are fixture-only: two random surfaces often
-        // intersect, and minimizing over the intersection curve's continuum of zero
-        // distances takes upstream minutes (the Rust side defers anyway)
+        // surface/surface global solves: a bumpy patch lifted clear above a B-spline
+        // surface (two random surfaces often intersect, and minimizing over the
+        // intersection curve's continuum of zero distances takes upstream minutes);
+        // intersect (for the node pairs) on the crossing surfaces
+        34 => match s {
+            SrfIn::Bspline(bs) => {
+                let sop = *rng.choose(&[0u8, 3, 4, 5, 9]).unwrap_or(&3);
+                let mut other = gen_bss(rng, Shape::Bumpy);
+                if sop != 0 {
+                    let gap = *rng.choose(&[0.05, 0.5, 2.0]).unwrap_or(&0.5);
+                    lift_above(&mut other, bs, gap);
+                }
+                let other = SrfIn::Bspline(other);
+                OpIn::Gss {
+                    dom: gen_dom(rng, s),
+                    dom2: gen_dom(rng, &other),
+                    other,
+                    sop,
+                    tol: 1e-6,
+                    vecs: if sop == 9 { vec![gen_direction(rng)] } else { Vec::new() },
+                    target: None,
+                    req: if sop == 0 { 3 } else { rng.below(2) as u8 },
+                }
+            }
+            _ => OpIn::Brep,
+        },
         35 if !is_plane => OpIn::Proj {
             dom: gen_dom(rng, s),
             curve: gen_curve(rng),
@@ -1570,7 +1747,7 @@ fn gen_op(rng: &mut Rng, s: &SrfIn) -> OpIn {
     }
 }
 
-/// The ops that run an upstream global solve (all deferred on the Rust side).
+/// The ops that run a global solve.
 fn is_solve(op: &OpIn) -> bool {
     matches!(
         op,
@@ -1579,7 +1756,7 @@ fn is_solve(op: &OpIn) -> bool {
 }
 
 /// Whether a surface's control points span roughly unit size (`0.5..=100`).
-fn unit_scale(s: &SrfIn) -> bool {
+pub(crate) fn unit_scale(s: &SrfIn) -> bool {
     match s {
         SrfIn::Bspline(bs) => {
             let max = bs
@@ -1617,12 +1794,18 @@ impl UnitDiff for Runner {
             if ffi::validate(op, &input).is_err() {
                 continue;
             }
-            if let Err(Fail::Harness(_)) = rust_run(&i) {
+            // keep the global solves and the projection off extreme scales, where the
+            // subdivision of both sides runs for minutes (checked before the Rust run
+            // below, which runs the solve too)
+            if is_solve(&i.op) && !unit_scale(&i.surface) {
                 continue;
             }
-            // the global solves and the projection always defer (surface cache); keep
-            // their C++ side off extreme scales, where its subdivision runs for minutes
-            if is_solve(&i.op) && !unit_scale(&i.surface) {
+            if let OpIn::Gss { other, .. } = &i.op {
+                if !unit_scale(other) {
+                    continue;
+                }
+            }
+            if let Err(Fail::Harness(_)) = rust_run(&i) {
                 continue;
             }
             return serde_json::to_value(i).ok();

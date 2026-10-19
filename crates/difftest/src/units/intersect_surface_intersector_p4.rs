@@ -50,7 +50,7 @@ use solidcore::kernel::Kernel;
 use solidcore::math::UNDEF_DOUBLE;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
 use solidcore::surface::curve_bounded_surface::CurveBoundedSurface;
 use solidcore::surface::plane::Plane;
@@ -67,8 +67,6 @@ pub const MIN_GENERATED: usize = 1500;
 
 /// `intersect.surface_intersector_p4` runner.
 pub struct Runner;
-
-const NOW: f64 = -f64::MAX;
 
 /// No start or end point in the state record.
 const NO_POINT: f64 = -3.0;
@@ -1000,7 +998,7 @@ fn run_op(run: &mut Run, si: &mut SurfaceIntersector<'_>, op: &OpIn, o: &mut Vec
                 Some(j) => Some(pt_of(si, *j)?),
                 None => None,
             };
-            let r = si.compute_point_values([p2(uvs[0]), p2(uvs[1])], &mut p, prev_p.as_ref(), *step);
+            let r = si.compute_point_values(&Kernel::default(), [p2(uvs[0]), p2(uvs[1])], &mut p, prev_p.as_ref(), *step);
             st(o, r)?;
             put_point(o, &p);
             set_pt(si, *i, p)?;

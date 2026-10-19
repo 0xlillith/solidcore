@@ -524,33 +524,42 @@ fn read_surface(rd: &mut Rd<'_>) -> Result<(Option<Surface>, bool), HarnessError
 /// Whether each face's surface and each edge's curve was imported exactly (an
 /// `SmBSplineSurface` subclass other than `SmPlane`, or an `SmBSplineCurve` subclass
 /// other than `SmLine`, is imported as its B-spline part).
-struct Exact {
-    faces: Vec<bool>,
-    edges: Vec<bool>,
+pub(crate) struct Exact {
+    pub(crate) faces: Vec<bool>,
+    pub(crate) edges: Vec<bool>,
 }
 
-/// Builds the Rust B-rep from the shim's export (see the module docs).
-fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
+/// Builds the Rust B-rep from the shim's export (see the module docs; shared with unit
+/// `query.face_p2`, whose shim exports the same layout).
+pub(crate) fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
     let c = ffi::counts(ex).ok_or_else(|| harness("import of a failed build"))?;
     let [n_r, n_s, n_fu, n_f, n_lu, n_l, n_eu, n_e, n_vu, n_v] = c;
     let mut rd = Rd { v: ex, at: 1 };
     let validate_only = rd.num()? != 0.0;
     rd.at = 12;
 
+    // Region shell lists, shell types and face-use lists as exported (void flags
+    // are not exported and stay 0); wire/vertex shell heads are set after import.
     let mut regions = Vec::new();
     for _ in 0..n_r {
         let in_brep = rd.num()? != 0.0;
-        rd.list()?;
-        regions.push(Region { in_brep });
+        let shells = super::topology_vertexuse::region_shell_list(rd.list()?)?;
+        regions.push(Region {
+            in_brep,
+            shells,
+            ..Region::default()
+        });
     }
     let mut shells = Vec::new();
     for _ in 0..n_s {
         let region = opt(rd.idx()?, RegionId::from_index)?;
-        rd.idx()?;
-        rd.list()?;
+        let (shell_type, members) =
+            super::topology_vertexuse::shell_members(rd.idx()?, rd.list()?)?;
         shells.push(Shell {
             faces: Vec::new(),
             region,
+            shell_type,
+            members,
         });
     }
     let mut faceuses = Vec::new();
@@ -570,6 +579,7 @@ fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
             mate,
             orientation,
             loopuses,
+            sibling_links: None,
         });
     }
     let mut surfaces = Vec::new();
@@ -604,11 +614,13 @@ fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
             VERTEXUSE_TYPE => LoopuseStart::Vertexuse(opt(start, VertexuseId::from_index)?),
             _ => LoopuseStart::Unknown,
         };
+        let orientation = orient_of(rd.idx()?)?;
         loopuses.push(Loopuse {
             faceuse,
             loop_,
             mate,
             start,
+            orientation,
         });
     }
     let mut loop_lus = Vec::new();
@@ -731,6 +743,14 @@ fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
             ..Vertex::default()
         });
     }
+    let infinite_region = super::topology_vertexuse::read_shell_state(
+        ex,
+        &mut rd.at,
+        &mut regions,
+        &mut shells,
+        &mut vertices,
+        &mut faceuses,
+    )?;
     if rd.at != ex.len() {
         return Err(harness("export: trailing data"));
     }
@@ -738,6 +758,7 @@ fn import(ex: &[f64]) -> Result<(Brep, Exact), HarnessError> {
     // assemble (skeleton fields filled minimally)
     let mut b = Brep::new();
     b.set_validate_only(validate_only);
+    b.set_infinite_region_record(infinite_region);
     for r in regions {
         b.add_region_record(r).map_err(|e| harness(e.to_string()))?;
     }
@@ -1912,7 +1933,8 @@ fn run_rust_geom(op: &OpIn) -> Result<Vec<f64>, Fail> {
         } => {
             let s = rust_surface(surface)?;
             let l = fp2::PrecisePropertyLayout::new(*flags);
-            let e = fp2::OdeIsoCurveLength::new(&s, *u, Vec3::new(origin[0], origin[1], origin[2]), *thickness, &l);
+            let k = Kernel::default();
+            let e = fp2::OdeIsoCurveLength::new(&k, &s, *u, Vec3::new(origin[0], origin[1], origin[2]), *thickness, &l);
             let mut d = vec![7.0; *n];
             let r = e.evaluate(*t, &mut d);
             match r {
@@ -1937,7 +1959,9 @@ fn run_rust_geom(op: &OpIn) -> Result<Vec<f64>, Fail> {
             let s = rust_surface(surface)?;
             let c = rust_curve(curve)?;
             let l = fp2::PrecisePropertyLayout::new(*flags);
+            let k = Kernel::default();
             let e = fp2::OdeArea {
+                kernel: &k,
                 surface: &s,
                 uv_curve: &c,
                 min_v: *min_v,

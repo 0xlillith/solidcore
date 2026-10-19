@@ -158,69 +158,13 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Sequential reader over the input.
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
+crate::reader::unit_reader!(MAX_COORD);
 
-impl<'a> Reader<'a> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
-    /// A finite value of magnitude at most [`MAX_COORD`].
-    fn finite(&mut self) -> Result<f64, FfiError> {
-        let v = self.num()?;
-        if !v.is_finite() || v.abs() > MAX_COORD {
-            return Err(bad(format!("value {v} not finite or too large")));
-        }
-        Ok(v)
-    }
-
-    fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
-        Ok([self.finite()?, self.finite()?, self.finite()?])
-    }
-
-    fn index(&mut self, max: usize) -> Result<usize, FfiError> {
-        let v = self.num()?;
-        if v.fract() != 0.0 || v < 0.0 || v > max as f64 {
-            return Err(bad(format!("bad index/count {v}")));
-        }
-        Ok(v as usize)
-    }
-
-    fn flag(&mut self) -> Result<bool, FfiError> {
-        Ok(self.index(1)? == 1)
-    }
-
-    fn take(&mut self, k: usize) -> Result<&'a [f64], FfiError> {
-        let end = self.at.checked_add(k).ok_or_else(|| bad("overflow"))?;
-        let s = self
-            .input
-            .get(self.at..end)
-            .ok_or_else(|| bad("input too short"))?;
-        self.at = end;
-        Ok(s)
-    }
-
+impl Reader<'_> {
     /// A point list: `count`, then `3 count` bounded values.
     fn points(&mut self, max: usize) -> Result<Vec<[f64; 3]>, FfiError> {
         let k = self.index(max)?;
         (0..k).map(|_| self.vec3()).collect()
-    }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
     }
 }
 
@@ -273,7 +217,9 @@ impl CurveInfo {
         if ok {
             Ok(())
         } else {
-            Err(bad("extension: end pair not normalisable and no third point"))
+            Err(bad(
+                "extension: end pair not normalisable and no third point",
+            ))
         }
     }
 
@@ -409,7 +355,8 @@ fn refine_knots(info: &CurveInfo, x: &[f64]) -> Result<(), FfiError> {
         return Ok(()); // Rejected before any indexing.
     }
     for &k in x {
-        let mult = info.knots.iter().filter(|&&u| u == k).count() + x.iter().filter(|&&u| u == k).count();
+        let mult =
+            info.knots.iter().filter(|&&u| u == k).count() + x.iter().filter(|&&u| u == k).count();
         if mult > info.p {
             return Err(bad("refine: multiplicity above the degree"));
         }
@@ -534,7 +481,9 @@ fn validate_op(op: Op, rd: &mut Reader<'_>, this: Option<&CurveInfo>) -> Result<
                 let q0 = if r0 < mtol { 0.0 } else { r0 };
                 let q1 = if r1 < mtol { 0.0 } else { r1 };
                 if h < mtol || (q0 + q1) < mtol || turns < mtol {
-                    return Err(bad("helix: N_CrvApproxSpiral early input error crashes upstream"));
+                    return Err(bad(
+                        "helix: N_CrvApproxSpiral early input error crashes upstream",
+                    ));
                 }
                 if turns > MAX_TURNS || tol < 1e-7 {
                     return Err(bad("helix: too many turns or too small a tolerance"));
@@ -609,7 +558,9 @@ fn validate_op(op: Op, rd: &mut Reader<'_>, this: Option<&CurveInfo>) -> Result<
                 return Err(bad("dampen: multiplicity above the degree"));
             }
             if dampen_splits(&c.unique_knots(), factor).is_none() {
-                return Err(bad("dampen: splitting does not finish (upstream loops forever)"));
+                return Err(bad(
+                    "dampen: splitting does not finish (upstream loops forever)",
+                ));
             }
         }
         Op::DegRed => {
@@ -754,7 +705,7 @@ fn validate_op(op: Op, rd: &mut Reader<'_>, this: Option<&CurveInfo>) -> Result<
 ///
 /// [`FfiError::InvalidArgument`] for input [`eval`] rejects.
 pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     let this = if op.is_static() {
         None
     } else {

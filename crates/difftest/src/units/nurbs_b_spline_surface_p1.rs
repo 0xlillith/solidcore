@@ -29,6 +29,7 @@ use std::fmt::Write as _;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use solidcore::kernel::Kernel;
 use solidcore::geom::axis2_placement::Axis2Placement;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
@@ -1151,7 +1152,7 @@ fn rust_surface(op: &OpIn, s: &mut BSplineSurface, o: &mut Vec<f64>) -> Result<(
         OpIn::MakeNurb => s.make_nurb()?,
         OpIn::Copy => dump_state(o, &s.copy()),
         OpIn::Offset { dist, tol } => {
-            let r = s.create_offset_surface(*dist, *tol)?;
+            let r = s.create_offset_surface(&Kernel::default(), *dist, *tol)?;
             o.push(r.type_code() as f64);
         }
         OpIn::DegenCurve { angle, domain, tol } => {
@@ -1165,7 +1166,7 @@ fn rust_surface(op: &OpIn, s: &mut BSplineSurface, o: &mut Vec<f64>) -> Result<(
             guess,
         } => {
             let g = guess.map(|[u, v]| Point2::new(u, v));
-            let (uv, loc) = s.step_inversion(&domain_of(*domain), v3(*point), *tol, g)?;
+            let (uv, loc) = s.step_inversion(&Kernel::default(), &domain_of(*domain), v3(*point), *tol, g)?;
             o.extend([uv.x, uv.y, f64::from(loc as i32)]);
         }
         OpIn::SetForm { form } => {

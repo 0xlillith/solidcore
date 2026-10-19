@@ -106,40 +106,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_singular_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#13 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_geometric_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#14 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_normal_section_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#15 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -198,40 +186,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_singular_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#23 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_geometric_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#24 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_normal_section_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#25 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -290,40 +266,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_singular_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#33 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_geometric_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#34 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_normal_section_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#35 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -382,40 +346,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_singular_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#43 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_geometric_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#44 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "surface_sms_normal_section_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#45 (upstream tests/prog_test/src/smSurfaceTest.cpp:4117)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -522,40 +474,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "drop_curve_singular_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#59 (upstream tests/SM_API_test/src/TestSmCurves.cpp:318)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "drop_curve_geometric_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#60 (upstream tests/SM_API_test/src/TestSmCurves.cpp:318)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "drop_curve_normal_section_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#61 (upstream tests/SM_API_test/src/TestSmCurves.cpp:318)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -614,40 +554,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "drop_curve_singular_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#69 (upstream tests/SM_API_test/src/TestSmCurves.cpp:318)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "drop_curve_geometric_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#70 (upstream tests/SM_API_test/src/TestSmCurves.cpp:318)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "drop_curve_normal_section_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#71 (upstream tests/SM_API_test/src/TestSmCurves.cpp:318)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -706,40 +634,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "drop_curve_singular_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#79 (upstream tests/SM_API_test/src/TestSmCurves.cpp:318)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "drop_curve_geometric_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#80 (upstream tests/SM_API_test/src/TestSmCurves.cpp:318)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "drop_curve_normal_section_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#81 (upstream tests/SM_API_test/src/TestSmCurves.cpp:318)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -846,40 +762,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_singular_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#95 (upstream tests/prog_test/src/smFilletTest.cpp:3769)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_geometric_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#96 (upstream tests/prog_test/src/smFilletTest.cpp:3769)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_normal_section_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#97 (upstream tests/prog_test/src/smFilletTest.cpp:3769)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -938,40 +842,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_singular_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#105 (upstream tests/prog_test/src/smFilletTest.cpp:3769)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_geometric_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#106 (upstream tests/prog_test/src/smFilletTest.cpp:3769)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_normal_section_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#107 (upstream tests/prog_test/src/smFilletTest.cpp:3769)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1030,40 +922,28 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalAtSingularity",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_singular_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#115 (upstream tests/prog_test/src/smFilletTest.cpp:3769)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_geometric_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#116 (upstream tests/prog_test/src/smFilletTest.cpp:3769)",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "offset_nurb_normal_section_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.curve_bounded_surface/cases.json#117 (upstream tests/prog_test/src/smFilletTest.cpp:3769)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1242,16 +1122,12 @@
       "values_compared": 218
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0005",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805284",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -1286,16 +1162,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0010",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805289",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -1314,16 +1186,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0013",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805292",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1366,16 +1234,12 @@
       "values_compared": 19
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0019",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805298",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -1386,16 +1250,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0021",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805300",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1446,28 +1306,20 @@
       "values_compared": 309
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0028",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805307",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0029",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805308",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1510,16 +1362,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0035",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805314",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1546,16 +1394,12 @@
       "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0039",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805318",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1726,16 +1570,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0061",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805340",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -1778,16 +1618,12 @@
       "values_compared": 289
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0067",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805346",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1838,16 +1674,12 @@
       "values_compared": 431
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0074",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805353",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -2074,16 +1906,12 @@
       "values_compared": 210
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0103",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805382",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -2166,16 +1994,12 @@
       "values_compared": 192
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0114",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805393",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -2186,16 +2010,12 @@
       "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0116",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805395",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -2222,28 +2042,20 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0120",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805399",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0121",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805400",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -2534,16 +2346,12 @@
       "values_compared": 305
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0158",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805437",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -2682,16 +2490,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0176",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805455",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -3070,16 +2874,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0224",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805503",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -3170,16 +2970,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0236",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805515",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -3278,16 +3074,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0249",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805528",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -3442,16 +3234,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0269",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805548",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -3630,16 +3418,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0292",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805571",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -3738,16 +3522,12 @@
       "values_compared": 482
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0305",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805584",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -3830,16 +3610,12 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0316",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805595",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -3882,16 +3658,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0322",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805601",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -4142,16 +3914,12 @@
       "values_compared": 10
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0354",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805633",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -4194,16 +3962,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0360",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805639",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -4222,28 +3986,20 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0363",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805642",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0364",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805643",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -4278,16 +4034,12 @@
       "values_compared": 269
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateGeometric",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0369",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805648",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -4346,16 +4098,12 @@
       "values_compared": 320
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0377",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805656",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -4382,16 +4130,12 @@
       "values_compared": 91
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0381",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805660",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -4506,28 +4250,20 @@
       "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0396",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805675",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::EvaluateNormalSection",
-        "unit": "surface.surface_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0397",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=3124376076603805676",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -4547,18 +4283,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 66,
+  "cases_deferred": 0,
   "cases_failed": 0,
-  "cases_passed": 469,
+  "cases_passed": 535,
   "cases_total": 535,
-  "deferred_by_unit": {
-    "surface.surface_p3": 56,
-    "surface.surface_p5": 10
-  },
+  "deferred_by_unit": {},
   "max_rel_err": 0.0,
   "pass": true,
   "rel_tol": 1e-9,
   "seeds": 16,
-  "status": "partial",
+  "status": "green",
   "unit": "surface.curve_bounded_surface"
 }

@@ -71,8 +71,7 @@
 //!   with the composite face code): it returns the first vertex use of any face whose
 //!   face use is that face's upward face use, else the last vertex use with a face use
 //!   (`plan/upstream-issues.md`). Ported as written.
-//! - **Unported callees.** `SmFace::SetTolerance` (`topology.face_p3`), `SmEdge::SetTolerance`
-//!   (`topology.edge`) and the gap evaluations reached through the vertex uses
+//! - **Unported callees.** `SmFace::SetTolerance` (`topology.face_p3`) and the gap evaluations reached through the vertex uses
 //!   (`heal.gap`, surface units) return [`SolidError::Unported`].
 //! - **Co-ports.** The small `SmEdge` and `SmLoopuse` accessors this unit reaches are
 //!   ported here (table above) and recorded as CO-PORTED in `plan/modules.toml`; the
@@ -305,12 +304,8 @@ fn face_set_tolerance(_b: &mut Brep, _f: FaceId, _tol: f64) -> Result<()> {
 }
 
 /// `SmEdge::SetTolerance(tol)` (default arguments).
-fn edge_set_tolerance(_b: &mut Brep, _e: EdgeId, _tol: f64) -> Result<()> {
-    // UNPORTED(topology.edge): SmEdge::SetTolerance
-    Err(SolidError::unported(
-        "SmEdge::SetTolerance",
-        "topology.edge",
-    ))
+fn edge_set_tolerance(b: &mut Brep, e: EdgeId, tol: f64) -> Result<()> {
+    crate::topology::edge::set_tolerance(b, e, tol, true, true)
 }
 
 /// The vertex of the vertex use at the start of edge use `eu`
@@ -1093,7 +1088,9 @@ pub fn max_up_dim_gap_3d(
         // Vertex/Edge Gap, then Vertex/Face Gap
         for kind in [GapRef::Edge(vu), GapRef::Face(vu)] {
             let gap = match kind {
-                GapRef::Edge(_) => vertexuse::vertex_edge_gap(b, vu, false)?.map(VertexGap::Edge),
+                GapRef::Edge(_) => {
+                    vertexuse::vertex_edge_gap(k, b, vu, false)?.map(VertexGap::Edge)
+                }
                 GapRef::Face(_) => {
                     vertexuse::vertex_face_gap(k, b, vu, false)?.map(VertexGap::Face)
                 }
@@ -1157,8 +1154,8 @@ pub fn max_gap_3d(
 ///
 /// # Errors
 ///
-/// Those of [`edges`] and [`faces`]; [`SolidError::Unported`] for the face and edge
-/// `SetTolerance` (units `topology.face_p3`, `topology.edge`).
+/// Those of [`edges`], [`faces`] and `SmEdge::SetTolerance`; [`SolidError::Unported`]
+/// for the face `SetTolerance` (unit `topology.face_p3`).
 pub fn refresh_tolerance(b: &mut Brep, v: VertexId, nested_refreshes: bool) -> Result<()> {
     // when asked
     if nested_refreshes {
@@ -1273,11 +1270,17 @@ mod tests {
     /// with optional line curves; plus a shell vertex v3.
     fn chain(curves: bool, d1: Vec3, d2: Vec3) -> (Brep, [VertexId; 4], [EdgeId; 2]) {
         let mut b = Brep::new();
-        let r = b.add_region_record(Region { in_brep: true }).unwrap();
+        let r = b
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
         let s = b
             .add_shell_record(Shell {
                 faces: Vec::new(),
                 region: Some(r),
+                ..Shell::default()
             })
             .unwrap();
         let p = [Vec3::ZERO, d1, d1 + d2, Vec3::new(5.0, 5.0, 5.0)];
@@ -1383,9 +1386,8 @@ mod tests {
         );
         assert!(brep(&b, v[1]).unwrap().is_some());
         refresh_tolerance(&mut b, v[1], false).unwrap();
-        assert!(refresh_tolerance(&mut b, v[1], true)
-            .unwrap_err()
-            .is_unported());
+        // no faces: only the edge SetTolerance (topology.edge) runs
+        refresh_tolerance(&mut b, v[1], true).unwrap();
     }
 
     #[test]

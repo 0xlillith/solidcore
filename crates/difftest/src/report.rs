@@ -21,6 +21,10 @@ fn case_json(c: &CaseResult) -> Value {
     m.insert("source".into(), json!(c.source.describe()));
     m.insert("pass".into(), json!(c.pass()));
     m.insert("outcome".into(), json!(c.outcome().as_str()));
+    if let Some(reason) = &c.rejected {
+        m.insert("rejected".into(), json!(reason));
+        m.insert("inputs".into(), c.inputs.clone());
+    }
     if let Some(d) = &c.deferred {
         m.insert(
             "deferred".into(),
@@ -77,6 +81,9 @@ pub fn unit_report(r: &UnitResult) -> Value {
     m.insert("cases_passed".into(), json!(r.passed()));
     m.insert("cases_failed".into(), json!(r.failed()));
     m.insert("cases_deferred".into(), json!(r.deferred()));
+    if r.rejected() > 0 {
+        m.insert("cases_rejected".into(), json!(r.rejected()));
+    }
     let by_unit: Map<String, Value> = r
         .deferred_by_unit()
         .into_iter()
@@ -105,12 +112,15 @@ pub fn write_unit_report(dir: &Path, r: &UnitResult) -> Result<PathBuf, HarnessE
 }
 
 /// One-line summary, e.g.
-/// `PASS harness.selftest cases=40 passed=40 failed=0 deferred=0 max_rel_err=1.1e-16`.
-/// The status word is `PASS` (green), `PARTIAL` or `FAIL`; with deferred cases the
-/// line ends with ` blocked_by=<unit>(<cases>),...`.
+/// `PASS harness.selftest cases=40 passed=40 failed=0 deferred=0 max_rel_err=1.1e-16 with_values=36 no_values=4`.
+/// The status word is `PASS` (green), `PARTIAL` or `FAIL`; `with_values` / `no_values`
+/// split the passing cases into those that compared at least one value and those that
+/// compared nothing (the same error on both sides, or empty outputs); with deferred
+/// cases the line ends with ` blocked_by=<unit>(<cases>),...`.
 pub fn summary_line(r: &UnitResult) -> String {
+    let with_values = r.passed_with_values();
     let mut s = format!(
-        "{} {} cases={} passed={} failed={} deferred={} max_rel_err={:e}",
+        "{} {} cases={} passed={} failed={} deferred={} max_rel_err={:e} with_values={with_values} no_values={}",
         match r.status() {
             UnitStatus::Green => "PASS",
             UnitStatus::Partial => "PARTIAL",
@@ -121,8 +131,12 @@ pub fn summary_line(r: &UnitResult) -> String {
         r.passed(),
         r.failed(),
         r.deferred(),
-        r.max_rel_err()
+        r.max_rel_err(),
+        r.passed() - with_values
     );
+    if r.rejected() > 0 {
+        let _ = write!(s, " rejected={}", r.rejected());
+    }
     let blocked: Vec<String> = r
         .deferred_by_unit()
         .iter()
@@ -135,6 +149,8 @@ pub fn summary_line(r: &UnitResult) -> String {
         let _ = write!(s, " harness_error={h:?}");
     } else if r.cases.is_empty() {
         s.push_str(" (no cases)");
+    } else if r.cases.len() == r.rejected() {
+        s.push_str(" (no comparable cases)");
     }
     s
 }

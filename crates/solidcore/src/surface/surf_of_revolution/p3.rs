@@ -172,17 +172,17 @@ impl SolutionObject for GenHandle {
 /// `SmSurface::LocalPointSolve(domain, operation, point, guess, ..)`: whether an answer
 /// was found and the solution.
 fn surface_local_point_solve<O: Copy>(
-    _surface: &SurfOfRevolution,
-    _domain: &Extent2d,
-    _operation: SolverOperation,
-    _point: Point3,
-    _guess: Point2,
+    k: &Kernel,
+    surface: &SurfOfRevolution,
+    domain: &Extent2d,
+    operation: SolverOperation,
+    point: Point3,
+    guess: Point2,
 ) -> Result<(bool, Solution<O>)> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
-    ))
+    // the SmSurface body (surface.surface_p5), on a Surface holding a copy
+    let surface = crate::surface::surface::Surface::from(surface.clone_exact());
+    let r = surface.local_point_solve::<O>(k, domain, operation, point, guess)?;
+    Ok((r.found, r.solution))
 }
 
 /// `SmIsoCurve::LocalPropertyAnalysis(ivl, SM_CP_POINT_INVERSION, guess, NULL, &point,
@@ -445,13 +445,15 @@ impl SurfOfRevolution {
             let nurbs_guess = mapped;
             let pnt = self.evaluate_step_point(k, step_uv)?;
             // (status ignored upstream: the solution is always used)
-            let (_found, sol): (bool, Solution<()>) = surface_local_point_solve(
+            let sol: Solution<()> = ignored(surface_local_point_solve(
+                k,
                 self,
                 &nat_domain,
                 SolverOperation::Minimize,
                 pnt,
                 nurbs_guess,
-            )?;
+            ))?
+            .map_or_else(Solution::new, |(_found, sol)| sol);
             return Ok(Point2::new(sol.start.param(0)?, sol.start.param(1)?));
         }
 
@@ -716,7 +718,7 @@ impl SurfOfRevolution {
                 let mut uv = Point2::new(sol.start.parameters[0], sol.start.parameters[1]);
                 if !exact_conversion {
                     let (found, s) =
-                        surface_local_point_solve(self, uv_domain, operation, test_point, uv)?;
+                        surface_local_point_solve(k, self, uv_domain, operation, test_point, uv)?;
                     sol = s;
                     if found {
                         uv = Point2::new(sol.start.parameters[0], sol.start.parameters[1]);

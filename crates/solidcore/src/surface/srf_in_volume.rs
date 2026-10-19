@@ -2,6 +2,7 @@
 //! volume's parameter space or in-space to its final out-space (the generated
 //! surface `SmSrfInVolume`).
 //!
+//!
 //! Upstream: `source/SMLib/src/SmSrfInVolume.cpp`, `source/SMLib/inc/SmSrfInVolume.h`.
 //!
 //! | Rust                                           | Upstream                                          |
@@ -33,6 +34,7 @@
 //! | [`SrfInVolume::read_from_db`]                  | `ReadFromDB`                                      |
 //!
 //! Deviations:
+//! - Compound evaluation copies carry a depth counter capped at 64 by `Surface`.
 //! - **Volumes.** The volume is a [`Volume`] (unit `surface.volume_p1`).
 //!   `InvEvaluatePoint`, `InvMapPoint` and `ReadFromDB` are wired to
 //!   `surface.volume_p2`. `SmVolume::Mirror` and
@@ -182,6 +184,16 @@ impl From<SrfInVolume> for Surface {
 }
 
 impl SrfInVolume {
+    /// An evaluation copy retaining exact basis data, with Surface's 64-level bound.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        Ok(Self {
+            surface: Box::new(self.surface.clone_for_evaluation_depth(depth)?),
+            in_param_space: self.in_param_space,
+            volume: self.volume.clone(),
+            owner_flag: self.owner_flag,
+        })
+    }
+
     /// `SmSrfInVolume_TYPE`.
     pub const TYPE: i64 = SRF_IN_VOLUME_TYPE;
 
@@ -195,6 +207,7 @@ impl SrfInVolume {
     /// shared surface; the port propagates it only for [`SolidError::Unported`]),
     /// [`SolidError::Unported`] from copying an unported volume kind.
     pub fn new(
+        k: &Kernel,
         surface: Surface,
         in_param_space: bool,
         volume: Volume,
@@ -206,7 +219,7 @@ impl SrfInVolume {
         let mut volume = volume;
         // When Surface is to be copied - copy it
         if copy_flag == 1 || copy_flag == 3 {
-            if let Some(copy) = ignored(surface.copy())? {
+            if let Some(copy) = ignored(surface.copy(k))? {
                 surface = copy;
             }
             owner_flag |= 1;
@@ -230,7 +243,7 @@ impl SrfInVolume {
     /// # Errors
     ///
     /// [`SolidError::Unported`] from copying an unported volume kind.
-    pub fn copy(&self) -> Result<Self> {
+    pub fn copy(&self, k: &Kernel) -> Result<Self> {
         let owns_surface = self.owns_surface();
         let owns_volume = self.owns_volume();
         let owner_flag = if owns_surface && owns_volume {
@@ -250,7 +263,7 @@ impl SrfInVolume {
         };
         // copy the Surface when the target owns it
         let surface = if owns_surface {
-            ignored(self.surface.copy())?.unwrap_or_else(|| (*self.surface).clone())
+            ignored(self.surface.copy(k))?.unwrap_or_else(|| (*self.surface).clone())
         } else {
             (*self.surface).clone()
         };
@@ -407,10 +420,10 @@ impl SrfInVolume {
     ///
     /// Those of copying the base surface (`SM_ERR` for a kind without `Copy`) and the
     /// volume ([`SolidError::Unported`] for an unported kind).
-    pub fn make_owner(&mut self) -> Result<()> {
+    pub fn make_owner(&mut self, k: &Kernel) -> Result<()> {
         // copy and own unowned surfaces
         if !self.owns_surface() {
-            *self.surface = self.surface.copy()?;
+            *self.surface = self.surface.copy(k)?;
             self.owner_flag |= 1;
         }
         // copy and own unowned volumes
@@ -430,6 +443,7 @@ impl SrfInVolume {
     /// [`SolidError::Unported`] from copying an unported surface kind.
     pub fn set_base_surface(
         &mut self,
+        k: &Kernel,
         surface: Surface,
         in_param_space: bool,
         copy_surface: bool,
@@ -439,7 +453,7 @@ impl SrfInVolume {
         self.in_param_space = in_param_space;
         self.owner_flag &= 2; // clear owns surface bit
         if copy_surface {
-            if let Some(copy) = ignored(self.surface.copy())? {
+            if let Some(copy) = ignored(self.surface.copy(k))? {
                 *self.surface = copy;
             }
             self.owner_flag |= 1;
@@ -491,9 +505,9 @@ impl SrfInVolume {
     ///
     /// Those of the copy; [`SolidError::Unported`]: `SmVolume::Mirror`
     /// (in no unit: a dispatch gap).
-    pub fn create_mirror_surface(&self, mirror_plane: &Axis2Placement) -> Result<Self> {
+    pub fn create_mirror_surface(&self, k: &Kernel, mirror_plane: &Axis2Placement) -> Result<Self> {
         // copy this surface
-        let mut new_surface = self.copy()?;
+        let mut new_surface = self.copy(k)?;
         // mirror the the volume
         volume_mirror(&mut new_surface.volume, mirror_plane)?;
         Ok(new_surface)
@@ -929,13 +943,18 @@ impl SrfInVolume {
     /// # Errors
     ///
     /// Those of the base surface's split.
-    pub fn split_at(&self, param: f64, surf_param: SurfParamType) -> Result<(Self, Self)> {
+    pub fn split_at(
+        &self,
+        k: &Kernel,
+        param: f64,
+        surf_param: SurfParamType,
+    ) -> Result<(Self, Self)> {
         // split Base Surface
-        let (left, right) = self.surface.split_at(param, surf_param)?;
+        let (left, right) = self.surface.split_at(k, param, surf_param)?;
 
         // build left and right split surfaces from the base surface splits
-        let left = Self::new(left, self.in_param_space, self.volume.clone(), 2, 3)?;
-        let right = Self::new(right, self.in_param_space, self.volume.clone(), 2, 3)?;
+        let left = Self::new(k, left, self.in_param_space, self.volume.clone(), 2, 3)?;
+        let right = Self::new(k, right, self.in_param_space, self.volume.clone(), 2, 3)?;
         Ok((left, right))
     }
 
@@ -1012,7 +1031,8 @@ mod tests {
             4.0,
             1e-3,
         );
-        let siv = SrfInVolume::new(Surface::from(plane), true, volume, 0, 3).unwrap();
+        let siv =
+            SrfInVolume::new(&Kernel::default(), Surface::from(plane), true, volume, 0, 3).unwrap();
         let uv = Point2::new(0.3, 0.7);
         let flags = EvaluateFlags {
             only_upper_half: false,

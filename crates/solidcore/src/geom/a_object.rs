@@ -58,14 +58,14 @@
 //! - **Caches.** Cache objects live in a [`CacheStore`] (append-only slots addressed
 //!   by [`CacheId`]); `delete pCache` frees the slot. The no-context check of
 //!   `GetOrCreateObjectCache` reads the `context` argument.
-//! - **Unported.** `SmAObject::Notify(SM_NO_REG_PROPAGATION)` asks each "other"
-//!   source region whether it is void (`SmRegion::IsVoid`, unit `topology.shell`);
-//!   building a new `SmBrepCache` needs unit
-//!   `topology.brep_cache`; the surface `CacheMakeOrValidate` override belongs to
-//!   `surface.surface_p1`. These return [`SolidError::Unported`]. The curve override
-//!   (unit `curve.curve_p5`) checks the type and reuses an existing cache; a new curve
-//!   cache is built from the curve ([`crate::curve::curve::p5::make_curve_cache`]),
-//!   which this object-level call does not have: `InvalidInput`.
+//! - **Region lookup.** [`notify_with_regions`] resolves implicit native region
+//!   pointers through borrowed live typed records, preserving raw void flags.
+//!   The legacy entry point returns an explicit context error only when a region
+//!   query is actually needed; generic attribute operations remain available.
+//! - **Cache factories.** A new B-rep, curve or surface cache requires its source
+//!   geometry. The object-level validators reuse existing caches; callers building
+//!   new ones use `make_brep_cache`, `make_curve_cache` or the surface factories.
+//!   Calling without that geometry returns [`SolidError::InvalidInput`].
 //! - **Graphics and debug.** The display list of `SmSAGObject` (reset on edits and
 //!   destruction), `SE_MSG` / `SM_ASSERT*` (compiled out of the release reference
 //!   build) and `Dump` are not ported. `SmAObject::AssertValid`'s two checks (the
@@ -207,13 +207,18 @@ fn merge_handler(
     orig1: Option<ObjectRef>,
     orig2: Option<ObjectRef>,
     merged: Option<ObjectRef>,
+    regions: Option<&dyn topology::shell::RegionLookup>,
 ) -> Result<()> {
     let merged = need(merged, "merge without a merged object")?;
     let is_mr = attribute_of(attributes, h)?.merge_region_data().is_some();
     if is_mr {
         let o1 = need(orig1, "merge-region merge without its first object")?;
         let o2 = need(orig2, "merge-region merge without its second object")?;
-        attributes.merge(h, o1, o2, merged)
+        if let Some(regions) = regions {
+            attributes.merge_with_regions(h, o1, o2, merged, regions)
+        } else {
+            attributes.merge(h, o1, o2, merged)
+        }
     } else {
         // The default handler does not read the original objects.
         let o1 = orig1.map_or(merged, |r| r.key);
@@ -258,8 +263,8 @@ fn attribute_of(attributes: &AttributeStore, h: AttributeHandle) -> Result<&Attr
 /// [`SolidError::InvalidInput`] where upstream dereferences a null or dead object
 /// (a handler needing a missing data object; region propagation on a region without
 /// a merge-region attribute); errors and [`SolidError::Unported`] from the handlers;
-/// [`SolidError::Unported`] (`topology.shell`) once region propagation has to ask a
-/// source region whether it is void.
+/// a region lookup context is required when the handlers query a live region;
+/// use [`notify_with_regions`] for those operations.
 pub fn notify(
     attributes: &mut AttributeStore,
     context: Option<&mut Context>,
@@ -268,6 +273,26 @@ pub fn notify(
     data1: Option<ObjectRef>,
     data2: Option<ObjectRef>,
     data3: Option<ObjectRef>,
+) -> Result<()> {
+    notify_with_regions(
+        attributes, context, operation, this, data1, data2, data3, None,
+    )
+}
+
+/// Notify with an explicit borrowed lookup for region attribute handlers.
+/// Attribute and callback order is identical to [`notify`].
+///
+/// # Errors
+/// Attribute errors, missing topology context or failed region resolution.
+pub fn notify_with_regions(
+    attributes: &mut AttributeStore,
+    context: Option<&mut Context>,
+    operation: NotifyOperation,
+    this: ObjectRef,
+    data1: Option<ObjectRef>,
+    data2: Option<ObjectRef>,
+    data3: Option<ObjectRef>,
+    regions: Option<&dyn topology::shell::RegionLookup>,
 ) -> Result<()> {
     use NotifyOperation as N;
     // get all attributes from target source object
@@ -301,7 +326,7 @@ pub fn notify(
         };
 
         if operation == N::RegPropagation {
-            reg_propagation(attributes, this, &attrs1, &mut attrs2)?;
+            reg_propagation(attributes, this, &attrs1, &mut attrs2, regions)?;
         } else {
             let list = if use_second {
                 attrs2.clone()
@@ -319,7 +344,7 @@ pub fn notify(
                     }
                     N::MergeInBrep => {
                         if do_merge_call(attributes, ii, &attrs1, h)? {
-                            merge_handler(attributes, h, data1, data2, data1)?;
+                            merge_handler(attributes, h, data1, data2, data1, regions)?;
                         }
                     }
                     N::Coincident => {
@@ -348,7 +373,7 @@ pub fn notify(
                     }
                     N::Merge => {
                         if do_merge_call(attributes, ii, &attrs1, h)? {
-                            merge_handler(attributes, h, data1, data2, Some(this))?;
+                            merge_handler(attributes, h, data1, data2, Some(this), regions)?;
                         }
                     }
                     N::Destruction => attributes.destruction(h, this.key)?,
@@ -407,6 +432,7 @@ fn reg_propagation(
     this: ObjectRef,
     attrs1: &[AttributeHandle],
     attrs2: &mut Vec<AttributeHandle>,
+    regions: Option<&dyn topology::shell::RegionLookup>,
 ) -> Result<()> {
     const OP: &str = "geom::a_object::notify";
     // error case - this obj is not a Region, skip problem cases
@@ -448,7 +474,7 @@ fn reg_propagation(
     let tgt_region = region;
     // for every OtherSrcRegion
     for other_region in other_regions {
-        let other_solid = !region_is_void(other_region)?;
+        let other_solid = !region_is_void(other_region, regions)?;
         let attrib1_size = attrs1.len();
         let attrib2_size = attrs2.len();
         *attrs2 = attributes.attributes(other_region);
@@ -585,13 +611,19 @@ fn reg_propagation(
     Ok(())
 }
 
-/// `SmRegion::IsVoid`.
-fn region_is_void(_region: ObjectKey) -> Result<bool> {
-    // UNPORTED(topology.shell): SmRegion::IsVoid
-    Err(SolidError::Unported {
-        upstream: "SmRegion::IsVoid",
-        unit: "topology.shell",
-    })
+/// Native truth of the actual region's raw void flag, including UNSURE.
+fn region_is_void(
+    region: ObjectKey,
+    regions: Option<&dyn topology::shell::RegionLookup>,
+) -> Result<bool> {
+    // UNPORTED(topology.shell): SmRegion::IsVoid (justified: plan/findings.md "topology.shell: borrowed region context for attribute backedges")
+    // REGION-LOOKUP(#86): no library `RegionLookup` exists yet, so a region handler
+    // reached without a caller-supplied context defers here instead of inferring
+    // region state. The owner of issue #86 replaces this with the real lookup
+    // (grep REGION-LOOKUP).
+    let lookup =
+        regions.ok_or_else(|| SolidError::unported("SmRegion::IsVoid", "topology.shell"))?;
+    Ok(lookup.resolve_region(region)?.void_state()? != 0)
 }
 
 /// The copy constructor `SmAObject(const SmAObject&)`: `Copy(from, to)` of every
@@ -629,8 +661,28 @@ pub fn sag_notify<R: TopologyRecords + ?Sized>(
     data2: Option<ObjectRef>,
     data3: Option<ObjectRef>,
 ) -> Result<()> {
-    topology::topology::notify(
-        records, attributes, context, operation, this, data1, data2, data3,
+    sag_notify_with_regions(
+        records, attributes, context, operation, this, data1, data2, data3, None,
+    )
+}
+
+/// SAG notification with the caller's actual region lookup.
+///
+/// # Errors
+/// Topology/attribute errors or failed region resolution.
+pub fn sag_notify_with_regions<R: TopologyRecords + ?Sized>(
+    records: &mut R,
+    attributes: &mut AttributeStore,
+    context: Option<&mut Context>,
+    operation: NotifyOperation,
+    this: ObjectRef,
+    data1: Option<ObjectRef>,
+    data2: Option<ObjectRef>,
+    data3: Option<ObjectRef>,
+    regions: Option<&dyn topology::shell::RegionLookup>,
+) -> Result<()> {
+    topology::topology::notify_with_regions(
+        records, attributes, context, operation, this, data1, data2, data3, regions,
     )
 }
 
@@ -931,7 +983,7 @@ pub const fn cache_make_or_validate(
 /// # Errors
 ///
 /// `SM_ERR` ([`SolidError::Upstream`]) when the target is neither a B-rep nor a poly
-/// B-rep; [`SolidError::Unported`] (`topology.brep_cache`) when a new cache is needed.
+/// B-rep; [`SolidError::InvalidInput`] when a new cache needs source geometry.
 pub fn sag_cache_make_or_validate(
     _cache_type: ObjectCacheType,
     target_type: i64,
@@ -947,11 +999,10 @@ pub fn sag_cache_make_or_validate(
     if let Some(old) = old {
         return Ok(Some(old));
     }
-    // UNPORTED(topology.brep_cache): SmBrepCache::SmBrepCache (then SmBrepCache::BuildTrees)
-    Err(SolidError::Unported {
-        upstream: "SmBrepCache::SmBrepCache",
-        unit: "topology.brep_cache",
-    })
+    Err(SolidError::invalid_input(
+        "geom::a_object::sag_cache_make_or_validate",
+        "new B-rep cache requires its geometry (make_brep_cache)",
+    ))
 }
 
 /// `SmCacheMgr::GetOrCreateObjectCache`: the object's cache, validated or built by its
@@ -976,7 +1027,11 @@ pub fn get_or_create_object_cache(
     let old = object.cache_obj();
     let made = match maker {
         CacheMaker::AObject => Ok(cache_make_or_validate(cache_type, old)),
-        CacheMaker::SagObject => sag_cache_make_or_validate(cache_type, object_type, old),
+        CacheMaker::SagObject => match sag_cache_make_or_validate(cache_type, object_type, old) {
+            // Like curve/surface factories, construction needs source geometry.
+            Err(e @ SolidError::InvalidInput { .. }) => return Err(e),
+            made => made,
+        },
         CacheMaker::Curve => match crate::curve::curve::p5::validate_curve_cache(cache_type, old) {
             Ok(Some(old)) => Ok(Some(old)),
             // a new curve cache needs the curve: built with `make_curve_cache`
@@ -1380,10 +1435,7 @@ mod tests {
                 &AObject::new(),
                 Some(&ctx)
             ),
-            Err(SolidError::Unported {
-                unit: "topology.brep_cache",
-                ..
-            })
+            Err(SolidError::InvalidInput { .. })
         ));
         // a curve cache of the wrong type: SM_ERR, so no cache
         assert_eq!(get(CacheMaker::Curve, 0, &o, Some(&ctx)).unwrap(), None);

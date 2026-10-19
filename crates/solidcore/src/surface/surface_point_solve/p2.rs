@@ -50,8 +50,7 @@
 //! - **Solutions' objects** are the caller's handle for the surface (`O`, upstream
 //!   the `SmSurface*`).
 //! - **Unported callees.** `SmSurface::LocalPointSolve` (`surface.surface_p5`) for
-//!   every surface, `SmSurface::InvertPointNearSingularity` (`surface.surface_p8`)
-//!   and `SmSurfaceEval::Normal` (`surface.surface_p4`, through `p1`) return
+//!   every surface and `SmSurfaceEval::Normal` (`surface.surface_p4`, through `p1`) return
 //!   [`SolidError::Unported`].
 //! - The stepper's `IsLocalMin` / `IsLocalMax` are not used upstream and are not
 //!   ported. Debug-only drawing and `SM_ASSERT`s are omitted.
@@ -452,10 +451,10 @@ impl SurfPtGlobalSolver<'_> {
     ///
     /// Those of the surface derivatives (upstream's `SER`), the objective function
     /// and the seam checks.
-    pub fn refine_guess(&mut self, uv_guess: &mut Point2) -> Result<()> {
+    pub fn refine_guess(&mut self, k: &Kernel, uv_guess: &mut Point2) -> Result<()> {
         // Note: don't use a Newton step here, we're presumably not close enough.
         // Try a couple of plane steps.
-        *uv_guess = self.seams_status_ignored(*uv_guess)?; // Since we do this on subsequent guesses...
+        *uv_guess = self.seams_status_ignored(k, *uv_guess)?; // Since we do this on subsequent guesses...
 
         let mut this_uv = *uv_guess;
         let mut next_uv = *uv_guess;
@@ -581,7 +580,7 @@ impl SurfPtGlobalSolver<'_> {
 
             next_uv = domain.clamp_point(next_uv);
 
-            next_uv = self.seams_status_ignored(next_uv)?;
+            next_uv = self.seams_status_ignored(k, next_uv)?;
         }
 
         // We didn't return with success during the loop.
@@ -597,8 +596,8 @@ impl SurfPtGlobalSolver<'_> {
     }
 
     /// `CheckGuessForSeams(rUVGuess)` with its status ignored: the input on failure.
-    fn seams_status_ignored(&mut self, uv: Point2) -> Result<Point2> {
-        match self.check_guess_for_seams(uv) {
+    fn seams_status_ignored(&mut self, k: &Kernel, uv: Point2) -> Result<Point2> {
+        match self.check_guess_for_seams(k, uv) {
             Ok(u) => Ok(u),
             Err(e) if e.is_unported() => Err(e),
             Err(_) => Ok(uv),
@@ -966,7 +965,7 @@ impl SurfPtGlobalSolver<'_> {
     ) -> Result<SolutionArray<O>> {
         // We have to enable out-of-bounds evaluations.  Otherwise, the evaluators
         // will silently clamp, leading to wrong answers.
-        if let Some(oob_surface) = with_out_of_bounds_enabled(self.base.surface()) {
+        if let Some(oob_surface) = with_out_of_bounds_enabled(self.base.surface())? {
             let mut solver = self.with_surface(&oob_surface);
             let solutions = solver.solve_body(k, surface_obj);
             // (the closure is a property of the geometry: keep what was computed)
@@ -1013,14 +1012,14 @@ impl SurfPtGlobalSolver<'_> {
 
             // Refine the guess (status ignored, as upstream).
             let mut uv_guess = rough.uv;
-            if let Err(e) = self.refine_guess(&mut uv_guess) {
+            if let Err(e) = self.refine_guess(k, &mut uv_guess) {
                 if e.is_unported() {
                     return Err(e);
                 }
             }
 
             // We have to check here for seams: start on the proper side.
-            uv_guess = self.seams_status_ignored(uv_guess)?;
+            uv_guess = self.seams_status_ignored(k, uv_guess)?;
 
             // Do the local solve.
             let pt_for_local = if op == SolverOperation::Signed3dDirectedMaximize {
@@ -1028,7 +1027,16 @@ impl SurfPtGlobalSolver<'_> {
             } else {
                 self.base.test_point()
             };
-            match local_point_solve(surface, this_domain, op, pt_for_local, uv_guess, &sol) {
+            match local_point_solve(
+                k,
+                surface,
+                surface_obj,
+                this_domain,
+                op,
+                pt_for_local,
+                uv_guess,
+                &sol,
+            ) {
                 Ok((found, s)) => {
                     found_answer = found;
                     sol = s;
@@ -1079,14 +1087,28 @@ impl SurfPtGlobalSolver<'_> {
 
             if try_again {
                 let save_guess = uv_guess;
-                uv_guess = self.refine_guess_by_grid(uv_guess, best_idx_u, best_idx_v)?;
-                // (upstream's eStat is now RefineGuessByGrid's SM_SUCCESS, even when
-                // the guess did not move and the first local solve failed)
-                stat_ok = true;
+                match self.refine_guess_by_grid(uv_guess, best_idx_u, best_idx_v) {
+                    Ok(refined) => {
+                        uv_guess = refined;
+                        // eStat is now RefineGuessByGrid's status, even if the
+                        // guess did not move and the first local solve failed.
+                        stat_ok = true;
+                    }
+                    Err(error) if error.is_unported() => return Err(error),
+                    Err(_) => stat_ok = false,
+                }
 
-                if !uv_guess.closer_than(EFF_ZERO_SQRT, save_guess) {
-                    match local_point_solve(surface, this_domain, op, pt_for_local, uv_guess, &sol)
-                    {
+                if stat_ok && !uv_guess.closer_than(EFF_ZERO_SQRT, save_guess) {
+                    match local_point_solve(
+                        k,
+                        surface,
+                        surface_obj,
+                        this_domain,
+                        op,
+                        pt_for_local,
+                        uv_guess,
+                        &sol,
+                    ) {
                         Ok((found, s)) => {
                             found_answer = found;
                             sol = s;
@@ -1167,26 +1189,32 @@ fn set_first_object<O: SolutionObject>(sol: &mut Solution<O>, surface_obj: Optio
 /// A copy of `surface` with out-of-bounds evaluation enabled, when it is an
 /// `SmBSplineSurface` (B-spline, plane, surface of revolution) without it; `None`
 /// when nothing changes (`SmTemporaryChangeValue` on `GetOutOfBoundsEnabled()`).
-fn with_out_of_bounds_enabled(surface: &Surface) -> Option<Surface> {
+pub(super) fn with_out_of_bounds_enabled(surface: &Surface) -> Result<Option<Surface>> {
     let enabled = match surface.kind() {
         SurfaceKind::BSpline(b) => b.is_out_of_bounds_enabled(),
         SurfaceKind::Plane(p) => p.base().is_out_of_bounds_enabled(),
         SurfaceKind::SurfOfRevolution(s) => s.base().is_out_of_bounds_enabled(),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
-            return None;
+        SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::SrfInVolume(_) => {
+            return Ok(None);
         }
     };
     if enabled {
-        return None;
+        return Ok(None);
     }
-    let mut copy = surface.clone();
+    let mut copy = surface.clone_for_evaluation()?;
     match copy.kind_mut() {
         SurfaceKind::BSpline(b) => *b.out_of_bounds_enabled_mut() = true,
         SurfaceKind::Plane(p) => *p.out_of_bounds_enabled_mut() = true,
         SurfaceKind::SurfOfRevolution(s) => *s.base_mut().out_of_bounds_enabled_mut() = true,
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
+        SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::SrfInVolume(_) => {}
     }
-    Some(copy)
+    Ok(Some(copy))
 }
 
 /// `pSurf->EvaluatePoint(uv, rPt)` with its status ignored: `prev` on failure.
@@ -1200,35 +1228,27 @@ fn eval_point(surface: &Surface, uv: Point2, prev: Point3) -> Result<Point3> {
 
 /// `m_pSrf->LocalPointSolve(domain, op, point, guess, bFoundAnswer, sSol)`: whether
 /// an answer was found and the solution.
+#[allow(clippy::too_many_arguments)] // upstream's arguments plus the surface's object
 fn local_point_solve<O: SolutionObject>(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _op: SolverOperation,
-    _point: Point3,
-    _guess: Point2,
+    k: &Kernel,
+    surface: &Surface,
+    surface_obj: Option<O>,
+    domain: &Extent2d,
+    op: SolverOperation,
+    point: Point3,
+    guess: Point2,
     _sol: &Solution<O>,
 ) -> Result<(bool, Solution<O>)> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
-    ))
-}
-
-/// `m_pSrf->InvertPointNearSingularity(testPt, domain, uv, tightTol, eReason)`: the
-/// inverted UV.
-fn invert_point_near_singularity(
-    _surface: &Surface,
-    _test_pt: Point3,
-    _domain: &Extent2d,
-    _uv: Point2,
-    _tol: f64,
-) -> Result<Point2> {
-    // UNPORTED(surface.surface_p8): SmSurface::InvertPointNearSingularity
-    Err(SolidError::unported(
-        "SmSurface::InvertPointNearSingularity",
-        "surface.surface_p8",
-    ))
+    // (upstream's LocalPointSolve overwrites the solution with its own, default when
+    // nothing was found)
+    let r = surface.local_point_solve::<O>(k, domain, op, point, guess)?;
+    let mut solution = r.solution;
+    // LocalPointSolve_1 sets m_lNumObjects = 1 and m_apObjects[0] = this; the
+    // LocalPointSolve_0 path (MAXIMIZE) leaves both at their defaults.
+    if solution.num_objects > 0 {
+        set_first_object(&mut solution, surface_obj);
+    }
+    Ok((r.found, solution))
 }
 
 // ---- SmSurfPtSolveStepper -----------------------------------------------------------------
@@ -1475,8 +1495,13 @@ impl SurfPtSolveStepper<'_> {
     /// # Errors
     ///
     /// [`SolidError::Unported`] from the evaluations and, near a singularity,
-    /// `SmSurface::InvertPointNearSingularity` (`surface.surface_p8`).
-    pub fn step(&mut self, prev: &mut Self, do_plane_step: bool) -> Result<TerminationReason> {
+    /// `SmSurface::InvertPointNearSingularity`'s callees.
+    pub fn step(
+        &mut self,
+        k: &Kernel,
+        prev: &mut Self,
+        do_plane_step: bool,
+    ) -> Result<TerminationReason> {
         const SECOND_DERIV_TERM_LIMIT: f64 = 0.90;
 
         self.eval()?;
@@ -1509,15 +1534,15 @@ impl SurfPtSolveStepper<'_> {
             let surface = self.base.surface();
             let srf_domain = surface.natural_uv_domain();
 
-            match invert_point_near_singularity(
-                surface,
+            match surface.invert_point_near_singularity(
+                k,
                 self.base.test_point(),
                 &srf_domain,
                 prev.uv(),
                 self.base.tight_tol(),
             ) {
-                Ok(sing_uv) => {
-                    self.set_uv(sing_uv);
+                Ok(inverted) => {
+                    self.set_uv(inverted.uv);
                     return Ok(TerminationReason::FoundAnswerConverged); // end iteration.
                 }
                 Err(e) if e.is_unported() => return Err(e),
@@ -2085,9 +2110,9 @@ mod tests {
             SolverOperation::Minimize,
             Point3::new(0.3, 0.6, 1.0),
         );
-        // the seam test of a B-spline is not ported yet
+        // an interior point is not on a seam: the guess is refined in place
         let mut uv = Point2::new(0.5, 0.5);
-        assert!(g.refine_guess(&mut uv).unwrap_err().is_unported());
+        g.refine_guess(&k, &mut uv).unwrap();
 
         let mut best = BIG_DOUBLE;
         let mut guess = Point2::new(0.0, 0.0);
@@ -2119,9 +2144,13 @@ mod tests {
         let sols = g.check_seams(&k, 1e-12, &sol, Some(Srf)).unwrap();
         assert_eq!(sols.len(), 1);
 
-        // the local solve is not ported yet
-        let err = g.solve(&k, Some(Srf)).unwrap_err();
-        assert!(err.is_unported());
+        let solved = g.solve(&k, Some(Srf)).unwrap();
+        assert_eq!(solved.len(), 1);
+        let solution = solved.get(0).unwrap();
+        assert_eq!(solution.start.parameters[0], 0.0);
+        assert_eq!(solution.start.parameters[1], 0.5);
+        assert_eq!(solution.start.solution_value, 0.0);
+        assert_eq!(solution.objects[0], Some(Srf));
     }
 
     #[test]
@@ -2147,7 +2176,7 @@ mod tests {
         // a Newton step on a plane lands on the foot point
         let mut next = SurfPtSolveStepper::copy_of(&st);
         assert_eq!(
-            next.step(&mut st, false).unwrap(),
+            next.step(&Kernel::default(), &mut st, false).unwrap(),
             TerminationReason::StillIterating
         );
         assert!((next.uv().x - 0.5).abs() < 1e-12 && (next.uv().y - 0.25).abs() < 1e-12);

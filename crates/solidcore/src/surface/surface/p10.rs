@@ -45,6 +45,8 @@
 
 use super::p1::{is_node_valid, is_point_valid, surface_to_evaluate};
 use super::p2::{original_surface, LsiGlobalSolver, Surface, TsectCurveType};
+use super::p4;
+use super::p6::{CurveIntersection, RangeTangentPoint};
 use super::p9::implicit_iso;
 use crate::curve::curve::p3::local_curve_intersect;
 use crate::curve::curve::Curve;
@@ -68,6 +70,7 @@ use crate::math::{max2, min2, BIG_DOUBLE, EFF_ZERO};
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::knots::Side;
 use crate::surface::surface_cache::p1::SurfaceCache;
+use crate::topology::ObjectHandle;
 
 const OP_LSI: &str = "surface::surface::p10::LsiGlobalSolver::local_solve_branch";
 const OP_COMBINE: &str = "surface::surface::p10::global_curve_intersect_combine_solutions";
@@ -78,48 +81,36 @@ const NO_INDEX: usize = usize::MAX;
 /// Upstream's guess arrays (`SmPoint2d sUVGuesses[6]`).
 const MAX_GUESSES: usize = 6;
 
-// ---- calls into units that are not ported yet ------------------------------------------------
-
-/// A surface/curve intersection found by `SmSurface::LocalCurveIntersect`.
-struct SurfaceCurveHit {
-    uv: Point2,
-    t: f64,
-    deviation: f64,
-}
+// ---- calls into other units -------------------------------------------------------------------
 
 /// `SmSurface::LocalCurveIntersect` (`bFoundIntersection`, `rUVFound`, `rdTFound`,
-/// `rdDeviation`).
+/// `rdDeviation`), the status checked by the caller (`SER`).
 #[allow(clippy::too_many_arguments)] // upstream's arguments
 fn surface_local_curve_intersect(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _tol: f64,
-    _uv_guess: Point2,
-    _t_guess: f64,
-) -> Result<Option<SurfaceCurveHit>> {
-    // UNPORTED(surface.surface_p6): SmSurface::LocalCurveIntersect
-    Err(SolidError::unported(
-        "SmSurface::LocalCurveIntersect",
-        "surface.surface_p6",
-    ))
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    tol: f64,
+    uv_guess: Point2,
+    t_guess: f64,
+) -> Result<Option<CurveIntersection>> {
+    surface.local_curve_intersect(domain, curve, interval, tol, uv_guess, t_guess)
 }
 
 /// `sm_FilterSolution`: whether to keep a curve/surface solution (`rbKeepSolution`).
-fn filter_solution<O>(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _conts: [[ContinuityType; 2]; 3],
-    _solution: &Solution<O>,
+fn filter_solution<O: SolutionObject>(
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    conts: [[ContinuityType; 2]; 3],
+    solution: &Solution<O>,
 ) -> Result<bool> {
-    // UNPORTED(surface.surface_p5): sm_FilterSolution
-    Err(SolidError::unported(
-        "sm_FilterSolution",
-        "surface.surface_p5",
-    ))
+    let [u_conts, v_conts, t_conts] = conts;
+    crate::surface::surface::p5::filter_solution(
+        surface, domain, curve, interval, u_conts, v_conts, t_conts, solution,
+    )
 }
 
 /// The outputs of `sm_ClassifyCurveSurfaceXSectPoint`.
@@ -130,35 +121,33 @@ struct XsectPointClass {
     point_type: TsectCurveType,
 }
 
-/// `sm_ClassifyCurveSurfaceXSectPoint`.
+/// `sm_ClassifyCurveSurfaceXSectPoint` (`surface::surface::p4`).
 fn classify_curve_surface_xsect_point(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _uv: Point2,
-    _t: f64,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    uv: Point2,
+    t: f64,
 ) -> Result<XsectPointClass> {
-    // UNPORTED(surface.surface_p4): sm_ClassifyCurveSurfaceXSectPoint
-    Err(SolidError::unported(
-        "sm_ClassifyCurveSurfaceXSectPoint",
-        "surface.surface_p4",
-    ))
+    let c = p4::classify_curve_surface_xsect_point(surface, domain, curve, interval, uv, t)?;
+    Ok(XsectPointClass {
+        guess: c.found_guess.then_some((c.new_uv_guess, c.new_t_guess)),
+        point_type: c.point_type,
+    })
 }
 
 /// `SmSurface::LocalPointSolve` (`rbFoundAnswer`, `rSolution`).
 fn surface_local_point_solve<O: Copy>(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _operation: SolverOperation,
-    _point: Point3,
-    _uv_guess: Point2,
+    k: &Kernel,
+    surface: &Surface,
+    domain: &Extent2d,
+    operation: SolverOperation,
+    point: Point3,
+    uv_guess: Point2,
 ) -> Result<(bool, Solution<O>)> {
-    // UNPORTED(surface.surface_p5): SmSurface::LocalPointSolve
-    Err(SolidError::unported(
-        "SmSurface::LocalPointSolve",
-        "surface.surface_p5",
-    ))
+    let r = surface.local_point_solve::<O>(k, domain, operation, point, uv_guess)?;
+    Ok((r.found, r.solution))
 }
 
 /// The outputs of `SmSurface::DropPoint` used here: `rbSuccess` and `rdGap`.
@@ -169,31 +158,32 @@ struct DroppedPoint {
 
 /// `SmSurface::DropPoint` with a guess.
 fn surface_drop_point(
-    _surface: &Surface,
-    _point: Point3,
-    _domain: &Extent2d,
-    _guess: Point2,
+    k: &Kernel,
+    surface: &Surface,
+    point: Point3,
+    domain: &Extent2d,
+    guess: Point2,
 ) -> Result<DroppedPoint> {
-    // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-    Err(SolidError::unported(
-        "SmSurface::DropPoint",
-        "surface.surface_p5",
-    ))
+    let opts = crate::surface::surface::p5::DropPointOptions {
+        guess_uv: Some(guess),
+        ..Default::default()
+    };
+    let d = surface.drop_point::<p4::NoObject>(k, point, domain, &opts)?;
+    Ok(DroppedPoint {
+        success: d.success,
+        gap: d.gap,
+    })
 }
 
 /// `SmSurface::ClassifyIntersectingRangeSolution`: `bIsDegenerate` and, when it is,
 /// the tangent point solution written to `rSolPoint`.
-fn classify_intersecting_range_solution<O>(
-    _surface: &Surface,
-    _curve: &Curve,
-    _solution: &Solution<O>,
-    _tol: f64,
-) -> Result<(bool, Option<SolutionEnd>)> {
-    // UNPORTED(surface.surface_p6): SmSurface::ClassifyIntersectingRangeSolution
-    Err(SolidError::unported(
-        "SmSurface::ClassifyIntersectingRangeSolution",
-        "surface.surface_p6",
-    ))
+fn classify_intersecting_range_solution<O: SolutionObject>(
+    k: &Kernel,
+    surface: &Surface,
+    curve: &Curve,
+    solution: &Solution<O>,
+) -> Result<(bool, Option<RangeTangentPoint>)> {
+    surface.classify_intersecting_range_solution(k, curve, solution)
 }
 
 /// The outputs of `SmSurface::DropAndTrimCurve` used here.
@@ -207,18 +197,19 @@ struct DropAndTrim {
 /// `SmSurface::DropAndTrimCurve(context, domain, curve, interval, tol, ..., TRUE,
 /// TRUE)` (upstream requires an `SmBSplineCurve`).
 fn drop_and_trim_curve(
-    _k: &Kernel,
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _curve: &Curve,
-    _interval: &Extent1d,
-    _tol: f64,
+    k: &Kernel,
+    surface: &Surface,
+    domain: &Extent2d,
+    curve: &Curve,
+    interval: &Extent1d,
+    tol: f64,
 ) -> Result<DropAndTrim> {
-    // UNPORTED(intersect.surface_drop_lib_p1): SmSurface::DropAndTrimCurve
-    Err(SolidError::unported(
-        "SmSurface::DropAndTrimCurve",
-        "intersect.surface_drop_lib_p1",
-    ))
+    let r = surface
+        .drop_and_trim_curve::<ObjectHandle>(k, domain, curve, interval, tol, true, true, None)?;
+    Ok(DropAndTrim {
+        dist_to_surface: r.max_drop_to_surf,
+        uv_curves: r.uv_curves.into_iter().map(Curve::from).collect(),
+    })
 }
 
 // ---- helpers -----------------------------------------------------------------------------------
@@ -649,6 +640,7 @@ impl<'t, 's, O: SolutionObject + 't> LsiGlobalSolver<'t, 's, O> {
                     // Get the big surface from the tree and cache
                     let surface = cache.surface();
                     let (found, mut solution) = surface_local_point_solve::<O>(
+                        self.kernel.ok_or(SolidError::null_pointer(OP_LSI))?,
                         surface,
                         &natural,
                         SolverOperation::Minimize,
@@ -910,6 +902,7 @@ fn is_coincident_point<O>(
 /// to the surface: false when one does not drop or lands farther than `tol`.
 #[allow(clippy::too_many_arguments)] // the opening and its surface
 fn opening_drops(
+    k: &Kernel,
     surface: &Surface,
     uv_domain: &Extent2d,
     curve: &Curve,
@@ -923,7 +916,7 @@ fn opening_drops(
         let param = step * f64::from(jj + 1);
         let pt_on1 = curve.evaluate_point(ivl1.evaluate(param))?;
         let guess = Point2::new(ivl2.evaluate(param), ivl3.evaluate(param));
-        let dropped = surface_drop_point(surface, pt_on1, uv_domain, guess)?;
+        let dropped = surface_drop_point(k, surface, pt_on1, uv_domain, guess)?;
 
         // don't combine solutions when SolutionGap MidPoint does not drop or is too far
         if !dropped.success || dropped.gap > tol {
@@ -1133,6 +1126,7 @@ pub fn global_curve_intersect_combine_solutions<O: SolutionObject>(
 
                 // drop two opening points [.33 .66] to the surface
                 if !opening_drops(
+                    k,
                     surface,
                     uv_domain,
                     curve,
@@ -1154,6 +1148,7 @@ pub fn global_curve_intersect_combine_solutions<O: SolutionObject>(
 
                 // sample three more points [.25 .50 .75]
                 if !opening_drops(
+                    k,
                     surface,
                     uv_domain,
                     curve,
@@ -1380,12 +1375,17 @@ pub fn global_curve_intersect_combine_solutions<O: SolutionObject>(
 
         // for nonDegenerate intervals (status ignored)
         if !small_interval {
+            // (`ClassifyIntersectingRangeSolution` writes only the deviation and the
+            // first three parameters of `rCurrSol.m_vStart`)
             if let Some((degenerate, point)) = ignored(classify_intersecting_range_solution(
-                surface, curve, &curr, tol,
+                k, surface, curve, &curr,
             ))? {
                 is_degenerate = degenerate;
-                if let Some(end) = point {
-                    curr.start = end;
+                if let Some(pt) = point {
+                    curr.start.solution_value = pt.solution_value;
+                    for (slot, v) in curr.start.parameters.iter_mut().zip(pt.parameters) {
+                        *slot = v;
+                    }
                     solutions.set_at(ii, &curr)?;
                 }
             }

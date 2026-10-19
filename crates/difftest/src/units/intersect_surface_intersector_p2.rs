@@ -40,7 +40,7 @@ use solidcore::kernel::Kernel;
 use solidcore::math::UNDEF_DOUBLE;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
 use solidcore::surface::curve_bounded_surface::CurveBoundedSurface;
 use solidcore::surface::plane::Plane;
@@ -62,8 +62,6 @@ pub struct Runner;
 fn harness(msg: impl Into<String>) -> HarnessError {
     HarnessError::new(msg)
 }
-
-const NOW: f64 = -f64::MAX;
 
 // ---- inputs ---------------------------------------------------------------------------
 
@@ -634,7 +632,7 @@ fn run_op(
                 Some(j) => Some(pt_of(si, *j)?),
                 None => None,
             };
-            let r = si.compute_point_values([p2(uvs[0]), p2(uvs[1])], &mut p, prev_p.as_ref(), *step);
+            let r = si.compute_point_values(&Kernel::default(), [p2(uvs[0]), p2(uvs[1])], &mut p, prev_p.as_ref(), *step);
             st(o, r)?;
             put_point(o, &p);
             set_pt(si, *i, p)?;
@@ -643,7 +641,7 @@ fn run_op(
             let p = pt_of(si, *i)?;
             if classify_rejected(&p) {
                 o.push(ffi::REJECTED);
-            } else if let Some(d) = st(o, si.classify_boundary_start_point_intersection(&p))? {
+            } else if let Some(d) = st(o, si.classify_boundary_start_point_intersection(k, &p))? {
                 o.push(b(d));
             }
         }

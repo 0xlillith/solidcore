@@ -11,7 +11,7 @@
 //! | [`Shell`] / [`ShellId`]     | `SmShell`                                             |
 //! | [`Faceuse`] / [`FaceuseId`] | `SmFaceuse` (unit `topology.edgeuse_p1`)              |
 //! | [`Face`] / [`FaceId`]       | `SmFace` (unit `topology.face_p2`)                    |
-//! | [`Loopuse`] / [`LoopuseId`] | `SmLoopuse` (minimal)                                 |
+//! | [`Loopuse`] / [`LoopuseId`] | `SmLoopuse` (unit `topology.loopuse`)                 |
 //! | [`Loop`] / [`LoopId`]       | `SmLoop`                                              |
 //! | [`Edgeuse`] / [`EdgeuseId`] | `SmEdgeuse` (unit `topology.edgeuse_p1`)              |
 //! | [`Edge`] / [`EdgeId`]       | `SmEdge`                                              |
@@ -36,13 +36,20 @@
 //! friend writes of `SmBrepConstructor`: they link records without validation (a
 //! B-rep graph is cyclic, so a record may name ids added later).
 
+pub mod brep;
+pub mod brep_cache;
 pub mod brep_data;
 pub mod database_io;
+pub mod edge;
 pub mod edgeuse;
 pub mod face;
+pub mod loopuse;
 pub mod proto_topology;
+pub mod shell;
 #[allow(clippy::module_inception)]
 pub mod topology;
+pub mod topology_traverser;
+pub mod trimming_tools;
 pub mod vertex;
 pub mod vertexuse;
 
@@ -352,14 +359,22 @@ pub struct Shell {
     pub faces: Vec<FaceId>,
     /// `m_pListOwner` (CO-PORTED): the region owning the shell (`GetRegion`).
     pub region: Option<RegionId>,
+    /// Native `m_tShellType`, independent of the list head during construction.
+    pub shell_type: shell::ShellType,
+    /// Native list members in head-first circular traversal order.
+    pub members: shell::ShellMembers,
 }
 
 /// A region (`SmRegion`, CO-PORTED minimal record).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Region {
     /// `m_pListOwner != NULL`: the region is on the B-rep's region list, so
     /// `GetBrep` reaches the B-rep.
     pub in_brep: bool,
+    /// Native region shell list, in traversal order from its head.
+    pub shells: Vec<ShellId>,
+    /// Native `SmBoolean` `m_bIsVoidFlag` (0 at construction; 2 is `UNSURE`).
+    pub is_void: i32,
 }
 
 /// One use of a face (`SmFaceuse`): the face seen from one side.
@@ -376,6 +391,9 @@ pub struct Faceuse {
     pub orientation: OrientType,
     /// `m_pList`: the loop uses, outer loop use first.
     pub loopuses: Vec<LoopuseId>,
+    /// Literal sibling links when present, even if the owner has no list head.
+    /// `None` uses the owner's canonical face-use vector during construction.
+    pub sibling_links: Option<shell::FaceuseSiblingLinks>,
 }
 
 /// What a loop use starts from (`m_tLoopuseType` and `m_pEUorVU`).
@@ -390,7 +408,7 @@ pub enum LoopuseStart {
     Vertexuse(Option<VertexuseId>),
 }
 
-/// One use of a loop (`SmLoopuse`, CO-PORTED minimal record).
+/// One use of a loop (`SmLoopuse`; `Default` is `SmLoopuse()`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Loopuse {
     /// `m_pListOwner` as an `SmFaceuse` (`GetFaceuse`).
@@ -401,6 +419,9 @@ pub struct Loopuse {
     pub mate: Option<LoopuseId>,
     /// `m_tLoopuseType` and `m_pEUorVU`.
     pub start: LoopuseStart,
+    /// `m_eOrientation` (unit `topology.loopuse`): [`OrientType::Same`] for an outer
+    /// loop use, [`OrientType::Opposite`] for an inner one.
+    pub orientation: OrientType,
 }
 
 /// What an edge use connects to (`m_tEdgeuseType` and `m_pSorLU`).
@@ -517,6 +538,7 @@ pub struct Brep {
     edges: Arena<EdgeId, Edge>,
     vertices: Arena<VertexId, Vertex>,
     regions: Arena<RegionId, Region>,
+    infinite_region: Option<RegionId>,
     faceuses: Arena<FaceuseId, Faceuse>,
     loopuses: Arena<LoopuseId, Loopuse>,
     edgeuses: Arena<EdgeuseId, Edgeuse>,
@@ -540,6 +562,7 @@ impl Default for Brep {
             edges: Arena::default(),
             vertices: Arena::default(),
             regions: Arena::default(),
+            infinite_region: None,
             faceuses: Arena::default(),
             loopuses: Arena::default(),
             edgeuses: Arena::default(),
@@ -564,6 +587,18 @@ impl Brep {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// The region designated as infinite by the B-rep constructor.
+    #[must_use]
+    pub const fn infinite_region(&self) -> Option<RegionId> {
+        self.infinite_region
+    }
+
+    /// Friend write of the B-rep's infinite-region identity. Like other record
+    /// writes, this permits references to records added later.
+    pub fn set_infinite_region_record(&mut self, region: Option<RegionId>) {
+        self.infinite_region = region;
     }
 
     /// All shells.

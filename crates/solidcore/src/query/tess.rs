@@ -612,7 +612,8 @@ impl TessSrfCache {
                 }),
                 SurfaceKind::CurveBounded(_)
                 | SurfaceKind::Step(_)
-                | SurfaceKind::SrfInVolume(_) => None,
+                | SurfaceKind::SrfInVolume(_)
+                | SurfaceKind::OffsetSurface(_) => None,
             };
             if let Some(bss) = bss {
                 self.build_tree_with_subdivision(k, &bss)?;
@@ -766,7 +767,7 @@ impl TessSrfCache {
 
         // get tree nodes that intersect the segment box (leaves and parents)
         self.get_tree(k)?;
-        let nodes = self.base().find_uv_nodes_built(&seg_extent, false)?;
+        let nodes = self.base().find_uv_nodes_built(k, &seg_extent, false)?;
 
         // check state - segment should intersect some subdivision tree nodes
         if nodes.is_empty() {
@@ -878,7 +879,7 @@ impl TessSrfCache {
 
             // gather all nodes intersecting this node's uv domain
             self.get_tree(k)?;
-            let adjacent = self.base().find_uv_nodes_built(&domain, false)?;
+            let adjacent = self.base().find_uv_nodes_built(k, &domain, false)?;
 
             // a classified neighbour leaf gives the classification
             for &adj in &adjacent {

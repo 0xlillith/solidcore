@@ -2,28 +2,20 @@
   "abs_floors": [],
   "cases": [
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "lsi_vertical_through_flat_patch",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#0 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "lsi_vertical_through_dome",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#1 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -50,16 +42,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "lsi_ray_starting_on_patch",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#5 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -70,16 +58,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "lsi_node_outside_face_modified",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#7 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -138,28 +122,20 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "lsi_grazing_corner",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#15 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "lsi_plane_hit",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#16 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -274,21 +250,17 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "combine_dev_exception_range",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#31 (upstream source/SMLib/src/SmSurface.cpp:15523 (sm_GlobalCurveIntersectCombineSolutions))",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "combine_leading_point_classifies",
@@ -299,8 +271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "combine_gap_drops_to_surface",
@@ -311,8 +283,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "combine_long_range_coincidence",
@@ -330,16 +302,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "adv_lsi_degenerate_ivl",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#36 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -358,28 +326,20 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "adv_lsi_tiny_vector2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#39 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "adv_lsi_zero_tols_graze",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#40 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -398,16 +358,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "adv_lsi_ray_in_plane",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#43 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -418,16 +374,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "adv_lsi_ivl_touch_end",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#45 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -438,16 +390,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "adv_lsi_dom_inside_eps",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#47 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -466,16 +414,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "adv_lsi_point_off_diag",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#50 (upstream source/SMLib/src/SmSurface.cpp:18075 (SmLSIGlobalSolver::LocalSolve))",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -495,8 +439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_swap_point_range2",
@@ -507,8 +451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_swap_range_point",
@@ -518,28 +462,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "adv_cmb_dev_exceptions",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#55 (upstream source/SMLib/src/SmSurface.cpp:15523 (sm_GlobalCurveIntersectCombineSolutions))",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "adv_cmb_dev_exceptions_len",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/surface.surface_p10/cases.json#56 (upstream source/SMLib/src/SmSurface.cpp:15523 (sm_GlobalCurveIntersectCombineSolutions))",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -567,8 +503,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_small_range_devs2",
@@ -579,8 +515,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_point_invalid_nodes_cull",
@@ -591,8 +527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_point_before_range",
@@ -611,8 +547,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "adv_cmb_many_tiny",
@@ -655,8 +591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0002",
@@ -730,16 +666,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0011",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562587982",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -759,8 +691,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0014",
@@ -779,8 +711,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0016",
@@ -790,40 +722,28 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0017",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562587988",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0018",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562587989",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0019",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562587990",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -842,16 +762,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0022",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562587993",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -863,8 +779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0024",
@@ -875,8 +791,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0025",
@@ -887,8 +803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0026",
@@ -899,8 +815,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0027",
@@ -918,16 +834,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0029",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588000",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -954,16 +866,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0033",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588004",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -982,16 +890,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0036",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588007",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -1010,16 +914,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0039",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588010",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -1039,8 +939,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0042",
@@ -1050,28 +950,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0043",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588014",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0044",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588015",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -1115,8 +1007,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0050",
@@ -1150,16 +1042,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0054",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588025",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -1171,8 +1059,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0056",
@@ -1207,8 +1095,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0060",
@@ -1251,8 +1139,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0065",
@@ -1263,8 +1151,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0066",
@@ -1275,8 +1163,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0067",
@@ -1287,8 +1175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0068",
@@ -1306,16 +1194,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0070",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588041",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -1327,8 +1211,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0072",
@@ -1338,16 +1222,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0073",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588044",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -1367,8 +1247,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0076",
@@ -1379,8 +1259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0077",
@@ -1407,8 +1287,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0080",
@@ -1451,8 +1331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0085",
@@ -1470,16 +1350,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0087",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588058",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -1514,16 +1390,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0092",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588063",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -1534,33 +1406,25 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0094",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588065",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0095",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588066",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0096",
@@ -1571,8 +1435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0097",
@@ -1591,8 +1455,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0099",
@@ -1602,16 +1466,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0100",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588071",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -1631,8 +1491,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0103",
@@ -1650,33 +1510,25 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0105",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588076",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0106",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588077",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0107",
@@ -1695,8 +1547,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0109",
@@ -1723,8 +1575,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0112",
@@ -1735,8 +1587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0113",
@@ -1754,21 +1606,17 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0115",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588086",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0116",
@@ -1795,8 +1643,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0119",
@@ -1814,21 +1662,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0121",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588092",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0122",
@@ -1879,8 +1723,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0128",
@@ -1899,8 +1743,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0130",
@@ -1918,16 +1762,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0132",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588103",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -1954,16 +1794,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0136",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588107",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -1975,8 +1811,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0138",
@@ -1987,8 +1823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0139",
@@ -2006,16 +1842,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0141",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588112",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -2026,33 +1858,25 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0143",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588114",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0144",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588115",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0145",
@@ -2062,21 +1886,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0146",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588117",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0147",
@@ -2111,8 +1931,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0151",
@@ -2179,8 +1999,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0159",
@@ -2199,8 +2019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0161",
@@ -2243,8 +2063,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0166",
@@ -2254,16 +2074,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0167",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588138",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -2291,8 +2107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0171",
@@ -2303,8 +2119,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0172",
@@ -2323,8 +2139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0174",
@@ -2334,16 +2150,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0175",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588146",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -2355,8 +2167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0177",
@@ -2367,8 +2179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0178",
@@ -2379,8 +2191,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0179",
@@ -2391,8 +2203,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0180",
@@ -2410,16 +2222,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0182",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588153",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -2430,21 +2238,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0184",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588155",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0185",
@@ -2495,8 +2299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0191",
@@ -2507,8 +2311,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0192",
@@ -2543,8 +2347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0196",
@@ -2554,40 +2358,28 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0197",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588168",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0198",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588169",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0199",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588170",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -2598,16 +2390,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0201",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588172",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -2618,16 +2406,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0203",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588174",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -2686,16 +2470,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0211",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588182",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -2707,8 +2487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0213",
@@ -2719,8 +2499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0214",
@@ -2731,8 +2511,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0215",
@@ -2799,8 +2579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0223",
@@ -2827,8 +2607,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0226",
@@ -2847,8 +2627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0228",
@@ -2915,8 +2695,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0236",
@@ -2942,21 +2722,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0239",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588210",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0240",
@@ -3006,16 +2782,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0246",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588217",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -3026,16 +2798,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0248",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588219",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -3046,40 +2814,28 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0250",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588221",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0251",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588222",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0252",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588223",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -3091,8 +2847,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0254",
@@ -3127,8 +2883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0258",
@@ -3155,8 +2911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0261",
@@ -3191,8 +2947,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0265",
@@ -3202,21 +2958,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0266",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588237",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0267",
@@ -3259,8 +3011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0272",
@@ -3270,16 +3022,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0273",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588244",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -3306,40 +3054,28 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0277",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588248",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0278",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588249",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0279",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588250",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -3351,8 +3087,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0281",
@@ -3386,21 +3122,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0285",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588256",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0286",
@@ -3410,16 +3142,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0287",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588258",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -3430,21 +3158,17 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0289",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588260",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0290",
@@ -3463,8 +3187,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0292",
@@ -3483,8 +3207,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0294",
@@ -3502,21 +3226,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0296",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588267",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0297",
@@ -3527,8 +3247,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0298",
@@ -3539,8 +3259,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0299",
@@ -3559,8 +3279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0301",
@@ -3611,8 +3331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0307",
@@ -3631,8 +3351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0309",
@@ -3659,8 +3379,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0312",
@@ -3679,8 +3399,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0314",
@@ -3723,8 +3443,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0319",
@@ -3775,8 +3495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0325",
@@ -3803,8 +3523,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0328",
@@ -3815,8 +3535,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0329",
@@ -3858,16 +3578,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0334",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588305",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -3878,16 +3594,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0336",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588307",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -3907,8 +3619,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0339",
@@ -3950,28 +3662,20 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0344",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588315",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0345",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588316",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -4006,21 +3710,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0350",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588321",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0351",
@@ -4030,16 +3730,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0352",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588323",
-      "values_compared": 0
+      "values_compared": 77
     },
     {
       "max_rel_err": 0.0,
@@ -4051,8 +3747,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0354",
@@ -4078,28 +3774,20 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0357",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588328",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0358",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588329",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -4135,8 +3823,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0363",
@@ -4155,8 +3843,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0365",
@@ -4166,21 +3854,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0366",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588337",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0367",
@@ -4198,16 +3882,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0369",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588340",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -4226,21 +3906,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0372",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588343",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0373",
@@ -4250,21 +3926,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0374",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588345",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0375",
@@ -4274,16 +3946,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0376",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588347",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -4294,33 +3962,25 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0378",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588349",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0379",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588350",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0380",
@@ -4379,8 +4039,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0387",
@@ -4399,8 +4059,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0389",
@@ -4418,16 +4078,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0391",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588362",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -4447,8 +4103,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0394",
@@ -4482,21 +4138,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0398",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588369",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0399",
@@ -4507,8 +4159,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0400",
@@ -4534,16 +4186,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0403",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588374",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -4554,21 +4202,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0405",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588376",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0406",
@@ -4595,8 +4239,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0409",
@@ -4606,16 +4250,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0410",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588381",
-      "values_compared": 0
+      "values_compared": 77
     },
     {
       "max_rel_err": 0.0,
@@ -4627,8 +4267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0412",
@@ -4654,16 +4294,12 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0415",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588386",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -4674,16 +4310,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0417",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588388",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -4695,8 +4327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0419",
@@ -4706,16 +4338,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0420",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588391",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -4727,8 +4355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0422",
@@ -4738,16 +4366,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0423",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588394",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -4774,33 +4398,25 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0427",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588398",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0428",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588399",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0429",
@@ -4819,8 +4435,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0431",
@@ -4830,16 +4446,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0432",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588403",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -4851,8 +4463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0434",
@@ -4887,8 +4499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0438",
@@ -4954,16 +4566,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0446",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588417",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -5015,8 +4623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0453",
@@ -5035,8 +4643,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0455",
@@ -5063,8 +4671,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0458",
@@ -5074,16 +4682,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0459",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588430",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -5094,16 +4698,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0461",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588432",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -5130,16 +4730,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0465",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588436",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -5158,16 +4754,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0468",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588439",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -5178,16 +4770,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0470",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588441",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -5198,16 +4786,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0472",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588443",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -5235,8 +4819,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0476",
@@ -5303,8 +4887,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0484",
@@ -5339,8 +4923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0488",
@@ -5351,8 +4935,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0489",
@@ -5370,16 +4954,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0491",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588462",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -5390,28 +4970,20 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0493",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588464",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0494",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588465",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -5438,16 +5010,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0498",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588469",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -5459,8 +5027,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0500",
@@ -5471,8 +5039,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0501",
@@ -5483,8 +5051,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0502",
@@ -5518,16 +5086,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0506",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588477",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -5555,8 +5119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0510",
@@ -5566,16 +5130,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0511",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588482",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -5587,8 +5147,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0513",
@@ -5607,8 +5167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0515",
@@ -5618,16 +5178,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0516",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588487",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -5638,40 +5194,28 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0518",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588489",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0519",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588490",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0520",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588491",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -5699,8 +5243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0524",
@@ -5727,8 +5271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0527",
@@ -5755,8 +5299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0530",
@@ -5766,16 +5310,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0531",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588502",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -5787,8 +5327,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0533",
@@ -5822,21 +5362,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0537",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588508",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0538",
@@ -5863,8 +5399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0541",
@@ -5898,33 +5434,25 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0545",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588516",
-      "values_compared": 0
+      "values_compared": 92
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0546",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588517",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0547",
@@ -5942,16 +5470,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0549",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588520",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -5970,16 +5494,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0552",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588523",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -5991,8 +5511,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0554",
@@ -6018,21 +5538,17 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0557",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588528",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0558",
@@ -6042,16 +5558,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0559",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588530",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6070,21 +5582,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0562",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588533",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0563",
@@ -6119,8 +5627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0567",
@@ -6138,16 +5646,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0569",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588540",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6207,8 +5711,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0577",
@@ -6219,8 +5723,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0578",
@@ -6246,28 +5750,20 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0581",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588552",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0582",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588553",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6302,16 +5798,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0587",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588558",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -6330,16 +5822,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0590",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588561",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6350,16 +5838,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0592",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588563",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6371,8 +5855,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0594",
@@ -6383,8 +5867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0595",
@@ -6467,8 +5951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0605",
@@ -6518,28 +6002,20 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0611",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588582",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0612",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588583",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6550,16 +6026,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0614",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588585",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -6587,8 +6059,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0618",
@@ -6599,8 +6071,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0619",
@@ -6619,8 +6091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0621",
@@ -6671,8 +6143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0627",
@@ -6699,8 +6171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0630",
@@ -6718,16 +6190,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0632",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588603",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -6778,16 +6246,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0639",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588610",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -6798,16 +6262,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0641",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588612",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6819,8 +6279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0643",
@@ -6838,16 +6298,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0645",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588616",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -6866,16 +6322,12 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0648",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588619",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -6902,28 +6354,20 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0652",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588623",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0653",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588624",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -6934,16 +6378,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0655",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588626",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -6955,8 +6395,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0657",
@@ -6967,8 +6407,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0658",
@@ -6979,8 +6419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0659",
@@ -6991,8 +6431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0660",
@@ -7003,8 +6443,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0661",
@@ -7055,8 +6495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0667",
@@ -7075,8 +6515,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0669",
@@ -7134,28 +6574,20 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0676",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588647",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0677",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588648",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -7167,8 +6599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0679",
@@ -7203,8 +6635,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0683",
@@ -7222,21 +6654,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0685",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588656",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0686",
@@ -7262,28 +6690,20 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0689",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588660",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0690",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588661",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -7294,16 +6714,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0692",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588663",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -7314,28 +6730,20 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0694",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588665",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0695",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588666",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -7363,8 +6771,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0699",
@@ -7374,16 +6782,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0700",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588671",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -7395,8 +6799,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0702",
@@ -7415,8 +6819,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0704",
@@ -7443,8 +6847,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0707",
@@ -7455,8 +6859,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0708",
@@ -7483,8 +6887,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0711",
@@ -7502,16 +6906,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0713",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588684",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -7523,8 +6923,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0715",
@@ -7543,8 +6943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0717",
@@ -7563,8 +6963,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0719",
@@ -7582,16 +6982,12 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0721",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588692",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -7619,8 +7015,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0725",
@@ -7631,8 +7027,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0726",
@@ -7643,8 +7039,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0727",
@@ -7662,16 +7058,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0729",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588700",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -7698,16 +7090,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0733",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588704",
-      "values_compared": 0
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -7759,8 +7147,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0740",
@@ -7770,28 +7158,20 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0741",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588712",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0742",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588713",
-      "values_compared": 0
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -7819,8 +7199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0746",
@@ -7831,8 +7211,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0747",
@@ -7875,8 +7255,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0752",
@@ -7887,8 +7267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0753",
@@ -7907,8 +7287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0755",
@@ -7919,8 +7299,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0756",
@@ -7938,16 +7318,12 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0758",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588729",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -7990,21 +7366,17 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
-      },
       "max_rel_err": 0.0,
       "name": "gen0764",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588735",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0765",
@@ -8015,8 +7387,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0766",
@@ -8034,21 +7406,17 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::ClassifyIntersectingRangeSolution",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0768",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588739",
-      "values_compared": 0
+      "values_compared": 92
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0769",
@@ -8067,8 +7435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0771",
@@ -8095,8 +7463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0774",
@@ -8123,8 +7491,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0777",
@@ -8166,16 +7534,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LocalCurveIntersect",
-        "unit": "surface.surface_p6"
-      },
       "max_rel_err": 0.0,
       "name": "gen0782",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588753",
-      "values_compared": 0
+      "values_compared": 3
     },
     {
       "max_rel_err": 0.0,
@@ -8186,33 +7550,25 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0784",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588755",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0785",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588756",
-      "values_compared": 0
+      "values_compared": 17
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0786",
@@ -8247,8 +7603,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0790",
@@ -8274,21 +7630,17 @@
       "values_compared": 32
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
-      },
       "max_rel_err": 0.0,
       "name": "gen0793",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13939700598562588764",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropAndTrimCurve",
-        "unit": "intersect.surface_drop_lib_p1"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0794",
@@ -8299,8 +7651,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_ClassifyCurveSurfaceXSectPoint",
-        "unit": "surface.surface_p4"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0795",
@@ -8335,8 +7687,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropPoint",
-        "unit": "surface.surface_p5"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0799",
@@ -8347,15 +7699,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 352,
+  "cases_deferred": 190,
   "cases_failed": 0,
-  "cases_passed": 515,
+  "cases_passed": 677,
   "cases_total": 867,
   "deferred_by_unit": {
-    "intersect.surface_drop_lib_p1": 47,
-    "surface.surface_p4": 72,
-    "surface.surface_p5": 118,
-    "surface.surface_p6": 115
+    "intersect.surface_drop_curve": 190
   },
   "max_rel_err": 0.0,
   "pass": true,

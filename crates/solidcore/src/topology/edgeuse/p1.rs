@@ -43,9 +43,9 @@
 //! | [`faceuse_collect_adjacent`]           | `SmFaceuse::CollectAdjacentFaceuses`             |
 //! | [`edgeuse_next`], [`edgeuse_last`]     | `SmTopology::GetNext`, `GetLast` of an edge use (CO-PORTED, `topology.topology` list links) |
 //! | [`primary_edgeuse`], [`edge_is_lamina`], [`edge_brep`] | `SmEdge::GetPrimaryEdgeuse`, `IsLamina`, `GetBrep` (CO-PORTED, `topology.edge`) |
-//! | [`loopuse_edgeuses`], [`loopuse_shell`] | `SmLoopuse::GetEdgeuses`, `GetShell` (CO-PORTED, `topology.loopuse`) |
+//! | [`loopuse_edgeuses`], [`loopuse_shell`] | `SmLoopuse::GetEdgeuses`, `GetShell` (unit `topology.loopuse`) |
 //! | [`vertexuse_edgeuse`]                  | `SmVertexuse::GetEdgeuse` (CO-PORTED, `topology.vertexuse`) |
-//! | [`shell_region`], [`shell_brep`]       | `SmShell::GetRegion`, `GetBrep` (CO-PORTED, `topology.shell`) |
+//! | [`shell_region`], [`shell_brep`]       | `SmShell::GetRegion`, `GetBrep` (unit `topology.shell`) |
 //! | [`owning_topology_is_kind_of`]         | `SmOwningTopology::IsKindOf` (unit `topology.proto_topology_p1`) |
 //!
 //! Deviations:
@@ -80,22 +80,19 @@
 //!   ([`SolidError::Unported`] still propagates), leaving the outputs of a failed
 //!   evaluation at their `SM_UNDEF_DOUBLE` defaults. `sm_AreSeamCurves`' unused
 //!   edge use argument is dropped.
-//! - **Unported callees.** `SmEdge::SetTolerance` (`topology.edge`),
-//!   `SmSurface::DropPoint` (`surface.surface_p5`) and `SmEdgeuse::EvaluateBinormal`
-//!   (`topology.edgeuse_p3`) return [`SolidError::Unported`]. The gap computations are
-//!   [`crate::heal::gap`]; `CalcMaxEdgeFaceGap`'s cross-section tolerance is the
-//!   context one with no context (`SmTol::GetXSectTol3d(NULL)`: the B-rep records
-//!   carry no context).
+//! - **Unported callees.** `SmEdgeuse::EvaluateBinormal` is wired
+//!   (`topology.edgeuse_p3`); its deferred callees return [`SolidError::Unported`]. The gap computations are [`crate::heal::gap`];
+//!   `CalcMaxEdgeFaceGap`'s cross-section tolerance is the context one with no
+//!   context (`SmTol::GetXSectTol3d(NULL)`: the B-rep records carry no context).
 //! - **Co-ports.** The small accessors of other units this unit reaches are ported
 //!   here (table above) and recorded as CO-PORTED in `plan/modules.toml`.
-//!   [`loopuse_edgeuses`] has no attribute or connection filter (callers here pass
-//!   none) and stops with [`SolidError::InvalidInput`] after visiting more edge uses
-//!   than the B-rep holds (upstream loops forever on a CCW chain that does not return
-//!   to its start).
+//!   [`loopuse_edgeuses`] (no attribute or connection filter; callers here pass none)
+//!   and [`loopuse_shell`] call unit `topology.loopuse`.
 
 use crate::curve::curve::Curve;
 use crate::error::{EntityRef, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
+use crate::geom::global_solver::SolverOperation;
 use crate::geom::local_solve_nd::EvalNFunctions;
 use crate::geom::matrix::Matrix;
 use crate::geom::solution_array::{ObjectKind, Solution, SolutionObject};
@@ -107,10 +104,12 @@ use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::p1::evaluate_1st_derivatives;
 use crate::surface::surface::p2::DropCurveFail;
+use crate::surface::surface::p4::NoObject;
+use crate::surface::surface::p5::DropPointOptions;
 use crate::surface::surface::Surface;
 use crate::topology::{
     topology as topo, Brep, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId,
-    LoopuseStart, ObjectHandle, RegionId, ShellId, VertexId, VertexuseId, VertexuseOwner,
+    ObjectHandle, RegionId, ShellId, VertexId, VertexuseId, VertexuseOwner,
 };
 
 const OP: &str = "topology::edgeuse::p1";
@@ -241,49 +240,24 @@ pub fn edge_brep(brep: &Brep, edge: EdgeId) -> Result<Option<&Brep>> {
     }
 }
 
-/// `SmLoopuse::GetEdgeuses` without filters (CO-PORTED from unit `topology.loopuse`):
-/// the edge uses of an edge loop use in CCW order from its start edge use; empty for a
-/// vertex loop use or a loop use without start.
+/// `SmLoopuse::GetEdgeuses` without filters (unit `topology.loopuse`): the edge uses
+/// of an edge loop use in CCW order from its start edge use; empty for a vertex loop
+/// use or a loop use without start.
 ///
 /// # Errors
 ///
-/// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] when the
-/// CCW chain does not return to its start within the B-rep's edge use count.
+/// Those of [`crate::topology::loopuse::edgeuses`].
 pub fn loopuse_edgeuses(brep: &Brep, lu: LoopuseId) -> Result<Vec<EdgeuseId>> {
-    let start = match brep.loopuse(lu)?.start {
-        LoopuseStart::Vertexuse(_) => return Ok(Vec::new()),
-        LoopuseStart::Edgeuse(eu) => eu,
-        LoopuseStart::Unknown => None,
-    };
-    let mut out = Vec::new();
-    let mut eu = start;
-    loop {
-        // for NULL terminated lists
-        let Some(cur) = eu else {
-            return Ok(out);
-        };
-        if out.len() > brep.edgeuses().len() {
-            return Err(null("loop use CCW chain does not close"));
-        }
-        out.push(cur);
-        eu = brep.edgeuse(cur)?.ccw;
-        if eu == start {
-            return Ok(out);
-        }
-    }
+    crate::topology::loopuse::edgeuses(brep, lu, None, None)
 }
 
-/// `SmLoopuse::GetShell` (CO-PORTED from unit `topology.loopuse`): the shell of the
-/// owning face use.
+/// `SmLoopuse::GetShell` (unit `topology.loopuse`): the shell of the owning face use.
 ///
 /// # Errors
 ///
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn loopuse_shell(brep: &Brep, lu: LoopuseId) -> Result<Option<ShellId>> {
-    match brep.loopuse(lu)?.faceuse {
-        Some(fu) => Ok(brep.faceuse(fu)?.shell),
-        None => Ok(None),
-    }
+    crate::topology::loopuse::shell(brep, lu)
 }
 
 /// `SmVertexuse::GetEdgeuse` (CO-PORTED from unit `topology.vertexuse`): the edge use
@@ -299,26 +273,23 @@ pub fn vertexuse_edgeuse(brep: &Brep, vu: VertexuseId) -> Result<Option<EdgeuseI
     })
 }
 
-/// `SmShell::GetRegion` (CO-PORTED from unit `topology.shell`).
+/// `SmShell::GetRegion`: delegates to unit `topology.shell`.
 ///
 /// # Errors
 ///
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn shell_region(brep: &Brep, s: ShellId) -> Result<Option<RegionId>> {
-    Ok(brep.shell(s)?.region)
+    crate::topology::shell::shell_region(brep, s)
 }
 
-/// `SmShell::GetBrep` (CO-PORTED from unit `topology.shell`): the B-rep of the owning
+/// `SmShell::GetBrep` (delegates to unit `topology.shell`): the B-rep of the owning
 /// region.
 ///
 /// # Errors
 ///
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn shell_brep(brep: &Brep, s: ShellId) -> Result<Option<&Brep>> {
-    match shell_region(brep, s)? {
-        None => Ok(None),
-        Some(r) => Ok(brep.region(r)?.in_brep.then_some(brep)),
-    }
+    crate::topology::shell::shell_brep(brep, s)
 }
 
 // ---- simple edge use access ---------------------------------------------------------------
@@ -736,8 +707,8 @@ pub(crate) fn brep_handle(b: &Brep, eu: EdgeuseId) -> Result<Option<ObjectHandle
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] where
 /// upstream dereferences null (no edge, primary edge use, vertex use or B-rep);
-/// [`SolidError::Unported`] when the edge tolerance must grow (`SmEdge::SetTolerance`,
-/// unit `topology.edge`).
+/// [`SolidError::Unported`] when growing the edge tolerance must grow a vertex
+/// tolerance (`SmVertex::SetTolerance`, unit `topology.vertex`).
 pub fn set_uv_trim_curve(
     b: &mut Brep,
     eu: EdgeuseId,
@@ -836,11 +807,13 @@ pub fn set_uv_trim_curve(
             let e = edge(b, eu)?.ok_or_else(|| null("SetUVTrimCurve: edge use without edge"))?;
             let curr_tol = b.edge(e)?.tolerance;
             if curr_tol < TOL_FACTOR * max_dist_to_surface {
-                // UNPORTED(topology.edge): SmEdge::SetTolerance
-                return Err(SolidError::unported(
-                    "SmEdge::SetTolerance",
-                    "topology.edge",
-                ));
+                crate::topology::edge::set_tolerance(
+                    b,
+                    e,
+                    TOL_FACTOR * max_dist_to_surface,
+                    true,
+                    true,
+                )?;
             }
         }
     }
@@ -937,6 +910,7 @@ pub fn max_edge_face_gap(
 /// [`SolidError::InvalidInput`] from the calculation (its status is ignored, as
 /// upstream).
 pub fn edge_ccw_edge_gap(
+    k: &Kernel,
     b: &mut Brep,
     eu: EdgeuseId,
     force_calc: bool,
@@ -946,7 +920,7 @@ pub fn edge_ccw_edge_gap(
         return Ok(None);
     }
     if force_calc || !b.edgeuse(eu)?.edge_ccw_edge_gap.is_init() {
-        ignore_status(calc_edge_ccw_edge_gap(b, eu, false, true))?;
+        ignore_status(calc_edge_ccw_edge_gap(k, b, eu, false, true))?;
     }
     Ok(Some(b.edgeuse(eu)?.edge_ccw_edge_gap))
 }
@@ -1019,6 +993,7 @@ pub fn calc_max_edge_face_gap(
     // set Edge/Face gap - assigns m_pEdgeuse, m_dEdgeT and m_sFaceUV and computes the
     // gap
     let gap = EdgeFaceGap::with(
+        k,
         b,
         Some(eu),
         sample.this_param().x,
@@ -1048,6 +1023,7 @@ pub fn calc_max_edge_face_gap(
 /// upstream dereferences null (no counter-clockwise neighbour or edge);
 /// those of [`EdgeEdgeGap::set_edge_edge_gap`] when the gap is cached or wanted.
 pub fn calc_edge_ccw_edge_gap(
+    k: &Kernel,
     b: &mut Brep,
     eu: EdgeuseId,
     want_output: bool,
@@ -1088,13 +1064,14 @@ pub fn calc_edge_ccw_edge_gap(
 
     // set m_sEdgeCCWEdgeGap3d
     if cache {
-        let g = EdgeEdgeGap::with(b, Some(eu), Some(ccw), edge_t, ccw_edge_t)?;
+        let g = EdgeEdgeGap::with(k, b, Some(eu), Some(ccw), edge_t, ccw_edge_t)?;
         b.edgeuse_mut(eu)?.edge_ccw_edge_gap = g;
     }
 
     // set output
     match out {
         Some(_) => Ok(Some(EdgeEdgeGap::with(
+            k,
             b,
             Some(eu),
             Some(ccw),
@@ -1129,7 +1106,7 @@ fn edge_interval(b: &Brep, eu: EdgeuseId, what: &'static str) -> Result<Extent1d
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] where
 /// upstream dereferences null; [`SolidError::Unported`] for the point drop
 /// (`SmSurface::DropPoint`, unit `surface.surface_p5`).
-pub fn start_point_uv_loop_gap(b: &Brep, eu: EdgeuseId) -> Result<f64> {
+pub fn start_point_uv_loop_gap(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<f64> {
     // check state - only Loopuse Edgeuses have End_to_End gaps
     let r = b.edgeuse(eu)?;
     let Some(cw) = r.cw.filter(|_| matches!(r.owner, EdgeuseOwner::Loopuse(_))) else {
@@ -1160,9 +1137,9 @@ pub fn start_point_uv_loop_gap(b: &Brep, eu: EdgeuseId) -> Result<f64> {
             None => None,
         };
         // check state - must have a surface
-        if surface.is_none() {
+        let Some(surface) = surface else {
             return Ok(0.0);
-        }
+        };
         // evaluate Edgeuse End 3dPoints
         let curve_of = |x: EdgeuseId| -> Result<_> {
             let e = edge(b, x)?.ok_or_else(|| null("GetStartPointUVLoopGap: no edge"))?;
@@ -1171,13 +1148,33 @@ pub fn start_point_uv_loop_gap(b: &Brep, eu: EdgeuseId) -> Result<f64> {
                 .as_ref()
                 .ok_or_else(|| null("GetStartPointUVLoopGap: edge without curve"))
         };
-        let _start_3d = point_or_undef(curve_of(eu)?.evaluate_point(start_param))?;
-        let _cw_end_3d = point_or_undef(curve_of(cw)?.evaluate_point(cw_end_param))?;
-        // UNPORTED(surface.surface_p5): SmSurface::DropPoint
-        return Err(SolidError::unported(
-            "SmSurface::DropPoint",
-            "surface.surface_p5",
-        ));
+        let start_3d = point_or_undef(curve_of(eu)?.evaluate_point(start_param))?;
+        let cw_end_3d = point_or_undef(curve_of(cw)?.evaluate_point(cw_end_param))?;
+
+        // drop point to Surface (statuses ignored, as upstream)
+        let domain = surface.natural_uv_domain();
+        let start_opts = DropPointOptions {
+            operation: SolverOperation::Minimize,
+            ..Default::default()
+        };
+        let start_drop = crate::error::ignored(surface.drop_point::<NoObject>(
+            k,
+            start_3d,
+            &domain,
+            &start_opts,
+        ))?;
+        // `sStart2d` stays default-constructed when the call fails
+        let start_2d = start_drop.map_or(Point2::UNDEF, |d| d.result_uv);
+        let cw_opts = DropPointOptions {
+            guess_uv: Some(start_2d),
+            operation: SolverOperation::Minimize,
+            ..Default::default()
+        };
+        let cw_drop =
+            crate::error::ignored(surface.drop_point::<NoObject>(k, cw_end_3d, &domain, &cw_opts))?;
+        // upstream's DropPoint sets rResultUV to the guess before anything can fail
+        let cw_end_2d = cw_drop.map_or(start_2d, |d| d.result_uv);
+        return Ok(start_2d.distance(cw_end_2d));
     };
     let start_uv = point_or_undef(tc.evaluate_point(start_param))?;
     let cw_end_uv = point_or_undef(cc.evaluate_point(cw_end_param))?;
@@ -1342,6 +1339,19 @@ pub fn faceuse_neighbors(
     Ok(out)
 }
 
+/// `pEU->EvaluateBinormal(param, TRUE, point, binormal, NULL, &normal)` with its status
+/// ignored: the face use normal, a zero vector where the evaluation failed (upstream
+/// zeroes the output before it can fail). [`SolidError::Unported`] propagates.
+fn binormal_face_normal(k: &Kernel, b: &mut Brep, eu: EdgeuseId, param: f64) -> Result<Vec3> {
+    let options = crate::topology::edgeuse::p3::BinormalOptions::default();
+    Ok(
+        crate::error::ignored(crate::topology::edgeuse::p3::evaluate_binormal(
+            k, b, eu, param, true, &options,
+        ))?
+        .map_or(Vec3::new(0.0, 0.0, 0.0), |r| r.face_normal),
+    )
+}
+
 /// `SmFaceuse::CollectAdjacentFaceuses`: appends to `faceuses` the face uses reached
 /// from this one across radial partners, not crossing lamina edges (and, with an
 /// angle threshold, not across edges whose face normals differ by more).
@@ -1350,10 +1360,11 @@ pub fn faceuse_neighbors(
 ///
 /// Those of [`faceuse_edgeuses`] and [`radial`]; [`SolidError::InvalidInput`] where
 /// upstream dereferences null (no edge, radial partner or its face use);
-/// [`SolidError::Unported`] with a threshold (`SmEdgeuse::EvaluateBinormal`, unit
-/// `topology.edgeuse_p3`).
+/// [`SolidError::Unported`] and the binormal errors with a threshold
+/// (`SmEdgeuse::EvaluateBinormal`, [`crate::topology::edgeuse::p3`]).
 pub fn faceuse_collect_adjacent(
-    b: &Brep,
+    k: &Kernel,
+    b: &mut Brep,
     fu: FaceuseId,
     faceuses: &mut Vec<FaceuseId>,
     angle_threshold: Option<f64>,
@@ -1376,12 +1387,28 @@ pub fn faceuse_collect_adjacent(
                 .ok_or_else(|| null("CollectAdjacentFaceuses: edge use without radial partner"))?;
             let fu_rad = faceuse(b, rad)?;
 
-            if angle_threshold.is_some() {
-                // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-                return Err(SolidError::unported(
-                    "SmEdgeuse::EvaluateBinormal",
-                    "topology.edgeuse_p3",
-                ));
+            if let Some(threshold) = angle_threshold {
+                // the face use normals at the start, middle and end of the edge must
+                // differ by no more than the threshold. The binormal statuses are
+                // ignored upstream: `EvaluateBinormal` zeroes `*pOptFaceuseNormal`
+                // before it can fail, so a failing evaluation leaves a zero normal, and
+                // `AngleBetween` of a zero vector fails with `rdAngRad == 0` (so the
+                // angle is 0 and the face use is kept). Only `Unported` propagates.
+                let ivl = b.edge(e)?.interval;
+                let mut too_far = false;
+                for param in [ivl.min(), ivl.mid(), ivl.max()] {
+                    let n_eu = binormal_face_normal(k, b, eu, param)?;
+                    let n_rad = binormal_face_normal(k, b, rad, param)?;
+                    // (status ignored; the angle is 0 on failure)
+                    let angle = crate::error::ignored(n_eu.angle_between(n_rad))?.unwrap_or(0.0);
+                    if angle > threshold {
+                        too_far = true;
+                        break;
+                    }
+                }
+                if too_far {
+                    continue;
+                }
             }
 
             if fu_rad != Some(fu) && !fu_rad.is_some_and(|x| faceuses.contains(&x)) {
@@ -1599,7 +1626,7 @@ mod tests {
     use crate::nurbs::math::{CPoint, NOW, NOZ};
     use crate::surface::plane::Plane;
     use crate::topology::{
-        Edge, Edgeuse, Face, Faceuse, Loop, Loopuse, Region, Shell, Vertex, Vertexuse,
+        Edge, Edgeuse, Face, Faceuse, Loop, Loopuse, LoopuseStart, Region, Shell, Vertex, Vertexuse,
     };
 
     /// A lamina square face: two face uses, one loop with two loop uses, four edges
@@ -1608,10 +1635,15 @@ mod tests {
     fn square() -> Brep {
         let mut b = Brep::new();
         let id = |i: u32| EdgeuseId::from_index(i);
-        b.add_region_record(Region { in_brep: true }).unwrap();
+        b.add_region_record(Region {
+            in_brep: true,
+            ..Region::default()
+        })
+        .unwrap();
         b.add_shell_record(Shell {
             faces: vec![FaceId::from_index(0)],
             region: Some(RegionId::from_index(0)),
+            ..Shell::default()
         })
         .unwrap();
         b.add_face_record(Face {
@@ -1637,6 +1669,7 @@ mod tests {
                 mate: Some(FaceuseId::from_index(1 - k)),
                 orientation: o,
                 loopuses: vec![LoopuseId::from_index(k)],
+                sibling_links: None,
             })
             .unwrap();
             b.add_loopuse_record(Loopuse {
@@ -1644,6 +1677,7 @@ mod tests {
                 loop_: Some(LoopId::from_index(0)),
                 mate: Some(LoopuseId::from_index(1 - k)),
                 start: LoopuseStart::Edgeuse(Some(id(if k == 0 { 0 } else { 7 }))),
+                ..Loopuse::default()
             })
             .unwrap();
         }
@@ -1777,7 +1811,7 @@ mod tests {
 
     #[test]
     fn faceuse_collections() {
-        let b = square();
+        let mut b = square();
         let f0 = FaceuseId::from_index(0);
         assert_eq!(
             faceuse_region(&b, f0).unwrap(),
@@ -1796,7 +1830,7 @@ mod tests {
         );
         assert!(faceuse_neighbors(&b, f0, true).unwrap().is_empty());
         let mut out = vec![FaceuseId::from_index(1)];
-        faceuse_collect_adjacent(&b, f0, &mut out, None).unwrap();
+        faceuse_collect_adjacent(&Kernel::default(), &mut b, f0, &mut out, None).unwrap();
         assert_eq!(out, vec![FaceuseId::from_index(1)]);
     }
 
@@ -1869,16 +1903,18 @@ mod tests {
         assert!(old.is_some());
         assert!(drop_curve_fail(&b, a0).unwrap().0.is_none());
 
-        // growing the edge tolerance needs SmEdge::SetTolerance
-        let e = set_uv_trim_curve(
+        // growing the edge tolerance grows the vertex tolerances: SmVertex::SetTolerance
+        set_uv_trim_curve(
             &mut b,
             a0,
             UvTrimCurveArg::New(Box::new(uv_line([0.0, 1.0], [1.0, 1.0]))),
             1.0,
             true,
             None,
-        );
-        assert!(e.unwrap_err().is_unported());
+        )
+        .unwrap();
+        let e = edge(&b, a0).unwrap().unwrap();
+        assert_eq!(b.edge(e).unwrap().tolerance, 2.0);
         b.set_validate_only(true);
         set_uv_trim_curve(
             &mut b,
@@ -1916,15 +1952,17 @@ mod tests {
                 .uv_trim_curve = Some(uv_line(s, e));
         }
         let a0 = EdgeuseId::from_index(0);
-        assert!((start_point_uv_loop_gap(&b, a0).unwrap() - 0.25).abs() < 1e-15);
+        assert!(
+            (start_point_uv_loop_gap(&Kernel::default(), &b, a0).unwrap() - 0.25).abs() < 1e-15
+        );
         assert_eq!(
-            start_point_uv_loop_gap(&b, EdgeuseId::from_index(2)).unwrap(),
+            start_point_uv_loop_gap(&Kernel::default(), &b, EdgeuseId::from_index(2)).unwrap(),
             0.0
         );
         // without trim curves the end points are dropped onto the surface
         b.edgeuse_mut(a0).unwrap().uv_trim_curve = None;
         b.edge_mut(EdgeId::from_index(0)).unwrap().curve = None;
-        assert!(start_point_uv_loop_gap(&b, a0).is_err());
+        assert!(start_point_uv_loop_gap(&Kernel::default(), &b, a0).is_err());
     }
 
     #[test]
@@ -1943,14 +1981,16 @@ mod tests {
         ));
         // the caches were reset before
         assert!(!is_max_edge_face_gap_init(&b, a0).unwrap());
-        assert!(calc_edge_ccw_edge_gap(&mut b, a0, false, false)
-            .unwrap()
-            .is_none());
+        assert!(
+            calc_edge_ccw_edge_gap(&Kernel::default(), &mut b, a0, false, false)
+                .unwrap()
+                .is_none()
+        );
         assert!(matches!(
-            calc_edge_ccw_edge_gap(&mut b, a0, true, false),
+            calc_edge_ccw_edge_gap(&Kernel::default(), &mut b, a0, true, false),
             Err(SolidError::InvalidInput { .. })
         ));
-        // with curves: the edge/edge gap; the edge/face gap needs the surface drop
+        // With curves, both edge/edge and edge/face gaps are evaluated.
         for i in 0..4u32 {
             let e = EdgeId::from_index(i);
             let [v0, v1] = b.edge(e).unwrap().vertices;
@@ -1959,14 +1999,15 @@ mod tests {
             line.set_owner(None, None);
             b.edge_mut(e).unwrap().curve = Some(line);
         }
-        let g = calc_edge_ccw_edge_gap(&mut b, a0, true, true)
+        let g = calc_edge_ccw_edge_gap(&Kernel::default(), &mut b, a0, true, true)
             .unwrap()
             .unwrap();
         assert!(g.is_init() && g.gap_3d.abs() < 1e-12);
         assert_eq!(b.edgeuse(a0).unwrap().edge_ccw_edge_gap, g);
-        assert!(max_edge_face_gap(&k, &mut b, a0, true)
-            .unwrap_err()
-            .is_unported());
+        let face_gap = max_edge_face_gap(&k, &mut b, a0, true).unwrap().unwrap();
+        assert_eq!(face_gap.gap_3d, 0.0);
+        assert_eq!(face_gap.edgeuse, Some(a0));
+        assert!(is_max_edge_face_gap_init(&b, a0).unwrap());
         // a degenerate edge interval fails before the gap function
         b.edge_mut(EdgeId::from_index(0)).unwrap().interval = Extent1d::from_value(0.5);
         assert!(matches!(

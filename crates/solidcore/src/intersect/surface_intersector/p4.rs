@@ -48,17 +48,17 @@
 //!   2 does.
 //! - **Interior node pairs.** `FindInteriorCurves` walks the tree node pairs of an
 //!   `SM_SR_NODES` global surface solve, reading each node's box and Bezier patch UV
-//!   domain. [`Surface::global_surface_solve`] does not return its trees yet, so the
-//!   walk over the pairs is [`SurfaceIntersector::find_interior_curves_from_node_pairs`]
-//!   and the step from the solutions to the pairs is unported.
+//!   domain: [`Surface::global_surface_solve_with`] returns them with the solutions,
+//!   and the walk over the pairs is
+//!   [`SurfaceIntersector::find_interior_curves_from_node_pairs`].
 //! - **Offset surfaces.** `DoLawIntersection` needs both surfaces to be
-//!   `SmOffsetSurface`s (else `SM_ERR_NULL_POINTER`). No [`SurfaceKind`] is one yet
-//!   (unit `surface.offset_surface`), so with the surfaces that exist the call ends
-//!   there.
+//!   `SmOffsetSurface`s ([`SurfaceKind::OffsetSurface`], else `SM_ERR_NULL_POINTER`).
+//!   Past that check its law points wait on `SmFilletLaw::Evaluate`
+//!   (`blend.fillet_executive_p1`).
 //! - **Unported callees.** `SmSurface::IsSingularity` of a surface that is not a plane
-//!   (`surface.surface_p5`), `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`,
-//!   through part 1) and the global surface solve (`surface.surface_p11`, through
-//!   `surface.surface_p7`) return [`SolidError::Unported`], which always propagates
+//!   (`surface.surface_p5`) and the callees of `SmSurface::LocalSurfaceIntersect` and of
+//!   the global surface solve's leaf solve that are not ported yet (`surface.surface_p3`,
+//!   `surface.surface_p8`) return [`SolidError::Unported`], which always propagates
 //!   (also where upstream ignores the status).
 //! - **Not ported here.** The `SM_DEBUG_CODE` blocks (graphics, dumps), the
 //!   `SM_ASSERT`s and the point-count warnings (`MSG`).
@@ -222,12 +222,13 @@ impl SurfaceIntersector<'_> {
     /// angle only when set); `Ok(false)` when the call failed (`Unported` propagates).
     fn trace_step(
         &mut self,
+        k: &Kernel,
         prev: TsectId,
         step_size: f64,
         next: TsectId,
         step: &mut Step,
     ) -> Result<bool> {
-        match self.compute_next_point(prev, step_size, next) {
+        match self.compute_next_point(k, prev, step_size, next) {
             Ok(n) => {
                 step.found_good_point = n.found_good_point;
                 if let Some(d) = n.deviation_found {
@@ -259,8 +260,8 @@ impl SurfaceIntersector<'_> {
     }
 
     /// `TestPoint(next, bDone)`: `done` keeps its value when upstream leaves it.
-    fn trace_test(&mut self, next: TsectId, done: &mut bool) -> Result<()> {
-        if let Some(d) = self.test_point(next)? {
+    fn trace_test(&mut self, k: &Kernel, next: TsectId, done: &mut bool) -> Result<()> {
+        if let Some(d) = self.test_point(k, next)? {
             *done = d;
         }
         Ok(())
@@ -386,7 +387,7 @@ impl SurfaceIntersector<'_> {
             let next = self.alloc_point(fresh);
 
             // 4d. the next point for the current step size
-            if !self.trace_step(tsp, step_size, next, &mut st)? {
+            if !self.trace_step(k, tsp, step_size, next, &mut st)? {
                 // an error return indicates that it can never succeed
                 break;
             }
@@ -415,7 +416,7 @@ impl SurfaceIntersector<'_> {
                     break;
                 }
                 decreased_step_size = true;
-                if !self.trace_step(tsp, step_size, next, &mut st)? {
+                if !self.trace_step(k, tsp, step_size, next, &mut st)? {
                     st.found_good_point = false;
                     break;
                 }
@@ -431,7 +432,7 @@ impl SurfaceIntersector<'_> {
 
             // snap the good point to a through, start or end point it passed
             let mut last_curve_param = self.point(next)?.curve_parameter;
-            self.trace_test(next, &mut done)?;
+            self.trace_test(k, next, &mut done)?;
             if done || self.point(next)?.curve_parameter != last_curve_param {
                 self.add_point_to_curve(next)?;
                 if done {
@@ -455,7 +456,7 @@ impl SurfaceIntersector<'_> {
                         return Err(too_many(OP_TRACE));
                     }
                     step_size *= 1.5;
-                    if !self.trace_step(tsp, step_size, next, &mut st)? {
+                    if !self.trace_step(k, tsp, step_size, next, &mut st)? {
                         st.found_good_point = false;
                         break;
                     }
@@ -476,7 +477,7 @@ impl SurfaceIntersector<'_> {
                     last_curve_param = param;
 
                     // passed a through or end point, or a singularity
-                    self.trace_test(next, &mut done)?;
+                    self.trace_test(k, next, &mut done)?;
                     if done || self.point(next)?.curve_parameter != last_curve_param {
                         if done {
                             // an end condition: done tracing
@@ -490,7 +491,7 @@ impl SurfaceIntersector<'_> {
                 // the last increase gave a bad point: step back to the last good one
                 if !st.found_good_point {
                     step_size /= 1.5;
-                    let n = self.compute_next_point(tsp, step_size, next)?;
+                    let n = self.compute_next_point(k, tsp, step_size, next)?;
                     st.found_good_point = n.found_good_point;
                     if let Some(d) = n.deviation_found {
                         st.deviation = d;
@@ -557,7 +558,7 @@ impl SurfaceIntersector<'_> {
 
             // snap to a through or end point passed, then add the point
             if !done {
-                self.trace_test(next, &mut done)?;
+                self.trace_test(k, next, &mut done)?;
                 self.point_mut(next)?.deviation = st.deviation;
                 self.add_point_to_curve(next)?;
             }
@@ -590,10 +591,12 @@ impl SurfaceIntersector<'_> {
             return Err(SolidError::sm_err(OP_FIC));
         }
 
-        // Find node pairs in the tree
-        let solutions = self
+        // Find node pairs in the tree (SER: checked; surface::surface::p7, its leaf
+        // solve SmSSGlobalSolver::LocalSolve in surface::surface::p11)
+        let (_, nodes) = self
             .surface(SrfIndex::First)
-            .global_surface_solve::<SolveSurface>(
+            .global_surface_solve_with::<SolveSurface>(
+                k,
                 &self.uv_domains[0],
                 self.surface(SrfIndex::Second),
                 &self.uv_domains[1],
@@ -602,16 +605,18 @@ impl SurfaceIntersector<'_> {
                 None,
                 &[],
                 SolutionRequested::Nodes,
+                [Some(SolveSurface(0)), Some(SolveSurface(1))],
             )?;
-        let _ = (solutions, k, out);
-        // (each solution's two tree nodes: their boxes and Bezier patch UV domains,
-        // then find_interior_curves_from_node_pairs; the solve itself is stubbed in
-        // surface.surface_p11, which must return the SM_SR_NODES node pairs with it)
-        // UNPORTED(surface.surface_p11): SmSurface::GlobalSurfaceSolve (SM_SR_NODES tree nodes)
-        Err(SolidError::unported(
-            "SmSurface::GlobalSurfaceSolve",
-            "surface.surface_p11",
-        ))
+
+        // each solution's two tree nodes: their boxes and Bezier patch UV domains
+        let pairs: Vec<InteriorNodePair> = nodes
+            .iter()
+            .map(|n| InteriorNodePair {
+                bboxes: n.bboxes,
+                uv_domains: n.uv_domains,
+            })
+            .collect();
+        self.find_interior_curves_from_node_pairs(k, &pairs, out)
     }
 
     /// The loop of `FindInteriorCurves` over the node pairs of the global solve: a
@@ -697,7 +702,7 @@ impl SurfaceIntersector<'_> {
 
             // a start point: no previous point
             let mut sp = self.point(start)?.clone();
-            let r = self.compute_point_values(uvs, &mut sp, None, None);
+            let r = self.compute_point_values(k, uvs, &mut sp, None, None);
             *self.point_mut(start)? = sp;
             if ignored(r)?.is_none() {
                 continue;
@@ -819,7 +824,7 @@ impl SurfaceIntersector<'_> {
                 prev_tsp = temp_end_tsp.as_ref();
             }
 
-            let r = self.compute_point_values(uvs, &mut tsp, prev_tsp, None);
+            let r = self.compute_point_values(k, uvs, &mut tsp, prev_tsp, None);
             *self.point_mut(pid)? = tsp.clone();
             match r {
                 Ok(()) => {}
@@ -924,8 +929,8 @@ impl SurfaceIntersector<'_> {
                     let p = self.point(f)?;
                     (p.uv_pos(SrfIndex::First), p.uv_pos(SrfIndex::Second))
                 };
-                is_singular = surface_is_singularity(self.surface(SrfIndex::First), uv0)?;
-                is_singular |= surface_is_singularity(self.surface(SrfIndex::Second), uv1)?;
+                is_singular = surface_is_singularity(k, self.surface(SrfIndex::First), uv0)?;
+                is_singular |= surface_is_singularity(k, self.surface(SrfIndex::Second), uv1)?;
             }
         }
 
@@ -1192,34 +1197,23 @@ fn join_curves(this: &mut Curve, other: &mut Curve) -> Result<()> {
     this.join_with(true, other, false, None)
 }
 
-/// `SM_CAST_PTR(SmOffsetSurface, surface) != NULL`: no surface kind is an offset
-/// surface until unit `surface.offset_surface` adds `SmOffsetSurface`.
+/// `SM_CAST_PTR(SmOffsetSurface, surface) != NULL`.
 const fn is_offset_surface(surface: &Surface) -> bool {
-    match surface.kind() {
-        SurfaceKind::BSpline(_)
-        | SurfaceKind::CurveBounded(_)
-        | SurfaceKind::Plane(_)
-        | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_)
-        | SurfaceKind::SrfInVolume(_) => false,
-    }
+    matches!(surface.kind(), SurfaceKind::OffsetSurface(_))
 }
 
 /// `surface.IsSingularity(uv, eWhichDir)` (default tolerance): the plane override
 /// (never singular); other kinds run `SmSurface::IsSingularity`.
-fn surface_is_singularity(surface: &Surface, _uv: Point2) -> Result<bool> {
+fn surface_is_singularity(k: &Kernel, surface: &Surface, uv: Point2) -> Result<bool> {
     match surface.kind() {
         SurfaceKind::Plane(p) => Ok(p.is_singularity().0),
         SurfaceKind::BSpline(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_)
         | SurfaceKind::SrfInVolume(_) => {
-            // UNPORTED(surface.surface_p5): SmSurface::IsSingularity
-            Err(SolidError::unported(
-                "SmSurface::IsSingularity",
-                "surface.surface_p5",
-            ))
+            Ok(surface.is_singularity(k, uv, EFF_ZERO, false)?.singular)
         }
     }
 }
@@ -1381,15 +1375,15 @@ mod tests {
         si.find_interior_curves_from_node_pairs(&k, &[pair], &mut out)
             .unwrap();
         assert_eq!(out.curves_3d.len(), 1);
-        // a far pair reaches the local intersection
+        // a far pair reaches the local intersection (surface.surface_p11, ported): it
+        // succeeds, or stops at an unported boundary solve (surface.surface_p8)
         let far = Extent3d::from_bounds(5.0, 5.0, 5.0, 6.0, 6.0, 6.0);
         let pair = InteriorNodePair {
             bboxes: [far, far],
             uv_domains: [unit(), unit()],
         };
-        assert!(matches!(
-            si.find_interior_curves_from_node_pairs(&k, &[pair], &mut out),
-            Err(SolidError::Unported { .. })
-        ));
+        if let Err(e) = si.find_interior_curves_from_node_pairs(&k, &[pair], &mut out) {
+            assert!(e.is_unported(), "{e}");
+        }
     }
 }
