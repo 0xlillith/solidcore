@@ -912,6 +912,27 @@ pub(crate) fn face_notify_edit(b: &mut Brep, f: FaceId, operation: NotifyOperati
     face_notify_as(b, f, notify_ref(EntityRef::Face(f)), operation)
 }
 
+/// `SmFace::Notify(op, data1, data2, data3)` on face `f` with the entities as data
+/// (`None` for a null datum), under the same empty environment as [`face_notify_edit`].
+pub(crate) fn face_notify_data(
+    b: &mut Brep,
+    f: FaceId,
+    operation: NotifyOperation,
+    data: [Option<EntityRef>; 3],
+) -> Result<()> {
+    let mut records = BTreeMap::new();
+    let mut attributes = AttributeStore::default();
+    let key_of = |e: EntityRef| notify_ref(e);
+    let mut env = NotifyEnv {
+        records: &mut records,
+        attributes: &mut attributes,
+        context: None,
+        key_of: &key_of,
+    };
+    let data = data.map(|d| d.map(notify_ref));
+    face3::notify(b, f, &mut env, None, operation, data)
+}
+
 /// [`face_notify_edit`] for a face notified under the identity `this` (the caller's
 /// `this` pointer, which is the notification's first data argument).
 pub(crate) fn face_notify_as(

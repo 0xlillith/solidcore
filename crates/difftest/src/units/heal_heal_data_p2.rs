@@ -1279,9 +1279,7 @@ fn rust_heal(
             Step::CacheCoinVertices => {
                 h.cache_coin_vertices(&k, &b, HealerOpType::CacheCoinVertices)
             }
-            Step::CacheDegenFaces => {
-                h.cache_degen_faces(&k, &mut b, HealerOpType::CacheDegenFaces)
-            }
+            Step::CacheDegenFaces => h.cache_degen_faces(&k, &mut b, HealerOpType::CacheDegenFaces),
             Step::CacheCoinEdges => Ok(h.cache_coin_edges(HealerOpType::CacheCoinEdges)),
             Step::FixCoinEdges => h.fix_coin_edges(HealerOpType::FixCoinEdges).map(|()| false),
             Step::CacheMissedEdgeXsects => {

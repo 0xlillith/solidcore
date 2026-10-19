@@ -91,7 +91,6 @@
 //!   (`topology.brep_p9`), `GlueVertices` / `MakeEdgeInFace` (`topology.brep_p5`),
 //!   `DeleteFace` (`topology.brep_p3`),
 //!   `SmFace::GetVertices` / `GetEdges` / `GetBrep` (`topology.face_p4`),
-//!   `SmFace::FaceIntersect` / `SetTolerance` (`topology.face_p3`),
 //!   `SmFace::CalculateBoundingBox` / `Point3DClassify` (`query.face_p1`),
 //!   and the `SmCurveClassification` constructor (`intersect.curve_class_p4`). The
 //!   code after a stub is ported in full. `SmSurface::GlobalCurveIntersect` /
@@ -99,7 +98,8 @@
 //!   (`intersect.curve_class_p6`), `InsertTopologyIntersections`
 //!   (`intersect.curve_class_p5`) and `SmFace::CalculateUVDomainFromUVTrimCurves`
 //!   (`topology.face_p1`, through [`IntersectorBrep`]; its `CreateUVTrimCurves` is
-//!   still `Unported` in `topology.face_p3`) are the ported calls.
+//!   `topology.face_p3`'s), `SmFace::FaceIntersect` and `SmFace::SetTolerance`
+//!   (`topology.face_p3`, through [`IntersectorBrep`]) are the ported calls.
 //! - **Undefined behaviour upstream** (a null object dereferenced, a solution without
 //!   objects, the maps of an intersector made with the context-only constructor) is
 //!   [`SolidError::InvalidInput`].
@@ -313,8 +313,8 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
     ///
     /// # Errors
     ///
-    /// Those of the computation (`SolidError::Unported` while `CreateUVTrimCurves`,
-    /// `topology.face_p3`, is not ported).
+    /// Those of the computation (`CreateUVTrimCurves`, `topology.face_p3`, defers at
+    /// `SmFace::GetUpwardLoopuses`, `topology.face_p4`).
     fn face_uv_domain_from_uv_trim_curves(&mut self, k: &Kernel, face: O) -> Result<Extent2d>;
     /// `SmFace::PointClassify(uv, tol, FALSE, TRUE, pc)` with upstream's other
     /// arguments at their defaults (`query::face::p2::point_classify`).

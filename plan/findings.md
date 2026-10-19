@@ -6314,6 +6314,13 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   Rust cache there instead (tried in this round) runs without the side effect: 251
   `topology.edgeuse_p3` binormal cases then fail on the edge use states (C++ 44 values,
   Rust 33: the UV trim curves the cache's `CreateUVTrimCurves` attaches are missing).
+  Also `topology.brep_p1` `face_intersect` (merge with main, #145):
+  `SmBrep::BrepIntersect` intersects a face of this B-rep with a face of ANOTHER B-rep.
+  `topology::face::p3::face_intersect` takes both faces from one `&Brep`: its
+  classification objects (`IntersectObject::Surface(FaceId)`) and the edge/point
+  classifiers address a face by arena id inside one B-rep, so a face of a second B-rep
+  cannot be named (the `topology_intersector` adapter likewise refuses faces of different
+  B-reps). Wired when the face intersection is generalised to two B-reps.
 - **Wired in the review round (merge with main, #117).** This unit's own
   `NormalizedEvaluate` and `GetOrCreateUVTrimCurve` calls go to `topology::edgeuse::p3`
   (`pdOptDistToSurf` only where upstream passes it), and `CreateUVTrimCurves`

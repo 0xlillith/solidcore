@@ -756,7 +756,10 @@ impl Two {
     }
 
     /// [`Two::register_curve`] for each curve present.
-    fn register_curves(&mut self, curves: Vec<Option<SmCurve>>) -> solidcore::Result<Vec<Option<H>>> {
+    fn register_curves(
+        &mut self,
+        curves: Vec<Option<SmCurve>>,
+    ) -> solidcore::Result<Vec<Option<H>>> {
         curves
             .into_iter()
             .map(|c| c.map(|c| self.register_curve(c)).transpose())

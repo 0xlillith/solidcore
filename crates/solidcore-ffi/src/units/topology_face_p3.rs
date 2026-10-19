@@ -32,7 +32,8 @@
 //! blocks (checked by [`super::topology_vertexuse`]), indices inside the B-rep's export,
 //! the flags and selectors above, finite `SetTol` / `Degenerate` tolerances (any sign:
 //! upstream only compares them), a finite positive approximation tolerance and an angle
-//! in `(0, 180]` degrees for `Intersect`. Inputs upstream would dereference null on
+//! in `[0, 180]` degrees for `Intersect` (0 is allowed: upstream only converts it to
+//! radians and passes it on; a probe decides whether any case hangs). Inputs upstream would dereference null on
 //! (missing surface or edge curve) are not rejected here: the shim outputs `-2` for them
 //! without calling the function (`LoopOrient` checks the selected loop, which may lie on
 //! another face: a vertex loop reads no geometry; an edge loop needs the face's surface,
@@ -181,8 +182,10 @@ fn check_args(op: Op, a: &[f64], c: [usize; 10]) -> Result<(), FfiError> {
             if !(a2.is_finite() && a2 > 0.0) {
                 return Err(bad("approximation tolerance must be finite and positive"));
             }
-            if !(a3.is_finite() && a3 > 0.0 && a3 <= 180.0) {
-                return Err(bad("angle tolerance outside (0, 180] degrees"));
+            // 0 is valid: upstream only converts it to radians (`SmFace.cpp:11342`) and
+            // hands it to the surface/surface intersector
+            if !(a3.is_finite() && (0.0..=180.0).contains(&a3)) {
+                return Err(bad("angle tolerance outside [0, 180] degrees"));
             }
             if ![-1.0, 0.0, 1.0].contains(&a4) {
                 return Err(bad("coincidence must be -1, 0 or 1"));
@@ -247,7 +250,7 @@ mod tests {
         }
         for args in [
             [0.0, 0.0, 0.0, 30.0, 0.0, 0.0],
-            [0.0, 0.0, 1e-3, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 1e-3, 181.0, 0.0, 0.0],
             [0.0, 0.0, 1e-3, 30.0, 2.0, 0.0],
             [0.0, 1.0, 1e-3, 30.0, 0.0, 0.0],
         ] {

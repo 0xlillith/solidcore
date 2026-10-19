@@ -1212,8 +1212,8 @@ pub enum TopologyToUpdate {
 /// # Errors
 ///
 /// `SM_ERR_INVALID_INPUT` (as [`SolidError::Upstream`]) when the tolerance to use is
-/// below `SM_EFF_ZERO`; [`SolidError::Unported`] for `SmFace::SetTolerance`
-/// (`topology.face_p3`) and `SmFace::GetEdges` (`topology.face_p4`); those of the
+/// below `SM_EFF_ZERO`; [`SolidError::Unported`] for `SmFace::GetEdges`
+/// (`topology.face_p4`); those of `SmFace::SetTolerance`, the
 /// setters and gap queries.
 pub fn update_object_tolerance(
     k: &Kernel,

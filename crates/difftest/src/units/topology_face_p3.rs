@@ -794,7 +794,7 @@ fn gen_op(rng: &mut Rng) -> OpIn {
             approx_tol: *rng
                 .choose(&[1e-12, 1e-8, 1e-6, 1e-4, 1e-3, 1e-2, 1e2, 1e3])
                 .unwrap_or(&1e-4),
-            ang_tol_deg: *rng.choose(&[0.5, 5.0, 30.0]).unwrap_or(&5.0),
+            ang_tol_deg: *rng.choose(&[0.0, 0.5, 5.0, 30.0]).unwrap_or(&5.0),
             coincidence: match rng.below(3) {
                 0 => None,
                 1 => Some(false),
