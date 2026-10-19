@@ -63,8 +63,9 @@
 //!   (`topology.brep_p5`), `SmFace::Point3DClassify` (`query.face_p1`), and the
 //!   stubs of [`p1`](super::p1) for `SmFace::GetEdges` / `GetVertices` / `GetBrep`
 //!   (`topology.face_p4`), `SmFace::FaceIntersect` (`topology.face_p3`),
-//!   `SmBrep::MakeEdgeInFace` (`topology.brep_p5`) and `GlueEdgesGeneral`
-//!   (`topology.brep_p7`). The code after a stub is ported in full.
+//!   `SmBrep::MakeEdgeInFace` (`topology.brep_p5`). The code after a stub is ported
+//!   in full. `SmBrep::GlueEdgesGeneral` (`topology.brep_p7`) goes through
+//!   [`IntersectorBrep::brep_glue_edges_general`], as in part 1.
 //! - **Undefined behaviour upstream** (a null or deleted object dereferenced, an
 //!   index past a list, a vertex mated to a non-vertex used as a vertex) is
 //!   [`SolidError::InvalidInput`].
@@ -96,11 +97,10 @@ use crate::topology::proto_topology::p3::Mates;
 use crate::topology::proto_topology::{ProtoEdgeId, ProtoTopologyManager, ProtoVertexId};
 
 use super::p1::{
-    add_unique, brep_glue_edges_general, brep_make_edge_in_face, can_imprint, contains, dangling,
-    eval_curve_point, face_brep, face_edges, face_face_intersect_curves, face_vertices,
-    find_common_elements, ignore_soft, intersect_shell_vertices, intersect_wire_lamina_edges,
-    surface_coincidence_check, IntersectionCurves, IntersectionResults, IntersectorBrep,
-    TopologyIntersector,
+    add_unique, brep_make_edge_in_face, can_imprint, contains, dangling, eval_curve_point,
+    face_brep, face_edges, face_face_intersect_curves, face_vertices, find_common_elements,
+    ignore_soft, intersect_shell_vertices, intersect_wire_lamina_edges, surface_coincidence_check,
+    IntersectionCurves, IntersectionResults, IntersectorBrep, TopologyIntersector,
 };
 
 const OP_REGISTER: &str = "boolean::topology_intersector::p2::register_existing_ssi";
@@ -1535,15 +1535,15 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     ///
     /// Unless `ignore_problems`, a failing glue (`SM_ERR`); those of the topology
     /// walks and `IsClosed`; [`SolidError::Unported`] for `Point3DClassify`
-    /// (`query.face_p1`), `MakeEdgeInFace` (`topology.brep_p5`), `GlueEdgesGeneral`
-    /// (`topology.brep_p7`), `SmFace::GetBrep` (`topology.face_p4`) and
+    /// (`query.face_p1`), `MakeEdgeInFace` (`topology.brep_p5`), `SmFace::GetBrep`
+    /// (`topology.face_p4`) and
     /// `CalculateUVDomainFromUVTrimCurves`' `CreateUVTrimCurves`
     /// (`topology.face_p3`); [`SolidError::InvalidInput`] for null handles upstream
-    /// dereferences.
+    /// dereferences; those of [`IntersectorBrep::brep_glue_edges_general`].
     #[allow(clippy::too_many_lines, clippy::too_many_arguments)]
     pub fn edge_face_coincidence(
         &mut self,
-        k: &Kernel,
+        k: &mut Kernel,
         brep: &mut impl IntersectorBrepP2<O>,
         given_verts: &[Option<O>],
         excluded_edges: &[Option<O>],
@@ -1730,13 +1730,16 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                         // glue pE/pNewE edge pair - keep the original edge, pE
                         let rel_orient = OrientType::Same; // same curve.
                         let dist_to_curve = 0.0; // same curve.
-                        match brep_glue_edges_general(
+                                                 // (pInsideFaceuses defaults to NULL)
+                        match brep.brep_glue_edges_general(
+                            k,
                             face_b,
-                            e,
+                            Some(e),
                             rel_orient,
                             dist_to_curve,
                             do_region_nesting,
-                            ne,
+                            Some(ne),
+                            None,
                         ) {
                             Ok(()) => out.imprinted_edges.push(e),
                             Err(

@@ -7345,8 +7345,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetTolerance",
-        "unit": "topology.brep_p1"
+        "symbol": "SmBrep::GetMinEdgeBBoxSize",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "iir_negative_tol",
@@ -7357,8 +7357,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetTolerance",
-        "unit": "topology.brep_p1"
+        "symbol": "SmBrep::GetMinEdgeBBoxSize",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "iir_tiny_tol",
@@ -7474,7 +7474,8 @@
   "cases_passed": 657,
   "cases_total": 841,
   "deferred_by_unit": {
-    "topology.brep_p1": 126,
+    "topology.brep_p1": 124,
+    "topology.brep_p2": 2,
     "topology.brep_p5": 15,
     "topology.brep_p9": 9,
     "topology.face_p3": 3,
