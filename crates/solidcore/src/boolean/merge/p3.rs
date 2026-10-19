@@ -498,8 +498,8 @@ fn stitch_and_orient(
         &crate::topology::brep::p5::StitchAndOrientOptions {
             stitch_tolerance: tolerance,
             allow_spine_edges,
-            faces_to_swap: faces_to_swap.as_deref().cloned(),
-            just_unify: just_unify.as_deref().copied(),
+            faces_to_swap: faces_to_swap.map(|faces| faces.clone()),
+            just_unify: just_unify.map(|value| *value),
         },
     )
 }
