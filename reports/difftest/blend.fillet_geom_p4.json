@@ -419,6 +419,166 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "adv_seam_two_negtol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#50 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_two_bothcut",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#51 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_two_cut_top",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#52 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_two_cut_bottom_rev",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#53 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_notwo_both_on_seam",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#54 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_swap_two",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#55 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_seam_swap_notwo",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#56 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_start_on_seam_end_not",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#57 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_end_on_seam_start_not",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#58 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_start",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#59 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_end",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#60 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_apex_to_seam",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#61 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cone_seam_two_tol_m1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#62 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_tol0_diag",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#63 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_huge_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#64 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_tiny_iso",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#65 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_far_negtol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#66 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_plane_coincident",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#67 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cyl_coincident_seam",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#68 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_cyl_full_circle_v",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p4/cases.json#69 (upstream source/SMLib/src/SmFilletGeom.cpp)",
+      "values_compared": 21
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -2925,8 +3085,8 @@
   "cases_both_errored": 0,
   "cases_deferred": 30,
   "cases_failed": 0,
-  "cases_passed": 320,
-  "cases_total": 350,
+  "cases_passed": 340,
+  "cases_total": 370,
   "deferred_by_unit": {
     "blend.fillet_geom_p6": 30
   },
