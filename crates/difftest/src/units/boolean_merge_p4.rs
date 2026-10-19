@@ -152,16 +152,6 @@ impl ManifoldIntersector for DeferredAdapter {
     fn topology_deleted(&self) -> bool {
         panic!("integrate canonical intersector adapter")
     }
-    fn close_intersection_loop(
-        &mut self,
-        _: &mut BooleanKernels<'_>,
-        _: &mut Brep,
-        _: &mut Brep,
-        _: VertexId,
-        _: &mut bool,
-    ) -> Result<()> {
-        needs_adapter()
-    }
 }
 
 impl UnitDiff for Runner {

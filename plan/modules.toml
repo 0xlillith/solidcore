@@ -3343,10 +3343,10 @@ soft_depends_on = ["curve.curve_p2", "geom.extent1d", "geom.tol", "geom.vector3d
 est_lines = 2590
 layer = 56
 tests = ["prog_test:my_test_bbu", "SM_API_test:TestSmMaterialCensus", "SM_API_test:TestSmPiecewiseMerge", "SM_API_test:TestSmBooleanLists", "SM_API_test:TestKernelMergeBrepsInvalidInput", "SM_API_test:TestApiMergeBrepsInvalidOperation"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "1 fns; largest: SmMerge::ManifoldBoolean; unit-SCC #22 (220 units); 105 upstream test entry points reach this unit"
+notes = "1 fns; largest: SmMerge::ManifoldBoolean; unit-SCC #22 (220 units); 105 upstream test entry points reach this unit PR #243: ManifoldBoolean full control-flow tail, explicit two-context mark/edit scopes and canonical intersector/merge adapter; no dependency co-ports. Difftest 302 cases: 22 both-errored null-input matches (with_values=0, no_values=22; real success passes=0), 278 query.brep deferrals, 2 native constructor rejections, 0 failures; no absolute floors. No success path is compared yet: every valid Rust pair stops at merge_p1 temporary_brep_transform / SmBrep::CalculateBoundingBox. CloseIntersectionLoop is a live callgraph gap (SmMerge.cpp:2958 -> SmTopologyIntersector.cpp:6108-6354), stubbed under proposed owner boolean.topology_intersector_p2 per overseer; follow-up co-port belongs there. Full classification/copy/delete/region tail remains after all stubs. No incoming UNPORTED(boolean.merge_p4) sites. Fuzz 2000: rejected=191 malformed=897 ran=912 differs=0 crashes=0 panics=0 timeouts=0."
 
 [[unit]]
 id = "boolean.merge_p3"

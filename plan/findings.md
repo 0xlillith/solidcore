@@ -7552,3 +7552,52 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   unchanged with 0 flips: 300/206/0/94, 1000 seeds 1284/868/0/410, perturb 333/333, fuzz 2000 pass.
   valgrind with `harness/valgrind/ub11.supp` gives 0 errors on the simple, unify, select and split
   samples.
+
+## boolean.merge_p4 — dependency-limited parity and live callgraph gap (PR #243)
+
+`SmMerge::ManifoldBoolean` calls `SmTopologyIntersector::CloseIntersectionLoop` at
+`source/SMLib/src/SmMerge.cpp:2958`; the callee is defined at
+`source/SMLib/src/SmTopologyIntersector.cpp:6108-6354`. The callgraph omits it from
+`harness/callgraph/units.json` and lists it in `unused_functions.txt` despite this
+live call. Per overseer direction, its proposed home is
+`boolean.topology_intersector_p2` (#203), where the overseer will co-port it in a
+follow-up. merge_p4 does not duplicate the function. Its adapter has an
+argument-complete `UNPORTED(boolean.topology_intersector_p2)` call and retains the
+entire subsequent retry, topology-deletion, single-vertex and gap-repair tail.
+
+The first non-null-operand operation is merge_p1's temporary B-rep transform,
+which currently returns `Unported(query.brep)` for
+`SmBrep::CalculateBoundingBox`. Consequently **no success path is compared yet**.
+The native oracle calls the real `ManifoldBoolean`; every valid Rust operand pair
+is deferred before mutation. Null-operand matches compare error statuses only and
+are reported as both-errored/no-values cases, not successful Boolean evidence.
+The complete classification/copy/delete/region-bookkeeping tail is present but
+has no end-to-end numerical or topology parity certification. Required adapters
+to existing merge/intersector ports deliberately fail if reached until integrated;
+they never supply invented classifications or geometry, nor defer under a false
+owner. No absolute floors or tolerance changes are used.
+
+Validation on sc-builder-5: 302 cases, 22 matching null-input errors, 278
+`query.brep` deferrals, 2 native constructor rejections, 0 failures;
+`with_values=0`, `no_values=22`, **real success passes=0**. Perturb detected 22/22
+comparable cases. `FUZZ-PASS boolean.merge_p4 cases=2000 rejected=191 malformed=897
+ran=912 differs=0 crashes=0 panics=0 timeouts=0`. The 110-seed valgrind sample
+(396 cases, covering both runners and native setup/teardown) matched its ordinary
+baseline and reported `ERROR SUMMARY: 0 errors from 0 contexts`.
+
+New `UNPORTED` sites and the owners' current main statuses (all `todo`):
+
+| Owner | Callees |
+| --- | --- |
+| `boolean.topology_intersector_p2` | `IntersectInsertRelate`, `RemoveRelationship`, `FixGaps`, `DeleteFaces`; proposed owner of `CloseIntersectionLoop` as explained above |
+| `boolean.merge_p2` | `SmMerge::MakeFaceuse` |
+| `query.brep` | `SmBrep::Point3DClassify`; the pre-existing merge_p1 prerequisite is `SmBrep::CalculateBoundingBox` |
+| `topology.brep_p2` | `SmBrep::IsSheet`, `IsOrientedSheet`, `DeleteStaleCaches` |
+| `topology.brep_p3` | `SmBrep::SmBrep` (component construction, including its infinite region) |
+| `topology.brep_p5` | `SmBrep::FindAndSetInfiniteRegion` |
+| `topology.brep_p7` | `SmBrep::CopyFaces` |
+| `topology.brep_p9` | `SmBrep::OrientSheetSurfaces` |
+
+No existing stub is relabelled or removed, and no incoming
+`UNPORTED(boolean.merge_p4)` call exists in the kernel. Other units' code and plan
+entries remain unchanged.

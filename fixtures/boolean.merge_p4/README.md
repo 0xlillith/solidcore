@@ -1,6 +1,8 @@
 The oracle calls the real `SmMerge::ManifoldBoolean`, with independently built
 native B-reps. The four procedural operands are an empty B-rep, an isolated shell
-vertex, a B-spline line wire, and an analytic plane sheet. There are no file-reader
+vertex, a B-spline line wire, and an analytic plane sheet. Directed cases include reversed/crossing/touching/coincident wires, tolerance gaps,
+coincident/overlapping sheets, tiny geometry, far-origin translation, and each
+option flag with non-manifold mode. There are no file-reader
 inputs or analytic-to-B-spline substitutions for plane sheets. The constructor's
 automatically calculated tolerances are outside this unit: the shim supplies
 1e-9 distance and 0.3 radians, initializes the manifold/loop flags, and configures
@@ -24,6 +26,8 @@ outside the tested surface until the dependencies and canonical adapter are wire
 
 `ManifoldIntersector` is an adapter interface, not a second implementation of its
 callees. Required methods delegate existing merge/intersector ports; defaults
-replace only calls into unported dependencies. `CloseIntersectionLoop` is in
-`harness/callgraph/unused_functions.txt`, absent from all unit assignments: it is
-required on the adapter rather than assigned a misleading `UNPORTED` owner.
+replace only calls into unported dependencies. `CloseIntersectionLoop` is listed as unused and absent from all unit assignments,
+although `SmMerge.cpp:2958` calls `SmTopologyIntersector.cpp:6108-6354`. Per overseer
+direction it is stubbed under its proposed owner `boolean.topology_intersector_p2`;
+the overseer will co-port it in that unit in a follow-up. No implementation is
+duplicated here, and the caller's retry/cleanup tail is retained.

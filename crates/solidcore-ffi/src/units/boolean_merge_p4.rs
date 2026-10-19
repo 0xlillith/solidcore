@@ -41,10 +41,7 @@ pub struct Request {
 }
 
 fn validate(operand: &Operand) -> Result<(), FfiError> {
-    if !matches!(operand[0], -1.0 | 0.0 | 1.0 | 2.0 | 3.0)
-        || operand.iter().any(|v| !v.is_finite())
-        || (operand[0] == 2.0 && operand[4..].iter().all(|v| *v == 0.0))
-        || (operand[0] == 3.0 && (operand[4] <= 0.0 || operand[5] <= 0.0))
+    if !matches!(operand[0], -1.0 | 0.0 | 1.0 | 2.0 | 3.0) || operand.iter().any(|v| !v.is_finite())
     {
         return Err(FfiError::InvalidArgument("ManifoldBoolean operand".into()));
     }

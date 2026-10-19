@@ -252,17 +252,23 @@ pub trait ManifoldIntersector {
     fn clear_topology_deleted(&mut self);
     /// Current `m_bTopologyDeleted`, including changes during a failed close.
     fn topology_deleted(&self) -> bool;
-    /// `CloseIntersectionLoop(pVertex,bMadeNewTopology)`. This upstream callee
-    /// is absent from `units.json` (listed in `unused_functions.txt`); require the
-    /// canonical intersector adapter rather than assigning it to a false owner.
+    /// `CloseIntersectionLoop(pVertex,bMadeNewTopology)`. The callgraph omits
+    /// this live callee; its proposed owner is `topology_intersector_p2` (see
+    /// `plan/findings.md`). The retry/cleanup tail stays at the call site.
     fn close_intersection_loop(
         &mut self,
-        kernels: &mut BooleanKernels<'_>,
-        primary: &mut Brep,
-        other: &mut Brep,
-        vertex: VertexId,
-        made_new_topology: &mut bool,
-    ) -> Result<()>;
+        _kernels: &mut BooleanKernels<'_>,
+        _primary: &mut Brep,
+        _other: &mut Brep,
+        _vertex: VertexId,
+        _made_new_topology: &mut bool,
+    ) -> Result<()> {
+        // UNPORTED(boolean.topology_intersector_p2): SmTopologyIntersector::CloseIntersectionLoop
+        Err(SolidError::unported(
+            "SmTopologyIntersector::CloseIntersectionLoop",
+            "boolean.topology_intersector_p2",
+        ))
+    }
     /// `FixGaps(sSingleVertices,bModifiedTopology,sDelVerts,sDelEdges)`.
     fn fix_gaps(
         &mut self,
