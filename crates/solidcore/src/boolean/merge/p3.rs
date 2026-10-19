@@ -179,7 +179,7 @@ pub fn boolean_trees<D: BooleanDriver>(
     Ok(())
 }
 
-/// Fold at least two B-reps in the upstream last-to-first order. Operation codes
+/// Fold at least two distinct B-reps in the upstream last-to-first order. Operation codes
 /// are 0 union, 1 intersection, 2 difference, 3 merge. Validation is non-consuming;
 /// accepted input is drained before tree evaluation, including on later failure.
 pub fn merge_breps<D: BooleanDriver>(

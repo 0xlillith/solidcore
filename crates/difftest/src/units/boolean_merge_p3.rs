@@ -379,6 +379,9 @@ impl UnitDiff for Runner {
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs =
             serde_json::from_value(case.inputs.clone()).map_err(|error| harness(&error))?;
+        if i.family > 4 {
+            return Err(harness("fixture-only family is not a unit operation"));
+        }
         output(
             &ffi::eval(&encode(&i)).map_err(|error| harness(&error))?,
             i.family,
