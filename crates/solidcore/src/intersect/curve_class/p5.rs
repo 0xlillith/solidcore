@@ -12,16 +12,20 @@
 //! | [`CurveClassification::merge_classifications`] | `SmCurveClassification::MergeClassifications` |
 //! | [`CurveClassification::merge_intervals`] | `SmCurveClassification::MergeIntervals` |
 //!
-//! Deviations: output lists become owned results; handles and geometry use the part-1
+//! Deviations: output lists become owned results; the crate-private merge variant
+//! retains completed intervals' partial output in its error for ignored-status
+//! callers. Handles and geometry use the part-1
 //! model. Optional [`ClassGeometry`] callbacks resolve vertex points, topology tolerances
 //! and vertex/face gaps. Opaque handles still defer. The SSS refinement block
 //! (upstream lines 14826–15095) needs mutable curve/topology ownership and defers
 //! before editing geometry; this block and the edge branch of `insert_solutions`
-//! remain unported. The SSS block's missing callees are the boolean mate lookups;
-//! its preceding mutations are not implemented. Ordinary vertex projections are
+//! remain unported. That block of `IntersectVertices` (SmCurveClass.cpp
+//! 14826-15095) is this unit's own unported code (`UNPORTED(intersect.curve_class_p5)`);
+//! the mate lookups it ends with are ported in `boolean.topology_intersector_p1`.
+//! Ordinary vertex projections are
 //! compared; large-gap projections remain uncertified because the oracle vertices
 //! have no vertexuse and its Rust adapter supplies no vertex/face gap.
-//! Parts 2/7 remain explicit dependency stubs; part 6 is wired from main. The fixup
+//! Part 2 remains an explicit dependency; parts 6/7 are wired from main. The fixup
 //! restart loop is bounded by three times the initial interval count plus one: fixes remove an interval or
 //! snap an edge classification to a vertex. Undefined
 //! native null dereferences and unequal paired classification lengths return errors.
@@ -104,6 +108,15 @@ impl<O> Default for MergedTopology<O> {
             vertices: Vec::new(),
         }
     }
+}
+
+/// A failed `MergeIntervals` pass, including lists from completed intervals.
+#[derive(Debug)]
+pub(crate) struct PartialMergeError<O> {
+    /// The first failed interval's status.
+    pub(crate) error: SolidError,
+    /// Output appended before that failure (native `SER` skips the failing interval).
+    pub(crate) merged: Box<MergedTopology<O>>,
 }
 
 fn contained_mid(c: PointClassType) -> bool {
@@ -493,16 +506,18 @@ impl<O: ClassObject> CurveClassification<O> {
                             s.start.solution_value > 1e-7 && s.start.solution_value < tolerance
                         })))
             {
-                // UNPORTED(boolean.topology_intersector_p1): SmTopologyIntersector::GetOtherMate / GetBrepMate
-                // The entire SSS block (14826–15095) remains unported, including
-                // knot snapping, surface solves, through-point edits and clearing
-                // edgeuse UV trims. Those prerequisites have ported callees but
-                // need mutable curve/topology ownership here. Defer before any
-                // mutation; the actual unported callees are the later mate lookups.
-                // This block does not call sm_RefineCCIToSurfaces.
+                // UNPORTED(intersect.curve_class_p5): SmCurveClassification::IntersectVertices
+                // This unit's own unported GWC:CHANGED_SSS block of IntersectVertices
+                // (SmCurveClass.cpp:14826-15095): knot snapping (SnapToKnots), local and
+                // global point solves, sm_SetXSectCurveThroughPoint, SmVertex::GetEdges /
+                // SmEdge::GetEdgeuses walks, SetUVTrimCurve, then the mate lookups
+                // (SmTopologyIntersector::GetOtherMate / GetBrepMate, ported in
+                // boolean.topology_intersector_p1). Porting it needs mutable curve and B-rep
+                // access here plus a mate-lookup closure. Deferred before any mutation. This
+                // block does not call sm_RefineCCIToSurfaces.
                 return Err(SolidError::unported(
-                    "SmTopologyIntersector::GetOtherMate / GetBrepMate (unported p5 SSS block)",
-                    "boolean.topology_intersector_p1",
+                    "SmCurveClassification::IntersectVertices (SSS block, SmCurveClass.cpp:14826-15095)",
+                    "intersect.curve_class_p5",
                 ));
             }
             for solution in solutions.as_slice() {
@@ -649,20 +664,47 @@ impl<O: ClassObject> CurveClassification<O> {
     /// # Errors
     /// Unfinished topology merging defers when an interval requires graph mutation.
     pub fn merge_intervals(&mut self, vertices_only: bool) -> Result<MergedTopology<O>> {
+        self.merge_intervals_with_partial(vertices_only)
+            .map_err(|e| e.error)
+    }
+
+    /// The merge status and completed-interval output, including on failure.
+    /// Callers that ignore the native status must still consume its partial lists.
+    pub(crate) fn merge_intervals_with_partial(
+        &mut self,
+        vertices_only: bool,
+    ) -> Result<MergedTopology<O>, PartialMergeError<O>> {
+        self.merge_intervals_using(vertices_only, Self::p5_merge_interval)
+    }
+
+    fn merge_intervals_using(
+        &mut self,
+        vertices_only: bool,
+        mut merge: impl FnMut(&mut Self, usize, bool) -> Result<MergedTopology<O>>,
+    ) -> Result<MergedTopology<O>, PartialMergeError<O>> {
         let mut out = MergedTopology::default();
-        for pass in 0..if vertices_only { 1 } else { 2 } {
-            for j in 0..self.size() {
-                let ivl = self.at(j)?;
-                if ivl.start.object().is_none() && ivl.end.object().is_none() {
-                    continue;
+        let status = (|| {
+            for pass in 0..if vertices_only { 1 } else { 2 } {
+                for j in 0..self.size() {
+                    let ivl = self.at(j)?;
+                    if ivl.start.object().is_none() && ivl.end.object().is_none() {
+                        continue;
+                    }
+                    let merged = merge(self, j, pass == 0)?;
+                    out.faces.extend(merged.faces);
+                    out.edges.extend(merged.edges);
+                    out.vertices.extend(merged.vertices);
                 }
-                let merged = Self::p5_merge_interval(self, j, pass == 0)?;
-                out.faces.extend(merged.faces);
-                out.edges.extend(merged.edges);
-                out.vertices.extend(merged.vertices);
             }
+            Ok(())
+        })();
+        match status {
+            Ok(()) => Ok(out),
+            Err(error) => Err(PartialMergeError {
+                error,
+                merged: Box::new(out),
+            }),
         }
-        Ok(out)
     }
 }
 
@@ -1118,6 +1160,46 @@ mod tests {
             assert_eq!(sol.start.param(0).unwrap(), expected);
             assert_eq!(sol.start.param(2).unwrap(), 42.);
             assert_eq!(sol.end, end);
+        }
+    }
+    #[test]
+    fn failed_merge_retains_completed_intervals_in_native_visit_order() {
+        for vertices_only in [true, false] {
+            let k = Kernel::default();
+            let mut cc = classification(&k, 3);
+            for j in 0..3 {
+                cc.at_mut(j)
+                    .unwrap()
+                    .start
+                    .set_class_object(PointClassType::Curve, Some(H));
+            }
+            let mut visited = Vec::new();
+            let failure = cc
+                .merge_intervals_using(vertices_only, |_, index, vertex_pass| {
+                    visited.push((index, vertex_pass));
+                    if index == 1 && (vertices_only || !vertex_pass) {
+                        return Err(SolidError::sm_err(OP));
+                    }
+                    Ok(MergedTopology {
+                        faces: vec![H],
+                        edges: vec![H, H],
+                        vertices: vec![H, H, H],
+                    })
+                })
+                .unwrap_err();
+            let completed = if vertices_only { 1 } else { 4 };
+            assert!(matches!(
+                failure.error,
+                SolidError::Upstream { code: 1001, .. }
+            ));
+            assert_eq!(failure.merged.faces.len(), completed);
+            assert_eq!(failure.merged.edges.len(), 2 * completed);
+            assert_eq!(failure.merged.vertices.len(), 3 * completed);
+            let mut expected = vec![(0, true), (1, true)];
+            if !vertices_only {
+                expected = vec![(0, true), (1, true), (2, true), (0, false), (1, false)];
+            }
+            assert_eq!(visited, expected);
         }
     }
 }

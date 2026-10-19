@@ -292,12 +292,8 @@ fn face_compute_loop_orientation(
 }
 
 /// `SmFace::FlipFaceOrientation` (unit `topology.face_p1`).
-fn face_flip_face_orientation(_b: &mut Brep, _f: FaceId) -> Result<()> {
-    // UNPORTED(topology.face_p1): SmFace::FlipFaceOrientation
-    Err(SolidError::unported(
-        "SmFace::FlipFaceOrientation",
-        "topology.face_p1",
-    ))
+fn face_flip_face_orientation(b: &mut Brep, f: FaceId) -> Result<()> {
+    crate::topology::face::p1::flip_face_orientation(b, f)
 }
 
 /// `SmFace::GetEdges` (unit `topology.face_p4`).
@@ -306,15 +302,75 @@ fn face_edges(_b: &Brep, _f: FaceId) -> Result<Vec<EdgeId>> {
     Err(SolidError::unported("SmFace::GetEdges", "topology.face_p4"))
 }
 
-/// `SmFace::HasSeamProblem` (unit `topology.face_p4`) and, when it reports one,
-/// `SmFace::SplitAtSeam` (unit `topology.face_p1`) appending the new faces.
-fn face_split_at_seam_problem(_k: &Kernel, _b: &mut Brep, _f: FaceId) -> Result<Vec<FaceId>> {
+/// The classification object of the seam classifications `SplitAtSeams` passes on: the
+/// loop or vertex a point classification names (other objects are not resolved here).
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum SeamObject {
+    /// An `SmLoop`.
+    Loop(LoopId),
+    /// An `SmVertex` (what `sm_RemoveSuspectSplitAtSeamUVTrimCurves` resolves).
+    #[expect(
+        dead_code,
+        reason = "made by SmFace::HasSeamProblem once topology.face_p4 is wired"
+    )]
+    Vertex(crate::topology::VertexId),
+}
+
+impl crate::intersect::point_class::ClassObject for SeamObject {
+    fn class_kind(&self) -> crate::intersect::point_class::ClassObjectKind {
+        match self {
+            Self::Loop(_) => crate::intersect::point_class::ClassObjectKind::Loop,
+            Self::Vertex(_) => crate::intersect::point_class::ClassObjectKind::Vertex,
+        }
+    }
+}
+
+impl crate::heal::face_props::LoopObject for SeamObject {
+    fn from_loop(l: LoopId) -> Self {
+        Self::Loop(l)
+    }
+}
+
+/// `SmFace::HasSeamProblem(rCrvClassU, rCrvClassV, eCrossed, eMissing, eNearMiss)` (unit
+/// `topology.face_p4`).
+fn face_has_seam_problem(
+    _k: &Kernel,
+    _b: &mut Brep,
+    _f: FaceId,
+) -> Result<(
+    bool,
+    crate::intersect::curve_class::p1::CurveClassification<SeamObject>,
+    crate::intersect::curve_class::p1::CurveClassification<SeamObject>,
+    crate::topology::face::p1::SeamProblem,
+)> {
     // UNPORTED(topology.face_p4): SmFace::HasSeamProblem
-    // UNPORTED(topology.face_p1): SmFace::SplitAtSeam
     Err(SolidError::unported(
         "SmFace::HasSeamProblem",
         "topology.face_p4",
     ))
+}
+
+/// `SmFace::HasSeamProblem` and, when it reports one, `SmFace::SplitAtSeam` (unit
+/// `topology.face_p1`) appending the new faces.
+fn face_split_at_seam_problem(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<Vec<FaceId>> {
+    let (has, mut cu, mut cv, problem) = face_has_seam_problem(k, b, f)?;
+    if !has {
+        return Ok(Vec::new());
+    }
+    let split = crate::topology::face::p1::split_at_seam(
+        k,
+        b,
+        f,
+        &mut cu,
+        &mut cv,
+        problem,
+        None,
+        &|o: SeamObject| match o {
+            SeamObject::Vertex(v) => Some(EntityRef::Vertex(v)),
+            SeamObject::Loop(_) => None,
+        },
+    )?;
+    Ok(split.faces)
 }
 
 // ---- trimming a surface -----------------------------------------------------------------
@@ -1037,7 +1093,7 @@ pub fn fix_trim_loop_order(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<bool> 
         let mut uv_box = Extent3d::new();
         for (jj, e) in lu1::loop_edges(b, l)?.into_iter().enumerate() {
             let e = e.ok_or_else(|| null("loop edge use without edge"))?;
-            let holder = crate::topology::edge::uv_trim_curve_of_surface(b, e, Some(f))?
+            let holder = crate::topology::edge::uv_trim_curve_of_surface(k, b, e, Some(f))?
                 .ok_or_else(|| null("edge without UV trim curve on the face's surface"))?;
             let crv = eu1::uv_trim_curve(b, holder)?
                 .0
@@ -1796,9 +1852,11 @@ pub fn is_loop_uv_gap_within_tolerance(
             Err(_) => return Ok(false),
         },
         SurfaceKind::SurfOfRevolution(s) => Cow::Borrowed(s.base()),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
-            return Ok(false)
-        }
+        // (dynamic_cast<const SmBSplineSurface*> fails: FALSE)
+        SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_)
+        | SurfaceKind::OffsetSurface(_) => return Ok(false),
     };
 
     let mut gap = Extent2d::new();

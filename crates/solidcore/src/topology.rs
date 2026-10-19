@@ -359,10 +359,9 @@ pub struct Shell {
     pub faces: Vec<FaceId>,
     /// `m_pListOwner` (CO-PORTED): the region owning the shell (`GetRegion`).
     pub region: Option<RegionId>,
-    /// `m_tShellType` (CO-PORTED by `topology.brep_p10`): what the shell's list holds.
+    /// Native `m_tShellType`, independent of the list head during construction.
     pub shell_type: shell::ShellType,
-    /// `m_pList` (CO-PORTED by `topology.brep_p10`): the shell's members from the
-    /// list head.
+    /// Native list members in head-first circular traversal order.
     pub members: shell::ShellMembers,
 }
 
@@ -372,11 +371,9 @@ pub struct Region {
     /// `m_pListOwner != NULL`: the region is on the B-rep's region list, so
     /// `GetBrep` reaches the B-rep.
     pub in_brep: bool,
-    /// `m_pList` (CO-PORTED by `topology.brep_p10`): the region's shells in list
-    /// order from the head (`GetShells`).
+    /// Native region shell list, in traversal order from its head.
     pub shells: Vec<ShellId>,
-    /// `m_bIsVoidFlag` (CO-PORTED by `topology.brep_p10`): an `SmBoolean` (`0` at
-    /// construction; `IsVoid`, `SetIsVoid`).
+    /// Native `SmBoolean` `m_bIsVoidFlag` (0 at construction; 2 is `UNSURE`).
     pub is_void: i32,
 }
 
@@ -394,6 +391,9 @@ pub struct Faceuse {
     pub orientation: OrientType,
     /// `m_pList`: the loop uses, outer loop use first.
     pub loopuses: Vec<LoopuseId>,
+    /// Literal sibling links when present, even if the owner has no list head.
+    /// `None` uses the owner's canonical face-use vector during construction.
+    pub sibling_links: Option<shell::FaceuseSiblingLinks>,
 }
 
 /// What a loop use starts from (`m_tLoopuseType` and `m_pEUorVU`).
@@ -538,14 +538,13 @@ pub struct Brep {
     edges: Arena<EdgeId, Edge>,
     vertices: Arena<VertexId, Vertex>,
     regions: Arena<RegionId, Region>,
+    infinite_region: Option<RegionId>,
     faceuses: Arena<FaceuseId, Faceuse>,
     loopuses: Arena<LoopuseId, Loopuse>,
     edgeuses: Arena<EdgeuseId, Edgeuse>,
     vertexuses: Arena<VertexuseId, Vertexuse>,
     /// `m_bValidateOnly`.
     validate_only: bool,
-    /// `m_pInfiniteRegion` (CO-PORTED by `topology.brep_p10`).
-    infinite_region: Option<RegionId>,
     /// `m_bEditingEnabled` (CO-PORTED by `topology.brep_p10`).
     editing_enabled: bool,
     /// `m_sThisZoneTol3d` (CO-PORTED by `topology.edgeuse_p2`): the B-rep's tolerance.
@@ -563,12 +562,12 @@ impl Default for Brep {
             edges: Arena::default(),
             vertices: Arena::default(),
             regions: Arena::default(),
+            infinite_region: None,
             faceuses: Arena::default(),
             loopuses: Arena::default(),
             edgeuses: Arena::default(),
             vertexuses: Arena::default(),
             validate_only: false,
-            infinite_region: None,
             editing_enabled: false,
             tolerance: ZONE_TOL_3D,
             key: ObjectKey(0),
@@ -616,7 +615,8 @@ impl Brep {
         self.infinite_region
     }
 
-    /// Sets `m_pInfiniteRegion` (a raw member write, no validation).
+    /// Friend write of the B-rep's infinite-region identity. Like other record
+    /// writes, this permits references to records added later.
     pub fn set_infinite_region_record(&mut self, region: Option<RegionId>) {
         self.infinite_region = region;
     }
