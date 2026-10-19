@@ -9235,8 +9235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0105",
@@ -9643,8 +9643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0145",
@@ -9819,8 +9819,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0162",
@@ -9895,8 +9895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0169",
@@ -10643,8 +10643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0243",
@@ -10771,8 +10771,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0257",
@@ -10899,8 +10899,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0268",
@@ -11155,8 +11155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0294",
@@ -11759,8 +11759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0349",
@@ -12351,8 +12351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0408",
@@ -13803,8 +13803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0550",
@@ -13987,8 +13987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0568",
@@ -14179,8 +14179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0587",
@@ -14419,8 +14419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0610",
@@ -14451,8 +14451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0613",
@@ -14895,8 +14895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0655",
@@ -14955,8 +14955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0661",
@@ -14991,8 +14991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0664",
@@ -15279,8 +15279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0692",
@@ -15611,8 +15611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0722",
@@ -15747,8 +15747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0735",
@@ -15759,8 +15759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0736",
@@ -16159,8 +16159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0776",
@@ -16811,8 +16811,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0839",
@@ -18343,8 +18343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0987",
@@ -19663,8 +19663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen1113",
@@ -19711,8 +19711,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen1118",
@@ -20111,8 +20111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen1157",
@@ -20147,8 +20147,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen1161",
@@ -20167,8 +20167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen1163",
@@ -20191,8 +20191,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "analytic face surface in the B-rep export",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen1165",
@@ -20557,12 +20557,12 @@
   "cases_total": 2224,
   "deferred_by_unit": {
     "curve.crv_on_surf": 19,
+    "harness:analytic-geometry-export": 31,
     "query.face_p2": 57,
     "query.face_p3": 97,
     "surface.cone_p1": 41,
     "surface.sphere": 12,
     "surface.surf_of_extrusion_p2": 59,
-    "topology.brep_p7": 31,
     "topology.face_p2": 373
   },
   "max_rel_err": 0.0,

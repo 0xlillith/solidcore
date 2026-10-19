@@ -17,8 +17,9 @@
 //! The classified 3D point is computed from the imported B-rep, identically for both
 //! sides: the face surface at a fraction of the face's UV domain plus an offset. A case
 //! touching a face surface or edge curve the import holds only as its B-spline part
-//! (cones, spheres, tori, extrusions, revolutions, circles, ...) is deferred to the unit
-//! that will make the import exact, as in `topology.edgeuse_p1`.
+//! (cones, spheres, tori, extrusions, revolutions, circles, ...) is deferred: to the
+//! surface unit whose Rust kind is missing, otherwise as the shared export's harness
+//! limitation (`harness:analytic-geometry-export`, as in `topology.brep_p1`).
 //!
 //! **Outputs.** Boxes: status and the box (seeded with a sentinel box, so what a failing
 //! call leaves is compared). `Point3DClassify`: status and the classification (class,
@@ -232,6 +233,10 @@ fn pick(sel: usize, n: usize) -> Option<u32> {
 
 const EXACT_SURFACES: [i64; 2] = [15002, 15011];
 
+/// The deferral label of geometry the shared B-rep export flattens to its B-spline part
+/// (a harness limitation, as in `topology.brep_p1`).
+const HARNESS_ANALYTIC_IMPORT: &str = "harness:analytic-geometry-export";
+
 /// The deferral of a case that reads a face surface or edge curve the import holds only
 /// as its B-spline part (see the module docs).
 fn inexact(m: &Model, faces: &[FaceId], edges: &[EdgeId]) -> Option<Output> {
@@ -243,7 +248,7 @@ fn inexact(m: &Model, faces: &[FaceId], edges: &[EdgeId]) -> Option<Output> {
                 15014 => ("surface.sphere", "SmSphere"),
                 15015 => ("surface.torus", "SmTorus (no SurfaceKind)"),
                 15030 => ("surface.surf_of_extrusion_p2", "SurfaceKind::SurfOfExtrusion"),
-                _ => ("topology.brep_p7", "SmBrep::ReadFromFile"),
+                _ => (HARNESS_ANALYTIC_IMPORT, "analytic face surface in the B-rep export"),
             };
             return Some(Output::deferred(unit, symbol));
         }
@@ -251,7 +256,10 @@ fn inexact(m: &Model, faces: &[FaceId], edges: &[EdgeId]) -> Option<Output> {
     for e in edges {
         let ct = m.types.edge_curve_types.get(e.index() as usize).copied().unwrap_or(-1);
         if ct >= 0 && ![BSPLINE_CURVE_TYPE, LINE_TYPE, CRV_ON_SURF_TYPE].contains(&ct) {
-            return Some(Output::deferred("topology.brep_p7", "SmBrep::ReadFromFile"));
+            return Some(Output::deferred(
+                HARNESS_ANALYTIC_IMPORT,
+                "analytic edge curve in the B-rep export",
+            ));
         }
     }
     None
