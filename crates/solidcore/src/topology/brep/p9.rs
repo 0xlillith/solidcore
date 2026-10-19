@@ -12,12 +12,14 @@
 //! | [`make_edge_in_face_with_vu`], [`drop_edge_curve`] | `SmBrep::MakeEdgeInFaceWithVU` |
 //!
 //! Deviations: typed ids replace pointers; notification storage and geometry
-//! identities are caller-owned. Editing state remains an explicit argument until
-//! its canonical `Brep` field lands from part 1 (PR #145). Ordinary split failures
-//! retain the nearby vertex alongside their status. All six owned bodies are
-//! present; individual dependency calls defer to their owners. Arena allocation
-//! follows native order, but unpublished records on dependency errors remain in
-//! the append-only arenas until part 1 supplies object retirement. Topology record
+//! identities are caller-owned. Editing state is part 1's `Brep::editing_enabled`.
+//! Ordinary split failures retain the nearby vertex alongside their status. All six
+//! owned bodies are present; individual dependency calls defer to their owners.
+//! Part 1's `add_*_record` appends a face, edge or vertex to its owning list at
+//! allocation; native `PostInsert`s later, with no same-kind allocation in between,
+//! so the list order matches, but a record allocated before a dependency error stays
+//! listed (native leaks it unlisted). Deleted loops and loop uses are reset in place
+//! (arena records cannot be freed), as part 1 deletes vertex uses. Topology record
 //! construction uses the shared arena model (no allocator/debug notifications).
 //! Owned geometry arguments are dropped on Rust errors. The shell-to-no-shell
 //! retry is a two-pass loop (at most one retry), so there is no recursion. Inner
@@ -26,8 +28,8 @@
 //! dereferences return `InvalidInput`; nonfinite split parameters retain native
 //! refusal/output behavior. `OrientSheetSurfaces` preserves the native final TRUE
 //! status (1), distinct from its early `SM_SUCCESS` (0). Mutation success paths
-//! remain uncertified while owning-list, notification and UV-split dependencies
-//! defer; passing refusal/projection comparisons do not certify those paths.
+//! remain uncertified while part 2 and face notification dependencies defer;
+//! passing refusal/projection comparisons do not certify those paths.
 
 use crate::curve::curve::Curve;
 use crate::error::{ignore_status, Result, SolidError, SM_ERR};
@@ -312,18 +314,11 @@ where
 }
 
 fn brep_regions(b: &Brep) -> Result<Vec<RegionId>> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::GetRegions
-    Err(SolidError::unported(
-        "SmBrep::GetRegions",
-        "topology.brep_p1",
-    ))
+    crate::topology::brep::p1::regions(b, None)
 }
 
 fn brep_edges(b: &Brep) -> Result<Vec<EdgeId>> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::GetEdges
-    Err(SolidError::unported("SmBrep::GetEdges", "topology.brep_p1"))
+    crate::topology::brep::p1::edges(b, None)
 }
 
 fn brep_bounds(b: &Brep) -> Result<crate::geom::extent3d::Extent3d> {
@@ -378,8 +373,9 @@ fn is_intersector_approx(curve: &Curve) -> Result<bool> {
 /// `OrientSheetSurfaces`. `same=true` is upstream's default orientation policy.
 ///
 /// # Errors
-/// `GetFaces` is the first call and remains owned by part 1; its membership check
-/// precedes the part-2 sheet/oriented-sheet predicates and all UV swaps.
+/// `SM_ERR` for a face not in the B-rep or a B-rep that is not a sheet; the part-2
+/// sheet/oriented-sheet predicates and `SwapUV` (`Unported`). The UV swaps' own
+/// statuses are ignored, as upstream.
 pub fn orient_sheet_surfaces(
     k: &mut Kernel,
     b: &mut Brep,
@@ -395,7 +391,8 @@ pub fn orient_sheet_surfaces(
     }
     if is_oriented_sheet(b)? {
         if !same {
-            swap_brep_uv(k, b)?;
+            // Status ignored upstream (SmBrep.cpp:11644).
+            ignore_status(swap_brep_uv(k, b))?;
         }
         return Ok(());
     }
@@ -403,7 +400,8 @@ pub fn orient_sheet_surfaces(
         use crate::topology::topology_traverser::{Entity, Marks};
         let mut marks = Marks::default();
         if !same {
-            swap_face_uv(k, b, face)?;
+            // Status ignored upstream (SmBrep.cpp:11659).
+            ignore_status(swap_face_uv(k, b, &mut marks, face))?;
         }
         let upward = required(
             crate::topology::face::p2::upward_faceuse(b, face)?,
@@ -421,7 +419,8 @@ pub fn orient_sheet_surfaces(
                 }
                 let f = required(b.faceuse(neighbor)?.face, "neighbor without face")?;
                 if crate::topology::face::p2::upward_faceuse(b, f)? != Some(neighbor) {
-                    swap_face_uv(k, b, f)?;
+                    // Status ignored upstream (SmBrep.cpp:11690).
+                    ignore_status(swap_face_uv(k, b, &mut marks, f))?;
                 }
                 pending.push(neighbor);
             }
@@ -436,9 +435,7 @@ pub fn orient_sheet_surfaces(
 }
 
 fn brep_faces(b: &Brep) -> Result<Vec<FaceId>> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::GetFaces
-    Err(SolidError::unported("SmBrep::GetFaces", "topology.brep_p1"))
+    crate::topology::brep::p1::faces(b, None)
 }
 
 fn is_sheet(b: &Brep) -> Result<bool> {
@@ -462,18 +459,27 @@ fn swap_brep_uv(k: &mut Kernel, b: &mut Brep) -> Result<()> {
     Err(SolidError::unported("SmBrep::SwapUV", "topology.brep_p2"))
 }
 
-fn swap_face_uv(k: &mut Kernel, b: &mut Brep, face: FaceId) -> Result<()> {
-    let _ = (k, b, face);
-    // UNPORTED(topology.brep_p1): sm_SwapFaceUV
-    Err(SolidError::unported("sm_SwapFaceUV", "topology.brep_p1"))
+/// `sm_SwapFaceUV(pFace, SM_MT_NOMARK)`: swap without marking the face.
+fn swap_face_uv(
+    k: &Kernel,
+    b: &mut Brep,
+    marks: &mut crate::topology::topology_traverser::Marks,
+    face: FaceId,
+) -> Result<()> {
+    crate::topology::brep::p1::swap_face_uv(
+        k,
+        b,
+        marks,
+        face,
+        crate::geom::context::MarkType::NoMark,
+    )
 }
 
 /// `MakeShellVertex`: `region=None` selects the infinite region.
 ///
 /// # Errors
-/// The default region lookup belongs to part 1. With an explicit region, allocation
-/// and linking first call part 2's `MakeShellVertexTopology`. No isolated vertex or
-/// shell is fabricated while that dependency is unavailable.
+/// Allocation and linking first call part 2's `MakeShellVertexTopology`. No isolated
+/// vertex or shell is fabricated while that dependency is unavailable.
 pub fn make_shell_vertex(
     b: &mut Brep,
     region: Option<RegionId>,
@@ -482,7 +488,8 @@ pub fn make_shell_vertex(
 ) -> Result<(ShellId, VertexId)> {
     let region = match region {
         Some(region) => Some(region),
-        None => infinite_region(b)?,
+        // GetInfiniteRegion: the stored m_pInfiniteRegion.
+        None => b.infinite_region(),
     };
     if let Some(region) = region {
         b.region(region)?;
@@ -513,14 +520,6 @@ pub fn make_shell_vertex(
     Ok((shell, vertex))
 }
 
-fn infinite_region(b: &Brep) -> Result<Option<RegionId>> {
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::GetInfiniteRegion",
-        "topology.brep_p1",
-    ))
-}
 
 fn make_shell_vertex_topology(
     b: &mut Brep,
@@ -643,13 +642,24 @@ fn set_vertex_point(
     )
 }
 
+/// `m_p{Face,Edge,Vertex}ListHead->PostInsert`: appends to the owning list. Part 1's
+/// `add_*_record` already appended the record at allocation, and no record of the
+/// same kind is allocated in between, so the list order is native; this checks it.
 fn insert_brep_entity(b: &mut Brep, entity: EntityRef) -> Result<()> {
-    let _ = (b, entity);
-    // UNPORTED(topology.brep_p1): SmBrep owning topology lists
-    Err(SolidError::unported(
-        "SmBrep owning topology lists",
-        "topology.brep_p1",
-    ))
+    let listed = match entity {
+        EntityRef::Face(f) => b.face_list().last() == Some(&f),
+        EntityRef::Edge(e) => b.edge_list().last() == Some(&e),
+        EntityRef::Vertex(v) => b.vertex_list().last() == Some(&v),
+        _ => false,
+    };
+    if listed {
+        Ok(())
+    } else {
+        Err(SolidError::invalid_input(
+            OP,
+            "new topology record is not last on its owning list",
+        ))
+    }
 }
 
 fn brep_notify(
@@ -758,7 +768,7 @@ struct SplitUvInput {
     for_tessellation: bool,
 }
 
-fn split_uv_trim(b: &mut Brep, input: SplitUvInput) -> Result<()> {
+fn split_uv_trim(k: &Kernel, b: &mut Brep, input: SplitUvInput) -> Result<()> {
     let SplitUvInput {
         original,
         new,
@@ -768,7 +778,8 @@ fn split_uv_trim(b: &mut Brep, input: SplitUvInput) -> Result<()> {
         orientation,
         for_tessellation,
     } = input;
-    let _ = (
+    crate::topology::brep::p1::make_vertex_split_uv_trim_curve(
+        k,
         b,
         original,
         new,
@@ -777,20 +788,16 @@ fn split_uv_trim(b: &mut Brep, input: SplitUvInput) -> Result<()> {
         scaled_zero,
         orientation,
         for_tessellation,
-    );
-    // UNPORTED(topology.brep_p1): sm_MakeVertexSplitUVTrimCurve
-    Err(SolidError::unported(
-        "sm_MakeVertexSplitUVTrimCurve",
-        "topology.brep_p1",
-    ))
+    )
 }
 
 /// `MakeVertexSplitEdge`: preserve the scaled parameter boundary, the two-stage
 /// length tests (2 and 10 samples), start-before-end precedence, and the nearby
 /// endpoint returned together with `SM_ERR`.
 ///
-/// `editing_enabled` is the caller's current B-rep editing state. The constructor's
-/// default is false; editing scopes explicitly enable it. Ordinary no-split results are successful Rust returns whose
+/// The editing state is the B-rep's `m_bEditingEnabled` ([`Brep::editing_enabled`]):
+/// false from the constructor, set by editing scopes. Ordinary no-split results are
+/// successful Rust returns whose
 /// [`SplitEdgeOutput::status`] is `SM_ERR`; this preserves outputs that C++ callers
 /// consume despite that status. Dependency/invalid-graph errors remain `Err`.
 ///
@@ -802,12 +809,11 @@ pub fn make_vertex_split_edge(
     b: &mut Brep,
     edge_id: EdgeId,
     parameter: f64,
-    editing_enabled: bool,
     env: &mut edge::NotifyEnv<'_>,
     curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
 ) -> Result<SplitEdgeOutput> {
     let out = SplitEdgeOutput::default();
-    if !editing_enabled {
+    if !b.editing_enabled() {
         return Ok(out);
     }
     let previous = k.context.doing_boolean();
@@ -1075,6 +1081,7 @@ pub fn make_vertex_split_edge(
             let orientation = b.edgeuse(old1)?.orientation;
             for (&old, &new) in old_pair.iter().zip(new_pair) {
                 ignore_status(split_uv_trim(
+                    k,
                     b,
                     SplitUvInput {
                         original: old,
@@ -1145,8 +1152,6 @@ pub struct EdgeInFaceInput {
     pub orientation: OrientType,
     /// Converted `SmZoneTol3d` used for the curve.
     pub curve_zone_tol_3d: f64,
-    /// Caller-owned editing state; constructors start with editing disabled.
-    pub editing_enabled: bool,
 }
 
 /// The edge created by `MakeEdgeInFaceWithVU`, and the optional split loop/face.
@@ -1178,7 +1183,7 @@ pub fn make_edge_in_face_with_vu(
     };
     let face = input.face.ok_or_else(|| SolidError::null_pointer(OP))?;
     let curve = input.curve.ok_or_else(|| SolidError::null_pointer(OP))?;
-    if !input.editing_enabled {
+    if !b.editing_enabled() {
         return Err(SolidError::sm_err(OP));
     }
     let [Some(start), Some(mut end)] = input.vertices else {
@@ -1472,7 +1477,7 @@ pub fn make_edge_in_face_with_vu(
         ] {
             lu::collect_edgeuses(b, lu, Some(eu))?;
         }
-        redistribute_seam_trims(b, edge_id, original_trim_owner, seam, &domain)?;
+        redistribute_seam_trims(k, b, edge_id, original_trim_owner, seam, &domain)?;
         ignore_status(edge::set_tolerance(
             b,
             edge_id,
@@ -1533,7 +1538,7 @@ pub fn make_edge_in_face_with_vu(
         lu::collect_edgeuses(b, bottom, Some(eu2))?;
         remove_old_loop_vertices(b, start)?;
         remove_old_loop_vertices(b, end)?;
-        redistribute_seam_trims(b, edge_id, original_trim_owner, seam, &domain)?;
+        redistribute_seam_trims(k, b, edge_id, original_trim_owner, seam, &domain)?;
         ignore_status(fp1::remove_loop(b, face, delete))?;
         delete_loop_records(b, delete, env)?;
     }
@@ -1624,27 +1629,36 @@ fn find_vertex_sector(b: &Brep, input: VertexSectorInput<'_>) -> Result<Option<V
 }
 
 fn remove_old_loop_vertices(b: &mut Brep, vu: VertexuseId) -> Result<()> {
-    let _ = (b, vu);
-    // UNPORTED(topology.brep_p1): sm_RmAndDel_OldLoopVertices
-    Err(SolidError::unported(
-        "sm_RmAndDel_OldLoopVertices",
-        "topology.brep_p1",
-    ))
+    crate::topology::brep::p1::rm_and_del_old_loop_vertices(b, vu)
 }
 
+/// `sm_RedistributeSeamUVTrimCurves(pNewE, pUVTrimCurve, ..)`: the supplied trim
+/// curve is now owned by `original_trim_owner`; the callee only tests it for null.
+/// Its swapped/unswapped result is unused upstream.
 fn redistribute_seam_trims(
+    k: &Kernel,
     b: &mut Brep,
     edge: EdgeId,
     original_trim_owner: Option<crate::topology::EdgeuseId>,
     seam: SurfParamType,
     domain: &crate::geom::extent2d::Extent2d,
 ) -> Result<()> {
-    let _ = (b, edge, original_trim_owner, seam, domain);
-    // UNPORTED(topology.brep_p1): sm_RedistributeSeamUVTrimCurves
-    Err(SolidError::unported(
-        "sm_RedistributeSeamUVTrimCurves",
-        "topology.brep_p1",
-    ))
+    let trim = match original_trim_owner {
+        Some(owner) => Some(required(
+            b.edgeuse(owner)?.uv_trim_curve.clone(),
+            "supplied UV trim curve without owner",
+        )?),
+        None => None,
+    };
+    crate::topology::brep::p1::redistribute_seam_uv_trim_curves(
+        k,
+        b,
+        edge,
+        trim.as_ref(),
+        seam,
+        domain,
+    )
+    .map(|_| ())
 }
 
 fn set_face_tolerance(
@@ -1741,14 +1755,15 @@ fn delete_loop_records(b: &mut Brep, loop_: LoopId, env: &mut edge::NotifyEnv<'_
             None,
         ))?;
     }
-    // Arenas are append-only until the canonical B-rep lifecycle in part 1 is
-    // available. Do not leave a deleted record visible to owning-list traversal.
-    let _ = b;
-    // UNPORTED(topology.brep_p1): SmBrep arena object retirement
-    Err(SolidError::unported(
-        "SmBrep arena object retirement",
-        "topology.brep_p1",
-    ))
+    // `delete` of the loop and both loop uses. An arena record cannot be freed, so
+    // (as part 1's sm_RmAndDel_OldLoopVertices) the records are reset: RemoveLoop
+    // already unlinked both loop uses from their face uses.
+    *b.loopuse_mut(a)? = Loopuse::default();
+    *b.loopuse_mut(z)? = Loopuse::default();
+    let record = b.loop_mut(loop_)?;
+    record.edges.clear();
+    record.loopuse = None;
+    Ok(())
 }
 
 fn sync_edge_cache(b: &mut Brep, edge_id: EdgeId) -> Result<()> {
@@ -2180,40 +2195,40 @@ mod tests {
             (f64::INFINITY, Some(v1)),
             (f64::NEG_INFINITY, Some(v0)),
         ] {
-            let result =
-                make_vertex_split_edge(&mut k, &mut b, e, p, true, &mut env, &|_, kind| {
-                    crate::geom::object::ObjectRef {
-                        key: crate::geom::attribute::ObjectKey(999),
-                        type_code: kind,
-                    }
-                })
-                .unwrap();
+            b.set_editing_enabled(true);
+            let result = make_vertex_split_edge(&mut k, &mut b, e, p, &mut env, &|_, kind| {
+                crate::geom::object::ObjectRef {
+                    key: crate::geom::attribute::ObjectKey(999),
+                    type_code: kind,
+                }
+            })
+            .unwrap();
             assert_eq!(
                 (result.status(), result.edges, result.vertex),
                 (SM_ERR, None, vertex)
             );
-            let disabled =
-                make_vertex_split_edge(&mut k, &mut b, e, p, false, &mut env, &|_, kind| {
-                    crate::geom::object::ObjectRef {
-                        key: crate::geom::attribute::ObjectKey(999),
-                        type_code: kind,
-                    }
-                })
-                .unwrap();
+            b.set_editing_enabled(false);
+            let disabled = make_vertex_split_edge(&mut k, &mut b, e, p, &mut env, &|_, kind| {
+                crate::geom::object::ObjectRef {
+                    key: crate::geom::attribute::ObjectKey(999),
+                    type_code: kind,
+                }
+            })
+            .unwrap();
             assert_eq!(disabled.status(), SM_ERR);
             assert_eq!((disabled.edges, disabled.vertex), (None, None));
         }
         assert!(!k.context.doing_boolean());
         k.context.set_doing_boolean(true);
         for p in [f64::MAX, -f64::MAX] {
-            let outside =
-                make_vertex_split_edge(&mut k, &mut b, e, p, true, &mut env, &|_, kind| {
-                    crate::geom::object::ObjectRef {
-                        key: crate::geom::attribute::ObjectKey(999),
-                        type_code: kind,
-                    }
-                })
-                .unwrap();
+            b.set_editing_enabled(true);
+            let outside = make_vertex_split_edge(&mut k, &mut b, e, p, &mut env, &|_, kind| {
+                crate::geom::object::ObjectRef {
+                    key: crate::geom::attribute::ObjectKey(999),
+                    type_code: kind,
+                }
+            })
+            .unwrap();
             assert_eq!(
                 (outside.status(), outside.edges, outside.vertex),
                 (SM_ERR, None, None)
@@ -2226,20 +2241,23 @@ mod tests {
             Point3::new(1.0, 0.0, 0.0),
             3,
         )));
-        let result =
-            make_vertex_split_edge(&mut k, &mut b, e, 0.5, true, &mut env, &|edge, kind| {
-                crate::geom::object::ObjectRef {
-                    key: crate::geom::attribute::ObjectKey(999 + u64::from(edge.index())),
-                    type_code: kind,
-                }
-            });
+        b.set_editing_enabled(true);
+        let result = make_vertex_split_edge(&mut k, &mut b, e, 0.5, &mut env, &|edge, kind| {
+            crate::geom::object::ObjectRef {
+                key: crate::geom::attribute::ObjectKey(999 + u64::from(edge.index())),
+                type_code: kind,
+            }
+        });
+        // With part 1 wired, a wire split runs to its final B-rep ADD notification.
         assert!(matches!(
             result,
             Err(SolidError::Unported {
-                unit: "topology.brep_p1",
-                ..
+                unit: "topology.brep_p2",
+                upstream: "SmBrep::Notify",
             })
         ));
+        assert_eq!(b.edge_list().len(), 2);
+        assert_eq!(b.vertex_list().len(), 3);
         assert!(!k.context.doing_boolean());
     }
 }

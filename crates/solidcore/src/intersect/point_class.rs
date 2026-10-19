@@ -142,8 +142,6 @@ pub struct BrepMerge<'a, 'env, O> {
     pub brep: &'a mut crate::topology::Brep,
     /// Resolved target in that graph (region, face, edge or vertex).
     pub target: crate::error::EntityRef,
-    /// Current B-rep editing state; constructor default is false.
-    pub editing_enabled: bool,
     /// Classification handle corresponding to a topology id in this B-rep.
     pub handle: &'a dyn Fn(crate::error::EntityRef) -> O,
     /// Notification storage/identities shared with the caller's other mutations.
@@ -1294,7 +1292,6 @@ impl<O: ClassObject> PointClassification<O> {
         let BrepMerge {
             brep: b,
             target,
-            editing_enabled,
             handle,
             notifications: env,
             curve_ref,
@@ -1335,15 +1332,7 @@ impl<O: ClassObject> PointClassification<O> {
                 v
             }
             EntityRef::Edge(e) => {
-                let split = p9::make_vertex_split_edge(
-                    k,
-                    b,
-                    e,
-                    self.t_param(),
-                    editing_enabled,
-                    env,
-                    curve_ref,
-                )?;
+                let split = p9::make_vertex_split_edge(k, b, e, self.t_param(), env, curve_ref)?;
                 let v = split.vertex.ok_or_else(|| SolidError::sm_err(OP_MERGE))?;
                 if !split.split {
                     // Native assigns these two fields directly; in particular an

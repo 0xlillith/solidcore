@@ -675,7 +675,6 @@ struct Two {
     breps: [Option<Brep>; 2],
     curves: Vec<SmCurve>,
     extra: Vec<SmCurve>,
-    editing: [bool; 2],
     env: [NotifyEnv; 2],
     /// Each B-rep's cache (`SmBrep::GetBrepCache`), built on first use as the C++
     /// topology solver builds it on demand.
@@ -703,7 +702,6 @@ impl Two {
             breps: [Some(a), b],
             curves: Vec::new(),
             extra: Vec::new(),
-            editing: [false, false],
             env,
             caches: [std::cell::OnceCell::new(), std::cell::OnceCell::new()],
         }
@@ -1088,11 +1086,6 @@ impl IntersectorBrep<H> for Two {
             .get_mut(slot)
             .and_then(Option::as_mut)
             .ok_or_else(|| invalid("absent B-rep"))?;
-        let editing = self
-            .editing
-            .get(slot)
-            .copied()
-            .ok_or_else(|| invalid("bad editing owner"))?;
         let store = self
             .env
             .get_mut(slot)
@@ -1108,7 +1101,6 @@ impl IntersectorBrep<H> for Two {
             b,
             eid(edge),
             parameter,
-            editing,
             &mut env,
             &|e, kind| ObjectRef {
                 key: ObjectKey(((kind as u64) << 32) | u64::from(e.index())),
@@ -1306,13 +1298,16 @@ impl IntersectorBrep<H> for Two {
     }
     fn set_editing_enabled(&mut self, brep: H, enabled: bool) -> solidcore::Result<bool> {
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
-        if brep.kind != K_BREP || self.breps.get(slot).and_then(Option::as_ref).is_none() {
+        if brep.kind != K_BREP {
             return Err(invalid("not a B-rep handle"));
         }
-        let old = self.editing.get(slot).copied().unwrap_or(false);
-        if let Some(e) = self.editing.get_mut(slot) {
-            *e = enabled;
-        }
+        let b = self
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("not a B-rep handle"))?;
+        let old = b.editing_enabled();
+        b.set_editing_enabled(enabled);
         Ok(old)
     }
     fn topology_objects(&self) -> &dyn TopologyObjects<H> {

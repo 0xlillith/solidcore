@@ -1076,11 +1076,12 @@ fn insert_breaks(
                 {
                     continue;
                 }
-                // The executive creates its offset B-rep with editing enabled
-                // (cpp:437, 1073). Dependency errors propagate; only SM_ERR continues.
+                // The split reads the offset B-rep's own editing state (the executive's
+                // constructors enable it, cpp:437, 1073). Dependency errors propagate;
+                // only SM_ERR continues.
                 let edge_id = edge_of(brep, split)?;
                 let output = crate::topology::brep::p9::make_vertex_split_edge(
-                    kernel, brep, edge_id, param, true, env, curve_ref,
+                    kernel, brep, edge_id, param, env, curve_ref,
                 )?;
                 if !output.split {
                     continue; // Can't split if too close to end point
@@ -1685,41 +1686,51 @@ mod tests {
         let whole = wire_use(&mut brep, 0.0, 1.0);
         let equal = add_use(&mut brep, 0.0, 1.0, 1.0);
         let near = add_use(&mut brep, EFF_ZERO / 2.0, 1.0, 1.0);
+        let max_break = add_use(&mut brep, 0.0, 0.5, 1.0);
+        let edges = brep.edges().len();
+        let insert = |brep: &mut Brep, kernel: &mut Kernel, uses: &[EdgeuseId]| {
+            let mut to_split = vec![whole];
+            let result = split_env(|env, curve_ref| {
+                insert_breaks(kernel, brep, uses, &mut to_split, env, curve_ref)
+            });
+            (result, to_split)
+        };
+        // Editing disabled (the B-rep constructor's default): every split is
+        // refused with SM_ERR, so the scan continues and nothing is split.
+        let (result, to_split) = insert(&mut brep, &mut kernel, &[equal, near, max_break]);
+        result.unwrap();
+        assert_eq!(to_split, vec![whole]);
+        assert_eq!(brep.edges().len(), edges);
         // Interior by the boundary test but within MakeVertexSplitEdge's scaled zero:
-        // its SM_ERR continues the scan without splitting.
+        // refused even with editing enabled.
+        brep.set_editing_enabled(true);
         let exact = add_use(&mut brep, EFF_ZERO, 1.0, 1.0);
         let edges = brep.edges().len();
-        let mut to_split = vec![whole];
-        split_env(|env, curve_ref| {
-            insert_breaks(
-                &mut kernel,
-                &mut brep,
-                &[equal, near, exact],
-                &mut to_split,
-                env,
-                curve_ref,
-            )
-        })
-        .unwrap();
+        let (result, to_split) = insert(&mut brep, &mut kernel, &[equal, near, exact]);
+        result.unwrap();
         assert_eq!(to_split, vec![whole]);
         assert_eq!(brep.edges().len(), edges);
         assert!(!kernel.context.doing_boolean());
-        // A strict interior break reaches the split, whose UV-trim step is brep_p1's.
-        let max_break = add_use(&mut brep, 0.0, 0.5, 1.0);
-        assert_dependency(
-            split_env(|env, curve_ref| {
-                insert_breaks(
-                    &mut kernel,
-                    &mut brep,
-                    &[max_break],
-                    &mut to_split,
-                    env,
-                    curve_ref,
-                )
-            }),
-            "sm_MakeVertexSplitUVTrimCurve",
-            "topology.brep_p1",
-        );
+        // A strict interior break splits, up to the B-rep's ADD notification.
+        let (result, _) = insert(&mut brep, &mut kernel, &[max_break]);
+        assert_dependency(result, "SmBrep::Notify", "topology.brep_p2");
+    }
+
+    #[test]
+    fn synchronization_without_editing_refuses_splits() {
+        let mut executive = executive();
+        let mut brep = Brep::new();
+        let part = add_use(&mut brep, 0.25, 1.0, 1.0);
+        let whole = wire_use(&mut brep, 0.0, 1.0);
+        let a = EdgeuseId::from_index(80);
+        let b = EdgeuseId::from_index(81);
+        executive.relate_edgeuses(a, part);
+        executive.relate_edgeuses(b, whole);
+        executive.set_offset_brep(brep);
+        let out = sync(&mut executive, Some(a), Some(b)).unwrap();
+        assert_eq!(out.edgeuses, vec![Some(part)]);
+        assert_eq!(out.other_edgeuses, vec![Some(whole)]);
+        assert_eq!(executive.offset_brep().unwrap().edges().len(), 2);
     }
 
     #[test]
@@ -1732,11 +1743,12 @@ mod tests {
         let b = EdgeuseId::from_index(81);
         executive.relate_edgeuses(a, part);
         executive.relate_edgeuses(b, whole);
+        brep.set_editing_enabled(true);
         executive.set_offset_brep(brep);
         assert_dependency(
             sync(&mut executive, Some(a), Some(b)),
-            "sm_MakeVertexSplitUVTrimCurve",
-            "topology.brep_p1",
+            "SmBrep::Notify",
+            "topology.brep_p2",
         );
         assert_eq!(executive.offset_edgeuse(a), Some(part));
         assert_eq!(executive.offset_edgeuse(b), Some(whole));

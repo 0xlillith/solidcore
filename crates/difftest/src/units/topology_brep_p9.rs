@@ -117,6 +117,8 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
             .get(2..)
             .ok_or_else(|| error("missing initial export"))?,
     )?;
+    // As the shim, after setup and export: `b->m_bEditingEnabled = editing`.
+    b.set_editing_enabled(i.editing);
     let mut k = Kernel::default();
     let mut record = Vec::new();
     let mut records = std::collections::BTreeMap::new();
@@ -189,7 +191,6 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                     &mut b,
                     edge,
                     i.parameter,
-                    i.editing,
                     &mut env,
                     &curve_ref,
                 )?;
@@ -244,7 +245,6 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                         interval: Extent1d::from_min_max(0.0, 1.0),
                         orientation: OrientType::Same,
                         curve_zone_tol_3d: zone_tol3d(&k, 1e-7),
-                        editing_enabled: i.editing,
                     },
                     &mut env,
                     &curve_ref,
@@ -297,7 +297,6 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                     BrepMerge {
                         brep: &mut b,
                         target,
-                        editing_enabled: i.editing,
                         handle: &Handle,
                         notifications: &mut env,
                         curve_ref: &curve_ref,
