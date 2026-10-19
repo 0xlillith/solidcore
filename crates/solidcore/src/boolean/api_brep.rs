@@ -38,12 +38,16 @@
 //!   every entry point (the merge engine reads its tolerances).
 //! - **Statuses.** `SM_ERR_INVALID_INPUT` is [`SolidError::InvalidInput`]; `SM_ERR`
 //!   is [`SolidError::Upstream`] with [`crate::error::SM_ERR`].
-//! - **Unported callees.** The merge engine `SmMerge` (units `boolean.merge_p1` to
-//!   `_p5`) and `SmBrep::IsManifoldSolid` (`topology.brep_p2`) are not ported yet: each
-//!   entry point validates its inputs as upstream, then returns
-//!   [`SolidError::Unported`] for the first engine call it would make
-//!   (`SmMerge::SmMerge`, `SmMerge::merge_breps`, `SmMerge::BooleanLists`,
-//!   `SmMerge::BooleanTrees`).
+//! - **Dependencies.** List folding and tree evaluation call `merge::p3`; its
+//!   construction and topology calls retain narrowly scoped dependency errors.
+//!   Two-B-rep entry points still await the `merge_p2` engine constructor.
+//! - **List context.** `boolean_lists` takes a mutable kernel for the connected
+//!   component traversal's mark locks.
+//! - **Nullable tree output.** The kernel-level tree evaluator keeps null slots.
+//!   This owned-value API returns `InvalidInput` if a malformed repeated-leaf tree
+//!   succeeds with a null result slot, which `Vec<Brep>` cannot represent.
+//!   On failure this API retains the surviving non-null operands, compacting
+//!   slots the kernel-level API preserves as null.
 //! - The debug drawing (`SM_DEBUG_CODE`) and `SM_ASSERT_VALID` checks are not ported.
 
 use crate::boolean::merge::MergeOptions;
@@ -197,7 +201,11 @@ pub fn boolean_merge(k: &Kernel, brep1: Brep, brep2: Brep) -> Result<Brep> {
 /// union, intersection, difference or merge; otherwise the merge's error
 /// ([`SolidError::Unported`] until `SmMerge::merge_breps` is ported).
 #[allow(clippy::ptr_arg)] // the list is drained on success, as upstream consumes it
-pub fn merge_breps(k: &Kernel, breps: &mut Vec<Brep>, operation: BooleanOperation) -> Result<Brep> {
+pub fn merge_breps(
+    k: &mut Kernel,
+    breps: &mut Vec<Brep>,
+    operation: BooleanOperation,
+) -> Result<Brep> {
     // The output is valid only on success. Reject every unsafe list shape before the
     // kernel has a chance to consume it.
     let kernel_operation = match merge_breps_kernel_operation(operation) {
@@ -211,12 +219,13 @@ pub fn merge_breps(k: &Kernel, breps: &mut Vec<Brep>, operation: BooleanOperatio
     };
     // `SmMerge::merge_breps(rBreps, lKernelOperation, rpResult)`, then `SM_ERR` when it
     // succeeds without a result.
-    let _ = (k, kernel_operation);
-    // UNPORTED(boolean.merge_p3): SmMerge::merge_breps
-    Err(SolidError::unported(
-        "SmMerge::merge_breps",
-        "boolean.merge_p3",
-    ))
+    crate::boolean::merge::p3::merge_breps(
+        k,
+        breps,
+        kernel_operation,
+        None,
+        &mut crate::boolean::merge::p3::DependencyMerge,
+    )
 }
 
 /// Booleans two B-reps with full merge-option control (`SmApiBooleanWithOptions`):
@@ -244,22 +253,18 @@ pub fn boolean_with_options(
 ///
 /// # Errors
 ///
-/// The merge's error ([`SolidError::Unported`] until `SmMerge::BooleanLists` is
-/// ported).
+/// The first dependency error reached by `merge::p3::boolean_lists`.
 pub fn boolean_lists(
-    k: &Kernel,
+    k: &mut Kernel,
     breps1: &[Brep],
     surfaces1: &[Surface],
     breps2: &[Brep],
     surfaces2: &[Surface],
     operation: i32,
 ) -> Result<BooleanListsResult> {
-    let _ = (k, breps1, surfaces1, breps2, surfaces2, operation);
-    // UNPORTED(boolean.merge_p3): SmMerge::BooleanLists
-    Err(SolidError::unported(
-        "SmMerge::BooleanLists",
-        "boolean.merge_p3",
-    ))
+    crate::boolean::merge::p3::boolean_lists(
+        k, breps1, surfaces1, breps2, surfaces2, operation, None,
+    )
 }
 
 /// Combines B-reps by CSG trees in postfix notation (`SmApiBooleanTrees`, wrapping
@@ -269,19 +274,26 @@ pub fn boolean_lists(
 ///
 /// # Errors
 ///
-/// The merge's error ([`SolidError::Unported`] until `SmMerge::BooleanTrees` is
-/// ported).
-pub fn boolean_trees(
-    k: &Kernel,
-    breps: &mut Vec<Brep>,
-    post_fix_trees: &mut Vec<i64>,
-) -> Result<()> {
-    let _ = (k, breps, post_fix_trees);
-    // UNPORTED(boolean.merge_p3): SmMerge::BooleanTrees
-    Err(SolidError::unported(
-        "SmMerge::BooleanTrees",
-        "boolean.merge_p3",
-    ))
+/// The first dependency error reached by `merge::p3::boolean_trees`, or
+/// `InvalidInput` when a repeated-leaf tree returns a null output slot.
+pub fn boolean_trees(k: &mut Kernel, breps: &mut Vec<Brep>, post_fix_trees: &[i64]) -> Result<()> {
+    let mut slots = breps.drain(..).map(Some).collect();
+    let result = crate::boolean::merge::p3::boolean_trees(
+        k,
+        &mut slots,
+        post_fix_trees,
+        None,
+        &mut crate::boolean::merge::p3::DependencyMerge,
+    );
+    let null_result = result.is_ok() && slots.iter().any(Option::is_none);
+    breps.extend(slots.into_iter().flatten());
+    if null_result {
+        return Err(SolidError::invalid_input(
+            "boolean::api_brep::boolean_trees",
+            "null result cannot be represented by Vec<Brep>",
+        ));
+    }
+    result
 }
 
 #[cfg(test)]
@@ -367,18 +379,18 @@ mod tests {
 
     #[test]
     fn merge_breps_rejects_without_consuming() {
-        let k = Kernel::default();
+        let mut k = Kernel::default();
         for n in 0..2 {
             let mut breps = vec![Brep::new(); n];
-            let e = merge_breps(&k, &mut breps, BooleanOperation::Union).unwrap_err();
+            let e = merge_breps(&mut k, &mut breps, BooleanOperation::Union).unwrap_err();
             assert!(matches!(e, SolidError::InvalidInput { .. }));
             assert_eq!(breps.len(), n);
         }
         for op in ALL {
             let mut breps = vec![Brep::new(); 3];
-            let e = merge_breps(&k, &mut breps, op).unwrap_err();
+            let e = merge_breps(&mut k, &mut breps, op).unwrap_err();
             if merge_breps_kernel_operation(op).is_some() {
-                assert_eq!(unported_unit(&e), "boolean.merge_p3", "{op:?}");
+                assert_eq!(unported_unit(&e), "boolean.merge_p2", "{op:?}");
             } else {
                 assert!(matches!(e, SolidError::InvalidInput { .. }), "{op:?}");
                 assert_eq!(breps.len(), 3);
@@ -388,12 +400,12 @@ mod tests {
 
     #[test]
     fn lists_and_trees_reach_the_merge() {
-        let k = Kernel::default();
-        let e = boolean_lists(&k, &[Brep::new()], &[], &[Brep::new()], &[], 1).unwrap_err();
-        assert_eq!(unported_unit(&e), "boolean.merge_p3");
+        let mut k = Kernel::default();
+        let e = boolean_lists(&mut k, &[Brep::new()], &[], &[Brep::new()], &[], 1).unwrap_err();
+        assert_eq!(unported_unit(&e), "topology.brep_p3");
         let mut breps = vec![Brep::new(), Brep::new()];
-        let mut tree = vec![0, 1, -1];
-        let e = boolean_trees(&k, &mut breps, &mut tree).unwrap_err();
-        assert_eq!(unported_unit(&e), "boolean.merge_p3");
+        let tree = vec![0, 1, -1];
+        let e = boolean_trees(&mut k, &mut breps, &tree).unwrap_err();
+        assert_eq!(unported_unit(&e), "boolean.merge_p2");
     }
 }
