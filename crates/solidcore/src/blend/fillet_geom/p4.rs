@@ -51,9 +51,11 @@
 //!   are swallowed here too, except that [`SolidError::Unported`] always propagates.
 //!   The double tolerances passed to `GlobalPointSolve` convert to `SmZoneTol3d`
 //!   (`USE_DEFAULT` becomes the zone tolerance, then `fabs`).
-//! - **Unported callees.** `sm_SrfSrfIntersection` (`blend.fillet_geom_p2`) in every
-//!   vertex calculator and in the non-iso-parametric branch of `sm_CreateUVCurve`;
-//!   `GetRailIndexOfVertexuse` and `JoinTwoFilletVertsByCurves` and
+//! - **Surface/surface intersections.** `sm_SrfSrfIntersection` is
+//!   `blend.fillet_geom_p2`'s, called with the fillet vertices' points; its curves are
+//!   used through their B-spline part (an `SmLine` / `SmEllipse` intersection curve
+//!   loses its analytic overrides in the later evaluations here).
+//! - **Unported callees.** `GetRailIndexOfVertexuse` and `JoinTwoFilletVertsByCurves` and
 //!   `SmFilletEdge::CalcBlendingRail` (`blend.fillet_geom_p6`); the fillet executive's
 //!   topology intersector, attribute users and topology bookkeeping
 //!   (`blend.fillet_executive_p1`), `SmTopologyIntersector::MergeCurveOnSurfaces`
@@ -148,7 +150,7 @@ fn smin(a: f64, b: f64) -> f64 {
 /// `SmVertex::SetPoint` on a fillet vertex: the `SM_NO_CHANGE_GEOMETRY` notification
 /// resets the cached gaps of every vertex use of the vertex, then the point is stored
 /// (as `blend.fillet_geom_p1` does).
-fn set_vertex_point(brep: &mut Brep, v: VertexId, point: Point3) -> Result<()> {
+pub(super) fn set_vertex_point(brep: &mut Brep, v: VertexId, point: Point3) -> Result<()> {
     for vu in brep.vertex(v)?.vertexuses.clone() {
         let vu = brep.vertexuse_mut(vu)?;
         vu.vertex_edge_gap.reset();
@@ -163,7 +165,7 @@ fn set_vertex_point(brep: &mut Brep, v: VertexId, point: Point3) -> Result<()> {
 /// its cached edge/face gap (its mate's too) and the cached gaps of the edge's vertex
 /// uses; then the curve (possibly `NULL`) replaces the old one (as
 /// `blend.fillet_geom_p1` does for a rail).
-fn set_edge_curve(brep: &mut Brep, e: EdgeId, curve: Option<Curve>) -> Result<()> {
+pub(super) fn set_edge_curve(brep: &mut Brep, e: EdgeId, curve: Option<Curve>) -> Result<()> {
     for eu in edge::edgeuses(brep, e, None, None)? {
         let mate_eu = eu1::mate(brep, eu)?;
         let rec = brep.edgeuse_mut(eu)?;
@@ -239,14 +241,17 @@ struct SrfSrfCurves {
     uv_curve2: Option<BSplineCurve>,
 }
 
-/// `sm_SrfSrfIntersection` (unit `blend.fillet_geom_p2`).
+/// `sm_SrfSrfIntersection` ([`super::p2::srf_srf_intersection`]) with fillet vertices
+/// (their points) for its `SmVertex` arguments; the curves continue as their B-spline
+/// part (`SmBSplineCurve*`; an analytic intersection curve keeps only its B-spline
+/// base here, see the module deviations).
 #[allow(clippy::too_many_arguments)]
 fn srf_srf_intersection(
     k: &Kernel,
     fb: &FilletBrep,
     start_fv: Option<VertexId>,
     end_fv: Option<VertexId>,
-    dir: Option<Vec3>,
+    dir: Option<&mut Vec3>,
     end_dir: Option<Vec3>,
     surface1: &Surface,
     surface2: &Surface,
@@ -255,25 +260,29 @@ fn srf_srf_intersection(
     skip_two_pnts_intersection: bool,
     ref_point: Option<Point3>,
 ) -> Result<SrfSrfCurves> {
-    // UNPORTED(blend.fillet_geom_p2): sm_SrfSrfIntersection
-    unported_on(
-        (
-            k,
-            fb,
-            start_fv,
-            end_fv,
-            dir,
-            end_dir,
-            surface1,
-            surface2,
-            approx_tol,
-            ang_tol,
+    let start = start_fv.map(|v| fb.vertex_point(v)).transpose()?;
+    let end = end_fv.map(|v| fb.vertex_point(v)).transpose()?;
+    let r = super::p2::srf_srf_intersection(
+        k,
+        start,
+        end,
+        dir,
+        end_dir,
+        surface1,
+        surface2,
+        approx_tol,
+        ang_tol,
+        super::p2::SrfSrfOptions {
             skip_two_pnts_intersection,
             ref_point,
-        ),
-        "sm_SrfSrfIntersection",
-        "blend.fillet_geom_p2",
-    )
+        },
+    )?;
+    let part = |c: Option<Curve>| c.as_ref().and_then(as_b_spline).cloned();
+    Ok(SrfSrfCurves {
+        curve_3d: part(r.curve_3d),
+        uv_curve1: part(r.uv_curve1),
+        uv_curve2: part(r.uv_curve2),
+    })
 }
 
 /// `SmFilletCorner::GetCornerType` (unit `blend.fillet_corner_p1`).
@@ -480,8 +489,8 @@ pub struct UvCurves {
 /// `SM_ERR` when the seam surface is not closed, a cut corner is not found, a point
 /// does not drop or multiple solutions cannot be sorted out; `SM_ERR_NULL_POINTER` for
 /// a surface that is not an `SmBSplineSurface` in the plane branch; those of the
-/// evaluations, solves and line creations; [`SolidError::Unported`] for the plane
-/// branch (`sm_SrfSrfIntersection`).
+/// evaluations, solves and line creations; [`SolidError::Unported`] from the plane
+/// branch's `sm_SrfSrfIntersection` ([`super::p2::srf_srf_intersection`]).
 #[allow(clippy::too_many_lines)] // one upstream routine
 pub fn create_uv_curve(
     k: &Kernel,
@@ -837,7 +846,7 @@ pub fn create_uv_curve(
         }
 
         // StartPt to EndPt 3d unit-vector
-        let dir = (end_pnt - start_pnt).unitize()?;
+        let mut dir = (end_pnt - start_pnt).unitize()?;
 
         // pick a likely ZAxis: the cone's axis, else a fillet vertex use's curve
         // derivative
@@ -884,7 +893,7 @@ pub fn create_uv_curve(
                     fb,
                     Some(start_fv),
                     Some(end_fv),
-                    Some(dir),
+                    Some(&mut dir),
                     None,
                     surface,
                     &plane,
@@ -987,7 +996,7 @@ impl FilletBrep {
     ///
     /// `SM_ERR` when that other vertex is not processed; `SM_ERR_NULL_POINTER` for a
     /// cross-section edge without fillet geometry or solver, or a vertex without
-    /// corner; [`SolidError::Unported`] for the intersection (`sm_SrfSrfIntersection`).
+    /// corner; [`SolidError::Unported`] from the intersection (`sm_SrfSrfIntersection`).
     pub fn calc_nx2_vert_fillet_x_fillet(
         &mut self,
         k: &Kernel,
@@ -1084,7 +1093,7 @@ impl FilletBrep {
     /// `SM_ERR_NULL_POINTER` without corner, fillet geometry or solver; `SM_ERR` when
     /// a neighbour vertex is not processed or the curves do not meet once;
     /// [`SolidError::Unported`] for the corner's filleted vertex
-    /// (`blend.fillet_corner_p1`) and the intersection (`sm_SrfSrfIntersection`).
+    /// (`blend.fillet_corner_p1`) and from the intersection (`sm_SrfSrfIntersection`).
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn calc_fillet_int_2_fillets(
         &mut self,
@@ -1145,7 +1154,7 @@ impl FilletBrep {
             let filleted_pnt = target
                 .vertex(filleted_vertex.ok_or_else(|| SolidError::null_pointer(OP_INT2))?)?
                 .point;
-            let dir = filleted_pnt - other_pnt;
+            let mut dir = filleted_pnt - other_pnt;
             let skip_two_pnts_intersection = true;
 
             let result = srf_srf_intersection(
@@ -1153,7 +1162,7 @@ impl FilletBrep {
                 self,
                 Some(other_fv),
                 None,
-                Some(dir),
+                Some(&mut dir),
                 None,
                 fillet_surface1,
                 fillet_surface2,
@@ -1255,7 +1264,7 @@ impl FilletBrep {
     /// side face, solver, corner or extended B-spline surface; `SM_ERR` when the
     /// neighbour vertex is not processed or no end lies on the face;
     /// [`SolidError::Unported`] for the corner type and extended surface
-    /// (`blend.fillet_corner_p1`) and the intersection (`sm_SrfSrfIntersection`).
+    /// (`blend.fillet_corner_p1`) and from the intersection (`sm_SrfSrfIntersection`).
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn calc_rail_int_extended_edgeuse(
         &mut self,

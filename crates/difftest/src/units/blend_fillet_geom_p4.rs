@@ -19,8 +19,8 @@
 //! (`GetRailIndexOfVertexuse`, `blend.fillet_geom_p6`), `make_face` past its rail
 //! checks (`JoinTwoFilletVertsByCurves`, `blend.fillet_geom_p6`), `blending` of a
 //! blending rail (`SmFilletEdge::CalcBlendingRail`, `blend.fillet_geom_p6`) and the
-//! surface/surface intersections of the vertex calculators (`blend.fillet_geom_p2`)
-//! where reached. The shim refuses the inputs that would make upstream dereference
+//! unported callees of `sm_SrfSrfIntersection` (`SmSurface::DropCurve`,
+//! `intersect.surface_drop_lib_p3`, ...) where reached. The shim refuses the inputs that would make upstream dereference
 //! what the harness cannot build (a real fillet corner, a solver or rail it needs);
 //! the generator keeps only inputs both sides accept. Every run has at least
 //! [`MIN_GENERATED`] generated cases.
@@ -62,10 +62,10 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 
 /// A base fillet solver's tolerances.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct SolverIn {
-    approx: f64,
-    ang: f64,
-    tang: f64,
+pub(crate) struct SolverIn {
+    pub(crate) approx: f64,
+    pub(crate) ang: f64,
+    pub(crate) tang: f64,
 }
 
 /// The surface of a `uv_curve` query.
@@ -142,7 +142,7 @@ struct CaseInputs {
 
 // ---- C++ side ------------------------------------------------------------------------
 
-fn push_analytic(o: &mut Vec<f64>, a: &AnalyticSrf) {
+pub(crate) fn push_analytic(o: &mut Vec<f64>, a: &AnalyticSrf) {
     match a {
         AnalyticSrf::Plane {
             origin,
@@ -435,7 +435,7 @@ fn v3a(p: Point3) -> [f64; 3] {
 }
 
 /// A vertex at `p` with no classification (the model's defaults).
-fn vertex_at(p: [f64; 3]) -> VertexIn {
+pub(crate) fn vertex_at(p: [f64; 3]) -> VertexIn {
     VertexIn {
         point: p,
         vtype: 0,
@@ -452,7 +452,7 @@ fn vertex_at(p: [f64; 3]) -> VertexIn {
     }
 }
 
-fn empty_model() -> Model {
+pub(crate) fn empty_model() -> Model {
     Model {
         targets: Vec::new(),
         faces: Vec::new(),
@@ -465,7 +465,7 @@ fn empty_model() -> Model {
 
 /// A random analytic surface: a plane (scaled UVs, mostly with its NURB) or a surface of
 /// revolution of a line (cylinder-like when parallel to the axis, else cone-like).
-fn gen_analytic(rng: &mut Rng, scale: f64) -> AnalyticSrf {
+pub(crate) fn gen_analytic(rng: &mut Rng, scale: f64) -> AnalyticSrf {
     if rng.chance(0.5) {
         let d = [rng.uniform(-1.0, 0.0), rng.uniform(-1.0, 0.0)];
         AnalyticSrf::Plane {
@@ -605,7 +605,7 @@ fn gen_uv_from(
 }
 
 /// A UV line curve over the unit square.
-fn uv_line(a: [f64; 2], b: [f64; 2]) -> Crv {
+pub(crate) fn uv_line(a: [f64; 2], b: [f64; 2]) -> Crv {
     Crv {
         dim: 2,
         cpts: vec![[a[0], a[1], 0.0, -f64::MAX], [b[0], b[1], 0.0, -f64::MAX]],

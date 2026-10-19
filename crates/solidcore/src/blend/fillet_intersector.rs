@@ -528,7 +528,12 @@ impl FilletSolverOps for ConstantRadiusAssistedFs {
     type FilletGeom = ();
 
     fn set_surfaces_to_zero_offset(&mut self) -> Result<()> {
-        for (slot, saved) in self.solver.surfaces.iter_mut().zip(self.saved_offsets.iter_mut()) {
+        for (slot, saved) in self
+            .solver
+            .surfaces
+            .iter_mut()
+            .zip(self.saved_offsets.iter_mut())
+        {
             if let Some(OffsetSurfaceSlot { surface: s, .. }) = slot {
                 *saved = s.offset_distance();
                 s.set_offset_distance(0.0);
@@ -538,7 +543,12 @@ impl FilletSolverOps for ConstantRadiusAssistedFs {
     }
 
     fn reload_surface_offsets(&mut self) -> Result<()> {
-        for (slot, saved) in self.solver.surfaces.iter_mut().zip(self.saved_offsets.iter()) {
+        for (slot, saved) in self
+            .solver
+            .surfaces
+            .iter_mut()
+            .zip(self.saved_offsets.iter())
+        {
             if let Some(OffsetSurfaceSlot { surface: s, .. }) = slot {
                 s.set_offset_distance(*saved);
             }
@@ -1883,7 +1893,14 @@ mod tests {
         assert!(fi
             .test_span_accuracy(&mut s, &Kernel::default(), p, z, None)
             .is_err());
-        assert_eq!(s.solver.surfaces[0].as_ref().unwrap().surface.offset_distance(), 1.0);
+        assert_eq!(
+            s.solver.surfaces[0]
+                .as_ref()
+                .unwrap()
+                .surface
+                .offset_distance(),
+            1.0
+        );
     }
 
     #[test]
@@ -1911,8 +1928,22 @@ mod tests {
         assert!(r.found_good_point);
         assert!(r.deviation_found.is_none());
         // offsets restored
-        assert_eq!(s.solver.surfaces[0].as_ref().unwrap().surface.offset_distance(), 1.0);
-        assert_eq!(s.solver.surfaces[1].as_ref().unwrap().surface.offset_distance(), -2.0);
+        assert_eq!(
+            s.solver.surfaces[0]
+                .as_ref()
+                .unwrap()
+                .surface
+                .offset_distance(),
+            1.0
+        );
+        assert_eq!(
+            s.solver.surfaces[1]
+                .as_ref()
+                .unwrap()
+                .surface
+                .offset_distance(),
+            -2.0
+        );
         assert_eq!(s.saved_offsets, [1.0, -2.0]);
     }
 
