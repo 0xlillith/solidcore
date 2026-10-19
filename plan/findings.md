@@ -7963,10 +7963,18 @@ The FFI's supported coordinate/dimension domain is bounded at 1e100 via the shar
 reader. Current operand families avoid closed edges; adding closed-wire/circle
 kinds requires rechecking the registered UB-175 path.
 
-Verification on sc-builder-5 against main source 46ddc4ff plus the progress-only
-8e79624a refresh: fmt/include rustfmt, both workspace checks, clippy x2, all 1412
-kernel tests (including six new adapter regressions), coordinate-bound and
-error-post-state regressions, and wasm passed.
+Ready verification on sc-builder-5 after merging latest main 154853c7 (a
+progress-only refresh): fmt/include rustfmt, both workspace checks, clippy x2,
+all 1414 kernel tests (eight adapter tests), wasm, p4 difftest, fuzz 2000 and
+perturb passed. The three requested mutants each fail their intended assertion:
+swapped coincidence maps, the wrong region-lookup map, and IsVoid != 0. Every
+mutant was restored; the restored file is byte-identical to its baseline.
+Production code is unchanged from the CLEAN-reviewed 0ceda887.
+
+The touched-unit difftests, coordinate-bound/error-post-state regressions, full
+214-unit green gate and 405-case Valgrind sample below were verified at 0ceda887
+with the same production code. The p4/fuzz/perturb summaries were rerun after
+these test changes and are identical.
 
 ```text
 PARTIAL boolean.merge_p4 cases=311 passed=30 failed=0 deferred=278 max_rel_err=0e0 with_values=30 no_values=0 rejected=3 blocked_by=query.brep(278)
