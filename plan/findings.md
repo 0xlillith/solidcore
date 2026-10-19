@@ -7732,9 +7732,13 @@ input, matching the native duplicate-pointer validation. Owned `Brep` values
 cannot alias; storage-handle drivers implement `BooleanDriver::same_operand`.
 The regression verifies that duplicate handles leave the whole input unchanged.
 
-Verification is currently blocked by a SIGSEGV (process exit 139) in the full
-native comparison before any summary/report is produced. A persistent-context
-shim lifetime correction did not resolve the crash. No narrower failing input or
-upstream cause is established, and no upstream issue is attributed to this crash.
-The overseer has assigned a separate diagnostic session; this author is running
-Rust-only gates and source comparisons while awaiting its findings.
+The initial native baseline hit UB-190 in the two piecewise box fixtures with
+imprinting and no keep-other flag. The overseer's independent diagnostic found
+that the imprint early return deletes the other B-rep even for PARTIAL_MERGE;
+PiecewiseMerge then reuses it for the next surface. The persistent-context
+lifetime correction does not change this upstream defect. FFI and shim now
+refuse exactly the effective option combination for the piecewise family.
+The two refusal fixtures compare only the FFI guard (both-errored/no_values),
+not a native result or a dependency deferral. Their keep-other variants remain
+native comparisons, as do all other accepted cases. Generated piecewise inputs
+retain imprinting coverage by setting keep-other when imprinting is selected.

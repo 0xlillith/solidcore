@@ -30,8 +30,13 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     if !operation.is_finite() || operation.fract() != 0.0 || !(-64.0..=64.0).contains(&operation) {
         return Err(bad("operation outside harness integer range"));
     }
-    rd.index(31)?;
-    rd.flag()?;
+    let options = rd.index(31)?;
+    let have_options = rd.flag()?;
+    // UB-190: the imprint early return deletes the other operand even during
+    // PARTIAL_MERGE; PiecewiseMerge reuses that operand on the next surface.
+    if family == 4 && have_options && options & 2 != 0 && options & 16 == 0 {
+        return Err(bad("UB-190: piecewise imprinting requires keep-other"));
+    }
     let na = rd.index(16)?;
     let nb = rd.index(16)?;
     if na + nb > 16
@@ -153,5 +158,28 @@ mod tests {
         assert!(validate(&tree(&[64.0])).is_err());
         assert!(validate(&tree(&[-1.0, 64.0])).is_ok());
         assert!(validate(&tree(&[0.0, 1.0, -7.0, 64.0])).is_ok());
+    }
+
+    #[test]
+    fn piecewise_imprinting_guard_preserves_keep_other_and_null_options() {
+        for mask in 0..32 {
+            for have_options in [false, true] {
+                let mut input = vec![
+                    4.0,
+                    0.0,
+                    f64::from(mask),
+                    f64::from(u8::from(have_options)),
+                    1.0,
+                    1.0,
+                ];
+                input.extend([0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0]);
+                assert_eq!(
+                    validate(&input).is_err(),
+                    have_options && mask & 2 != 0 && mask & 16 == 0
+                );
+                input[0] = 3.0;
+                assert!(validate(&input).is_ok());
+            }
+        }
     }
 }

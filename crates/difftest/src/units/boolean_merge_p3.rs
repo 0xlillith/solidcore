@@ -34,9 +34,23 @@ struct Inputs {
     b: Vec<Operand>,
     #[serde(default)]
     tree: Vec<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    expected_refusal: Option<String>,
 }
 fn harness(error: &(impl ToString + ?Sized)) -> HarnessError {
     HarnessError::new(error.to_string())
+}
+fn refusal(i: &Inputs, expected: &str) -> Result<Output, HarnessError> {
+    match ffi::validate(&encode(i)) {
+        Err(solidcore_ffi::FfiError::InvalidArgument(reason))
+            if expected == "UB-190" && reason.starts_with("UB-190:") =>
+        {
+            // Guard-only check: no native operation or Rust kernel result is
+            // compared. Counted as both-errored/no_values, never as a deferral.
+            Ok(Output::err("ffi refusal: UB-190"))
+        }
+        _ => Err(harness("expected the specific UB-190 FFI refusal")),
+    }
 }
 fn encode(i: &Inputs) -> Vec<f64> {
     let mut data = vec![
@@ -124,6 +138,7 @@ impl Pool {
                 a: vec![operand.clone()],
                 b: Vec::new(),
                 tree: Vec::new(),
+                expected_refusal: None,
             }))
             .map_err(|error| harness(&error))?;
             // export_graph starts at validate_only; vertexuse import expects a
@@ -374,13 +389,21 @@ impl UnitDiff for Runner {
         )
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
-        rust(&serde_json::from_value(case.inputs.clone()).map_err(|error| harness(&error))?)
+        let i: Inputs =
+            serde_json::from_value(case.inputs.clone()).map_err(|error| harness(&error))?;
+        if let Some(expected) = &i.expected_refusal {
+            return refusal(&i, expected);
+        }
+        rust(&i)
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs =
             serde_json::from_value(case.inputs.clone()).map_err(|error| harness(&error))?;
         if i.family > 4 {
             return Err(harness("fixture-only family is not a unit operation"));
+        }
+        if let Some(expected) = &i.expected_refusal {
+            return refusal(&i, expected);
         }
         output(
             &ffi::eval(&encode(&i)).map_err(|error| harness(&error))?,
@@ -425,21 +448,31 @@ impl UnitDiff for Runner {
                 tree.push(-rng.range_i64(1, 7));
             }
         }
+        let operation = if family >= 3 {
+            rng.below(11) as i32
+        } else {
+            rng.range_i64(-1, 5) as i32
+        };
+        let mut options = if rng.below(2) == 0 {
+            None
+        } else {
+            Some(rng.below(32) as u8)
+        };
+        if family == 4 {
+            if let Some(mask) = &mut options {
+                if *mask & 2 != 0 {
+                    *mask |= 16;
+                }
+            }
+        }
         Some(json!(Inputs {
             family,
-            operation: if family >= 3 {
-                rng.below(11) as i32
-            } else {
-                rng.range_i64(-1, 5) as i32
-            },
-            options: if rng.below(2) == 0 {
-                None
-            } else {
-                Some(rng.below(32) as u8)
-            },
+            operation,
+            options,
             a,
             b,
-            tree
+            tree,
+            expected_refusal: None,
         }))
     }
 }

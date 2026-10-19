@@ -43,6 +43,9 @@ SC_EXPORT int32_t sc_boolean_merge_p3_eval(const double* input, int64_t n,
         Reader rd{input,n};
         int family=rd.integer(0,5); int operation=rd.integer(-64,64);
         int mask=rd.integer(0,31); bool have_options=rd.integer(0,1)!=0;
+        // UB-190: imprinting deletes PiecewiseMerge's reusable other operand
+        // during PARTIAL_MERGE, unless keep-other is enabled.
+        if(family==4 && have_options && (mask&2) && !(mask&16)) throw Bad();
         int na=rd.integer(0,16), nb=rd.integer(0,16);
         if(na+nb>16 || ((family==3 || family==4) && (na!=1 || nb!=1))) throw Bad();
         std::vector<SmPoint3d> points;
