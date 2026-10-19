@@ -53,9 +53,9 @@
 //! | `Analytic`      | `sm_TestAnalyticSurface` | `surface` | `ret` |
 //! | `AnalyticRev`   | `sm_TestAnalyticSurface` on an `SmCone` / `SmCylinder` / `SmSphere` / `SmTorus` | `kind origin[3] x[3] y[3] p[4]` (kind 0 `SmCone::CreateCanonical(bot, top, height)`, 1 `SmCylinder(radius, start, end, height)` + `MakeNurb`, 2 `SmSphere::CreateCanonical(radius)`, 3 `SmTorus::CreateCanonical(major, minor)`) | `status ret` (`ret` only when built) |
 //! | `RailRail`      | `SmRailRailIntersectENFO::Evaluate` | `rail other load1 found1 load2 found2 arrays` | `status found f J` |
-//! | `Clipped`       | `SmFindClippedRadiusEFO` constructor | `idx dist tol has0 off0 has1 off1 o0 o1 dom0[4] dom1[4] param iso uv0[2] uv1[2]` | the members |
+//! | `Clipped`       | `SmFindClippedRadiusEFO` constructor and `Evaluate` | `idx dist tol base0 base1 has0 off0 has1 off1 o0 o1 dom0[4] dom1[4] param iso uv0[2] uv1[2] eval radius` (offset surface `i` offsets surface `base_i`) | the members, then with `eval` `status F F' found sUV[idx][2] sUV[1-idx][2] guess off0 off1` (`-2` without both offset surfaces) |
 //! | `Convexity`     | `sm_TestSideEdgeConvexity` (the library's) | `block edge tangential` (`edge` `-1`: a fresh `SmEdge`) | `0 ret` |
-//! | `TrimRail`      | `sm_TrimRail` | `block edge t0 t1` | `0 status curve uv uv_mate` |
+//! | `TrimRail`      | `sm_TrimRail` | `block edge t0 t1` | `0 zt[3] knots status curve uv uv_mate` (`zt`: `SmTol::GetZoneTol3d` of the three curves before the trim; `knots`: `n knots[n] mults[n]` of the 3D curve, `-1` without) |
 //! | `Queries`       | `GetVertex(0/1)`, `FindIndexOfRailOnFace`, `FindIndexOfRailXSideEdgeuse` | `block eu0 eu1 face side` | `0 v0 v1 on_face x_side` |
 //! | `Rollover`      | `sm_TestManifoldTangentRollover` | `block edge tol` | `0 tangent opposite` (`-2`: no primary edge use, radial or mate, or an edge use without face use) |
 //!
@@ -335,7 +335,7 @@ pub enum StaticOp {
     Analytic,
     /// `SmRailRailIntersectENFO::Evaluate`.
     RailRail,
-    /// The `SmFindClippedRadiusEFO` constructor.
+    /// The `SmFindClippedRadiusEFO` constructor and `Evaluate`.
     Clipped,
     /// `sm_TestSideEdgeConvexity`.
     Convexity,
@@ -423,6 +423,8 @@ fn validate_static_args(
         StaticOp::Clipped => {
             rd.index(1)?;
             rd.finites(2)?;
+            surface(rd)?;
+            surface(rd)?;
             for _ in 0..2 {
                 rd.flag()?;
                 rd.finite()?;
@@ -430,6 +432,8 @@ fn validate_static_args(
             rd.finites(2 + 8)?;
             rd.index(4)?;
             rd.finites(1 + 4)?;
+            rd.flag()?;
+            rd.finite()?;
         }
         StaticOp::Convexity => {
             if rd.num()? == -1.0 {

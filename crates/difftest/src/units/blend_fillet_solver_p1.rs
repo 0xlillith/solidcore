@@ -10,10 +10,10 @@
 //! planes, open, pinched (a collapsed boundary at umin/umax/vmin/vmax, one or two sides)
 //! and periodic (rational circle x line, either direction) B-spline surfaces at extreme
 //! scales and extension factors (`extension`), the sphere-solve and rail-UV-curve function
-//! objects with and without Jacobians and loading solvers (`sphere`, `rail_uv`; the
-//! sphere solve defers at `SmOffsetSurface::Evaluate` once the solver loads),
-//! `ComputeSurfaceValues` (fails in the base `SetupOffsetValues`, else defers at the
-//! evaluation), `ComputeUVVectors` (including zero and parallel tangents),
+//! objects with and without Jacobians and loading solvers (`sphere`, `rail_uv`; a
+//! loading sphere solve evaluates the offset surfaces, unit `surface.offset_surface`),
+//! `ComputeSurfaceValues` (fails in the base `SetupOffsetValues`, else evaluates the
+//! offset surfaces), `ComputeUVVectors` (including zero and parallel tangents),
 //! `SplitFilletGeom` with empty intervals, `FinishConstruction` (deferred with an offset
 //! surface to copy: `SmOffsetSurface::Copy`, unit `surface.offset_surface`), the fillet
 //! surface generators (`fsg`), `SmTol::GetAngTolRad(const SmFilletSolver*)` (`tol_ang`)
@@ -26,9 +26,13 @@
 //! defers; `analytic_rev`: real `SmCone` (compares, the `SmCone_TYPE` branch),
 //! bounded `SmCylinder` and `SmTorus` (built on both sides, defer at the cone test) and
 //! `SmSphere` (defers: no Rust type)), `SmRailRailIntersectENFO` (`rail_rail`, two loading solvers), the
-//! `SmFindClippedRadiusEFO` constructor (`clipped`), `sm_TestSideEdgeConvexity`
-//! (`convexity`: an edge without edge uses compares, others defer), `sm_TrimRail`
-//! (`trim_rail`, on a B-rep edge), `sm_TestManifoldTangentRollover` (`rollover`, on a
+//! `SmFindClippedRadiusEFO` constructor and `Evaluate` (`clipped`: offsets of planes and
+//! B-spline patches of either base, `SM_SP_U` and `SM_SP_V`, both `SM_ERR` exits; `F`,
+//! `F'`, `found`, the caller's `sUV` and `m_dGuessT` compare, see `gen_clipped`),
+//! `sm_TestSideEdgeConvexity` (`convexity`: an edge without edge uses, edges of upstream
+//! test files through `IsConvexRadialSector`), `sm_TrimRail` (`trim_rail`, on a B-rep
+//! edge; the zone tolerance each trim reads and the 3D curve's knots before the trim
+//! compare too), `sm_TestManifoldTangentRollover` (`rollover`, on a
 //! B-rep edge) and the solver's B-rep queries (`queries`: `GetVertex`,
 //! `FindIndexOfRailOnFace`, `FindIndexOfRailXSideEdgeuse` with edge uses of upstream test
 //! files, face and wire B-reps). B-rep cases build the C++ B-rep, export it through unit
@@ -114,6 +118,18 @@ impl Default for Surfs {
             off: [0.0, 0.0],
         }
     }
+}
+
+/// The plane `z = 0`.
+fn z_plane() -> SrfIn {
+    SrfIn::Plane {
+        o: [0.0, 0.0, 0.0],
+        n: [0.0, 0.0, 1.0],
+    }
+}
+
+fn z_planes() -> [SrfIn; 2] {
+    [z_plane(), z_plane()]
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -226,6 +242,12 @@ enum Inputs {
         param: u8,
         iso: f64,
         uv: [f64; 4],
+        /// Bases of offset surfaces 0 and 1 (default: the `z = 0` plane for both).
+        #[serde(default = "z_planes")]
+        bases: [SrfIn; 2],
+        /// `Evaluate(radius, ..)` after the constructor, when given.
+        #[serde(default)]
+        radius: Option<f64>,
     },
     Convexity {
         brep: BrepIn,
@@ -440,21 +462,19 @@ fn static_input(i: &Inputs, c: Option<&BrepCase>) -> Result<Vec<f64>, HarnessErr
             param,
             iso,
             uv,
+            bases,
+            radius,
         } => {
-            o.extend([
-                *idx as f64,
-                *dist,
-                *tol,
-                b(has[0]),
-                off[0],
-                b(has[1]),
-                off[1],
-            ]);
+            o.extend([*idx as f64, *dist, *tol]);
+            push_surface(&mut o, &bases[0])?;
+            push_surface(&mut o, &bases[1])?;
+            o.extend([b(has[0]), off[0], b(has[1]), off[1]]);
             o.extend_from_slice(orient);
             o.extend_from_slice(doms);
             o.push(f64::from(*param));
             o.push(*iso);
             o.extend_from_slice(uv);
+            o.extend([b(radius.is_some()), radius.unwrap_or(0.0)]);
         }
         Inputs::Convexity { tangential, .. } => o.extend([r[0] as f64, b(*tangential)]),
         Inputs::TrimRail { t, .. } => {
@@ -793,6 +813,42 @@ fn put_crv(o: &mut Vec<f64>, c: Option<&Curve>) {
     }
 }
 
+/// `put_zone_tol_and_knots` of the static shim, before `sm_TrimRail`: the zone
+/// tolerance each trim reads (`SmTol::GetZoneTol3d(curve)`: the rail's tolerance for
+/// a curve of the rail or of its edge uses, the system zone tolerance without curve),
+/// then the 3D curve's unique knots and multiplicities (`n knots mults`, `-1` without
+/// curve or when `GetKnots` fails).
+fn put_zone_tol_and_knots(
+    k: &Kernel,
+    o: &mut Vec<f64>,
+    b: &Brep,
+    e: EdgeId,
+    prim: EdgeuseId,
+    mate: EdgeuseId,
+) -> Result<(), HarnessError> {
+    let err = |e: SolidError| harness(e.to_string());
+    let edge = b.edge(e).map_err(err)?;
+    let zt = |has: bool| {
+        if has {
+            edge.tolerance
+        } else {
+            k.tolerances.zone_tol_3d
+        }
+    };
+    o.push(zt(edge.curve.is_some()));
+    o.push(zt(eu::uv_trim_curve(b, prim).map_err(err)?.0.is_some()));
+    o.push(zt(eu::uv_trim_curve(b, mate).map_err(err)?.0.is_some()));
+    match edge.curve.as_ref().map(|c| c.knots(None)) {
+        Some(Ok((knots, mults))) => {
+            o.push(knots.len() as f64);
+            o.extend_from_slice(&knots);
+            o.extend(mults.iter().map(|&m| m as f64));
+        }
+        _ => o.push(-1.0),
+    }
+    Ok(())
+}
+
 fn eid(i: i64) -> Result<u32, HarnessError> {
     u32::try_from(i).map_err(|_| harness("entity index"))
 }
@@ -846,7 +902,7 @@ fn rust_brep(
             } else {
                 EdgeId::from_index(eid(r[0])?)
             };
-            test_side_edge_convexity(&c.brep, e, *tangential).map(|v| o.push(b(v)))
+            test_side_edge_convexity(&k, &mut c.brep, e, *tangential).map(|v| o.push(b(v)))
         }
         Inputs::TrimRail { t, .. } => {
             let e = EdgeId::from_index(eid(r[0])?);
@@ -857,6 +913,7 @@ fn rust_brep(
                 None => None,
             };
             if let (Some(prim), Some(mate)) = (prim, mate) {
+                put_zone_tol_and_knots(&k, o, &c.brep, e, prim, mate)?;
                 let st = match trim_rail(&k, &mut c.brep, e, &Extent1d::from_min_max(t0, t1)) {
                     Ok(()) => 0.0,
                     Err(e @ SolidError::Unported { .. }) => return Ok(Err(e)),
@@ -1028,19 +1085,20 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
             param,
             iso,
             uv,
+            bases,
+            radius,
         } => {
-            let plane = Surfs::default();
-            let base = surface_of(&plane.base)?;
+            let base = [surface_of(&bases[0])?, surface_of(&bases[1])?];
             let kern = Kernel::default();
             let mut fs = FilletSolver::new(*tol, 0.1, 0.01);
             let r = (|| -> Result<(), SolidError> {
-                for (k, (h, d)) in has.iter().zip(off).enumerate() {
+                for (k, ((h, d), base)) in has.iter().zip(off).zip(&base).enumerate() {
                     if *h {
                         let s = OffsetSurface::new(
                             &kern,
                             *d,
                             base.clone(),
-                            SurfaceId::Free(0),
+                            SurfaceId::Free(k as u32),
                             SS_UNKNOWN,
                         )?;
                         fs.set_surface(
@@ -1059,8 +1117,9 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
                     Extent2d::from_points(Point2::new(b0, b1), Point2::new(b2, b3)),
                 ];
                 let uvs = [Vec2::new(uv[0], uv[1]), Vec2::new(uv[2], uv[3])];
-                let fields = {
-                    let e = FindClippedRadiusEfo::new(
+                let both = has[0] && has[1];
+                let (fields, evaluated) = {
+                    let mut e = FindClippedRadiusEfo::new(
                         &mut fs,
                         *idx,
                         &ds,
@@ -1070,7 +1129,7 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
                         *dist,
                     )?;
                     let (u, v) = (e.other_domain.u_interval(), e.other_domain.v_interval());
-                    vec![
+                    let fields = vec![
                         f64::from(e.surf_param as i32),
                         e.iso_param,
                         e.orientation,
@@ -1086,12 +1145,46 @@ fn rust_static(i: &Inputs, o: &mut Vec<f64>) -> Result<Result<(), SolidError>, H
                         e.uv.y,
                         e.other_uv.x,
                         e.other_uv.y,
-                    ]
+                    ];
+                    // Evaluate: the status, the out-parameters (also those a failure
+                    // leaves) and the caller's sUV[idx] / sUV[1 - idx] (m_rUV, m_rOtherUV)
+                    let evaluated = match radius {
+                        Some(_) if !both => Some(vec![-2.0]),
+                        Some(r) => {
+                            let st = match e.evaluate(*r) {
+                                Ok(_) => 0.0,
+                                Err(err @ SolidError::Unported { .. }) => return Err(err),
+                                Err(err) => status(&err),
+                            };
+                            Some(vec![
+                                st,
+                                e.last_f_of_t,
+                                e.last_f_prime,
+                                b(e.last_found),
+                                e.uv.x,
+                                e.uv.y,
+                                e.other_uv.x,
+                                e.other_uv.y,
+                                e.guess_t,
+                            ])
+                        }
+                        None => None,
+                    };
+                    (fields, evaluated)
                 };
                 let key = |s: Option<&OffsetSurfaceSlot>| s.map_or(-1.0, |s| s.key as f64);
                 o.push(key(fs.surface(*idx)?));
                 o.push(key(fs.surface(1 - *idx)?));
                 o.extend(fields);
+                if let Some(ev) = evaluated {
+                    let done = ev.len() > 1;
+                    o.extend(ev);
+                    if done {
+                        for k in 0..2 {
+                            o.push(fs.surface(k)?.map_or(0.0, |s| s.surface.offset_distance()));
+                        }
+                    }
+                }
                 Ok(())
             })();
             r
@@ -1860,6 +1953,223 @@ fn gen_analytic_rev(rng: &mut Rng) -> Inputs {
     }
 }
 
+/// `[this, other]` stored at `[idx, 1 - idx]`.
+fn by_slot<T>(idx: usize, this: T, other: T) -> [T; 2] {
+    if idx == 0 {
+        [this, other]
+    } else {
+        [other, this]
+    }
+}
+
+/// A B-spline patch of `gen_surface` (a bilinear one when it keeps making planes).
+fn gen_patch(rng: &mut Rng) -> BssIn {
+    for _ in 0..8 {
+        if let SrfIn::Bspline(bs) = gen_surface(rng) {
+            return bs;
+        }
+    }
+    BssIn {
+        oob: false,
+        form: 0,
+        net: vec![
+            vec![[0.0, 0.0, 0.0, NOW], [0.0, 1.0, 0.1, NOW]],
+            vec![[1.0, 0.0, -0.1, NOW], [1.0, 1.0, 0.0, NOW]],
+        ],
+        p: 1,
+        q: 1,
+        u: vec![0.0, 0.0, 1.0, 1.0],
+        v: vec![0.0, 0.0, 1.0, 1.0],
+    }
+}
+
+/// `SmFindClippedRadiusEFO` cases. Kinds: the constructor's members on offsets of the
+/// `z = 0` plane (parallel offsets: `Evaluate` fails at the first `LocalCurveIntersect`,
+/// or meets a coincident offset); the `z = 0` plane against a tilted plane through
+/// the point the iso line `iso = 0` meets at `radius` (a wide other domain: both
+/// intersections; a far one: the first fails; a point or quadrant at the solution: the
+/// second, after the radius step, fails; the target distance the rail distance: found);
+/// a B-spline patch against a tilted plane through its middle, either surface carrying
+/// the iso curve, iso parameters inside and outside the patch's domain (its
+/// out-of-bounds base evaluation). `SM_SP_U` and `SM_SP_V` throughout.
+fn gen_clipped(rng: &mut Rng) -> Inputs {
+    let o = |rng: &mut Rng| if rng.chance(0.5) { 1.0 } else { -1.0 };
+    let idx = rng.below(2) as usize;
+    let unit = |n: [f64; 3]| {
+        let l = (n[0] * n[0] + n[1] * n[1] + n[2] * n[2]).sqrt();
+        n.map(|c| c / l)
+    };
+    let tilted = |rng: &mut Rng| {
+        [
+            1.0 + rng.uniform(-0.3, 0.3),
+            2.0 + rng.uniform(-0.3, 0.3),
+            3.0 + rng.uniform(-0.3, 0.3),
+        ]
+    };
+    let cat = |[a, b]: [[f64; 4]; 2]| [a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3]];
+    let cat2 = |[a, b]: [[f64; 2]; 2]| [a[0], a[1], b[0], b[1]];
+    let param = rng.below(2) as u8;
+    match rng.below(10) {
+        // offsets of the z = 0 plane, everything random
+        0 | 1 => {
+            let mut doms = [0.0; 8];
+            for d in &mut doms {
+                *d = rng.uniform(-2.0, 2.0);
+            }
+            Inputs::Clipped {
+                idx,
+                dist: rng.uniform(0.01, 3.0),
+                tol: rng.uniform(1e-8, 1e-3),
+                has: [rng.chance(0.8), rng.chance(0.8)],
+                off: [rng.uniform(-2.0, 2.0), rng.uniform(-2.0, 2.0)],
+                orient: [o(rng), o(rng)],
+                doms,
+                param: rng.below(5) as u8,
+                iso: rng.uniform(-1.0, 2.0),
+                uv: [
+                    rng.uniform(-1.0, 2.0),
+                    rng.uniform(-1.0, 2.0),
+                    rng.uniform(-1.0, 2.0),
+                    rng.uniform(-1.0, 2.0),
+                ],
+                bases: z_planes(),
+                radius: rng.chance(0.8).then(|| rng.uniform(0.0, 2.0)),
+            }
+        }
+        // the z = 0 plane against a tilted plane through the solution at `radius`
+        2..=5 => {
+            let r0 = *rng.choose(&[0.5, 1.0, 1.0, 2.0, 1e-3, 1e3]).unwrap_or(&1.0);
+            let (oi, oo) = (o(rng), o(rng));
+            let orient = by_slot(idx, oi, oo);
+            let n = unit(tilted(rng));
+            // the iso line iso = 0 of the offset plane z = r0 * oi passes through p0;
+            // the other offset plane's (0, 0) is p0
+            let p0 = [0.0, 0.0, r0 * oi];
+            let origin = [
+                p0[0] - r0 * oo * n[0],
+                p0[1] - r0 * oo * n[1],
+                p0[2] - r0 * oo * n[2],
+            ];
+            let w = 10.0 * r0.max(1.0);
+            let other_dom = match rng.below(8) {
+                0 | 1 => [-w, -w, w, w],
+                2 => [5.0 * w, 5.0 * w, 6.0 * w, 6.0 * w],
+                3 => [0.0, 0.0, 0.0, 0.0],
+                4 => [0.0, 0.0, w, w],
+                5 => [-w, 0.0, 0.0, w],
+                6 => [0.0, -w, w, 0.0],
+                _ => [-w, -w, 0.0, 0.0],
+            };
+            let doms = cat(by_slot(idx, [-w, -w, w, w], other_dom));
+            // the rail distance at the solution: base points (0, 0) and the origin
+            let rail =
+                (origin[0] * origin[0] + origin[1] * origin[1] + origin[2] * origin[2]).sqrt();
+            let bases = by_slot(idx, z_plane(), SrfIn::Plane { o: origin, n });
+            let mut g = || rng.uniform(-0.5, 0.5) * r0;
+            let uv = cat2([[g(), g()], [g(), g()]]);
+            Inputs::Clipped {
+                idx,
+                dist: if rng.chance(0.3) {
+                    rail
+                } else {
+                    rng.uniform(0.01, 3.0) * r0
+                },
+                tol: *rng.choose(&[1e-6, 1e-7, 1e-8]).unwrap_or(&1e-6),
+                has: [true, true],
+                off: [rng.uniform(-1.0, 1.0), rng.uniform(-1.0, 1.0)],
+                orient,
+                doms,
+                param,
+                iso: 0.0,
+                uv,
+                bases,
+                radius: Some(r0),
+            }
+        }
+        // a B-spline patch against a tilted plane through its middle
+        _ => {
+            let mut patch = gen_patch(rng);
+            patch.oob = rng.chance(0.3);
+            let pts: Vec<[f64; 4]> = patch.net.iter().flatten().copied().collect();
+            let count = pts.len().max(1) as f64;
+            let mut c = [0.0; 3];
+            let mut size: f64 = 0.0;
+            for q in &pts {
+                for (ck, qk) in c.iter_mut().zip(q) {
+                    *ck += qk / count;
+                }
+                size = size.max(q[0].abs()).max(q[1].abs());
+            }
+            let size = size.max(1e-6);
+            let n = [
+                1.0 + rng.uniform(-0.3, 0.3),
+                1.0 + rng.uniform(-0.3, 0.3),
+                0.5 + rng.uniform(-0.3, 0.3),
+            ];
+            let plane = SrfIn::Plane { o: c, n };
+            let patch_dom = domain(&SrfIn::Bspline(patch.clone()));
+            let w = 10.0 * size;
+            let plane_dom = [-w, -w, w, w];
+            // which surface carries the iso curve
+            let iso_on_patch = rng.chance(0.6);
+            let (iso_srf, other_srf, iso_dom, other_dom) = if iso_on_patch {
+                (SrfIn::Bspline(patch), plane, patch_dom, plane_dom)
+            } else {
+                (plane, SrfIn::Bspline(patch), plane_dom, patch_dom)
+            };
+            let iso = if iso_on_patch {
+                let (a, b) = if param == 0 {
+                    (patch_dom[0], patch_dom[2])
+                } else {
+                    (patch_dom[1], patch_dom[3])
+                };
+                let f = if rng.chance(0.2) {
+                    *rng.choose(&[-0.2, -0.05, 1.05, 1.2]).unwrap_or(&1.1)
+                } else {
+                    rng.uniform(0.2, 0.8)
+                };
+                a + (b - a) * f
+            } else {
+                0.0
+            };
+            let bases = by_slot(idx, iso_srf, other_srf);
+            let doms = cat(by_slot(idx, iso_dom, other_dom));
+            // near the middle of the patch's domain, the plane's origin
+            let guess = |d: [f64; 4], rng: &mut Rng| {
+                [
+                    d[0] + (d[2] - d[0]) * (0.5 + rng.uniform(-0.1, 0.1)),
+                    d[1] + (d[3] - d[1]) * (0.5 + rng.uniform(-0.1, 0.1)),
+                ]
+            };
+            let gi = if iso_on_patch {
+                guess(iso_dom, rng)
+            } else {
+                [0.0, 0.0]
+            };
+            let go = if iso_on_patch {
+                [0.0, 0.0]
+            } else {
+                guess(other_dom, rng)
+            };
+            let uv = cat2(by_slot(idx, gi, go));
+            Inputs::Clipped {
+                idx,
+                dist: rng.uniform(0.01, 2.0) * size,
+                tol: *rng.choose(&[1e-6, 1e-7, 1e-5]).unwrap_or(&1e-6),
+                has: [true, true],
+                off: [0.0, 0.0],
+                orient: [o(rng), o(rng)],
+                doms,
+                param,
+                iso,
+                uv,
+                bases,
+                radius: Some(rng.uniform(0.01, 0.2) * size),
+            }
+        }
+    }
+}
+
 fn gen_static(rng: &mut Rng) -> Inputs {
     let s = |rng: &mut Rng| rng.below(64) as i64;
     match rng.below(10) {
@@ -1910,30 +2220,7 @@ fn gen_static(rng: &mut Rng) -> Inputs {
                 arrays,
             }
         }
-        4 => {
-            let o = |rng: &mut Rng| if rng.chance(0.5) { 1.0 } else { -1.0 };
-            let mut doms = [0.0; 8];
-            for d in &mut doms {
-                *d = rng.uniform(-2.0, 2.0);
-            }
-            Inputs::Clipped {
-                idx: rng.below(2) as usize,
-                dist: rng.uniform(0.01, 3.0),
-                tol: rng.uniform(1e-8, 1e-3),
-                has: [rng.chance(0.8), rng.chance(0.8)],
-                off: [rng.uniform(-2.0, 2.0), rng.uniform(-2.0, 2.0)],
-                orient: [o(rng), o(rng)],
-                doms,
-                param: rng.below(5) as u8,
-                iso: rng.uniform(-1.0, 2.0),
-                uv: [
-                    rng.uniform(-1.0, 2.0),
-                    rng.uniform(-1.0, 2.0),
-                    rng.uniform(-1.0, 2.0),
-                    rng.uniform(-1.0, 2.0),
-                ],
-            }
-        }
+        4 => gen_clipped(rng),
         5 => Inputs::Convexity {
             brep: BrepIn::File {
                 file: (*rng.choose(&FILES).unwrap_or(&"SmallBox.smb")).to_string(),
@@ -1971,7 +2258,8 @@ fn gen_static(rng: &mut Rng) -> Inputs {
 }
 
 fn gen_case(rng: &mut Rng) -> Inputs {
-    match rng.below(36) {
+    match rng.below(40) {
+        36..=39 => gen_clipped(rng),
         32..=35 => gen_analytic_rev(rng),
         0..=4 => gen_state(rng),
         5..=10 => gen_extension(rng),

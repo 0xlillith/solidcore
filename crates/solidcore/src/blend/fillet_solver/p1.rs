@@ -2165,6 +2165,13 @@ pub struct FindClippedRadiusEfo<'a> {
     pub approx_tol_3d: f64,
     /// `m_dGuessT`.
     pub guess_t: f64,
+    /// `rdFOfT` as the last [`Self::evaluate`] left it, also on its failure paths
+    /// (`0` before the first call).
+    pub last_f_of_t: f64,
+    /// `rdFPrimeOfT` as the last [`Self::evaluate`] left it (`0` on its failure paths).
+    pub last_f_prime: f64,
+    /// `rbFoundAnswer` as the last [`Self::evaluate`] left it, also on its failure paths.
+    pub last_found: bool,
 }
 
 impl<'a> FindClippedRadiusEfo<'a> {
@@ -2212,6 +2219,9 @@ impl<'a> FindClippedRadiusEfo<'a> {
             target_distance,
             approx_tol_3d,
             guess_t: this_uv.x,
+            last_f_of_t: 0.0,
+            last_f_prime: 0.0,
+            last_found: false,
         })
     }
 
@@ -2291,7 +2301,9 @@ impl<'a> FindClippedRadiusEfo<'a> {
 
     /// `Evaluate(dRadius, rdFOfT, rdFPrimeOfT, rbFoundAnswer)`: `F` is the rail point
     /// distance minus the target distance at the boundary crossing for `radius`, `F'`
-    /// its forward difference over `SM_ZONE_TOL_3D`. Returns `(F, F', found)`.
+    /// its forward difference over `SM_ZONE_TOL_3D`. Returns `(F, F', found)`; the
+    /// out-parameters upstream leaves on a failure path are in
+    /// [`Self::last_f_of_t`], [`Self::last_f_prime`] and [`Self::last_found`].
     ///
     /// # Errors
     ///
@@ -2300,6 +2312,10 @@ impl<'a> FindClippedRadiusEfo<'a> {
     pub fn evaluate(&mut self, radius: f64) -> Result<(f64, f64, bool)> {
         const OP_E: &str = "blend::fillet_solver::p1::FindClippedRadiusEfo::evaluate";
         let mut radius = radius;
+        // init output
+        self.last_f_of_t = 0.0;
+        self.last_f_prime = 0.0;
+        self.last_found = false;
         let mut found = false;
         self.set_offsets(radius)?;
         let Some((other_uv_found, t_found)) = self.intersect_iso()? else {
@@ -2316,8 +2332,10 @@ impl<'a> FindClippedRadiusEfo<'a> {
         }
         let distance = self.base_points(self.uv, self.other_uv)?;
         let f_of_t = distance - self.target_distance;
+        self.last_f_of_t = f_of_t;
         if f_of_t.abs() < EFF_ZERO {
             found = true;
+            self.last_found = true;
         }
 
         let step_size = ZONE_TOL_3D;
@@ -2333,6 +2351,7 @@ impl<'a> FindClippedRadiusEfo<'a> {
         };
         let distance1 = self.base_points(uv_found, other_uv_found)?;
         let f_prime = (distance1 - self.target_distance - f_of_t) / step_size;
+        self.last_f_prime = f_prime;
         Ok((f_of_t, f_prime, found))
     }
 }
@@ -2636,22 +2655,37 @@ pub fn test_manifold_tangent_rollover(
 }
 
 /// `sm_TestSideEdgeConvexity(pSideEdge, bIsTangentialSideEdge)`: whether a radial
-/// sector of the side edge is convex.
+/// sector of the side edge is convex: for each edge use (the mate of one whose shell
+/// lies in the B-rep's infinite region), `IsConvexRadialSector(10, step_off)`, stepping
+/// off for a tangential side edge; true at the first convex one.
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for any edge use (`SmBrep::GetInfiniteRegion`).
-pub fn test_side_edge_convexity(b: &Brep, side_edge: EdgeId, is_tangential: bool) -> Result<bool> {
+/// [`SolidError::InvalidInput`] for an edge use without shell or mate (upstream
+/// dereferences `NULL`); those of `IsConvexRadialSector`.
+pub fn test_side_edge_convexity(
+    k: &Kernel,
+    b: &mut Brep,
+    side_edge: EdgeId,
+    is_tangential: bool,
+) -> Result<bool> {
     let eus = edge::edgeuses(b, side_edge, None, None)?;
-    let _ = is_tangential;
-    if eus.is_empty() {
-        return Ok(false);
-    }
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::GetInfiniteRegion",
-        "topology.brep_p1",
-    ))
+    for eu0 in eus {
+        let mut eu_id = eu0;
+        let shell = eu::shell(b, eu_id)?.ok_or_else(|| invalid("edge use without shell"))?;
+        // pShell->GetBrep()->GetInfiniteRegion(): the shell's B-rep is `b`
+        let infinite_reg = b.infinite_region();
+        if b.shell(shell)?.region == infinite_reg {
+            eu_id = eu::mate(b, eu_id)?.ok_or_else(|| invalid("edge use without mate"))?;
+        }
+
+        let step_off = is_tangential;
+        if crate::topology::edgeuse::p2::is_convex_radial_sector(k, b, eu_id, 10, step_off, 0.0)? {
+            return Ok(true);
+        }
+    } // end for each Edgeuse
+
+    Ok(false)
 }
 
 /// `sm_FindNextGoodInterval(pCC, lStartSearch, rbFound, rlFoundIndex)`: the first
@@ -2700,21 +2734,33 @@ pub fn trim_rail(k: &Kernel, b: &mut Brep, rail: EdgeId, trim_interval: &Extent1
         .ok_or(SolidError::null_pointer(OP_T))?;
     let mut trim = *trim_interval;
     let missing = || SolidError::null_pointer(OP_T);
+    // `SmBSplineCurve::Trim` reads `SmTol::GetZoneTol3d(this)`: for a curve owned by an
+    // edge, or by an edge use of an edge (the UV trim curves), that is the edge's
+    // tolerance (`SM_USE_OLDTOL`), not the system zone tolerance the owner-less
+    // `Curve::trim` reads from its kernel. All three curves belong to the rail, so
+    // they trim with a kernel whose zone tolerance is the rail's tolerance.
+    let tk = Kernel::new(&crate::kernel::KernelOptions {
+        tolerances: crate::kernel::Tolerances {
+            zone_tol_3d: edge::tolerance(b, rail)?,
+            ..k.tolerances
+        },
+        ..crate::kernel::KernelOptions::default()
+    });
     b.edge_mut(rail)?
         .curve
         .as_mut()
         .ok_or_else(missing)?
-        .trim(k, &mut trim, TrimMode::Notify)?;
+        .trim(&tk, &mut trim, TrimMode::Notify)?;
     b.edgeuse_mut(uv_owner)?
         .uv_trim_curve
         .as_mut()
         .ok_or_else(missing)?
-        .trim(k, &mut trim, TrimMode::Notify)?;
+        .trim(&tk, &mut trim, TrimMode::Notify)?;
     b.edgeuse_mut(orig_owner)?
         .uv_trim_curve
         .as_mut()
         .ok_or_else(missing)?
-        .trim(k, &mut trim, TrimMode::Notify)?;
+        .trim(&tk, &mut trim, TrimMode::Notify)?;
     Ok(())
 }
 
