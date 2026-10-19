@@ -57,13 +57,14 @@
 //!   original edge after `MakeEdgeInFace`; the port has no curve owners (the curve
 //!   copy is a new handle), so there is nothing to reset.
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
-//!   each tagged `UNPORTED(<unit>)`: `SmBrep::DeleteFace` (`topology.brep_p3`), `SmBrep::DeleteEdge` /
-//!   `DeleteVertex` (`topology.brep_p4`), `SmBrep::CombineCoincidentVertices`
-//!   (`topology.brep_p5`), `SmFace::Point3DClassify` (`query.face_p1`), and the
-//!   stubs of [`p1`](super::p1) for `SmFace::GetEdges` / `GetVertices` / `GetBrep`
-//!   (`topology.face_p4`), `SmFace::FaceIntersect` (`topology.face_p3`),
-//!   `SmBrep::MakeEdgeInFace` (`topology.brep_p5`). The code after a stub is ported
-//!   in full. `SmBrep::GlueEdgesGeneral` (`topology.brep_p7`) goes through
+//!   each tagged `UNPORTED(<unit>)`: `SmBrep::DeleteFace` (`topology.brep_p3`),
+//!   `SmBrep::DeleteEdge` / `DeleteVertex` (`topology.brep_p4`),
+//!   `SmBrep::CombineCoincidentVertices` (`topology.brep_p5`),
+//!   `SmFace::Point3DClassify` (`query.face_p1`), and the stubs of [`p1`](super::p1)
+//!   for `SmFace::GetEdges` / `GetVertices` / `GetBrep` (`topology.face_p4`),
+//!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::MakeEdgeInFace`
+//!   (`topology.brep_p5`). The code after a stub is ported in full.
+//!   `SmBrep::GlueEdgesGeneral` (`topology.brep_p7`) goes through
 //!   [`IntersectorBrep::brep_glue_edges_general`], as in part 1.
 //! - **Undefined behaviour upstream** (a null or deleted object dereferenced, an
 //!   index past a list, a vertex mated to a non-vertex used as a vertex) is
@@ -148,7 +149,9 @@ pub trait IntersectorBrepP2<O>: IntersectorBrep<O> {
     fn vertex_faces(&self, vertex: O) -> Result<Vec<O>>;
     /// The faces of `brep` in its list order (`SmBrep::GetFaces(rFaces)` with no
     /// attribute filter, unit `topology.brep_p1`: `topology::brep::p1::faces` on the
-    /// B-rep behind the handle).
+    /// B-rep behind the handle). Upstream's `pOptAttributeId` is dropped: both
+    /// callers in this file pass the default; add it if a caller needs the filtered
+    /// form.
     ///
     /// # Errors
     ///
