@@ -7895,12 +7895,18 @@ without suppressions. Leak checking was disabled: unknown live objects after a
 failed consuming native call are retained, as described above. This does not
 claim that those failure paths are leak-free.
 
-Reverified after merging main's curve_class_p2 (#85) and generated progress
-through 45a4ee3f, including the review fixes below: both clippy configurations,
-formatting (including explicit include files), 1,390 kernel tests, three FFI guard
-tests and wasm passed. Native comparison, perturbation, fuzz and Valgrind results
-above are from this corrected tree. Full matrix rerun is pending. The earlier
-interrupted matrix on the old main base is excluded from verification evidence.
+Reverified after integrating main's curve_class_p2 (#85), surface.cone_p2
+(#153), and generated progress through 28cd7d9a, including the review fixes
+below: workspace/CPP compile checks, both clippy configurations, formatting
+(including seven explicit include files), 1,396 kernel tests, three FFI guard
+tests and wasm passed. The three incoming changed include files required a
+separate rustfmt-only normalization commit; no behavior was edited there.
+Native comparison, perturbation, fuzz and Valgrind results above are unchanged
+on this corrected, main-integrated tree. The full 212-unit matrix passed with
+zero failures. Its per-log audit found 114 PASS / 98 PARTIAL, all exit codes zero,
+and zero green units with deferred cases; rejected fixtures are counted separately
+in the four units that expose them. The earlier 211-unit matrix also passed and
+is supplementary evidence on the previous main base. Earlier interrupted runs are excluded from verification evidence.
 
 Review 183c96b7 constructor correction: BooleanLists surface-list preparation
 and disconnected-component extraction now call an argument-complete
