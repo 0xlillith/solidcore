@@ -214,16 +214,7 @@ fn push_build(o: &mut Vec<f64>, s: &Build) -> Result<(), FfiError> {
             finite(&[bot, semi, h.unwrap_or(0.0)], "canonical")?;
             (
                 0.0,
-                [
-                    bot,
-                    semi,
-                    b(h.is_some()),
-                    h.unwrap_or(0.0),
-                    b(swap),
-                    b(inside),
-                    0.0,
-                    0.0,
-                ],
+                [bot, semi, b(h.is_some()), h.unwrap_or(0.0), b(swap), b(inside), 0.0, 0.0],
             )
         }
         Mode::Canonical {
@@ -262,16 +253,7 @@ fn push_build(o: &mut Vec<f64>, s: &Build) -> Result<(), FfiError> {
             finite(&[bot, top, start, end, h], "cone")?;
             (
                 4.0,
-                [
-                    bot,
-                    top,
-                    start,
-                    end,
-                    h,
-                    b(swap),
-                    b(inside),
-                    b(make_nurb_gen),
-                ],
+                [bot, top, start, end, h, b(swap), b(inside), b(make_nurb_gen)],
             )
         }
         Mode::CylBounded {
@@ -286,16 +268,7 @@ fn push_build(o: &mut Vec<f64>, s: &Build) -> Result<(), FfiError> {
             finite(&[radius, start, end, h], "cylinder")?;
             (
                 5.0,
-                [
-                    radius,
-                    start,
-                    end,
-                    h,
-                    b(swap),
-                    b(inside),
-                    b(make_nurb_gen),
-                    0.0,
-                ],
+                [radius, start, end, h, b(swap), b(inside), b(make_nurb_gen), 0.0],
             )
         }
         Mode::CylUnbounded {
