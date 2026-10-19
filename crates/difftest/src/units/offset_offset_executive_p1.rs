@@ -1233,7 +1233,7 @@ fn rust_extend(input: &Extension) -> RResult<Output> {
 }
 
 fn rust_probe(branch: Probe, tolerance: f64) -> RResult<Output> {
-    let kernel = Kernel::default();
+    let mut kernel = Kernel::default();
     let mut original = Brep::new();
     let mut executive = OffsetExecutive::new(OffsetOperation::SolidOffset, 0.25, tolerance);
     executive.set_offset_brep(Brep::new());
@@ -1303,9 +1303,11 @@ fn rust_probe(branch: Probe, tolerance: f64) -> RResult<Output> {
             };
             executive.build_offset_of_faceuse(&kernel, &mut original, faceuse, &mut None)
         }
-        Probe::PiecewiseEmpty => executive.piecewise_merge(&kernel, &mut original).map(|_| {
-            counts = [0, 0, 0, 1];
-        }),
+        Probe::PiecewiseEmpty => executive
+            .piecewise_merge(&mut kernel, &mut original)
+            .map(|_| {
+                counts = [0, 0, 0, 1];
+            }),
         Probe::MapPlane => {
             let (face, faceuse) = plane_face(&mut original, 0.0)?;
             originals = wire_uses(&original);
@@ -2012,7 +2014,7 @@ mod tests {
             ),
             (Probe::FaceuseNull, None, 1006),
             (Probe::FaceuseNoSurface, None, 1000),
-            (Probe::PiecewiseEmpty, Some("heal.stitch_p2"), 1000),
+            (Probe::PiecewiseEmpty, Some("query.brep"), 1000),
             (Probe::MapPlane, Some("topology.edgeuse_p3"), 1000),
             (Probe::EdgeusesUnmapped, None, 1000),
         ] {

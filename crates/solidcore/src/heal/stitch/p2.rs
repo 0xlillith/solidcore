@@ -8,6 +8,7 @@
 //! |-----------------------------------------------|-----------------------------------------------|
 //! | [`Stitch::do_stitching`], [`Stitching`], [`MinGapRequest`] | `SmStitch::DoStitching`          |
 //! | [`stitch_into_solid`]                         | `SmStitch::StitchIntoSolid` (static)          |
+//! | [`solid_stitch_start`]                        | `SmStitch::StitchIntoSolid` (its first lines) |
 //! | [`stitch_into_shell`]                         | `SmStitch::StitchIntoShell` (static)          |
 //! | [`Stitch::stitch_vertex_list`], [`VertexList`] | `SmStitch::StitchVertexPairs` (one-list overload) |
 //! | [`Stitch::split_edges_with_vertices`], [`SplitEdges`] | `SmStitch::SplitEdgesWithVertices`    |
@@ -1291,6 +1292,21 @@ fn glue_or_squeeze(
     Ok((do_glue, do_squeeze, squeeze_edge))
 }
 
+/// The start of `StitchIntoSolid`: its first stitch tolerance (a tenth of the B-rep
+/// tolerance) and the bounding-box diagonal the doubling runs up to (`1/200` of it).
+/// The doubling never ends when the tolerance starts at or below zero under that
+/// bound (HANG-24 in `plan/upstream-issues.md`).
+///
+/// # Errors
+///
+/// Those of `CalculateBoundingBox`.
+pub fn solid_stitch_start(b: &Brep) -> Result<(f64, f64)> {
+    let bbox = brep_bounding_box(b, true, false, true)?; // TRUE: Approx is fine [B259]
+    let dist = bbox.size().length();
+    // This tol will be iteratively increased:
+    Ok((b.tolerance() / 10.0, dist))
+}
+
 /// `SmStitch::StitchIntoSolid`: stitches with the default callback, a fast edge
 /// compare, no edge splitting and manifold gluing, from a tenth of the B-rep tolerance,
 /// doubling it while lamina edges remain and it is below 1/200 of the bounding box
@@ -1310,10 +1326,7 @@ pub fn stitch_into_solid(k: &mut Kernel, b: &mut Brep) -> Result<AdvancedStitch>
         max_edge_gap: 0.0,
     };
 
-    let bbox = brep_bounding_box(b, true, false, true)?; // TRUE: Approx is fine [B259]
-    let dist = bbox.size().length();
-    // This tol will be iteratively increased:
-    let mut stitch_tol_3d = b.tolerance() / 10.0;
+    let (mut stitch_tol_3d, dist) = solid_stitch_start(b)?;
 
     // First try stitching down to 1/10000 of the size of the part.
     let mut num_lamina = 0u64;
@@ -1469,7 +1482,7 @@ fn delete_face(
 /// `SmBrep::FindAndSetInfiniteRegion(pOptShellToTest, eVoidSettingFlag, pOptBrepBBox)`
 /// (unit `topology.brep_p5`; upstream defaults `NULL`, `SM_VS_INFINITEREGION_SWAP`,
 /// `NULL`).
-fn find_and_set_infinite_region(
+pub(crate) fn find_and_set_infinite_region(
     k: &mut Kernel,
     b: &mut Brep,
     shell_to_test: Option<ShellId>,

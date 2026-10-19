@@ -584,20 +584,32 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: &Resolved) -> solidcore::Result
                 Err(e) => failed(e),
             }
         }
-        Resolved::Solid => match st::stitch_into_solid(k, b) {
-            Ok(r) => {
-                let mut o = vec![
-                    0.0,
-                    flag(r.produces_a_solid),
-                    r.stitched_edges as f64,
-                    r.max_vertex_gap,
-                    r.max_edge_gap,
-                ];
-                digest(b, &mut o)?;
-                Ok(o)
+        Resolved::Solid => {
+            // the shim's guard: the doubling from a tolerance at or below zero cannot
+            // end (HANG-24); same test on the same box diagonal (`tol < dist / 200`
+            // excludes a NaN tolerance, so `!(tol > 0)` is `tol <= 0` here)
+            let (tol, dist) = match st::solid_stitch_start(b) {
+                Ok(start) => start,
+                Err(e) => return failed(e),
+            };
+            if tol < dist / 200.0 && tol <= 0.0 {
+                return Ok(vec![NO_RETURN]);
             }
-            Err(e) => failed(e),
-        },
+            match st::stitch_into_solid(k, b) {
+                Ok(r) => {
+                    let mut o = vec![
+                        0.0,
+                        flag(r.produces_a_solid),
+                        r.stitched_edges as f64,
+                        r.max_vertex_gap,
+                        r.max_edge_gap,
+                    ];
+                    digest(b, &mut o)?;
+                    Ok(o)
+                }
+                Err(e) => failed(e),
+            }
+        }
         Resolved::Shell {
             well_formed,
             max_tol,

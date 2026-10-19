@@ -3162,8 +3162,8 @@ est_lines = 1906
 layer = 50
 tests = ["prog_test:my_test_single_periodic_vertexuse", "SM_API_test:TestSmAdvancedStitch", "SM_API_test:TestSmEdgeCurveOwnership", "SM_API_test:TestSmGetClosestPoint", "SM_API_test:TestSmGetEdges", "SM_API_test:TestSmGetFaces"]
 status = "partial"
-claimed_by = ""
-claimed_at = ""
+claimed_by = "bluecmd (Claude Opus 5.5; PR #205)"
+claimed_at = "2026-10-17"
 notes = "5 fns; largest: SmStitch::DoStitching, SmStitch::StitchVertexPairs, SmStitch::SplitEdgesWithVertices, SmStitch::StitchIntoSolid; unit-SCC #22 (220 units); 179 upstream test entry points reach this unit; PARTIAL (PR #205, co-port with heal.stitch_p1 #196): difftest 556 cases (540 constructed fixtures on unstitched sheets and boxes + 16 generated), 316 pass bit-identical (max_rel_err 0), 0 failed, 1 both-errored (the HANG-23 guard case: -3 on both sides, no values), 240 deferred (topology.brep_p2 119: SmBrep::Notify, first call of DoStitching; topology.brep_p5 92: GlueVertices; query.brep 15: SmBrep::CalculateBoundingBox; topology.brep_p9 14: MakeVertexSplitEdge). Passes by success path: SplitEdgesWithVertices 124 (drops and far/close outcomes, no split), one-list StitchVertexPairs 112 (86 without coincident pair, 26 with pairs evaluated but not glued) + 13 empty/null lists + 13 SM_ERR (no B-rep), StitchIntoShell 53 (loop never runs, max_tol <= 0) + 1 HANG-23 guard case (both sides -3). No passing case for DoStitching or StitchIntoSolid. Wired p1's UNPORTED(heal.stitch_p2) API stubs. fuzz 2000 FUZZ-PASS (crashes 0). Upstream issues: HANG-23, HANG-24, UB-178, UB-179, WR-180, WR-181"
 
 [[unit]]

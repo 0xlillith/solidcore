@@ -31,7 +31,10 @@
 //! [`MAX_LIST`], and a `VList` list without a repeated vertex (each copy of a coincident
 //! vertex is glued, the second one after it was freed: UB-178 in
 //! `plan/upstream-issues.md`). The `-3` guards are HANG-23 and HANG-24 (a zero or
-//! negative B-rep tolerance).
+//! negative B-rep tolerance). They test only the necessary condition (the doubling
+//! cannot reach its bound), so they also refuse a B-rep that upstream returns from
+//! because its first `DoStitching` pass leaves no lamina edge; the runner applies the
+//! same tests. Narrowing them needs that first pass run on the C++ side first.
 
 use crate::units::topology_brep_p1::counts;
 use crate::units::topology_edgeuse_p1::{bad, brep_block, face_block, Reader, MAX_LIST};
