@@ -7852,12 +7852,25 @@ for surface inputs), binary trees/folds at `boolean.merge_p2`'s constructor, pie
 cases at `boolean.topology_intersector_p2`'s `IntersectInsertRelate`, and the isolated
 nonmanifold wrapper at `boolean.merge_p4`'s `ManifoldBoolean`.
 
-Passing tree paths only reorder/transfer stable input handles and append unused
-operands. Complete native fixture graphs are exported **before** the Rust call;
-those immutable graphs remain associated with their handles. The C++ result is
-walked afresh after the operation. Real boxes reproduce the input geometry of
+Passing tree paths reorder/transfer stable input handles and append unused
+operands. At a77d8005 the runner echoed the C++ fixture graph by handle; those
+103 cases tested Rust slot identity/order/null state, not independent Rust graph
+serialization. The Opus review correctly identified that the earlier graph-parity
+wording overstated this coverage.
+
+The corrected runner imports only the initial native fixtures, keeps actual Rust
+B-reps in its pool, and reads every returned Rust B-rep through the existing Rust
+stitch digest. The C++ side walks its result after the operation; its fresh export
+is independently imported and projected to the same digest. Compared fields are
+identity/order/null slots, exact face/edge/vertex counts, and ordered vertex
+positions. No complete graph payload is echoed as Rust output. Adjacency, edge
+curves, face surfaces, geometry tolerances and attributes are not compared. This
+is a deliberately limited result projection, not complete graph parity. Real boxes reproduce the input geometry of
 `TestSmPiecewiseMerge`, `TestSmBooleanLists`, and `TestMergeBrepsOperation`; the latter
 three paths remain deferred. `TestSmMaterialCensus` is not reproduced end-to-end.
+PiecewiseMerge is ported generically over `PiecewiseAccess`; no kernel
+implementation exists yet (it belongs with the SmMerge engine, merge_p2/p4).
+The fixture Pool is not that engine.
 The current harness supplies no surface-list inputs or SSI skip relations, so no
 parity is claimed for planar extraction or SURFACEMAP branches. This is a coverage
 limit, not a passing branch.
@@ -7886,17 +7899,45 @@ PRs; none is reimplemented here):
 
 | Tag | Upstream callee | Owner status / action |
 | --- | --- | --- |
-| `boolean.merge_p2` | `SmMerge::SmMerge` | todo; argument-complete constructor adapter |
+| `boolean.merge_p2` | `SmMerge::SmMerge`, wire-processing environment | todo; constructor and canonical engine environment needed by the already-ported merge_p5 call; no second mate map is fabricated |
 | `boolean.merge_p4` | `SmMerge::ManifoldBoolean` | todo; argument-complete engine adapter |
 | `topology.brep_p3` | `SmBrep` empty/copy constructors, `SmBrep::MergeBrep` | todo (#204); allocation context, both empty-constructor defaults, null stack context, copy maps/flags retained |
 | `topology.brep_p8` | `SmBrep::CreateFaceFromSurface` | todo; surface and UV domain retained |
 | `surface.surface_p1` | sliced-base `SmSurface` copy constructor | partial; exact missing branch described above |
 | `topology.brep_p5` | `SmBrep::StitchAndOrient`, `SmBrep::RemoveFaces` | todo; default arguments retained |
-| `topology.brep_p4` | `SmBrep::ShrinkGeometry` | todo |
+| `topology.brep_p4` | `SmBrep::ShrinkGeometry`, `SmBrep::~SmBrep` | todo; destruction owner checked in units.json |
 | `primitive.primitive_creation_p1` | `SmPrimitiveCreation::Boolean2D` | todo; operands and operation retained |
-| `boolean.topology_intersector_p2` | `SmTopologyIntersector::IntersectInsertRelate` | todo; runner adapter defers at this call |
-| `topology.brep_p2` | `SmBrep::IsManifoldSolid` | todo; existing API runner needs it to serialize nonempty successful tree results |
+| `boolean.topology_intersector_p2` | `SmTopologyIntersector::IntersectInsertRelate`, `RegisterExistingSSI` | todo; five SSI arrays retained explicitly, including empty-array calls |
+| `topology.brep_p2` | `SmBrep::IsManifoldSolid`, `SmBrep::Notify`, `SmBrep::SetTolerance` | todo; API serializer and Pool notification/tolerance adapters retain arguments |
 | `boolean.merge_p3` (removed) | `SmMerge::merge_breps`, `BooleanLists`, `BooleanTrees` | all three API back-edges wired; none remain in kernel code |
+
+The Pool now delegates subset/control/SSI storage to the canonical
+`TopologyIntersector`, SURFACEMAP lookup/users to `AttributeStore`, and mark
+release to `MarkLock::release`. A small public `clear_relationships` accessor
+clears the intersector's existing private mate maps; it does not introduce a
+second map or implementation. Existing SSI curve arrays are empty in this
+adapter; a nonempty curve-storage path still explicitly defers to its unported
+registration integration. Wire processing itself is already ported in merge_p5;
+its canonical Relations/VertexCopy engine environment is missing in this Pool,
+so that hook truthfully defers to merge_p2's engine integration, not to merge_p5.
+Constructor, tolerance, notification, registration and destruction hooks now
+return owner-tagged Unported, rather than a fixture-domain InvalidInput. The
+new-face constructor hook retains SetTolerance(TRUE, TRUE), editing and append
+tails after the constructor stub. Handles are append-only, and the public trait
+now requires stale deleted handles to stay invalid when operands are reinstalled.
+Upstream's statusless mark destruction ignores ordinary release failures while
+still propagating Unported; it uses the shared error::ignored helper.
+
+All five families serialize actual Rust results on success. BooleanLists emits
+its B-rep count, per-result digests and surface count; NonManifoldBoolean emits
+its restored manifold flag, lamina mode and optional result; PiecewiseMerge
+emits its live controls and optional result. Four serializer/adapter regression
+tests demonstrate that Rust vertex changes, control changes and surface counts
+change outputs, and exercise canonical subsets/attributes/marks and owner labels.
+These are harness regressions, not geometric Boolean-success comparisons.
+BooleanListsResult lives in merge_p3 and is re-exported at its existing API path.
+The older unrelated include-file formatting commit is reversed, leaving those
+three files at main's formatting; only this unit's four include files are checked.
 
 The shim uses the persistent API fixture context for all operands, copies and
 merge engines. Failed consuming native calls do not reveal a complete live-object
@@ -7924,10 +7965,11 @@ native comparisons, as do all other accepted cases. Generated piecewise inputs
 use shell vertices and retain all option masks, including imprinting without
 keep-other. Four explicit point/box-primary fixtures cover that accepted path.
 
-Final default comparison after review fixes: 354 cases, 182 matched, 0 failed, 172 deferred,
+Previous a77d8005 default comparison (Opus rerun pending): 354 cases, 182 matched, 0 failed, 172 deferred,
 `max_rel_err=0`, no absolute floors. The 126 matches with values comprise 103
-nonempty leaf graph transfers and 23 empty forests. Of the 56 both-errored cases,
-54 compare native error statuses and two check only the UB-190 guard. There are
+leaf-only identity/order/null and B-rep-digest cases, plus 23 empty forests. Of the 56 both-errored cases,
+54 compare native error statuses and two check only the UB-190 guard (180
+operation comparisons + 2 guard self-checks, not 182 independent kernel comparisons). There are
 zero geometric-success comparisons. Perturbation detected all 182 changed
 outputs. Guard fuzzing passed 2,000 mutations: 1,292 rejected, 708 ran, zero
 differences, crashes, panics or timeouts.
@@ -7968,3 +8010,11 @@ defaults and the null stack context explicit. `Brep::new()` cannot substitute
 for the native constructor: it lacks the void infinite region and context
 tolerance initialization. All surface-copy/face-construction and component
 copy/stitch/remove tails remain after this call. No #204 constructor is co-ported.
+
+Opus re-review follow-up: source changes are committed in 5c66d017 after merging
+main's topology.brep_p10 (#130). Full reruns are pending; the gate figures above
+belong to a77d8005 until replaced by the new evidence. The shim still couples
+PiecewiseMerge use-existing/create-new flags to CookieCutter/Imprinting bits.
+Imprinting without create-new is not expressible. Generated cases remain
+shell-vertex only, without repeated leaves or multi-operator trees; fixed
+fixtures exercise the existing repeated-leaf/error and real-box paths.
