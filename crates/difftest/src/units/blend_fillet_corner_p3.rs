@@ -26,7 +26,7 @@
 //! `sm_FindConcaveEdgeuses` (`blend.fillet_corner_p2`); every patch builder past its state
 //! checks (`MakeAnalyticCornerSurface`, `CreateEndPatch`, `SmSurface::DropCurve`); the
 //! Nx2 adjustments where they change the topology (`MakeFilletEdge`,
-//! `GetRailIndexOfVertexuse`), the big-radius test of blending corners and the NxN /
+//! `GetRailIndexOfVertexuse`), the big-radius test of blending corners and the `NxN` /
 //! closed Nx1 overrides. The shim does not call upstream on those paths (`-3`; a Rust
 //! side that is not deferred there fails the case) and refuses (`-2`, a rejected case)
 //! the inputs that make upstream dereference null or free the harness's objects. A
@@ -113,6 +113,7 @@ struct TsectIn {
 
 /// The corner of a `corner` case.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(clippy::struct_excessive_bools)] // the corner's independent SmBoolean members
 struct CornerIn {
     /// The derived class (order of [`FilletCornerKind`]).
     kind: usize,
@@ -609,11 +610,28 @@ fn corner_rust(op: CornerOp, model: &Model, ci: &CornerIn) -> Result<Output, Har
         }
         let srf = |rm: &RustModel, s: i64| -> Result<Option<Surface>, HarnessError> {
             match usize::try_from(s) {
-                Ok(i) => {
+                Ok(i) if s < 1000 => {
                     let f = *rm.target_faces.get(i).ok_or_else(|| harness("face"))?;
                     Ok(rm.target.face(f).map_err(h)?.surface.clone())
                 }
-                Err(_) => Ok(None),
+                // a real SmPlane (shim: p3_user_srf)
+                _ if s == 1000 || s == 1001 => {
+                    let (x, y, sc) = if s == 1000 {
+                        ([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0])
+                    } else {
+                        ([0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [2.0, 0.5])
+                    };
+                    let v = |a: [f64; 3]| solidcore::math::Vec3::new(a[0], a[1], a[2]);
+                    let dom = solidcore::geom::extent2d::Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0);
+                    Ok(Some(Surface::from(solidcore::surface::plane::Plane::new(
+                        v([0.0, 0.0, 0.0]),
+                        v(x),
+                        v(y),
+                        solidcore::geom::vector2d::Vec2::new(sc[0], sc[1]),
+                        &dom,
+                    ))))
+                }
+                _ => Ok(None),
             }
         };
         surfaces.insert(vu, [srf(&rm, t.s0)?, srf(&rm, t.s1)?]);

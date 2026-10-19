@@ -184,8 +184,14 @@ pub fn validate_corner(input: &[f64]) -> Result<(), FfiError> {
             .ok_or_else(|| bad("intersection point: edge -1"))?;
         rd.index(1)?;
         rd.finites(5)?;
-        rd.opt_index(b.nf)?;
-        rd.opt_index(b.nf)?;
+        for _ in 0..2 {
+            // target face, -1 NULL, or 1000 / 1001: a real SmPlane
+            let v = rd.num()?;
+            let face = v.fract() == 0.0 && v >= 0.0 && v < b.nf as f64;
+            if !(v == -1.0 || v == 1000.0 || v == 1001.0 || face) {
+                return Err(bad(format!("bad surface selector {v}")));
+            }
+        }
     }
     let no = rd.index(MAX_LIST)?;
     for _ in 0..no {

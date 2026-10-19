@@ -46,14 +46,16 @@
 //!   `TestAndConvertBigRadFillet` and `NoteFilletError` (`blend.fillet_executive_p1`),
 //!   `SmFilletEdge::MakeFilletEdge` (`blend.fillet_geom_p5`), `GetRailVertex`
 //!   (`blend.fillet_geom_p6`), `ReCalcFilletGeom` (`blend.fillet_geom_p3`),
-//!   `SplitFilletGeomAtSideEdge` (`blend.fillet_solver_p1`, whose port addresses fillet
-//!   geometries by its own handles) and `SmSurface::DropCurve`
+//!   `SplitFilletGeomAtSideEdge` (ported in `blend.fillet_solver_p1` on its own fillet
+//!   geometry handles; its first call `GetRailIndexOfVertexuse` is
+//!   `blend.fillet_geom_p6`, so the stub carries that tag) and `SmSurface::DropCurve`
 //!   (`intersect.surface_drop_lib_p3`) return [`SolidError::Unported`] at the call site.
 //! - **Intersection-point user pointers.** `SmTsectPnt::m_apUserPointer[0..2]` (the two
 //!   surfaces of a fillet vertex use's intersection point, read by
 //!   `AdjustTangentCorner`) are not members of the Rust [`TsectPnt`]: the caller passes
 //!   them per vertex use in [`CornerEnv::tsect_surfaces`]. `SmTemporaryChangeValue`
-//!   enabling out-of-bounds evaluation of B-spline user surfaces is applied to copies.
+//!   enabling out-of-bounds evaluation of the user surfaces (every `SmBSplineSurface`,
+//!   which includes `SmPlane` and `SmSurfOfRevolution`) is applied to copies.
 //! - **Topology moves.** `SmVertex::Remove` / `PostInsert` of a vertex use (the
 //!   `SmOwningTopology` list operations) are applied to the pseudo B-rep's records
 //!   directly; `SmVertex::SetPoint`'s notification resets the vertex uses' cached gaps.
@@ -1375,8 +1377,9 @@ impl FilletCorner {
             };
 
             // We need the rail curves to work from.
-            // If not there yet, just wait for a later call.
-            let mut missing = false;
+            // If not there yet, just wait for a later call. (Upstream's `||` chain
+            // short-circuits: the first missing curve returns before a later rail is
+            // looked at.)
             for g in [fillet_geom1, fillet_geom2] {
                 for r in 0..2 {
                     let rail = env
@@ -1385,12 +1388,9 @@ impl FilletCorner {
                         .rail(r)
                         .ok_or_else(|| SolidError::null_pointer(OP_TANGENT))?;
                     if env.pseudo.brep().edge(rail)?.curve.is_none() {
-                        missing = true;
+                        return Ok(());
                     }
                 }
-            }
-            if missing {
-                return Ok(());
             }
 
             // Get the vertexuses corresponding to the two surfaces, and their TSectPnts:
@@ -1413,9 +1413,19 @@ impl FilletCorner {
                     .and_then(Option::as_ref)
                     .cloned()
                     .ok_or_else(|| SolidError::null_pointer(OP_TANGENT))?;
-                // SmTemporaryChangeValue: GetOutOfBoundsEnabled() = TRUE
-                if let SurfaceKind::BSpline(b) = s.kind_mut() {
-                    *b.out_of_bounds_enabled_mut() = true;
+                // SmTemporaryChangeValue: GetOutOfBoundsEnabled() = TRUE on every
+                // SmBSplineSurface (SM_CAST_PTR also succeeds for the analytic kinds
+                // derived from it: SmPlane, SmSurfOfRevolution)
+                match s.kind_mut() {
+                    SurfaceKind::BSpline(b) => *b.out_of_bounds_enabled_mut() = true,
+                    SurfaceKind::Plane(p) => *p.out_of_bounds_enabled_mut() = true,
+                    SurfaceKind::SurfOfRevolution(r) => {
+                        *r.base_mut().out_of_bounds_enabled_mut() = true;
+                    }
+                    SurfaceKind::CurveBounded(_)
+                    | SurfaceKind::Step(_)
+                    | SurfaceKind::OffsetSurface(_)
+                    | SurfaceKind::SrfInVolume(_) => {}
                 }
                 Ok(s)
             };
@@ -1544,10 +1554,16 @@ impl FilletCorner {
                         .set_fillet_geom_type(FilletGeomType::TangentRollover);
                 }
 
-                // UNPORTED(blend.fillet_solver_p1): SmFilletSolver::SplitFilletGeomAtSideEdge
+                // SmFilletSolver::SplitFilletGeomAtSideEdge is ported
+                // (`FilletSolver::split_fillet_geom_at_side_edge`, blend.fillet_solver_p1),
+                // but on the solver's `FilletGeomRef` stand-in, which carries no geometry
+                // data, and its first call is GetRailIndexOfVertexuse
+                // (blend.fillet_geom_p6). Wire it once fillet_geom_p6 lands and the solver
+                // works on `FilletGeomId`.
+                // UNPORTED(blend.fillet_geom_p6): SmFilletSolver::SplitFilletGeomAtSideEdge
                 let new_geom: FilletGeomId = Err(unported(
                     "SmFilletSolver::SplitFilletGeomAtSideEdge",
-                    "blend.fillet_solver_p1",
+                    "blend.fillet_geom_p6",
                 ))?;
 
                 env.pseudo
@@ -1679,6 +1695,11 @@ fn store_bspline(brep: &mut Brep, e: EdgeId, c: BSplineCurve) -> Result<()> {
     match slot.as_mut().map(Curve::kind_mut) {
         Some(CurveKind::BSpline(b)) => *b = c,
         Some(CurveKind::Line(l)) => l.base = c,
+        // the analytic kinds derived from SmBSplineCurve keep their kind, as upstream's
+        // in-place JoinWith on the SmBSplineCurve part does (mirrors `bspline_part`)
+        Some(CurveKind::Ellipse(l)) => *l.base_mut() = c,
+        Some(CurveKind::Hyperbola(l)) => *l.base_mut() = c,
+        Some(CurveKind::Parabola(l)) => *l.base_mut() = c,
         _ => *slot = Some(Curve::from(c)),
     }
     Ok(())

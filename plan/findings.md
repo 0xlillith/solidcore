@@ -8206,3 +8206,21 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   state checks, so only those checks (and the 3x2 curve join before them) are compared. The
   shim does not call upstream on deferred paths (it repeats upstream's code up to the
   unported call) and refuses inputs where upstream would dereference null (`-2`).
+- **Review fixes (2026-10-19).** (1) `AdjustTangentCorner`'s `SmTemporaryChangeValue`
+  enables out-of-bounds evaluation through `SM_CAST_PTR(SmBSplineSurface, pSrf)`, which also
+  succeeds for `SmPlane` and `SmSurfOfRevolution`; the port first did it only for B-spline
+  surfaces, so a plane user surface evaluated outside its domain was clamped in Rust but not
+  in C++, flipping `bCloseEnough` (Rust returned early, C++ went on to split the fillet
+  geometry). The shim's corner `Model` only built `SmBSplineSurface` faces, so the analytic
+  branch was never compared; the shim now builds real `SmPlane` user surfaces (selectors
+  1000/1001) and 60 adversarial Nx2 tangent cases (`review_plane_oob.json`, 6 of which failed
+  before the fix) cover it. (2) The rail-curve check now returns at the first missing curve,
+  as upstream's `||` chain short-circuits (before, a later NULL rail raised null-pointer).
+  (3) The shim no longer refuses a failed `SmEdgeuse::NormalizedEvaluate`: `SmVector3d`'s
+  members default to `SM_UNDEF_DOUBLE`, so upstream is well defined there and Rust mirrors it
+  with `Vec3::UNDEF`. (4) The `SplitFilletGeomAtSideEdge` stub is tagged
+  `UNPORTED(blend.fillet_geom_p6)`: the function is ported in `blend.fillet_solver_p1`, but on
+  the solver's `FilletGeomRef` stand-in, and its first call `GetRailIndexOfVertexuse` is
+  `blend.fillet_geom_p6`; wire the real call when that unit lands. (5) The 3x2 curve join
+  stores the joined B-spline part back into `SmEllipse`/`SmHyperbola`/`SmParabola` edge curves
+  in place, as it already did for `SmLine` (unobservable until `DropCurve` is ported).

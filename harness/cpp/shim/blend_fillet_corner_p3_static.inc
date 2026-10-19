@@ -117,6 +117,43 @@ SmPoint3d p3_eval_oob(SmSurface* s, const SmPoint2d& uv)
     return p;
 }
 
+// A user surface of an intersection point: target face `s`, or (1000, 1001) a real SmPlane
+// (an SmBSplineSurface-derived analytic kind), else NULL. The planes are owned here and
+// freed when the run ends (P3PlaneGuard).
+std::vector<SmSurface*>& p3_planes()
+{
+    static std::vector<SmSurface*> v;
+    return v;
+}
+struct P3PlaneGuard
+{
+    P3PlaneGuard() = default;
+    P3PlaneGuard(const P3PlaneGuard&) = delete;
+    P3PlaneGuard& operator=(const P3PlaneGuard&) = delete;
+    ~P3PlaneGuard()
+    {
+        for (SmSurface* s : p3_planes())
+            delete s;
+        p3_planes().clear();
+    }
+};
+void* p3_user_srf(Model& M, int64_t s)
+{
+    if (s >= 0 && (size_t)s < M.targetFaces.size())
+        return M.targetFaces[(size_t)s]->GetSurface();
+    if (s == 1000 || s == 1001)
+    {
+        SmPlane* pl = s == 1000
+                          ? new (M.ctx) SmPlane(SmPoint3d(0, 0, 0), SmVector3d(1, 0, 0), SmVector3d(0, 1, 0),
+                                                SmVector2d(1, 1), SmExtent2d(0, 0, 1, 1), &M.ctx)
+                          : new (M.ctx) SmPlane(SmPoint3d(0, 0, 0), SmVector3d(0, 0, 1), SmVector3d(1, 0, 0),
+                                                SmVector2d(2, 0.5), SmExtent2d(0, 0, 1, 1), &M.ctx);
+        p3_planes().push_back(pl);
+        return pl;
+    }
+    return NULL;
+}
+
 int64_t p3_index_of_vertex(Model& M, SmFilletVertex* v) { return index_of(M.verts, v); }
 
 // ---- pre-checks (upstream's own code up to the unported or unbuildable callees) ----
@@ -255,9 +292,10 @@ double p3_check_tangent(int64_t kind, SmFilletCorner* c, Model& M)
         return 0.0;
     SmPoint3d pt;
     SmVector3d d1, d2;
-    if ((*s)[0]->NormalizedEvaluate(0.0, FALSE, pt, &d1) != SM_SUCCESS ||
-        (*s)[1]->NormalizedEvaluate(0.0, FALSE, pt, &d2) != SM_SUCCESS)
-        return P3C_REFUSE; // upstream ignores the status and reads the uninitialised vectors
+    // upstream ignores both statuses: a failed evaluation leaves the vector at its
+    // default SM_UNDEF_DOUBLE members, which IsParallelTo then reads (well defined)
+    (*s)[0]->NormalizedEvaluate(0.0, FALSE, pt, &d1);
+    (*s)[1]->NormalizedEvaluate(0.0, FALSE, pt, &d2);
     if (!d1.IsParallelTo(d2, 2.0))
         return 0.0;
     SmTArray<SmFilletVertex*>& V = c->*P3CornerPeek::verts();
@@ -324,6 +362,7 @@ void p3_put_corner(std::vector<double>& o, SmFilletCorner* c, Model& M)
 int32_t p3_run(int32_t op, Rd& rd, std::vector<double>& o)
 {
     const SmContext& ctx = the_context();
+    P3PlaneGuard planes; // outlives M, whose intersection points point at the planes
     Model M(ctx);
     if (!M.build(rd))
         return SC_ERR_ARG;
@@ -370,8 +409,8 @@ int32_t p3_run(int32_t op, Rd& rd, std::vector<double>& o)
         tp.m_dCurveParameter = t;
         tp.UVPos(0) = uv0;
         tp.UVPos(1) = uv1;
-        tp.m_apUserPointer[0] = (s0 >= 0 && (size_t)s0 < M.targetFaces.size()) ? M.targetFaces[(size_t)s0]->GetSurface() : NULL;
-        tp.m_apUserPointer[1] = (s1 >= 0 && (size_t)s1 < M.targetFaces.size()) ? M.targetFaces[(size_t)s1]->GetSurface() : NULL;
+        tp.m_apUserPointer[0] = p3_user_srf(M, s0);
+        tp.m_apUserPointer[1] = p3_user_srf(M, s1);
     }
     int64_t no = rd.idx();
     for (int64_t i = 0; i < no && !rd.bad && ok; ++i)
