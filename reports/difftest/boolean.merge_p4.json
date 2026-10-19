@@ -3368,6 +3368,20 @@
       "values_compared": 0
     },
     {
+      "inputs": {
+        "operation": 0,
+        "other": [-1, 0, 0, 0, 0, 0, 0],
+        "primary": [3, 0, 0, 0, 2000000, 1, 0]
+      },
+      "max_rel_err": 0.0,
+      "name": "plane-domain-constructor-rejection",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "native primitive constructor",
+      "source": "fixture:fixtures/boolean.merge_p4/manifold.json#286",
+      "values_compared": 0
+    },
+    {
       "deferred": {
         "symbol": "SmBrep::CalculateBoundingBox",
         "unit": "query.brep"
@@ -3576,8 +3590,8 @@
   "cases_deferred": 278,
   "cases_failed": 0,
   "cases_passed": 22,
-  "cases_rejected": 2,
-  "cases_total": 302,
+  "cases_rejected": 3,
+  "cases_total": 303,
   "deferred_by_unit": {
     "query.brep": 278
   },

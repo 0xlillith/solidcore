@@ -7687,7 +7687,7 @@ to existing merge/intersector ports deliberately fail if reached until integrate
 they never supply invented classifications or geometry, nor defer under a false
 owner. No absolute floors or tolerance changes are used.
 
-Validation on sc-builder-5: 302 cases, 22 matching null-input errors, 278
+Validation of reviewed `3e12f4c6` on sc-builder-5: 302 cases, 22 matching null-input errors, 278
 `query.brep` deferrals, 2 native constructor rejections, 0 failures;
 `with_values=0`, `no_values=22`, **real success passes=0**. Perturb detected 22/22
 comparable cases. `FUZZ-PASS boolean.merge_p4 cases=2000 rejected=191 malformed=897
@@ -7704,7 +7704,7 @@ New remaining `UNPORTED` sites and the owners' current main statuses (all `todo`
 | `query.brep` | `SmBrep::Point3DClassify`; the pre-existing merge_p1 prerequisite is `SmBrep::CalculateBoundingBox` |
 | `topology.brep_p2` | `SmBrep::IsSheet`, `IsOrientedSheet`, `DeleteStaleCaches` |
 | `topology.brep_p3` | `SmBrep::SmBrep` (component construction, including its infinite region) |
-| `topology.brep_p5` | `SmBrep::FindAndSetInfiniteRegion` |
+| `topology.brep_p5` | `SmBrep::FindAndSetInfiniteRegion`; pre-review fix adds argument-complete `SmBrep::Transform` for the inverse-transform token |
 | `topology.brep_p9` | `SmBrep::OrientSheetSurfaces` |
 
 No pre-existing kernel stub is relabelled or removed, and no incoming
@@ -7727,3 +7727,42 @@ were repeated after wiring CopyFaces. The full green/partial set completed with
 `green-par: 210 units, failed=0`; every reported partial status matches the plan,
 and no plan-green unit deferred. This remains a partial unit with zero compared
 success paths.
+
+Pre-review of `3e12f4c6` found two latent integration gaps masked by the honest
+`query.brep` deferral. `temporary_brep_transform` now returns a must-use inverse
+placement token; p4 runs the complete operation inside its closure so cleanup
+follows mark/edit scopes, extraction and deletion on every Result exit. Cleanup
+restores surviving primary then other operands, uses `Transform(xfm,NULL,TRUE)`,
+and ignores ordinary transform statuses as the native destructor does. The
+constructor remains `UNPORTED(query.brep)` before mutation; the restoration's
+argument-complete `SmBrep::Transform` call is `UNPORTED(topology.brep_p5)` (todo).
+No bounding-box or B-rep-transform implementation is duplicated. A regression
+injects the unavailable transform to check error/success returns, each survivor
+combination, inverse coordinates, cleanup order and ignored ordinary statuses.
+
+The adapter's `make_faceuse` and `process_wires` now borrow the same authoritative
+caller `AttributeStore` used by classification and region bookkeeping. Their
+canonical integration is still pending; adapters use their own notification
+records and live contexts with this store when constructing `TopologyCopy` or
+`VertexCopy`, including copies to already-mated faces. No separate store is used.
+The native shim now deletes an unconsumed plane on constructor rejection, and
+exports every extracted component graph with a record-length prefix instead of
+only component counts. The reported safe width-2000000 domain rejection is a
+fixed regression case. This was a shim ownership defect, not an upstream issue.
+Post-fix gate results will supersede the earlier snapshot's validation above.
+
+Post-fix verification on sc-builder-5: fmt and direct rustfmt (including the
+updated merge_p1 runner), both checks and clippy configurations, 1,381 kernel
+tests and wasm passed. The merge_p1 temporary-transform probe explicitly restores
+its token before exporting, matching its native constructor/destructor scope.
+Its difftest remains 248/203/0/45 (total/pass/fail/deferred), with 203 value
+comparisons. merge_p4 is 303/22/0/278, rejected=3, with_values=0, no_values=22:
+all matches remain null-input errors, real success passes=0.
+`FUZZ-PASS boolean.merge_p4 cases=2000 rejected=206 malformed=872 ran=922
+differs=0 crashes=0 panics=0 timeouts=0`. Perturb detected 22/22, deferred=278,
+rejected=3. The 110-seed (397-case) Valgrind sample matched its baseline exactly
+and reported 0 errors. The safe constructor-rejection-only full-leak probe had
+0 definitely/indirectly/possibly lost bytes and 0 errors (544 bytes of Rust
+runtime stack-overflow bookkeeping remain reachable). Both its ordinary and
+Valgrind CLI exits are 1 because the single case is rejected, failed=0; this is
+not a Rust/C++ mismatch. The full green gate is being repeated for this snapshot.

@@ -78,7 +78,8 @@ fn call(mode: i32, a: &Operand, b: &Operand, request: Request) -> Result<Vec<f64
     })
 }
 
-/// Execute the native Boolean and export status, state and surviving graphs.
+/// Execute the native Boolean and export status, state, surviving operands and
+/// every extracted component graph (each component has a record-length prefix).
 /// A sole -1 means native fixture construction failed before the operation ran.
 pub fn eval(a: &Operand, b: &Operand, request: Request) -> Result<Vec<f64>, FfiError> {
     call(0, a, b, request)

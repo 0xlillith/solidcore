@@ -10,14 +10,16 @@
 //! | [`ManifoldIntersector`] | calls through `SmMerge::m_vTI` and shared merge stages |
 //!
 //! Deviations: operand-local arena ids replace pointers; nullable owned B-reps
-//! express deletion. The intersector adapter borrows the canonical intersector
-//! rather than duplicating its maps. Both operand kernels are explicit; `None`
+//! express deletion. The adapter interface has canonical integration pending;
+//! it maintains no duplicate maps. Both operand kernels are explicit; `None`
 //! for the second kernel means a shared context. Contexts are temporarily moved
 //! together only for the existing paired mark-lock API. No input-driven recursion
 //! is introduced; the two retry loops retain upstream's ten-attempt limits.
 //! Global cache queue limits are absent (the port has no global caches).
 //! The temporary origin shift still waits on `query.brep` through `merge_p1`,
-//! before any topology mutation. The complete subsequent stages remain here.
+//! before any topology mutation. Its inverse token spans the entire operation,
+//! including error/imprint exits, extraction and deletion of either operand.
+//! The complete subsequent stages remain here.
 //! Component face copies use `brep::p7::copy_faces` with the native merge defaults.
 
 use super::p1::{self, MergeOptions};
@@ -184,12 +186,15 @@ pub trait ManifoldIntersector {
         other_face: FaceId,
     ) -> Result<(Vec<FaceId>, Vec<FaceId>, bool)>;
     /// `ProcessWiresAndShellVertices`, delegated to `merge_p5` using the same mates.
+    /// Build `VertexCopy` with these caller attributes and the adapter's records;
+    /// no separate attribute store may be retained by the adapter.
     fn process_wires(
         &mut self,
         kernels: &mut BooleanKernels<'_>,
         primary: &mut Brep,
         other: &mut Brep,
         state: &mut ManifoldState,
+        attributes: &mut AttributeStore,
         operation: BooleanOperation,
         primary_mark: MarkType,
         other_mark: MarkType,
@@ -286,11 +291,14 @@ pub trait ManifoldIntersector {
         ))
     }
     /// `MakeFaceuse(pFU1,pOldRegion,pNewRegion,pOrigRegion,&NewFs)`.
+    /// Its copy notifications use this same caller store, including when a face
+    /// already has a mate. Build `TopologyCopy` with these attributes.
     fn make_faceuse(
         &mut self,
         _kernels: &mut BooleanKernels<'_>,
         _primary: &mut Brep,
         _other: &mut Brep,
+        _attributes: &mut AttributeStore,
         _faceuse: FaceuseId,
         _original_region: Option<RegionId>,
     ) -> Result<MadeFaceuse> {
@@ -1017,7 +1025,7 @@ fn make_other_faces(
                 | BooleanOperation::ExclusiveOr
                 | BooleanOperation::Slice
         ) {
-            intersector.make_faceuse(kernels, primary, other, fu1, original)?
+            intersector.make_faceuse(kernels, primary, other, attributes, fu1, original)?
         } else {
             MadeFaceuse::default()
         };
@@ -1251,6 +1259,7 @@ fn editing_stages(
             primary,
             other,
             state,
+            attributes,
             operation,
             marks.0,
             marks.1,
@@ -1339,7 +1348,40 @@ pub fn manifold_boolean(
 ) -> Result<bool> {
     let a = required(primary.as_mut())?;
     let b = required(other.as_mut())?;
-    p1::temporary_brep_transform(a, b)?;
+    let transform = p1::temporary_brep_transform(a, b)?;
+    // This outer scope matches sTempXfm's lifetime: every Result exit from the
+    // complete operation (including imprint, extraction and deletion) first
+    // leaves its mark/edit scopes, then restores only surviving operands.
+    transform.run(primary, other, |primary, other| {
+        manifold_boolean_translated(
+            kernels,
+            primary,
+            other,
+            intersector,
+            state,
+            attributes,
+            options,
+            manifold,
+            operation,
+            caller_lock,
+        )
+    })
+}
+
+fn manifold_boolean_translated(
+    kernels: &mut BooleanKernels<'_>,
+    primary: &mut Option<Brep>,
+    other: &mut Option<Brep>,
+    intersector: &mut impl ManifoldIntersector,
+    state: &mut ManifoldState,
+    attributes: &mut AttributeStore,
+    options: MergeOptions,
+    manifold: bool,
+    operation: BooleanOperation,
+    caller_lock: Option<&mut MarkLock>,
+) -> Result<bool> {
+    let a = required(primary.as_mut())?;
+    let b = required(other.as_mut())?;
     if operation == BooleanOperation::Slice {
         if !is_sheet(b)? {
             return Err(SolidError::sm_err(OP));

@@ -31,3 +31,11 @@ although `SmMerge.cpp:2958` calls `SmTopologyIntersector.cpp:6108-6354`. Per ove
 direction it is stubbed under its proposed owner `boolean.topology_intersector_p2`;
 the overseer will co-port it in that unit in a follow-up. No implementation is
 duplicated here, and the caller's retry/cleanup tail is retained.
+
+Pre-review fixes: the temporary transform now returns an inverse token whose
+scope covers the complete operation and restores only surviving operands on
+error and imprint exits. The wire/face-copy adapter calls borrow the caller's
+same AttributeStore; canonical integration remains pending. Native snapshots
+include every extracted component graph (record length, editing flag, graph),
+in primary-then-other component order. A plane-domain constructor rejection
+(width 2000000) exercises cleanup of geometry not yet owned by a face.

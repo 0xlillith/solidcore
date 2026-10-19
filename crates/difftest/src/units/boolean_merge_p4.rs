@@ -105,6 +105,7 @@ impl ManifoldIntersector for DeferredAdapter {
         _: &mut Brep,
         _: &mut Brep,
         _: &mut ManifoldState,
+        _: &mut AttributeStore,
         _: BooleanOperation,
         _: MarkType,
         _: MarkType,

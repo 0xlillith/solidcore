@@ -481,7 +481,8 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
         }
         7 => {
             let mut other = other.clone();
-            port::temporary_brep_transform(b, &mut other)?;
+            // The native probe constructs and immediately destroys its shift.
+            port::temporary_brep_transform(b, &mut other)?.restore(Some(b), Some(&mut other))?;
         }
         8 | 9 => {
             let sec = solidcore::topology::EdgeuseId::from_index(
