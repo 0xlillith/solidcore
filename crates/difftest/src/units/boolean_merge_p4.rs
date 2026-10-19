@@ -1,20 +1,18 @@
 //! Real native `ManifoldBoolean` versus the Rust orchestration entry point.
 //! All non-null Rust inputs currently stop at `merge_p1`'s `query.brep` transform
-//! dependency. The later adapter deliberately fails if reached: wiring the
-//! prerequisite must not silently turn these cases into fake parity passes.
+//! dependency. The real kernel adapter delegates the ported later stages;
+//! genuine missing dependencies still defer at their exact call sites.
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use solidcore::boolean::merge::p1::MergeOptions;
-use solidcore::boolean::merge::p4::{
-    self, BooleanKernels, ManifoldIntersector, ManifoldState, MergeEntity,
-};
+use solidcore::boolean::merge::p4::{BooleanKernels, KernelManifoldIntersector, ManifoldState};
 use solidcore::geom::a_object::BooleanOperation;
-use solidcore::geom::attribute::{AttributeStore, ObjectKey};
-use solidcore::geom::context::{MarkLock, MarkType};
+use solidcore::geom::attribute::AttributeStore;
+use solidcore::geom::context::MarkLock;
 use solidcore::kernel::Kernel;
-use solidcore::topology::{Brep, EdgeId, FaceId, FaceuseId, RegionId, VertexId};
-use solidcore::{Result, SolidError};
+use solidcore::topology::Brep;
+use solidcore::SolidError;
 use solidcore_ffi::units::boolean_merge_p4::{self as ffi, Operand};
 
 /// Differential runner for the manifold Boolean unit.
@@ -194,98 +192,6 @@ fn rust_snapshot(
     Ok(output)
 }
 
-struct DeferredAdapter;
-fn needs_adapter<T>() -> Result<T> {
-    Err(SolidError::invalid_input("harness::boolean_merge_p4", "query.brep prerequisite is now wired: integrate the canonical intersector adapter before enabling success comparisons"))
-}
-#[allow(clippy::panic)] // Harness sentinel: reaching an unwired adapter must fail loudly.
-impl ManifoldIntersector for DeferredAdapter {
-    fn mapped_edges(&self) -> Result<Vec<EdgeId>> {
-        needs_adapter()
-    }
-    fn mapped_vertices(&self) -> Result<Vec<VertexId>> {
-        needs_adapter()
-    }
-    fn common_edges(&self, _: &Brep, _: &Brep) -> Result<(Vec<EdgeId>, Vec<EdgeId>)> {
-        needs_adapter()
-    }
-    fn common_vertices(&self, _: &Brep, _: &Brep) -> Result<(Vec<VertexId>, Vec<VertexId>)> {
-        needs_adapter()
-    }
-    fn edge_mate(&self, _: EdgeId) -> Option<EdgeId> {
-        panic!("integrate canonical intersector adapter")
-    }
-    fn face_mate(&self, _: FaceId) -> Option<FaceId> {
-        panic!("integrate canonical intersector adapter")
-    }
-    fn relate_faces(&mut self, _: &mut Brep, _: FaceId, _: &mut Brep, _: FaceId) -> Result<()> {
-        needs_adapter()
-    }
-    fn fix_face_coincidence(
-        &mut self,
-        _: &mut Brep,
-        _: &mut Brep,
-        _: FaceId,
-        _: FaceId,
-    ) -> Result<(Vec<FaceId>, Vec<FaceId>, bool)> {
-        needs_adapter()
-    }
-    fn process_wires(
-        &mut self,
-        _: &mut BooleanKernels<'_>,
-        _: &mut Brep,
-        _: &mut Brep,
-        _: &mut ManifoldState,
-        _: &mut AttributeStore,
-        _: BooleanOperation,
-        _: MarkType,
-        _: MarkType,
-        _: &mut Vec<EdgeId>,
-    ) -> Result<()> {
-        needs_adapter()
-    }
-    fn find_region_of_other_face(
-        &mut self,
-        _: &Kernel,
-        _: &mut Brep,
-        _: &mut Brep,
-        _: FaceuseId,
-    ) -> Result<Option<RegionId>> {
-        needs_adapter()
-    }
-    fn propagate_regions(
-        &mut self,
-        _: &mut BooleanKernels<'_>,
-        _: &Brep,
-        _: &Brep,
-        _: &mut AttributeStore,
-        _: BooleanOperation,
-    ) -> Result<()> {
-        needs_adapter()
-    }
-    fn post_process(
-        &mut self,
-        _: &mut BooleanKernels<'_>,
-        _: &mut Brep,
-        _: &ManifoldState,
-        _: bool,
-    ) -> Result<()> {
-        needs_adapter()
-    }
-    fn object_key(&self, _: bool, _: MergeEntity) -> ObjectKey {
-        panic!("integrate canonical intersector adapter")
-    }
-    fn excluded_surface(&self, _: &Brep, _: FaceId) -> Result<bool> {
-        needs_adapter()
-    }
-    fn clear_topology_deleted(&mut self) {
-        panic!("integrate canonical intersector adapter")
-    }
-    fn topology_deleted(&self) -> bool {
-        panic!("integrate canonical intersector adapter")
-    }
-}
-
 impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "boolean.merge_p4"
@@ -317,7 +223,7 @@ impl UnitDiff for Runner {
         };
         let mut state = ManifoldState::default();
         let mut attributes = AttributeStore::new();
-        let mut adapter = DeferredAdapter;
+        let mut adapter = KernelManifoldIntersector::new(0).map_err(HarnessError::from)?;
         let mut lock = MarkLock::unbound();
         let [cookie_cutter, imprinting, boolean_post_process, imprint_and_classify_faces, keep_other_brep] =
             i.flags;
@@ -328,14 +234,13 @@ impl UnitDiff for Runner {
             imprint_and_classify_faces,
             keep_other_brep,
         };
-        let result = p4::manifold_boolean(
+        adapter.merge.set_merge_options(Some(&options));
+        let result = adapter.manifold_boolean(
             &mut kernels,
             &mut primary,
             &mut other,
-            &mut adapter,
             &mut state,
             &mut attributes,
-            options,
             i.manifold,
             operation,
             if i.caller_lock { Some(&mut lock) } else { None },

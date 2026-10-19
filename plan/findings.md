@@ -7892,7 +7892,7 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   valgrind with `harness/valgrind/ub11.supp` gives 0 errors on the simple, unify, select and split
   samples.
 
-## boolean.merge_p4 — coverage and integration gaps (PR #243)
+## boolean.merge_p4 — current coverage and kernel adapter (PR #243)
 
 `SmMerge::ManifoldBoolean` calls `SmTopologyIntersector::CloseIntersectionLoop`
 at `source/SMLib/src/SmMerge.cpp:2958`, defined at
@@ -7916,17 +7916,26 @@ These error-state values do not certify the classification/copy/delete/region ta
 its evidence remains source review. There are zero compared Boolean successes for
 every operation.
 
-**No concrete kernel ManifoldIntersector adapter exists.** Already-ported callees
-remain unwired: merge_p1::{fix_found_face_coincidence,
-find_brep_region_of_other_face, propagate_other_src_region_attribs,
-boolean_post_process}, merge_p5::process_wires_and_shell_vertices, and
-intersector_p1 Relations/TopologyIntersector mates, relate and common/mapped lists.
-Every required interface method carries INTEGRATION-GAP(boolean.merge_p4), not a
-false Unported label for a ported callee. Owner: the boolean.merge_p4 author
-follow-up, including p1::MergeState, canonical relations, notification records and
-shared caller AttributeStore. The harness deliberately errors/panics if that gap
-is reached after wiring the bounding-box prerequisite. This is the review's
-explicit disclosure fallback; the integration is not claimed complete.
+**The concrete kernel adapter implements all sixteen required methods.**
+KernelManifoldIntersector owns the existing merge_p1::MergeState<Relations>, one
+notification-record store and no private AttributeStore. Relations is the sole
+face/edge/vertex mate store. Read-only projections feed merge_p1's coincidence and
+region helpers; its typed common-list accessor shares the generic intersector's
+existing list algorithm, and mapped lists retain deterministic other-handle order.
+The adapter calls all four ported merge_p1 stages and merge_p5 wire processing.
+The p5 API is factored around one unchanged collection phase plus vertex copies;
+its paired entry uses each operand's actual mark context and source-context copy
+notifications. The existing single-kernel API remains available.
+
+Object keys use a caller-reserved 28-bit namespace, operand/class tags and arena
+ids. Source-list callback handles resolve to the current lists in caller attributes;
+region propagation resolves actual regions and owner B-rep identities, with no
+copied flags. Surface subsets use canonical B-rep-cache owner identities, including
+shared owners; topology-deleted state is retained by this adapter for editing calls.
+The runner now uses this concrete adapter and its MergeState options. Focused kernel
+tests exercise ported fast paths and distinct-context wiring. They do not change the
+full-operation coverage: no differential case compares past the null checks while
+query.brep blocks the initial temporary-transform prerequisite.
 
 Remaining UNPORTED calls and owner statuses (current main: all todo):
 
@@ -7943,7 +7952,7 @@ Remaining UNPORTED calls and owner statuses (current main: all todo):
 All stub signatures retain upstream arguments/defaults and the caller tail.
 Point3DClassify receives the full PointClassification out-record; PC_REGION and
 region casts remain in the caller. CopyFaces is wired to brep_p7 with native
-merge defaults. No incoming UNPORTED(boolean.merge_p4) sites or dependency co-ports.
+merge defaults. No incoming UNPORTED(boolean.merge_p4) sites. Only shared Relations face storage and map accessors were extended; no dependency algorithm is co-ported.
 The inverse token encloses the complete operation and restores surviving operands
 through the same kernels/intersector/attributes environment. Editing flags are
 restored even if mark release fails. Split-region handles are captured before
@@ -7953,20 +7962,5 @@ The FFI's supported coordinate/dimension domain is bounded at 1e100 via the shar
 reader. Current operand families avoid closed edges; adding closed-wire/circle
 kinds requires rechecking the registered UB-175 path.
 
-Verification on sc-builder-5 against main source 5040b0b2 plus progress refresh
-0cf3e290: fmt/include rustfmt, both workspace checks, clippy x2, 1398 kernel
-tests, coordinate-bound and error-state mutation regressions, and wasm passed.
-
-```text
-PARTIAL boolean.merge_p4 cases=311 passed=30 failed=0 deferred=278 max_rel_err=0e0 with_values=30 no_values=0 rejected=3 blocked_by=query.brep(278)
-PARTIAL boolean.merge_p1 cases=248 passed=203 failed=0 deferred=45 max_rel_err=0e0 with_values=203 no_values=0 blocked_by=boolean.topology_intersector_p3(4),intersect.surface_drop_lib_p3(18),query.brep(14),topology.brep_p9(3),topology.face_p2(6)
-FUZZ-PASS boolean.merge_p4 cases=2000 rejected=203 malformed=866 ran=931 differs=0 crashes=0 panics=0 timeouts=0
-SENSITIVE boolean.merge_p4 perturbed=30 detected=30 unperturbed=0 deferred=278 rejected=3 (perturb mode: every perturbed case must FAIL)
-```
-
-All 30 value-comparing matches remain null-error outcomes, with zero Boolean
-success paths. `cases_both_errored=0` reflects status-as-data encoding, not a
-success-path promotion. The 405-case/110-seed full-leak Valgrind sample matched
-its baseline exactly: 0 errors, 0 definitely/indirectly/possibly lost bytes;
-544 bytes of Rust runtime bookkeeping remain reachable.
-`green-par: 213 units, failed=0`. Every reported partial matches the plan; no plan-green unit deferred.
+Verification for this adapter revision is running on sc-builder-5 against main
+46ddc4ff. Final gate summaries will replace this sentence before review request.

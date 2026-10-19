@@ -27,23 +27,28 @@ The null-input cases exercise the same input-validation concern as
 `TestKernelMergeBrepsInvalidInput`, directly at this unit's NER checks; they do not
 claim coverage of the higher-level list API's singleton/duplicate-list contracts.
 Material census, BooleanLists, PiecewiseMerge and real solid volume results remain
-outside the tested surface until the dependencies and canonical adapter are wired.
+outside the tested surface until the missing dependencies are wired.
 
-No concrete kernel implementation of `ManifoldIntersector` exists. Its required
-methods do not yet delegate to the already-ported callees:
+`KernelManifoldIntersector` implements all sixteen required methods. It owns
+`MergeState<Relations>` and one notification-record store, and borrows the caller's
+AttributeStore. Face, edge and vertex mates live only in the canonical Relations;
+common lists use the same helper as TopologyIntersector, while mapped lists retain
+its deterministic other-handle order. The four merge_p1 stages and merge_p5 wire
+processing are called directly. Paired wire processing uses each operand's mark
+context and the other operand's live context for vertex-copy notifications.
+Region propagation resolves source keys to the actual operand region records.
 
-- merge_p1: fix_found_face_coincidence, find_brep_region_of_other_face,
-  propagate_other_src_region_attribs, boolean_post_process;
-- merge_p5: process_wires_and_shell_vertices;
-- topology_intersector_p1: Relations mates/relate and TopologyIntersector common
-  and mapped object lists, surface subset and topology-deleted state.
-
-Every required method has an `INTEGRATION-GAP(boolean.merge_p4)` marker. Owner:
-the boolean.merge_p4 author follow-up, including reuse of p1::MergeState,
-canonical relations, notification records and the caller AttributeStore.
-The harness DeferredAdapter errors/panics if reached; wiring query.brep must not
-turn an adapter gap into a pass or an Unported label for an already-ported unit.
-Only genuinely missing dependency calls use the trait's Unported defaults.
+A caller reserves one 28-bit namespace per operand pair in shared attribute and
+notification stores. Keys distinguish equal arena ids by operand and entity class;
+source-list handles resolve to the lists in the same merge attributes. Partial
+surface subsets use the canonical B-rep-cache owner identity convention, including
+surfaces with a shared owner. No geometry or claimed dependency algorithm is copied.
+Only genuinely missing calls retain the trait's `UNPORTED(<owner>)` defaults.
+The differential runner now instantiates this kernel adapter and reads its options
+from MergeState. Focused kernel tests exercise its ported fast paths, mate ordering,
+cleanup on errors, propagation/callback identity, distinct-context marks and subsets.
+Those tests do not establish full Boolean success parity: **no differential case
+currently compares past the null checks**, because query.brep still blocks first.
 
 `CloseIntersectionLoop` is listed as unused and absent from all unit assignments,
 although `SmMerge.cpp:2958` calls `SmTopologyIntersector.cpp:6108-6354`. Per overseer
@@ -54,7 +59,7 @@ duplicated here, and the caller's retry/cleanup tail is retained.
 Scope and ownership: the temporary transform now returns an inverse token whose
 scope covers the complete operation and restores only surviving operands on
 error and imprint exits. The wire/face-copy adapter calls borrow the caller's
-same AttributeStore; canonical integration remains pending. Native snapshots
+same AttributeStore through the concrete adapter. Native snapshots
 include every extracted component graph (record length, editing flag, graph),
 in primary-then-other component order. A plane-domain constructor rejection
 (width 2000000) exercises cleanup of geometry not yet owned by a face.

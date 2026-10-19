@@ -10,9 +10,9 @@
 //! | [`ManifoldIntersector`] | calls through `SmMerge::m_vTI` and shared merge stages |
 //!
 //! Deviations: operand-local arena ids replace pointers; nullable owned B-reps
-//! express deletion. The adapter interface has canonical integration pending;
-//! it maintains no duplicate maps. Both operand kernels are explicit; `None`
-//! for the second kernel means a shared context. Contexts are temporarily moved
+//! express deletion. The kernel adapter reuses `MergeState<Relations>` and the
+//! ported merge stages; it maintains no duplicate maps. Both operand kernels
+//! are explicit; `None` for the second kernel means a shared context. Contexts are temporarily moved
 //! together only for the existing paired mark-lock API. No input-driven recursion
 //! is introduced; the two retry loops retain upstream's ten-attempt limits.
 //! Global cache queue limits are absent (the port has no global caches).
@@ -41,6 +41,9 @@ use crate::topology::face::p2 as face;
 use crate::topology::topology_traverser::{self as traverser, Entity, Marks};
 use crate::topology::{edge, vertex, Brep, EdgeId, FaceId, FaceuseId, RegionId, VertexId};
 use crate::EntityRef;
+
+mod kernel_adapter;
+pub use kernel_adapter::KernelManifoldIntersector;
 
 const OP: &str = "boolean::merge::p4::manifold_boolean";
 
@@ -152,12 +155,8 @@ pub struct FixedGaps {
 }
 
 /// Interface for calls into the canonical intersector and other merge units.
-/// No concrete kernel adapter implements this interface yet. Required methods
-/// below are integration gaps owned by the `boolean.merge_p4` follow-up, including
-/// calls to already-ported `merge_p1`, `merge_p5` and intersector `Relations`.
-/// They are not missing dependency implementations and must not be labelled
-/// `Unported`. The follow-up must reuse `p1::MergeState` and the canonical maps,
-/// notification records and caller attributes. No second mate map lives here.
+/// [`KernelManifoldIntersector`] implements the ported stages using one
+/// `p1::MergeState<Relations>`, shared notification records and caller attributes.
 /// Defaults replace only calls into genuinely unported dependencies.
 pub trait ManifoldIntersector {
     /// `SmBrep::Transform` for the temporary scope's surviving operands. The
@@ -181,29 +180,22 @@ pub trait ManifoldIntersector {
     }
 
     /// `GetMappedBrepObjects(SmEdge_TYPE)` before later topology copies.
-    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector::GetMappedBrepObjects(edge) in this unit's follow-up.
     fn mapped_edges(&self) -> Result<Vec<EdgeId>>;
     /// `GetMappedBrepObjects(SmVertex_TYPE)` before later topology copies.
-    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector::GetMappedBrepObjects(vertex) in this unit's follow-up.
     fn mapped_vertices(&self) -> Result<Vec<VertexId>>;
     /// `GetCommonEdges`, in primary B-rep list order, paired with other mates.
-    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector::common_edges in this unit's follow-up.
     fn common_edges(&self, primary: &Brep, other: &Brep) -> Result<(Vec<EdgeId>, Vec<EdgeId>)>;
     /// `GetCommonVertices`, in primary B-rep list order.
-    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector::common_vertices in this unit's follow-up.
     fn common_vertices(
         &self,
         primary: &Brep,
         other: &Brep,
     ) -> Result<(Vec<VertexId>, Vec<VertexId>)>;
     /// `GetOtherMate` for a primary edge.
-    // INTEGRATION-GAP(boolean.merge_p4): wire Relations::edges.other in this unit's follow-up.
     fn edge_mate(&self, edge: EdgeId) -> Option<EdgeId>;
     /// `GetOtherMate` for a primary face.
-    // INTEGRATION-GAP(boolean.merge_p4): wire Relations::faces.other in this unit's follow-up.
     fn face_mate(&self, face: FaceId) -> Option<FaceId>;
     /// `Relate` for coincident faces (the `topology_intersector_p1` port).
-    // INTEGRATION-GAP(boolean.merge_p4): wire Relations::relate_faces in this unit's follow-up.
     fn relate_faces(
         &mut self,
         primary: &mut Brep,
@@ -212,7 +204,6 @@ pub trait ManifoldIntersector {
         other_face: FaceId,
     ) -> Result<()>;
     /// `FixFoundFaceCoincidence`: adapter target is `merge_p1` with the live edge maps.
-    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p1::fix_found_face_coincidence in this unit's follow-up.
     fn fix_face_coincidence(
         &mut self,
         primary: &mut Brep,
@@ -223,7 +214,6 @@ pub trait ManifoldIntersector {
     /// `ProcessWiresAndShellVertices`: adapter target is `merge_p5` using the same mates.
     /// Build `VertexCopy` with these caller attributes and the adapter's records;
     /// no separate attribute store may be retained by the adapter.
-    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p5::process_wires_and_shell_vertices in this unit's follow-up.
     fn process_wires(
         &mut self,
         kernels: &mut BooleanKernels<'_>,
@@ -237,7 +227,6 @@ pub trait ManifoldIntersector {
         keep: &mut Vec<EdgeId>,
     ) -> Result<()>;
     /// `sm_FindBrepRegionOfOtherFace`: adapter target is `merge_p1` with live edge maps.
-    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p1::find_brep_region_of_other_face in this unit's follow-up.
     fn find_region_of_other_face(
         &mut self,
         k: &Kernel,
@@ -247,7 +236,6 @@ pub trait ManifoldIntersector {
     ) -> Result<Option<RegionId>>;
     /// `PropagateOtherSrcRegionAttribs`: adapter target is `merge_p1` with source lookups
     /// and the contexts' notification handlers. Its ordinary status is ignored.
-    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p1::propagate_other_src_region_attribs in this unit's follow-up.
     fn propagate_regions(
         &mut self,
         kernels: &mut BooleanKernels<'_>,
@@ -258,7 +246,6 @@ pub trait ManifoldIntersector {
     ) -> Result<()>;
     /// `BooleanPostProcess(FALSE)`: adapter target is `merge_p1` with intersection lists
     /// and live mates rather than all topology objects.
-    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p1::boolean_post_process in this unit's follow-up.
     fn post_process(
         &mut self,
         kernels: &mut BooleanKernels<'_>,
@@ -268,11 +255,9 @@ pub trait ManifoldIntersector {
     ) -> Result<()>;
     /// A globally distinct attribute/notification identity for an arena entity.
     /// `other` distinguishes equal ids in independently owned arenas.
-    // INTEGRATION-GAP(boolean.merge_p4): wire canonical notification/attribute identities in this unit's follow-up.
     fn object_key(&self, other: bool, entity: MergeEntity) -> ObjectKey;
     /// Whether a partial-merge subset exists and excludes this other face's
     /// surface. Uses surface identity, not face identity.
-    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector partial-merge surface subset in this unit's follow-up.
     fn excluded_surface(&self, other: &Brep, face: FaceId) -> Result<bool>;
 
     /// `IntersectInsertRelate()`; all subsequent orchestration remains after it.
@@ -297,10 +282,8 @@ pub trait ManifoldIntersector {
         ))
     }
     /// Reset `m_bTopologyDeleted` before attempting to close a single vertex.
-    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector topology-deleted state in this unit's follow-up.
     fn clear_topology_deleted(&mut self);
     /// Current `m_bTopologyDeleted`, including changes during a failed close.
-    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector topology-deleted state in this unit's follow-up.
     fn topology_deleted(&self) -> bool;
     /// `CloseIntersectionLoop(pVertex,bMadeNewTopology)`. The callgraph omits
     /// this live callee; its proposed owner is `topology_intersector_p2` (see
