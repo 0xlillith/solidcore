@@ -1525,6 +1525,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **How found (PR #237, arm64 Linux):** arm64 difftest failures of `heal.heal_data_p1`-`p3` (for example `heal.heal_data_p1` `gen0086`, bucket 4: arm64 C++ 0, x86-64 / Rust 4).
 - **Confirmed (PR #237, arm64 Linux):** yes, by an arm64 C++ reference run (Ubuntu 24.04, GCC 13.3) and a standalone `fcvtzu` check. x86-64 CI matches the port.
 
+#### UB-178. One-list `SmStitch::StitchVertexPairs` glues a repeated vertex after freeing it
+- **Location:** `source/SMLib/src/SmStitch.cpp:3016`-`3047` (coincidence scan), `:3060`-`3190` (glue loop), one-list `StitchVertexPairs`.
+- **What happens:** The coincidence scan adds every later list entry within tolerance of `pV` to `sCoinVertices`, so a vertex listed twice lands there twice. Gluing the first copy (`GlueVertices(pV, copy)` or `SqueezeEdge`) deletes it; the second copy is then read (`IsLaminaVertex`, `GetPoint`) and glued after it was freed. Only `pV == sCoinVertices[jj]` (a repeat of `pV` itself) is caught.
+- **Trigger:** A vertex repeated in `rVertexList` and coincident with an earlier, different vertex that keeps it as the vertex to delete.
+- **How found:** read during porting (`heal.stitch_p2`).
+- **Confirmed:** no (source inspection). The difftest FFI refuses repeated vertices. Not file-reachable: the only in-tree caller (`SmBrep.cpp:27427`) passes `pFace->GetVertices`, which has no repeats, so no [PSIRT] tag.
+- **Severity:** crash / use after free.
+- **Rust port:** Reproduces the order; a deleted vertex id makes the later query return `NotFound` instead of reading freed memory.
+
+#### UB-196. `SmStitch::DoStitching` keeps using an edge its failed glue deleted
+- **Location:** `source/SMLib/src/SmStitch.cpp:2182`-`2213` (`DoStitching`, keep-`pTestE` branch of the edge gluing).
+- **What happens:** With `m_bIgnoreProblems`, a failing `GlueEdgesGeneral(pTestE, .., pE)` that nevertheless deleted `pE` sets `sVEdges[jj]` to `NULL`, but the local `pE` is not reset: it is added to `sCandidateEdges` and compared with the remaining `sVEdges[kk]` (`GetOtherVertex`, `GetCurve`, `GetInterval`), all through a stale pointer.
+- **Trigger:** `m_bIgnoreProblems` (e.g. `StitchIntoShell` with `bShellIsWellFormed == FALSE`), a coincident edge pair keeping the second edge, and a glue that fails after deleting the first.
+- **How found:** read during porting (`heal.stitch_p2`).
+- **Confirmed:** no (source inspection; `GlueEdgesGeneral` is unported, so no difftest case reaches it). Not file-reachable: `m_bIgnoreProblems` defaults to FALSE (`SmStitch.h:99`) and is set only by an API caller choosing `StitchIntoShell(bShellIsWellFormed=FALSE)` (`SmOffsetExecutive` passes TRUE), so no [PSIRT] tag.
+- **Severity:** crash / use after free.
+- **Rust port:** Reproduces the control flow; queries on the deleted edge id return `NotFound`.
+
 ## Hang
 
 #### HANG-1. `SmExtent1d::PeriodicWrap` steps one period per iteration
@@ -1759,6 +1777,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** hang.
 - **Rust port:** Returns `NotConverged` after `curve::ellipse::p2::MAX_PERIOD_SHIFTS` (2^20) shifts or when a shift no longer changes the midpoint; the callers ignore that status as upstream ignores the set-up's, leaving the converter impossible.
 - **Harness:** the `surface.cone_p3` FFI accepts cone angles only within upstream's documented `[-360, 360]` (`SmCone.h:205-206`). A first guard at about `3.8e8` degrees (the Rust bound) still let fuzzed intersections run past 20 s natively: every surface evaluation of such a cone goes through `SmEllipse::STEPInversion` and `SmExtent1d::PeriodicWrap`, one turn per iteration (HANG-1), confirmed with gdb backtraces.
+
+#### HANG-33. `SmStitch::StitchIntoShell` never returns when `dMaxStitchTol3d / 100` underflows
+- **Location:** `source/SMLib/src/SmStitch.cpp:2756`-`2791` (`StitchIntoShell`).
+- **What happens:** The loop starts at `dStitchTol3d = dMaxStitchTol3d / 100` and doubles it until it reaches `dMaxStitchTol3d` or no lamina edge is left. When the division underflows to `0`, doubling keeps it `0`, so `0 < dMaxStitchTol3d` holds forever and `DoStitching` runs again and again.
+- **Trigger:** `0 < dMaxStitchTol3d` below about `5e-322` (e.g. `1e-323`) on a B-rep that keeps a lamina edge.
+- **How found:** read during porting (`heal.stitch_p2`).
+- **Confirmed:** yes (C++ difftest run with the shim guard disabled: `1e-323` on two sheets 0.05 apart was still running at 120 s; `1e-300` returns at once).
+- **Severity:** hang.
+- **Rust port:** Stops after `MAX_TOL_DOUBLINGS` (2200) doublings with `SolidError::InvalidInput`; the shim refuses the input (`-3`) and the runner applies the same test.
+
+#### HANG-24. `SmStitch::StitchIntoSolid` never returns from a zero B-rep tolerance
+- **Location:** `source/SMLib/src/SmStitch.cpp:2676`-`2711` (`StitchIntoSolid`).
+- **What happens:** The loop starts at `GetTolerance() / 10` and doubles it while it is below `1/200` of the bounding box diagonal and lamina edges remain. A tolerance of `0` stays `0` (a negative one only grows more negative), so `DoStitching` runs forever. A positive tolerance always ends: against an infinite diagonal it doubles to infinity in about 2100 steps and `inf < inf` is false; a NaN tolerance or diagonal fails the loop test at once.
+- **Trigger:** A B-rep tolerance `<= 0` with a positive box diagonal and a lamina edge that is never stitched.
+- **How found:** read during porting (`heal.stitch_p2`).
+- **Confirmed:** no (source inspection; the shim refuses a tolerance `<= 0` below the diagonal test, `-3`). The difftest block cannot set the B-rep tolerance, so no fixture reaches the guard.
+- **Severity:** hang.
+- **Rust port:** Stops after `MAX_TOL_DOUBLINGS` (2200) doublings with `SolidError::InvalidInput`.
 
 ## Nondeterminism
 
@@ -2917,6 +2953,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (the C++ build succeeds on the inputs above).
 - **Severity:** a silent wrong result (a sphere from non-concentric arcs); no crash.
 - **Rust port:** reproduces the bug. `nurbs::b_spline_surface::p2::BSplineSurface::create_sphere_from_arcs` first captured the first arc's centre by value (and so rejected non-concentric arcs that upstream accepts); since PR #156 it reads the current frame's origin at each use, as the aliased reference does, and the dead check is kept as a comment. That unit's `three_arcs_about_two_centres` fixture case pins the behaviour: three radius-5 arcs (120 degrees about the origin, 90 degrees about (10, 0, 0) sharing its start point, 60 degrees about (10, 0, 0)) from which the C++ builds a sphere; with the centre check put back, the port rejects them and the case fails.
+
+#### WR-186. `SmStitch::DoStitching` never resets its candidate flags while splitting edges
+- **Location:** `source/SMLib/src/SmStitch.cpp:1423`-`1500` (`DoStitching`, edge splitting at vertices).
+- **What happens:** `bCandidateVtx` and `bCandidateEdge` start `TRUE` before the vertex loop and are set `FALSE` for the first vertex (edge) not on the candidate list, but never set back. Every later vertex and edge of the pass is treated as a non-candidate: pairs where both are later are skipped although they may be candidates, and the split vertex and edge are re-added to the candidate lists.
+- **Trigger:** `DoStitching` with a candidate vertex or edge list and `m_bSplitEdgesWithVertices`.
+- **How found:** read during porting (`heal.stitch_p2`).
+- **Confirmed:** no (source inspection; every `DoStitching` case defers at `SmBrep::Notify`).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it.
+
+#### WR-187. One-list `SmStitch::StitchVertexPairs` reports a cancelled squeeze as done
+- **Location:** `source/SMLib/src/SmStitch.cpp:3127`-`3194` (one-list `StitchVertexPairs`).
+- **What happens:** A second short common edge cancels the squeeze (`bDoSqueeze = bDoGlue = FALSE`), but `pSqueezeEdge` keeps the first short lamina edge. Nothing is glued or squeezed, yet the pair's vertex is added to `rDeletedVerts`, `pSqueezeEdge` to `rDeletedEdges`, the list entry is cleared and, keeping the second vertex, `pV` moves to it. The same happens when the short common edge is manifold (no edge reported).
+- **Trigger:** Two coincident vertices joined by two short edges, or by one short manifold edge.
+- **How found:** read during porting (`heal.stitch_p2`).
+- **Confirmed:** no (source inspection).
+- **Severity:** wrong result.
+- **Rust port:** Reproduces it.
 
 ## Docs
 
