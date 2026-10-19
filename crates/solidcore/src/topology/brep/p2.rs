@@ -1924,7 +1924,7 @@ fn merge_curves_body<O: ClassObject + Copy>(
             // merge classified intersection curve segments into this Brep
             // Don't SER on failure for one curve. Merge the rest. [B674]
             // (the new faces made before a failure are kept, as upstream's list)
-            let (new_faces, r) = merge_intervals(objects, &mut cc)?;
+            let (new_faces, r) = merge_intervals(k, objects, &mut cc)?;
             if let Err(e) = r {
                 if e.is_unported() {
                     return Err(e);
@@ -1993,10 +1993,11 @@ fn connect_intervals<O>(
 /// faces, also those made before a failure (upstream's list is filled as faces are
 /// made), with its status.
 fn merge_intervals<O: ClassObject + Copy>(
+    k: &Kernel,
     objects: &impl MergeCurvesObjects<O>,
     cc: &mut CurveClassification<O>,
 ) -> Result<(Vec<FaceId>, Result<()>)> {
-    let (merged, r) = match cc.merge_intervals_with_partial(false) {
+    let (merged, r) = match cc.merge_intervals_with_partial(k, objects, false) {
         Ok(m) => (m, Ok(())),
         Err(e) => (*e.merged, Err(e.error)),
     };
