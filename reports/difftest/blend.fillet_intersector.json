@@ -3,6 +3,594 @@
   "cases": [
     {
       "max_rel_err": 0.0,
+      "name": "rv_span_unit_tol0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#0",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_far_unit_tol0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#1",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_farmid_unit_tol0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#2",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_back_unit_tol0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#3",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_unit_tol1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#4",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_far_unit_tol1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#5",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_farmid_unit_tol1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#6",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_back_unit_tol1e-09",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#7",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_unit_tol10",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#8",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_far_unit_tol10",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#9",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_farmid_unit_tol10",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#10",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_back_unit_tol10",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#11",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_ext_unit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#12",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_same_unit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#13",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_rational_unit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#14",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_bigdom_unit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#15",
+      "values_compared": 106
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_bigdom_off_unit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#16",
+      "values_compared": 106
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_huge_tol100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#17",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_far_huge_tol100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#18",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_farmid_huge_tol100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#19",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_back_huge_tol100",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#20",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_huge_tol0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#21",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_far_huge_tol0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#22",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_farmid_huge_tol0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#23",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_back_huge_tol0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#24",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_huge_tol1e+06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#25",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_far_huge_tol1e+06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#26",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_farmid_huge_tol1e+06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#27",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_back_huge_tol1e+06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#28",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_ext_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#29",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_same_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#30",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_rational_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#31",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_bigdom_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#32",
+      "values_compared": 106
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_bigdom_off_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#33",
+      "values_compared": 106
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_tiny_tol1e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#34",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_far_tiny_tol1e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#35",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_farmid_tiny_tol1e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#36",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_back_tiny_tol1e-07",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#37",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_tiny_tol1e-13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#38",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_far_tiny_tol1e-13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#39",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_farmid_tiny_tol1e-13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#40",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_back_tiny_tol1e-13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#41",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_tiny_tol0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#42",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_far_tiny_tol0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#43",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_farmid_tiny_tol0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#44",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_back_tiny_tol0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#45",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_ext_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#46",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_same_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#47",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_span_rational_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#48",
+      "values_compared": 507
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_bigdom_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#49",
+      "values_compared": 106
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_bigdom_off_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#50",
+      "values_compared": 106
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_zero_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#51",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_opposite_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#52",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_zero_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#53",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_opposite_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#54",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_zero_-0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#55",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_opposite_-0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#56",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_zero_1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#57",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_opposite_1.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#58",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_zero_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#59",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_mid_opposite_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#60",
+      "values_compared": 424
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_crv_dim1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#61",
+      "values_compared": 154
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_crv_dim2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#62",
+      "values_compared": 154
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_crv_dim3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#63",
+      "values_compared": 154
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_flush_crv_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#64",
+      "values_compared": 139
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_next_type0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#65",
+      "values_compared": 189
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_next_type1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#66",
+      "values_compared": 189
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_next_type3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#67",
+      "values_compared": 189
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_next_type4",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#68",
+      "values_compared": 189
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_next_type5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#69",
+      "values_compared": 189
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_next_type6",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#70",
+      "values_compared": 189
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_next_type7",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#71",
+      "values_compared": 189
+    },
+    {
+      "deferred": {
+        "symbol": "SmFilletSolver::StepSolve",
+        "unit": "blend.fillet_solver_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_next_clipped_step",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_intersector/review_cases.json#72",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -11347,14 +11935,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 410,
+  "cases_deferred": 411,
   "cases_failed": 0,
-  "cases_passed": 803,
-  "cases_total": 1213,
+  "cases_passed": 875,
+  "cases_total": 1286,
   "deferred_by_unit": {
     "blend.fillet_solver_p1": 33,
     "blend.fillet_solver_p2": 37,
-    "blend.fillet_solver_p3": 119,
+    "blend.fillet_solver_p3": 120,
     "blend.fillet_solver_p4": 59,
     "curve.crv_on_surf": 162
   },
