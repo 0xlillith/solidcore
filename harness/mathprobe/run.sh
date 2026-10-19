@@ -14,6 +14,7 @@ python3 -I "$here/gen.py"
 (cd "$here" && nice -n 10 "$cargo" build -q --release --bin native)
 (cd "$here" && nice -n 10 "$cargo" build -q --release --lib --target wasm32-unknown-unknown)
 "$work/target/release/native" out/rust-host
+python3 -I "$here/pyeval.py" out/py-host
 node "$here/wasmeval.mjs" out/rust-wasm32 "$work/target/wasm32-unknown-unknown/release/mathprobe.wasm"
 if command -v docker >/dev/null; then
   for arch in amd64 arm64; do

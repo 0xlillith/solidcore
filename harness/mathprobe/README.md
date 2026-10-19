@@ -1,7 +1,9 @@
 # mathprobe: does `f64::sin` give the same bits everywhere?
 
 difftest proves solidcore matches the C++ bit for bit on **Linux x86_64 with glibc**.
-There, Rust's `f64::sin` and the C++ `sin` both call glibc's `sin`. On other targets,
+There, Rust's `f64::sin` and the C++ `sin` both call glibc's `sin`, and so does every
+other measured function except `cbrt`. `compiler_builtins` defines its own `cbrt`, and
+a pure-Rust Linux binary binds to it unless libm is linked earlier. On other targets,
 Rust uses a different libm: Apple's on macOS, and on `wasm32-unknown-unknown` the
 pure-Rust libm in `compiler_builtins`. This probe measures how often those differ.
 
@@ -20,7 +22,9 @@ ranges. The probe then evaluates them
   base image as CI's hosted runners;
 
 and `compare.py` reports, per function, how many results differ from glibc x86_64
-in any bit, and by how many ulp at most.
+in any bit, and by how many ulp at most. It also compares the host's Rust binary with
+Python on the same host (the host's C libm). A nonzero row there means Rust does not
+call the platform libm for that function, like `cbrt` in a pure-Rust Linux binary.
 
 ```sh
 harness/mathprobe/run.sh          # work files in bin/mathprobe/

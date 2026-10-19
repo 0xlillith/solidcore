@@ -20,7 +20,7 @@ for f in fns:
         except FileNotFoundError: cells.append(f"{'-':>26}"); continue
         n = 0; mu = 0
         for a, b in zip(r, v):
-            if a == b or (math.isnan(a) and math.isnan(b)) : 
+            if a == b or (math.isnan(a) and math.isnan(b)):
                 if a == b and a == 0 and math.copysign(1,a) != math.copysign(1,b): n += 1
                 continue
             n += 1
@@ -28,3 +28,15 @@ for f in fns:
             else: mu = float("inf")
         cells.append(f"{n:>8} ({100*n/len(r):6.3f}%) ulp<={mu:<5}")
     print(f"{f:6} " + " ".join(cells))
+
+# Rust on this host vs this host's C libm (Python's math module): nonzero means Rust's
+# std does not call the platform libm for that function (e.g. `cbrt` resolving to
+# compiler_builtins in a pure-Rust Linux binary).
+if os.path.isdir("out/py-host"):
+    print("\nRust on this host vs this host's C libm:")
+    for f in fns:
+        if f == "powi":
+            continue
+        r, p = load(f"out/rust-host/{f}.bin"), load(f"out/py-host/{f}.bin")
+        n = sum(1 for a, b in zip(r, p) if a != b and not (math.isnan(a) and math.isnan(b)))
+        print(f"{f:6} {n:>8} ({100 * n / len(r):6.3f}%)")
