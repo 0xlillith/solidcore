@@ -63,6 +63,132 @@ fn import(input: &Operand) -> std::result::Result<Option<Brep>, HarnessError> {
     super::topology_vertexuse::import(&raw).map(|(b, _)| Some(b))
 }
 
+fn append_graph(
+    output: &mut Output,
+    prefix: &str,
+    brep: &Brep,
+) -> std::result::Result<(), HarnessError> {
+    let graph = super::topology_brep_p10::snapshot(brep)?;
+    for (key, values) in graph.ints {
+        output.ints.insert(format!("{prefix}.{key}"), values);
+    }
+    for (key, values) in graph.values {
+        output.values.insert(format!("{prefix}.{key}"), values);
+    }
+    Ok(())
+}
+
+struct Record<'a> {
+    remaining: &'a [f64],
+}
+impl<'a> Record<'a> {
+    fn num(&mut self) -> std::result::Result<f64, HarnessError> {
+        let (v, rest) = self
+            .remaining
+            .split_first()
+            .ok_or_else(|| error("short native record"))?;
+        self.remaining = rest;
+        Ok(*v)
+    }
+    fn take(&mut self, n: usize) -> std::result::Result<&'a [f64], HarnessError> {
+        if n > self.remaining.len() {
+            return Err(error("short native graph"));
+        }
+        let (v, rest) = self.remaining.split_at(n);
+        self.remaining = rest;
+        Ok(v)
+    }
+    fn done(&self) -> std::result::Result<(), HarnessError> {
+        if self.remaining.is_empty() {
+            Ok(())
+        } else {
+            Err(error("trailing native state"))
+        }
+    }
+}
+
+fn native_snapshot(raw: &[f64]) -> std::result::Result<Output, HarnessError> {
+    let mut rd = Record { remaining: raw };
+    let mut header = Vec::new();
+    for _ in 0..9 {
+        header.push(rd.num().map_err(|e| error(&e))? as i64);
+    }
+    let component_count = header[7] + header[8];
+    let mut output = Output::new().ints("status_and_state", header);
+    let mut graph = |rd: &mut Record<'_>, prefix: &str| -> std::result::Result<(), HarnessError> {
+        let n = rd.num().map_err(|e| error(&e))? as usize;
+        let record = rd.take(n).map_err(|e| error(&e))?;
+        let (editing, body) = record
+            .split_first()
+            .ok_or_else(|| error("empty native graph"))?;
+        let mut exported = vec![0.0];
+        exported.extend_from_slice(body);
+        let (mut b, exact) = super::topology_vertexuse::import(&exported)?;
+        if exact.iter().any(|v| !v) {
+            return Err(error("inexact post-state surface import"));
+        }
+        b.set_editing_enabled(*editing != 0.0);
+        append_graph(&mut output, prefix, &b)
+    };
+    let mut presence = Vec::new();
+    for prefix in ["primary", "other"] {
+        let present = rd.num().map_err(|e| error(&e))? != 0.0;
+        presence.push(i64::from(present));
+        if present {
+            graph(&mut rd, prefix)?;
+        }
+    }
+    for i in 0..component_count {
+        graph(&mut rd, &format!("component.{i}"))?;
+    }
+    rd.done().map_err(|e| error(&e))?;
+    Ok(output.ints("survivors", presence))
+}
+
+fn rust_snapshot(
+    status: i32,
+    returned: bool,
+    kernels: &BooleanKernels<'_>,
+    primary: &Option<Brep>,
+    other: &Option<Brep>,
+    state: &ManifoldState,
+) -> std::result::Result<Output, HarnessError> {
+    let other_kernel = kernels.other.as_deref().unwrap_or(kernels.primary);
+    let mut output = Output::new()
+        .ints(
+            "status_and_state",
+            vec![
+                i64::from(status),
+                i64::from(returned),
+                i64::from(kernels.primary.context.doing_boolean()),
+                i64::from(other_kernel.context.doing_boolean()),
+                i64::from(state.intersection_loop_closed),
+                state.intersection_edges.len() as i64,
+                state.intersection_vertices.len() as i64,
+                state.primary_components.len() as i64,
+                state.other_components.len() as i64,
+            ],
+        )
+        .ints(
+            "survivors",
+            vec![i64::from(primary.is_some()), i64::from(other.is_some())],
+        );
+    for (prefix, b) in [("primary", primary), ("other", other)] {
+        if let Some(b) = b {
+            append_graph(&mut output, prefix, b)?;
+        }
+    }
+    for (i, b) in state
+        .primary_components
+        .iter()
+        .chain(&state.other_components)
+        .enumerate()
+    {
+        append_graph(&mut output, &format!("component.{i}"), b)?;
+    }
+    Ok(output)
+}
+
 struct DeferredAdapter;
 fn needs_adapter<T>() -> Result<T> {
     Err(SolidError::invalid_input("harness::boolean_merge_p4", "query.brep prerequisite is now wired: integrate the canonical intersector adapter before enabling success comparisons"))
@@ -165,13 +291,8 @@ impl UnitDiff for Runner {
         if raw == [-1.0] {
             return Ok(Output::rejected("native primitive constructor"));
         }
-        let status = *raw.first().ok_or_else(|| error("missing native status"))?;
-        if status != 0.0 {
-            return Ok(Output::err(format!("status:{}", status as i32)));
-        }
-        // No Rust success case reaches this record yet; it is retained as native
-        // baseline evidence, never imported as Rust classification or topology.
-        Ok(Output::new().values("native_result", raw))
+        // Status is data: Output::err would suppress all state comparison.
+        native_snapshot(&raw)
     }
     fn run_rust(&self, case: &Case) -> std::result::Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
@@ -218,11 +339,11 @@ impl UnitDiff for Runner {
             Err(e) if e.is_unported() => {
                 Ok(Output::unported(&e).ok_or_else(|| error("missing deferral"))?)
             }
-            Err(SolidError::Upstream { code, .. }) => Ok(Output::err(format!("status:{code}"))),
+            Err(SolidError::Upstream { code, .. }) => {
+                rust_snapshot(code, false, &kernels, &primary, &other, &state)
+            }
             Err(e) => Err(error(&e)),
-            Ok(_) => Err(error(
-                "unexpected success before canonical intersector adapter integration",
-            )),
+            Ok(returned) => rust_snapshot(0, returned, &kernels, &primary, &other, &state),
         }
     }
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
@@ -251,5 +372,49 @@ impl UnitDiff for Runner {
         Some(json!({"primary":a,"other":b,"operation":rng.below(11),
             "flags":[rng.chance(0.2),rng.chance(0.2),rng.chance(0.5),rng.chance(0.2),rng.chance(0.5)],
             "manifold":rng.chance(0.8),"distinct_contexts":rng.chance(0.5),"caller_lock":rng.chance(0.5)}))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn error_post_state_detects_mutations() {
+        let mut k = Kernel::default();
+        let mut other_k = Kernel::default();
+        let mut primary = import(&[1.0, 2.0, 3.0, 4.0, 1.0, 1.0, 1.0]).unwrap();
+        let other = None;
+        let mut state = ManifoldState::default();
+        let mut snapshot = |k: &mut Kernel, primary: &Option<Brep>, state: &ManifoldState| {
+            rust_snapshot(
+                1008,
+                false,
+                &BooleanKernels {
+                    primary: k,
+                    other: Some(&mut other_k),
+                },
+                primary,
+                &other,
+                state,
+            )
+            .unwrap()
+        };
+        let baseline = snapshot(&mut k, &primary, &state);
+        k.context.set_doing_boolean(true);
+        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
+        k.context.set_doing_boolean(false);
+        primary.as_mut().unwrap().set_editing_enabled(true);
+        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
+        primary.as_mut().unwrap().set_editing_enabled(false);
+        state.intersection_vertices.push(VertexId::from_index(0));
+        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
+        state.intersection_vertices.clear();
+        let b = primary.as_mut().unwrap();
+        let id = b.vertices().ids().next().unwrap();
+        b.vertex_mut(id).unwrap().point.x += 1.0;
+        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
+        primary = None;
+        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
     }
 }

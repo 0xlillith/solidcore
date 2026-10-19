@@ -1,5 +1,11 @@
 //! Validated entry points to the real `SmMerge::ManifoldBoolean`.
 //! Fixed-size operands avoid native file readers and input-sized allocations.
+//! Coordinates/dimensions are bounded by 1e100 through the shared reader, leaving
+//! headroom for endpoint addition and squared-distance products in constructors.
+//! This is the oracle's supported numeric domain, not a kernel input restriction.
+//! UB-175 [PSIRT] in IntersectInsertRelate / ~SmProtoTopologyManager is not
+//! exercised by the current empty/vertex/open-line/plane operand families (no
+//! closed edges). Adding circles or closed wires requires rechecking that guard.
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -40,12 +46,15 @@ pub struct Request {
     pub caller_lock: bool,
 }
 
+const MAX_COORD: f64 = 1e100;
+crate::reader::unit_reader!(MAX_COORD);
+
 fn validate(operand: &Operand) -> Result<(), FfiError> {
-    if !matches!(operand[0], -1.0 | 0.0 | 1.0 | 2.0 | 3.0) || operand.iter().any(|v| !v.is_finite())
-    {
-        return Err(FfiError::InvalidArgument("ManifoldBoolean operand".into()));
-    }
-    Ok(())
+    let mut reader = Reader::new(operand);
+    reader.choice(&[-1.0, 0.0, 1.0, 2.0, 3.0])?;
+    reader.vec3()?;
+    reader.vec3()?;
+    reader.done()
 }
 
 fn call(mode: i32, a: &Operand, b: &Operand, request: Request) -> Result<Vec<f64>, FfiError> {
@@ -99,4 +108,22 @@ pub fn export(a: &Operand) -> Result<Vec<f64>, FfiError> {
             caller_lock: false,
         },
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn operand_coordinate_bound_precedes_native_construction() {
+        for value in [1e308, -1e308, f64::INFINITY, f64::NAN] {
+            let mut operand = [2.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0];
+            operand[1] = value;
+            assert!(validate(&operand).is_err());
+            operand[1] = 0.0;
+            operand[4] = value;
+            assert!(validate(&operand).is_err());
+        }
+        assert!(validate(&[2.0, MAX_COORD, -MAX_COORD, 0.0, MAX_COORD, 0.0, 0.0]).is_ok());
+    }
 }

@@ -56,8 +56,10 @@ struct Access : SmMerge {
             out.push_back(brep ? 1.0:0.0);
             if (!brep) continue;
             Graph g; walk(brep,g,true);
-            out.push_back(flg(brep->m_bEditingEnabled));
-            export_graph(brep,g,out);
+            std::vector<double> record{flg(brep->m_bEditingEnabled)};
+            export_graph(brep,g,record);
+            out.push_back((double)record.size());
+            out.insert(out.end(),record.begin(),record.end());
         }
         // Counts alone cannot certify extraction after the operands are deleted.
         // Prefix each complete fresh graph with its record length for decoding.
