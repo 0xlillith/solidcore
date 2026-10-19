@@ -109,7 +109,9 @@ fn surface_approx_tol_3d(
         // SmApproxTol3d(.5 * GetZoneTol3d(pSurf)), the face's stored zone tolerance
         return Ok(approx_tol3d(k, 0.5 * zone));
     }
-    if surface.owner().is_some() {
+    // SmTol::GetApproxTol3d(this) = .5 * GetZoneTol3d(this): GetFace() ? its tolerance
+    // : the system's (a surface owned by an offset with no face uses the latter)
+    if surface.face()?.is_some() {
         // UNPORTED(topology.face_p2): SmFace::GetTolerance of the owner, for the callers
         // that cannot pass it (a surface does not reach its B-rep; justified: plan/findings.md,
         // heal.face_props, "Why UNPORTED(topology.face_p2) stays"); the face props pass it through `get_singularities_of_face`
@@ -130,7 +132,10 @@ fn out_of_bounds_enabled(surface: &Surface) -> Option<bool> {
         SurfaceKind::BSpline(s) => Some(s.is_out_of_bounds_enabled()),
         SurfaceKind::Plane(s) => Some(s.is_out_of_bounds_enabled()),
         SurfaceKind::SurfOfRevolution(s) => Some(s.is_out_of_bounds_enabled()),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => None,
+        SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => None,
     }
 }
 
@@ -143,7 +148,10 @@ fn set_out_of_bounds_enabled(surface: &mut Surface, enabled: bool) {
         SurfaceKind::BSpline(s) => *s.out_of_bounds_enabled_mut() = enabled,
         SurfaceKind::Plane(s) => s.set_out_of_bounds_enabled(enabled),
         SurfaceKind::SurfOfRevolution(s) => *s.base_mut().out_of_bounds_enabled_mut() = enabled,
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
+        SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::SrfInVolume(_) => {}
     }
 }
 
@@ -1029,6 +1037,8 @@ impl Surface {
             .is_some_and(|o| o.type_code == labels::FACE_TYPE)
         {
             // UNPORTED(topology.face_p1): SmFace::RemoveUVTrimCurves
+            // (ported as topology::face::p1::remove_uv_trim_curves, but a surface cannot
+            // reach the B-rep of its owner face here: the call needs the B-rep passed in)
             return Err(SolidError::unported(
                 "SmFace::RemoveUVTrimCurves",
                 "topology.face_p1",

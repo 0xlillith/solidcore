@@ -900,6 +900,42 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (null dereference).
 - **Rust port:** Returns `InvalidInput`.
 
+#### UB-171. `SmOffsetSurface::EvaluatePlainOrSimple` writes past `aDerivatives` with `bOnlyUpperHalf`
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1442` (and the `Duuv` / `Duvv` writes after it), `SmOffsetSurface::EvaluatePlainOrSimple` (def. `:960`), reached from `Evaluate` and `EvaluateSimple`.
+- **What happens:** With `bOnlyUpperHalf` the mixed derivatives are computed whenever the larger order allows them, but are written at their indices in the full `(hu+1)(hv+1)` layout. With more `v` than `u` derivatives they land past the caller's array (`hu = 0, hv = 2`: `Duv` at index 4 of a 3-entry array; also `0, 3` and `1, 3`).
+- **Trigger:** `Evaluate(uv, 0, 2, TRUE, TRUE, TRUE /*bOnlyUpperHalf*/, a /*3 entries*/)` on an offset with a non-zero distance.
+- **How found:** read during porting (`surface.offset_surface`).
+- **Confirmed:** no. The harness rejects these orders.
+- **Severity:** crash/UB.
+- **Rust port:** Returns `InvalidInput` for a write past the array.
+
+#### UB-172. `SmPlane::Evaluate` wraps its loop bound for `bOnlyUpperHalf` with more `u` than `v` derivatives
+- **Location:** `source/SMLib/src/SmPlane.cpp:1536`, `SmPlane::Evaluate`: `ULONG lHighestVIndex = bOnlyUpperHalf ? lHighestVDeriv-k : lHighestVDeriv`.
+- **What happens:** For `k > lHighestVDeriv` the unsigned subtraction wraps, and the zeroing loop runs far past the caller's array. A zero-distance `SmOffsetSurface` over a plane passes such requests straight to it.
+- **Trigger:** `SmPlane::Evaluate(uv, 2, 0, .., TRUE /*bOnlyUpperHalf*/, a /*3 entries*/)`.
+- **How found:** read during porting (`surface.offset_surface`).
+- **Confirmed:** no. The harness rejects these orders over a plane.
+- **Severity:** crash/UB.
+- **Rust port:** The plane evaluation returns `InvalidInput` for an upper half with more `u` than `v` derivatives.
+
+#### UB-173. The base-class box of an extended `SmOffsetSurface` recurses without bound
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:337`, `SmOffsetSurface::CalculateBoundingBox` (def. `:315`) calling `SmSurface::CalculateBoundingBox`, whose `smsurf_GetSurfaceCache` builds the offset's surface cache.
+- **What happens:** A box domain not inside the base domain runs the base-class body, which builds the offset's surface cache. Its nodes cover the offset's natural domain, which is the extended surface's once there is one; each node outside the base domain runs the base-class body again, until the stack overflows. This is the pattern of UB-84.
+- **Trigger:** An offset allowing extension: `TrimWithDomain` to a part of the base domain, an `EvaluatePoint` outside it (stores an extension), then `CalculateBoundingBox` over the original domain. Also `IsPlanar` (the `SmSurface` body, a box over `GetNaturalUVDomain()`) on an offset of an offset that allows extension, after the outer's `STEPInversion` made the inner store an extension.
+- **How found:** crash in the C++ reference run (a generated `surface.offset_surface` case, 30,000-seed run); the `IsPlanar` path in a 100,000-seed run.
+- **Confirmed:** yes (stack overflow).
+- **Severity:** crash/UB (stack exhaustion).
+- **Rust port:** Refuses the polar box of the base-class body for such an offset; the surface cache it would build waits on `surface.surface_p6`. The harness keeps these boxes away from the C++ side.
+
+#### UB-174. `sm_ExtendSurface` can retry `N_SrfEvalPtDerivsUnbounded` with an uninitialised flag
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:517`, `sm_ExtendSurface` (`NL_FLAG gflg` uninitialised); `NL_SrfAdv.cpp` `N_SrfEvalPtDerivsUnbounded`.
+- **What happens:** The first call copies the surface into `esur` before `N_SrfIsClosedSmooth`. When that test fails before it stores the closed directions (a knot or evaluation error), the retry finds `esur` set and reads the uninitialised `gflg` to decide between wrapping and extending.
+- **Trigger:** An offset extension over a surface whose closedness test fails with a knot or evaluation error.
+- **How found:** read during porting (`surface.offset_surface`).
+- **Confirmed:** no.
+- **Severity:** crash/UB (uninitialised read).
+- **Rust port:** The extension state stays empty after such errors (`nlib.srf_adv_p1`), so the retry starts over.
+
 #### UB-100. `SmDerivSurfDefinition::GetSampleValues` dereferences a missing tangent reference
 - **Location:** `source/SMLib/src/SmSurface.cpp:3127`, `SmDerivSurfDefinition::GetSampleValues` (def. `:2941`); the check it relies on is `SmDerivSurfDefinition::AssertValid` test 2 (`:2286`).
 - **What happens:** For `SM_TT_DIR_TO_REFERENCE_CURVE`, `m_pTangentReference->EvaluatePoint` is called unchecked. `AssertValid` accepts a `NULL` reference (its last clause, `m_pTangentReference == NULL`, holds for every tangency type), so the definition passes the state check and the call dereferences `NULL`.
@@ -1054,6 +1090,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** no (the harness predicts and avoids the null dereferences, and keeps counts at least 1).
 - **Severity:** crash/UB (needs a bad argument from the calling code).
 - **Rust port:** `heal::gap` returns `InvalidInput`.
+
+#### UB-155. Volume discontinuity W planes index the V parameter array
+- **Location:** `source/SMLib/src/SmCurveClass.cpp:10071-10072`, `SmCurveClassification::Intersect3DDiscontinuities` (volume).
+- **What happens:** The W-plane loop takes its coordinates from `m_sParamsV[kk]` while iterating `m_sParamsW`. Different V/W values put the planes at the wrong W positions; more W than V parameters reads past V's array.
+- **Trigger:** unequal V/W discontinuity parameter arrays.
+- **How found:** read during porting `intersect.curve_class_p8` (PR #152).
+- **Confirmed:** no; native fixtures use equal V/W lists and never execute the out-of-bounds case.
+- **Severity:** crash/UB; wrong result for in-bounds unequal values.
+- **Rust port:** retains V coordinates, with checked indexing returning an error. The plane-intersection path remains dependency-deferred.
 
 ### Topology
 
@@ -1281,6 +1326,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB.
 - **Rust port:** proto edges are arena ids that are never freed, so the repeat reads a deleted-edge slot and finds no group; nothing is read after free.
 
+#### UB-137. `SmFace::SplitAtSeam` recurses on itself with another face's seam classifications
+- **Location:** `source/SMLib/src/SmFace.cpp:18098-18149` `SmFace::SplitAtSeam` (the `bMergeU && bMergeV` branch); the crash is in `SmCurveClassification::MergeInterval` (`MergeIntervals`).
+- **What happens:** After merging the U seam, the loop over the faces the merge made computes `pTgtFace->HasSeamProblem(sThisCrvClassU, sThisCrvClassV, ..)` but then calls `SplitAtSeam(sThisCrvClassU, ..)` on `this`, not on `pTgtFace`. `MergeIntervals` then splits `this` along a classification of another face and dereferences invalid topology.
+- **Trigger:** `MoveSeam` with `bOkToSplit` (or `SplitAtSeam`) on a face that is treated as closed (by the face properties' closed flags) or is periodic in either direction, with seam problems to merge in both directions, e.g. `vase_rev.smb` (UV trim curves rebuilt), face 5 of the traversal order, with an `SmFaceProps` giving `m_eBadCrossedSeam = m_eBadMissingSeam = SM_SP_BOTH`, `m_bClosedU = m_bClosedV = TRUE` (difftest case `vase_rev.smb_1_f5_op9` of `topology.face_p1`).
+- **How found:** crash in the C++ reference run.
+- **Confirmed:** yes (SIGSEGV in `SmCurveClassification::MergeInterval` called from the recursive `SmFace::SplitAtSeam`, gdb backtrace).
+- **Severity:** crash.
+- **Rust port:** Faithful (recurses on the same face, bounded by `MAX_SPLIT_AT_SEAM_DEPTH`). `MergeIntervals` is wired (`intersect.curve_class_p5`), but its topology edits (`MergeInterval`, `intersect.curve_class_p2`) still defer, so the U merge makes no new face and the branch is not reached yet. The difftest shim keeps the C++ side away from every input that can reach it.
+
+#### UB-138. `SmFace::MoveSeam` uses the joined surface without checking `JoinSurface`
+- **Location:** `source/SMLib/src/SmFace.cpp:17539-17607` `SmFace::MoveSeam`.
+- **What happens:** `eStat = pRightSurface->JoinSurface(.., pJoinedSurface)` is never checked. When the join fails, `pJoinedSurface` is still `NULL` (first direction) and is dereferenced by `CopyAndAddAnalytics` for an analytic surface or handed to `SmBrep::ReplaceSurface` / `SetSurface`; in the second direction it still points to the first direction's surface, which the face already owns.
+- **Trigger:** a seam move whose split halves cannot be joined within the surface's zone tolerance (for example face properties that report a seam problem in a direction the surface is not closed in). Not reproduced: `MoveSeam` without split ran crash-free on the 15 `pt_TestFiles` B-reps of the `topology.face_p1` difftest (PR #148 review).
+- **How found:** read during porting.
+- **Confirmed:** no.
+- **Severity:** crash.
+- **Rust port:** Returns the join's error.
+
 #### UB-136. Fillet geometry substitution reads a missing partner interval
 - **Location:** `source/SMLib/src/SmCurveClass.cpp:16830` (`sm_SetDoFilletingGeometry`), called by `SmCurveClassification::MergeInterval`; unchecked indexing in `source/SMLib/inc/SmCurveClass.h:508`.
 - **What happens:** Fillet merging indexes both classifications at the target interval without checking the paired classification's size. An empty partner yields a null read; a shorter partner permits an out-of-range interval read.
@@ -1350,11 +1413,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 #### HANG-6. Zero-distance G2 curve and surface extensions
 - **Location:** `NL_CrvAdv.cpp:640` `ST_curxcdr` (`NL_G2` parameter search); `NL_SrfAdv.cpp:661` `N_SrfExtendByDist` / `:696` `ST_surxsdr` (G1/G2 extend the iso-curves with `ST_curxcdr` `NL_G2`).
 - **What happens:** The step `du = range * ldst / d1` is zero, or no longer changes the parameter, so the search never ends. A negative distance reads outside the knot range.
-- **Trigger:** `N_SrfExtendByDist(..., dist = 0, NL_G1, ...)`.
-- **How found:** read during porting.
-- **Confirmed:** no.
+- **Trigger:** `N_SrfExtendByDist(..., dist = 0, NL_G1, ...)`. A small non-zero distance does it too: `SmOffsetSurface::CreateExtendedSurface` by `1.7e-4` with `SM_CT_G1_G2` over a surface of revolution several units across did not finish.
+- **How found:** read during porting; generated difftest case (`surface.offset_surface`).
+- **Confirmed:** yes (timeout, the small-distance case).
 - **Severity:** hang.
 - **Rust port:** Fails with `NotConverged` when a step changes nothing.
+- **Harness:** `surface.offset_surface` runs the C++ in process and refuses every
+  `CreateExtendedSurface` step (in the FFI, and again in the shim), since a stalled or
+  crawling search (e.g. `1e-20` on a unit surface, where each step moves) cannot be
+  stopped from outside NLib.
 
 #### HANG-7. Periodic shifts in unbounded evaluation
 - **Location:** `NL_CrvAdv.cpp:4257` `N_CrvEvalUnboundedPtsAndDerivs`; `NL_SrfAdv.cpp:5446` `N_SrfEvalPtDerivsUnbounded`.
@@ -1437,6 +1504,34 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** hang.
 - **Rust port:** Ordinary squeeze statuses are ignored through `ignore_status`, preserving `Unported` propagation; a documented no-progress check returns an error if the interval count did not decrease.
 
+#### HANG-16. Direct negative-distance surface extension moves away from its loop's exit
+- **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:4583-4591`, with equivalent loops at `:4645`, `:4712`, `:4773`, in `SmBSplineSurface::CreateExtendedSurface`.
+- **What happens:** After a successful extension, `while (dExtDist < dDist/2.0)` doubles `dExtDist`. For a negative request, the doubled negative value moves away from the exit condition. The lower-level G1 path can accept a negative request, so success does not necessarily prevent entry into this loop.
+- **Trigger:** Calling the surface-extension routine directly with a negative distance. The initial PR #175 probe manufactured this condition by giving an executive's geometry creator `-0.125`, producing an extension request of `-0.625`. This is **outside the offset executive's internal input contract**, not a reachable negative-distance path through the offset/shell entry points.
+- **Reachability correction (PR #175 review):** `SmOffsetExecutive::OffsetBrep` (`SmOffsetExecutive.cpp:114-120`) and `ShellBrep` (`:206-223`) construct their geometry creators with `fabs(dOffsetDistance)` and carry the sign using `SetInset`. The local-operation caller (`SmBrep.cpp:12004-12008`) uses half a bounding-sphere radius. Consequently the executive's extension path receives a nonnegative magnitude. Negative public offset distances remain valid insets.
+- **How found:** out-of-contract native extension probes during `offset.offset_executive_p1`, followed by maintainer review of the real callers.
+- **Confirmed:** yes for eight-second timeouts in the initial out-of-contract native probes (four fixed inputs and 104 generated inputs, Linux x86_64 / GNU g++ 16.2.1). Infinite execution and the exact stuck instruction were not experimentally established; the divergent loop condition was confirmed by source inspection.
+- **Severity:** hang on a direct negative extension request; not an offset-unit parity blocker.
+- **Rust port:** The offset executive's safe FFI and native adapter reject negative internal extension magnitudes before constructing native geometry. Zero, signed zero and positive magnitudes remain covered. This guard does not reject signed public inset operations or readonly constructor/getter probes. See `plan/findings.md`.
+
+#### HANG-21. The surface cache of an offset of a small trimmed surface does not finish
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:337` (`SmSurface::CalculateBoundingBox` on the offset), `smsurf_GetSurfaceCache` and the `SmSurfaceCache` tree build.
+- **What happens:** A box domain outside the trimmed base domain builds the offset's surface cache. For a base about `1e-3` across trimmed to a small part, the build did not finish within 15 s (other cases take milliseconds). The cause was not analysed.
+- **Trigger:** A B-spline about `1e-3` across, offset by `7.8e-4`, `TrimWithDomain` to a small part of its domain, then `CalculateBoundingBox` over the original domain.
+- **How found:** generated difftest case (`surface.offset_surface`, 30,000-seed run).
+- **Confirmed:** yes (timeout).
+- **Severity:** hang.
+- **Rust port:** Waits on `surface.surface_p6` (the cache tree); the harness keeps these boxes away from the C++ side.
+
+#### HANG-22. G2 extension retries enter an arc-length search with NaN
+- **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:4568-4576` (in-place retry); `source/SMLib/src/NL_CrvAdv.cpp:683-760` (`ST_curxcdr`).
+- **What happens:** After failed in-place surface extensions, an intermediate rational iso-curve has zero endpoint weights. `N_CrvArcLength` reports success with a NaN length. `ST_curxcdr` derives NaN parameter increments and its termination comparisons never succeed. The retry is the in-place one of UB-107 (it reads the arrays a failed in-place extension left half-written), so this hang is one outcome of that read; restoring the surface before the retry has not been verified as a fix.
+- **Trigger:** PR #62 original generated `gen5909`: offset of a revolution surface, trim, G2 extension by `0.6075400573597457`. The 60 exact flattened input doubles are retained in `crates/solidcore-ffi/tests/data/offset-gen5909.txt`.
+- **How found:** Extended-seed difftest, then standalone cold C++ reproduction and debugger inspection. A fresh local context also hangs, so earlier cases and context reuse are not necessary.
+- **Confirmed:** yes. Unmodified C++ times out; debugger captured `d1`, `du`, and search parameters as NaN.
+- **Severity:** hang.
+- **Harness:** `surface.offset_surface` refuses every `CreateExtendedSurface` step in process (see HANG-6), so this input stops at its extension step; an FFI test replays the exact input and checks the refusal. These are unsafe-reference exclusions, not passing difftest cases.
+
 ## Nondeterminism
 
 #### ND-1. `srand(time(NULL))` in face sampling and shell classification
@@ -1453,9 +1548,9 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **What happens:** Iteration order is pointer-hash order, so it can change from run to run with heap layout. So can anything order-dependent downstream (created topology order, tie-breaks).
 - **Trigger:** Any of these paths on the same input under different allocators or ASLR.
 - **How found:** read during porting (static scan, `plan/closure.md`).
-- **Confirmed:** no. The shims sort upstream results before comparing.
-- **Severity:** nondeterminism.
-- **Rust port:** Uses ordered maps / insertion order on arena ids.
+- **Confirmed:** most paths remain source-inspection findings; the original relation shims sort unordered membership before comparing. PR #175 observed the order leaking into `SmOffsetExecutive::SyncronizeOffsetEdgeuses`: two equal-minimum fixtures returned public `matched_first` IDs `[2,0]` in C++ versus `[0,2]` in deterministic Rust. The strict bubble sort (`SmOffsetExecutive.cpp:2485-2506`) preserves the unspecified `GetSeconds` tie order. Allocation-sensitive variation within the same executable was not measured.
+- **Severity:** nondeterminism / unspecified order exposed as result order.
+- **Rust port:** Uses ordered maps / insertion order on arena ids. Following the existing `SmRelation` comparison convention, the `offset.offset_executive_p1` runner canonicalizes only contiguous groups with exactly equal interval minima by traversal id on both sides. Distinct-minimum order, membership, multiplicity, null padding and all numerical values are still compared unchanged. No tolerance is relaxed, and this unspecified tie order is not a porting blocker. `SmTopologyIntersector`'s mate maps (`GetMappedBrepObjects`, `SmTopologyIntersector.cpp:945`; `GetMappedOtherObjects`, `CoincidenceNotify`) and subset (`GetSubset`) are `BTreeMap`/`BTreeSet`s over the caller's object handles in `boolean::topology_intersector::p1`, so their lists come out in handle order; the `boolean.topology_intersector_p1` shim sorts upstream's lists by export handle before comparing.
 
 #### ND-3. A function-local static fixed by the first call
 - **Location:** `SmFilletSolver.cpp:3604`, `SmFilletSolver::ComputePointValues` (def. `:3544`).
@@ -1605,6 +1700,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Ported as is.
 
+#### WR-159. `SmVector3d::Unitize` turns a vector with an overflowing squared length into a zero vector
+- **Location:** `source/SMLib/inc/SmVector3d.h:537-566`, `SmVector3d::Unitize`; reached from `SmAxis2Placement::SetCanonical` (`SmAxis2Placement.cpp:70-97`).
+- **What happens:** The degenerate test is only `dLenSq < SM_EFF_ZERO_SQ`. A component of about 1.34e154 or more makes `LengthSquared()` infinite, so the vector passes the test and is divided by an infinite length. Finite components become 0 and the result is a silent zero vector (with a negative-zero component), not the documented `(0,0,1)` default, and the status is success.
+- **Trigger:** An axis placement whose Y axis is `(0, -1e300, 1)`, unitized by `SetCanonical`, used in a cone/cone intersection (`SmCone::IntersectWithCone`). A component of 1e150 still unitizes correctly; 1e160 does not.
+- **How found:** differential fuzzing of `surface.cone_p3` (`fuzz01093`).
+- **Confirmed:** yes (C++ returns two lines with a zero Y axis: the polar conversion of that cone then fails, `SmEllipse.cpp:596`, and `IntersectWithCone` ignores that status, `SmCone.cpp:2966-2967`).
+- **Severity:** wrong result.
+- **Rust port:** `Vec3::unitize` is faithful and has the same overflow; such inputs agree with C++ (`surface.cone_p3` fixtures `fuzz_axis_overflow_zero_y*`).
+
 ### Topology, attributes, solvers
 
 #### WR-16. `SmTopology::Notify` merge uses the deleted object as the source
@@ -1736,6 +1840,16 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Ported as is.
 
+#### WR-158. `SmEdgeuse::CreateUVTrimCurve`'s two-singular-end-points recovery joins its curve into a temporary array
+- **Location:** `source/SMLib/src/SmEdgeuse.cpp:1859`-`1874` (`SmEdgeuse::CreateUVTrimCurve`, the `SM_CTC_TWOSINGULARENDPTS_RECOVERY` branch).
+- **What happens:** After dropping both halves of the edge curve, the first half's UV curve and the second half's are stitched with `SmBSplineCurve::CreateByJoining`, and the joined curve is added to `s2ndUVCurves` (line 1871), the temporary array of the second half, which `SmObjsDelete` (`sClean5`) destroys when the block ends. The result array `sUVCurves` stays empty while `lResult` is set to `SM_SUCCESS` and `m_eCreatePathType` to `SM_CTC_TWOSINGULARENDPTS_RECOVERY`, so the later `sUVCurves.GetSize() == 0` test skips the iteration: the recovery never produces a trim curve (and the fail record claims it did).
+- **Trigger:** an edge whose start and end both drop onto singularities of the face's surface (for example a meridian of a sphere from pole to pole) after the plain drop and the reversed drop failed.
+- **How found:** read during porting (unit `topology.edgeuse_p3`).
+- **Confirmed:** no (the Rust side defers the drop: `SmSurface::DropCurve` is `intersect.surface_drop_lib_p3`).
+- **Severity:** wrong result (the intended recovery is dead code).
+- **Cause:** `s2ndUVCurves.Add(pNewUVTrimCurve)` where `sUVCurves.Add(...)` was meant.
+- **Rust port:** Reproduces it (`topology::edgeuse::p3::create_uv_trim_curve` builds the joined curve into the discarded second-half array and reports the recovery path).
+
 ### NLib
 
 #### WR-22. `ST_surxsdr` returns a stale error number past its recursion limit
@@ -1764,6 +1878,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** no.
 - **Severity:** wrong result (validation gap).
 - **Rust port:** Accepts them too (faithful).
+
+#### WR-166. `N_SrfIsClosedSmooth` reports an error after storing its result
+- **Location:** `source/SMLib/src/NL_SrfNurb.cpp:5178` (and the v-closure loop), `N_SrfIsClosedSmooth` (def. `:5058`).
+- **What happens:** A failed `N_VectorsAngle` (a zero-length tangent, as at a pole side) only breaks out of the span loop: `error` stays `NL_YES`, the closed directions are still stored in `*gnflg`, and the function returns the error. `N_SrfEvalPtDerivsUnbounded` then fails its first call for such a surface with `esur` holding the copy, and callers that retry (`sm_ExtendSurface`, `EvaluatePointOnExtendedSurface`) extend that copy, `sm_ExtendSurface` at the unpushed parameter.
+- **Trigger:** An offset extension over a B-spline with a pole side.
+- **How found:** generated difftest case (`surface.offset_surface`: the Rust port, which dropped the flag on that error, diverged from the C++).
+- **Confirmed:** yes.
+- **Severity:** wrong result.
+- **Rust port:** `Surface::is_closed_smooth_flag` returns both; `eval_pt_derivs_unbounded` keeps the copy and the flag, as upstream.
 
 ### Curves
 
@@ -2077,6 +2200,60 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** wrong result.
 - **Rust port:** Same result (`true`), for parity.
 
+#### WR-160. `SmOffsetSurface` third derivatives use wrong coefficients in `Cuuv` and `Cuvv`
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1468` and `:1479`, `SmOffsetSurface::EvaluatePlainOrSimple`.
+- **What happens:** The derivatives of the normal's numerator `C = Bu x Bv` take `3.0 * Buuv x Buv` in `Cuuv` and `3.0 * Buvv x Buv` in `Cuvv`. Differentiating `Cuu` and `Cvv` gives coefficients `1` and `-1`, so `Duuv` and `Duvv` of the offset are wrong whenever those cross products are not zero.
+- **Trigger:** `Evaluate(uv, 2, 1, ..)` on a twisted surface: `Duuv` differs from a central difference of `Duu` by 11 % (relative), while `Duuu` agrees with one of `Duu` to `5e-10`.
+- **How found:** read during porting; finite-difference check of the bit-identical port.
+- **Confirmed:** yes (fixture `third_derivative_outputs` compares the C++ values with the port).
+- **Severity:** wrong result.
+- **Rust port:** Kept.
+
+#### WR-161. `SmOffsetSurface` outputs `Buuv` in place of `Buvv` and `Bvvv`
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1482` and `:1491`, `SmOffsetSurface::EvaluatePlainOrSimple`.
+- **What happens:** `Duvv` is written as `Buuv + d * Nuvv` and `Dvvv` as `Buuv + d * Nvvv`; the base derivatives belong to `Buvv` and `Bvvv`.
+- **Trigger:** `Evaluate(uv, 1, 2, ..)` and `Evaluate(uv, 0, 3, ..)`: against central differences of `Duv` and `Dvv` the results are off by 2.1 and 1.2 (relative).
+- **How found:** read during porting; finite-difference check of the bit-identical port.
+- **Confirmed:** yes (fixture `third_derivative_outputs`).
+- **Severity:** wrong result.
+- **Rust port:** Kept.
+
+#### WR-162. `SmOffsetSurface` writes `Duv` over `Duu` for an upper half without `v` derivatives
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1442`, `SmOffsetSurface::EvaluatePlainOrSimple`.
+- **What happens:** With `bOnlyUpperHalf`, `hu = 2` and `hv = 0`, the mixed derivative is computed (the larger order is 2) and written at index `hv + 2 = 2`, the slot of `Duu`.
+- **Trigger:** `Evaluate(uv, 2, 0, .., TRUE /*bOnlyUpperHalf*/, ..)` with a non-zero distance.
+- **How found:** read during porting.
+- **Confirmed:** yes (fixture `upper_half_slot_overwrite`).
+- **Severity:** wrong result.
+- **Rust port:** Kept.
+
+#### WR-163. `SmOffsetSurface::SplitAt` gives the halves split copies of the base as extended surfaces
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1682`, `SmOffsetSurface::SplitAt`.
+- **What happens:** With an extended surface, the halves' `m_pExtendedSurface` come from splitting `m_pSurface` again instead of `m_pExtendedSurface`, so the extension is lost.
+- **Trigger:** `SplitAt` on an offset that has stored an extension.
+- **How found:** read during porting.
+- **Confirmed:** no (fixture `extension_then_split` waits on `surface.surface_p3`).
+- **Severity:** wrong result.
+- **Rust port:** Kept.
+
+#### WR-164. `SmOffsetSurface::SwapUV` with an extended surface negates the distance twice
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1767` and `:1772`, `SmOffsetSurface::SwapUV`.
+- **What happens:** Swapping the parameters flips the normal, so the distance is negated; with an extended surface it is negated once for it and once for the base, leaving it unchanged and the offset on the wrong side.
+- **Trigger:** `SwapUV` on an owning offset that has stored an extension.
+- **How found:** read during porting.
+- **Confirmed:** yes (fixture `extension_sequence`).
+- **Severity:** wrong result.
+- **Rust port:** Kept.
+
+#### WR-165. `SmOffsetSurface::STEPInversion` retries on the extended surface with the unwidened tolerance
+- **Location:** `source/SMLib/src/SmOffsetSurface.cpp:1737`, `SmOffsetSurface::STEPInversion`.
+- **What happens:** The base is inverted with the tolerance widened by the offset distance, but the retry on the extended surface uses `dDistanceTolerance`, so a point on the offset over the extension is not found.
+- **Trigger:** `STEPInversion` of a point on the offset over its extended part.
+- **How found:** read during porting.
+- **Confirmed:** no (fixture `extension_then_step_inversion` waits on `surface.surface_p4`).
+- **Severity:** wrong result.
+- **Rust port:** Kept.
+
 ### Intersection
 
 #### WR-65. `SmVolume` "simple" box samplers and inverse solvers mix simple and compound maps
@@ -2337,6 +2514,39 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes: the `closed3d` cases of `fixtures/topology.loopuse/tolerance_limit.json` set every edge tolerance to 0, 1e-15 or -1e-12 so that real end gaps exceed `XSectTol3d`; both sides still report those loops closed (with the largest gap seen, also when `bCheckAllGaps == FALSE` stops early).
 - **Severity:** wrong result.
 - **Rust port:** Reproduces it (`topology::loopuse::is_closed_3d`).
+
+#### WR-154. Discontinuity classifiers select boundary solution slots with V+V offsets
+- **Location:** `source/SMLib/src/SmCurveClass.cpp:9241`, `:9654`, `:10121-10129`.
+- **What happens:** The UV and 3D surface classifiers select the last boundary's solution array using `2 * V_count - 1`, while the later consumer selects its curve using `U_count + V_count - 1`. The volume classifier repeats V in the offsets for its last three boundary slots too. Unequal counts can associate an internal boundary's solutions with a different outer boundary, or omit an outer solution array.
+- **Trigger:** different U/V knot or discontinuity counts, with intersections on the affected boundaries.
+- **How found:** read during porting `intersect.curve_class_p8` (PR #152).
+- **Confirmed:** no numerical reproduction isolated; native unequal-count fixtures are dependency-deferred in Rust before downstream classification.
+- **Rust port:** preserves these exact slot expressions; crossing classifications are uncertified until solution insertion is available.
+
+#### WR-155. Two volume boundary solution arrays share the same borrowed storage
+- **Location:** `source/SMLib/src/SmCurveClass.cpp:10002`, `sSolutions4(20,aData4), sSolutions5(20,aData4)`.
+- **What happens:** Both arrays initially refer to `aData4`. Writing the sixth boundary's solutions can overwrite the fifth boundary's saved solutions before the later classification scan. `aData5` is not declared; the arrays do not use independent buffers.
+- **Trigger:** both affected boundary slots contain results that remain in their borrowed arrays.
+- **How found:** read during porting `intersect.curve_class_p8` (PR #152).
+- **Confirmed:** no isolated native reproduction.
+- **Rust port:** independent owned vectors; this aliasing behavior is not certified or reproduced. All volume plane-intersection paths remain deferred to `surface.surface_p8`; revisit the output lifecycle when wiring that dependency.
+
+#### WR-156. The volume discontinuity unaligned check tests U three times
+- **Location:** `source/SMLib/src/SmCurveClass.cpp:10025-10027`.
+- **What happens:** The rejection predicate repeats `m_bUnalignedU` and never checks V or W, so a V/W-only unaligned discontinuity can proceed into the aligned-plane algorithm.
+- **Trigger:** a discontinuity report with U aligned and V or W unaligned.
+- **How found:** read during porting `intersect.curve_class_p8` (PR #152).
+- **Confirmed:** no native execution of the unsupported report.
+- **Rust port:** retains the U-only predicate, then rejects empty/malformed coordinate lists safely; custom discontinuity reports are outside the oracle's coverage.
+
+#### WR-157. `CheckIfHaveExistingSSI` re-copies the accumulated curve lists on every match
+- **Location:** `source/SMLib/src/SmTopologyIntersector.cpp:184-249`, `SmTopologyIntersector::CheckIfHaveExistingSSI`.
+- **What happens:** For each table entry matching the surface pair the function appends the entry's arrays to the outputs and then runs `for (jj=0; jj<r3DCurves.GetSize(); jj++)` over the *whole* accumulated output, replacing every 3D and UV B-spline curve by a fresh copy. With two matching entries the first entry's copies are copied once more and those first copies leak; with one entry the behaviour is as intended. A 3D curve that is not an `SmBSplineCurve` is `SER(SM_ERR)` after the output arrays were already partly filled with copies (also leaked by a caller that treats the status as fatal).
+- **Trigger:** `RegisterExistingSSI` twice for the same `(pBrepSurface, pOtherSurface)`, then `CheckIfHaveExistingSSI` for that pair (fixture `analytic_tsurf_pair_table`, `fixtures/boolean.topology_intersector_p1/upstream.json`).
+- **How found:** read during porting (`boolean.topology_intersector_p1`, PR #146); the difftest runs it in the release build.
+- **Confirmed:** no. The fixture runs the path in the C++ build and the doubly copied curves compare equal to the originals, so neither the extra copy nor the leak is observable in a result; both follow from source inspection.
+- **Severity:** memory leak / wasted work; results unaffected.
+- **Rust port:** Faithful: the re-copies go to the caller's curve store and the earlier handles stay unreferenced; the non-B-spline case reports the `SM_ERR` in `ExistingSsi::status` with the outputs filled so far.
 
 ### Healing
 
