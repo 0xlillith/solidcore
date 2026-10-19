@@ -8072,6 +8072,15 @@ entries before enabling those paths. They remain deferred today; this is a
 harness limitation, not an upstream defect or an observed comparison failure.
 No shim lifetime change is made here.
 
+Final ready verification after a clean merge of origin/main 154853c7 (including
+46ddc4ff): workspace fmt and explicit own include rustfmt, workspace/CPP compile
+checks, both clippy configurations, 1,410 kernel tests, four serializer/adapter
+tests, two merge_p3 FFI guard tests plus the separate API guard test, and wasm
+all passed on sc-builder-13. The merge_p3 and api_brep default difftests retained
+the counts above with zero failures; their pulled reports are byte-identical to
+the reviewed reports. Full-matrix, perturbation, fuzz and Valgrind evidence above
+applies to f0957fc5. Log: `status/merge_p3-ready-gates.log` in the swarm directory.
+
 Review 183c96b7 constructor correction: BooleanLists surface-list preparation
 and disconnected-component extraction now call an argument-complete
 `UNPORTED(topology.brep_p3): SmBrep::SmBrep` adapter, with both model-size
