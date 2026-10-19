@@ -391,8 +391,12 @@ mod tests {
     use crate::geom::context::NotifyCallback;
     use crate::geom::object::NotifyOperation;
     use crate::math::Vec3;
+    use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
     use crate::topology::topology_traverser::Entity;
-    use crate::topology::{Edge, Edgeuse, EdgeuseOwner, Region, Vertexuse, VertexuseOwner};
+    use crate::topology::{
+        Edge, Edgeuse, EdgeuseOwner, Faceuse, Loopuse, LoopuseStart, Region, Vertexuse,
+        VertexuseOwner,
+    };
     use std::sync::{Arc, Mutex};
 
     fn face(b: &mut Brep) -> FaceId {
@@ -470,6 +474,98 @@ mod tests {
                     &mut b,
                     FaceuseId::from_index(u32::MAX)
                 )
+                .unwrap(),
+            Some(r)
+        );
+    }
+
+    // Use both ends of an edge as a closed boundary, so the face helper really
+    // visits a non-empty loop. The degenerate face needs no surface evaluation.
+    fn face_on_wire(b: &mut Brep, edge: EdgeId) -> (FaceId, FaceuseId) {
+        let f = face(b);
+        let fu = b
+            .add_faceuse_record(Faceuse {
+                face: Some(f),
+                shell: Some(b.face(f).unwrap().shell),
+                ..Faceuse::default()
+            })
+            .unwrap();
+        b.face_mut(f).unwrap().faceuse = Some(fu);
+        let lu = b
+            .add_loopuse_record(Loopuse {
+                faceuse: Some(fu),
+                ..Loopuse::default()
+            })
+            .unwrap();
+        b.faceuse_mut(fu).unwrap().loopuses.push(lu);
+        let uses = b.edge(edge).unwrap().edgeuses.clone();
+        for (&eu, &next) in uses.iter().zip(uses.iter().cycle().skip(1)) {
+            let data = b.edgeuse_mut(eu).unwrap();
+            data.owner = EdgeuseOwner::Loopuse(Some(lu));
+            data.ccw = Some(next);
+            data.cw = Some(next);
+        }
+        b.loopuse_mut(lu).unwrap().start = LoopuseStart::Edgeuse(uses.first().copied());
+        (f, fu)
+    }
+
+    #[test]
+    fn coincidence_uses_each_operand_edge_map_direction() {
+        let mut adapter = KernelManifoldIntersector::new(0).unwrap();
+        let mut a = Brep::new();
+        let mut b = Brep::new();
+        let edge = wire(&mut a);
+        wire(&mut b); // Offset the other arena's boundary id: 0 -> 1.
+        let other_edge = wire(&mut b);
+        assert_ne!(edge, other_edge);
+        adapter
+            .merge
+            .intersector
+            .edges
+            .record(edge, other_edge)
+            .unwrap();
+        let (f, _) = face_on_wire(&mut a, edge);
+        let (of, _) = face_on_wire(&mut b, other_edge);
+        assert_eq!(
+            adapter.fix_face_coincidence(&mut a, &mut b, f, of).unwrap(),
+            (vec![f], vec![of], false)
+        );
+    }
+
+    #[test]
+    fn region_lookup_uses_other_to_primary_edge_mates() {
+        let mut adapter = KernelManifoldIntersector::new(0).unwrap();
+        let mut a = Brep::new();
+        let mut b = Brep::new();
+        let r = a
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
+        a.add_region_record(Region {
+            in_brep: true,
+            ..Region::default()
+        })
+        .unwrap();
+        let edge = wire(&mut a);
+        let eu = *a.edge(edge).unwrap().edgeuses.first().unwrap();
+        let shell = crate::topology::edgeuse::p1::shell(&a, eu)
+            .unwrap()
+            .unwrap();
+        a.shell_mut(shell).unwrap().region = Some(r);
+        wire(&mut b); // Disjoint lookup keys between the two map directions.
+        let other_edge = wire(&mut b);
+        let (_, other_fu) = face_on_wire(&mut b, other_edge);
+        adapter
+            .merge
+            .intersector
+            .edges
+            .record(edge, other_edge)
+            .unwrap();
+        assert_eq!(
+            adapter
+                .find_region_of_other_face(&Kernel::default(), &mut a, &mut b, other_fu)
                 .unwrap(),
             Some(r)
         );
@@ -604,6 +700,17 @@ mod tests {
         assert_eq!(notices[0].2[1].unwrap().key, key(10, false, 6, r.index()));
         assert_eq!(notices[0].2[2].unwrap().key, rk);
         assert!(other_notices.lock().unwrap().is_empty());
+        drop(notices);
+        // Upstream compares IsVoid() to TRUE, rather than treating every nonzero
+        // state as void. Unknown must still propagate and issue its notification.
+        a.region_mut(r).unwrap().set_is_void(-1);
+        let merge = attrs.insert(Attribute::merge_region(rk, 0, ok, 0)).unwrap();
+        attrs.add_attribute(rk, merge).unwrap();
+        adapter
+            .propagate_regions(&mut kernels, &a, &b, &mut attrs, BooleanOperation::Merge)
+            .unwrap();
+        assert!(attrs.find_attribute(rk, color_id).is_some());
+        assert_eq!(primary_notices.lock().unwrap().len(), 2);
     }
 
     fn wire(b: &mut Brep) -> EdgeId {
@@ -611,11 +718,12 @@ mod tests {
         let v = b.add_vertex(Vec3::ZERO).unwrap();
         let w = b.add_vertex(Vec3::X).unwrap();
         let e = b.add_edge_record(Edge::new([v, w])).unwrap();
-        for vertex in [v, w] {
+        for (vertex, orientation) in [(v, OrientType::Same), (w, OrientType::Opposite)] {
             let eu = b
                 .add_edgeuse_record(Edgeuse {
                     edge: Some(e),
                     owner: EdgeuseOwner::Shell(Some(shell)),
+                    orientation,
                     ..Edgeuse::default()
                 })
                 .unwrap();
@@ -630,6 +738,9 @@ mod tests {
             b.edge_mut(e).unwrap().edgeuses.push(eu);
             b.vertex_mut(vertex).unwrap().vertexuses.push(vu);
         }
+        let data = b.edge_mut(e).unwrap();
+        data.curve = Some(crate::curve::line::Line::from_points(Vec3::ZERO, Vec3::X, 3).into());
+        data.interval = crate::geom::extent1d::Extent1d::from_raw(0.0, 1.0);
         e
     }
 
