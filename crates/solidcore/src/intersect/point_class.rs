@@ -18,6 +18,7 @@
 //! | `Drop` (implicit)                                 | `~SmPointClassification`                         |
 //! | [`PointClassification::reset`]                    | `ReSet`                                          |
 //! | `Clone` / `Copy` (derived)                        | `operator=`                                      |
+//! | [`PointClassification::try_map_objects`]         | complete state copy with translated Rust handles (data-model bridge) |
 //! | [`PointClassification::copy_classification_only`] | `CopyClassificationOnly`                         |
 //! | [`PointClassification::copy_sss_point`]           | `CopySSSPoint`                                   |
 //! | [`PointClassification::brep`]                     | `GetBrep`                                        |
@@ -337,6 +338,34 @@ pub struct PointClassification<O> {
 }
 
 impl<O: ClassObject> PointClassification<O> {
+    /// Copy the complete classification state while translating object handles.
+    ///
+    /// This is a Rust data-model bridge between an application's geometry handles
+    /// and B-rep entity ids. All scalar state, including unset parameters and
+    /// non-finite payloads, is copied without recomputation.
+    ///
+    /// # Errors
+    /// Propagates a failed object/face translation without changing the source.
+    pub fn try_map_objects<P: ClassObject>(
+        &self,
+        mut map: impl FnMut(O) -> Result<P>,
+    ) -> Result<PointClassification<P>> {
+        Ok(PointClassification {
+            src_zone_tol_3d: self.src_zone_tol_3d,
+            point_class: self.point_class,
+            object: self.object.map(&mut map).transpose()?,
+            face: self.face.map(&mut map).transpose()?,
+            gap_3d: self.gap_3d,
+            t_param: self.t_param,
+            uv_param: self.uv_param,
+            uvw_param: self.uvw_param,
+            param_set: self.param_set,
+            pre_snap_param: self.pre_snap_param,
+            sss_point_flag: self.sss_point_flag,
+            sss_point: self.sss_point,
+        })
+    }
+
     /// A cleared classification of something with zone tolerance `src_zone_tol_3d`
     /// (`SmPointClassification(SmZoneTol3d, const SmContext*)`). The argument is
     /// already an `SmZoneTol3d` and is stored as is; upstream's default,
