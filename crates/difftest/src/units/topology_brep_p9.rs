@@ -39,9 +39,9 @@ struct Inputs {
     same: bool,
     #[serde(default, with = "nf")]
     parameter: f64,
-    #[serde(default)]
+    #[serde(default, with = "nf_array")]
     point: [f64; 3],
-    #[serde(default)]
+    #[serde(default, with = "nf_array")]
     tolerances: [f64; 2],
 }
 // JSON numbers or the explicit strings "NaN", "inf" and "-inf".
@@ -69,6 +69,41 @@ mod nf {
             Value::String(s) if s == "-inf" => Ok(f64::NEG_INFINITY),
             other => Err(D::Error::custom(format!("bad float {other}"))),
         }
+    }
+}
+// Arrays of `nf` values.
+mod nf_array {
+    use serde::de::Error as _;
+    use serde::ser::SerializeTuple;
+    use serde::{Deserialize, Deserializer, Serializer};
+    use serde_json::Value;
+
+    struct One(f64);
+    impl serde::Serialize for One {
+        fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+            super::nf::serialize(&self.0, s)
+        }
+    }
+
+    pub fn serialize<S: Serializer, const N: usize>(x: &[f64; N], s: S) -> Result<S::Ok, S::Error> {
+        let mut t = s.serialize_tuple(N)?;
+        for v in x {
+            t.serialize_element(&One(*v))?;
+        }
+        t.end()
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>, const N: usize>(
+        d: D,
+    ) -> Result<[f64; N], D::Error> {
+        let values = Vec::<Value>::deserialize(d)?;
+        let values = values
+            .into_iter()
+            .map(|v| super::nf::deserialize(v).map_err(D::Error::custom))
+            .collect::<Result<Vec<f64>, D::Error>>()?;
+        values
+            .try_into()
+            .map_err(|_| D::Error::custom(format!("expected {N} floats")))
     }
 }
 

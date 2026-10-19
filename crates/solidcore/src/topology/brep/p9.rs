@@ -520,7 +520,6 @@ pub fn make_shell_vertex(
     Ok((shell, vertex))
 }
 
-
 fn make_shell_vertex_topology(
     b: &mut Brep,
     region: Option<RegionId>,

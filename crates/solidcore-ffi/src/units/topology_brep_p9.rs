@@ -59,17 +59,14 @@ pub struct Request<'a> {
 }
 
 /// Export the initial graph (with its prepared VU indices) or run the operation.
-/// Refuses only invalid layouts, missing required fixture entities and nonfinite
-/// point/tolerance scalars before native dereferences. Nonfinite split parameters
-/// and safe NULL refusal branches remain callable. Part-container streams (UB-1)
+/// Refuses only invalid layouts and missing required fixture entities before native
+/// dereferences. Nonfinite split parameters, points and tolerances (`SetPoint` and
+/// `SetTolerance(x, FALSE)` only store them) and safe NULL refusal branches remain
+/// callable. Part-container streams (UB-1)
 /// are rejected before the shared native fixture validator reads them.
 pub fn eval(request: Request<'_>, export_only: bool) -> Result<Vec<f64>, FfiError> {
     let bad = || FfiError::InvalidArgument("brep_p9 request or fixture".into());
-    if request.op > 8
-        || request.variant > 5
-        || request.point.iter().any(|v| !v.is_finite())
-        || request.tolerances.iter().any(|v| !v.is_finite())
-    {
+    if request.op > 8 || request.variant > 5 {
         return Err(bad());
     }
     if request.block.first() == Some(&0.0) {
