@@ -7840,7 +7840,7 @@ follows mark/edit scopes, extraction and deletion on every Result exit. Cleanup
 restores surviving primary then other operands, uses `Transform(xfm,NULL,TRUE)`,
 and ignores ordinary transform statuses as the native destructor does. The
 constructor remains `UNPORTED(query.brep)` before mutation; the restoration's
-argument-complete `SmBrep::Transform` call is `UNPORTED(topology.brep_p5)` (todo).
+argument-complete `SmBrep::Transform` adapter call is `UNPORTED(topology.brep_p5)` (todo).
 No bounding-box or B-rep-transform implementation is duplicated. A regression
 injects the unavailable transform to check error/success returns, each survivor
 combination, inverse coordinates, cleanup order and ignored ordinary statuses.
@@ -7871,3 +7871,17 @@ and reported 0 errors. The safe constructor-rejection-only full-leak probe had
 runtime stack-overflow bookkeeping remain reachable). Both its ordinary and
 Valgrind CLI exits are 1 because the single case is rejected, failed=0; this is
 not a Rust/C++ mismatch. The full green gate is being repeated for this snapshot.
+
+After merging main #85, the scope callback also borrows the same live environment
+as its body: kernels, intersector/notification records and caller AttributeStore.
+The token restores through an argument-complete adapter method, so wiring
+`brep_p5::Transform` does not require a second kernel or attribute store. The
+regression checks shared-environment visibility and the operand selector too.
+Latest-main gates are being repeated on the resulting snapshot.
+
+Validation repeated after main #85 and the shared cleanup-environment refinement:
+fmt/include rustfmt, workspace checks, clippy x2, 1386 kernel tests and wasm
+passed. Both affected difftest summaries, fuzz 2000, perturb and both Valgrind
+checks exactly retain the preceding counts, with 0 mismatches/crashes/panics/
+timeouts, 0 memory errors and 0 lost bytes in the constructor regression. The
+pre-#85 210-unit green gate passed; the final merged set now contains 211 units.

@@ -28,10 +28,11 @@ use crate::geom::a_object::BooleanOperation;
 use crate::geom::attribute::{
     ids, Attribute, AttributeStore, Behavior, MergeRegionData, ObjectKey,
 };
+use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::context::{MarkLock, MarkType};
 use crate::geom::object::ObjectRef;
 use crate::kernel::Kernel;
-use crate::math::Point3;
+use crate::math::{Point3, Vec3};
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::topology::brep::p1 as bp;
 use crate::topology::edgeuse::p1 as eu;
@@ -153,6 +154,26 @@ pub struct FixedGaps {
 /// maintained by this unit. Missing dependency methods have narrowly scoped,
 /// argument-complete defaults, to be wired by their owning units.
 pub trait ManifoldIntersector {
+    /// `SmBrep::Transform` for the temporary scope's surviving operands. The
+    /// adapter supplies notification records and selects the operand's live
+    /// kernel from `other`; attributes are the same store used during the body.
+    fn transform_brep(
+        &mut self,
+        _kernels: &mut BooleanKernels<'_>,
+        _brep: &mut Brep,
+        _other: bool,
+        _attributes: &mut AttributeStore,
+        _rotate_n_move: &Axis2Placement,
+        _scale: Option<Vec3>,
+        _scale_tolerance: bool,
+    ) -> Result<()> {
+        // UNPORTED(topology.brep_p5): SmBrep::Transform
+        Err(SolidError::unported(
+            "SmBrep::Transform",
+            "topology.brep_p5",
+        ))
+    }
+
     /// `GetMappedBrepObjects(SmEdge_TYPE)` before later topology copies.
     fn mapped_edges(&self) -> Result<Vec<EdgeId>>;
     /// `GetMappedBrepObjects(SmVertex_TYPE)` before later topology copies.
@@ -1352,20 +1373,29 @@ pub fn manifold_boolean(
     // This outer scope matches sTempXfm's lifetime: every Result exit from the
     // complete operation (including imprint, extraction and deletion) first
     // leaves its mark/edit scopes, then restores only surviving operands.
-    transform.run(primary, other, |primary, other| {
-        manifold_boolean_translated(
-            kernels,
-            primary,
-            other,
-            intersector,
-            state,
-            attributes,
-            options,
-            manifold,
-            operation,
-            caller_lock,
-        )
-    })
+    let mut environment = (kernels, intersector, attributes);
+    transform.run(
+        primary,
+        other,
+        &mut environment,
+        |(kernels, intersector, attributes), primary, other| {
+            manifold_boolean_translated(
+                kernels,
+                primary,
+                other,
+                *intersector,
+                state,
+                attributes,
+                options,
+                manifold,
+                operation,
+                caller_lock,
+            )
+        },
+        |(kernels, intersector, attributes), brep, is_other, xfm, scale, scale_tol| {
+            intersector.transform_brep(kernels, brep, is_other, attributes, xfm, scale, scale_tol)
+        },
+    )
 }
 
 fn manifold_boolean_translated(

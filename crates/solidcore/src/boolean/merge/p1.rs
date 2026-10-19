@@ -600,61 +600,58 @@ pub struct TemporaryBrepTransform {
 }
 
 impl TemporaryBrepTransform {
-    /// Explicit destructor for a completed scope with borrowed operands. The
-    /// Boolean entry point uses [`Self::run`] to guarantee this on every exit.
-    pub fn restore(self, primary: Option<&mut Brep>, other: Option<&mut Brep>) -> Result<()> {
-        self.restore_with(primary, other, transform_brep)
+    /// Explicit destructor for a completed scope with borrowed operands. `false`
+    /// identifies the primary operand and `true` the other; the callback applies
+    /// the placement with its live context and notification/attribute state.
+    /// The Boolean entry point uses [`Self::run`] to guarantee this on every exit.
+    pub fn restore(
+        self,
+        primary: Option<&mut Brep>,
+        other: Option<&mut Brep>,
+        mut transform: impl FnMut(&mut Brep, bool, &Axis2Placement, Option<Vec3>, bool) -> Result<()>,
+    ) -> Result<()> {
+        if let Some(inverse) = self.inverse {
+            for (brep, is_other) in [(primary, false), (other, true)] {
+                if let Some(brep) = brep {
+                    // Transform(sXfm) uses cpOptScale=NULL and bScaleTol=TRUE.
+                    crate::error::ignore_status(transform(brep, is_other, &inverse, None, true))?;
+                }
+            }
+        }
+        Ok(())
     }
 
     /// Run the complete Boolean scope, then `~SmTemporaryBrepTransform`.
     /// Cleanup follows editing/mark cleanup, extraction and operand deletion on
     /// every Result exit, including errors and imprint. Restore surviving primary
-    /// then other operands; ordinary transform statuses are ignored.
-    pub fn run<T>(
+    /// then other operands; ordinary transform statuses are ignored. Both closures
+    /// borrow one environment so cleanup uses the same live kernels, adapter and
+    /// attribute/notification state without retaining a competing mutable borrow.
+    pub fn run<T, E>(
         self,
         primary: &mut Option<Brep>,
         other: &mut Option<Brep>,
-        action: impl FnOnce(&mut Option<Brep>, &mut Option<Brep>) -> Result<T>,
+        environment: &mut E,
+        action: impl FnOnce(&mut E, &mut Option<Brep>, &mut Option<Brep>) -> Result<T>,
+        mut transform: impl FnMut(
+            &mut E,
+            &mut Brep,
+            bool,
+            &Axis2Placement,
+            Option<Vec3>,
+            bool,
+        ) -> Result<()>,
     ) -> Result<T> {
-        self.run_with(primary, other, action, transform_brep)
-    }
-
-    fn run_with<T>(
-        self,
-        primary: &mut Option<Brep>,
-        other: &mut Option<Brep>,
-        action: impl FnOnce(&mut Option<Brep>, &mut Option<Brep>) -> Result<T>,
-        transform: impl FnMut(&mut Brep, &Axis2Placement, Option<Vec3>, bool) -> Result<()>,
-    ) -> Result<T> {
-        let result = action(primary, other);
-        self.restore_with(primary.as_mut(), other.as_mut(), transform)?;
+        let result = action(environment, primary, other);
+        self.restore(
+            primary.as_mut(),
+            other.as_mut(),
+            |brep, is_other, xfm, scale, scale_tol| {
+                transform(environment, brep, is_other, xfm, scale, scale_tol)
+            },
+        )?;
         result
     }
-
-    fn restore_with(
-        self,
-        primary: Option<&mut Brep>,
-        other: Option<&mut Brep>,
-        mut transform: impl FnMut(&mut Brep, &Axis2Placement, Option<Vec3>, bool) -> Result<()>,
-    ) -> Result<()> {
-        if let Some(inverse) = self.inverse {
-            for brep in [primary, other].into_iter().flatten() {
-                // Transform(sXfm) uses cpOptScale=NULL and bScaleTol=TRUE.
-                crate::error::ignore_status(transform(brep, &inverse, None, true))?;
-            }
-        }
-        Ok(())
-    }
-}
-
-fn transform_brep(
-    _brep: &mut Brep,
-    _rotate_n_move: &Axis2Placement,
-    _scale: Option<Vec3>,
-    _scale_tolerance: bool,
-) -> Result<()> {
-    // UNPORTED(topology.brep_p5): SmBrep::Transform
-    unavailable("SmBrep::Transform", "topology.brep_p5")
 }
 
 /// Begin the scoped origin shift used by manifold Booleans. Bounding boxes are
@@ -700,10 +697,12 @@ mod tests {
                 let mut other = Some(b);
                 let expected = result.clone();
                 let mut restored = Vec::new();
-                let actual = token.run_with(
+                let actual = token.run(
                     &mut primary,
                     &mut other,
-                    |a, b| {
+                    &mut Vec::new(),
+                    |environment, a, b| {
+                        environment.push("body");
                         // Represents inner editing-scope cleanup, before inverse.
                         a.as_mut().unwrap().set_editing_enabled(false);
                         b.as_mut().unwrap().set_editing_enabled(false);
@@ -715,7 +714,15 @@ mod tests {
                         }
                         result
                     },
-                    |brep, xfm, scale, scale_tol| {
+                    |environment, brep, is_other, xfm, scale, scale_tol| {
+                        assert_eq!(environment.first(), Some(&"body"));
+                        assert_eq!(
+                            is_other,
+                            brep.vertex(brep.vertices().ids().next().unwrap())
+                                .unwrap()
+                                .point
+                                == Vec3::Y
+                        );
                         assert!(!brep.editing_enabled());
                         assert_eq!(scale, None);
                         assert!(scale_tol);
@@ -751,11 +758,12 @@ mod tests {
             }
         }
         TemporaryBrepTransform { inverse: None }
-            .run_with(
+            .run(
                 &mut Some(Brep::new()),
                 &mut Some(Brep::new()),
-                |_, _| Ok(()),
-                |_, _, _, _| panic!("identity scope must not transform"),
+                &mut (),
+                |(), _, _| Ok(()),
+                |(), _, _, _, _, _| panic!("identity scope must not transform"),
             )
             .unwrap();
     }
