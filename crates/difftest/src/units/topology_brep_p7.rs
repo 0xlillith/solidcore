@@ -63,7 +63,7 @@ use solidcore::surface::surface::Surface;
 use solidcore::topology::brep::{p10, p7};
 use solidcore::topology::database_io::FileType;
 use solidcore::topology::edge as ed;
-use solidcore::topology::{Brep, EdgeId, FaceId, Region, RegionId};
+use solidcore::topology::{Brep, EdgeId, FaceId, RegionId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_data as bd;
 use solidcore_ffi::units::topology_brep_p7::{self as ffi, Op};
