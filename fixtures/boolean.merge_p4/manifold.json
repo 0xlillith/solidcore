@@ -1,0 +1,2820 @@
+{
+  "cases": [
+    {
+      "name": "op0-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 0,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op0-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 0,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op0-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 0,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op0-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 0,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op0-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 0,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op0-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 0,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op0-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 0,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op0-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 0,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op1-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 1,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op1-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 1,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op1-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 1,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op1-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 1,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op1-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 1,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op1-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 1,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op1-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 1,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op1-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 1,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op2-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 2,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op2-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 2,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op2-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 2,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op2-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 2,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op2-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 2,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op2-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 2,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op2-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 2,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op2-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 2,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op3-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 3,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op3-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 3,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op3-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 3,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op3-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 3,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op3-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 3,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op3-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 3,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op3-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 3,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op3-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 3,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op4-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 4,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op4-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 4,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op4-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 4,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op4-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 4,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op4-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 4,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op4-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 4,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op4-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 4,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op4-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 4,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op5-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 5,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op5-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 5,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op5-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 5,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op5-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 5,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op5-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 5,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op5-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 5,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op5-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 5,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op5-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 5,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op6-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 6,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op6-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 6,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op6-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 6,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op6-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 6,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op6-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 6,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op6-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 6,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op6-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 6,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op6-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 6,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op7-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 7,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op7-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 7,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op7-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 7,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op7-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 7,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op7-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 7,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op7-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 7,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op7-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 7,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op7-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 7,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op8-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 8,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op8-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 8,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op8-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 8,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op8-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 8,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op8-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 8,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op8-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 8,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op8-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 8,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op8-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 8,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op9-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 9,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op9-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 9,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op9-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 9,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op9-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 9,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op9-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 9,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op9-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 9,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op9-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 9,
+        "distinct_contexts": false,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op9-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 9,
+        "distinct_contexts": true,
+        "caller_lock": true
+      }
+    },
+    {
+      "name": "op10-kind0-contexts0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 10,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op10-kind0-contexts1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 10,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op10-kind1-contexts0",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 10,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op10-kind1-contexts1",
+      "inputs": {
+        "primary": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          1,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 10,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op10-kind2-contexts0",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 10,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op10-kind2-contexts1",
+      "inputs": {
+        "primary": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          2,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 10,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op10-kind3-contexts0",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 10,
+        "distinct_contexts": false,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "op10-kind3-contexts1",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          3,
+          3,
+          2,
+          1,
+          2,
+          1,
+          1
+        ],
+        "operation": 10,
+        "distinct_contexts": true,
+        "caller_lock": false
+      }
+    },
+    {
+      "name": "null-primary-op0",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 0
+      }
+    },
+    {
+      "name": "null-primary-op1",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 1
+      }
+    },
+    {
+      "name": "null-primary-op2",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 2
+      }
+    },
+    {
+      "name": "null-primary-op3",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 3
+      }
+    },
+    {
+      "name": "null-primary-op4",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 4
+      }
+    },
+    {
+      "name": "null-primary-op5",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 5
+      }
+    },
+    {
+      "name": "null-primary-op6",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 6
+      }
+    },
+    {
+      "name": "null-primary-op7",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 7
+      }
+    },
+    {
+      "name": "null-primary-op8",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 8
+      }
+    },
+    {
+      "name": "null-primary-op9",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 9
+      }
+    },
+    {
+      "name": "null-primary-op10",
+      "inputs": {
+        "primary": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 10
+      }
+    },
+    {
+      "name": "null-other-op0",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 0
+      }
+    },
+    {
+      "name": "null-other-op1",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 1
+      }
+    },
+    {
+      "name": "null-other-op2",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 2
+      }
+    },
+    {
+      "name": "null-other-op3",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 3
+      }
+    },
+    {
+      "name": "null-other-op4",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 4
+      }
+    },
+    {
+      "name": "null-other-op5",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 5
+      }
+    },
+    {
+      "name": "null-other-op6",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 6
+      }
+    },
+    {
+      "name": "null-other-op7",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 7
+      }
+    },
+    {
+      "name": "null-other-op8",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 8
+      }
+    },
+    {
+      "name": "null-other-op9",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 9
+      }
+    },
+    {
+      "name": "null-other-op10",
+      "inputs": {
+        "primary": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "operation": 10
+      }
+    }
+  ]
+}
