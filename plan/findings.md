@@ -7871,3 +7871,11 @@ runners. Its baseline output matched exactly and Memcheck reported zero errors
 without suppressions. Leak checking was disabled: unknown live objects after a
 failed consuming native call are retained, as described above. This does not
 claim that those failure paths are leak-free.
+
+Reverified after merging main's curve_class_p2 (#85): the two default unit
+reports, perturbation, fuzz counts and Valgrind baseline stayed identical.
+Both clippy configurations, formatting (including explicit include files),
+1,389 kernel tests, three FFI guard tests and wasm passed. The complete
+211-unit green/partial matrix passed with zero failures; a per-log audit found
+zero green units with deferred cases. The earlier interrupted matrix on the old
+main base is excluded from this verification evidence.
