@@ -39,8 +39,12 @@ const OP: &str = "boolean::merge::p3";
 /// retain their canonical merge engine between `construct` and `manifold_boolean`.
 /// `Operand` permits cross-arena handles as well as owned B-reps.
 pub trait BooleanDriver {
-    /// A nullable owned B-rep or a handle to one in the driver's storage.
+    /// A non-null owned B-rep or a non-null handle in the driver's storage.
     type Operand;
+    /// Whether two operands refer to the same B-rep. Owned-value drivers return
+    /// false because distinct owned operands cannot alias; handle drivers compare
+    /// their canonical identities, rather than geometry equality.
+    fn same_operand(&self, left: &Self::Operand, right: &Self::Operand) -> bool;
     /// `SmMerge(context, primary, other, approx_tol, angle_tol, options)`.
     fn construct(
         &mut self,
@@ -72,6 +76,10 @@ pub struct DependencyMerge;
 
 impl BooleanDriver for DependencyMerge {
     type Operand = Brep;
+
+    fn same_operand(&self, _left: &Brep, _right: &Brep) -> bool {
+        false
+    }
 
     fn construct(
         &mut self,
@@ -186,6 +194,15 @@ pub fn merge_breps<D: BooleanDriver>(
             OP,
             "fewer than two B-reps or operation outside 0..=3",
         ));
+    }
+    for (index, operand) in breps.iter().enumerate() {
+        if breps
+            .iter()
+            .take(index)
+            .any(|earlier| driver.same_operand(operand, earlier))
+        {
+            return Err(SolidError::invalid_input(OP, "duplicate B-rep operand"));
+        }
     }
     let mut ordered = Vec::new();
     let mut trees = vec![0];
@@ -680,6 +697,9 @@ mod tests {
     }
     impl BooleanDriver for Trace {
         type Operand = i64;
+        fn same_operand(&self, left: &i64, right: &i64) -> bool {
+            left == right
+        }
         fn construct(
             &mut self,
             _k: &mut Kernel,
@@ -719,6 +739,10 @@ mod tests {
         let mut input = vec![1, 2, 3];
         assert!(merge_breps(&mut k, &mut input, 4, None, &mut driver).is_err());
         assert_eq!(input, [1, 2, 3]);
+        assert!(driver.pairs.is_empty());
+        let mut duplicates = vec![1, 2, 1];
+        assert!(merge_breps(&mut k, &mut duplicates, 0, None, &mut driver).is_err());
+        assert_eq!(duplicates, [1, 2, 1]);
         assert!(driver.pairs.is_empty());
         assert_eq!(
             merge_breps(&mut k, &mut input, 2, None, &mut driver).unwrap(),

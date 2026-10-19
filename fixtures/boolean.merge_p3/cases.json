@@ -244,7 +244,8 @@
         ],
         "b": [],
         "tree": []
-      }
+      },
+      "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:766 (TestMergeBrepsOperation geometry; result path deferred)"
     },
     {
       "name": "upstream_merge_breps_operation_1",
@@ -280,7 +281,8 @@
         ],
         "b": [],
         "tree": []
-      }
+      },
+      "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:766 (TestMergeBrepsOperation geometry; result path deferred)"
     },
     {
       "name": "upstream_merge_breps_operation_2",
@@ -316,7 +318,8 @@
         ],
         "b": [],
         "tree": []
-      }
+      },
+      "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:766 (TestMergeBrepsOperation geometry; result path deferred)"
     },
     {
       "name": "upstream_merge_breps_operation_3",
@@ -352,7 +355,8 @@
         ],
         "b": [],
         "tree": []
-      }
+      },
+      "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:766 (TestMergeBrepsOperation geometry; result path deferred)"
     },
     {
       "name": "rejected_operation_-1",
@@ -718,7 +722,8 @@
           }
         ],
         "tree": []
-      }
+      },
+      "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:2509 (TestSmBooleanLists; result path deferred)"
     },
     {
       "name": "nonmanifold_0",
@@ -1052,7 +1057,8 @@
           }
         ],
         "tree": []
-      }
+      },
+      "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:2485 (TestSmPiecewiseMerge geometry with both piecewise flags; result path deferred)"
     },
     {
       "name": "upstream_piecewise_boxes_1",
@@ -1089,7 +1095,8 @@
           }
         ],
         "tree": []
-      }
+      },
+      "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:2485 (TestSmPiecewiseMerge geometry with both piecewise flags; result path deferred)"
     },
     {
       "name": "upstream_piecewise_boxes_2",
@@ -1126,7 +1133,8 @@
           }
         ],
         "tree": []
-      }
+      },
+      "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:2485 (TestSmPiecewiseMerge geometry with both piecewise flags; result path deferred)"
     },
     {
       "name": "upstream_piecewise_boxes_3",
@@ -1163,7 +1171,8 @@
           }
         ],
         "tree": []
-      }
+      },
+      "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:2485 (TestSmPiecewiseMerge geometry with both piecewise flags; result path deferred)"
     },
     {
       "name": "box_leaf_tree",

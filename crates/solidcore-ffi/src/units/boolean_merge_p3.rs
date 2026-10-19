@@ -1,6 +1,6 @@
 //! Guarded calls to the five `SmMerge` entry points of `boolean.merge_p3`.
 //! The flat program is family, operation, option-mask, has-options, list lengths,
-//! one shell-vertex point per B-rep, tree length, tree nodes. Family 0 evaluates
+//! shell-vertex points or box origins/dimensions, tree length, tree nodes. Family 0 evaluates
 //! trees, 1 folds a list, 2 combines lists, 3 nonmanifold Boolean, 4 piecewise.
 //! Results begin with the native status; successful B-reps include stable input
 //! identity and the complete `sc_topology_fixture` graph export.

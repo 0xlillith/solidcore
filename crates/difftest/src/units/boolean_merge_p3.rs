@@ -154,6 +154,9 @@ impl Pool {
 }
 impl BooleanDriver for Pool {
     type Operand = usize;
+    fn same_operand(&self, left: &usize, right: &usize) -> bool {
+        left == right
+    }
     fn construct(
         &mut self,
         _k: &mut Kernel,

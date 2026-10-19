@@ -7703,3 +7703,38 @@ That specific missing constructor branch is `UNPORTED(surface.surface_p1)`; the
 port must not substitute a derived-preserving `Surface::copy` and silently fix
 the native behavior. `surface.surface_p1` remains partial; its notes record the
 missing base-copy branch. No crash or geometric result is claimed for it.
+
+Dependency-tag audit against the merged plan (all `todo` owners may have claimed
+PRs; none is reimplemented here):
+
+| Tag | Upstream callee | Owner status / action |
+| --- | --- | --- |
+| `boolean.merge_p2` | `SmMerge::SmMerge` | todo; argument-complete constructor adapter |
+| `boolean.merge_p4` | `SmMerge::ManifoldBoolean` | todo; argument-complete engine adapter |
+| `topology.brep_p3` | `SmBrep` copy constructor, `SmBrep::MergeBrep` | todo; complete copy maps/flags retained |
+| `topology.brep_p8` | `SmBrep::CreateFaceFromSurface` | todo; surface and UV domain retained |
+| `surface.surface_p1` | sliced-base `SmSurface` copy constructor | partial; exact missing branch described above |
+| `topology.brep_p5` | `SmBrep::StitchAndOrient`, `SmBrep::RemoveFaces` | todo; default arguments retained |
+| `topology.brep_p4` | `SmBrep::ShrinkGeometry` | todo |
+| `primitive.primitive_creation_p1` | `SmPrimitiveCreation::Boolean2D` | todo; operands and operation retained |
+| `boolean.topology_intersector_p2` | `SmTopologyIntersector::IntersectInsertRelate` | todo; runner adapter defers at this call |
+| `topology.brep_p2` | `SmBrep::IsManifoldSolid` | todo; existing API runner needs it to serialize nonempty successful tree results |
+| `boolean.merge_p3` (removed) | `SmMerge::merge_breps`, `BooleanLists`, `BooleanTrees` | all three API back-edges wired; none remain in kernel code |
+
+The shim uses the persistent API fixture context for all operands, copies and
+merge engines. Failed consuming native calls do not reveal a complete live-object
+set, so their unknown objects are retained rather than risking double deletion;
+a per-call stack context would leave their context/cache references dangling.
+This fixture lifetime correction is not classified as an upstream defect.
+
+The generic fold adapter checks canonical operand identity before draining any
+input, matching the native duplicate-pointer validation. Owned `Brep` values
+cannot alias; storage-handle drivers implement `BooleanDriver::same_operand`.
+The regression verifies that duplicate handles leave the whole input unchanged.
+
+Verification is currently blocked by a SIGSEGV (process exit 139) in the full
+native comparison before any summary/report is produced. A persistent-context
+shim lifetime correction did not resolve the crash. No narrower failing input or
+upstream cause is established, and no upstream issue is attributed to this crash.
+The overseer has assigned a separate diagnostic session; this author is running
+Rust-only gates and source comparisons while awaiting its findings.

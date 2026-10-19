@@ -5,6 +5,7 @@
 #include "sc_sm.h"
 #include <SmMerge.h>
 #include <SmApiPrimitives.h>
+#include <SmApiGeneral.h>
 #include <cmath>
 #include <algorithm>
 #include <set>
@@ -77,7 +78,10 @@ SC_EXPORT int32_t sc_boolean_merge_p3_eval(const double* input, int64_t n,
         if(rd.at!=rd.n || (family==0 && nb!=0) || (family!=0 && nt!=0)
             || ((family==3 || family==4) && (operation<0 || operation>10))
             || (family==5 && (na!=1 || nb!=0))) throw Bad();
-        SmContext context;
+        // Failed consuming calls can leave live objects whose ownership is not
+        // observable. Their context must outlive the call, like the API fixture
+        // context used by SmApiCreateBox; a stack context leaves dangling caches.
+        SmContext& context = *SmApiGetOrCreateContext();
         std::vector<SmBrep*> originals;
         for(size_t i=0;i<points.size();++i) {
             auto point=points[i];
