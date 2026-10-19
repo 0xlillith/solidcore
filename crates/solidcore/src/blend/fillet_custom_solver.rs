@@ -191,7 +191,10 @@ fn offset_natural_uv_domain(s: &OffsetSurface) -> Extent2d {
 
 /// `Evaluate1stDerivatives(uv, TRUE, TRUE, ..)` of an offset surface:
 /// `(P, S_u, S_v)`.
-fn offset_evaluate_1st(s: &mut OffsetSurface, uv: Point2) -> Result<(Point3, Vec3, Vec3)> {
+pub(crate) fn offset_evaluate_1st(
+    s: &mut OffsetSurface,
+    uv: Point2,
+) -> Result<(Point3, Vec3, Vec3)> {
     s.surface
         .with_evaluator(|e| evaluate_1st_derivatives(e, uv, Side::Left, Side::Left))
 }
@@ -363,7 +366,7 @@ impl ConstantRadiusAssistedFs {
             .ok_or_else(|| SolidError::invalid_input(OP, "no offset surface for the rail"))
     }
 
-    fn surface_mut(&mut self, rail: usize) -> Result<&mut OffsetSurface> {
+    pub(crate) fn surface_mut(&mut self, rail: usize) -> Result<&mut OffsetSurface> {
         self.surfaces
             .get_mut(rail)
             .and_then(Option::as_mut)

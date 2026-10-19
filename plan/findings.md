@@ -7298,8 +7298,8 @@ with owner-tagged `Unported` errors and documented continuations.
   `m_pExecutive` (never initialised by the `SmFilletSolver` constructor, only set inside an
   `SmFilletExecutive`), then writes the rails of `GetLastFilletGeom()`, whose
   `SmFilletGeom(solver)` constructor leaves `m_vRails` `NULL`. The FFI therefore rejects a
-  `FlushCurve` of more than one point; the Rust side stops earlier at the offset surface
-  evaluation (`surface.offset_surface`) and is covered by unit tests. The 0/1-point paths
+  `FlushCurve` of more than one point; the Rust side evaluates the offset rails, stops at
+  `GetSelfIntersectionHandler` (`blend.fillet_solver_p1`) and is covered by unit tests. The 0/1-point paths
   (empty list `SM_ERR_NULL_POINTER`, boundary-touch flag, list cleared) are compared.
 - **Span tests over a plane are deferred.** `TestSpanAccuracy` / `ComputeNextPoint` map Hermite
   UV spans through `SmCrvOnSurf`, whose Rust port holds a `BSplineSurface`; `SmPlane::Evaluate`

@@ -68,7 +68,7 @@
 //!   three times its start, as upstream; each pass at most doubles it. No recursion.
 //! - **Not ported.** `Dump` and the `SM_DEBUG_CODE` drawing blocks; `SM_ASSERT`s.
 
-use crate::blend::fillet_custom_solver::ConstantRadiusAssistedFs;
+use crate::blend::fillet_custom_solver::{offset_evaluate_1st, ConstantRadiusAssistedFs};
 use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p3::PointSolveOptions;
 use crate::curve::curve::Curve;
@@ -322,18 +322,12 @@ pub trait FilletSolverOps {
     ///
     /// # Errors
     ///
-    /// The evaluation's failure; [`SolidError::Unported`] until ported.
+    /// The evaluation's failure.
     fn rail_surface_evaluate_1st_derivatives(
-        &self,
-        _rail: usize,
-        _uv: Point2,
-    ) -> Result<(Point3, Vec3, Vec3)> {
-        // UNPORTED(surface.offset_surface): SmOffsetSurface::Evaluate (via SmSurface::Evaluate1stDerivatives)
-        Err(SolidError::unported(
-            "SmOffsetSurface::Evaluate",
-            "surface.offset_surface",
-        ))
-    }
+        &mut self,
+        rail: usize,
+        uv: Point2,
+    ) -> Result<(Point3, Vec3, Vec3)>;
 
     /// `SetStatus(eStatus)`.
     ///
@@ -515,7 +509,7 @@ impl FilletSolverOps for ConstantRadiusAssistedFs {
     fn set_surfaces_to_zero_offset(&mut self) -> Result<()> {
         for (surface, saved) in self.surfaces.iter_mut().zip(self.saved_offsets.iter_mut()) {
             if let Some(s) = surface {
-                *saved = s.offset_distance;
+                *saved = s.offset_distance();
                 s.set_offset_distance(0.0);
             }
         }
@@ -529,6 +523,14 @@ impl FilletSolverOps for ConstantRadiusAssistedFs {
             }
         }
         Ok(())
+    }
+
+    fn rail_surface_evaluate_1st_derivatives(
+        &mut self,
+        rail: usize,
+        uv: Point2,
+    ) -> Result<(Point3, Vec3, Vec3)> {
+        offset_evaluate_1st(self.surface_mut(rail)?, uv)
     }
 }
 
@@ -1730,6 +1732,7 @@ mod tests {
     use crate::blend::fillet_custom_solver::{OffsetSurface, SurfaceId};
     use crate::intersect::adv_surface_intersector::NoSurfaceHandle;
     use crate::nurbs::b_spline_surface::BSplineSurface;
+    use crate::surface::offset_surface::SS_UNKNOWN;
 
     fn bilinear(p: [[f64; 3]; 4]) -> Surface {
         let [a, b, c, d] = p.map(Vec3::from);
@@ -1737,14 +1740,20 @@ mod tests {
     }
 
     fn solver(a: &Surface, b: &Surface) -> ConstantRadiusAssistedFs {
+        let k = Kernel::default();
         ConstantRadiusAssistedFs::from_parts(
             0.001,
             0.5,
             0.03,
             [1.0, 2.0],
             [
-                Some(OffsetSurface::new(1.0, a.clone(), SurfaceId::Free(0))),
-                Some(OffsetSurface::new(-2.0, b.clone(), SurfaceId::Free(1))),
+                Some(
+                    OffsetSurface::new(&k, 1.0, a.clone(), SurfaceId::Free(0), SS_UNKNOWN).unwrap(),
+                ),
+                Some(
+                    OffsetSurface::new(&k, -2.0, b.clone(), SurfaceId::Free(1), SS_UNKNOWN)
+                        .unwrap(),
+                ),
             ],
             [1.0, -1.0],
             [None, None],
@@ -1830,7 +1839,7 @@ mod tests {
         assert!(fi
             .test_span_accuracy(&mut s, &Kernel::default(), p, z, None)
             .is_err());
-        assert_eq!(s.surfaces[0].as_ref().unwrap().offset_distance, 1.0);
+        assert_eq!(s.surfaces[0].as_ref().unwrap().offset_distance(), 1.0);
     }
 
     #[test]
@@ -1858,8 +1867,8 @@ mod tests {
         assert!(r.found_good_point);
         assert!(r.deviation_found.is_none());
         // offsets restored
-        assert_eq!(s.surfaces[0].as_ref().unwrap().offset_distance, 1.0);
-        assert_eq!(s.surfaces[1].as_ref().unwrap().offset_distance, -2.0);
+        assert_eq!(s.surfaces[0].as_ref().unwrap().offset_distance(), 1.0);
+        assert_eq!(s.surfaces[1].as_ref().unwrap().offset_distance(), -2.0);
         assert_eq!(s.saved_offsets, [1.0, -2.0]);
     }
 
@@ -1915,7 +1924,8 @@ mod tests {
         assert!(fi.curr_fillet_touch_boundary());
         assert!(fi.base.base.curve_points().is_empty());
         assert!(out.curve_types.is_empty());
-        // two points reach the offset surface evaluation
+        // two points evaluate the offset rails, then reach the solver's
+        // self-intersection handler (blend.fillet_solver_p1)
         let p = fi
             .base
             .base
@@ -1929,7 +1939,16 @@ mod tests {
         let e = fi
             .flush_curve(&mut s, &Kernel::default(), &mut out)
             .unwrap_err();
-        assert!(e.is_unported());
+        assert!(
+            matches!(
+                e,
+                SolidError::Unported {
+                    unit: "blend.fillet_solver_p1",
+                    ..
+                }
+            ),
+            "{e:?}"
+        );
         assert!(!fi.curr_fillet_touch_boundary());
     }
 

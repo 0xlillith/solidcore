@@ -18,13 +18,14 @@
 //! `PointOnPlaneSolve` in `EvaluateLawPoint`) and the span test past its angle check on a plane
 //! (`SmCrvOnSurf` over an `SmPlane`, a dispatch gap of `curve.crv_on_surf`). `FlushCurve` of two
 //! or more points is not run: in C++ it dereferences the solver's unset executive and the
-//! fillet geometry's `NULL` rails (the Rust side stops earlier, at the offset surface
-//! evaluation of `surface.offset_surface`; unit tests cover it).
+//! fillet geometry's `NULL` rails (the Rust side evaluates the offset rails, then stops at
+//! `SmFilletSolver::GetSelfIntersectionHandler`; unit tests cover it).
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 use solidcore::blend::fillet_custom_solver::{ConstantRadiusAssistedFs, OffsetSurface, SurfaceId};
+use solidcore::surface::offset_surface::SS_UNKNOWN;
 use solidcore::blend::fillet_intersector::{
     find_guess_mid_tsect_pnt, flush_crv, FilletIntersector, TYPE,
 };
@@ -637,6 +638,15 @@ fn op_code(op: &OpIn) -> f64 {
     }
 }
 
+/// A rail's `SmOffsetSurface(d, base)` as `SmConstantRadiusFS` builds it (default
+/// `lSingularities`, `SS_UNKNOWN`).
+fn rail_offset(k: &Kernel, d: f64, base: Surface, id: SurfaceId) -> Result<OffsetSurface, Fail> {
+    OffsetSurface::new(k, d, base, id, SS_UNKNOWN).map_err(|e| match Output::unported(&e) {
+        Some(o) => Fail::Deferred(Box::new(o)),
+        None => Fail::Harness(harness(format!("offset surface: {e}"))),
+    })
+}
+
 fn rust_record(i: &Inputs) -> Result<Vec<f64>, Fail> {
     let k = Kernel::default();
     let a = rust_surface(&i.a)?;
@@ -647,19 +657,19 @@ fn rust_record(i: &Inputs) -> Result<Vec<f64>, Fail> {
     let bref = b.as_ref().unwrap_or(&a);
     let s = &i.solver;
     let orient = s.orient.map(|f| if f { 1.0 } else { -1.0 });
+    let off0 = rail_offset(&k, s.radii[0] * orient[0], a.clone(), SurfaceId::Free(0))?;
+    let off1 = rail_offset(
+        &k,
+        s.radii[1] * orient[1],
+        bref.clone(),
+        SurfaceId::Free(u32::from(b.is_some())),
+    )?;
     let mut solver = ConstantRadiusAssistedFs::from_parts(
         s.tol,
         s.ang_tol,
         s.tangency_tol,
         s.radii,
-        [
-            Some(OffsetSurface::new(s.radii[0] * orient[0], a.clone(), SurfaceId::Free(0))),
-            Some(OffsetSurface::new(
-                s.radii[1] * orient[1],
-                bref.clone(),
-                SurfaceId::Free(u32::from(b.is_some())),
-            )),
-        ],
+        [Some(off0), Some(off1)],
         orient,
         [None, None],
     );
@@ -706,7 +716,7 @@ fn rust_record(i: &Inputs) -> Result<Vec<f64>, Fail> {
         flag(fi.is_kind_of(7)),
     ]);
     for srf in &solver.surfaces {
-        o.push(srf.as_ref().map_or(ffi::UNSET, |s| s.offset_distance));
+        o.push(srf.as_ref().map_or(ffi::UNSET, OffsetSurface::offset_distance));
     }
     o.push(si.curve_points().len() as f64);
     o.push(si.points().len() as f64);
