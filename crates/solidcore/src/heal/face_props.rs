@@ -1921,8 +1921,9 @@ impl<O: LoopObject> FaceProps<O> {
             ..ClassifyLoopsOut::default()
         };
         let mut target_loops = closed_loops;
-        // (the status is only reported upstream)
-        let classify_status = ignored(crate::query::face::p4::classify_loops(
+        // (the status is only reported upstream; a handle type that cannot name the
+        // loop bisector's objects is a limitation of the caller, not a status)
+        let classify_status = match crate::query::face::p4::classify_loops(
             k,
             b,
             m_face,
@@ -1930,7 +1931,14 @@ impl<O: LoopObject> FaceProps<O> {
             &mut classified,
             &mut scratch,
             self,
-        ))?;
+        ) {
+            Err(e @ SolidError::InvalidInput { reason, .. })
+                if reason == crate::query::face::p3::NO_CURVE_HANDLES =>
+            {
+                return Err(e);
+            }
+            r => ignored(r)?,
+        };
         let ClassifyLoopsOut {
             classifiable,
             classify_loop_ios,
