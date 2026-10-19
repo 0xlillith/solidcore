@@ -63,7 +63,7 @@ use solidcore::surface::surface::Surface;
 use solidcore::topology::brep::{p10, p7};
 use solidcore::topology::database_io::FileType;
 use solidcore::topology::edge as ed;
-use solidcore::topology::{Brep, EdgeId, FaceId, RegionId};
+use solidcore::topology::{Brep, EdgeId, FaceId, Region, RegionId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_data as bd;
 use solidcore_ffi::units::topology_brep_p7::{self as ffi, Op};
@@ -853,6 +853,14 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 2 => Some(true),
                 _ => return Err(hfail("crv_on_surf code")),
             };
+let mut records = BTreeMap::new();
+            let mut attrs = AttributeStore::default();
+            let mut env = ed::NotifyEnv {
+                records: &mut records,
+                attributes: &mut attrs,
+                context: None,
+                key_of: &key_of,
+            };
             let r = p7::make_face_with_curves(
                 k,
                 &mut b,
@@ -863,6 +871,7 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 orient_of(*orient)?,
                 cos,
                 &this_face,
+                &mut env,
             );
             new_face_record(&b, &r)
         }
@@ -885,11 +894,38 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                         return Ok(vec![NOT_RUN]);
                     }
                 }
-                // the loop needs MakeShellVertex (topology.brep_p9), then MakeWireEdgeVertex
-                // and MakeWireEdge (topology.brep_p3), before MakeFace sees it
+                // The shim's loop starts with MakeShellVertex in a fresh B-rep's region;
+                // run it, then MakeWireEdgeVertex and MakeWireEdge (topology.brep_p3)
+                // come before MakeFace sees the loop.
+                let mut b = Brep::new();
+                let region = b
+                    .add_region_record(Region {
+                        in_brep: true,
+                        ..Region::default()
+                    })
+                    .map_err(hfail)?;
+                let mut records = BTreeMap::new();
+                let mut attrs = AttributeStore::default();
+                let mut env = ed::NotifyEnv {
+                    records: &mut records,
+                    attributes: &mut attrs,
+                    context: None,
+                    key_of: &key_of,
+                };
+                if let Err(e) = solidcore::topology::brep::p9::make_shell_vertex(
+                    &mut b,
+                    Some(region),
+                    p[0],
+                    &mut env,
+                ) {
+                    return Err(match Output::unported(&e) {
+                        Some(o) => Fail::Deferred(Box::new(o)),
+                        None => hfail(e),
+                    });
+                }
                 return Err(Fail::Deferred(Box::new(Output::deferred(
-                    "topology.brep_p9",
-                    "SmBrep::MakeShellVertex",
+                    "topology.brep_p3",
+                    "SmBrep::MakeWireEdgeVertex",
                 ))));
             }
             // (the shim passes the new B-rep's GetInfiniteRegion() unless null)
@@ -980,7 +1016,15 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             let (mut b, _) = shared::import(ex)?;
             let faces: Vec<FaceId> = b.faces().ids().take(*n as usize).collect();
             let (mut dest, _) = native_brep()?;
-            let r = p7::copy_faces(k, &mut b, &faces, &mut dest, *merge, &this_face);
+            let mut records = BTreeMap::new();
+            let mut attrs = AttributeStore::default();
+            let mut env = ed::NotifyEnv {
+                records: &mut records,
+                attributes: &mut attrs,
+                context: None,
+                key_of: &key_of,
+            };
+            let r = p7::copy_faces(k, &mut b, &faces, &mut dest, *merge, &this_face, &mut env);
             // (a face that could not be copied makes upstream's status SM_ERR; the copies
             // made are kept)
             let s = match &r {

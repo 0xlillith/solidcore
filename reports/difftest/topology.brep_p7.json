@@ -3,8 +3,8 @@
   "cases": [
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0000",
@@ -15,8 +15,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0001",
@@ -51,8 +51,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0005",
@@ -115,8 +115,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0012",
@@ -127,8 +127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0013",
@@ -2447,8 +2447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_0",
@@ -2459,8 +2459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_1",
@@ -2471,8 +2471,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_2",
@@ -2483,8 +2483,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_3",
@@ -2507,8 +2507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_5",
@@ -2519,8 +2519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_6",
@@ -2531,8 +2531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf (non-B-spline surface)",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_7",
@@ -2543,8 +2543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_8",
@@ -2555,8 +2555,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_9",
@@ -2567,8 +2567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_10",
@@ -2579,8 +2579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_11",
@@ -2591,8 +2591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_12",
@@ -2603,8 +2603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_13",
@@ -2615,8 +2615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_14",
@@ -2627,8 +2627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_15",
@@ -2639,8 +2639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_16",
@@ -2651,8 +2651,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_17",
@@ -2663,8 +2663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_18",
@@ -2675,8 +2675,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::GetInfiniteRegion",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_19",
@@ -2727,8 +2727,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_cos_no_uv_0_1",
@@ -2775,8 +2775,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_curves_cos_no_uv_2_1",
@@ -2819,8 +2819,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "make_face_small_1e-12",
@@ -2959,8 +2959,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "make_face_1_0_1",
@@ -2971,8 +2971,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "make_face_1_0_2",
@@ -2983,8 +2983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "make_face_1_1_1",
@@ -2995,8 +2995,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "make_face_1_1_2",
@@ -3013,12 +3013,12 @@
   "cases_total": 316,
   "deferred_by_unit": {
     "cpp-guard:ub-165": 3,
-    "curve.crv_on_surf": 2,
+    "curve.crv_on_surf": 1,
     "curve.curve_p6": 2,
     "surface.sphere": 20,
     "surface.surface_p2": 4,
-    "topology.brep_p2": 51,
-    "topology.brep_p9": 30,
+    "topology.brep_p1": 12,
+    "topology.brep_p2": 70,
     "topology.face_p2": 6,
     "topology.face_p3": 1
   },
