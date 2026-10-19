@@ -57,8 +57,7 @@
 //!   a failed `GetEnds` keeps the previous end point. A failed `CopyAndAddAnalytics` is
 //!   [`SolidError::InvalidInput`] (upstream then dereferences the null copy), as is
 //!   `pbOptCrvOnSurf` without UV curves (upstream loops over a null array).
-//! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::GetInfiniteRegion`
-//!   (`topology.brep_p1`); `SmBrep::Notify`, `SetTolerance`, `sm_CheckAndFixUVTrimCurves`,
+//! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::Notify`, `SetTolerance`, `sm_CheckAndFixUVTrimCurves`,
 //!   `RebuildUVTrimCurves` (`topology.brep_p2`); `MakeWireEdge`, `MakeWireEdgeVertex`
 //!   (`topology.brep_p3`); `DeleteEdge` (`topology.brep_p4`); `GlueVertices`
 //!   (`topology.brep_p5`); `MakeShellVertex` (`topology.brep_p9`);
@@ -103,6 +102,7 @@ use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_curve_n_lib::InValueType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::{Surface, SurfaceKind};
+use crate::topology::brep::p1;
 use crate::topology::brep::p6;
 use crate::topology::brep_data::BrepData;
 use crate::topology::database_io::FileType;
@@ -121,25 +121,30 @@ fn null(reason: &'static str) -> SolidError {
 /// `SM_ZONE_TOL_3D / 10.0`: the default point tolerance of the surface degeneracy tests.
 const DEGENERATE_TOL_3D: f64 = crate::geom::tol::ZONE_TOL_3D / 10.0;
 
+/// `SmBrep::Remove(region)` (the inline `SmOwningTopology::Remove`): takes `region` off
+/// the B-rep's region list (`topology.brep_p1`'s [`p1::regions`] order); removing the
+/// list head passes the head to the next region, or `NULL` when the list empties.
+///
+/// # Errors
+///
+/// `SM_ERR` when `region` is not on the list.
+fn brep_remove_region(b: &mut Brep, region: RegionId) -> Result<()> {
+    let list = p1::regions(b, None)?;
+    if !list.contains(&region) {
+        return Err(SolidError::sm_err(OP));
+    }
+    let head = list.first().copied();
+    let new_head = if head == Some(region) {
+        list.get(1).copied()
+    } else {
+        head
+    };
+    b.region_mut(region)?.in_brep = false;
+    b.set_region_list_head(new_head);
+    Ok(())
+}
+
 // ---- unported callees ---------------------------------------------------------------------
-
-/// `GetInfiniteRegion()` (and the raw `m_pInfiniteRegion`).
-fn infinite_region(_b: &Brep) -> Result<RegionId> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::GetInfiniteRegion",
-        "topology.brep_p1",
-    ))
-}
-
-/// `m_pInfiniteRegion = SM_CAST_PTR(SmRegion, m_pList)` after a region was removed.
-fn reset_infinite_region(_b: &mut Brep) -> Result<()> {
-    // UNPORTED(topology.brep_p1): SmBrep::SetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::SetInfiniteRegion",
-        "topology.brep_p1",
-    ))
-}
 
 /// `SmBrep::Notify(op, data1, data2, data3)` (`None` for a null datum or for the B-rep,
 /// which has no identity here).
@@ -183,7 +188,7 @@ fn rebuild_uv_trim_curves(_k: &Kernel, _b: &mut Brep) -> Result<()> {
 /// `MakeWireEdge(region, start, end, curve, ivl, orient, rpNewEdge)`.
 fn make_wire_edge(
     _b: &mut Brep,
-    _region: RegionId,
+    _region: Option<RegionId>,
     _start: VertexId,
     _end: VertexId,
     _curve: Curve,
@@ -200,7 +205,7 @@ fn make_wire_edge(
 /// `MakeWireEdgeVertex(region, start, curve, ivl, orient, endPt, rpNewEdge, rpEndVertex)`.
 fn make_wire_edge_vertex(
     _b: &mut Brep,
-    _region: RegionId,
+    _region: Option<RegionId>,
     _start: VertexId,
     _curve: Curve,
     _ivl: Extent1d,
@@ -244,7 +249,7 @@ fn test_closure_split_region_edge(_b: &mut Brep, _e: EdgeId) -> Result<()> {
 /// `MakeShellVertex(region, point, rpNewShell, rpNewVertex)`.
 fn make_shell_vertex(
     _b: &mut Brep,
-    _region: RegionId,
+    _region: Option<RegionId>,
     _point: Point3,
 ) -> Result<(ShellId, VertexId)> {
     // UNPORTED(topology.brep_p9): SmBrep::MakeShellVertex
@@ -398,12 +403,13 @@ fn edge_remove(b: &mut Brep, e: EdgeId, eu: EdgeuseId) -> Result<()> {
 /// Merges `del_shell` into `keep_shell` and drops the empty region (the shell-merging
 /// tails of `GlueEdgesGeneral`).
 fn merge_shells(k: &mut Kernel, b: &mut Brep, mut del: ShellId, mut keep: ShellId) -> Result<()> {
-    let inf = infinite_region(b)?;
+    // m_pInfiniteRegion (NULL when unset; pointer equality, NULL == NULL)
+    let inf = b.infinite_region();
     let keep_region = eu1::shell_region(b, keep)?;
     let del_region = eu1::shell_region(b, del)?;
-    if keep_region == Some(inf) {
+    if keep_region == inf {
         // ok.
-    } else if del_region == Some(inf)
+    } else if del_region == inf
         // pKeepShell->IsInnerShell(bIsInner): swap when it succeeds with TRUE (asked
         // only when neither region is the infinite one)
         || ignored(b.shell(keep)?.is_inner_shell(k, b))? == Some(true)
@@ -418,8 +424,11 @@ fn merge_shells(k: &mut Kernel, b: &mut Brep, mut del: ShellId, mut keep: ShellI
     // pReg->Remove(pDelShell), then pReg->GetSize()
     crate::topology::shell::region_remove_shell(b, reg, del)?;
     if b.region(reg)?.shells.is_empty() {
-        b.region_mut(reg)?.in_brep = false;
-        reset_infinite_region(b)?;
+        // this->Remove(pReg) (status ignored)
+        ignore_status(brep_remove_region(b, reg))?;
+        // make sure infinite region points where it should: m_pInfiniteRegion = m_pList
+        let head = b.region_list_head();
+        b.set_infinite_region(head);
     }
     Ok(())
 }
@@ -492,8 +501,8 @@ pub struct NewFace {
 /// # Errors
 ///
 /// `SM_ERR_NULL_POINTER` without surface; those of the topology build;
-/// [`SolidError::Unported`] (`GetInfiniteRegion`; `SmFace::SetTolerance`, which
-/// `MakeFaceTopology` reaches first).
+/// [`SolidError::Unported`] (`SmFace::SetTolerance`, which `MakeFaceTopology` reaches
+/// first).
 #[allow(clippy::too_many_arguments)]
 pub fn make_face(
     _k: &Kernel,
@@ -511,10 +520,8 @@ pub fn make_face(
     let Some(mut surface) = surface else {
         return Err(SolidError::null_pointer(OP));
     };
-    let region = match region {
-        Some(r) => r,
-        None => infinite_region(b)?,
-    };
+    // GetInfiniteRegion() (an inline field read; NULL when unset)
+    let region = region.or(b.infinite_region());
 
     // get preexisting surface owner
     let old_owner = surface.owner();
@@ -529,7 +536,7 @@ pub fn make_face(
         orientation,
         this_face(next_face).key,
         &p6::FaceTopologyOptions {
-            region: Some(region),
+            region,
             edge_loops: loops,
             edgeuses,
             loop_vertices,
@@ -641,10 +648,8 @@ pub fn make_face_with_curves(
     if loops.is_empty() {
         return Err(SolidError::invalid_input(OP, "no loops"));
     }
-    let region = match region {
-        Some(r) => r,
-        None => infinite_region(b)?,
-    };
+    // GetInfiniteRegion() (an inline field read; NULL when unset)
+    let region = region.or(b.infinite_region());
     // (the surface tests return flags upstream: a failed test is "no")
     if ignored(surface.is_degenerate_curve(EFF_ZERO_DEG, None, DEGENERATE_TOL_3D))?.unwrap_or(false)
     {
@@ -961,7 +966,7 @@ pub fn make_face_with_curves(
     let made = make_face(
         k,
         b,
-        Some(region),
+        region,
         &sorted_loops,
         &face_edgeuses,
         &loop_vertices,
@@ -1342,8 +1347,9 @@ pub fn copy_faces(
     brep_set_tolerance(dest, src.tolerance(), true, true)?;
     let mut new_faces = Vec::new();
     let mut all_ok = true;
-    // (upstream reads the destination's infinite region before both branches)
-    let inf = infinite_region(dest)?;
+    // (upstream reads the destination's infinite region before both branches; an
+    // inline field read, NULL when unset)
+    let inf = dest.infinite_region();
 
     if use_merge {
         // (the merge object is made before the face loop; MakeFaceuse's status is
@@ -1389,7 +1395,7 @@ pub fn copy_faces(
         match make_face_with_curves(
             k,
             dest,
-            Some(inf),
+            inf,
             input,
             s2,
             &dom,
