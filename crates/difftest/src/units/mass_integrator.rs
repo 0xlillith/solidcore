@@ -386,15 +386,14 @@ fn geometry_rust(g: &Geometry) -> Output {
                         key_of: &|_| solidcore::geom::attribute::ObjectKey(0),
                     };
                     let brep = Brep::new();
-                    let f = solidcore::topology::FaceId::from_index(0);
                     let r: solidcore::Result<()> = match *query {
                         // The C++ face comes from SmBrep::CreateFaceFromSurface; the
                         // Rust side has no B-rep face builder yet, so the face API
                         // queries wait for it (their SmFace::CalculateBoundingBox is
-                        // ported, query.face_p1).
+                        // ported, query.face_p1); then props::face_area /
+                        // props::face_centroid on that face.
                         2 | 3 => {
                             // UNPORTED(topology.brep_p8): SmBrep::CreateFaceFromSurface
-                            let _ = (props::face_area, props::face_centroid, f);
                             Err(SolidError::unported(
                                 "SmBrep::CreateFaceFromSurface",
                                 "topology.brep_p8",

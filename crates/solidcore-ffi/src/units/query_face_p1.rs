@@ -155,7 +155,9 @@ fn tolerance(x: f64) -> Result<(), FfiError> {
 }
 
 fn at(args: &[f64], i: usize) -> Result<f64, FfiError> {
-    args.get(i).copied().ok_or_else(|| bad("arguments too short"))
+    args.get(i)
+        .copied()
+        .ok_or_else(|| bad("arguments too short"))
 }
 
 fn check_args(op: Op, args: &[f64]) -> Result<(), FfiError> {
@@ -173,6 +175,9 @@ fn check_args(op: Op, args: &[f64]) -> Result<(), FfiError> {
         }
         Op::Point3d => {
             // face P[3] src_tol do_bnd has_guess gu gv tgt_only has_loops n loop* uv_ok pc_tol
+            // Stricter than needed: the C++ also survives non-finite points/guesses and
+            // negative tolerances. Every Point3DClassify case defers on the Rust side
+            // today; narrow these checks when they start comparing (AGENTS.md §4 5.6).
             selector(at(args, 0)?, false)?;
             finite(args.get(1..4).ok_or_else(|| bad("arguments too short"))?)?;
             tolerance(at(args, 4)?)?;
@@ -264,14 +269,18 @@ mod eval_tests {
         assert!(check_args(Op::Box, &[0.0, -1.0, 0.0, 0.0]).is_err());
         assert!(check_args(Op::Box, &[0.0, 0.5, 0.0, 0.0]).is_err());
         assert!(check_args(Op::Box, &[2.0, 7.0, 1.0, 0.0]).is_ok());
-        let mut p = vec![0.0, 1.0, 2.0, 3.0, 1e-6, 0.0, 1.0, 0.5, 0.5, 1.0, 1.0, 1.0, 4.0, 1.0, 0.0];
+        let mut p = vec![
+            0.0, 1.0, 2.0, 3.0, 1e-6, 0.0, 1.0, 0.5, 0.5, 1.0, 1.0, 1.0, 4.0, 1.0, 0.0,
+        ];
         assert!(check_args(Op::Point3d, &p).is_ok());
         p[2] = f64::NAN;
         assert!(check_args(Op::Point3d, &p).is_err());
         p[2] = 2.0;
         p[11] = 65.0;
         assert!(check_args(Op::Point3d, &p).is_err());
-        let mut e = vec![0.0, -1.0, 3.0, 0., 0., 0., 1., 1., 1., 0.5, 0.0, 1.0, 0.0, 1e-6, 1.0];
+        let mut e = vec![
+            0.0, -1.0, 3.0, 0., 0., 0., 1., 1., 1., 0.5, 0.0, 1.0, 0.0, 1e-6, 1.0,
+        ];
         assert!(check_args(Op::EdgeOn, &e).is_ok());
         e[2] = 4.0;
         assert!(check_args(Op::EdgeOn, &e).is_err());

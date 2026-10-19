@@ -13,7 +13,7 @@
 //! | [`calculate_region_bounding_box_into`], [`calculate_region_bounding_box`] | `SmRegion::CalculateBoundingBox` |
 //! | [`point_3d_classify`], [`Point3dClassifyOptions`] | `SmFace::Point3DClassify` |
 //! | [`edge_curve_on_classify`], [`EdgeCurveOnOptions`], [`CurveOnClassification`] | `SmFace::EdgeCurveOnClassify` |
-//! | [`ClassifyProblem`]                   | `SmClassifyProblem` (CO-PORTED; same discriminants as `query.face_p3`'s copy in PR #132) |
+//! | [`ClassifyProblem`]                   | `SmClassifyProblem` (CO-PORTED; same discriminants as the copies in PR #132 `query.face_p3` and PR #239 `topology.face_p4`) |
 //!
 //! Deviations: a nullable curve is `Option<&Curve>`; `SmApiEvaluateCurve`'s three
 //! optional output pointers become one returned `[position, d1, d2]` (all three are
@@ -28,7 +28,11 @@
 //! box is computed unexpanded and expanded here, as the override's last step does.
 //! `Point3DClassify` builds no surface cache (the Rust point solvers take none, as in
 //! `topology::vertexuse` and `intersect::curve_class::p1`), so upstream's temporary
-//! switch-off of the cache's point test has nothing to act on, and `PointClassify` gets
+//! switch-off of the cache's point test (SmFace.cpp:12801) has nothing to act on yet:
+//! the face-owned surface's solve stops at `surface::surface::p4`'s
+//! `UNPORTED(query.face_p2)` `SmFace::PointClassify` stub, a call the C++ never makes
+//! here, and that stub's NOTE lists this caller so the switch is added for it when it is
+//! wired. `PointClassify` gets
 //! no trimmed surface cache (a fresh one is never face-containment-complete, so its
 //! cache branch cannot run). `EdgeCurveOnClassify` lifts a 2D curve to a curve on the
 //! face's surface only when an upward edge use of the face is found (upstream lifts it
