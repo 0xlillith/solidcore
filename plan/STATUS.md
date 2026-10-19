@@ -1,6 +1,12 @@
 # solidcore status
 
-Last updated: 2026-10-15, `mass.integrator` partial and `curve.curve_p3` green (PR #119); PR #115 (`topology.brep_cache` partial). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml` and evidence in `reports/difftest/`.
+Last updated: 2026-10-16, PR #127 (`sweep.trans_sweep_geometry` partial: 719 bit-identical passes, 50 deferred on `surface.cone_p2`, 19 rejected native fixtures). Per-unit state and evidence are in `plan/modules.toml` and `reports/difftest/`.
+
+Latest topology integration: `topology.brep_p6` partial (PR #169, after its dependency #154: 498 cases, 450 pass, 48 deferred, 0 failed; 206 units, 113 green and 93 partial); before: `topology.shell` partial (PR #154, continuing @0xlillith's PR #80: 192 ported units, 109 green and 83 partial); before: `surface.surface_p11` partial (PR #120: 176 ported units, 98 green and 78 partial; `intersect.surface_silhouette` promoted to green); before: `mass.integrator` partial and `curve.curve_p3` green (PR #119); PR #115 (`topology.brep_cache` partial). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml` and evidence in `reports/difftest/`.
+
+Latest main integration: `surface.surface_p11` partial (PR #120: 176 ported units, 98 green and 78 partial; `intersect.surface_silhouette` promoted to green).
+
+Latest unit: `intersect.curve_class_p9` ([PR #151](https://github.com/bherbruck/solidcore/pull/151)) is partial on a standalone official-main base: review validation has 424 differential cases, 225 bit-identical passes, 197 dependency deferrals, 2 native setup rejections and zero failures. It ports edge and trim-boundary intersections with concrete query handle mappings. Pole lookup now matches the native FALSE default; collapsed caches, wider input ranges and positive endpoint classification are covered. Interior partition insertion awaits part 2. No open dependency PR is bundled. The manifest has 195 ported units (108 green, 87 partial); final integration results are recorded in the PR checks.
 
 
 ## Integration update (2026-10-15, PR #119)
@@ -16,6 +22,8 @@ Precise edge/face/B-rep properties and their API control flow use explicit calls
 for the remaining topology, bounding-box and offset dependencies. Detailed coverage
 and the scalar wrapper's failure-masking behavior are in `plan/findings.md`.
 
+
+Latest unit: `surface.cone_p3` ([PR #131](https://github.com/bherbruck/solidcore/pull/131)) adds analytic cone/cylinder plane sections and cone/cone intersections: 1308 differential cases, 1187 bit-identical passes, 121 dependency deferrals, zero failures. Ellipse trimming awaits `surface.cone_p2`; coincident boundaries now await the Cone/Cylinder `SurfaceKind` adapter in #76/#133, because #120 merged but its boundary API requires typed `Surface` operands. Shared cone/sphere enum dispatch remains coordinated in issue #76. Review follow-up narrows the native guard to exact cone dispatch, adds tolerance/constructor/flag regressions with native FFI safety tests validated locally.
 
 ## Handoff (2026-10-13): from one local swarm to pull requests
 
@@ -952,3 +960,57 @@ suite passes 173 units
 (97 green, 76 partial), with zero failures; the final API rerun and touched-unit
 perturbation also pass (6,463/6,463 detected). Committed reports total 435,272 cases:
 422,654 compared, 12,618 deferred, zero failed.
+
+## Independent curve-classification part 5
+
+The p5 implementation and oracle remain independent of the open p2/p7 PRs.
+Part 6 landed independently through PR #138 and is inherited from main; all four
+p6 call sites are wired. Fresh validation on 9e495b12 compares 275/1,081 cases
+exactly, with zero failures and 806 explicit deferrals (p2 493, p7 312,
+curve.crv_on_surf 1). Perturbation detects all 275 compared cases. All nine affected
+native runners, plain/native Clippy, 1,215 kernel tests, WASM and the focused FFI
+regression pass. The eight other reports are unchanged.
+The edge-target insertion and SSS blocks remain unported; nonempty large-gap
+projection and tangent-flag behavior remain uncertified. Shared interfaces are
+recorded as CO-PORTED. The proto-topology p3 extraction back-edge is wired and the
+lazy-UV issue remains UB-134.
+
+## Curve-classification interval integration (2026-10-16, PR #138)
+
+`intersect.curve_class_p6` is partial: 4438 cases: 3927 bit-identical kernel comparisons,
+6 expected FFI rejection checks, zero failures and 505 explicit deferrals, without absolute floors. Insertion,
+homogenization and endpoint repair follow the upstream control flow, retaining
+explicit dependency boundaries. `MergeInterval` implements its early exits;
+its topology mutation remains deferred at the p2 boundary-tolerance lookup.
+Nonempty homogenization/repair and 2D classification are not certified.
+
+The oracle uses concrete native geometric types and real box topology, records
+point-classification state and created-entity outputs, and compares actual curve
+evaluations. Native FFI regressions include 27440 isolated combinations of
+operations, geometric kinds, flags and classifications, plus 96 partition/SSS/boundary
+probes and 660 mismatched fillet-partner probes. They run locally with the project CI workflow unchanged. The unit remains partial.
+
+## Boolean wire/shell-vertex stage (2026-10-16, PR #161)
+
+`boolean.merge_p5` is partial: 140 cases, 108 bit-identical comparisons, zero
+failures, and 32 explicit deferrals on `query.brep::SmBrep::Point3DClassify`.
+No absolute floors. The real `SmMerge::ProcessWiresAndShellVertices` oracle checks
+native topology order, mate retention, complete arena connectivity, established
+marks, geometry and output resetting across all 11 operations. Classification,
+deletion and copying retain explicit dependency boundaries; their mutation paths
+are not certified. No incoming back-edges or new dependency types were co-ported.
+
+The FFI guard rejects part-container headers before the B-rep reader (UB-1,
+reconfirmed with GDB); actual B-rep files supply the solid fixtures. Both shared
+mark types and marked non-wire edges without mates remain valid and covered.
+
+PR #161 review fixes: mate validation is limited to the four keep operations;
+unmated marked wires pass for all seven other operations. Eighteen added fixtures
+cover missing mates and nonidentity mate order. Both runners reject conflicting
+`Relate` mappings, generated operands/marks/mates vary independently, and the
+module header records the future need for mutable relation state when wiring copy
+adapters.
+
+Review verification: the extended 256-seed run has 380 cases, 291 bit-identical
+passes, zero failures and 89 query deferrals. Perturbation detects every compared
+case (108/108 default, 291/291 extended).

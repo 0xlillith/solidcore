@@ -2,7 +2,7 @@
 
 # solidcore
 
-**📊 Live progress: [bherbruck.github.io/solidcore](https://bherbruck.github.io/solidcore/)**: every unit's port status and difftest results, the upstream-issues log, and the surface/surface intersection corpus scores, regenerated on every merge.
+**📊 Live progress: [tangency-labs.github.io/solidcore](https://tangency-labs.github.io/solidcore/)**: every unit's port status and difftest results, the upstream-issues log, and the surface/surface intersection corpus scores, regenerated on every merge.
 
 solidcore is a Rust port of NVIDIA's SMLib: a boundary-representation (B-rep) solid
 modeling kernel in safe Rust (SMLib is from [USD BRep](https://github.com/NVIDIA-Omniverse/usd-brep), Apache-2.0).
@@ -76,6 +76,12 @@ rustflags = ["-C", "link-arg=-zstack-size=8388608"]   # 8 MiB, as a native main 
 ```
 
 ## Difftest (Rust vs C++)
+
+The C++ reference build requires Bash, CMake 3.20 or newer, and a C++17 toolchain.
+Ninja is optional: when absent, CMake uses its default generator (typically Unix
+Makefiles, which requires `make`). Linux with GNU C++ is the parity reference used
+in CI; shell compatibility on macOS does not establish Apple-Clang difftest parity.
+Rust-only builds do not need these C++ build tools.
 
 ```sh
 git clone https://github.com/NVIDIA-Omniverse/usd-brep upstream

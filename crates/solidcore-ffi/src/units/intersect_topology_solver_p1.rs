@@ -161,52 +161,9 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Sequential reader over the input.
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
+crate::reader::unit_reader!(MAX_COORD);
 
-impl<'a> Reader<'a> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
-    /// A finite value of magnitude at most [`MAX_COORD`].
-    fn finite(&mut self) -> Result<f64, FfiError> {
-        let v = self.num()?;
-        if !v.is_finite() || v.abs() > MAX_COORD {
-            return Err(bad(format!("value {v} not finite or too large")));
-        }
-        Ok(v)
-    }
-
-    fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
-        Ok([self.finite()?, self.finite()?, self.finite()?])
-    }
-
-    fn nonzero3(&mut self) -> Result<[f64; 3], FfiError> {
-        let v = self.vec3()?;
-        if v.iter().map(|c| c * c).sum::<f64>() < 1e-12 {
-            return Err(bad("zero vector"));
-        }
-        Ok(v)
-    }
-
-    fn index(&mut self, max: usize) -> Result<usize, FfiError> {
-        let v = self.num()?;
-        if v.fract() != 0.0 || v < 0.0 || v > max as f64 {
-            return Err(bad(format!("bad index/count {v}")));
-        }
-        Ok(v as usize)
-    }
-
+impl Reader<'_> {
     /// An object index below `n`, or `-1` (`None`).
     fn object(&mut self, n: usize) -> Result<Option<usize>, FfiError> {
         let v = self.num()?;
@@ -217,27 +174,6 @@ impl<'a> Reader<'a> {
             return Err(bad(format!("bad object index {v}")));
         }
         Ok(Some(v as usize))
-    }
-
-    fn flag(&mut self) -> Result<bool, FfiError> {
-        Ok(self.index(1)? == 1)
-    }
-
-    fn take(&mut self, k: usize) -> Result<&'a [f64], FfiError> {
-        let end = self.at.checked_add(k).ok_or_else(|| bad("overflow"))?;
-        let s = self
-            .input
-            .get(self.at..end)
-            .ok_or_else(|| bad("input too short"))?;
-        self.at = end;
-        Ok(s)
-    }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
     }
 
     /// A box `min max` with `min <= max`.
@@ -554,7 +490,9 @@ fn objects(rd: &mut Reader<'_>) -> Result<Vec<Entry>, FfiError> {
                 out.push(Entry::Curve(c, false));
             }
             _ => {
-                let c = rd.object(out.len())?.ok_or_else(|| bad("edge without a curve"))?;
+                let c = rd
+                    .object(out.len())?
+                    .ok_or_else(|| bad("edge without a curve"))?;
                 let Some(Entry::Curve(info, owned)) = out.get_mut(c) else {
                     return Err(bad("edge curve is not a curve"));
                 };
@@ -619,7 +557,10 @@ fn solver(rd: &mut Reader<'_>, objs: &[Entry], hd: Header) -> Result<Spec, FfiEr
     }
     let point_curve = matches!(
         kind,
-        LocalKind::PointCurve | LocalKind::PointEdge | LocalKind::VertexEdge | LocalKind::CurveVertex
+        LocalKind::PointCurve
+            | LocalKind::PointEdge
+            | LocalKind::VertexEdge
+            | LocalKind::CurveVertex
     );
     if point_curve && !point_curve_op(op) {
         return Err(bad("operation not accepted by GlobalPointSolve"));
@@ -665,12 +606,7 @@ fn solver(rd: &mut Reader<'_>, objs: &[Entry], hd: Header) -> Result<Spec, FfiEr
 
 /// Checks the objects of one `SolveIt(o1, o2)` call of `spec` (and, for the point/curve
 /// solver, its interval against the curve).
-fn call(
-    spec: Spec,
-    objs: &[Entry],
-    o1: Option<usize>,
-    o2: Option<usize>,
-) -> Result<(), FfiError> {
+fn call(spec: Spec, objs: &[Entry], o1: Option<usize>, o2: Option<usize>) -> Result<(), FfiError> {
     let (first, second) = if spec.swap {
         (entry(objs, o2), entry(objs, o1))
     } else {
@@ -781,7 +717,9 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
                         | LocalKind::EdgeEdge
                 )
             {
-                return Err(bad("tree solves only for unswapped point, curve and edge solvers"));
+                return Err(bad(
+                    "tree solves only for unswapped point, curve and edge solvers",
+                ));
             }
             // SolveTrees reaches MayContainAnswer
             if hd.short_ray() {
@@ -801,7 +739,7 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
 ///
 /// [`FfiError::InvalidArgument`] describing the first problem.
 pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     validate_op(op, &mut rd)?;
     rd.done()
 }

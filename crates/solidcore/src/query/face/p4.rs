@@ -241,7 +241,7 @@ fn find_and_classify_loop_bisector<O: LoopObject>(
     ios: &[ClassifyLoopIo],
     marked: &BTreeSet<LoopId>,
     props: &FaceProps<O>,
-    curves: &mut qf3::LoopObjectCurves<O>,
+    curves: &mut qf3::LoopObjectCurves<'_, O>,
     classification: &mut CurveClassification<O>,
 ) -> Result<Bisector> {
     let r = qf3::find_and_classify_loop_bisector(
@@ -443,7 +443,7 @@ pub fn classify_loops<O: LoopObject>(
             // loop does not cross an existing seam ClassifyCrv (the status is not
             // checked upstream; a handle type that cannot name the bisector's curves is
             // an error of the caller, not a status)
-            let mut bisector_curves = qf3::LoopObjectCurves::new(face)?;
+            let mut bisector_curves = qf3::LoopObjectCurves::new(b, face)?;
             if let Some(bisector) = ignored(find_and_classify_loop_bisector(
                 k,
                 b,
@@ -818,6 +818,7 @@ mod tests {
             mate: None,
             orientation: OrientType::Same,
             loopuses: (0..kinds.len() as u32).map(LoopuseId::from_index).collect(),
+            ..Faceuse::default()
         })
         .unwrap();
         for (i, &vertex_loop) in kinds.iter().enumerate() {

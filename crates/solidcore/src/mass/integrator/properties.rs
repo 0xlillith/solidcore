@@ -181,12 +181,23 @@ pub fn curve_properties(
     Ok(EdgeProperties { length, properties })
 }
 
-fn boundary(_k: &Kernel, _b: &Brep, _f: FaceId) -> Result<Vec<Curve>> {
-    // UNPORTED(topology.face_p1): SmFace::CreateOrientedTrimBoundary
-    Err(SolidError::unported(
-        "SmFace::CreateOrientedTrimBoundary",
-        "topology.face_p1",
-    ))
+/// `SmFace::CreateOrientedTrimBoundary(ctx, TRUE, TRUE, ..)` (unit `topology.face_p1`) on
+/// a copy of the B-rep (the caller holds it shared; the UV trim curves the call makes are
+/// not kept; the copy is a whole-B-rep clone per face). The copied curves' edge-use
+/// owners are not read here.
+fn boundary(k: &Kernel, b: &Brep, f: FaceId) -> Result<Vec<Curve>> {
+    let mut copy = b.clone();
+    let key_of = |e: EntityRef| crate::geom::object::ObjectRef {
+        type_code: 0,
+        key: ObjectKey(match e {
+            EntityRef::Edgeuse(eu) => u64::from(eu.index()),
+            _ => 0,
+        }),
+    };
+    crate::topology::face::p1::create_oriented_trim_boundary(
+        k, &mut copy, f, true, true, None, &key_of,
+    )
+    .map(|t| t.curves)
 }
 /// `SmFace::ComputePreciseProperties`; the default property mask is `PPF_ALL`.
 pub fn face_properties(
@@ -208,6 +219,7 @@ pub fn face_properties(
         .as_ref()
         .ok_or_else(|| SolidError::null_pointer(OP))?;
     boundary_properties(
+        k,
         surface,
         &trims,
         &b.face(f)?.uv_domain,
@@ -229,6 +241,7 @@ fn valid_flags(flags: u64) -> Result<()> {
 /// Integrates the same precise face properties after oriented trim construction.
 /// `trims` must have the orientation and order returned by `CreateOrientedTrimBoundary`.
 pub fn boundary_properties(
+    k: &Kernel,
     surface: &Surface,
     trims: &[Curve],
     domain: &Extent2d,
@@ -256,6 +269,7 @@ pub fn boundary_properties(
             *s = estimated_area / 10.0;
         }
         let eval = OdeArea {
+            kernel: k,
             surface,
             uv_curve: trim,
             min_v: domain.min().y,
@@ -363,9 +377,9 @@ fn vertices(_b: &Brep) -> Result<Vec<VertexId>> {
         "topology.brep_p1",
     ))
 }
-fn region_void(_b: &Brep, _r: RegionId) -> Result<bool> {
-    // UNPORTED(topology.shell): SmRegion::IsVoid
-    Err(SolidError::unported("SmRegion::IsVoid", "topology.shell"))
+/// `SmRegion::IsVoid` as a C truth value (`UNSURE`, 2, counts as void).
+fn region_void(b: &Brep, r: RegionId) -> Result<bool> {
+    Ok(b.region(r)?.is_void() != 0)
 }
 fn manifold_solid(_b: &Brep) -> Result<bool> {
     // UNPORTED(topology.brep_p2): SmBrep::IsManifoldSolid

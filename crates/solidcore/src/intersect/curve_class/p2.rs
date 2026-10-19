@@ -74,7 +74,7 @@ use crate::math::{Point2, Point3, Vec3};
 use super::p1::{
     xsect_tol_2d_or_3d_for_classify_pair, CurveClassification, CurveInterval, IntervalPosition,
 };
-use super::p7::tol_is_degenerate_curve;
+use super::p3::curve_is_degenerate;
 
 const OP_CC: &str = "intersect::curve_class::p2::CurveClassification";
 const OP_INSERT: &str = "intersect::curve_class::p2::insert_at";
@@ -586,7 +586,7 @@ impl<O: ClassObject> CurveClassification<O> {
             // if the neighbor interval has shrunk to zero length
             if collapse_degen_intervals {
                 let curve = self.curve_geometry(geometry)?;
-                if tol_is_degenerate_curve(Some(curve), &self.at(index - 1)?.interval, tol)? {
+                if curve_is_degenerate(Some(curve), &self.at(index - 1)?.interval, tol)? {
                     // remove the interval from the SmCurveClassification (status ignored)
                     ignore_status(self.collapse_interval(k, geometry, index - 1))?;
                 }
@@ -655,7 +655,7 @@ impl<O: ClassObject> CurveClassification<O> {
             // if the neighbor interval has shrunk to zero length
             if collapse_degen_intervals {
                 let curve = self.curve_geometry(geometry)?;
-                if tol_is_degenerate_curve(Some(curve), &self.at(index + 1)?.interval, tol)? {
+                if curve_is_degenerate(Some(curve), &self.at(index + 1)?.interval, tol)? {
                     // remove the interval from the SmCurveClassification (status ignored)
                     ignore_status(self.collapse_interval(k, geometry, index + 1))?;
                 }
@@ -724,7 +724,7 @@ impl<O: ClassObject> CurveClassification<O> {
             ivl.interval.max(),
             ivl.end.obj_zone_tol_3d(k, geometry)?,
         )?;
-        if collapse && tol_is_degenerate_curve(Some(curve), &ivl.interval, tol)? {
+        if collapse && curve_is_degenerate(Some(curve), &ivl.interval, tol)? {
             // remove the interval from the SmCurveClassification (status ignored)
             ignore_status(self.collapse_interval(k, geometry, index))?;
         }

@@ -52,7 +52,10 @@ fn bss(surface: &Surface) -> Result<Cow<'_, BSplineSurface>> {
         SurfaceKind::BSpline(s) => Ok(Cow::Borrowed(s)),
         SurfaceKind::Plane(p) => Ok(p.base_for_query()),
         SurfaceKind::SurfOfRevolution(s) => Ok(Cow::Borrowed(s.base())),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+        SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::SrfInVolume(_) => {
             // `SmIsoCurve` holds B-spline surfaces only (plan/findings.md, surface.surface_p5)
             // UNPORTED(curve.iso_curve): SmIsoCurve over a non-B-spline surface
             Err(SolidError::unported(
@@ -110,14 +113,26 @@ fn iso_curve(
     Ok(typed_iso_curve(k, surface, direction, value)?.0)
 }
 
-/// `SmIsoCurve(surface, direction, value, left)` (clamped input) over the B-spline
-/// view of `surface`.
+/// `SmIsoCurve(surface, direction, value, left)` (clamped input): over the B-spline
+/// view of `surface`, or over the plane itself for a plane.
 pub(super) fn implicit_iso(
     surface: &Surface,
     direction: SurfParamType,
     value: f64,
     left: bool,
 ) -> Result<Curve> {
+    // upstream's SmIsoCurve evaluates through the surface's virtual Evaluate: for an
+    // SmPlane that is the analytic evaluation, not the NURB (whose bilinear
+    // interpolation over the plane's +-1234567 analytic domain differs in the last bits)
+    if let SurfaceKind::Plane(_) = surface.kind() {
+        return Ok(Curve::from(IsoCurve::from_surface(
+            surface.clone_for_evaluation()?,
+            direction,
+            value,
+            left,
+            true,
+        )?));
+    }
     Ok(Curve::from(IsoCurve::new(
         bss(surface)?.copy(),
         direction,

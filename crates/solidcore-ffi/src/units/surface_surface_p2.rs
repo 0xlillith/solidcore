@@ -208,23 +208,9 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Sequential reader over the input.
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
+crate::reader::unit_reader!(MAX_COORD);
 
 impl Reader<'_> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
     fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
         if !v.is_finite() || v.abs() > MAX_COORD {
@@ -279,18 +265,16 @@ impl Reader<'_> {
     }
 
     fn domain(&mut self) -> Result<[f64; 4], FfiError> {
-        let d = [self.finite()?, self.finite()?, self.finite()?, self.finite()?];
+        let d = [
+            self.finite()?,
+            self.finite()?,
+            self.finite()?,
+            self.finite()?,
+        ];
         if d[0] > d[2] || d[1] > d[3] {
             return Err(bad("domain not ordered"));
         }
         Ok(d)
-    }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
     }
 }
 
@@ -326,7 +310,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiErr
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     Ok((a, b))
@@ -350,7 +336,10 @@ fn check_points(rd: &mut Reader<'_>, k: usize, what: &str) -> Result<(), FfiErro
         if rational && !(1e-3..=1e3).contains(&w) {
             return Err(bad(format!("{what}: weight out of range")));
         }
-        if [x, y, z].iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
+        if [x, y, z]
+            .iter()
+            .any(|c| !c.is_finite() || c.abs() > MAX_COORD)
+        {
             return Err(bad(format!("{what}: point out of range")));
         }
     }
@@ -438,7 +427,11 @@ fn cone_wider_than_90(s: [f64; 6], c: [f64; 6]) -> bool {
     ];
     let lo = [c[0].min(c[3]), c[1].min(c[4]), c[2].min(c[5])];
     let hi = [c[0].max(c[3]), c[1].max(c[4]), c[2].max(c[5])];
-    let ctr = [(s[0] + s[3]) / 2.0, (s[1] + s[4]) / 2.0, (s[2] + s[5]) / 2.0];
+    let ctr = [
+        (s[0] + s[3]) / 2.0,
+        (s[1] + s[4]) / 2.0,
+        (s[2] + s[5]) / 2.0,
+    ];
     ctr.iter()
         .zip(lo.iter().zip(hi.iter()))
         .zip(half.iter())
@@ -800,7 +793,7 @@ fn vectors_cross(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 ///
 /// [`FfiError::InvalidArgument`] for input the shim must not see.
 pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     let ctor = rd.index(2)?;
     if (ctor == 0) != op.is_static() {
         return Err(bad("static ops need ctor 0, surface ops a surface"));

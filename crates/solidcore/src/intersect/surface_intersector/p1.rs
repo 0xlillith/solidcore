@@ -71,11 +71,9 @@
 //! - **Surface calls.** `SmSurface::IsClosed`, `SmSurface::EvaluateNormal` and
 //!   `SmSurface::Evaluate1stDerivatives` go through `surface::surface::p7` (the
 //!   last co-ported there from unit `surface.surface_p1`).
-//! - **Unported callees.** `SmSurface::LocalPointSolve` and `SmSurface::DropPoint` (`surface.surface_p5`),
-//!   `SmSurface::GlobalPointSolve` (`surface.surface_p4`),
-//!   `SmSurface::LocalSurfaceIntersect` (`surface.surface_p11`),
-//!   `SmFilletLaw::Evaluate` (`blend.fillet_executive_p1`) and
-//!   `SmOffsetSurface::SetOffsetDistance` (`surface.offset_surface`) return
+//! - **Unported callees.** `SmFilletLaw::Evaluate` (`blend.fillet_executive_p1`) and
+//!   `SmOffsetSurface::SetOffsetDistance` through the intersector's shared surfaces
+//!   (a dispatch gap left to `blend.fillet_executive_p1`) return
 //!   [`SolidError::Unported`]. Statuses upstream ignores are ignored, except
 //!   `Unported`, which always propagates.
 //! - **Not ported here.** `SmTsectPnt::Dump` / `Draw` (debug output) and the
@@ -98,7 +96,7 @@ use crate::nurbs::b_spline_curve::{BSplineCurve, BSplineCurveForm, CanonicalData
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::knots::Side;
 use crate::surface::surface::p2::TsectCurveType;
-use crate::surface::surface::Surface;
+use crate::surface::surface::{Surface, SurfaceKind};
 
 const OP_POINT: &str = "intersect::surface_intersector::p1::SurfaceIntersector::point";
 const OP_LIST: &str = "intersect::surface_intersector::p1::SurfaceIntersector::add_to_list";
@@ -1838,24 +1836,34 @@ fn surface_drop_point(
 }
 
 /// `m_cpSurface[0]->LocalSurfaceIntersect(..)`: found flag and the solution's start
-/// parameters `[u0, v0, u1, v1]`.
+/// parameters `[u0, v0, u1, v1]` (`surface::surface::p11`; `cpOptPreviousUV` is the
+/// first point of `previous_uv`, upstream's `&rPrevTSP.UVPos(0)`). The status is
+/// checked (`SER`) by every caller; `LocalSurfaceIntersect` is not virtual and
+/// evaluates each surface through its own kind.
 pub(crate) fn surface_local_surface_intersect(
-    _surface: &Surface,
-    _domain: &Extent2d,
-    _other: &Surface,
-    _other_domain: &Extent2d,
-    _tol: f64,
-    _uv0: Point2,
-    _uv1: Point2,
-    _plane_normal: Option<Vec3>,
-    _previous_uv: Option<&[Point2]>,
-    _do_boundary_testing: bool,
+    surface: &Surface,
+    domain: &Extent2d,
+    other: &Surface,
+    other_domain: &Extent2d,
+    tol: f64,
+    uv0: Point2,
+    uv1: Point2,
+    plane_normal: Option<Vec3>,
+    previous_uv: Option<&[Point2]>,
+    do_boundary_testing: bool,
 ) -> Result<(bool, [f64; 4])> {
-    // UNPORTED(surface.surface_p11): SmSurface::LocalSurfaceIntersect
-    Err(SolidError::unported(
-        "SmSurface::LocalSurfaceIntersect",
-        "surface.surface_p11",
-    ))
+    let opts = crate::surface::surface::p11::LocalSurfaceIntersectOptions {
+        plane_normal,
+        previous_uv: previous_uv.and_then(|p| p.first().copied()),
+        do_boundary_testing,
+    };
+    // (the solution is only written when found; upstream callers read it then only)
+    Ok(
+        match surface.local_surface_intersect(domain, other, other_domain, tol, uv0, uv1, &opts)? {
+            Some(r) => (true, [r.uv.x, r.uv.y, r.other_uv.x, r.other_uv.y]),
+            None => (false, [0.0; 4]),
+        },
+    )
 }
 
 /// `pOffSet1->LocalPlaneSurfaceIntersect(..)`: found flag and the solution's start
@@ -1903,13 +1911,25 @@ fn fillet_law_evaluate<L: ?Sized>(
     ))
 }
 
-/// `SM_CAST_PTR(SmOffsetSurface, surface)->SetOffsetDistance(distance)`.
-fn set_offset_distance(_surface: &Surface, _distance: f64) -> Result<()> {
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::SetOffsetDistance
-    Err(SolidError::unported(
-        "SmOffsetSurface::SetOffsetDistance",
-        "surface.offset_surface",
-    ))
+/// `SM_CAST_PTR(SmOffsetSurface, surface)->SetOffsetDistance(distance)` (`NULL`
+/// dereferenced upstream for a surface that is not an offset).
+fn set_offset_distance(surface: &Surface, _distance: f64) -> Result<()> {
+    match surface.kind() {
+        // DISPATCH GAP: SmOffsetSurface::SetOffsetDistance is ported
+        // (OffsetSurface::set_offset_distance, surface.offset_surface), but upstream
+        // sets it through the intersector's shared surface pointers, which are
+        // `&Surface` here. The only caller first needs SmFilletLaw::Evaluate
+        // (blend.fillet_executive_p1), whose porter decides how a fillet holds its
+        // offset surfaces.
+        // UNPORTED(blend.fillet_executive_p1): SmOffsetSurface::SetOffsetDistance through a shared surface
+        SurfaceKind::OffsetSurface(_) => Err(SolidError::unported(
+            "SmOffsetSurface::SetOffsetDistance through a shared surface",
+            "blend.fillet_executive_p1",
+        )),
+        _ => Err(SolidError::null_pointer(
+            "intersect::surface_intersector::p1::set_offset_distance",
+        )),
+    }
 }
 
 #[cfg(test)]

@@ -1830,7 +1830,7 @@ fn param_direction_ignored(surface: &Surface, uv: Point2, vec: Vec3) -> Result<V
 }
 
 /// `SmIsoCurve(*pSrfEval, dir, value, bFromLeft)` (input clamped) as a curve.
-fn boundary_iso_curve(
+pub(super) fn boundary_iso_curve(
     surface: &Surface,
     dir: SurfParamType,
     value: f64,
@@ -1844,7 +1844,8 @@ fn boundary_iso_curve(
             from_left,
             true,
         ))),
-        SurfaceKind::Plane(_)
+        SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::Plane(_)
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SrfInVolume(_)
@@ -1863,7 +1864,7 @@ fn boundary_iso_curve(
 
 /// `CreateIsoParametricCurve(ctx, dir, value, 0.0, pCurve, pOptDomain, &maxGap)`
 /// (virtual): the curve and its achieved maximum gap.
-fn create_iso_parametric_curve(
+pub(super) fn create_iso_parametric_curve(
     k: &Kernel,
     surface: &Surface,
     dir: SurfParamType,
@@ -1891,7 +1892,10 @@ fn create_iso_parametric_curve(
             let iso = s.create_iso_parametric_curve(k, dir, value, domain)?;
             Ok((iso.curve, iso.max_gap_3d))
         }
-        SurfaceKind::CurveBounded(_) | SurfaceKind::SrfInVolume(_) | SurfaceKind::Step(_) => {
+        SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::CurveBounded(_)
+        | SurfaceKind::SrfInVolume(_)
+        | SurfaceKind::Step(_) => {
             // the SmSurface body
             let iso = surface.create_iso_parametric_curve(k, dir, value, 0.0, domain, false)?;
             Ok((iso.curve, iso.max_gap_3d))
@@ -1913,7 +1917,8 @@ fn is_singularity(
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SrfInVolume(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => {
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_) => {
             let r = surface.is_singularity(k, uv, tol, false)?;
             Ok((r.singular, r.direction))
         }
@@ -1929,7 +1934,8 @@ fn is_on_seam(k: &Kernel, surface: &Surface, uv: Point2) -> Result<bool> {
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SrfInVolume(_)
         | SurfaceKind::SurfOfRevolution(_)
-        | SurfaceKind::Step(_) => Ok(surface.is_on_seam(k, uv, None)?.on_seam),
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_) => Ok(surface.is_on_seam(k, uv, None)?.on_seam),
     }
 }
 
@@ -2177,6 +2183,7 @@ mod tests {
             uv_domain1: s1.natural_uv_domain(),
             uv_domain2: s2.natural_uv_domain(),
             kernel: &k,
+            caches: [None, None],
         };
         let mk = |a: f64| {
             let mut s: Solution<Obj> = Solution::new();

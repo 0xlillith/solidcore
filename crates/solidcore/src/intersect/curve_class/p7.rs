@@ -22,7 +22,7 @@
 //! | [`CurveClassification::test_for_partial_coincident_edges`], [`PartialCoincidence`] | `TestForPartialCoincidentEdges` |
 //! | [`set_do_filleting_geometry`]                               | `sm_SetDoFilletingGeometry`                           |
 //! | [`CurveClassification::curve`] of the owner                 | `SmCurveInterval::GetCurve`                           |
-//! | `tol_is_degenerate_curve` (private)                         | `SmTol::IsDegenerate(const SmCurve*, SmExtent1d, SmXSectTol3d*)` (CO-PORTED from `geom.tol`, with the tolerance given) |
+//! | [`curve_is_degenerate`] (`intersect.curve_class_p3`)        | `SmTol::IsDegenerate(const SmCurve*, SmExtent1d, SmXSectTol3d*)` (CO-PORTED from `geom.tol`, with the tolerance given) |
 //! | `tol_is_closed_curve` (private)                             | `SmTol::IsClosed(const SmObject*, SmXSectTol3d*)` for a curve (CO-PORTED from `geom.tol`, with the tolerance given) |
 //!
 //! Deviations:
@@ -73,6 +73,7 @@ use crate::geom::extent1d::Extent1d;
 use crate::geom::global_solver::SolverOperation;
 use crate::geom::solution_array::{ObjectKind, Solution, SolutionObject, SolutionType};
 use crate::geom::tol::{eff_zero_ang_rad, scaled_zero, xsect_tol_3d_from_zones, ScaledZero};
+use crate::intersect::curve_class::p3::curve_is_degenerate;
 use crate::intersect::point_class::{
     ClassGeometry, ClassObject, ClassObjectKind, PointClassType, PointClassification, Precedence,
 };
@@ -178,6 +179,23 @@ impl<O: ClassObject> CurveClassification<O> {
         Ok((&ivl.start, ivl.interval.min()))
     }
 
+    /// Where [`CurveClassification::point_class_by_index`]'s pointer points: the
+    /// interval, and whether it is that interval's end (else its start).
+    ///
+    /// # Errors
+    ///
+    /// Those of [`CurveClassification::point_class_by_index`].
+    pub(crate) fn point_class_by_index_interval(&self, index: usize) -> Result<(usize, bool)> {
+        let size = self.size();
+        if size == 0 || index > size {
+            return Err(bad_boundary());
+        }
+        if index == size {
+            return Ok((index - 1, true));
+        }
+        Ok((index, false))
+    }
+
     /// [`CurveClassification::point_class_by_index`], mutable.
     ///
     /// # Errors
@@ -218,6 +236,24 @@ impl<O: ClassObject> CurveClassification<O> {
         geometry: &impl ClassGeometry<O>,
         index: usize,
     ) -> Result<Option<&PointClassification<O>>> {
+        match self.point_class_mate_interval(k, geometry, index)? {
+            Some(i) => Ok(Some(&self.at(i)?.end)),
+            None => Ok(None),
+        }
+    }
+
+    /// The interval whose end [`CurveClassification::point_class_mate_by_index`]
+    /// returns (where its pointer points), `None` for no mate.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`CurveClassification::point_class_mate_by_index`].
+    pub(crate) fn point_class_mate_interval(
+        &self,
+        k: &Kernel,
+        geometry: &impl ClassGeometry<O>,
+        index: usize,
+    ) -> Result<Option<usize>> {
         let size = self.size();
         if index > size {
             return Err(bad_boundary());
@@ -233,12 +269,12 @@ impl<O: ClassObject> CurveClassification<O> {
                 if size == 0 {
                     return Err(bad_boundary());
                 }
-                return Ok(Some(&self.at(size - 1)?.end));
+                return Ok(Some(size - 1));
             }
             return Ok(None);
         }
 
-        Ok(Some(&self.at(index - 1)?.end))
+        Ok(Some(index - 1))
     }
 
     /// Removes interval `index` whose length is degenerate (`CollapseInterval`): the
@@ -286,7 +322,7 @@ impl<O: ClassObject> CurveClassification<O> {
         )?;
 
         // no work and an error - CurveClassification interval is not degenerate
-        if !tol_is_degenerate_curve(Some(curve), &ivl.interval, xsect_tol_2d_or_3d)? {
+        if !curve_is_degenerate(Some(curve), &ivl.interval, xsect_tol_2d_or_3d)? {
             return Err(SolidError::sm_err(OP_COLLAPSE));
         }
 
@@ -1549,19 +1585,6 @@ fn connected_any<O: ClassObject>(
     }
 }
 
-/// `SmTol::IsDegenerate(const SmCurve*, SmExtent1d, SmXSectTol3d*)` with the
-/// tolerance given: true for no curve.
-pub(super) fn tol_is_degenerate_curve(
-    curve: Option<&Curve>,
-    interval: &Extent1d,
-    xsect_tol_3d: f64,
-) -> Result<bool> {
-    match curve {
-        None => Ok(true),
-        Some(c) => c.is_degenerate(xsect_tol_3d, Some(interval)),
-    }
-}
-
 /// `SmTol::IsClosed(const SmObject*, SmXSectTol3d*)` for a curve with the tolerance
 /// given: closed over its natural interval; false for no curve.
 fn tol_is_closed_curve(curve: Option<&Curve>, xsect_tol_3d: f64) -> Result<bool> {
@@ -1577,11 +1600,11 @@ fn crv_on_surf(k: &Kernel, uv_curve: &Curve, surface: Option<&Surface>) -> Resul
         return Err(SolidError::invalid_input(OP_COIN, "no surface 1"));
     };
     let SurfaceKind::BSpline(bs) = surface.kind() else {
-        // UNPORTED(surface.surface_p1): SmSurface dispatch for a non-B-spline surface
-        // (SmCrvOnSurf over it; curve.crv_on_surf holds only B-spline surfaces)
+        // UNPORTED(curve.crv_on_surf): SmCrvOnSurf over a non-B-spline surface (the
+        // Rust CrvOnSurf holds only B-spline surfaces)
         return Err(SolidError::unported(
-            "SmSurface (non-B-spline) in SmCrvOnSurf",
-            "surface.surface_p1",
+            "SmCrvOnSurf (non-B-spline surface)",
+            "curve.crv_on_surf",
         ));
     };
     Ok(Curve::from(CrvOnSurf::new(

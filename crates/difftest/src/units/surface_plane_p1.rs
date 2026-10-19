@@ -32,7 +32,7 @@ use solidcore::geom::vector3d::Vec3;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::{BSplineSurface, SurfParamType};
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
 use solidcore::surface::plane::p1::is_grazing_intersection;
 use solidcore::surface::plane::Plane;
@@ -53,9 +53,6 @@ pub struct Runner;
 fn harness(msg: impl Into<String>) -> HarnessError {
     HarnessError::new(msg)
 }
-
-/// `NL_NOW`.
-const NOW: f64 = -f64::MAX;
 
 // ---- inputs -------------------------------------------------------------------------
 
@@ -856,7 +853,16 @@ fn rust_op(k: &Kernel, op: &OpIn, a: &mut Plane, o: &mut Vec<f64>) -> Result<(),
         } => {
             let d = dom_of(a, *dom);
             let i = ivl.map(|[x, y]| Extent1d::from_min_max(x, y));
-            let r = a.global_line_intersect::<H>(&d, v3(*p), v3(*v), i.as_ref(), *ray, *tol);
+            let r = a.global_line_intersect::<H>(
+                &Kernel::default(),
+                H(0),
+                &d,
+                v3(*p),
+                v3(*v),
+                i.as_ref(),
+                *ray,
+                *tol,
+            );
             if let Some(sols) = st(o, r)? {
                 put_sols(o, &sols);
             }

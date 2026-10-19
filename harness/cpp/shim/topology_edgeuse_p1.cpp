@@ -27,6 +27,9 @@
 // pointer-to-member access), never the functions under test. The B-rep construction and
 // export helpers are shared with unit `topology.edgeuse_p2` (sc_edgeuse_graph.h).
 #include "sc_shim.h"
+#include <algorithm>
+#include "support/topology_fixture.h"
+#include <memory>
 
 #include "StdAfx.h"
 #include <SmBSplineCurve.h>
@@ -474,6 +477,10 @@ void run_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         int64_t which = rd.idx();
         SmBoolean flag = rd.bflag();
         bool want_out = rd.flag();
+        // review: compare the values of gaps the op (re)computes
+        bool fg0 = (p->*EuPeek::face_gap()).IsInit();
+        bool cg0 = (p->*EuPeek::ccw_gap()).IsInit();
+        std::vector<double> vals;
         if (which == 0)
             o.push_back(p->GetMaxEdgeFaceGap(flag) ? 1.0 : 0.0);
         else if (which == 1)
@@ -483,18 +490,39 @@ void run_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
             SmEdgeFaceGap gap;
             o.push_back(st(p->CalcMaxEdgeFaceGap(want_out ? &gap : NULL, flag)));
             o.push_back(flg(gap.IsInit()));
+            if (want_out && gap.IsInit())
+            {
+                SmPoint2d uv = gap.GetFaceUV();
+                vals = {gap.m_dGap3d, gap.GetEdgeT(), uv.x, uv.y};
+            }
         }
         else
         {
             SmEdgeEdgeGap gap;
             o.push_back(st(p->CalcEdgeCCWEdgeGap(want_out ? &gap : NULL, flag)));
             o.push_back(flg(gap.IsInit()));
+            if (want_out && gap.IsInit())
+                vals = {gap.m_dGap3d, gap.GetEdgeT(0), gap.GetEdgeT(1)};
+        }
+        bool fcomp = p->IsLoopEdgeuse() && ((which == 0 && (flag || !fg0)) || (which == 2 && flag));
+        bool ccomp = p->IsLoopEdgeuse() && ((which == 1 && (flag || !cg0)) || (which == 3 && flag));
+        if (fcomp && (p->*EuPeek::face_gap()).IsInit())
+        {
+            const SmEdgeFaceGap& fg = p->*EuPeek::face_gap();
+            SmPoint2d uv = fg.GetFaceUV();
+            vals.insert(vals.end(), {fg.m_dGap3d, fg.GetEdgeT(), uv.x, uv.y});
+        }
+        if (ccomp && (p->*EuPeek::ccw_gap()).IsInit())
+        {
+            const SmEdgeEdgeGap& cg = p->*EuPeek::ccw_gap();
+            vals.insert(vals.end(), {cg.m_dGap3d, cg.GetEdgeT(0), cg.GetEdgeT(1)});
         }
         o.push_back(flg((p->*EuPeek::face_gap()).IsInit()));
         o.push_back(flg((p->*EuPeek::ccw_gap()).IsInit()));
         bool prim = p->GetEdgeuseType() == SmShell_TYPE || (p->GetEdge() && p->GetEdge()->GetPrimaryEdgeuse());
         SmEdgeuse* mate = prim ? p->GetMate() : nullptr;
         o.push_back(mate ? flg((mate->*EuPeek::face_gap()).IsInit()) : -1.0);
+        o.insert(o.end(), vals.begin(), vals.end());
         break;
     }
     case OP_SET_ORIENT:
@@ -592,6 +620,52 @@ void run_geom_op(int32_t op, Rd& rd, std::vector<double>& o)
     }
 }
 } // namespace
+
+namespace sc_topology_fixture {
+void append_shell_state(const View& view,std::vector<double>& output)
+{
+    const auto identity=[](const auto& values,const void* pointer)->int64_t {
+        if (!pointer) return -1;
+        auto found=std::find(values.begin(),values.end(),pointer);
+        if(found==values.end()) throw 1;
+        return (int64_t)(found-values.begin());
+    };
+    output.push_back(3.0);
+    output.push_back((double)identity(view.regions,view.brep.GetInfiniteRegion()));
+    for(SmRegion* region:view.regions)
+        output.push_back((double)(region->*RegionPeek::is_void()));
+    for(SmShell* shell:view.shells) {
+        SM_TYPE type=shell->*ShPeek::type();
+        output.push_back((double)(type==SmEdgeuse_TYPE ? identity(view.edgeuses,shell->GetList())
+            : type==SmVertexuse_TYPE ? identity(view.vertexuses,shell->GetList()) : -1));
+    }
+    for(SmVertex* vertex:view.vertices) {
+        std::vector<int64_t> uses;
+        for(SmTopology* use:list_of(vertex->GetList())) uses.push_back(identity(view.vertexuses,use));
+        put_list(output,uses);
+    }
+    for(SmFaceuse* faceuse:view.faceuses) {
+        output.push_back((double)identity(view.faceuses,faceuse->GetNext()));
+        output.push_back((double)identity(view.faceuses,faceuse->GetLast()));
+    }
+}
+
+int32_t apply(const char* path, const double* input, int64_t count,
+              const std::function<int32_t(const View&)>& operation)
+{
+    if (!path || !input || count < 1) return SC_ERR_ARG;
+    Rd reader{input, 0};
+    SmStatus status = SM_SUCCESS;
+    std::unique_ptr<SmBrep> brep(build(reader, path, status));
+    if (!brep || status != SM_SUCCESS) return SC_ERR_ARG;
+    Graph graph;
+    walk(brep.get(), graph);
+    const View view{*brep, graph.regions, graph.shells, graph.faceuses,
+                    graph.faces, graph.loopuses, graph.loops, graph.edgeuses,
+                    graph.edges, graph.vertexuses, graph.vertices};
+    return operation(view);
+}
+} // namespace sc_topology_fixture
 
 SC_EXPORT int32_t sc_topology_edgeuse_p1_eval(int32_t op, const char* path, const double* in, int64_t n_in,
                                               double* out, int64_t cap, int64_t* out_len)

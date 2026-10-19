@@ -144,23 +144,9 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Sequential reader over the input.
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
+crate::reader::unit_reader!();
 
-impl<'a> Reader<'a> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
+impl Reader<'_> {
     /// A finite value of magnitude at most `max`.
     fn bounded(&mut self, max: f64) -> Result<f64, FfiError> {
         let v = self.num()?;
@@ -186,14 +172,6 @@ impl<'a> Reader<'a> {
         Ok(v)
     }
 
-    fn index(&mut self, max: usize) -> Result<usize, FfiError> {
-        let v = self.num()?;
-        if v.fract() != 0.0 || v < 0.0 || v > max as f64 {
-            return Err(bad(format!("bad index/count {v}")));
-        }
-        Ok(v as usize)
-    }
-
     /// `-1` (`None`) or an index below `len`.
     fn opt_index(&mut self, len: usize) -> Result<Option<usize>, FfiError> {
         let v = self.num()?;
@@ -204,20 +182,6 @@ impl<'a> Reader<'a> {
             return Err(bad(format!("bad object index {v}")));
         }
         Ok(Some(v as usize))
-    }
-
-    fn flag(&mut self) -> Result<bool, FfiError> {
-        Ok(self.index(1)? == 1)
-    }
-
-    fn take(&mut self, k: usize) -> Result<&'a [f64], FfiError> {
-        let end = self.at.checked_add(k).ok_or_else(|| bad("overflow"))?;
-        let s = self
-            .input
-            .get(self.at..end)
-            .ok_or_else(|| bad("input too short"))?;
-        self.at = end;
-        Ok(s)
     }
 }
 
@@ -311,7 +275,9 @@ fn curve_block(rd: &mut Reader<'_>) -> Result<(), FfiError> {
             let d1 = rd.finite()?;
             let len = (d1 - d0).abs();
             if d0.abs() > 720.0 || d1.abs() > 720.0 || !(1e-4..=360.0).contains(&len) {
-                return Err(bad("conic: domain outside [-720, 720] or length outside [1e-4, 360]"));
+                return Err(bad(
+                    "conic: domain outside [-720, 720] or length outside [1e-4, 360]",
+                ));
             }
             for _ in 0..(if kind == 3 { 2 } else { 1 }) {
                 if rd.finite()? <= 0.0 {
@@ -375,7 +341,7 @@ fn kind_of_class(class: usize) -> Result<Option<usize>, FfiError> {
 ///
 /// [`FfiError::InvalidArgument`] for a malformed script.
 pub fn validate(input: &[f64]) -> Result<(), FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     let n_obj = rd.index(MAX_OBJECTS)?;
     let mut kinds: Vec<usize> = Vec::new();
     for _ in 0..n_obj {
@@ -408,7 +374,12 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     rd.bounded(MAX_VALUE)?;
     rd.bounded(MAX_VALUE)?;
     let n_ops = rd.index(MAX_OPS)?;
-    let topo = |j: usize| matches!(kinds.get(j), Some(&(kind::VERTEX | kind::EDGE | kind::FACE)));
+    let topo = |j: usize| {
+        matches!(
+            kinds.get(j),
+            Some(&(kind::VERTEX | kind::EDGE | kind::FACE))
+        )
+    };
     for _ in 0..n_ops {
         let code = rd.index(op::LAST)?;
         rd.index(1)?;
@@ -478,7 +449,9 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
                 };
                 let off = rd.index(9)?;
                 if off + read > 10 {
-                    return Err(bad("LoadFromIntersection: parameters past the solution end"));
+                    return Err(bad(
+                        "LoadFromIntersection: parameters past the solution end",
+                    ));
                 }
                 rd.bounded(MAX_VALUE)?;
             }

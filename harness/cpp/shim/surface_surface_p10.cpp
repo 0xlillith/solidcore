@@ -52,6 +52,10 @@
 #include <stdexcept>
 #include <vector>
 
+#include "sc_sm.h"
+
+using sc::st;
+
 // ---- SmSurface.cpp lines 17885-17932: SmLSIGlobalSolver (declaration) -------------------------
 class SmLSIGlobalSolver : public SmGlobalSolver
 {
@@ -2281,11 +2285,6 @@ struct Rd
         return SmExtent2d(a, b, c, d);
     }
 };
-
-double st(SmStatus s)
-{
-    return s == SM_SUCCESS ? 0.0 : (double)s;
-}
 
 // `n m p q r s cpts(x y z w) u v`, sizes checked by the Rust side.
 SmBSplineSurface* read_bspline_surface(Rd& rd, const SmContext& ctx)

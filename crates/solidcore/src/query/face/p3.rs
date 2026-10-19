@@ -33,7 +33,14 @@
 //!   line of [`find_and_classify_loop_bisector`]) are handed to the caller's
 //!   [`ClassifyCurveObjects`], which returns their handles and resolves them (upstream:
 //!   pointers the classification or the caller deletes; the `SmObjDelete` cleanups and
-//!   `ReplaceObj` are the replacement of the stored curves).
+//!   `ReplaceObj` are the replacement of the stored curves). [`LoopObjectCurves`]
+//!   borrows the B-rep and resolves the face, surface, topology, edge curve and trim
+//!   curve handles `CurveOnClassify` makes against it.
+//! - **B-rep snapshots.** `PointClassify` (tight box) and `SmEdge::IsSeam` (bisector)
+//!   may attach missing UV trim curves to the B-rep, which the port's functions take
+//!   immutably; they run on one private copy of the B-rep per call, as
+//!   `query::face::p2`'s boundary views do. The attached curves are the same ones a
+//!   later call makes again, so no result changes.
 //! - **Surface boxes of a face's surface.** `IsPlanar` and `CalculateBoundingBox` of a
 //!   B-spline, plane or surface of revolution expand their boxes by the owning face's
 //!   tolerance (`GetFace()->GetTolerance()`); the port's surface cannot reach its face,
@@ -59,7 +66,8 @@
 //!   `SM_ASSERT*` and `SM_DBG_WARN`, `lFaceIndx` of `SectorClassifyCurveOn` (debug only),
 //!   the never-read `dUVScale` of `sm_FaceClassifyUVLine` (its
 //!   `ApproxDerivativeLengths` call is kept for its [`SolidError::Unported`]).
-//! - **Unported callees.** `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`).
+//! - **Unported callees.** Only through callees (`SmEdgeuse::EvaluateBinormal` is wired
+//!   to `topology.edgeuse_p3`, whose own stubs propagate).
 //! - **Loops.** The step-off loops keep upstream's bounds (20 rounds in the sector
 //!   classification; its UV fallback doubles the step-off until it leaves the curve
 //!   interval, and stops after [`MAX_UV_STEP_OFF_ROUNDS`] rounds when the curve
@@ -72,7 +80,7 @@ use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p2::{euclidian_step_off, CurveKind, StepOff};
 use crate::curve::curve::Curve;
 use crate::curve::line::Line;
-use crate::error::{ignored, Result, SolidError};
+use crate::error::{ignored, EntityRef, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
@@ -85,7 +93,9 @@ use crate::heal::face_props::{ClassifyLoopIo, ContainmentType, FaceProps, LoopOb
 use crate::heal::face_props::{SS_UMAX, SS_UMIN, SS_VMAX, SS_VMIN};
 use crate::intersect::curve_class::p1::CurveClassification;
 use crate::intersect::curve_class::p2::ResetOptions;
-use crate::intersect::point_class::{ClassObject, PointClassType, PointClassification};
+use crate::intersect::point_class::{
+    ClassGeometry, ClassObject, PointClassType, PointClassification,
+};
 use crate::kernel::Kernel;
 use crate::math::{max2, min3, Point2, Point3, Vec3, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
 use crate::nurbs::b_spline_surface::BoundingBoxRequest;
@@ -94,8 +104,7 @@ use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::nurbs::knots::Side;
 use crate::query::edge as qe;
 use crate::query::face::p2::{
-    curve_on_classify, face_loop, face_vertices, point_classify, CurveOnClassifyObjects,
-    PointClassifyOptions,
+    curve_on_classify, face_vertices, point_classify, CurveOnClassifyObjects, PointClassifyOptions,
 };
 use crate::query::r#loop::contains_uv_point;
 use crate::surface::surface::p2::SurfaceEval;
@@ -103,6 +112,7 @@ use crate::surface::surface::p4::global_point_solve_starts;
 use crate::surface::surface::p5::DropPointOptions;
 use crate::surface::surface::p7::{approx_derivative_lengths, drop_vectors_at};
 use crate::surface::surface::{Surface, SurfaceKind};
+use crate::surface::volume::Volume;
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::edgeuse::p2::BinormalEval;
 use crate::topology::topology_traverser::face_edges;
@@ -251,7 +261,7 @@ fn owning_face_tolerance(b: &Brep, f: FaceId, s: &Surface) -> Result<Option<f64>
 }
 
 /// `pSurface->IsPlanar(dTol3d)` of face `f`'s surface.
-fn surface_is_planar(b: &Brep, f: FaceId, s: &Surface, tol_3d: f64) -> Result<bool> {
+fn surface_is_planar(k: &Kernel, b: &Brep, f: FaceId, s: &Surface, tol_3d: f64) -> Result<bool> {
     let base = match s.kind() {
         SurfaceKind::BSpline(bs) => Some(bs),
         SurfaceKind::SurfOfRevolution(r) => Some(r.base()),
@@ -276,7 +286,7 @@ fn surface_is_planar(b: &Brep, f: FaceId, s: &Surface, tol_3d: f64) -> Result<bo
             });
         return Ok(pseudo.is_planar(tol_3d).is_planar);
     }
-    Ok(s.is_planar(tol_3d)?.is_planar)
+    Ok(s.is_planar(k, tol_3d)?.is_planar)
 }
 
 /// `pSurface->CalculateBoundingBox(crUVDomain, &sBox)` (axis-aligned box only, expanded
@@ -337,7 +347,7 @@ pub fn calculate_tight_bounding_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<E
 
     // Now the surface.
     // If it's a plane, then we're done.
-    if surface_is_planar(b, f, surface, EFF_ZERO)? {
+    if surface_is_planar(k, b, f, surface, EFF_ZERO)? {
         return Ok(face_bbox);
     }
 
@@ -358,6 +368,8 @@ pub fn calculate_tight_bounding_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<E
     let mut srf_bbox = Extent3d::new();
 
     let mut dir_vec = Vec3::new(1.0, 0.0, 0.0); // +/- x
+                                                // (PointClassify may attach missing UV trim curves: a private snapshot of the B-rep)
+    let mut snapshot = b.clone();
     for idx in 0..3 {
         if idx == 1 {
             dir_vec = Vec3::new(0.0, 1.0, 0.0); // +/- y
@@ -391,7 +403,7 @@ pub fn calculate_tight_bounding_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<E
                 // (status ignored upstream)
                 ignored(point_classify(
                     k,
-                    b,
+                    &mut snapshot,
                     f,
                     uv,
                     &mut pt_class,
@@ -433,9 +445,9 @@ fn eval_pos(eval: &mut SurfaceEval<'_>) -> Result<Point3> {
 // ---- classification curves ----------------------------------------------------------------
 
 /// What the classifications of this module need of the caller's classification
-/// handles: besides resolving them ([`CurveOnClassifyObjects`]), taking the curves a
-/// classification makes.
-pub trait ClassifyCurveObjects<O>: CurveOnClassifyObjects<O> {
+/// handles: besides naming and resolving them ([`CurveOnClassifyObjects`]), taking the
+/// curves a classification makes.
+pub trait ClassifyCurveObjects<O: ClassObject>: CurveOnClassifyObjects<O> {
     /// Takes `curve` (the classification curve, `m_cpCurve`) and `uv_curve` (its UV
     /// curve, `m_cpUVCurve1`, when it is a different curve), replacing curves stored by
     /// an earlier call, and returns their handles.
@@ -450,12 +462,18 @@ pub trait ClassifyCurveObjects<O>: CurveOnClassifyObjects<O> {
     ) -> Result<(O, Option<O>)>;
 }
 
-/// [`ClassifyCurveObjects`] over [`LoopObject`] handles: the face, its surface and the
-/// two classification curves are the handles [`LoopObject::from_face`],
-/// [`LoopObject::from_face_surface`] and [`LoopObject::from_classify_curve`] name, the
-/// target loops [`LoopObject::as_loop`].
+/// [`ClassifyCurveObjects`] over [`LoopObject`] handles of the B-rep `b`: the face, its
+/// surface, the B-rep topology, edge curves and UV trim curves are the handles
+/// [`LoopObject::from_face`], [`LoopObject::from_face_surface`],
+/// [`LoopObject::from_topology`], [`LoopObject::from_edge_curve`] and
+/// [`LoopObject::from_trim_curve`] name, the two classification curves those of
+/// [`LoopObject::from_classify_curve`], the target loops [`LoopObject::as_loop`].
+/// Handles resolve to the geometry and stored tolerances of `b`, as the B-rep objects
+/// upstream's pointers name.
 #[derive(Debug)]
-pub struct LoopObjectCurves<O> {
+pub struct LoopObjectCurves<'b, O> {
+    b: &'b Brep,
+    f: FaceId,
     face: O,
     surface: Option<O>,
     curve_handles: (O, O),
@@ -463,19 +481,42 @@ pub struct LoopObjectCurves<O> {
     uv_curve: Option<(O, Curve)>,
 }
 
-impl<O: LoopObject> LoopObjectCurves<O> {
-    /// The handles of face `f`.
+impl<'b, O: LoopObject> LoopObjectCurves<'b, O> {
+    /// The handles of face `f` of `b`.
     ///
     /// # Errors
     ///
-    /// [`SolidError::InvalidInput`] ([`NO_CURVE_HANDLES`]) when `O` cannot name the face
-    /// or the two classification curves (a limitation of the handle type, which callers
-    /// must not mistake for an upstream status).
-    pub fn new(f: FaceId) -> Result<Self> {
+    /// [`SolidError::InvalidInput`] ([`NO_CURVE_HANDLES`]) when `O` cannot name the face,
+    /// the two classification curves, the B-rep topology, edge curves or trim curves (a
+    /// limitation of the handle type, which callers must not mistake for an upstream
+    /// status).
+    pub fn new(b: &'b Brep, f: FaceId) -> Result<Self> {
         let no = || null(OP_OBJECTS, NO_CURVE_HANDLES);
+        // a handle type names every entity of a kind or none (LoopObject), so the
+        // first ids answer for all
+        let v0 = crate::topology::VertexId::from_index(0);
+        let e0 = EdgeId::from_index(0);
+        let eu0 = EdgeuseId::from_index(0);
+        let vu0 = crate::topology::VertexuseId::from_index(0);
+        let names_topology = O::from_topology(EntityRef::Vertex(v0)).is_some()
+            && O::from_topology(EntityRef::Edge(e0)).is_some()
+            && O::from_topology(EntityRef::Vertexuse(vu0)).is_some()
+            && O::from_topology(EntityRef::Edgeuse(eu0)).is_some()
+            && O::from_edge_curve(e0).is_some()
+            && O::from_trim_curve(eu0).is_some();
+        if !names_topology {
+            return Err(no());
+        }
+        let surface = if b.face(f)?.surface.is_some() {
+            O::from_face_surface(f)
+        } else {
+            None
+        };
         Ok(Self {
+            b,
+            f,
             face: O::from_face(f).ok_or_else(no)?,
-            surface: O::from_face_surface(f),
+            surface,
             curve_handles: (
                 O::from_classify_curve(false).ok_or_else(no)?,
                 O::from_classify_curve(true).ok_or_else(no)?,
@@ -496,23 +537,98 @@ impl<O: LoopObject> LoopObjectCurves<O> {
     pub fn classify_uv_curve(&self) -> Option<&Curve> {
         self.uv_curve.as_ref().map(|(_, c)| c)
     }
+
+    /// The handle of `t`; [`Self::new`] checked that `O` names topology, so the face
+    /// handle fallback is never taken.
+    fn topology(&self, t: EntityRef) -> O {
+        O::from_topology(t).unwrap_or(self.face)
+    }
 }
 
-impl<O: LoopObject + PartialEq> CurveOnClassifyObjects<O> for LoopObjectCurves<O> {
+impl<O: LoopObject + PartialEq> ClassGeometry<O> for LoopObjectCurves<'_, O> {
+    fn curve(&self, o: O) -> Option<&Curve> {
+        if let Some((_, c)) = [&self.curve, &self.uv_curve]
+            .into_iter()
+            .flatten()
+            .find(|(h, _)| *h == o)
+        {
+            return Some(c);
+        }
+        if let Some(e) = o.as_edge_curve() {
+            return self.b.edge(e).ok()?.curve.as_ref();
+        }
+        if let Some(eu) = o.as_trim_curve() {
+            return eu1::uv_trim_curve(self.b, eu).ok()?.0;
+        }
+        None
+    }
+
+    fn surface(&self, o: O) -> Option<&Surface> {
+        if self.surface == Some(o) {
+            return self.b.face(self.f).ok()?.surface.as_ref();
+        }
+        None
+    }
+
+    fn volume(&self, _o: O) -> Option<&Volume> {
+        None
+    }
+
+    fn point(&self, _o: O) -> Option<Point3> {
+        None
+    }
+
+    fn classification_vertex_point(&self, vertex: O) -> Option<Point3> {
+        match vertex.as_topology()? {
+            EntityRef::Vertex(v) => self.b.vertex(v).ok().map(|v| v.point),
+            _ => None,
+        }
+    }
+
+    fn topology_zone_tol_3d(&self, object: O) -> Option<f64> {
+        if object == self.face {
+            return self.b.face(self.f).ok().map(|f| f.tolerance);
+        }
+        match object.as_topology()? {
+            EntityRef::Vertex(v) => self.b.vertex(v).ok().map(|v| v.tolerance),
+            EntityRef::Edge(e) => self.b.edge(e).ok().map(|e| e.tolerance),
+            EntityRef::Face(f) => self.b.face(f).ok().map(|f| f.tolerance),
+            _ => None,
+        }
+    }
+}
+
+impl<O: LoopObject + PartialEq> CurveOnClassifyObjects<O> for LoopObjectCurves<'_, O> {
     fn face(&self, _f: FaceId) -> O {
         self.face
     }
 
-    fn surface(&self, _f: FaceId) -> Option<O> {
-        self.surface
+    fn vertex(&self, v: crate::topology::VertexId) -> O {
+        self.topology(EntityRef::Vertex(v))
     }
 
-    fn curve(&self, curve: O) -> Option<&Curve> {
-        [&self.curve, &self.uv_curve]
-            .into_iter()
-            .flatten()
-            .find(|(h, _)| *h == curve)
-            .map(|(_, c)| c)
+    fn edge(&self, e: EdgeId) -> O {
+        self.topology(EntityRef::Edge(e))
+    }
+
+    fn vertexuse(&self, vu: crate::topology::VertexuseId) -> O {
+        self.topology(EntityRef::Vertexuse(vu))
+    }
+
+    fn edgeuse(&self, eu: EdgeuseId) -> O {
+        self.topology(EntityRef::Edgeuse(eu))
+    }
+
+    fn edge_curve(&self, e: EdgeId) -> O {
+        O::from_edge_curve(e).unwrap_or(self.face)
+    }
+
+    fn trim_curve(&self, eu: EdgeuseId) -> O {
+        O::from_trim_curve(eu).unwrap_or(self.face)
+    }
+
+    fn face_surface(&self, _f: FaceId) -> Option<O> {
+        self.surface
     }
 
     fn loop_id(&self, tgt_loop: O) -> Option<LoopId> {
@@ -520,7 +636,7 @@ impl<O: LoopObject + PartialEq> CurveOnClassifyObjects<O> for LoopObjectCurves<O
     }
 }
 
-impl<O: LoopObject + PartialEq> ClassifyCurveObjects<O> for LoopObjectCurves<O> {
+impl<O: LoopObject + PartialEq> ClassifyCurveObjects<O> for LoopObjectCurves<'_, O> {
     fn set_classify_curves(
         &mut self,
         curve: Curve,
@@ -587,7 +703,7 @@ pub fn face_classify_uv_line<O: ClassObject>(
             zone_tol_3d: src_zone_tol_3d,
             is_curve_owned: true,
             is_curve_current: true,
-            surface1: objects.surface(f),
+            surface1: objects.face_surface(f),
             ..ResetOptions::default()
         },
     )?;
@@ -665,6 +781,9 @@ pub fn find_and_classify_loop_bisector<O: LoopObject + PartialEq>(
         ));
     }
 
+    // (IsSeam may attach missing UV trim curves: a private snapshot of the B-rep)
+    let mut snapshot = b.clone();
+
     // init output
     cc.reset(k, &ResetOptions::default())?;
     let mut out = LoopBisector {
@@ -735,7 +854,7 @@ pub fn find_and_classify_loop_bisector<O: LoopObject + PartialEq>(
         let half0 = ends[0].distance(sp[0]);
         let half1 = ends[1].distance(sp[0]);
         let this_length = max2(half0, half1);
-        let edge_is_seam = topo_edge::is_seam(b, e)?;
+        let edge_is_seam = topo_edge::is_seam(k, &mut snapshot, e)?;
         if longest_eu.is_none()
             || (this_length > max_edge_length && (!longest_is_seam || edge_is_seam))
         {
@@ -746,8 +865,7 @@ pub fn find_and_classify_loop_bisector<O: LoopObject + PartialEq>(
 
         // skip strut, crack, and seam edges - count the edgeuses on this Edge in this
         // loop, if even - its a crack, strut, or seam edge
-        let in_loop =
-            topo_edge::edgeuses(b, e, None, Some(crate::error::EntityRef::Loopuse(tgt_lu)))?;
+        let in_loop = topo_edge::edgeuses(b, e, None, Some(EntityRef::Loopuse(tgt_lu)))?;
         if in_loop.len() % 2 == 0 {
             // when more edges remain to be tested - skip this strut, crack, or seam edge
             if !is_last {
@@ -1153,8 +1271,8 @@ pub struct SectorClass {
     pub problem: ClassifyProblem,
 }
 
-/// `SmEdgeuse::EvaluateBinormal(t, bUse3DOnly, rPnt, rBin, &rTan)` (unit
-/// `topology.edgeuse_p3`).
+/// `SmEdgeuse::EvaluateBinormal(t, bUse3DOnly, rPnt, rBin, &rTan)`: no parameter
+/// direction asked (`pOptUVVector` defaults to null).
 fn evaluate_binormal(
     k: &Kernel,
     b: &mut Brep,
@@ -1162,12 +1280,14 @@ fn evaluate_binormal(
     parameter: f64,
     use_3d_only: bool,
 ) -> Result<BinormalEval> {
-    let _ = (k, b, eu, parameter, use_3d_only);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-    Err(SolidError::unported(
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
-    ))
+    crate::topology::edgeuse::p3::evaluate_binormal(
+        k,
+        b,
+        eu,
+        parameter,
+        use_3d_only,
+        &crate::topology::edgeuse::p3::BinormalOptions::default(),
+    )
 }
 
 /// `(p * v) * p`: `v` projected onto the plane with normal `p` (and rotated a quarter
@@ -1194,8 +1314,8 @@ fn project(p: Vec3, v: Vec3) -> Vec3 {
 /// or mate); `SM_ERR_INVALID_INPUT` ([`SolidError::Upstream`]) for a zero vector the
 /// projection or step-off tangents unitize or measure angles with (`SER`); those of the
 /// curve and edge evaluations and of `EvaluateNormalAtSingularity`;
-/// [`SolidError::Unported`]: `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`) and a
-/// 2D curve on a face whose surface is no B-spline (`curve.crv_on_surf`).
+/// [`SolidError::Unported`]: those of `SmEdgeuse::EvaluateBinormal` and a 2D curve on a
+/// face whose surface is no B-spline (`curve.crv_on_surf`).
 #[allow(clippy::too_many_lines)]
 pub fn sector_classify_curve_on(
     k: &Kernel,
@@ -1777,8 +1897,7 @@ pub fn sector_classify_curve_on(
         guess_uv = step_uv;
 
         // See if we can get a good reading from this uv position.
-        let lp = face_loop(k, b, loop1, None)?;
-        let c = contains_uv_point(k, &lp, step_uv, xsect_tol)?;
+        let c = contains_uv_point(k, b, loop1, None, step_uv, xsect_tol)?;
         let mut cont = c.containment;
 
         // If it's inside, but the loop is backwards, that's really the outside.
@@ -1809,6 +1928,7 @@ pub fn sector_classify_curve_on(
 mod tests {
     use super::*;
     use crate::curve::line::BoundedLineOptions;
+    use crate::intersect::point_class::ClassObjectKind;
     use crate::surface::plane::Plane;
     use crate::topology::{
         Edge, Edgeuse, EdgeuseOwner, Face, Faceuse, FaceuseId, Loop, Loopuse, LoopuseId,
@@ -1845,6 +1965,7 @@ mod tests {
             mate: None,
             orientation: OrientType::Same,
             loopuses: vec![LoopuseId::from_index(0)],
+            ..Faceuse::default()
         })
         .unwrap();
         b.add_loopuse_record(Loopuse {
@@ -1916,7 +2037,7 @@ mod tests {
     }
 
     #[test]
-    fn sector_classification_needs_the_edge_use_binormal() {
+    fn sector_classification_into_the_face_is_inside() {
         let k = Kernel::default();
         let mut b = Brep::new();
         let f = square(&mut b, 0.0);
@@ -1942,53 +2063,107 @@ mod tests {
             singularity_uv: Point2::new(0.0, 0.0),
             uv_space_okay: true,
         };
-        let r = sector_classify_curve_on(&k, &mut b, f, &input);
-        assert!(r.unwrap_err().is_unported());
+        // both binormals point into the face along the curve: the "low work" exit
+        let r = sector_classify_curve_on(&k, &mut b, f, &input).unwrap();
+        assert_eq!(
+            r,
+            SectorClass {
+                inside: true,
+                possible_problem: false,
+                problem: ClassifyProblem::None,
+            }
+        );
     }
 
     #[derive(Debug, Clone, Copy, PartialEq)]
     enum H {
-        Loop(LoopId),
-        Face(FaceId),
+        Topo(EntityRef),
+        Surface(FaceId),
         Curve(bool),
+        EdgeCurve(EdgeId),
+        Trim(EdgeuseId),
     }
 
     impl ClassObject for H {
-        fn class_kind(&self) -> crate::intersect::point_class::ClassObjectKind {
-            use crate::intersect::point_class::ClassObjectKind as K;
+        fn class_kind(&self) -> ClassObjectKind {
             match self {
-                Self::Loop(_) => K::Loop,
-                Self::Face(_) => K::Face,
-                Self::Curve(_) => K::Curve,
+                Self::Topo(e) => e.class_kind(),
+                Self::Surface(_) => ClassObjectKind::Surface,
+                Self::Curve(_) | Self::EdgeCurve(_) | Self::Trim(_) => ClassObjectKind::Curve,
             }
         }
     }
 
     impl LoopObject for H {
         fn from_loop(l: LoopId) -> Self {
-            Self::Loop(l)
+            Self::Topo(EntityRef::Loop(l))
         }
+
         fn as_loop(&self) -> Option<LoopId> {
             match self {
-                Self::Loop(l) => Some(*l),
+                Self::Topo(e) => e.as_loop(),
                 _ => None,
             }
         }
+
         fn as_vertex(&self) -> Option<VertexId> {
-            None
+            match self {
+                Self::Topo(e) => e.as_vertex(),
+                _ => None,
+            }
         }
+
         fn from_face(f: FaceId) -> Option<Self> {
-            Some(Self::Face(f))
+            Some(Self::Topo(EntityRef::Face(f)))
         }
+
+        fn from_face_surface(f: FaceId) -> Option<Self> {
+            Some(Self::Surface(f))
+        }
+
         fn from_classify_curve(uv: bool) -> Option<Self> {
             Some(Self::Curve(uv))
+        }
+
+        fn from_topology(t: EntityRef) -> Option<Self> {
+            Some(Self::Topo(t))
+        }
+
+        fn as_topology(&self) -> Option<EntityRef> {
+            match self {
+                Self::Topo(t) => Some(*t),
+                _ => None,
+            }
+        }
+
+        fn from_edge_curve(e: EdgeId) -> Option<Self> {
+            Some(Self::EdgeCurve(e))
+        }
+
+        fn as_edge_curve(&self) -> Option<EdgeId> {
+            match self {
+                Self::EdgeCurve(e) => Some(*e),
+                _ => None,
+            }
+        }
+
+        fn from_trim_curve(eu: EdgeuseId) -> Option<Self> {
+            Some(Self::Trim(eu))
+        }
+
+        fn as_trim_curve(&self) -> Option<EdgeuseId> {
+            match self {
+                Self::Trim(eu) => Some(*eu),
+                _ => None,
+            }
         }
     }
 
     #[test]
     fn loop_object_curves_resolve_the_stored_curves() {
-        let mut objects: LoopObjectCurves<H> =
-            LoopObjectCurves::new(FaceId::from_index(0)).unwrap();
+        let mut b = Brep::new();
+        let f = square(&mut b, 0.0);
+        let mut objects: LoopObjectCurves<H> = LoopObjectCurves::new(&b, f).unwrap();
         let line = |x: f64| {
             Curve::from(Line::from_points(
                 Point3::new(0.0, 0.0, 0.0),
@@ -2000,15 +2175,26 @@ mod tests {
             .set_classify_curves(line(1.0), Some(line(2.0)))
             .unwrap();
         assert_eq!((h, hu), (H::Curve(false), Some(H::Curve(true))));
-        assert!(objects.curve(h).is_some());
-        assert!(objects.curve(H::Curve(true)).is_some());
-        assert_eq!(objects.surface(FaceId::from_index(0)), None);
+        assert!(ClassGeometry::curve(&objects, h).is_some());
+        assert!(ClassGeometry::curve(&objects, H::Curve(true)).is_some());
+        // the face's surface and edge curves resolve through the B-rep
+        let s = objects.face_surface(f).unwrap();
+        assert_eq!(s, H::Surface(f));
+        assert!(ClassGeometry::surface(&objects, s).is_some());
+        let e = EdgeId::from_index(0);
+        let ec = objects.edge_curve(e);
+        assert_eq!(ec, H::EdgeCurve(e));
+        assert!(ClassGeometry::curve(&objects, ec).is_some());
+        assert_eq!(
+            objects.vertex(VertexId::from_index(0)),
+            H::Topo(EntityRef::Vertex(VertexId::from_index(0)))
+        );
         // a later call replaces both
         let (h2, hu2) = objects.set_classify_curves(line(3.0), None).unwrap();
         assert_eq!((h2, hu2), (H::Curve(false), None));
         assert!(objects.classify_uv_curve().is_none());
         // a handle type that cannot name curves cannot make them
-        assert!(LoopObjectCurves::<crate::error::EntityRef>::new(FaceId::from_index(0)).is_err());
+        assert!(LoopObjectCurves::<EntityRef>::new(&b, f).is_err());
     }
 
     #[test]
@@ -2017,7 +2203,7 @@ mod tests {
         let mut b = Brep::new();
         let f = square(&mut b, 0.0);
         let props: FaceProps<H> = FaceProps::for_face(f, 0);
-        let mut objects: LoopObjectCurves<H> = LoopObjectCurves::new(f).unwrap();
+        let mut objects: LoopObjectCurves<H> = LoopObjectCurves::new(&b, f).unwrap();
         let mut cc: CurveClassification<H> = CurveClassification::new(&k);
         let r = find_and_classify_loop_bisector(
             &k,

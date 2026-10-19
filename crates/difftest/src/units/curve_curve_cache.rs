@@ -30,12 +30,14 @@ use solidcore::geom::tree::{CurveSpanRef, NodeData, NodeId, Tree};
 use solidcore::geom::vector3d::Vec3;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::{BSplineCurve, NurbCircleParam};
+use solidcore::nurbs::math::{NOW, NOZ};
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
 use solidcore::SolidError;
 use solidcore_ffi::units::curve_curve_cache::{self as ffi, Op};
 
 use crate::case::CaseContext;
 use crate::runner::default_cases;
+use crate::util::v3;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// Generated cases per run, whatever `--seeds` says (it can only raise this).
@@ -47,9 +49,6 @@ pub struct Runner;
 fn harness(msg: impl Into<String>) -> HarnessError {
     HarnessError::new(msg)
 }
-
-const NOZ: f64 = f64::MAX;
-const NOW: f64 = -f64::MAX;
 
 // ---- inputs -----------------------------------------------------------------------
 
@@ -229,10 +228,6 @@ fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
 }
 
 // ---- Rust side --------------------------------------------------------------------
-
-fn v3(p: [f64; 3]) -> Vec3 {
-    Vec3::from_array(p)
-}
 
 fn build(c: &CurveIn) -> Result<Curve, HarnessError> {
     match &resolve(c)? {

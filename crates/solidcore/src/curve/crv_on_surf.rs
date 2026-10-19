@@ -193,6 +193,10 @@ fn surface_read_from_db(
             "SmSurface virtuals of an SmSurfOfRevolution",
             "curve.crv_on_surf",
         )),
+        SurfaceKind::OffsetSurface(_) => Err(SolidError::unported(
+            "SmSurface virtuals of an SmOffsetSurface",
+            "curve.crv_on_surf",
+        )),
         SurfaceKind::SrfInVolume(_) => Err(SolidError::unported(
             "SmSurface virtuals of an SmSrfInVolume",
             "curve.crv_on_surf",
@@ -210,7 +214,8 @@ fn classify_against_surface(
     _surface: &BSplineSurface,
 ) -> Result<Vec<Extent1d>> {
     // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
-    // UNPORTED(intersect.curve_class_p8): SmCurveClassification::IntersectUVDiscontinuties
+    // Part 8 is available as CurveClassification::intersect_uv_discontinuities;
+    // construction/context plumbing from part 4 must be wired before it can run here.
     // (then the intervals: intersect::curve_class::CurveClassification::size / at)
     Err(SolidError::unported(
         "SmCurveClassification::SmCurveClassification",

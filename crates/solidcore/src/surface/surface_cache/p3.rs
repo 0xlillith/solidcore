@@ -39,6 +39,12 @@
 //! - **Recursion.** `SubdivideToTolerances` recurses into both children without a
 //!   bound; the port stops past [`MAX_SUBDIVISION_DEPTH`] levels with
 //!   [`SolidError::InvalidInput`] (upstream fixtures stay far below it).
+//! - **Node count.** Neither does upstream bound the number of nodes it makes: a surface
+//!   much larger than the tessellation tolerances (e.g. control points at `1e4` with the
+//!   default tolerances) is split into millions of patches, which upstream allocates for
+//!   minutes and Rust aborts on (a 3.5 GB patch array in a `surface.surface_p11` run).
+//!   The port refuses to split a node once the tree holds [`MAX_SUBDIVISION_NODES`]
+//!   nodes, with [`SolidError::InvalidInput`].
 //! - **Undefined behaviour.** Where upstream would dereference a null tree (a failed
 //!   `GetTree`), a null `m_pNurb`, a node without data or a node that already has
 //!   children, the port returns [`SolidError::InvalidInput`]. `SubdivideToTolerances`
@@ -106,6 +112,11 @@ const OP_GET: &str = "surface::surface_cache::p3::SurfaceCache::get_tree";
 /// Deepest `SubdivideToTolerances` recursion the port follows (see the module
 /// deviations).
 pub const MAX_SUBDIVISION_DEPTH: u32 = 512;
+
+/// Most tree nodes `SubdivideToTolerances` splits up to (see the module deviations):
+/// `2^20`, about 1.7 GB of Bezier patches (a generated `surface.surface_p1` case at
+/// `1e-4` scale needs more than `2^18`).
+pub const MAX_SUBDIVISION_NODES: usize = 1 << 20;
 
 /// `SM_SS_UMIN` .. `SM_SS_VMAX`: the singular sides of a surface.
 const SS_UMIN: u32 = 1;
@@ -323,11 +334,14 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     /// surface) and from the part 1 implants.
     pub fn subdivide_node(
         &mut self,
+        k: &Kernel,
         node: NodeId,
         direction: SurfParamType,
         only_aux_data: bool,
     ) -> Result<()> {
-        if let Some((node1, node2)) = self.subdivide_node_split(node, direction, only_aux_data)? {
+        if let Some((node1, node2)) =
+            self.subdivide_node_split(k, node, direction, only_aux_data)?
+        {
             self.move_boundary_uses_base(node, node1, node2)?;
         }
         Ok(())
@@ -346,6 +360,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     /// Those of [`SurfaceCache::subdivide_node`] but the implants.
     pub fn subdivide_node_split(
         &mut self,
+        k: &Kernel,
         node: NodeId,
         direction: SurfParamType,
         only_aux_data: bool,
@@ -477,6 +492,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 // if possible move the split parameter to a nearby existing knot, then
                 // split the subdivision surface in two (child boxes from the halves)
                 let split_param = self.split_subdivision_surface(
+                    k,
                     handle,
                     [node1, node2],
                     SurfParamType::U,
@@ -512,6 +528,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                 // if possible move the split parameter to a nearby existing knot, then
                 // split the subdivision surface in two (child boxes from the halves)
                 let split_param = self.split_subdivision_surface(
+                    k,
                     handle,
                     [node1, node2],
                     SurfParamType::V,
@@ -588,6 +605,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     /// the box statuses, the v split returns them (as upstream).
     fn split_subdivision_surface(
         &mut self,
+        k: &Kernel,
         handle: O,
         [node1, node2]: [NodeId; 2],
         direction: SurfParamType,
@@ -615,7 +633,7 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         };
 
         // build two new split child surfaces from the original - don't modify the original
-        let (half1, half2) = sub.split_at(split_param, direction)?;
+        let (half1, half2) = sub.split_at(k, split_param, direction)?;
 
         // store the child surfaces in the subdivision surface list and on the nodes
         let mut handles = [None, None];
@@ -734,8 +752,9 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
     ///
     /// # Errors
     ///
-    /// `InvalidInput` past [`MAX_SUBDIVISION_DEPTH`] levels; the errors of the tolerance
-    /// test, the block subdivision and [`SurfaceCache::subdivide_node`].
+    /// `InvalidInput` past [`MAX_SUBDIVISION_DEPTH`] levels or [`MAX_SUBDIVISION_NODES`]
+    /// nodes; the errors of the tolerance test, the block subdivision and
+    /// [`SurfaceCache::subdivide_node`].
     pub fn subdivide_to_tolerances(&mut self, k: &Kernel, node: NodeId, depth: u32) -> Result<()> {
         self.subdivide_to_tolerances_with(k, node, depth, &mut |c, k, n| {
             c.test_against_tolerances(k, n)
@@ -783,7 +802,14 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
         }
 
         // subdivide the node in two - at mid-point or existing knot near mid-point
-        self.subdivide_node(node, test.direction, false)?;
+        // (bounded: see MAX_SUBDIVISION_NODES)
+        if self.tree_or(OP_TOL)?.nodes().len() >= MAX_SUBDIVISION_NODES {
+            return Err(invalid(
+                OP_TOL,
+                "subdivision tree exceeds MAX_SUBDIVISION_NODES",
+            ));
+        }
+        self.subdivide_node(k, node, test.direction, false)?;
 
         // recursion - keep subdividing until we satisfy tolerances
         let (c1, c2) = {
@@ -872,9 +898,10 @@ impl<O: Copy + PartialEq> SurfaceCache<O> {
                     Some(std::borrow::Cow::Owned(tmp.base().clone()))
                 }
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
-                None
-            }
+            SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::OffsetSurface(_)
+            | SurfaceKind::SrfInVolume(_) => None,
         };
         let (u_count, v_count, beziers) = if let Some(b) = bspline {
             let nurb = b

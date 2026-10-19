@@ -51,7 +51,8 @@
 //!   bounds).
 //! - **Statuses ignored upstream** (`ComputeUVPoint` in `sm_AreConnected` and
 //!   `sm_FixUVTrimCurves`, the vertex/edge evaluations and `DropPoint` of
-//!   `sm_FixUVTrimCurves`, `GetEnds`, the surface evaluations of `GetPointsInFace`) are
+//!   `sm_FixUVTrimCurves`, `GetEnds`, the surface evaluations and the
+//!   `CalculateUVDomainFromUVTrimCurves` of `GetPointsInFace`) are
 //!   ignored; [`SolidError::Unported`] still propagates. A failed `ComputeUVPoint`
 //!   leaves the caller's default point ([`Point2::UNDEF`]); a failed `DropPoint` is
 //!   no drop point; a failed evaluation keeps the previous value (initially
@@ -91,10 +92,9 @@
 //!   constructor of a curve (`intersect.curve_class_p4`),
 //!   `SmCurveInterval::GetIvlBound_EdgeuseObj` (`intersect.curve_class_p4`),
 //!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
-//!   `SmEdgeuse::NormalizedEvaluate` / `GetOrCreateUVTrimCurve`
-//!   (`topology.edgeuse_p3`), `SmSurface::IsSingularity` of a non-plane
-//!   (`surface.surface_p5`) and `SmOffsetSurface` (`surface.offset_surface`) return
-//!   [`SolidError::Unported`].
+//!   `SmSurface::IsSingularity` of a non-plane
+//!   (`surface.surface_p5`) return [`SolidError::Unported`]. A thick face's temporary
+//!   `SmOffsetSurface` is built over a copy of the face surface (upstream shares it).
 
 use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p2::CurveKind;
@@ -107,7 +107,7 @@ use crate::geom::object::ObjectRef;
 use crate::geom::tol::are_same;
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::intersect::curve_class::p1::{CurveClassification, CurveInterval};
-use crate::intersect::point_class::{ClassObject, ClassObjectKind, PointClassType};
+use crate::intersect::point_class::{ClassGeometry, ClassObject, ClassObjectKind, PointClassType};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ};
 use crate::nurbs::b_spline_curve::BSplineCurve;
@@ -117,10 +117,12 @@ use crate::nurbs::b_spline_surface_n_lib::p2::{EvaluateFlags, OrientType};
 use crate::nurbs::knots::Side;
 use crate::query::face::p2 as qf2;
 use crate::query::face::p3 as qf3;
+use crate::surface::offset_surface::{OffsetSurface, SS_UNKNOWN};
 use crate::surface::surface::p1::map_to_2d;
 use crate::surface::surface::p7::approx_derivative_lengths;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::edgeuse::p1 as eu1;
+use crate::topology::edgeuse::p3 as eu3;
 use crate::topology::topology as topo;
 use crate::topology::vertexuse as vu1;
 use crate::topology::{
@@ -363,12 +365,18 @@ impl ClassObject for StubHandle {
 }
 
 /// The handles of the UV line classifications of [`calculate_an_internal_point`]: the
-/// face, its surface and the UV line.
+/// face, its surface, the UV line and the face's boundary topology and curves.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum UvLineHandle {
     Face,
     Surface,
     Line,
+    Vertex(VertexId),
+    Edge(EdgeId),
+    Vertexuse(VertexuseId),
+    Edgeuse(EdgeuseId),
+    EdgeCurve(EdgeId),
+    Trim(EdgeuseId),
 }
 
 impl ClassObject for UvLineHandle {
@@ -376,37 +384,92 @@ impl ClassObject for UvLineHandle {
         match self {
             Self::Face => ClassObjectKind::Face,
             Self::Surface => ClassObjectKind::Surface,
-            Self::Line => ClassObjectKind::Curve,
+            Self::Line | Self::EdgeCurve(_) | Self::Trim(_) => ClassObjectKind::Curve,
+            Self::Vertex(_) => ClassObjectKind::Vertex,
+            Self::Edge(_) => ClassObjectKind::Edge,
+            Self::Vertexuse(_) => ClassObjectKind::Vertexuse,
+            Self::Edgeuse(_) => ClassObjectKind::Edgeuse,
         }
     }
 }
 
-/// The UV line `sm_FaceClassifyUVLine` made last (`sCurveClassification.GetCurve()`).
-struct UvLineObjects {
+/// The UV line `sm_FaceClassifyUVLine` made last (`sCurveClassification.GetCurve()`),
+/// and the face `f` of `b` whose objects the other handles name.
+struct UvLineObjects<'a> {
+    b: &'a Brep,
+    f: FaceId,
     line: Option<Curve>,
 }
 
-impl qf2::CurveOnClassifyObjects<UvLineHandle> for UvLineObjects {
+impl ClassGeometry<UvLineHandle> for UvLineObjects<'_> {
+    fn curve(&self, o: UvLineHandle) -> Option<&Curve> {
+        match o {
+            UvLineHandle::Line => self.line.as_ref(),
+            UvLineHandle::EdgeCurve(e) => self.b.edge(e).ok()?.curve.as_ref(),
+            UvLineHandle::Trim(eu) => eu1::uv_trim_curve(self.b, eu).ok()?.0,
+            _ => None,
+        }
+    }
+    fn surface(&self, o: UvLineHandle) -> Option<&Surface> {
+        match o {
+            UvLineHandle::Surface => self.b.face(self.f).ok()?.surface.as_ref(),
+            _ => None,
+        }
+    }
+    fn volume(&self, _o: UvLineHandle) -> Option<&crate::surface::volume::Volume> {
+        None
+    }
+    fn point(&self, _o: UvLineHandle) -> Option<Point3> {
+        None
+    }
+    fn classification_vertex_point(&self, o: UvLineHandle) -> Option<Point3> {
+        match o {
+            UvLineHandle::Vertex(v) => self.b.vertex(v).ok().map(|v| v.point),
+            _ => None,
+        }
+    }
+    fn topology_zone_tol_3d(&self, o: UvLineHandle) -> Option<f64> {
+        match o {
+            UvLineHandle::Vertex(v) => self.b.vertex(v).ok().map(|v| v.tolerance),
+            UvLineHandle::Edge(e) => self.b.edge(e).ok().map(|e| e.tolerance),
+            UvLineHandle::Face => self.b.face(self.f).ok().map(|f| f.tolerance),
+            _ => None,
+        }
+    }
+}
+
+impl qf2::CurveOnClassifyObjects<UvLineHandle> for UvLineObjects<'_> {
     fn face(&self, _f: FaceId) -> UvLineHandle {
         UvLineHandle::Face
     }
-    fn surface(&self, _f: FaceId) -> Option<UvLineHandle> {
+    fn vertex(&self, v: VertexId) -> UvLineHandle {
+        UvLineHandle::Vertex(v)
+    }
+    fn edge(&self, e: EdgeId) -> UvLineHandle {
+        UvLineHandle::Edge(e)
+    }
+    fn vertexuse(&self, vu: VertexuseId) -> UvLineHandle {
+        UvLineHandle::Vertexuse(vu)
+    }
+    fn edgeuse(&self, eu: EdgeuseId) -> UvLineHandle {
+        UvLineHandle::Edgeuse(eu)
+    }
+    fn edge_curve(&self, e: EdgeId) -> UvLineHandle {
+        UvLineHandle::EdgeCurve(e)
+    }
+    fn trim_curve(&self, eu: EdgeuseId) -> UvLineHandle {
+        UvLineHandle::Trim(eu)
+    }
+    fn face_surface(&self, _f: FaceId) -> Option<UvLineHandle> {
         // (calculate_an_internal_point returns before classifying without surface)
         Some(UvLineHandle::Surface)
-    }
-    fn curve(&self, curve: UvLineHandle) -> Option<&Curve> {
-        if curve == UvLineHandle::Line {
-            self.line.as_ref()
-        } else {
-            None
-        }
     }
     fn loop_id(&self, _tgt_loop: UvLineHandle) -> Option<LoopId> {
         None
     }
 }
 
-impl qf3::ClassifyCurveObjects<UvLineHandle> for UvLineObjects {
+impl qf3::ClassifyCurveObjects<UvLineHandle> for UvLineObjects<'_> {
     fn set_classify_curves(
         &mut self,
         curve: Curve,
@@ -437,31 +500,32 @@ fn ivl_bound_edgeuse_obj<O>(_interval: &CurveInterval<O>, _min_end: bool) -> Res
     ))
 }
 
-/// `SmFace::CalculateUVDomainFromUVTrimCurves(rTrimUVDomain)`.
-fn calculate_uv_domain_from_uv_trim_curves(_b: &Brep, _f: FaceId) -> Result<Extent2d> {
-    // UNPORTED(topology.face_p1): SmFace::CalculateUVDomainFromUVTrimCurves
-    Err(SolidError::unported(
-        "SmFace::CalculateUVDomainFromUVTrimCurves",
-        "topology.face_p1",
-    ))
+/// `SmFace::CalculateUVDomainFromUVTrimCurves(rTrimUVDomain)` (unit `topology.face_p1`),
+/// on a copy of the B-rep: the caller holds it shared, so the UV trim curves the call
+/// makes (a cache upstream fills through a `const` method) are not kept. The copy costs
+/// a whole-B-rep clone per call (O(faces * B-rep size) over a sweep of every face); pass
+/// the B-rep mutably once [`points_in_face`]'s callers can.
+fn calculate_uv_domain_from_uv_trim_curves(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent2d> {
+    let mut copy = b.clone();
+    crate::topology::face::p1::calculate_uv_domain_from_uv_trim_curves(
+        k, &mut copy, f, true, false, false,
+    )
+    .map(|r| r.domain)
 }
 
 /// `pEU->NormalizedEvaluate(dT, TRUE, rUV)` (UV evaluation).
-fn normalized_evaluate_uv(_b: &Brep, _eu: EdgeuseId, _t: f64) -> Result<Point3> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+fn normalized_evaluate_uv(k: &Kernel, b: &mut Brep, eu: EdgeuseId, t: f64) -> Result<Point3> {
+    Ok(eu3::normalized_evaluate(k, b, eu, t, true, false, true)?.point)
 }
 
-/// `pEU->GetOrCreateUVTrimCurve(rpUVCurve)`.
-fn get_or_create_uv_trim_curve(_b: &Brep, _eu: EdgeuseId) -> Result<Curve> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+/// `pEU->GetOrCreateUVTrimCurve(rpUVCurve)` (its status is ignored; the curve is then
+/// dereferenced).
+fn get_or_create_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<Curve> {
+    let _ = eu3::get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
+    eu1::uv_trim_curve(b, eu)?
+        .0
+        .cloned()
+        .ok_or_else(|| null("CreateCurvesFromFace: edge use without UV trim curve"))
 }
 
 /// `pSurf->IsSingularity(uv, eDir, dTol3d, TRUE)` (virtual: the plane override, the
@@ -478,20 +542,48 @@ fn is_singularity(
         | SurfaceKind::CurveBounded(_)
         | SurfaceKind::SurfOfRevolution(_)
         | SurfaceKind::Step(_)
-        | SurfaceKind::SrfInVolume(_) => {
+        | SurfaceKind::SrfInVolume(_)
+        | SurfaceKind::OffsetSurface(_) => {
             let r = surface.is_singularity(k, uv, tol, false)?;
             Ok((r.singular, r.direction))
         }
     }
 }
 
-/// `SmOffsetSurface(dOffset, rSurface).EvaluateSimple(uv, 1, 1, TRUE, TRUE, TRUE, ..)`.
-fn offset_evaluate_simple(_surface: &Surface, _offset: f64, _uv: Point2) -> Result<[[Vec3; 2]; 2]> {
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::EvaluateSimple
-    Err(SolidError::unported(
-        "SmOffsetSurface::EvaluateSimple",
-        "surface.offset_surface",
-    ))
+/// `SmOffsetSurface(dOffset, rSurface).EvaluateSimple(uv, 1, 1, TRUE, TRUE, TRUE, ..)`:
+/// a temporary offset (not owning, default singularities, so its constructor runs the
+/// surface's `IsPeriodic` and `GetSingularities`) over a copy of `surface` that keeps
+/// its owner (upstream shares it).
+fn offset_evaluate_simple(
+    k: &Kernel,
+    surface: &Surface,
+    offset: f64,
+    uv: Point2,
+) -> Result<Vec<Vec<Vec3>>> {
+    let off = OffsetSurface::new(k, offset, surface.clone_keeping_owner(), false, SS_UNKNOWN)?;
+    off.evaluate_simple(uv, 1, 1, simple_flags())
+}
+
+/// `EvaluateSimple(.., TRUE, TRUE, TRUE, ..)`: from the left, upper half.
+const fn simple_flags() -> EvaluateFlags {
+    EvaluateFlags {
+        u_side: Side::Left,
+        v_side: Side::Left,
+        only_upper_half: true,
+        non_zero_tangents: true,
+    }
+}
+
+/// Copies an evaluation into the caller's first-derivative block (entries it does not
+/// have keep their values).
+fn copy_block(pv: &mut [[Vec3; 2]; 2], r: &[Vec<Vec3>]) {
+    for (ii, row) in pv.iter_mut().enumerate() {
+        for (jj, slot) in row.iter_mut().enumerate() {
+            if let Some(v) = r.get(ii).and_then(|x| x.get(jj)) {
+                *slot = *v;
+            }
+        }
+    }
 }
 
 /// `SmODEIntegrator(eval).RungeKuttaODEIntegrate(dY, x1, x2, eps, h1, 0, .., pYScale)`.
@@ -803,7 +895,7 @@ pub fn calculate_an_internal_point(k: &Kernel, b: &Brep, f: FaceId) -> Result<Po
     }
 
     let mut classification: CurveClassification<UvLineHandle> = CurveClassification::new(k);
-    let mut uv_objects = UvLineObjects { line: None };
+    let mut uv_objects = UvLineObjects { b, f, line: None };
 
     // first for constant U then V isoparameter lines
     for ii in 0..2 {
@@ -837,7 +929,7 @@ pub fn calculate_an_internal_point(k: &Kernel, b: &Brep, f: FaceId) -> Result<Po
                     // Found an interior point (on the classification's UV line).
                     let Some(uv_crv) = classification
                         .curve()
-                        .and_then(|h| qf2::CurveOnClassifyObjects::curve(&uv_objects, h))
+                        .and_then(|h| ClassGeometry::curve(&uv_objects, h))
                     else {
                         continue;
                     };
@@ -953,7 +1045,13 @@ pub fn points_in_face(
         let u_inc = 1.0 / ((trim_curve_cnt + 1) as f64);
 
         // set search range to face boundary domain
-        let trim_uv_domain = calculate_uv_domain_from_uv_trim_curves(b, f)?;
+        // (status ignored upstream: on a failure the output is still the face's UV
+        // domain, which CalculateUVDomainFromUVTrimCurves sets first)
+        let trim_uv_domain = match calculate_uv_domain_from_uv_trim_curves(k, b, f) {
+            Ok(d) => d,
+            Err(e) if e.is_unported() => return Err(e),
+            Err(_) => b.face(f)?.uv_domain,
+        };
         let srf_dom = surf.natural_uv_domain();
         // (SmExtent2d::Intersect leaves the output unchanged when disjoint)
         let uv_dom = srf_dom
@@ -1158,6 +1256,7 @@ fn put(dydx: &mut [f64], i: usize, v: f64, set: bool) -> Result<()> {
 /// face, of its two offset surfaces) and the volume under it and its moments.
 #[derive(Debug, Clone, Copy)]
 pub struct OdeIsoCurveLength<'a> {
+    kernel: &'a Kernel,
     surface: &'a Surface,
     u_iso_value: f64,
     origin: Point3,
@@ -1166,9 +1265,11 @@ pub struct OdeIsoCurveLength<'a> {
 }
 
 impl<'a> OdeIsoCurveLength<'a> {
-    /// The integrand on `surface` at `u = u_iso_value` relative to `origin`.
+    /// The integrand on `surface` at `u = u_iso_value` relative to `origin` (`kernel`
+    /// is the context of a thick face's temporary offset surfaces).
     #[must_use]
     pub const fn new(
+        kernel: &'a Kernel,
         surface: &'a Surface,
         u_iso_value: f64,
         origin: Point3,
@@ -1176,6 +1277,7 @@ impl<'a> OdeIsoCurveLength<'a> {
         layout: &'a PrecisePropertyLayout,
     ) -> Self {
         Self {
+            kernel,
             surface,
             u_iso_value,
             origin,
@@ -1188,9 +1290,9 @@ impl<'a> OdeIsoCurveLength<'a> {
     ///
     /// # Errors
     ///
-    /// Those of the surface evaluation; [`SolidError::InvalidInput`] for a layout
-    /// index outside `dydx`; [`SolidError::Unported`] for a thick face (the offset
-    /// surfaces).
+    /// Those of the surface evaluation (for a thick face, of constructing and
+    /// evaluating its offset surfaces); [`SolidError::InvalidInput`] for a layout
+    /// index outside `dydx`.
     #[allow(clippy::too_many_lines)] // one upstream function
     pub fn evaluate(&self, t: f64, dydx: &mut [f64]) -> Result<()> {
         let lay = self.layout;
@@ -1210,31 +1312,27 @@ impl<'a> OdeIsoCurveLength<'a> {
             let uv = Point2::new(self.u_iso_value, t);
 
             if self.face_thickness < EFF_ZERO {
-                let r = self.surface.evaluate_simple(
-                    uv,
-                    1,
-                    1,
-                    EvaluateFlags {
-                        u_side: Side::Left,
-                        v_side: Side::Left,
-                        only_upper_half: true,
-                        non_zero_tangents: true,
-                    },
-                )?;
-                for (ii, row) in pv.iter_mut().enumerate() {
-                    for (jj, slot) in row.iter_mut().enumerate() {
-                        if let Some(v) = r.get(ii).and_then(|x| x.get(jj)) {
-                            *slot = *v;
-                        }
-                    }
-                }
+                let r = self.surface.evaluate_simple(uv, 1, 1, simple_flags())?;
+                copy_block(&mut pv, &r);
             } else if i == 0 {
-                pv = offset_evaluate_simple(self.surface, self.face_thickness / 2.0, uv)?;
+                let r = offset_evaluate_simple(
+                    self.kernel,
+                    self.surface,
+                    self.face_thickness / 2.0,
+                    uv,
+                )?;
+                copy_block(&mut pv, &r);
             } else {
                 pv2[0][0] = pv[0][0];
                 pv2[1][0] = pv[1][0];
                 pv2[0][1] = pv[0][1];
-                pv = offset_evaluate_simple(self.surface, -self.face_thickness / 2.0, uv)?;
+                let r = offset_evaluate_simple(
+                    self.kernel,
+                    self.surface,
+                    -self.face_thickness / 2.0,
+                    uv,
+                )?;
+                copy_block(&mut pv, &r);
             }
 
             pv[0][0] -= self.origin;
@@ -1438,6 +1536,8 @@ impl<'a> OdeIsoCurveLength<'a> {
 /// by the curve's negated `du/dt`.
 #[derive(Debug, Clone, Copy)]
 pub struct OdeArea<'a> {
+    /// The context of a thick face's offset surfaces (`m_crSurface`'s).
+    pub kernel: &'a Kernel,
     /// `m_crSurface`.
     pub surface: &'a Surface,
     /// `m_crUVCurve`.
@@ -1475,6 +1575,7 @@ impl OdeArea<'_> {
             .ok_or_else(|| null("OdeArea: no curve tangent"))?;
 
         let eval = OdeIsoCurveLength::new(
+            self.kernel,
             self.surface,
             p0.x,
             self.origin,
@@ -1709,10 +1810,11 @@ pub struct FaceCurves {
 /// `SM_ERR` when neither curve kind is asked for; [`SolidError::NotFound`] for a
 /// dangling id; [`SolidError::InvalidInput`] for missing topology upstream dereferences;
 /// those of the evaluations and copies; [`SolidError::Unported`] for edge loops
-/// (`SmEdgeuse::NormalizedEvaluate`).
+/// (`SmSurface::DropCurve`, `SmSurface::DropPoint` and the others of
+/// [`crate::topology::edgeuse::p3`] when a UV trim curve must be made).
 pub fn create_curves_from_face(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     f: FaceId,
     orientation: OrientType,
     want_3d: bool,
@@ -1768,12 +1870,12 @@ pub fn create_curves_from_face(
         let last_eu = *edgeuses
             .last()
             .ok_or_else(|| null("CreateCurvesFromFace: edge loop without edge uses"))?;
-        let mut last_uv = normalized_evaluate_uv(b, last_eu, 1.0)?;
+        let mut last_uv = normalized_evaluate_uv(k, b, last_eu, 1.0)?;
 
         // iter every edgeuse in this loop
         for &eu in &edgeuses {
             // evaluate edgeuse start point
-            let curr_uv = normalized_evaluate_uv(b, eu, 0.0)?;
+            let curr_uv = normalized_evaluate_uv(k, b, eu, 0.0)?;
 
             // when saving just UVCurves
             if want_uv && !want_3d && last_uv.distance(curr_uv) > hundredth_size {
@@ -1789,14 +1891,14 @@ pub fn create_curves_from_face(
             }
 
             // move the lastUV point to end of this Edgeuse
-            last_uv = normalized_evaluate_uv(b, eu, 1.0)?;
+            last_uv = normalized_evaluate_uv(k, b, eu, 1.0)?;
 
             // put this curve's orientation into output
             out.curve_orients.push(eu1::orientation(b, eu)?);
 
             // when saving UVCurves
             if want_uv {
-                let uv_curve = get_or_create_uv_trim_curve(b, eu)?;
+                let uv_curve = get_or_create_uv_trim_curve(k, b, eu)?;
                 let copy = uv_curve.copy(k)?;
                 // NER(SM_CAST_PTR(SmBSplineCurve, pNewUV))
                 if bspline_slice(&copy).is_none() {
@@ -2437,7 +2539,8 @@ mod tests {
             &Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0),
         ));
         let lay = PrecisePropertyLayout::new(PPF_ALL);
-        let e = OdeIsoCurveLength::new(&p, 0.5, Vec3::ZERO, 0.0, &lay);
+        let k = Kernel::default();
+        let e = OdeIsoCurveLength::new(&k, &p, 0.5, Vec3::ZERO, 0.0, &lay);
         let mut d = vec![9.0; lay.num_components + 1];
         e.evaluate(0.25, &mut d).unwrap();
         assert_eq!(d[0], 0.0);
@@ -2447,9 +2550,10 @@ mod tests {
         // too short an array
         let mut short = vec![0.0; 3];
         assert!(e.evaluate(0.25, &mut short).is_err());
-        // thick faces need the offset surface
-        let thick = OdeIsoCurveLength::new(&p, 0.5, Vec3::ZERO, 0.1, &lay);
-        assert!(thick.evaluate(0.25, &mut d).unwrap_err().is_unported());
+        // a thick face integrates its two offsets at +-thickness/2: twice the area
+        let thick = OdeIsoCurveLength::new(&k, &p, 0.5, Vec3::ZERO, 0.1, &lay);
+        thick.evaluate(0.25, &mut d).unwrap();
+        assert_eq!(d[lay.area], 2.0);
     }
 
     #[test]
@@ -2527,9 +2631,9 @@ mod tests {
         let s = b.add_shell().unwrap();
         let f = b.add_face(s).unwrap();
         let k = Kernel::default();
-        assert!(create_curves_from_face(&k, &b, f, OrientType::Same, false, false).is_err());
+        assert!(create_curves_from_face(&k, &mut b, f, OrientType::Same, false, false).is_err());
         assert!(matches!(
-            create_curves_from_face(&k, &b, f, OrientType::Same, true, false),
+            create_curves_from_face(&k, &mut b, f, OrientType::Same, true, false),
             Err(SolidError::InvalidInput { .. })
         ));
     }

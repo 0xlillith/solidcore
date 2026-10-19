@@ -513,7 +513,10 @@ impl Surface {
                     uv_iso_curve: r.uv_iso_curve,
                 });
             }
-            SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
+            SurfaceKind::OffsetSurface(_)
+            | SurfaceKind::CurveBounded(_)
+            | SurfaceKind::Step(_)
+            | SurfaceKind::SrfInVolume(_) => {}
         }
 
         // define the isoParameter Curve as an object
@@ -1057,6 +1060,7 @@ impl Surface {
             // Haven't found it yet. Call GlobalPointSolve.
             solutions = self.global_point_solve::<O>(
                 k,
+                None,
                 domain,
                 op,
                 pt_to_drop,
@@ -1264,6 +1268,7 @@ impl Surface {
             |s: &Self, domain: &Extent2d, fallback_domain: &Extent2d| -> Result<Option<Point2>> {
                 let mut sols = ignored(s.global_point_solve::<O>(
                     &kernel,
+                    None,
                     domain,
                     SolverOperation::Minimize,
                     xyz_guess1,
@@ -1276,6 +1281,7 @@ impl Surface {
                     if let Some(g2) = opt_xyz_guess2 {
                         sols = ignored(s.global_point_solve::<O>(
                             &kernel,
+                            None,
                             fallback_domain,
                             SolverOperation::Minimize,
                             g2,

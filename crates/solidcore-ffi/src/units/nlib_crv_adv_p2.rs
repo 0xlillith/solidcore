@@ -158,62 +158,15 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Sequential reader over the input.
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
+crate::reader::unit_reader!();
 
-impl<'a> Reader<'a> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
+impl Reader<'_> {
     fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
         if !v.is_finite() {
             return Err(bad("non-finite parameter"));
         }
         Ok(v)
-    }
-
-    fn index(&mut self, max: usize) -> Result<usize, FfiError> {
-        let v = self.num()?;
-        if v.fract() != 0.0 || v < 0.0 || v > max as f64 {
-            return Err(bad(format!("bad index/count {v}")));
-        }
-        Ok(v as usize)
-    }
-
-    fn choice(&mut self, allowed: &[f64]) -> Result<f64, FfiError> {
-        let v = self.num()?;
-        if !allowed.contains(&v) {
-            return Err(bad(format!("bad flag {v}")));
-        }
-        Ok(v)
-    }
-
-    fn take(&mut self, k: usize) -> Result<&'a [f64], FfiError> {
-        let end = self.at.checked_add(k).ok_or_else(|| bad("overflow"))?;
-        let s = self
-            .input
-            .get(self.at..end)
-            .ok_or_else(|| bad("input too short"))?;
-        self.at = end;
-        Ok(s)
-    }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
     }
 }
 
@@ -234,7 +187,11 @@ impl CurveInfo {
     }
 
     fn polygon_length(&self) -> f64 {
-        self.pts.iter().zip(self.pts.iter().skip(1)).map(|(&a, &b)| dist(a, b)).sum()
+        self.pts
+            .iter()
+            .zip(self.pts.iter().skip(1))
+            .map(|(&a, &b)| dist(a, b))
+            .sum()
     }
 
     /// Whether `pts[i] - pts[j]` is safely normalisable.
@@ -262,7 +219,9 @@ impl CurveInfo {
         if ok {
             Ok(())
         } else {
-            Err(bad("extension: end pair not normalisable and no third point"))
+            Err(bad(
+                "extension: end pair not normalisable and no third point",
+            ))
         }
     }
 }
@@ -354,8 +313,8 @@ fn refine_knots(info: &CurveInfo, x: &[f64]) -> Result<(), FfiError> {
         return Ok(()); // Rejected before any indexing.
     }
     for &k in x {
-        let mult = info.knots.iter().filter(|&&u| u == k).count()
-            + x.iter().filter(|&&u| u == k).count();
+        let mult =
+            info.knots.iter().filter(|&&u| u == k).count() + x.iter().filter(|&&u| u == k).count();
         if mult > info.p {
             return Err(bad("refine: multiplicity above the degree"));
         }
@@ -386,7 +345,7 @@ fn rational_sum_ok(a: &CurveInfo, b: &CurveInfo) -> Result<(), FfiError> {
 }
 
 fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     let info = curve(&mut rd)?;
     let flag01 = [0.0, 1.0];
     let ends = [1.0, 2.0];
@@ -420,7 +379,9 @@ fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
                 return Err(bad("extend by parameter: par not outside the extended end"));
             }
             if inplace && cont == 3.0 && out > G2_SPLIT * (b - a) {
-                return Err(bad("extend by parameter: in-place G2 recursion frees garbage"));
+                return Err(bad(
+                    "extend by parameter: in-place G2 recursion frees garbage",
+                ));
             }
             if cont != 4.0 {
                 info.tangent_ok(start)?;

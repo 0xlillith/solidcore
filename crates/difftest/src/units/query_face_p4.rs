@@ -52,7 +52,7 @@ use solidcore::intersect::point_class::PointClassType;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::query::face::p4 as qf4;
-use solidcore::topology::{FaceId, LoopId, VertexId};
+use solidcore::topology::{EdgeId, EdgeuseId, FaceId, LoopId, VertexId};
 use solidcore_ffi::units::query_face_p4::{self as ffi, Op};
 
 use super::topology_edgeuse_p1::{domain, flag, gen_surface, push_surface, SrfIn, FILES};
@@ -77,6 +77,8 @@ enum H {
     Topo(EntityRef),
     Surface(FaceId),
     Curve(bool),
+    EdgeCurve(EdgeId),
+    Trim(EdgeuseId),
 }
 
 impl ClassObject for H {
@@ -84,7 +86,7 @@ impl ClassObject for H {
         match self {
             Self::Topo(e) => e.class_kind(),
             Self::Surface(_) => ClassObjectKind::Surface,
-            Self::Curve(_) => ClassObjectKind::Curve,
+            Self::Curve(_) | Self::EdgeCurve(_) | Self::Trim(_) => ClassObjectKind::Curve,
         }
     }
 }
@@ -118,6 +120,39 @@ impl LoopObject for H {
 
     fn from_classify_curve(uv: bool) -> Option<Self> {
         Some(Self::Curve(uv))
+    }
+
+    fn from_topology(t: EntityRef) -> Option<Self> {
+        Some(Self::Topo(t))
+    }
+
+    fn as_topology(&self) -> Option<EntityRef> {
+        match self {
+            Self::Topo(t) => Some(*t),
+            _ => None,
+        }
+    }
+
+    fn from_edge_curve(e: EdgeId) -> Option<Self> {
+        Some(Self::EdgeCurve(e))
+    }
+
+    fn as_edge_curve(&self) -> Option<EdgeId> {
+        match self {
+            Self::EdgeCurve(e) => Some(*e),
+            _ => None,
+        }
+    }
+
+    fn from_trim_curve(eu: EdgeuseId) -> Option<Self> {
+        Some(Self::Trim(eu))
+    }
+
+    fn as_trim_curve(&self) -> Option<EdgeuseId> {
+        match self {
+            Self::Trim(eu) => Some(*eu),
+            _ => None,
+        }
     }
 }
 

@@ -88,23 +88,9 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Sequential reader over the input.
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
+crate::reader::unit_reader!(MAX_COORD);
 
 impl Reader<'_> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
     fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
         if !v.is_finite() || v.abs() > MAX_COORD {
@@ -162,13 +148,6 @@ impl Reader<'_> {
         }
         Ok(v)
     }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
-    }
 }
 
 /// Checks a clamped knot vector of degree `p`.
@@ -203,7 +182,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiErr
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     Ok((a, b))
@@ -229,7 +210,10 @@ fn check_points(rd: &mut Reader<'_>, k: usize, planar: bool, what: &str) -> Resu
             return Err(bad(format!("{what}: weight out of range")));
         }
         let z = if z == NOZ { 0.0 } else { z };
-        if [x, y, z].iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
+        if [x, y, z]
+            .iter()
+            .any(|c| !c.is_finite() || c.abs() > MAX_COORD)
+        {
             return Err(bad(format!("{what}: point out of range")));
         }
     }
@@ -384,7 +368,7 @@ fn continuity(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 ///
 /// [`FfiError::InvalidArgument`] for anything the shim must not see.
 pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     let (dom, is_bspline) = surface_kind(&mut rd, false)?;
     let bspline_only = |dom: Domain| {
         dom.filter(|_| is_bspline)
@@ -426,7 +410,10 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
         Op::Lps | Op::Lps0 => {
             let d = solve_surface(dom)?;
             domain_in(&mut rd, d)?;
-            sop(&mut rd, &[SO_INTERSECT, SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE])?;
+            sop(
+                &mut rd,
+                &[SO_INTERSECT, SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE],
+            )?;
             rd.vec3()?;
             uv(&mut rd, dom)?;
         }
@@ -496,7 +483,10 @@ pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
             }
             rd.vec3()?;
             rd.positive("tolerance")?;
-            sop(&mut rd, &[SO_INTERSECT, SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE])?;
+            sop(
+                &mut rd,
+                &[SO_INTERSECT, SO_MINIMIZE, SO_MAXIMIZE, SO_NORMALIZE],
+            )?;
             rd.flag()?;
             rd.flag()?;
         }

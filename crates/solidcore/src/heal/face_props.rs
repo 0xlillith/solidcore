@@ -67,7 +67,7 @@
 //!   ([`crate::query::face::p4::classify_loops`], whose status `SetProps_Stage3` ignores
 //!   as upstream) are wired.
 
-use crate::error::{ignored, Result, SolidError};
+use crate::error::{ignored, EntityRef, Result, SolidError};
 use crate::geom::tol::{calc_face_zone_tol_3d, xsect_tol_3d_from_zones};
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::intersect::curve_class::p1::{
@@ -99,7 +99,7 @@ pub const UNDEF_ULONG: u64 = 123_456_789;
 pub const SM_ERR_NOTYET_HEAL_FACE: i32 = 1040;
 
 /// The deepest child nesting [`Looptree::find_item`] follows.
-pub const MAX_LOOPTREE_DEPTH: usize = 10_000;
+pub const MAX_LOOPTREE_DEPTH: usize = 1_000;
 
 /// `SM_SS_NONE`: no singular side.
 pub const SS_NONE: u64 = 0;
@@ -523,12 +523,18 @@ pub trait LoopObject: ClassObject {
     fn from_loop(l: LoopId) -> Self;
 
     /// The loop this handle names, if it is a loop (`SmFace::ClassifyLoops` casts a
-    /// touch's `m_pConnectedTo` to `SmLoop*`).
-    fn as_loop(&self) -> Option<LoopId>;
+    /// touch's `m_pConnectedTo` to `SmLoop*`); `None` (the default) for a handle type
+    /// that names no loops.
+    fn as_loop(&self) -> Option<LoopId> {
+        None
+    }
 
     /// The vertex this handle names, if it is a vertex (`GetVertexObject` of a vertex
-    /// point classification).
-    fn as_vertex(&self) -> Option<VertexId>;
+    /// point classification); `None` (the default) for a handle type that names no
+    /// vertices.
+    fn as_vertex(&self) -> Option<VertexId> {
+        None
+    }
 
     /// The handle of face `f` (the face a curve classification classifies against),
     /// `None` (the default) when this handle type cannot name faces. Used by
@@ -547,6 +553,44 @@ pub trait LoopObject: ClassObject {
     /// (`uv` false) or its UV curve (`uv` true); `None` (the default) when this handle
     /// type cannot name them.
     fn from_classify_curve(_uv: bool) -> Option<Self> {
+        None
+    }
+
+    /// The handle of B-rep entity `t` (a vertex, edge, vertex use or edge use the
+    /// boundary intersections of a classification name), `None` (the default) when
+    /// this handle type cannot name it. A handle type names every entity of a kind or
+    /// none.
+    fn from_topology(_t: EntityRef) -> Option<Self> {
+        None
+    }
+
+    /// The B-rep entity this handle names (the inverse of [`Self::from_topology`]),
+    /// `None` (the default) for any other handle.
+    fn as_topology(&self) -> Option<EntityRef> {
+        None
+    }
+
+    /// The handle of edge `e`'s curve, `None` (the default) when this handle type
+    /// cannot name it.
+    fn from_edge_curve(_e: EdgeId) -> Option<Self> {
+        None
+    }
+
+    /// The edge whose curve this handle names (the inverse of
+    /// [`Self::from_edge_curve`]).
+    fn as_edge_curve(&self) -> Option<EdgeId> {
+        None
+    }
+
+    /// The handle of the UV trim curve of edge use `eu`, `None` (the default) when
+    /// this handle type cannot name it.
+    fn from_trim_curve(_eu: EdgeuseId) -> Option<Self> {
+        None
+    }
+
+    /// The edge use whose UV trim curve this handle names (the inverse of
+    /// [`Self::from_trim_curve`]).
+    fn as_trim_curve(&self) -> Option<EdgeuseId> {
         None
     }
 }
@@ -1641,6 +1685,10 @@ impl<O: LoopObject> FaceProps<O> {
         }
 
         // extra work - get props that need to be built before these props
+        // (UB-131: for a stage at or past GapsA the call returns at once, so the re-run
+        // that `self.face != Some(face)` asks for never happens; upstream then reads
+        // `m_pFace` unchecked below. Here a missing face is `InvalidInput`, and the
+        // props keep the other face's values if the face differs.)
         if self.prop_stage < PropStage::Gaps || self.face != Some(face) {
             self.set_props_gaps(k, b, face, face_index, exe_heal_op)?;
         }
@@ -1722,7 +1770,10 @@ impl<O: LoopObject> FaceProps<O> {
         // m_sPoleNormals
         // (GetSingularities has no status; its evaluation errors other than Unported are
         // ignored inside, as upstream does)
-        let sing = surface.get_singularities(k, true, true)?;
+        // (the approximation tolerance is half the face's zone tolerance,
+        // `SmTol::GetApproxTol3d(this)` of the face's surface: passed with the face)
+        let sing =
+            surface.get_singularities_of_face(k, face_p2::tolerance(b, m_face)?, true, true)?;
         self.poles = u64::from(sing.singular);
         self.pole_points = sing.pole_points.map(|p| p.to_vec()).unwrap_or_default();
         self.pole_normals = sing.pole_normals.map(|p| p.to_vec()).unwrap_or_default();
@@ -2076,22 +2127,27 @@ impl<O: LoopObject> FaceProps<O> {
 
         // 6. m_lBadMissingPoles: the pole of a side that has no vertex, is on a closed
         // surface and is contained in the lowest no-area loop
-        let lowest_no_area_containment = match ordered_no_area_indices.first() {
-            Some(&i) => Some(at(&classify_loop_ios, i, OP_STAGE3)?.containment),
-            None => None,
-        };
-        let pole_in =
-            |side: u64, type_: CrvDirOnFaceType, closed: Tri, want: ContainmentType| -> u64 {
-                if type_ == CrvDirOnFaceType::PoleNoVertex
-                    && (self.no_vertex_poles & side) != 0
-                    && closed.is_true()
-                    && lowest_no_area_containment == Some(want)
-                {
-                    side
-                } else {
-                    SS_NONE
+        // (upstream indexes `sClassifyLoopIOs[sOrderedNoAreaIndices[0]]` only after the
+        // short-circuiting tests of each side, so the lookup is lazy here as well)
+        let pole_in = |side: u64,
+                       type_: CrvDirOnFaceType,
+                       closed: Tri,
+                       want: ContainmentType|
+         -> Result<u64> {
+            if type_ == CrvDirOnFaceType::PoleNoVertex
+                && (self.no_vertex_poles & side) != 0
+                && closed.is_true()
+            {
+                let lowest = match ordered_no_area_indices.first() {
+                    Some(&i) => Some(at(&classify_loop_ios, i, OP_STAGE3)?.containment),
+                    None => None,
+                };
+                if lowest == Some(want) {
+                    return Ok(side);
                 }
-            };
+            }
+            Ok(SS_NONE)
+        };
         let mut missing = SS_NONE;
         // UMIN missing pole
         missing |= pole_in(
@@ -2099,28 +2155,28 @@ impl<O: LoopObject> FaceProps<O> {
             classify_crv_start_type,
             self.closed_u,
             ContainmentType::TopLoop,
-        );
+        )?;
         // VMIN missing pole
         missing |= pole_in(
             SS_VMIN,
             classify_crv_stop_type,
             self.closed_v,
             ContainmentType::BotLoop,
-        );
+        )?;
         // UMAX missing pole
         missing |= pole_in(
             SS_UMAX,
             classify_crv_stop_type,
             self.closed_u,
             ContainmentType::TopLoop,
-        );
+        )?;
         // VMAX missing pole
         missing |= pole_in(
             SS_VMAX,
             classify_crv_stop_type,
             self.closed_v,
             ContainmentType::BotLoop,
-        );
+        )?;
         self.bad_missing_poles = missing;
 
         // 7. m_bBadUnpairedNoArea_Loop from m_lBadMissingPoles bit array

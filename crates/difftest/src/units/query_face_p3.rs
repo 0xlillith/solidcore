@@ -34,7 +34,7 @@ use serde_json::Value;
 
 use solidcore::curve::curve::Curve;
 use solidcore::curve::line::Line;
-use solidcore::error::SolidError;
+use solidcore::error::{EntityRef, SolidError};
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::heal::face_props::{FaceProps, LoopObject, Tri};
 use solidcore::intersect::curve_class::p1::CurveClassification;
@@ -541,60 +541,94 @@ fn rust_err(e: &SolidError) -> Output {
 
 /// The handles of the Rust classifications: B-rep topology, the face's surface and the
 /// two curves a classification makes.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum H {
-    Face(FaceId),
+    Topo(EntityRef),
     Surface(FaceId),
-    Loop(LoopId),
-    // (made by the boundary intersections of CurveOnClassify, not ported yet)
-    #[allow(dead_code)]
-    Vertex(VertexId),
     Curve(bool),
+    EdgeCurve(EdgeId),
+    Trim(EdgeuseId),
 }
 
 impl ClassObject for H {
     fn class_kind(&self) -> ClassObjectKind {
         match self {
-            Self::Face(_) => ClassObjectKind::Face,
+            Self::Topo(e) => e.class_kind(),
             Self::Surface(_) => ClassObjectKind::Surface,
-            Self::Loop(_) => ClassObjectKind::Loop,
-            Self::Vertex(_) => ClassObjectKind::Vertex,
-            Self::Curve(_) => ClassObjectKind::Curve,
+            Self::Curve(_) | Self::EdgeCurve(_) | Self::Trim(_) => ClassObjectKind::Curve,
         }
     }
 }
 
 impl LoopObject for H {
     fn from_loop(l: LoopId) -> Self {
-        Self::Loop(l)
+        Self::Topo(EntityRef::Loop(l))
     }
+
     fn as_loop(&self) -> Option<LoopId> {
         match self {
-            Self::Loop(l) => Some(*l),
+            Self::Topo(e) => e.as_loop(),
             _ => None,
         }
     }
+
     fn as_vertex(&self) -> Option<VertexId> {
         match self {
-            Self::Vertex(v) => Some(*v),
+            Self::Topo(e) => e.as_vertex(),
             _ => None,
         }
     }
+
     fn from_face(f: FaceId) -> Option<Self> {
-        Some(Self::Face(f))
+        Some(Self::Topo(EntityRef::Face(f)))
     }
+
     fn from_face_surface(f: FaceId) -> Option<Self> {
         Some(Self::Surface(f))
     }
+
     fn from_classify_curve(uv: bool) -> Option<Self> {
         Some(Self::Curve(uv))
+    }
+
+    fn from_topology(t: EntityRef) -> Option<Self> {
+        Some(Self::Topo(t))
+    }
+
+    fn as_topology(&self) -> Option<EntityRef> {
+        match self {
+            Self::Topo(t) => Some(*t),
+            _ => None,
+        }
+    }
+
+    fn from_edge_curve(e: EdgeId) -> Option<Self> {
+        Some(Self::EdgeCurve(e))
+    }
+
+    fn as_edge_curve(&self) -> Option<EdgeId> {
+        match self {
+            Self::EdgeCurve(e) => Some(*e),
+            _ => None,
+        }
+    }
+
+    fn from_trim_curve(eu: EdgeuseId) -> Option<Self> {
+        Some(Self::Trim(eu))
+    }
+
+    fn as_trim_curve(&self) -> Option<EdgeuseId> {
+        match self {
+            Self::Trim(eu) => Some(*eu),
+            _ => None,
+        }
     }
 }
 
 fn point_class_pair(pc: &PointClassification<H>) -> [i64; 2] {
     let class = i64::from(pc.point_class().code());
     let vertex = match pc.vertex_object() {
-        Some(H::Vertex(v)) if pc.point_class() == solidcore::intersect::point_class::PointClassType::Vertex => {
+        Some(H::Topo(EntityRef::Vertex(v))) if pc.point_class() == solidcore::intersect::point_class::PointClassType::Vertex => {
             i64::from(v.index())
         }
         _ => -1,
@@ -679,7 +713,7 @@ fn rust_bisector(k: &Kernel, b: &Brep, c: &BisectorCase) -> Result<Output, Harne
         }
     }
     let mut objects: qf3::LoopObjectCurves<H> =
-        qf3::LoopObjectCurves::new(c.face).map_err(|e| harness(e.to_string()))?;
+        qf3::LoopObjectCurves::new(b, c.face).map_err(|e| harness(e.to_string()))?;
     let mut cc: CurveClassification<H> = CurveClassification::new(k);
     let r = qf3::find_and_classify_loop_bisector(
         k,

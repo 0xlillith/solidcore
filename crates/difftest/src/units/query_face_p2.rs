@@ -48,7 +48,7 @@ use solidcore::kernel::Kernel;
 use solidcore::query::face::p2 as qf;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::proto_topology::ProtoTopologyManager;
-use solidcore::topology::{Brep, EdgeuseId, FaceId, LoopId};
+use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, VertexId, VertexuseId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::query_face_p2::{self as ffi, Op};
 
@@ -497,6 +497,12 @@ impl solidcore::intersect::point_class::ClassGeometry<EntityRef> for NoGeometry 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum H {
     Face(FaceId),
+    Vertex(VertexId),
+    Edge(EdgeId),
+    Vertexuse(VertexuseId),
+    Edgeuse(EdgeuseId),
+    EdgeCurve(EdgeId),
+    Trim(EdgeuseId),
     Surface(FaceId),
     Curve,
 }
@@ -505,8 +511,12 @@ impl ClassObject for H {
     fn class_kind(&self) -> ClassObjectKind {
         match self {
             Self::Face(_) => ClassObjectKind::Face,
+            Self::Vertex(_) => ClassObjectKind::Vertex,
+            Self::Edge(_) => ClassObjectKind::Edge,
+            Self::Vertexuse(_) => ClassObjectKind::Vertexuse,
+            Self::Edgeuse(_) => ClassObjectKind::Edgeuse,
+            Self::EdgeCurve(_) | Self::Trim(_) | Self::Curve => ClassObjectKind::Curve,
             Self::Surface(_) => ClassObjectKind::Surface,
-            Self::Curve => ClassObjectKind::Curve,
         }
     }
 }
@@ -517,21 +527,73 @@ struct Objects<'a> {
 }
 
 impl qf::CurveOnClassifyObjects<H> for Objects<'_> {
+    fn vertex(&self, v: VertexId) -> H {
+        H::Vertex(v)
+    }
     fn face(&self, f: FaceId) -> H {
         H::Face(f)
     }
-    fn surface(&self, f: FaceId) -> Option<H> {
+    fn face_surface(&self, f: FaceId) -> Option<H> {
         self.brep
             .face(f)
             .ok()
             .and_then(|r| r.surface.as_ref())
             .map(|_| H::Surface(f))
     }
-    fn curve(&self, curve: H) -> Option<&Curve> {
-        (curve == H::Curve).then_some(&self.curve)
+    fn edge(&self, e: EdgeId) -> H {
+        H::Edge(e)
+    }
+    fn vertexuse(&self, vu: VertexuseId) -> H {
+        H::Vertexuse(vu)
+    }
+    fn edgeuse(&self, eu: EdgeuseId) -> H {
+        H::Edgeuse(eu)
+    }
+    fn edge_curve(&self, e: EdgeId) -> H {
+        H::EdgeCurve(e)
+    }
+    fn trim_curve(&self, eu: EdgeuseId) -> H {
+        H::Trim(eu)
     }
     fn loop_id(&self, _tgt_loop: H) -> Option<LoopId> {
         // the classification has no target loops
+        None
+    }
+}
+
+impl solidcore::intersect::point_class::ClassGeometry<H> for Objects<'_> {
+    fn classification_vertex_point(&self, o: H) -> Option<Vec3> {
+        match o {
+            H::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.point),
+            _ => None,
+        }
+    }
+    fn topology_zone_tol_3d(&self, o: H) -> Option<f64> {
+        match o {
+            H::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.tolerance),
+            H::Face(f) => self.brep.face(f).ok().map(|f| f.tolerance),
+            H::Edge(e) => self.brep.edge(e).ok().map(|e| e.tolerance),
+            _ => None,
+        }
+    }
+    fn curve(&self, o: H) -> Option<&Curve> {
+        match o {
+            H::Curve => Some(&self.curve),
+            H::EdgeCurve(e) => self.brep.edge(e).ok()?.curve.as_ref(),
+            H::Trim(eu) => eu1::uv_trim_curve(self.brep, eu).ok()?.0,
+            _ => None,
+        }
+    }
+    fn surface(&self, o: H) -> Option<&solidcore::surface::surface::Surface> {
+        match o {
+            H::Surface(f) => self.brep.face(f).ok().and_then(|r| r.surface.as_ref()),
+            _ => None,
+        }
+    }
+    fn volume(&self, _o: H) -> Option<&solidcore::surface::volume::Volume> {
+        None
+    }
+    fn point(&self, _o: H) -> Option<solidcore::math::Point3> {
         None
     }
 }
@@ -624,7 +686,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                 uv_space_okay: *uv_ok,
                 trim_cache: None,
             };
-            let status = match qf::point_classify(&k, b, f, uv, &mut pc, opts) {
+            let status = match qf::point_classify(&k, &mut b.clone(), f, uv, &mut pc, opts) {
                 Ok(()) => 0.0,
                 Err(SolidError::Upstream { code, .. }) => f64::from(code),
                 Err(e) => return Ok(rust_err(&e)),
@@ -644,7 +706,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let uv = Point2::new(a(0), a(1));
             let d1 = Extent2d::from_points(Point2::new(a(4), a(5)), Point2::new(a(6), a(7)));
             let d2 = Extent2d::from_points(Point2::new(a(9), a(10)), Point2::new(a(11), a(12)));
-            match qf::classify_param_on_faces(&k, b, uv, zone_tol3d(&k, *tol), f1, &d1, f2, &d2) {
+            match qf::classify_param_on_faces(&k, &mut b.clone(), uv, zone_tol3d(&k, *tol), f1, &d1, f2, &d2) {
                 Ok(w) => Ok(Output::new().values("which", vec![f64::from(w)])),
                 Err(e) => Ok(rust_err(&e)),
             }

@@ -50,8 +50,7 @@
 //! - **Solutions' objects** are the caller's handle for the surface (`O`, upstream
 //!   the `SmSurface*`).
 //! - **Unported callees.** `SmSurface::LocalPointSolve` (`surface.surface_p5`) for
-//!   every surface, `SmSurface::InvertPointNearSingularity` (`surface.surface_p8`)
-//!   and `SmSurfaceEval::Normal` (`surface.surface_p4`, through `p1`) return
+//!   every surface and `SmSurfaceEval::Normal` (`surface.surface_p4`, through `p1`) return
 //!   [`SolidError::Unported`].
 //! - The stepper's `IsLocalMin` / `IsLocalMax` are not used upstream and are not
 //!   ported. Debug-only drawing and `SM_ASSERT`s are omitted.
@@ -1195,7 +1194,10 @@ pub(super) fn with_out_of_bounds_enabled(surface: &Surface) -> Result<Option<Sur
         SurfaceKind::BSpline(b) => b.is_out_of_bounds_enabled(),
         SurfaceKind::Plane(p) => p.base().is_out_of_bounds_enabled(),
         SurfaceKind::SurfOfRevolution(s) => s.base().is_out_of_bounds_enabled(),
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
+        SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::SrfInVolume(_) => {
             return Ok(None);
         }
     };
@@ -1207,7 +1209,10 @@ pub(super) fn with_out_of_bounds_enabled(surface: &Surface) -> Result<Option<Sur
         SurfaceKind::BSpline(b) => *b.out_of_bounds_enabled_mut() = true,
         SurfaceKind::Plane(p) => *p.out_of_bounds_enabled_mut() = true,
         SurfaceKind::SurfOfRevolution(s) => *s.base_mut().out_of_bounds_enabled_mut() = true,
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
+        SurfaceKind::CurveBounded(_)
+        | SurfaceKind::Step(_)
+        | SurfaceKind::OffsetSurface(_)
+        | SurfaceKind::SrfInVolume(_) => {}
     }
     Ok(Some(copy))
 }
@@ -1244,22 +1249,6 @@ fn local_point_solve<O: SolutionObject>(
         set_first_object(&mut solution, surface_obj);
     }
     Ok((r.found, solution))
-}
-
-/// `m_pSrf->InvertPointNearSingularity(testPt, domain, uv, tightTol, eReason)`: the
-/// inverted UV.
-fn invert_point_near_singularity(
-    _surface: &Surface,
-    _test_pt: Point3,
-    _domain: &Extent2d,
-    _uv: Point2,
-    _tol: f64,
-) -> Result<Point2> {
-    // UNPORTED(surface.surface_p8): SmSurface::InvertPointNearSingularity
-    Err(SolidError::unported(
-        "SmSurface::InvertPointNearSingularity",
-        "surface.surface_p8",
-    ))
 }
 
 // ---- SmSurfPtSolveStepper -----------------------------------------------------------------
@@ -1506,8 +1495,13 @@ impl SurfPtSolveStepper<'_> {
     /// # Errors
     ///
     /// [`SolidError::Unported`] from the evaluations and, near a singularity,
-    /// `SmSurface::InvertPointNearSingularity` (`surface.surface_p8`).
-    pub fn step(&mut self, prev: &mut Self, do_plane_step: bool) -> Result<TerminationReason> {
+    /// `SmSurface::InvertPointNearSingularity`'s callees.
+    pub fn step(
+        &mut self,
+        k: &Kernel,
+        prev: &mut Self,
+        do_plane_step: bool,
+    ) -> Result<TerminationReason> {
         const SECOND_DERIV_TERM_LIMIT: f64 = 0.90;
 
         self.eval()?;
@@ -1540,15 +1534,15 @@ impl SurfPtSolveStepper<'_> {
             let surface = self.base.surface();
             let srf_domain = surface.natural_uv_domain();
 
-            match invert_point_near_singularity(
-                surface,
+            match surface.invert_point_near_singularity(
+                k,
                 self.base.test_point(),
                 &srf_domain,
                 prev.uv(),
                 self.base.tight_tol(),
             ) {
-                Ok(sing_uv) => {
-                    self.set_uv(sing_uv);
+                Ok(inverted) => {
+                    self.set_uv(inverted.uv);
                     return Ok(TerminationReason::FoundAnswerConverged); // end iteration.
                 }
                 Err(e) if e.is_unported() => return Err(e),
@@ -2182,7 +2176,7 @@ mod tests {
         // a Newton step on a plane lands on the foot point
         let mut next = SurfPtSolveStepper::copy_of(&st);
         assert_eq!(
-            next.step(&mut st, false).unwrap(),
+            next.step(&Kernel::default(), &mut st, false).unwrap(),
             TerminationReason::StillIterating
         );
         assert!((next.uv().x - 0.5).abs() < 1e-12 && (next.uv().y - 0.25).abs() < 1e-12);
