@@ -7928,8 +7928,11 @@ so that hook truthfully defers to merge_p2's engine integration, not to merge_p5
 Constructor, tolerance, notification, registration and destruction hooks now
 return owner-tagged Unported, rather than a fixture-domain InvalidInput. The
 new-face constructor hook retains SetTolerance(TRUE, TRUE), editing and append
-tails after the constructor stub. Handles are append-only, and the public trait
-now requires stale deleted handles to stay invalid when operands are reinstalled.
+tails after the constructor stub. The destructor hook retains its success tail: retire the old handle and clear
+both other-operand slots. A null other skips destruction; Unported leaves the
+operand live. B-rep handles are append-only, with a retirement set checked by
+surface/result accessors, so reinstalled stale handles are rejected. The public
+trait documents that contract.
 Upstream's statusless mark destruction ignores ordinary release failures while
 still propagating Unported; it uses the shared error::ignored helper.
 

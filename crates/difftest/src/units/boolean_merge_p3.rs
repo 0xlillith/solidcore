@@ -4,6 +4,8 @@
 //! read from the actual Rust B-rep. Native result graphs are freshly imported and
 //! projected to the same digest. Curve/surface values and adjacency are not compared.
 //! Geometric merges remain deferred at the exact missing dependency call.
+use std::collections::BTreeSet;
+
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
 use port::{BooleanDriver, PiecewiseAccess};
 use serde::{Deserialize, Serialize};
@@ -270,6 +272,7 @@ impl SolutionObject for PoolRef {
 struct Pool {
     breps: Vec<Brep>,
     original_count: usize,
+    retired: BTreeSet<usize>,
     intersector: TopologyIntersector<PoolRef>,
     attributes: AttributeStore,
     primary: Option<usize>,
@@ -319,6 +322,7 @@ impl Pool {
         Ok(Self {
             breps,
             original_count: i.a.len() + i.b.len(),
+            retired: BTreeSet::new(),
             intersector: TopologyIntersector::new(
                 Some(PoolRef::Brep(0)),
                 Some(PoolRef::Brep(i.a.len())),
@@ -331,11 +335,19 @@ impl Pool {
             manifold: true,
         })
     }
+    fn brep(&self, id: usize) -> solidcore::Result<&Brep> {
+        if self.retired.contains(&id) {
+            return Err(SolidError::invalid_input(
+                "harness::merge_p3",
+                "deleted B-rep handle",
+            ));
+        }
+        self.breps
+            .get(id)
+            .ok_or_else(|| SolidError::null_pointer("harness::merge_p3"))
+    }
     fn surface_key(&self, surface: (usize, usize)) -> solidcore::Result<ObjectKey> {
-        let brep = self
-            .breps
-            .get(surface.0)
-            .ok_or_else(|| SolidError::null_pointer("harness::merge_p3"))?;
+        let brep = self.brep(surface.0)?;
         if surface.1 >= bp::surfaces(brep, None)?.len() {
             return Err(SolidError::invalid_input(
                 "harness::merge_p3",
@@ -357,10 +369,7 @@ impl Pool {
         ))
     }
     fn record(&self, id: usize, values: &mut Vec<f64>) -> solidcore::Result<()> {
-        let brep = self
-            .breps
-            .get(id)
-            .ok_or_else(|| SolidError::invalid_input("harness::merge_p3", "bad pool handle"))?;
+        let brep = self.brep(id)?;
         let identity = if id < self.original_count {
             id as i64
         } else {
@@ -415,10 +424,7 @@ impl PiecewiseAccess for Pool {
         self.intersector.set_other_brep(b.map(PoolRef::Brep));
     }
     fn surfaces(&self, id: usize) -> solidcore::Result<Vec<Self::Surface>> {
-        let brep = self
-            .breps
-            .get(id)
-            .ok_or_else(|| SolidError::null_pointer("harness::merge_p3"))?;
+        let brep = self.brep(id)?;
         Ok(bp::surfaces(brep, None)?
             .iter()
             .enumerate()
@@ -492,11 +498,7 @@ impl PiecewiseAccess for Pool {
             solidcore::geom::tol::USE_DEFAULT,
             None,
         )?;
-        let tolerance = self
-            .breps
-            .get(source)
-            .ok_or_else(|| SolidError::null_pointer("harness::merge_p3"))?
-            .tolerance();
+        let tolerance = self.brep(source)?.tolerance();
         set_tolerance(k, &mut result, tolerance, true, true)?;
         result.set_editing_enabled(true);
         let id = self.breps.len();
@@ -541,6 +543,7 @@ impl PiecewiseAccess for Pool {
         Ok(())
     }
     fn notify_pre_edit(&mut self, k: &mut Kernel, a: usize) -> solidcore::Result<()> {
+        self.brep(a)?;
         let brep = self
             .breps
             .get_mut(a)
@@ -558,10 +561,28 @@ impl PiecewiseAccess for Pool {
             None,
         )
     }
-    fn delete_other(&mut self, _k: &mut Kernel) -> solidcore::Result<()> {
-        // UNPORTED(topology.brep_p4): SmBrep::~SmBrep
-        Err(SolidError::unported("SmBrep::~SmBrep", "topology.brep_p4"))
+    fn delete_other(&mut self, k: &mut Kernel) -> solidcore::Result<()> {
+        if let Some(id) = self.other {
+            self.brep(id)?;
+            let brep = self
+                .breps
+                .get_mut(id)
+                .ok_or_else(|| SolidError::null_pointer("harness::merge_p3"))?;
+            destroy_brep(k, brep, &mut self.attributes)?;
+            self.retired.insert(id);
+        }
+        self.set_operands(self.primary, None);
+        Ok(())
     }
+}
+
+fn destroy_brep(
+    _k: &mut Kernel,
+    _brep: &mut Brep,
+    _attributes: &mut AttributeStore,
+) -> solidcore::Result<()> {
+    // UNPORTED(topology.brep_p4): SmBrep::~SmBrep
+    Err(SolidError::unported("SmBrep::~SmBrep", "topology.brep_p4"))
 }
 
 fn empty_brep(
@@ -946,6 +967,11 @@ mod tests {
         .unwrap();
         pool.release_marks(&mut k, &mut lock).unwrap();
         assert_eq!(lock, MarkLock::unbound());
+        pool.retired.insert(0); // the successful destructor's logical retirement
+        pool.set_operands(Some(0), None);
+        assert!(pool.surfaces(0).is_err());
+        assert!(pool.record(0, &mut Vec::new()).is_err());
+        assert!(pool.delete_other(&mut k).is_ok()); // delete NULL performs no call
     }
 
     #[test]
@@ -987,5 +1013,6 @@ mod tests {
                 ..
             })
         ));
+        assert_eq!(pool.other, Some(1)); // an unported destructor consumes nothing
     }
 }
