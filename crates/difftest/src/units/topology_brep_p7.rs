@@ -63,7 +63,7 @@ use solidcore::surface::surface::Surface;
 use solidcore::topology::brep::{p10, p7};
 use solidcore::topology::database_io::FileType;
 use solidcore::topology::edge as ed;
-use solidcore::topology::{Brep, EdgeId, FaceId, Region, RegionId};
+use solidcore::topology::{Brep, EdgeId, FaceId, RegionId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_data as bd;
 use solidcore_ffi::units::topology_brep_p7::{self as ffi, Op};
@@ -853,7 +853,7 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 2 => Some(true),
                 _ => return Err(hfail("crv_on_surf code")),
             };
-let mut records = BTreeMap::new();
+            let mut records = BTreeMap::new();
             let mut attrs = AttributeStore::default();
             let mut env = ed::NotifyEnv {
                 records: &mut records,
@@ -894,16 +894,10 @@ let mut records = BTreeMap::new();
                         return Ok(vec![NOT_RUN]);
                     }
                 }
-                // The shim's loop starts with MakeShellVertex in a fresh B-rep's region;
-                // run it, then MakeWireEdgeVertex and MakeWireEdge (topology.brep_p3)
-                // come before MakeFace sees the loop.
-                let mut b = Brep::new();
-                let region = b
-                    .add_region_record(Region {
-                        in_brep: true,
-                        ..Region::default()
-                    })
-                    .map_err(hfail)?;
+                // The shim's loop starts with MakeShellVertex in a fresh B-rep's
+                // GetInfiniteRegion(); run it, then MakeWireEdgeVertex and MakeWireEdge
+                // (topology.brep_p3) come before MakeFace sees the loop.
+                let (mut b, region) = native_brep()?;
                 let mut records = BTreeMap::new();
                 let mut attrs = AttributeStore::default();
                 let mut env = ed::NotifyEnv {
