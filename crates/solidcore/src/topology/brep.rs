@@ -5,10 +5,14 @@
 //!
 //! | Rust      | Upstream                                                        |
 //! |-----------|-----------------------------------------------------------------|
+//! | [`p1`]    | see the module                                                  |
 //! | [`p6`]    | see the module                                                  |
+//! | [`p7`]    | see the module                                                  |
 //! | [`p10`]   | `MakeTopologyFromData`, `ProjectAndTrim`, `RemoveAllTopology`, `TestClosureSplitRegion` (edge version) |
 //!
 //! Deviations: the B-rep records are the arenas of [`crate::topology::Brep`].
 
+pub mod p1;
 pub mod p10;
 pub mod p6;
+pub mod p7;

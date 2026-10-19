@@ -20,9 +20,8 @@
 //!   [`ClosureSplit`].
 //! - **Arena model.** Upstream stores the new objects' addresses in the B-rep data
 //!   records (`m_pRegion`, `m_pShell1`, `m_pEdgeuse1`, ...); the port keeps them in
-//!   local tables indexed like the records. The B-rep's region list is its region
-//!   arena in order (regions are only appended), and `GetRegions` / `GetShells` read
-//!   the [`crate::topology::Region`] lists (CO-PORTED). Circular lists are vectors
+//!   local tables indexed like the records. `GetRegions` is
+//!   [`super::p1::regions`]; `GetShells` reads the [`crate::topology::Region`] lists. Circular lists are vectors
 //!   from their heads: `PostInsert` appends. For a non-manifold B-rep, upstream
 //!   rewrites each edge use's `m_pNext` / `m_pLast` from the record's next indices;
 //!   the port simulates those links and rebuilds each edge's list by following
@@ -81,6 +80,7 @@ use crate::geom::geom_utility::p1::line_closest_point;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{NotifyOperation, ObjectRef, Shape};
 use crate::geom::solution_array::Solution;
+use crate::heal::face_props::HealerOpType;
 use crate::intersect::topology_solver::p1::{CurveRef, TopologySolver};
 use crate::intersect::topology_solver::p2::TopologySolveOptions;
 use crate::kernel::Kernel;
@@ -88,6 +88,7 @@ use crate::math::{max2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::Surface;
+use crate::topology::brep::p1;
 use crate::topology::brep::p6;
 use crate::topology::brep_cache::{make_brep_cache, BrepObjects, CacheObject, CacheSource};
 use crate::topology::brep_data::{BrepData, TopologyData, NO_OBJECT, UNSURE};
@@ -152,6 +153,8 @@ impl Default for MakeTopologyOptions {
 /// What [`make_topology_from_data`] needs besides the B-rep and its data: object
 /// identities and the attribute store.
 pub struct TopologyEnv<'a> {
+    /// `rAllAttributes`: the attributes the records' attribute indices refer to.
+    pub all_attributes: &'a [AttributeHandle],
     /// The attribute lists of the B-rep data's curves and surfaces (by their
     /// [`crate::topology::brep_data::Keyed::key`]) and of the copies made from them.
     pub attributes: &'a mut AttributeStore,
@@ -191,16 +194,23 @@ fn at<T: Copy>(v: &[Option<T>], i: usize, what: &'static str) -> Result<T> {
         .ok_or(SolidError::invalid_input(OP_MAKE, what))
 }
 
-/// `sm_AddAttributes`: adds the attributes listed by index to an object.
-fn add_attributes(indices: &[u64]) -> Result<()> {
+/// `sm_AddAttributes` (unit `topology.brep_p1`): adds the attributes listed by index
+/// in `rAllAttributes` to the object `entity`.
+fn add_attributes(env: &mut TopologyEnv<'_>, entity: EntityRef, indices: &[u64]) -> Result<()> {
+    let key = (env.key_of)(entity).key;
+    add_attributes_to(env, key, indices)
+}
+
+fn add_attributes_to(env: &mut TopologyEnv<'_>, key: ObjectKey, indices: &[u64]) -> Result<()> {
     if indices.is_empty() {
         return Ok(());
     }
-    // UNPORTED(topology.brep_p1): sm_AddAttributes
-    Err(SolidError::Unported {
-        upstream: "sm_AddAttributes",
-        unit: "topology.brep_p1",
-    })
+    // an index that does not fit a usize is past `rAllAttributes`
+    let indices: Vec<usize> = indices
+        .iter()
+        .map(|&i| usize::try_from(i).unwrap_or(usize::MAX))
+        .collect();
+    p1::add_attributes(env.attributes, key, &indices, env.all_attributes)
 }
 
 /// The `SmTopology` record of a new object (`SmTopology()`).
@@ -427,7 +437,7 @@ fn make_topology(
     }
 
     // attach any Brep attributes referenced by global index to this SmBrep Object
-    add_attributes(&data.attributes)?;
+    add_attributes_to(env, b.key(), &data.attributes)?;
 
     // locals and inits
     let mut shell_map: Vec<u64> = Vec::new();
@@ -471,13 +481,16 @@ fn make_topology(
     // When requested and needed - find and heal common AssertValid problems
     let heal_this_brep = data.healer_version() < HEALER_VERSION;
     if options.healer_enabled && (heal_this_brep || options.always_heal) {
-        // UNPORTED(topology.brep_p1): SmBrep::HealBrep (its status is ignored upstream;
-        // bMakeUVTrimCurves is its last argument)
-        let _ = options.make_uv_trim_curves;
-        return Err(SolidError::Unported {
-            upstream: "SmBrep::HealBrep",
-            unit: "topology.brep_p1",
-        });
+        // Run the Assert/Heal sequences as needed (status ignored upstream)
+        p1::heal_brep(
+            k,
+            b,
+            HealerOpType::All,
+            None,
+            None,
+            None,
+            options.make_uv_trim_curves,
+        )?;
     }
     let _ = options.check_uv_trim_curves; // SM_REF1: not used
     Ok(())
@@ -537,7 +550,7 @@ fn build_regions(
         // regions are implied.
         let rr = data.regions.first().ok_or(SolidError::sm_err(OP_MAKE))?;
         let solid = new_region(b, env, Region::default())?;
-        add_attributes(&rr.topology.attributes)?;
+        add_attributes(env, EntityRef::Region(solid), &rr.topology.attributes)?;
         set_topology(env, EntityRef::Region(solid), &rr.topology);
         // Add region to Brep
         b.region_mut(solid)?.in_brep = true;
@@ -545,7 +558,7 @@ fn build_regions(
         // for every BrepData Shell - build 2 Brep SmShells
         for (ii, rs) in data.shells.iter().enumerate() {
             let s1 = new_shell(b, env, Shell::default())?;
-            add_attributes(&rs.topology.attributes)?;
+            add_attributes(env, EntityRef::Shell(s1), &rs.topology.attributes)?;
             set_topology(env, EntityRef::Shell(s1), &rs.topology);
             let s2 = new_shell(b, env, Shell::default())?;
             let i = ii as u64;
@@ -605,7 +618,7 @@ fn build_regions(
             )?
         };
 
-        add_attributes(&rr.topology.attributes)?;
+        add_attributes(env, EntityRef::Region(region), &rr.topology.attributes)?;
         set_topology(env, EntityRef::Region(region), &rr.topology);
         b.region_mut(region)?.is_void = rr.is_void;
 
@@ -621,7 +634,7 @@ fn build_regions(
                 .get(si_usize)
                 .ok_or(SolidError::invalid_input(OP_MAKE, "shell index"))?;
             let s = new_shell(b, env, Shell::default())?;
-            add_attributes(&rs.topology.attributes)?;
+            add_attributes(env, EntityRef::Shell(s), &rs.topology.attributes)?;
             set_topology(env, EntityRef::Shell(s), &rs.topology);
 
             shell_map.push(si);
@@ -652,7 +665,7 @@ fn build_vertices(
 ) -> Result<()> {
     for rv in &data.vertices {
         let v = new_vertex(b, env, Vertex::default())?;
-        add_attributes(&rv.topology.attributes)?;
+        add_attributes(env, EntityRef::Vertex(v), &rv.topology.attributes)?;
         set_topology(env, EntityRef::Vertex(v), &rv.topology);
         // add SmVertex to Brep - set its values
         let this = (env.key_of)(EntityRef::Vertex(v));
@@ -692,7 +705,7 @@ fn build_faces(
         // Allocate new face and faceuses (the shell is set when a face use is put
         // on one)
         let f = new_face(b, env, Face::new(ShellId::from_index(0)))?;
-        add_attributes(&rf.topology.attributes)?;
+        add_attributes(env, EntityRef::Face(f), &rf.topology.attributes)?;
         set_topology(env, EntityRef::Face(f), &rf.topology);
         let fu1 = new_faceuse(b, env, Faceuse::default())?;
         let fu2 = new_faceuse(b, env, Faceuse::default())?;
@@ -853,10 +866,10 @@ fn build_loop(
         *slot = Some(l);
     }
 
-    add_attributes(&rl.topology.attributes)?;
+    add_attributes(env, EntityRef::Loop(l), &rl.topology.attributes)?;
     set_topology(env, EntityRef::Loop(l), &rl.topology);
-    add_attributes(&rl.lu_upper_attributes)?;
-    add_attributes(&rl.lu_lower_attributes)?;
+    add_attributes(env, EntityRef::Loopuse(lu1), &rl.lu_upper_attributes)?;
+    add_attributes(env, EntityRef::Loopuse(lu2), &rl.lu_lower_attributes)?;
 
     // Connect up faceuses and loopuses and loops
     b.loop_mut(l)?.loopuse = Some(lu1);
@@ -950,7 +963,7 @@ fn build_edges(
             env,
             Edge::new([vertex_of(re.start_vertex), vertex_of(re.end_vertex)]),
         )?;
-        add_attributes(&re.topology.attributes)?;
+        add_attributes(env, EntityRef::Edge(e), &re.topology.attributes)?;
         set_topology(env, EntityRef::Edge(e), &re.topology);
         let edge_ref = (env.key_of)(EntityRef::Edge(e));
 
@@ -1152,9 +1165,9 @@ fn build_edgeuses(
         b.edgeuse_mut(eu2)?.vertexuse = Some(vu2);
         b.vertexuse_mut(vu2)?.owner = VertexuseOwner::Edgeuse(Some(eu2));
 
-        add_attributes(&reu.topology.attributes)?;
+        add_attributes(env, EntityRef::Edgeuse(eu1), &reu.topology.attributes)?;
         set_topology(env, EntityRef::Edgeuse(eu1), &reu.topology);
-        add_attributes(&reu.mate_attributes)?;
+        add_attributes(env, EntityRef::Edgeuse(eu2), &reu.mate_attributes)?;
         set_flags(
             env,
             EntityRef::Edgeuse(eu2),
@@ -1382,12 +1395,7 @@ fn fill_shells(
     built: &Built,
     shell_map: &[u64],
 ) -> Result<()> {
-    let regions: Vec<RegionId> = b
-        .regions()
-        .iter()
-        .filter(|(_, r)| r.in_brep)
-        .map(|(id, _)| id)
-        .collect();
+    let regions = p1::regions(b, None)?;
     let mut shell_count = 0usize;
 
     for region in regions {
@@ -1457,7 +1465,7 @@ fn fill_shells(
                         }
                         let fu = if rfu.orientation != 0 { fu1 } else { fu2 };
                         post_insert_faceuse(b, s, fu)?;
-                        add_attributes(&rfu.topology.attributes)?;
+                        add_attributes(env, EntityRef::Faceuse(fu), &rfu.topology.attributes)?;
                         set_topology(env, EntityRef::Faceuse(fu), &rfu.topology);
                         kk += 1;
                     }
@@ -1672,23 +1680,40 @@ pub struct ProjectEnv<'a> {
 /// The output of `CreateParallelProjectionCurves`.
 struct ProjectionCurves {
     curves_3d: Vec<Curve>,
-    uv_curves: Vec<Curve>,
+    uv_curves: Vec<Option<Curve>>,
     faces: Vec<FaceId>,
 }
 
 fn create_parallel_projection_curves(
-    _k: &Kernel,
-    _b: &Brep,
-    _curve: &BSplineCurve,
-    _direction: Vec3,
-    _tol: f64,
-    _angle_tol: Option<f64>,
-    _subset: Option<&[FaceId]>,
+    k: &Kernel,
+    b: &Brep,
+    curve: &BSplineCurve,
+    direction: Vec3,
+    tol: f64,
+    angle_tol: Option<f64>,
+    subset: Option<&[FaceId]>,
 ) -> Result<ProjectionCurves> {
-    // UNPORTED(topology.brep_p1): SmBrep::CreateParallelProjectionCurves
-    Err(SolidError::Unported {
-        upstream: "SmBrep::CreateParallelProjectionCurves",
-        unit: "topology.brep_p1",
+    // CreateParallelProjectionCurves(ctx, curve, dir, NULL, &dTol, cpdOptAngleTolRadians,
+    // &s3D, &sUV, &sFacesOfCurves, pOptSubsetFaces)
+    let out = p1::create_parallel_projection_curves(
+        k,
+        b,
+        curve,
+        direction,
+        &p1::ParallelProjectionOptions {
+            projection_distance: None,
+            approx_tol_3d: Some(tol),
+            angle_tol_radians: angle_tol,
+            subset_faces: subset,
+            want_3d: true,
+            want_uv: true,
+            want_faces: true,
+        },
+    )?;
+    Ok(ProjectionCurves {
+        curves_3d: out.curves_3d.unwrap_or_default(),
+        uv_curves: out.uv_curves.unwrap_or_default(),
+        faces: out.faces_of_uv_curves.unwrap_or_default(),
     })
 }
 
@@ -1707,26 +1732,20 @@ fn merge_curves_on_surface(
     })
 }
 
-/// `sm_FindSideOfCurve`: an `SmBoolean` (`UNSURE` on the plane).
+/// `sm_FindSideOfCurve` (unit `topology.brep_p1`): the `SmBoolean` it sets on success.
 fn find_side_of_curve(
-    _curve: &BSplineCurve,
-    _point: Point3,
-    _direction: Vec3,
-    _tol: f64,
+    k: &Kernel,
+    curve: &Curve,
+    point: Point3,
+    direction: Vec3,
+    tol: f64,
 ) -> Result<i32> {
-    // UNPORTED(topology.brep_p1): sm_FindSideOfCurve
-    Err(SolidError::Unported {
-        upstream: "sm_FindSideOfCurve",
-        unit: "topology.brep_p1",
-    })
+    p1::find_side_of_curve(k, curve, point, direction, tol).map(i32::from)
 }
 
-fn brep_faces(_b: &Brep) -> Result<Vec<FaceId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetFaces
-    Err(SolidError::Unported {
-        upstream: "SmBrep::GetFaces",
-        unit: "topology.brep_p1",
-    })
+/// `GetFaces` (unit `topology.brep_p1`).
+fn brep_faces(b: &Brep) -> Result<Vec<FaceId>> {
+    p1::faces(b, None)
 }
 
 fn face_vertices(_b: &Brep, _f: FaceId) -> Result<Vec<VertexId>> {
@@ -1828,7 +1847,7 @@ fn project_and_trim_body(
     // Process each surface
     for (ii, &face) in projected.faces.iter().enumerate() {
         let c3 = projected.curves_3d.get(ii).cloned();
-        let uv = projected.uv_curves.get(ii).cloned();
+        let uv = projected.uv_curves.get(ii).cloned().flatten();
         let c3: Vec<Curve> = c3.into_iter().collect();
         let uv: Vec<Curve> = uv.into_iter().collect();
 
@@ -1877,8 +1896,10 @@ fn faces_to_delete(
     let mut to_delete = Vec::new();
     let mut edges: Vec<EdgeId> = Vec::new();
 
+    let curve = &Curve::from(curve.clone());
+
     // First find which side the reference point is on.
-    let delete_right_side = find_side_of_curve(curve, reference, direction, tol)?;
+    let delete_right_side = find_side_of_curve(k, curve, reference, direction, tol)?;
 
     for face in brep_faces(b)? {
         let vertices = face_vertices(b, face)?;
@@ -1889,7 +1910,7 @@ fn faces_to_delete(
         for &v in &vertices {
             let rec = b.vertex(v)?;
             let tol1 = 5.0 * (rec.tolerance + tol);
-            if let Some(side) = ignored(find_side_of_curve(curve, rec.point, direction, tol1))? {
+            if let Some(side) = ignored(find_side_of_curve(k, curve, rec.point, direction, tol1))? {
                 if side == 1 {
                     right_votes += 1;
                 } else if side == 0 {
@@ -1910,7 +1931,7 @@ fn faces_to_delete(
                     .ok_or(SolidError::null_pointer(OP_PROJECT))?;
                 let tol1 = 5.0 * (rec.tolerance + tol);
                 let p = c.evaluate_point(rec.interval.evaluate(0.5))?;
-                if let Some(side) = ignored(find_side_of_curve(curve, p, direction, tol1))? {
+                if let Some(side) = ignored(find_side_of_curve(k, curve, p, direction, tol1))? {
                     if side != 0 {
                         right_votes += 1;
                     } else {
@@ -1973,7 +1994,7 @@ fn faces_to_delete(
             };
             let p = point_from_solution(first, 1)?;
             let tol1 = 5.0 * (b.face(face)?.tolerance + tol);
-            match ignored(find_side_of_curve(curve, p, direction, tol1))? {
+            match ignored(find_side_of_curve(k, curve, p, direction, tol1))? {
                 Some(side) => face_right_side = side,
                 // Surface is on opposite side as point: the closest point is under
                 // the curve.
@@ -1992,12 +2013,9 @@ fn faces_to_delete(
 
 // ---- RemoveAllTopology --------------------------------------------------------------------
 
-fn brep_wire_edges(_b: &Brep) -> Result<Vec<EdgeId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetWireEdges
-    Err(SolidError::Unported {
-        upstream: "SmBrep::GetWireEdges",
-        unit: "topology.brep_p1",
-    })
+/// `GetWireEdges` (unit `topology.brep_p1`).
+fn brep_wire_edges(b: &Brep) -> Result<Vec<EdgeId>> {
+    p1::wire_edges(b, None)
 }
 
 fn delete_edge(_k: &mut Kernel, _b: &mut Brep, _e: EdgeId) -> Result<()> {
@@ -2358,6 +2376,7 @@ mod tests {
         let mut store = AttributeStore::new();
         let mut records = BTreeMap::new();
         let mut env = TopologyEnv {
+            all_attributes: &[],
             attributes: &mut store,
             key_of: &key_of,
             records: &mut records,
@@ -2411,12 +2430,15 @@ mod tests {
     }
 
     #[test]
-    fn healing_and_manifold_are_unported() {
+    fn healing_runs_and_manifold_is_unported() {
+        // HealBrep (topology.brep_p1) runs; only the healer's own later stubs defer
         let mut d = square(1);
         d.healer_version = 0;
-        assert!(build(&mut d, MakeTopologyOptions::default())
-            .unwrap_err()
-            .is_unported());
+        match build(&mut d, MakeTopologyOptions::default()) {
+            Ok(_) => {}
+            Err(SolidError::Unported { unit, .. }) => assert_ne!(unit, "topology.brep_p1"),
+            Err(e) => panic!("unexpected {e}"),
+        }
         let mut d = square(1);
         d.healer_version = 0;
         let opts = MakeTopologyOptions {
@@ -2429,11 +2451,13 @@ mod tests {
             .unwrap_err()
             .is_unported());
         assert_eq!(d.manifold, 0);
+        // sm_AddAttributes: an index past rAllAttributes (empty here)
         let mut d = square(1);
         d.attributes.push(0);
-        assert!(build(&mut d, MakeTopologyOptions::default())
-            .unwrap_err()
-            .is_unported());
+        assert!(matches!(
+            build(&mut d, MakeTopologyOptions::default()),
+            Err(SolidError::InvalidInput { .. })
+        ));
     }
 
     #[test]
@@ -2475,6 +2499,7 @@ mod tests {
         let mut store = AttributeStore::new();
         let mut records = BTreeMap::new();
         let mut env = TopologyEnv {
+            all_attributes: &[],
             attributes: &mut store,
             key_of: &key_of,
             records: &mut records,

@@ -388,6 +388,7 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
     let mut store = AttributeStore::new();
     let mut records: BTreeMap<ObjectKey, Topology> = BTreeMap::new();
     let mut env = TopologyEnv {
+        all_attributes: &[],
         attributes: &mut store,
         key_of: &key_of,
         records: &mut records,
