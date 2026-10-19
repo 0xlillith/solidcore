@@ -7937,7 +7937,7 @@ tests exercise ported fast paths and distinct-context wiring. They do not change
 full-operation coverage: no differential case compares past the null checks while
 query.brep blocks the initial temporary-transform prerequisite.
 
-Remaining UNPORTED calls and owner statuses (current main: all todo):
+Remaining direct p4 UNPORTED calls and owner statuses (current main: all todo):
 
 | Owner | Callees |
 | --- | --- |
@@ -7952,7 +7952,8 @@ Remaining UNPORTED calls and owner statuses (current main: all todo):
 All stub signatures retain upstream arguments/defaults and the caller tail.
 Point3DClassify receives the full PointClassification out-record; PC_REGION and
 region casts remain in the caller. CopyFaces is wired to brep_p7 with native
-merge defaults. No incoming UNPORTED(boolean.merge_p4) sites. Only shared Relations face storage and map accessors were extended; no dependency algorithm is co-ported.
+merge defaults. No incoming UNPORTED(boolean.merge_p4) sites. Only shared Relations
+face storage and map accessors were extended; no dependency algorithm is co-ported.
 The inverse token encloses the complete operation and restores surviving operands
 through the same kernels/intersector/attributes environment. Editing flags are
 restored even if mark release fails. Split-region handles are captured before
@@ -7962,5 +7963,26 @@ The FFI's supported coordinate/dimension domain is bounded at 1e100 via the shar
 reader. Current operand families avoid closed edges; adding closed-wire/circle
 kinds requires rechecking the registered UB-175 path.
 
-Verification for this adapter revision is running on sc-builder-5 against main
-46ddc4ff. Final gate summaries will replace this sentence before review request.
+Verification on sc-builder-5 against main source 46ddc4ff plus the progress-only
+8e79624a refresh: fmt/include rustfmt, both workspace checks, clippy x2, all 1412
+kernel tests (including six new adapter regressions), coordinate-bound and
+error-post-state regressions, and wasm passed.
+
+```text
+PARTIAL boolean.merge_p4 cases=311 passed=30 failed=0 deferred=278 max_rel_err=0e0 with_values=30 no_values=0 rejected=3 blocked_by=query.brep(278)
+PARTIAL boolean.merge_p1 cases=248 passed=203 failed=0 deferred=45 max_rel_err=0e0 with_values=203 no_values=0 blocked_by=boolean.topology_intersector_p3(4),intersect.surface_drop_lib_p3(18),query.brep(14),topology.brep_p9(3),topology.face_p2(6)
+PARTIAL boolean.merge_p5 cases=140 passed=108 failed=0 deferred=32 max_rel_err=0e0 with_values=108 no_values=0 blocked_by=query.brep(32)
+PARTIAL boolean.topology_intersector_p1 cases=827 passed=690 failed=0 deferred=137 max_rel_err=0e0 with_values=687 no_values=3 blocked_by=query.brep(16),query.face_p1(7),topology.brep_p2(21),topology.face_p2(82),topology.face_p4(11)
+PARTIAL topology.brep_p10 cases=1404 passed=839 failed=0 deferred=565 max_rel_err=0e0 with_values=839 no_values=0 blocked_by=surface.cone_p1(41),surface.sphere(328),surface.surf_of_extrusion_p2(10),surface.surface_p2(96),topology.brep_p2(19),topology.brep_p5(8),topology.face_p2(63)
+FUZZ-PASS boolean.merge_p4 cases=2000 rejected=203 malformed=866 ran=931 differs=0 crashes=0 panics=0 timeouts=0
+SENSITIVE boolean.merge_p4 perturbed=30 detected=30 unperturbed=0 deferred=278 rejected=3 (perturb mode: every perturbed case must FAIL)
+green-par: 214 units, failed=0
+```
+
+All 30 completed p4 comparisons are null-error records with values. No differential
+case compares past the null checks, and Boolean successes remain zero for all
+operations; cases_both_errored=0 is status-as-data encoding. The 405-case/110-seed
+full-leak Valgrind sample matched its baseline byte-for-byte: 0 errors and
+0 definitely/indirectly/possibly lost bytes (544 reachable Rust runtime bytes).
+Every reported partial in the full green gate matches plan status; no plan-green
+unit deferred.
