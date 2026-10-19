@@ -710,6 +710,15 @@ fn curve_output(status: i32, values: [f64; 9]) -> Output {
 }
 
 fn run_curve(input: &CurveInput, cpp: bool) -> Result<Output, HarnessError> {
+    // The native curve API reads only output bits 1/2/4; other i32 mask bits
+    // are valid. Keep structural/geometry admission identical to the FFI.
+    if !(0..=2).contains(&input.kind)
+        || input.data.iter().any(|x| !x.is_finite())
+    {
+        return Ok(Output::rejected(
+            "curve kind or data outside the shim's inputs",
+        ));
+    }
     if cpp {
         let (status, values) = ffi::evaluate_curve(
             input.kind,
