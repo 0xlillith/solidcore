@@ -25,8 +25,8 @@
 //! `GetUVCornerBoundaries` of an edge loop runs `GetOrCreateUVTrimCurve` on both sides
 //! (`topology.edgeuse_p3`; creating a curve defers on its own callees).
 //!
-//! Deferred: `FlipLoopOrientation` of a loop on a face (`SmFace::Notify`,
-//! `topology.face_p3`), and `IsMissingSeamAtVertices` past
+//! Deferred: `FlipLoopOrientation` of a loop on a face (the post-edit `SmFace::Notify`
+//! reaches `SmFace::GetUpwardEdgeuses`, `topology.face_p4`), and `IsMissingSeamAtVertices` past
 //! the closure test (the sector computation's own deferrals). `IsClosed3d` on edges
 //! whose curve the export holds only as its B-spline part (ellipses and other
 //! `SmBSplineCurve` subclasses of the `.smb` files) and `IsMissingSeamAtVertices` on such
@@ -50,8 +50,7 @@ use solidcore_ffi::units::topology_edgeuse_p1 as ffi1;
 use solidcore_ffi::units::topology_loopuse::{self as ffi, Op};
 
 use super::topology_edgeuse_p1::{
-    brep_block_of, gen_brep, harness, import_with_types, path_of, sel, BrepIn, ImportTypes,
-    FILES,
+    brep_block_of, gen_brep, harness, import_with_types, path_of, sel, BrepIn, ImportTypes, FILES,
 };
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
 
@@ -257,7 +256,12 @@ fn resolve(op: &OpIn, c: [usize; 10], b: &Brep) -> Option<Resolved> {
             let (du, dv) = (u1 - u0, v1 - v0);
             Resolved::UvCorners(
                 l,
-                [u0 + dom[0] * du, v0 + dom[1] * dv, u0 + dom[2] * du, v0 + dom[3] * dv],
+                [
+                    u0 + dom[0] * du,
+                    v0 + dom[1] * dv,
+                    u0 + dom[2] * du,
+                    v0 + dom[3] * dv,
+                ],
                 *tol,
             )
         }
@@ -555,22 +559,35 @@ fn put_lists(
     conn: Option<EntityRef>,
 ) -> Result<(), Fail> {
     match slot(lu1::edges(b, lu, attr))? {
-        Some(v) => put_list(o, &v.iter().map(|&e| idx(e, EdgeId::index)).collect::<Vec<_>>()),
+        Some(v) => put_list(
+            o,
+            &v.iter().map(|&e| idx(e, EdgeId::index)).collect::<Vec<_>>(),
+        ),
         None => o.push(NULL_DEREF),
     }
     match slot(lu1::edgeuses(b, lu, attr, conn))? {
-        Some(v) => put_list(o, &v.iter().map(|e| f64::from(e.index())).collect::<Vec<_>>()),
+        Some(v) => put_list(
+            o,
+            &v.iter().map(|e| f64::from(e.index())).collect::<Vec<_>>(),
+        ),
         None => o.push(NULL_DEREF),
     }
     match slot(lu1::vertexuses(b, lu, attr))? {
         Some(v) => put_list(
             o,
-            &v.iter().map(|&e| idx(e, VertexuseId::index)).collect::<Vec<_>>(),
+            &v.iter()
+                .map(|&e| idx(e, VertexuseId::index))
+                .collect::<Vec<_>>(),
         ),
         None => o.push(NULL_DEREF),
     }
     match slot(lu1::vertices(b, lu, attr))? {
-        Some(v) => put_list(o, &v.iter().map(|&e| idx(e, VertexId::index)).collect::<Vec<_>>()),
+        Some(v) => put_list(
+            o,
+            &v.iter()
+                .map(|&e| idx(e, VertexId::index))
+                .collect::<Vec<_>>(),
+        ),
         None => o.push(NULL_DEREF),
     }
     Ok(())
@@ -636,7 +653,9 @@ fn run_rust_op(b: &mut Brep, op: &Resolved) -> Result<Vec<f64>, Fail> {
             o.push(e(lu1::faceuse(b, lu).map(|x| idx(x, FaceuseId::index)))?);
             o.push(e(lu1::loop_(b, lu).map(|x| idx(x, LoopId::index)))?);
             o.push(e(lu1::orientation(b, lu).map(orient_code))?);
-            o.push(e(lu1::other_loopuse(b, lu).map(|x| idx(x, LoopuseId::index)))?);
+            o.push(e(
+                lu1::other_loopuse(b, lu).map(|x| idx(x, LoopuseId::index))
+            )?);
             let (st, si) = match slot(lu1::eu_or_vu(b, lu))?.flatten() {
                 Some(EntityRef::Edgeuse(eu)) => (EDGEUSE_TYPE, f64::from(eu.index())),
                 Some(EntityRef::Vertexuse(vu)) => (VERTEXUSE_TYPE, f64::from(vu.index())),
@@ -669,7 +688,10 @@ fn run_rust_op(b: &mut Brep, op: &Resolved) -> Result<Vec<f64>, Fail> {
         }
         Resolved::LoopQuery(l) => {
             let l = LoopId::from_index(u(*l));
-            o.push(idx(slot(lu1::loop_loopuse(b, l))?.flatten(), LoopuseId::index));
+            o.push(idx(
+                slot(lu1::loop_loopuse(b, l))?.flatten(),
+                LoopuseId::index,
+            ));
             o.push(match slot(lu1::loop_face(b, l))? {
                 Some(f) => idx(f, FaceId::index),
                 None => NULL_DEREF,
@@ -687,12 +709,20 @@ fn run_rust_op(b: &mut Brep, op: &Resolved) -> Result<Vec<f64>, Fail> {
             put_str(&mut o, lu1::LOOP_CLASS_STRING);
             match slot(lu1::loop_vertices(b, l))? {
                 Some(v) => {
-                    put_list(&mut o, &v.iter().map(|&e| idx(e, VertexId::index)).collect::<Vec<_>>());
+                    put_list(
+                        &mut o,
+                        &v.iter()
+                            .map(|&e| idx(e, VertexId::index))
+                            .collect::<Vec<_>>(),
+                    );
                 }
                 None => o.push(NULL_DEREF),
             }
             match slot(lu1::loop_edges(b, l))? {
-                Some(v) => put_list(&mut o, &v.iter().map(|&e| idx(e, EdgeId::index)).collect::<Vec<_>>()),
+                Some(v) => put_list(
+                    &mut o,
+                    &v.iter().map(|&e| idx(e, EdgeId::index)).collect::<Vec<_>>(),
+                ),
                 None => o.push(NULL_DEREF),
             }
             match slot(lu1::loop_edgeuses(b, l))? {
@@ -716,7 +746,12 @@ fn run_rust_op(b: &mut Brep, op: &Resolved) -> Result<Vec<f64>, Fail> {
                 }
             }
             let r = if *of_loop {
-                slot(lu1::loop_is_closed_3d(&k, b, LoopId::from_index(u(*index)), *all))?
+                slot(lu1::loop_is_closed_3d(
+                    &k,
+                    b,
+                    LoopId::from_index(u(*index)),
+                    *all,
+                ))?
             } else {
                 slot(lu1::is_closed_3d(&k, b, LoopuseId::from_index(u(*index)), *all).map(Some))?
             };
@@ -725,7 +760,11 @@ fn run_rust_op(b: &mut Brep, op: &Resolved) -> Result<Vec<f64>, Fail> {
                 Some(None) => o.extend([1.0, -5.0, -7.0, 777.0]),
                 Some(Some(c)) => {
                     o.push(flag(c.closed));
-                    o.push(if want[0] { idx(c.edgeuse, EdgeuseId::index) } else { -5.0 });
+                    o.push(if want[0] {
+                        idx(c.edgeuse, EdgeuseId::index)
+                    } else {
+                        -5.0
+                    });
                     o.push(if want[1] { c.max_gap } else { -7.0 });
                     o.push(if want[2] { c.xsect_tol_3d } else { 777.0 });
                 }
@@ -737,18 +776,25 @@ fn run_rust_op(b: &mut Brep, op: &Resolved) -> Result<Vec<f64>, Fail> {
         }
         Resolved::UvCorners(l, dom, tol) => {
             let l = LoopId::from_index(u(*l));
-            let d = solidcore::geom::extent2d::Extent2d::from_bounds(dom[0], dom[1], dom[2], dom[3]);
+            let d =
+                solidcore::geom::extent2d::Extent2d::from_bounds(dom[0], dom[1], dom[2], dom[3]);
             match slot(lu1::uv_corner_boundaries(&k, b, l, &d, *tol))? {
                 None => o.push(NULL_DEREF),
                 Some(r) => {
                     o.push(f64::from(r.boundaries));
                     put_list(
                         &mut o,
-                        &r.on_edges.iter().map(|&e| idx(e, EdgeId::index)).collect::<Vec<_>>(),
+                        &r.on_edges
+                            .iter()
+                            .map(|&e| idx(e, EdgeId::index))
+                            .collect::<Vec<_>>(),
                     );
                     put_list(
                         &mut o,
-                        &r.on_boundaries.iter().map(|&x| f64::from(x)).collect::<Vec<_>>(),
+                        &r.on_boundaries
+                            .iter()
+                            .map(|&x| f64::from(x))
+                            .collect::<Vec<_>>(),
                     );
                     put_list(&mut o, &r.on_params);
                 }
@@ -804,7 +850,9 @@ const EXACT_CURVES: [i64; 2] = [14033, 14010];
 fn inexact_geometry(s: &Setup) -> Option<Output> {
     let b = &s.brep;
     let lu = match s.op {
-        Resolved::Closed3d(true, l, ..) => lu1::loop_loopuse(b, LoopId::from_index(u(l))).ok()??,
+        Resolved::Closed3d(true, l, ..) => {
+            lu1::loop_loopuse(b, LoopId::from_index(u(l))).ok()??
+        }
         Resolved::Closed3d(false, lu, ..) | Resolved::MissingSeam(lu) => {
             LoopuseId::from_index(u(lu))
         }
@@ -815,13 +863,21 @@ fn inexact_geometry(s: &Setup) -> Option<Output> {
             .ok()
             .flatten()
             .and_then(|fu| b.faceuse(fu).ok().and_then(|r| r.face))?;
-        let t = s.types.face_surface_types.get(f.index() as usize).copied().unwrap_or(-1);
+        let t = s
+            .types
+            .face_surface_types
+            .get(f.index() as usize)
+            .copied()
+            .unwrap_or(-1);
         if t >= 0 && !EXACT_SURFACES.contains(&t) {
             let (unit, symbol) = match t {
                 15012 | 15013 => ("surface.cone_p1", "SmCone (no SurfaceKind)"),
                 15014 => ("surface.sphere", "SmSphere"),
                 15015 => ("surface.torus", "SmTorus (no SurfaceKind)"),
-                15030 => ("surface.surf_of_extrusion_p2", "SurfaceKind::SurfOfExtrusion"),
+                15030 => (
+                    "surface.surf_of_extrusion_p2",
+                    "SurfaceKind::SurfOfExtrusion",
+                ),
                 _ => ("topology.brep_p10", "SmBrep::MakeTopologyFromData"),
             };
             return Some(Output::deferred(unit, symbol));
@@ -833,7 +889,12 @@ fn inexact_geometry(s: &Setup) -> Option<Output> {
         let Some(e) = b.edgeuse(eu).ok().and_then(|r| r.edge) else {
             continue;
         };
-        let t = s.types.edge_curve_types.get(e.index() as usize).copied().unwrap_or(-1);
+        let t = s
+            .types
+            .edge_curve_types
+            .get(e.index() as usize)
+            .copied()
+            .unwrap_or(-1);
         if t >= 0 && !EXACT_CURVES.contains(&t) {
             return Some(Output::deferred(
                 "topology.brep_p10",
@@ -888,7 +949,9 @@ fn gen_op(rng: &mut Rng) -> OpIn {
                 use_attr: rng.chance(0.8),
                 attributed: (0..n)
                     .map(|_| {
-                        let ty = *rng.choose(&[16016, 16005, 16006, 16021, 16004]).unwrap_or(&16005);
+                        let ty = *rng
+                            .choose(&[16016, 16005, 16006, 16021, 16004])
+                            .unwrap_or(&16005);
                         (ty, gen_sel(rng))
                     })
                     .collect(),
@@ -918,7 +981,9 @@ fn gen_op(rng: &mut Rng) -> OpIn {
             OpIn::UvCorners {
                 l: gen_sel(rng),
                 dom: [a, rng.uniform(-0.2, 0.4), c, rng.uniform(0.6, 1.2)],
-                tol: *rng.choose(&[0.0, 1e-9, 1e-6, 1e-3, 0.1, 1.0]).unwrap_or(&1e-6),
+                tol: *rng
+                    .choose(&[0.0, 1e-9, 1e-6, 1e-3, 0.1, 1.0])
+                    .unwrap_or(&1e-6),
             }
         }
         19..=20 => OpIn::Flip { l: gen_sel(rng) },

@@ -366,6 +366,19 @@ impl<O: ClassObject> PointClassification<O> {
         })
     }
 
+    /// [`Self::try_map_objects`] with a borrowed mapping callback. Both object
+    /// handles are translated in the same order, preserving all scalar state.
+    ///
+    /// # Errors
+    ///
+    /// Propagates a failed object/face translation without changing the source.
+    pub fn map_objects<P: ClassObject>(
+        &self,
+        map: &mut dyn FnMut(O) -> Result<P>,
+    ) -> Result<PointClassification<P>> {
+        self.try_map_objects(map)
+    }
+
     /// A cleared classification of something with zone tolerance `src_zone_tol_3d`
     /// (`SmPointClassification(SmZoneTol3d, const SmContext*)`). The argument is
     /// already an `SmZoneTol3d` and is stored as is; upstream's default,

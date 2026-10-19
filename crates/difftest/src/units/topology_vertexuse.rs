@@ -224,11 +224,11 @@ pub(crate) fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessErr
             if b.net.iter().any(|r| r.len() != m + 1) {
                 return Err(harness("ragged net"));
             }
-            let nu =
+            let last_u =
                 b.u.len()
                     .checked_sub(1)
                     .ok_or_else(|| harness("empty u knots"))?;
-            let nv =
+            let last_v =
                 b.v.len()
                     .checked_sub(1)
                     .ok_or_else(|| harness("empty v knots"))?;
@@ -240,8 +240,8 @@ pub(crate) fn push_surface(v: &mut Vec<f64>, s: &SrfIn) -> Result<(), HarnessErr
                 m as f64,
                 b.p as f64,
                 b.q as f64,
-                nu as f64,
-                nv as f64,
+                last_u as f64,
+                last_v as f64,
             ]);
             for row in &b.net {
                 for p in row {

@@ -25,7 +25,8 @@
 //!   including recursive healing; geometry guards run only at the actual queries.
 //!
 //! Deferred: `Fix_TolSizes` (`SmBrep::GetThisModelSizeEstimate`, `topology.brep_p1`),
-//! `Cache_DegenFaces` with a face (`SmFace::IsDegenerate`, `topology.face_p3`), and the
+//! `Cache_DegenFaces` with a face (`SmFace::IsDegenerate` classifies its edges with
+//! `SmCurveClassification`, `intersect.curve_class_p4`), and the
 //! gap computations whose surface drops are not ported yet.
 
 use serde::{Deserialize, Serialize};
