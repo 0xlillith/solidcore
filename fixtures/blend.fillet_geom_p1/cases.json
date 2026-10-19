@@ -68120,6 +68120,1492 @@
      961.3710810658647
     ]
    }
+  },
+  {
+   "name": "surface_drop_point_negative_tol_cylinder",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147)",
+   "inputs": {
+    "op": "surface_drop_point",
+    "surface": {
+     "net": [
+      [
+       [
+        1.0,
+        0.0,
+        0,
+        1
+       ],
+       [
+        1.0,
+        0.0,
+        2.0,
+        1
+       ]
+      ],
+      [
+       [
+        0.7071067811865476,
+        0.7071067811865476,
+        0,
+        0.7071067811865476
+       ],
+       [
+        0.7071067811865476,
+        0.7071067811865476,
+        1.4142135623730951,
+        0.7071067811865476
+       ]
+      ],
+      [
+       [
+        0.0,
+        1.0,
+        0,
+        1
+       ],
+       [
+        0.0,
+        1.0,
+        2.0,
+        1
+       ]
+      ],
+      [
+       [
+        -0.7071067811865476,
+        0.7071067811865476,
+        0,
+        0.7071067811865476
+       ],
+       [
+        -0.7071067811865476,
+        0.7071067811865476,
+        1.4142135623730951,
+        0.7071067811865476
+       ]
+      ],
+      [
+       [
+        -1.0,
+        0.0,
+        0,
+        1
+       ],
+       [
+        -1.0,
+        0.0,
+        2.0,
+        1
+       ]
+      ],
+      [
+       [
+        -0.7071067811865476,
+        -0.7071067811865476,
+        0,
+        0.7071067811865476
+       ],
+       [
+        -0.7071067811865476,
+        -0.7071067811865476,
+        1.4142135623730951,
+        0.7071067811865476
+       ]
+      ],
+      [
+       [
+        0.0,
+        -1.0,
+        0,
+        1
+       ],
+       [
+        0.0,
+        -1.0,
+        2.0,
+        1
+       ]
+      ],
+      [
+       [
+        0.7071067811865476,
+        -0.7071067811865476,
+        0,
+        0.7071067811865476
+       ],
+       [
+        0.7071067811865476,
+        -0.7071067811865476,
+        1.4142135623730951,
+        0.7071067811865476
+       ]
+      ],
+      [
+       [
+        1.0,
+        0.0,
+        0,
+        1
+       ],
+       [
+        1.0,
+        0.0,
+        2.0,
+        1
+       ]
+      ]
+     ],
+     "p": 2,
+     "q": 1,
+     "u": [
+      0,
+      0,
+      0,
+      0.25,
+      0.25,
+      0.5,
+      0.5,
+      0.75,
+      0.75,
+      1,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "pnt": [
+     1.0,
+     0.0,
+     0.5
+    ],
+    "tol": -0.001
+   }
+  },
+  {
+   "name": "surface_drop_point_negative_tol_bilinear_corner",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147)",
+   "inputs": {
+    "op": "surface_drop_point",
+    "surface": {
+     "net": [
+      [
+       [
+        0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        2.0,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        3.0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.0,
+        2.0,
+        0.5,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 1,
+     "q": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "pnt": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "tol": -0.001
+   }
+  },
+  {
+   "name": "surface_drop_point_negative_tol_cubic",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147)",
+   "inputs": {
+    "op": "surface_drop_point",
+    "surface": {
+     "net": [
+      [
+       [
+        0.0,
+        0.0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.0,
+        0.3333333333333333,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.0,
+        0.6666666666666666,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.0,
+        1.0,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        0.3333333333333333,
+        0.0,
+        0.2890674556251579,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.2210909850331076,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.3333333333333333,
+        0.6666666666666666,
+        0.049131969538050296,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.3333333333333333,
+        1.0,
+        -0.14593457893895304,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        0.6666666666666666,
+        0.0,
+        0.15465041154643924,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.6666666666666666,
+        0.3333333333333333,
+        0.11828315903162491,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.6666666666666666,
+        0.6666666666666666,
+        0.026285488598894725,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.6666666666666666,
+        1.0,
+        -0.07807465784398462,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        1.0,
+        0.0,
+        -0.20632984775519222,
+        -1.7976931348623157e+308
+       ],
+       [
+        1.0,
+        0.3333333333333333,
+        -0.15780977205915672,
+        -1.7976931348623157e+308
+       ],
+       [
+        1.0,
+        0.6666666666666666,
+        -0.035069294717991736,
+        -1.7976931348623157e+308
+       ],
+       [
+        1.0,
+        1.0,
+        0.10416481990189037,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 3,
+     "q": 3,
+     "u": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "pnt": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "tol": -0.001
+   }
+  },
+  {
+   "name": "surface_drop_point_negative_tol_cubic_1e-5",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147)",
+   "inputs": {
+    "op": "surface_drop_point",
+    "surface": {
+     "net": [
+      [
+       [
+        0.0,
+        0.0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.0,
+        3.3333333333333333e-06,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.0,
+        6.666666666666667e-06,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.0,
+        1e-05,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        3.3333333333333333e-06,
+        0.0,
+        2.890674556251579e-06,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.3333333333333333e-06,
+        3.3333333333333333e-06,
+        2.210909850331076e-06,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.3333333333333333e-06,
+        6.666666666666667e-06,
+        4.91319695380503e-07,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.3333333333333333e-06,
+        1e-05,
+        -1.4593457893895305e-06,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        6.666666666666667e-06,
+        0.0,
+        1.5465041154643925e-06,
+        -1.7976931348623157e+308
+       ],
+       [
+        6.666666666666667e-06,
+        3.3333333333333333e-06,
+        1.1828315903162492e-06,
+        -1.7976931348623157e+308
+       ],
+       [
+        6.666666666666667e-06,
+        6.666666666666667e-06,
+        2.6285488598894727e-07,
+        -1.7976931348623157e+308
+       ],
+       [
+        6.666666666666667e-06,
+        1e-05,
+        -7.807465784398463e-07,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        1e-05,
+        0.0,
+        -2.0632984775519225e-06,
+        -1.7976931348623157e+308
+       ],
+       [
+        1e-05,
+        3.3333333333333333e-06,
+        -1.5780977205915674e-06,
+        -1.7976931348623157e+308
+       ],
+       [
+        1e-05,
+        6.666666666666667e-06,
+        -3.506929471799174e-07,
+        -1.7976931348623157e+308
+       ],
+       [
+        1e-05,
+        1e-05,
+        1.0416481990189038e-06,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 3,
+     "q": 3,
+     "u": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "pnt": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "tol": -0.001
+   }
+  },
+  {
+   "name": "surface_drop_point_negative_tol_cubic_far_corner",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147)",
+   "inputs": {
+    "op": "surface_drop_point",
+    "surface": {
+     "net": [
+      [
+       [
+        0.0,
+        0.0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.0,
+        0.3333333333333333,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.0,
+        0.6666666666666666,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.0,
+        1.0,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        0.3333333333333333,
+        0.0,
+        0.2890674556251579,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.2210909850331076,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.3333333333333333,
+        0.6666666666666666,
+        0.049131969538050296,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.3333333333333333,
+        1.0,
+        -0.14593457893895304,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        0.6666666666666666,
+        0.0,
+        0.15465041154643924,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.6666666666666666,
+        0.3333333333333333,
+        0.11828315903162491,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.6666666666666666,
+        0.6666666666666666,
+        0.026285488598894725,
+        -1.7976931348623157e+308
+       ],
+       [
+        0.6666666666666666,
+        1.0,
+        -0.07807465784398462,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        1.0,
+        0.0,
+        -0.20632984775519222,
+        -1.7976931348623157e+308
+       ],
+       [
+        1.0,
+        0.3333333333333333,
+        -0.15780977205915672,
+        -1.7976931348623157e+308
+       ],
+       [
+        1.0,
+        0.6666666666666666,
+        -0.035069294717991736,
+        -1.7976931348623157e+308
+       ],
+       [
+        1.0,
+        1.0,
+        0.10416481990189037,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 3,
+     "q": 3,
+     "u": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "pnt": [
+     1.0,
+     1.0,
+     0.10416481990189037
+    ],
+    "tol": -0.001
+   }
+  },
+  {
+   "name": "two_pnts_negative_tol_on_both",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:277-359 sm_TwoPntsIntersection: the negative tolerance reaches sm_SurfaceDropPoint (SmZoneTol3d conversion) and, raw through SM_CAST_APPROXTOL3D_PTR, PointBasedSurfaceIntersect; negative-tolerance regression (maintainer review of #147)",
+   "inputs": {
+    "op": "two_pnts",
+    "surface1": {
+     "net": [
+      [
+       [
+        0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        2.0,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        3.0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.0,
+        2.0,
+        0.5,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 1,
+     "q": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "surface2": {
+     "net": [
+      [
+       [
+        0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        2.0,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        3.0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.0,
+        2.0,
+        -0.5,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 1,
+     "q": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "start": [
+     0,
+     0,
+     0
+    ],
+    "dir": [
+     1,
+     1,
+     0
+    ],
+    "tol": -0.001
+   }
+  },
+  {
+   "name": "two_pnts_negative_tol_with_end",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:277-359 sm_TwoPntsIntersection: the negative tolerance reaches sm_SurfaceDropPoint (SmZoneTol3d conversion) and, raw through SM_CAST_APPROXTOL3D_PTR, PointBasedSurfaceIntersect; negative-tolerance regression (maintainer review of #147)",
+   "inputs": {
+    "op": "two_pnts",
+    "surface1": {
+     "net": [
+      [
+       [
+        0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        2.0,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        3.0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.0,
+        2.0,
+        0.5,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 1,
+     "q": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "surface2": {
+     "net": [
+      [
+       [
+        0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        2.0,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        3.0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.0,
+        2.0,
+        -0.5,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 1,
+     "q": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "start": [
+     0,
+     0,
+     0
+    ],
+    "end": [
+     3,
+     0,
+     0
+    ],
+    "dir": [
+     1,
+     0,
+     0
+    ],
+    "end_dir": [
+     1,
+     0,
+     0
+    ],
+    "tol": -0.001
+   }
+  },
+  {
+   "name": "capping_gap_negative_tol",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:8898-8949 JoinVertsByCapping -> LiftCurve(SmApproxTol3d): the double converts through SmApproxTol3d(double) (USE_DEFAULT -> half the zone tolerance, then fabs); regression (maintainer review of #147)",
+   "inputs": {
+    "op": "capping",
+    "tol": -0.001,
+    "surface": {
+     "net": [
+      [
+       [
+        0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        2.0,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        3.0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.0,
+        2.0,
+        0.5,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 1,
+     "q": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "uv1": {
+     "dim": 2,
+     "cpts": [
+      [
+       0.2,
+       0.2,
+       0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.6,
+       0.3,
+       0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "orient1": 1,
+    "uv2": {
+     "dim": 2,
+     "cpts": [
+      [
+       0.7,
+       0.9,
+       0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.8,
+       0.8,
+       0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "orient2": 1
+   }
+  },
+  {
+   "name": "capping_gap_use_default_tol",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:8898-8949 JoinVertsByCapping -> LiftCurve(SmApproxTol3d): the double converts through SmApproxTol3d(double) (USE_DEFAULT -> half the zone tolerance, then fabs); regression (maintainer review of #147)",
+   "inputs": {
+    "op": "capping",
+    "tol": 9876543.21,
+    "surface": {
+     "net": [
+      [
+       [
+        0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        0,
+        2.0,
+        0.0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      [
+       [
+        3.0,
+        0,
+        0.0,
+        -1.7976931348623157e+308
+       ],
+       [
+        3.0,
+        2.0,
+        0.5,
+        -1.7976931348623157e+308
+       ]
+      ]
+     ],
+     "p": 1,
+     "q": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ],
+     "v": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "uv1": {
+     "dim": 2,
+     "cpts": [
+      [
+       0.2,
+       0.2,
+       0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.6,
+       0.3,
+       0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "orient1": 1,
+    "uv2": {
+     "dim": 2,
+     "cpts": [
+      [
+       0.7,
+       0.9,
+       0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.8,
+       0.8,
+       0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "orient2": 1
+   }
+  },
+  {
+   "name": "evaluate_mate_plane_inside",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "plane",
+     "origin": [
+      1.0,
+      -2.0,
+      0.5
+     ],
+     "x_axis": [
+      1.0,
+      0.2,
+      0.0
+     ],
+     "y_axis": [
+      0.0,
+      1.0,
+      0.3
+     ],
+     "uv_scale": [
+      1.0,
+      1.0
+     ],
+     "domain": [
+      [
+       -1.0,
+       0.0
+      ],
+      [
+       2.0,
+       1.5
+      ]
+     ],
+     "make_nurb": false
+    },
+    "uv": [
+     0.5,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "evaluate_mate_plane_outside",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "plane",
+     "origin": [
+      1.0,
+      -2.0,
+      0.5
+     ],
+     "x_axis": [
+      1.0,
+      0.2,
+      0.0
+     ],
+     "y_axis": [
+      0.0,
+      1.0,
+      0.3
+     ],
+     "uv_scale": [
+      1.0,
+      1.0
+     ],
+     "domain": [
+      [
+       -1.0,
+       0.0
+      ],
+      [
+       2.0,
+       1.5
+      ]
+     ],
+     "make_nurb": false
+    },
+    "uv": [
+     3.5,
+     -0.5
+    ]
+   }
+  },
+  {
+   "name": "evaluate_mate_plane_nurb_inside",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "plane",
+     "origin": [
+      1.0,
+      -2.0,
+      0.5
+     ],
+     "x_axis": [
+      1.0,
+      0.2,
+      0.0
+     ],
+     "y_axis": [
+      0.0,
+      1.0,
+      0.3
+     ],
+     "uv_scale": [
+      1.0,
+      1.0
+     ],
+     "domain": [
+      [
+       -1.0,
+       0.0
+      ],
+      [
+       2.0,
+       1.5
+      ]
+     ],
+     "make_nurb": true
+    },
+    "uv": [
+     0.5,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "evaluate_mate_plane_nurb_outside",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "plane",
+     "origin": [
+      1.0,
+      -2.0,
+      0.5
+     ],
+     "x_axis": [
+      1.0,
+      0.2,
+      0.0
+     ],
+     "y_axis": [
+      0.0,
+      1.0,
+      0.3
+     ],
+     "uv_scale": [
+      1.0,
+      1.0
+     ],
+     "domain": [
+      [
+       -1.0,
+       0.0
+      ],
+      [
+       2.0,
+       1.5
+      ]
+     ],
+     "make_nurb": true
+    },
+    "uv": [
+     3.5,
+     -0.5
+    ]
+   }
+  },
+  {
+   "name": "evaluate_mate_plane_scaled_outside",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "plane",
+     "origin": [
+      1.0,
+      -2.0,
+      0.5
+     ],
+     "x_axis": [
+      1.0,
+      0.2,
+      0.0
+     ],
+     "y_axis": [
+      0.0,
+      1.0,
+      0.3
+     ],
+     "uv_scale": [
+      2.0,
+      0.5
+     ],
+     "domain": [
+      [
+       -1.0,
+       0.0
+      ],
+      [
+       2.0,
+       1.5
+      ]
+     ],
+     "make_nurb": true
+    },
+    "uv": [
+     -2.0,
+     2.5
+    ]
+   }
+  },
+  {
+   "name": "evaluate_mate_revolution_cylinder_inside",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "revolution",
+     "a": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "b": [
+      1.0,
+      0.0,
+      2.0
+     ],
+     "axis_point": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "axis_dir": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "swap": false
+    },
+    "uv": [
+     1.0,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "evaluate_mate_revolution_cylinder_outside",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "revolution",
+     "a": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "b": [
+      1.0,
+      0.0,
+      2.0
+     ],
+     "axis_point": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "axis_dir": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "swap": false
+    },
+    "uv": [
+     1.0,
+     3.5
+    ]
+   }
+  },
+  {
+   "name": "evaluate_mate_revolution_cylinder_outside_angle",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "revolution",
+     "a": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "b": [
+      1.0,
+      0.0,
+      2.0
+     ],
+     "axis_point": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "axis_dir": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "swap": false
+    },
+    "uv": [
+     -0.5,
+     1.0
+    ]
+   }
+  },
+  {
+   "name": "evaluate_mate_revolution_cylinder_swapped",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "revolution",
+     "a": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "b": [
+      1.0,
+      0.0,
+      2.0
+     ],
+     "axis_point": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "axis_dir": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "swap": true
+    },
+    "uv": [
+     0.5,
+     1.0
+    ]
+   }
+  },
+  {
+   "name": "evaluate_mate_revolution_cone_outside",
+   "upstream_ref": "source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms)",
+   "inputs": {
+    "op": "evaluate_mate_analytic",
+    "surface": {
+     "kind": "revolution",
+     "a": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "b": [
+      2.0,
+      0.0,
+      2.0
+     ],
+     "axis_point": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "axis_dir": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "swap": false
+    },
+    "uv": [
+     2.0,
+     -0.5
+    ]
+   }
   }
  ]
 }

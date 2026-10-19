@@ -86,12 +86,15 @@
 //! - **Constructors.** `SmFilletEdgeuse(SmFilletBrep*)` needs the pseudo B-rep's
 //!   infinite region and its first shell (`SmBrep::GetInfiniteRegion`,
 //!   `SmBrep::MakeShellVertexTopology`, `SmRegion::GetShells`): `GetShells` is
-//!   `topology.shell`'s, with no attribute filter as upstream's default; the units
-//!   `topology.brep_p1` and `topology.brep_p2` are not ported yet: each of their calls
-//!   is a stub carrying upstream's arguments and the rest of the constructor
-//!   (the shell-owned edge use with no fillet geometry) is ported behind them, so
-//!   [`FilletBrep::new_fillet_edgeuse`] returns [`SolidError::Unported`] today and
-//!   completes once they are wired. `SmFilletGeom(pFilletSolver, eType)` copies the
+//!   `topology.shell`'s, with no attribute filter as upstream's default;
+//!   `GetInfiniteRegion` is `topology.brep_p1`'s accessor. `SmFilletBrep()` runs
+//!   `SmBrep()`, which creates that region; the constructor is `topology.brep_p3`'s and
+//!   not ported, so [`FilletBrep::new`] has none and the edge use constructor stops
+//!   there with `UNPORTED(topology.brep_p3)` (a missing region is that gap, never
+//!   upstream's NULL). `MakeShellVertexTopology` (`topology.brep_p2`) is a stub carrying
+//!   upstream's arguments; the rest of the constructor (the shell-owned edge use with no
+//!   fillet geometry) is ported behind them, so [`FilletBrep::new_fillet_edgeuse`]
+//!   returns [`SolidError::Unported`] today and completes once they are wired. `SmFilletGeom(pFilletSolver, eType)` copies the
 //!   solver's offset surfaces with `SmOffsetSurface::Copy` (the kernel stands for the
 //!   solver's creation context; its status is ignored upstream, so a failed copy leaves
 //!   `NULL`, and only [`SolidError::Unported`] propagates). That constructor leaves `m_dOrientations` and `m_bCapped`
@@ -150,8 +153,19 @@
 //!   skips the rail, a single UV curve becomes the mate edge use's UV curve through
 //!   `SetUVCurve` with its defaults) is ported.
 //! - **Difftest coverage.** The shim builds plain `SmBSplineSurface` / `SmBSplineCurve`
-//!   geometry only: the plane and surface-of-revolution arms of [`evaluate_mate`]'s cast
-//!   and any analytic-kind path inside the surface callees are never compared.
+//!   geometry, except for [`evaluate_mate`], which is also compared on a real `SmPlane`
+//!   (with and without its NURB) and a canonical `SmSurfOfRevolution` of a line (an
+//!   `SmCylinder` / `SmCone` cannot be a [`Surface`] yet: the cone kind's dispatch gap
+//!   in `surface.cone_p1`); analytic-kind paths inside the other surface callees are
+//!   never compared.
+//! - **Tolerance classes.** A `double` handed to an `SmZoneTol3d` / `SmApproxTol3d`
+//!   parameter is converted exactly there ([`zone_tol3d`], [`approx_tol3d`]:
+//!   `USE_DEFAULT` substitution, then `fabs`): `sm_SurfaceDropPoint` and
+//!   `sm_FindStepoffUV` (`GlobalPointSolve`), `sm_ClassifyFacePoint` (the face
+//!   tolerance returned as an `SmZoneTol3d`), `JoinVertsByCapping` (`LiftCurve`) and the
+//!   examine path (`DropCurve`). `sm_TwoPntsIntersection` hands its tolerance to
+//!   `PointBasedSurfaceIntersect` through `SM_CAST_APPROXTOL3D_PTR` (a pointer cast, no
+//!   conversion), so it stays raw there.
 //! - **Unported callees.** `SmSurface::PointBasedSurfaceIntersect` defers in
 //!   `intersect.surface_intersector_p4`; `SmSurface::GlobalCurveIntersect` (in
 //!   [`FilletBrep::calc_cliff_rail_int_edge`]) stops at the unwired
@@ -182,7 +196,7 @@ use crate::geom::extent2d::Extent2d;
 use crate::geom::geom_utility::p1::line_line_closest_point;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::solution_array::{ObjectKind, SolutionArray, SolutionObject};
-use crate::geom::tol::{zone_tol3d, USE_DEFAULT};
+use crate::geom::tol::{approx_tol3d, zone_tol3d, USE_DEFAULT};
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::intersect::curve_class::p1::CurveClassification;
 use crate::intersect::point_class::{PointClassType, PointClassification};
@@ -1368,14 +1382,20 @@ impl FilletBrep {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmBrep::GetInfiniteRegion` (`topology.brep_p1`; then
-    /// `SmBrep::MakeShellVertexTopology` of `topology.brep_p2` when the region has no
-    /// shell); [`SolidError::Upstream`] (`SM_ERR_NULL_POINTER`) when the
-    /// region still has no shell (upstream reads `sShells[0]` of an empty array).
+    /// [`SolidError::Unported`]: `SmBrep::SmBrep` (`topology.brep_p3`) while the pseudo
+    /// B-rep has no infinite region (see below); then `SmBrep::MakeShellVertexTopology`
+    /// of `topology.brep_p2` when the region has no shell; [`SolidError::Upstream`]
+    /// (`SM_ERR_NULL_POINTER`) when the region still has no shell (upstream reads
+    /// `sShells[0]` of an empty array).
     pub fn new_fillet_edgeuse(&mut self) -> Result<EdgeuseId> {
-        // upstream dereferences m_pInfiniteRegion unchecked
-        let reg =
-            infinite_region(&self.brep)?.ok_or_else(|| SolidError::null_pointer(OP_EDGEUSE))?;
+        // upstream dereferences m_pInfiniteRegion unchecked: SmFilletBrep() runs SmBrep(),
+        // which always creates the infinite region, so it is never NULL there.
+        // [`FilletBrep::new`] cannot create it yet, so a missing region is that
+        // constructor's gap, not upstream's NULL.
+        let Some(reg) = infinite_region(&self.brep) else {
+            // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+            return Err(SolidError::unported("SmBrep::SmBrep", "topology.brep_p3"));
+        };
         let mut shells = region_shells(&self.brep, reg)?;
         if shells.is_empty() {
             // Just an artifact vertex
@@ -2274,14 +2294,15 @@ pub fn surface_drop_point<O: SolutionObject>(
     // for a sequence of intersection tolerance distances
     let mut dropping_tol = approx_tol / 100.0;
     for _ in 0..5 {
-        // intersect the point with the surface
+        // intersect the point with the surface; the double converts to the solve's
+        // SmZoneTol3d parameter (USE_DEFAULT -> zone tolerance, then fabs)
         let solutions = surface.global_point_solve::<O>(
             k,
             handle,
             &domain,
             SolverOperation::Intersect,
             pnt,
-            dropping_tol,
+            zone_tol3d(k, dropping_tol),
             None,
             SolutionRequested::All,
         )?;
@@ -2505,7 +2526,7 @@ pub fn find_stepoff_uv(
             &face2::uv_domain(brep, face)?,
             SolverOperation::Minimize,
             step.point,
-            tol,
+            zone_tol3d(k, tol),
             None,
             SolutionRequested::Single,
         )?;
@@ -2619,8 +2640,9 @@ pub fn classify_face_point(
 
     // If we're still here, we'll have to do the more expensive point-in-Face test.
     let guess_uv = if success1 { Some(uv1) } else { None };
-    // SmTol::GetZoneTol3d(pOrigFace): the face's tolerance, used for both faces
-    let tol = face2::tolerance(brep, orig_face)?;
+    // SmTol::GetZoneTol3d(pOrigFace): the face's tolerance returned as an SmZoneTol3d,
+    // used for both faces
+    let tol = zone_tol3d(k, face2::tolerance(brep, orig_face)?);
     let (class1, stat1) = point_3d_classify(
         k, brep, orig_face, pos, tol, true, guess_uv, false, None, true,
     )?;
@@ -3317,7 +3339,8 @@ fn drop_rail_onto_offset_surface(
         &domain,
         iso_crv,
         &iso_crv.natural_interval(),
-        dist_tol,
+        // the double converts to DropCurve's SmApproxTol3d parameter
+        approx_tol3d(k, dist_tol),
     );
     offset_surf.set_offset_distance(orig_offset_dist);
     let uv_curves = match drop {
@@ -3342,13 +3365,10 @@ fn drop_rail_onto_offset_surface(
     Ok(())
 }
 
-/// `SmBrep::GetInfiniteRegion` (unit `topology.brep_p1`).
-fn infinite_region(_brep: &Brep) -> Result<Option<RegionId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::GetInfiniteRegion",
-        "topology.brep_p1",
-    ))
+/// `SmBrep::GetInfiniteRegion` ([`Brep::infinite_region`], unit `topology.brep_p1`):
+/// `m_pInfiniteRegion`, which may be NULL.
+fn infinite_region(brep: &Brep) -> Option<RegionId> {
+    brep.infinite_region()
 }
 
 /// `SmRegion::GetShells(rShells)` ([`Region::get_shells`](crate::topology::Region::get_shells))
@@ -3477,7 +3497,8 @@ pub fn join_verts_by_capping(
                 &domain,
                 &uv_curve,
                 &uv_curve.natural_interval(),
-                this_approx_tol_3d,
+                // the double converts to LiftCurve's SmApproxTol3d parameter
+                approx_tol3d(k, this_approx_tol_3d),
                 false,
             )?;
 
