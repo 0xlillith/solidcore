@@ -50,7 +50,7 @@ fn request(i: &Inputs) -> ffi::Request {
         caller_lock: i.caller_lock,
     }
 }
-fn import(input: &Operand) -> std::result::Result<Option<Brep>, HarnessError> {
+fn import(input: &Operand) -> Result<Option<Brep>, HarnessError> {
     if input[0] == -1.0 {
         return Ok(None);
     }
@@ -61,11 +61,7 @@ fn import(input: &Operand) -> std::result::Result<Option<Brep>, HarnessError> {
     super::topology_vertexuse::import(&raw).map(|(b, _)| Some(b))
 }
 
-fn append_graph(
-    output: &mut Output,
-    prefix: &str,
-    brep: &Brep,
-) -> std::result::Result<(), HarnessError> {
+fn append_graph(output: &mut Output, prefix: &str, brep: &Brep) -> Result<(), HarnessError> {
     let graph = super::topology_brep_p10::snapshot(brep)?;
     for (key, values) in graph.ints {
         output.ints.insert(format!("{prefix}.{key}"), values);
@@ -80,7 +76,7 @@ struct Record<'a> {
     remaining: &'a [f64],
 }
 impl<'a> Record<'a> {
-    fn num(&mut self) -> std::result::Result<f64, HarnessError> {
+    fn num(&mut self) -> Result<f64, HarnessError> {
         let (v, rest) = self
             .remaining
             .split_first()
@@ -88,7 +84,7 @@ impl<'a> Record<'a> {
         self.remaining = rest;
         Ok(*v)
     }
-    fn take(&mut self, n: usize) -> std::result::Result<&'a [f64], HarnessError> {
+    fn take(&mut self, n: usize) -> Result<&'a [f64], HarnessError> {
         if n > self.remaining.len() {
             return Err(error("short native graph"));
         }
@@ -96,7 +92,7 @@ impl<'a> Record<'a> {
         self.remaining = rest;
         Ok(v)
     }
-    fn done(&self) -> std::result::Result<(), HarnessError> {
+    fn done(&self) -> Result<(), HarnessError> {
         if self.remaining.is_empty() {
             Ok(())
         } else {
@@ -105,7 +101,7 @@ impl<'a> Record<'a> {
     }
 }
 
-fn native_snapshot(raw: &[f64]) -> std::result::Result<Output, HarnessError> {
+fn native_snapshot(raw: &[f64]) -> Result<Output, HarnessError> {
     let mut rd = Record { remaining: raw };
     let mut header = Vec::new();
     for _ in 0..9 {
@@ -118,7 +114,7 @@ fn native_snapshot(raw: &[f64]) -> std::result::Result<Output, HarnessError> {
         .and_then(|n| usize::try_from(n).ok())
         .ok_or_else(|| error("invalid component count"))?;
     let mut output = Output::new().ints("status_and_state", header);
-    let mut graph = |rd: &mut Record<'_>, prefix: &str| -> std::result::Result<(), HarnessError> {
+    let mut graph = |rd: &mut Record<'_>, prefix: &str| -> Result<(), HarnessError> {
         let n = rd.num().map_err(|e| error(&e))? as usize;
         let record = rd.take(n).map_err(|e| error(&e))?;
         let (editing, body) = record
@@ -155,7 +151,7 @@ fn rust_snapshot(
     primary: Option<&Brep>,
     other: Option<&Brep>,
     state: &ManifoldState,
-) -> std::result::Result<Output, HarnessError> {
+) -> Result<Output, HarnessError> {
     let other_kernel = kernels.other.as_deref().unwrap_or(kernels.primary);
     let mut output = Output::new()
         .ints(
@@ -196,7 +192,7 @@ impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "boolean.merge_p4"
     }
-    fn run_cpp(&self, case: &Case) -> std::result::Result<Output, HarnessError> {
+    fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
         let raw = ffi::eval(&i.primary, &i.other, request(&i)).map_err(|e| error(&e))?;
         if raw == [-1.0] {
@@ -205,7 +201,7 @@ impl UnitDiff for Runner {
         // Status is data: Output::err would suppress all state comparison.
         native_snapshot(&raw)
     }
-    fn run_rust(&self, case: &Case) -> std::result::Result<Output, HarnessError> {
+    fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
         let operation = BooleanOperation::from_code(i.operation)
             .ok_or_else(|| error("unknown Boolean operation"))?;
@@ -223,7 +219,7 @@ impl UnitDiff for Runner {
         };
         let mut state = ManifoldState::default();
         let mut attributes = AttributeStore::new();
-        let mut adapter = KernelManifoldIntersector::new(0).map_err(HarnessError::from)?;
+        let mut adapter = KernelManifoldIntersector::new(0).map_err(|e| error(&e.to_string()))?;
         let mut lock = MarkLock::unbound();
         let [cookie_cutter, imprinting, boolean_post_process, imprint_and_classify_faces, keep_other_brep] =
             i.flags;
