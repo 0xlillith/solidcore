@@ -424,12 +424,20 @@ fn merge_shells(k: &mut Kernel, b: &mut Brep, mut del: ShellId, mut keep: ShellI
     // pReg->Remove(pDelShell), then pReg->GetSize()
     crate::topology::shell::region_remove_shell(b, reg, del)?;
     if b.region(reg)?.shells.is_empty() {
-        // this->Remove(pReg) (status ignored)
-        ignore_status(brep_remove_region(b, reg))?;
-        // make sure infinite region points where it should: m_pInfiniteRegion = m_pList
-        let head = b.region_list_head();
-        b.set_infinite_region(head);
+        remove_emptied_region(b, reg)?;
     }
+    Ok(())
+}
+
+/// The tail of the shell merge once `reg` lost its last shell: `this->Remove(pReg)`
+/// (status ignored), then `m_pInfiniteRegion = m_pList`.
+fn remove_emptied_region(b: &mut Brep, reg: RegionId) -> Result<()> {
+    ignore_status(brep_remove_region(b, reg))?;
+    // make sure infinite region points where it should: the first region of the list
+    // (a stored head of None starts at the first region on the list; it is not an
+    // empty list)
+    let head = p1::regions(b, None)?.first().copied();
+    b.set_infinite_region(head);
     Ok(())
 }
 
@@ -1533,6 +1541,46 @@ mod tests {
             type_code: 0,
             key: ObjectKey(0),
         }
+    }
+
+    fn on_list() -> Region {
+        Region {
+            in_brep: true,
+            ..Region::default()
+        }
+    }
+
+    #[test]
+    fn emptied_region_resets_the_infinite_region_to_the_list_head() {
+        // the region is not on the list (Remove fails, ignored): the head stays, and a
+        // stored head of None is the first region on the list
+        let mut b = Brep::new();
+        let r0 = b.add_region_record(on_list()).unwrap();
+        let r1 = b.add_region_record(Region::default()).unwrap();
+        assert_eq!(b.region_list_head(), None);
+        remove_emptied_region(&mut b, r1).unwrap();
+        assert_eq!(b.infinite_region(), Some(r0));
+        assert_eq!(p1::regions(&b, None).unwrap(), vec![r0]);
+
+        // removing the head passes it on; removing the last region empties the list
+        let mut b = Brep::new();
+        let r0 = b.add_region_record(on_list()).unwrap();
+        let r1 = b.add_region_record(on_list()).unwrap();
+        b.set_infinite_region(Some(r0));
+        remove_emptied_region(&mut b, r0).unwrap();
+        assert_eq!(b.infinite_region(), Some(r1));
+        assert_eq!(b.region_list_head(), Some(r1));
+        remove_emptied_region(&mut b, r1).unwrap();
+        assert_eq!(b.infinite_region(), None);
+        assert!(p1::regions(&b, None).unwrap().is_empty());
+
+        // removing a region behind the head keeps the head
+        let mut b = Brep::new();
+        let r0 = b.add_region_record(on_list()).unwrap();
+        let r1 = b.add_region_record(on_list()).unwrap();
+        remove_emptied_region(&mut b, r1).unwrap();
+        assert_eq!(b.infinite_region(), Some(r0));
+        assert_eq!(p1::regions(&b, None).unwrap(), vec![r0]);
     }
 
     fn face_ref(f: FaceId) -> ObjectRef {
