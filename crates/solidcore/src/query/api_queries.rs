@@ -647,12 +647,7 @@ pub fn brep_bounding_box(k: &Kernel, brep: &Brep, tight: bool) -> Result<Extent3
 /// Loose or tight face box (`SmApiFaceBoundingBox`); missing queries are `Unported`.
 pub fn face_bounding_box(k: &Kernel, brep: &Brep, face: FaceId, tight: bool) -> Result<Extent3d> {
     if tight {
-        brep.face(face)?;
-        // UNPORTED(query.face_p3): SmFace::CalculateTightBoundingBox
-        return Err(SolidError::unported(
-            "SmFace::CalculateTightBoundingBox",
-            "query.face_p3",
-        ));
+        return crate::query::face::p3::calculate_tight_bounding_box(k, brep, face);
     }
     crate::query::face::p1::calculate_bounding_box(k, brep, face, false)
 }

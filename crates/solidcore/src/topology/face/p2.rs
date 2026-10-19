@@ -87,8 +87,8 @@
 //!   domain minimum, as upstream does (`plan/upstream-issues.md`).
 //! - **`CreateCurvesByTrimming`** drops its unused `bForceUVClassify` argument; the
 //!   output arrays are asked for with `want_3d` / `want_uv`.
-//! - **Unported callees.** `sm_FaceClassifyUVLine` (`query.face_p3`),
-//!   `SmFace::CurveOnClassify` (`query.face_p2`), the `SmCurveClassification`
+//! - **Unported callees.** `SmFace::CurveOnClassify` (`query.face_p2`) through
+//!   `sm_FaceClassifyUVLine` (`query.face_p3`), the `SmCurveClassification`
 //!   constructor of a curve (`intersect.curve_class_p4`),
 //!   `SmCurveInterval::GetIvlBound_EdgeuseObj` (`intersect.curve_class_p4`),
 //!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
@@ -99,7 +99,7 @@
 use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p2::CurveKind;
 use crate::curve::curve::Curve;
-use crate::error::{Result, SolidError};
+use crate::error::{ignore_status, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::global_solver::SolverOperation;
@@ -107,7 +107,7 @@ use crate::geom::object::ObjectRef;
 use crate::geom::tol::are_same;
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::intersect::curve_class::p1::{CurveClassification, CurveInterval};
-use crate::intersect::point_class::{ClassObject, ClassObjectKind, PointClassType};
+use crate::intersect::point_class::{ClassGeometry, ClassObject, ClassObjectKind, PointClassType};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQ};
 use crate::nurbs::b_spline_curve::BSplineCurve;
@@ -115,6 +115,8 @@ use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface::p1::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::{EvaluateFlags, OrientType};
 use crate::nurbs::knots::Side;
+use crate::query::face::p2 as qf2;
+use crate::query::face::p3 as qf3;
 use crate::surface::offset_surface::{OffsetSurface, SS_UNKNOWN};
 use crate::surface::surface::p1::map_to_2d;
 use crate::surface::surface::p7::approx_derivative_lengths;
@@ -362,19 +364,120 @@ impl ClassObject for StubHandle {
     }
 }
 
-/// `sm_FaceClassifyUVLine(face, start, end, tol, classification)`.
-fn face_classify_uv_line(
-    _b: &Brep,
-    _f: FaceId,
-    _start: Point2,
-    _end: Point2,
-    _tol: f64,
-) -> Result<(Curve, Vec<CurveInterval<StubHandle>>)> {
-    // UNPORTED(query.face_p3): sm_FaceClassifyUVLine
-    Err(SolidError::unported(
-        "sm_FaceClassifyUVLine",
-        "query.face_p3",
-    ))
+/// The handles of the UV line classifications of [`calculate_an_internal_point`]: the
+/// face, its surface, the UV line and the face's boundary topology and curves.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum UvLineHandle {
+    Face,
+    Surface,
+    Line,
+    Vertex(VertexId),
+    Edge(EdgeId),
+    Vertexuse(VertexuseId),
+    Edgeuse(EdgeuseId),
+    EdgeCurve(EdgeId),
+    Trim(EdgeuseId),
+}
+
+impl ClassObject for UvLineHandle {
+    fn class_kind(&self) -> ClassObjectKind {
+        match self {
+            Self::Face => ClassObjectKind::Face,
+            Self::Surface => ClassObjectKind::Surface,
+            Self::Line | Self::EdgeCurve(_) | Self::Trim(_) => ClassObjectKind::Curve,
+            Self::Vertex(_) => ClassObjectKind::Vertex,
+            Self::Edge(_) => ClassObjectKind::Edge,
+            Self::Vertexuse(_) => ClassObjectKind::Vertexuse,
+            Self::Edgeuse(_) => ClassObjectKind::Edgeuse,
+        }
+    }
+}
+
+/// The UV line `sm_FaceClassifyUVLine` made last (`sCurveClassification.GetCurve()`),
+/// and the face `f` of `b` whose objects the other handles name.
+struct UvLineObjects<'a> {
+    b: &'a Brep,
+    f: FaceId,
+    line: Option<Curve>,
+}
+
+impl ClassGeometry<UvLineHandle> for UvLineObjects<'_> {
+    fn curve(&self, o: UvLineHandle) -> Option<&Curve> {
+        match o {
+            UvLineHandle::Line => self.line.as_ref(),
+            UvLineHandle::EdgeCurve(e) => self.b.edge(e).ok()?.curve.as_ref(),
+            UvLineHandle::Trim(eu) => eu1::uv_trim_curve(self.b, eu).ok()?.0,
+            _ => None,
+        }
+    }
+    fn surface(&self, o: UvLineHandle) -> Option<&Surface> {
+        match o {
+            UvLineHandle::Surface => self.b.face(self.f).ok()?.surface.as_ref(),
+            _ => None,
+        }
+    }
+    fn volume(&self, _o: UvLineHandle) -> Option<&crate::surface::volume::Volume> {
+        None
+    }
+    fn point(&self, _o: UvLineHandle) -> Option<Point3> {
+        None
+    }
+    fn classification_vertex_point(&self, o: UvLineHandle) -> Option<Point3> {
+        match o {
+            UvLineHandle::Vertex(v) => self.b.vertex(v).ok().map(|v| v.point),
+            _ => None,
+        }
+    }
+    fn topology_zone_tol_3d(&self, o: UvLineHandle) -> Option<f64> {
+        match o {
+            UvLineHandle::Vertex(v) => self.b.vertex(v).ok().map(|v| v.tolerance),
+            UvLineHandle::Edge(e) => self.b.edge(e).ok().map(|e| e.tolerance),
+            UvLineHandle::Face => self.b.face(self.f).ok().map(|f| f.tolerance),
+            _ => None,
+        }
+    }
+}
+
+impl qf2::CurveOnClassifyObjects<UvLineHandle> for UvLineObjects<'_> {
+    fn face(&self, _f: FaceId) -> UvLineHandle {
+        UvLineHandle::Face
+    }
+    fn vertex(&self, v: VertexId) -> UvLineHandle {
+        UvLineHandle::Vertex(v)
+    }
+    fn edge(&self, e: EdgeId) -> UvLineHandle {
+        UvLineHandle::Edge(e)
+    }
+    fn vertexuse(&self, vu: VertexuseId) -> UvLineHandle {
+        UvLineHandle::Vertexuse(vu)
+    }
+    fn edgeuse(&self, eu: EdgeuseId) -> UvLineHandle {
+        UvLineHandle::Edgeuse(eu)
+    }
+    fn edge_curve(&self, e: EdgeId) -> UvLineHandle {
+        UvLineHandle::EdgeCurve(e)
+    }
+    fn trim_curve(&self, eu: EdgeuseId) -> UvLineHandle {
+        UvLineHandle::Trim(eu)
+    }
+    fn face_surface(&self, _f: FaceId) -> Option<UvLineHandle> {
+        // (calculate_an_internal_point returns before classifying without surface)
+        Some(UvLineHandle::Surface)
+    }
+    fn loop_id(&self, _tgt_loop: UvLineHandle) -> Option<LoopId> {
+        None
+    }
+}
+
+impl qf3::ClassifyCurveObjects<UvLineHandle> for UvLineObjects<'_> {
+    fn set_classify_curves(
+        &mut self,
+        curve: Curve,
+        _uv_curve: Option<Curve>,
+    ) -> Result<(UvLineHandle, Option<UvLineHandle>)> {
+        self.line = Some(curve);
+        Ok((UvLineHandle::Line, None))
+    }
 }
 
 /// `SmCurveClassification(curve, interval, uv_curve, tol, ...)` followed by
@@ -771,7 +874,6 @@ pub fn review_start_and_stop_on_seam_crv_classifies<O: ClassObject>(
 /// without surface, for a surface without owner, and when no line meets the face
 /// interior; [`SolidError::Unported`] from the line classification.
 pub fn calculate_an_internal_point(k: &Kernel, b: &Brep, f: FaceId) -> Result<Point3> {
-    let _ = k;
     // locals
     let face = b.face(f)?;
     let uv_dom = face.uv_domain;
@@ -792,6 +894,9 @@ pub fn calculate_an_internal_point(k: &Kernel, b: &Brep, f: FaceId) -> Result<Po
         return Err(SolidError::sm_err(OP));
     }
 
+    let mut classification: CurveClassification<UvLineHandle> = CurveClassification::new(k);
+    let mut uv_objects = UvLineObjects { b, f, line: None };
+
     // first for constant U then V isoparameter lines
     for ii in 0..2 {
         for jj in 0..20_u32 {
@@ -807,12 +912,27 @@ pub fn calculate_an_internal_point(k: &Kernel, b: &Brep, f: FaceId) -> Result<Po
             };
 
             // classify the target UVLine (status ignored)
-            let (uv_crv, intervals) = face_classify_uv_line(b, f, start, end, src_zone_tol_3d)?;
+            ignore_status(qf3::face_classify_uv_line(
+                k,
+                b,
+                f,
+                &mut uv_objects,
+                start,
+                end,
+                src_zone_tol_3d,
+                &mut classification,
+            ))?;
 
             // when intervals were found in the face
-            for ivl in &intervals {
+            for ivl in classification.intervals() {
                 if ivl.mid.point_class() == PointClassType::Face {
                     // Found an interior point (on the classification's UV line).
+                    let Some(uv_crv) = classification
+                        .curve()
+                        .and_then(|h| ClassGeometry::curve(&uv_objects, h))
+                    else {
+                        continue;
+                    };
                     let curve_parameter = ivl.interval.evaluate(0.45);
                     let Ok(uv3) = uv_crv.evaluate_point(curve_parameter) else {
                         continue;
@@ -2500,9 +2620,12 @@ mod tests {
                 type_code: TYPE,
                 key: ObjectKey(1),
             }));
-        assert!(calculate_an_internal_point(&k, &b, f)
-            .unwrap_err()
-            .is_unported());
+        // no loops: no line interval classifies into the face (the line statuses are
+        // ignored), so the final SM_ERR
+        assert!(matches!(
+            calculate_an_internal_point(&k, &b, f),
+            Err(SolidError::Upstream { .. })
+        ));
     }
 
     #[test]
