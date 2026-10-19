@@ -713,7 +713,7 @@ pub(crate) fn import_file(path: &str, rebuild: bool) -> Result<Brep, HarnessErro
 
 /// The Rust B-rep of an export with this unit's extras applied, and the geometry
 /// types of the import.
-fn import(ex: &[f64], graph_at: usize) -> Result<(Brep, ImportTypes), HarnessError> {
+pub(crate) fn import(ex: &[f64], graph_at: usize) -> Result<(Brep, ImportTypes), HarnessError> {
     let mut graph = vec![0.0];
     graph.extend_from_slice(ex.get(graph_at..).ok_or_else(|| harness("short export"))?);
     let (mut b, types) = import_with_types(&graph)?;
