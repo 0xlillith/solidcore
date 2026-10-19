@@ -2717,3 +2717,21 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes for the release build: the sweep-only boundary solve returns U `158.85355268828013`; the assertion conflict and sentinel initialization were confirmed by source inspection. Debug builds were not run.
 - **Severity:** docs / debug assertion.
 - **Rust port:** Matches release C++ rather than enforcing the assertion; derivative orders remain bounded to 3.
+
+#### UB-188. `BooleanTrees` trusts executed leaf indices and binary operand pointers
+
+- **Unit:** `boolean.merge_p3` (PR #245).
+- **Location:** `source/SMLib/src/SmMerge.cpp:1850-1888`, `SmMerge::BooleanTrees`.
+- **Trigger:** an executed nonnegative leaf outside `rBreps` indexes the array unchecked. An executed binary node dereferences its popped primary operand for `GetContext()` and both operands during the zero-tolerance merge constructor; null input slots can arise from repeated leaf indices. A repeated leaf that is never dereferenced by a later binary node is a defined null output and is accepted by the new guard.
+- **How found:** source audit while implementing the postfix evaluator and its FFI guard. No crashing program was executed.
+- **Confirmed: no.** No C++ reproduction was run; the source contains unchecked indexing and null dereferences.
+- **Guard:** the `boolean_merge_p3` FFI and shim simulate reachable leaf consumption and binary stack/null state before building native objects. They preserve safe underflow errors, unknown-operation errors, repeated leaves with no dereference, and unreachable invalid leaves after a definite early error. The Rust evaluator bounds leaf indexing, keeps null slots, and returns `InvalidInput` at an attempted binary null dereference. No exploit fixture is included.
+
+#### WR-189. `BooleanLists` slices derived surfaces into base `SmSurface` objects
+
+- **Unit:** `boolean.merge_p3` (PR #245).
+- **Location:** `source/SMLib/src/SmMerge.cpp`, `SmMerge::BooleanLists`, both input surface-copy loops and the final output surface-copy loop; `source/SMLib/src/SmSurface.cpp:731` (base copy constructor), `source/SMLib/inc/SmSurface.h:1096` (base natural domain).
+- **Trigger:** a nonempty surface list without a preceding B-rep list. The function uses `new (*pContext) SmSurface(*pOrig)` rather than virtual `Copy`. This creates a concrete base object, discards the derived geometry, returns the base's zero natural domain, and makes the subsequent `IsKindOf(SmPlane_TYPE)` false. The intended planar dispatch therefore cannot be selected by these copied derived inputs. The output loop also constructs base-only copies.
+- **How found:** source audit against the base constructor, base `GetNaturalUVDomain`, and the `SM_COMMON` virtual type methods while porting the list branches.
+- **Confirmed: no.** No C++ reproduction was run; this entry records the source-level slicing behavior and the mismatch with the function's stated planar intent.
+- **Rust handling:** the current `SurfaceKind` has no base-only variant. `boolean::merge::p3::copy_base_surface` defers that missing constructor branch specifically to the partial `surface.surface_p1` owner. It does not silently preserve derived geometry by invoking virtual `Surface::copy`; all subsequent list logic remains ported.

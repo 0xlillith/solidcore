@@ -7662,3 +7662,42 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   unchanged with 0 flips: 300/206/0/94, 1000 seeds 1284/868/0/410, perturb 333/333, fuzz 2000 pass.
   valgrind with `harness/valgrind/ub11.supp` gives 0 errors on the simple, unify, select and split
   samples.
+
+### boolean.merge_p3 (#245): orchestration coverage and dependency boundaries
+
+All five functions are ported: `PiecewiseMerge`, `merge_breps`, `BooleanLists`,
+`BooleanTrees`, and `NonManifoldBoolean`. The code after each missing dependency
+call remains present. The engine/storage adapters delegate to the canonical
+constructor, intersector and manifold-boolean owners instead of duplicating their
+claimed implementations. No geometric-success parity is claimed: list preparation
+currently stops at `topology.brep_p3`'s copy constructor (or the missing sliced-base constructor
+branch of `surface.surface_p1` for surface inputs), binary trees/folds at `boolean.merge_p2`'s constructor, piecewise
+cases at `boolean.topology_intersector_p2`'s `IntersectInsertRelate`, and the isolated
+nonmanifold wrapper at `boolean.merge_p4`'s `ManifoldBoolean`.
+
+Passing tree paths only reorder/transfer stable input handles and append unused
+operands. Complete native fixture graphs are exported **before** the Rust call;
+those immutable graphs remain associated with their handles. The C++ result is
+walked afresh after the operation. Real boxes reproduce the input geometry of
+`TestSmPiecewiseMerge`, `TestSmBooleanLists`, and `TestMergeBrepsOperation`; the latter
+three paths remain deferred. `TestSmMaterialCensus` is not reproduced end-to-end.
+The current harness supplies no surface-list inputs or SSI skip relations, so no
+parity is claimed for planar extraction or SURFACEMAP branches. This is a coverage
+limit, not a passing branch.
+
+The kernel tree API uses `Vec<Option<Operand>>`, preserving consumed input slots
+on failure and defined null outputs of repeated leaves. The existing owned-value
+`api_brep::boolean_trees` API cannot represent a null result; it explicitly returns
+`InvalidInput` for that malformed success output rather than silently dropping it.
+The `BooleanLists` connected-component loop retains the mark lock through copy and
+removal, bounds iterations by the initial face count, and errors if removal makes
+no progress. UB-188 records the native tree-index/null-dereference guard (source
+inspection only, not a reproduced crash).
+
+Source audit also found that `BooleanLists` uses `new SmSurface(*source)` for
+both input and output surface copies, rather than the virtual `Copy`: C++ slices
+the derived geometry. The current Rust `SurfaceKind` has no base-only variant.
+That specific missing constructor branch is `UNPORTED(surface.surface_p1)`; the
+port must not substitute a derived-preserving `Surface::copy` and silently fix
+the native behavior. `surface.surface_p1` remains partial; its notes record the
+missing base-copy branch. No crash or geometric result is claimed for it.
