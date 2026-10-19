@@ -1123,8 +1123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "bbox_face_010",
@@ -1135,8 +1135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "bbox_face_011",
@@ -1179,8 +1179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "bbox_face_cache_sequence",
@@ -8308,7 +8308,7 @@
   "cases_passed": 1033,
   "cases_total": 1036,
   "deferred_by_unit": {
-    "query.face_p3": 3
+    "topology.face_p2": 3
   },
   "max_rel_err": 0.0,
   "pass": true,

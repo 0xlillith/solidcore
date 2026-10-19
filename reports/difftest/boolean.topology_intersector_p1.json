@@ -175,8 +175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0011",
@@ -963,8 +963,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required; face 1 surface concrete type 15030 is represented as 15002; exact geometry is required",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0105",
@@ -1124,8 +1124,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0124",
@@ -1208,8 +1208,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0133",
@@ -1604,8 +1604,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required; face 1 surface concrete type 15030 is represented as 15002; exact geometry is required",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0180",
@@ -4416,8 +4416,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
+        "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
       "name": "gen0513",
@@ -5493,8 +5493,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0642",
@@ -7071,11 +7071,10 @@
   "cases_passed": 716,
   "cases_total": 827,
   "deferred_by_unit": {
-    "harness:analytic-geometry-export": 4,
+    "harness:analytic-geometry-export": 8,
     "intersect.curve_class_p4": 2,
-    "query.face_p1": 7,
-    "topology.face_p2": 87,
-    "topology.face_p4": 11
+    "topology.face_p2": 88,
+    "topology.face_p4": 13
   },
   "max_rel_err": 0.0,
   "pass": true,

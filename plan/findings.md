@@ -2623,6 +2623,11 @@ Upstream behaviour worth knowing:
 
 ## surface.trim_srf_cache: resumed handoff port (2026-10-13)
 
+Historical port and review results follow. The face-context and virtual-dispatch
+gaps below are superseded for the contextual paths described in the later
+"Contextual surface caches for point-face solvers" section; their old counts do
+not describe that integration.
+
 Resumed the interrupted `152e005` WIP under the draft-PR coordination workflow.
 The constructor and type/state queries, PointTest bypass, and edge-use insertion
 were compared with the pinned C++ reference: 620 cases (20 fixtures and 600 seeded
@@ -3061,6 +3066,10 @@ default cases, a 30,847-case run clean, `--perturb` SENSITIVE). The 75 deferred 
   curve bounding boxes the B-spline override computes.
 
 ## intersect.topology_solver_p1
+
+These are historical port notes. The later "Contextual surface caches for
+point-face solvers" section records the live mutable face bridge; it does not
+reclassify the upstream issues or turn the earlier deferrals into comparisons.
 
 - Upstream issues UB-85 (`MayContainAnswer` reads uninitialised `IntersectLine`
   results for a ray shorter than `SM_EFF_ZERO`), UB-86 (edge solvers dereference a free
@@ -8093,6 +8102,11 @@ rejected: nothing runs on either side.
 
 ## query.face_p1 (face/shell/region boxes, `Point3DClassify`, `EdgeCurveOnClassify`, `SmApiEvaluateCurve`; takeover of #105, 2026-10-18; partial, no disagreements)
 
+These takeover notes precede the later #101 integration. The owner/cache and
+generic-caller gaps below are superseded only for the concrete providers listed
+in "Contextual surface caches for point-face solvers". Unlisted opaque callers
+and analytic-export limitations are not certified by those connections.
+
 - **Face-owned surfaces in imported B-reps.** Upstream face surfaces are owned by their
   face, and the point solvers read that: `LocalPointSolve_1` takes its loose tolerance
   from `SmTol::GetZoneTol3d(surface)` (the face tolerance) and `GlobalPointSolve` tests
@@ -8188,6 +8202,10 @@ rejected: nothing runs on either side.
   `InvalidInput` for a crossing (upstream would read and write one object at once).
 
 ## topology.brep_p10 (`SmBrep::MakeTopologyFromData`, PR #130): review fixes
+
+Historical #130 review results follow. Later #101 wiring and the contextual
+`ProjectSolverObjects` provider supersede the old pending query/getter boundaries;
+these figures are not a report for the integrated source.
 
 - **UV trim curve cast.** Upstream stores an edge use's UV trim curve as
   `pNewEU1->m_pUVTrimCurve = SM_CAST_PTR(SmBSplineCurve, pNewUV)`, which is NULL for a
@@ -8355,6 +8373,10 @@ Raised by oursland's review of #145. The B-rep graph export of `harness/cpp/shim
 
 ## boolean.topology_intersector_p1: B-rep cache of the difftest adapter (exposed by topology.brep_p1)
 
+This is the historical adapter state before query.brep integration. The live
+providers and cache-preserving query access in the later #101 sections supersede
+the `OnceCell`/missing-bounding-box description below.
+
 Wiring #146's `UNPORTED(topology.brep_p1)` stubs `SmBrep::GetEdges` / `GetVertices` (#145; `IntersectorBrep::brep_edges` / `brep_vertices`) lets the wire/lamina pass reach `TopologySolver::brep_curve_solve`, which reads the B-rep's cache trees through `TopologyObjects::brep_cache`. The difftest adapter `Two` (crates/difftest/src/units/boolean_topology_intersector_p1.rs) had no cache mapping (the trait default returns `InvalidInput`), so 16 cases reported the null-dereference guard where the C++ (which builds the cache on demand) succeeds. The adapter now builds each B-rep's `BrepCache<H>` on first use (a `OnceCell`, the adapter's own handles, as query.api_queries' runner maps its objects), never an empty cache. Building it starts with `SmBrep::CalculateBoundingBox` (`topology/brep_cache.rs`, `UNPORTED(query.brep)`), so these cases now defer under `query.brep`, the real blocker; they compare once query.brep lands. The cache is built at the state of the first solve that needs it, as upstream; mutating ops before it are not re-reflected (upstream invalidates stale caches through B-rep notifications, `DeleteStaleCaches`, unit topology.brep_p2).
 
 ## heal.stitch_p1 (`SmStitch` part 1 and the SM_API stitch entry points, PR #196, 2026-10-18; partial, no disagreements)
@@ -8378,12 +8400,12 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   valgrind with `harness/valgrind/ub11.supp` gives 0 errors on the simple, unify, select and split
   samples.
 
-## query.brep: live contexts, representation limits and pending point-face wiring (PR #101, 2026-10-19)
+## query.brep: live contexts and point-face wiring at historical source 15a47378 (PR #101, 2026-10-19)
 
 This records the integration after main `b6b6f7dd` and #149 `3770f4b1` were merged
 into #101, and final local parity on source
-`15a47378bc8ae2256403766fac4342f75fb77eaa`. **The PR remains draft.** The point-face
-bridge below remains an integration requirement under `AGENTS.md` §4.5.9 and
+`15a47378bc8ae2256403766fac4342f75fb77eaa`. **The PR was draft at this snapshot.** The point-face
+bridge below was then an integration requirement under `AGENTS.md` §4.5.9 and
 step 4a. Main advanced to `61670af3` (#153) during validation; a clean merge-tree
 preview was obtained, but that merge is not part of the validated source. The
 latest main snapshot at 12:10:03 UTC, `28cd7d9a`, adds only generated PROGRESS
@@ -8391,6 +8413,10 @@ output on top of `61670af3`, with no further code or manifest-count change.
 Earlier reports in this document and in `modules.toml` remain historical
 evidence. Full-suite counts below apply to source `15a47378`, not a later merge or
 formatter/comment follow-up.
+
+The later "Contextual surface caches for point-face solvers" section supersedes
+the missing mutable-provider/cache-switch descriptions below. It does not extend
+this snapshot's numerical results to the subsequent source.
 
 ### Live ownership, shape marks and cache publication
 
@@ -8485,7 +8511,7 @@ Their old notes and reports are preserved, but do not describe the current
 boundary. Other unavailable mutation calls and analytic-export limitations are
 not closed by these connections.
 
-### Remaining TopologySolver point-face integration gate
+### TopologySolver point-face integration gate at source 15a47378 (historical)
 
 Real RayFire/Shape paths now reach the existing point-face solver in
 `intersect/topology_solver/p1.rs`. Its following helpers still stop before
@@ -8528,7 +8554,7 @@ in `intersect.curve_class_p7`. The former `geom.object` caller is wired. The
 existing partial status of the targets does not exempt these calls from the
 incoming-backedge requirement.
 
-### Final local parity and limits of the evidence
+### Final local parity at source 15a47378 and limits of the evidence
 
 The source `15a47378` full `--green` run covers 213 manifest units and records
 495,296 cases: 477,794 passed (473,652 with values, 4,142 without values), zero
@@ -8585,5 +8611,237 @@ C++ all-target Clippy, the focal above and status checks for the promoted units
 and `query.brep`. Final source hashes matched that reviewed follow-up; canonical
 reports remained unchanged. No descendant full-suite run is claimed. GitHub CI
 run `39244008376` was queued at the last check and is not reported as passing.
-The pending mutable point-face/dispatch bridge and latest-main integration keep
-#101 draft despite the completed local suite. Generated `PROGRESS` is unchanged.
+At that snapshot, the pending mutable point-face/dispatch bridge and latest-main
+integration kept #101 draft despite the completed local suite. Generated
+`PROGRESS` was unchanged by that checkpoint.
+
+## Contextual surface caches for point-face solvers (PR #101, 2026-10-19)
+
+This source update follows prehead `2c9c42de`, after the #139 and recorded main/#238
+integrations. It supersedes the read-only `TopologyObjects` bridge and missing
+cache point-test switch described above. Source-bound validation outcomes are
+recorded below; the `15a47378` reports remain historical.
+
+### Cache kind, owner and failure timing
+
+A motivating `VertexFace`/`Maximize` mismatch reached a standalone boundary
+solution after an ordinary surface clone had discarded its face owner. The new
+cache factories use owner-preserving evaluation snapshots and a
+`SurfaceCacheContext` over the caller's live B-rep. `SurfaceCacheCheckout` retains
+the base or trimmed kind through tree access and containment; the topology is
+not cloned to satisfy a borrow.
+
+The contextual paths implement these parts of the native cache contract:
+
+- `SmSurface.cpp:3749-3788,5784-6084`: only an ordinary failed trim-cache
+  acquisition permits the base-cache fallback. Rust representation errors and
+  `Unported` propagate. Base and trim tolerance samples retain their distinct
+  native evaluation order.
+- `SmTrimSrfCache.cpp:132-420`: tree construction reads the live editing flag and
+  calls the actual `CreateUVTrimCurves`/face classification implementations.
+  Temporary flags are restored on success and failure; UV trims already created
+  on the original B-rep are retained after an ordinary later failure.
+- `SmSurfaceCache.cpp:5452-5479`: a trimmed cache obtained while `doing_boolean`
+  can build its tree later. Failure at that later `GetTree` remains a failure;
+  it does not silently replace the trimmed cache with a base cache.
+
+These are still fresh-cache factories. Unlike native `SetCacheObj` before
+`BuildTree`, they do not publish the cache on the original surface before
+construction. A reentrant `GetCacheObj` cannot recover that same in-progress cache
+through the original surface. Persistent cache-manager storage and reuse also
+remain outside these factories. The remaining limitation covers original-surface
+cache identity, construction timing and reentrant lookup.
+
+Through the live contextual providers, `Point3DClassify` acquires the cache
+context before a local UV guess, then uses the per-call disabled point test
+around its global solve. The subsequent explicit UV `PointClassify`, point/gap
+evaluation and tolerance checks remain in the canonical finish phase. The shared
+initialization, UV solve and finish phases retain the same classification object
+and its writes before an error or no-solution return. Public entry points without
+that provider still lack the owner-to-live-face mapping; the contextual behavior
+above is not claimed for those context-free callers.
+
+The leaf solver's point-test tolerance is a separate native contract:
+`SmSurface.cpp:19840` passes `&m_d3dTolerance` to `sm_IsPointValid` at line 3647,
+which forwards that non-null pointer to `PointTest`. `SmTrimSrfCache.cpp:85-86`
+uses the supplied tolerance; only a null optional pointer selects the face's
+zone tolerance. An explicit solver tolerance takes precedence even when the live
+face owner is available. The follow-up carries the
+solver tolerance through the leaf callback as `Some(tol)` and adds regressions
+for callback forwarding and a real face whose source and default tolerances
+classify the point differently. Final outcomes for that forwarding and its regressions are
+recorded below.
+
+### LocalPointSolve owner tolerance and seam lookup
+
+The hinted `Point3DClassify` path now supplies a live direct-owner tolerance
+resolver through `LocalPointSolve` to `LocalPointSolve_1`.
+`SmSurfacePointSolve.cpp:5762-5781` reads `SmTol::GetZoneTol3d(GetOwner())` only
+for an owned surface, after enabling out-of-bounds evaluation and before the
+first stepper, including an already-correct guess. The contextual lookup
+resolves the original direct owner at that point; the enclosing face, source
+classification tolerance and a value captured with the geometry snapshot are
+not interchangeable with it. Unowned defaults and the old `LocalPointSolve_0`
+dispatch for `Maximize` are retained. An unresolved owner/context propagates its
+error instead of selecting a system-tolerance fallback.
+
+This initial loose tolerance is separate from both the explicit leaf
+`PointTest` tolerance above and the later `IsOnSeam(..., NULL, ...)` call
+(`SmSurfacePointSolve.cpp:5867`), whose default reads `SmTol::GetZoneTol3d(this)`.
+The boundary regression exposed that later surface lookup separately from the
+initial owner lookup. A second lazy resolver now samples the live surface
+tolerance only when the seam branch is reached, immediately before
+`IsOnSeam`, preserving that branch's timing. It does not reuse the owner
+loose tolerance or the source classification tolerance; legacy dispatch retains
+its previous lookup. The final core and canonical outcomes are recorded below.
+
+### Live providers and handle translation
+
+`BrepObjects`, the API and shell worlds, `Two` and `ProjectSolverObjects` provide
+the real face/B-rep identity, tolerances, editing state and mutable trim creation.
+Temporary face-editing/UV-trim access preserves the harness's already-built
+B-rep spatial caches. Existing topology marks persist between shell queries. The solver
+runner's `Member(slot, CacheObject)` handles distinguish unlisted live boundary
+members and their operands while retaining the native output-id protocol; they
+do not alias every boundary to the listed query edge.
+
+`PointClassification` data-only initialization and handle mapping no longer
+impose the algorithmic `ClassObject` bound on translated handles. The object and
+auxiliary face are both mapped, with all other state retained. The round-trip
+regression covers this API boundary separately from geometric comparisons.
+
+For an existing face with an absent surface, `Two`'s `IntersectorBrep`
+classification callback delegates to the canonical `query::face::p1` guard on
+the original B-rep. It reads the UV domain once, initializes the classification
+(`Unknown`, no object, the actual face and source tolerance), then returns
+`InvalidInput("face without surface")` before cache acquisition or a local hint.
+The adapter maps the full classification back even on that error. This retains
+the representation error instead of allowing a generic null-pointer status to
+be consumed as an ordinary ignored status. The shared
+`TopologyObjects::face_surface` contract is unchanged, and valid surfaces use
+the contextual path. Native code dereferences the absent surface: this is a
+Rust representation guard, not numerical C++ parity for that undefined input.
+
+These connections supersede the cache/context stops only in the listed live
+providers. Context-free opaque callers, analytic-export limitations and genuinely
+unavailable callees remain separate. No blanket claim is made that all
+`query.face_p1` callers or all trimmed-face operations are complete.
+
+### Final source-bound validation
+
+The canonical optimized run was recorded on committed source `e72688fd0f1705df54bddfeef02dee1f8f2dbb4a`.
+The preceding local gates used base `2c9c42def5c21781a319d31bfc413abcd7de2a34` plus those same 22 source changes. The commit/merge attestation links
+that tested source to source commit `f8c34b11607305e8d7529a49d6f4f4cff9a12f37` and the
+canonical head; every source-plan hash matches the captured source. The
+attested incoming main delta changes only `plan/PROGRESS.md`.
+The gates are attributed to their actual tested source identities.
+
+The integrated main snapshot for this checkpoint is `c5c8395a3c2e0980983da068b171892f1197a6ff`.
+The later main batch `36cfad062f6c39c8ab6916f981625c8dbc28eece` is outside this source and validation snapshot.
+Latest-main readiness remains pending for the subsequent main integration;
+this checkpoint does not claim validation of that newer batch.
+
+The completed canonical run records these local build-environment overrides:
+
+- `CARGO_INCREMENTAL=0`.
+- `CARGO_PROFILE_DIFFTEST_CODEGEN_UNITS=256`.
+- `CARGO_PROFILE_DIFFTEST_LTO=off`.
+- `CARGO_BUILD_JOBS=1`.
+
+Recorded profile settings: `name="difftest"`; `opt-level=1`; `debug-assertions=true`; `overflow-checks=true`.
+
+Recorded host: arch `x86_64`; os `linux`.
+
+Environment provenance: selected variables read from the running Cargo process.
+
+These settings describe the completed run and are retained with its
+environment audit; they are not a performance comparison with the
+interrupted compilation attempt. No source or fixture change is inferred
+from a change in the recorded build environment.
+
+All required recorded gates passed.
+
+| Gate | Outcome | Recorded head | Evidence |
+|---|---|---|---|
+| Formatting | PASS | `2c9c42def5c2` | cargo fmt --all --check |
+| Clippy, plain | PASS | `2c9c42def5c2` | cargo clippy --workspace --all-targets -- -D warnings |
+| Clippy, C++ features | PASS | `2c9c42def5c2` | cargo clippy --workspace --all-targets --features cpp -- -D warnings |
+| Core Rust tests | PASS | `2c9c42def5c2` | 1447 passed; 0 failed; 0 ignored. cargo test -p solidcore |
+| wasm check | PASS | `2c9c42def5c2` | cargo check -p solidcore --target wasm32-unknown-unknown |
+| Directed face_query_hooks | PASS | `2c9c42def5c2` | 3 passed; 0 failed; 0 ignored. cargo test -p difftest --features cpp face_query_hooks -- --test-threads=1 |
+| Complete FFI suite | PASS | `2c9c42def5c2` | 98 passed; 0 failed; 1 ignored. cargo test -p solidcore-ffi --features cpp -- --test-threads=1 |
+| Canonical optimized difftest | PASS | `e72688fd0f17` | cargo run --profile difftest -p difftest --features cpp -- --green --report-dir reports/difftest |
+
+The following attempts were interrupted. They are not completed
+gates, are not counted as PASS, and do not replace the optimized canonical run.
+
+| Attempt | Recorded outcome | Evidence |
+|---|---|---|
+| harness-ffi | interrupted | requested stop; recorded elapsed time 777.7 s |
+| p2-regression | interrupted | stopped own build after sustained memory pressure (<512 MiB available); recorded elapsed time 223.53 s |
+
+The canonical 219-unit selection reports 503092 cases, 483032 passed, 0 failed, 20023 deferred, 37 rejected.
+Pass, failure, deferral and rejection totals retain the canonical report's
+distinct categories. A deferred case is not a Rust/C++ comparison pass.
+Among passed cases, 478625 have compared values and 4407 have no compared values; these console categories
+include floating and exact integer/topology comparisons.
+This collector does not report a separate floating-comparison-only case count.
+
+The 22 changed files have 20 direct unit owners (17 core files and 5 runner
+files, with shared ownership). Six further units below are integration
+consumers. In particular, `heal.heal_data_p3` was integrated by #139;
+its implementation is not part of this cache source patch.
+
+| Unit | Role | Cases | Passed | Failed | Deferred |
+|---|---|---:|---:|---:|---:|
+| `boolean.merge_p1` | consumer | 248 | 212 | 0 | 36 |
+| `boolean.merge_p5` | consumer | 140 | 130 | 0 | 10 |
+| `boolean.topology_intersector_p1` | direct | 827 | 716 | 0 | 111 |
+| `geom.object` | consumer | 624 | 624 | 0 | 0 |
+| `heal.heal_data_p1` | direct | 493 | 271 | 0 | 222 |
+| `heal.heal_data_p3` | consumer | 474 | 329 | 0 | 145 |
+| `intersect.point_class` | direct | 2511 | 2411 | 0 | 100 |
+| `intersect.topology_solver_p1` | direct | 3532 | 3419 | 0 | 113 |
+| `intersect.topology_solver_p2` | direct | 2429 | 2386 | 0 | 43 |
+| `query.api_queries` | direct | 1203 | 916 | 0 | 287 |
+| `query.brep` | consumer | 1036 | 1033 | 0 | 3 |
+| `query.face_p1` | direct | 2341 | 1585 | 0 | 756 |
+| `surface.surface_cache_p1` | direct | 872 | 872 | 0 | 0 |
+| `surface.surface_cache_p2` | direct | 905 | 851 | 0 | 54 |
+| `surface.surface_cache_p3` | direct | 600 | 592 | 0 | 8 |
+| `surface.surface_p1` | direct | 806 | 793 | 0 | 13 |
+| `surface.surface_p4` | direct | 3003 | 3003 | 0 | 0 |
+| `surface.surface_p5` | direct | 3046 | 3046 | 0 | 0 |
+| `surface.surface_p7` | direct | 3660 | 3659 | 0 | 1 |
+| `surface.surface_p8` | direct | 2054 | 2049 | 0 | 5 |
+| `surface.surface_point_solve_p3` | direct | 1365 | 1365 | 0 | 0 |
+| `surface.trim_srf_cache` | direct | 621 | 554 | 0 | 67 |
+| `topology.brep_cache` | direct | 663 | 663 | 0 | 0 |
+| `topology.brep_p10` | direct | 1404 | 854 | 0 | 550 |
+| `topology.brep_p2` | consumer | 1629 | 1327 | 0 | 302 |
+| `topology.shell` | direct | 911 | 899 | 0 | 12 |
+
+The per-unit notes record the canonical report hashes, actual deferral
+owners and optional comparison metrics when supplied. Console with/no-values
+counts include floating and exact integer/topology comparisons; canonical
+numeric-value counts describe floating comparisons only. No missing metric
+is inferred from another metric or filled with an assumed result.
+
+The explicit PointTest forwarding, separate owner/seam lookups, editing
+restoration, delayed-tree behavior, owner/operand handles and classification
+mapping belong to the source covered by these gates and reports. The
+MissingSurface regression checks a Rust representation contract; native
+null dereference remains outside numerical C++ parity. A unit report alone
+does not assert that every contextual branch has a matched numerical fixture.
+
+The fresh-cache limitations above remain: no publication of the in-progress
+cache on the original surface, no reentrant recovery of that same cache,
+and no persistent cache-manager storage/reuse. Context-free providers,
+analytic-export restrictions and genuine downstream deferrals remain
+separate. No performance result or blanket completion is inferred.
+
+Manifest statuses and all historical notes are retained. Any report-based
+status recommendations are emitted separately for review, including
+recommendations affecting units outside this contextual note set.
+Evidence inputs: `solidcore-integration-canonical-lowmem-summary-20261019.json` and `solidcore-integration-validation-summary-20261019.json`; their hashes and the commit
+attestation are retained in the accompanying audit.

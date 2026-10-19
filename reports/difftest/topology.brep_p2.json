@@ -2176,7 +2176,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_Mouse",
@@ -2268,7 +2268,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_Endcap",
@@ -2278,12 +2278,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "rayfire_Endcap_lim",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#205 (upstream upstream/TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2358,21 +2362,17 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
-      },
       "max_rel_err": 0.0,
       "name": "rayfire_box_with_large_fillet",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#215 (upstream upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_box_with_large_fillet_lim",
@@ -2456,7 +2456,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_cone",
@@ -2466,12 +2466,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "rayfire_cone_lim",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#227 (upstream upstream/TestFiles/pt_TestFiles/cone.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2546,16 +2550,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
-      },
       "max_rel_err": 0.0,
       "name": "rayfire_disk",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#237 (upstream upstream/TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -2640,7 +2640,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_ellips_ts2",
@@ -2730,16 +2730,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
-      },
       "max_rel_err": 0.0,
       "name": "rayfire_plane_circ",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#259 (upstream upstream/TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -2822,16 +2818,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
-      },
       "max_rel_err": 0.0,
       "name": "rayfire_plane_square",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#270 (upstream upstream/TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 4
     },
     {
       "max_rel_err": 0.0,
@@ -2916,7 +2908,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_sphere",
@@ -2926,12 +2918,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "rayfire_sphere_lim",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#282 (upstream upstream/TestFiles/pt_TestFiles/sphere.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3006,20 +3002,28 @@
       "values_compared": 2
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "rayfire_surf_extrude",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#292 (upstream upstream/TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "rayfire_surf_extrude_lim",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#293 (upstream upstream/TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3096,7 +3100,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_surf_rev",
@@ -3108,7 +3112,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_surf_rev_lim",
@@ -3192,7 +3196,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_surf_sphere150",
@@ -3202,12 +3206,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "rayfire_surf_sphere150_lim",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#315 (upstream upstream/TestFiles/pt_TestFiles/surf_sphere150.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3282,17 +3290,21 @@
       "values_compared": 2
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "rayfire_torus",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#325 (upstream upstream/TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_torus_lim",
@@ -3374,17 +3386,21 @@
       "values_compared": 2
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "rayfire_toruswvy",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#336 (upstream upstream/TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_toruswvy_lim",
@@ -3468,7 +3484,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_vase_rev",
@@ -3480,7 +3496,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "rayfire_vase_rev_lim",
@@ -11176,7 +11192,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0054",
@@ -11590,12 +11606,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0100",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=16427432855511490954",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -11608,7 +11628,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0102",
@@ -11720,7 +11740,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0114",
@@ -11970,12 +11990,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0142",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=16427432855511490996",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -12736,7 +12760,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0232",
@@ -12928,7 +12952,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0254",
@@ -13482,12 +13506,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0320",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=16427432855511491174",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -13552,7 +13580,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0328",
@@ -13660,7 +13688,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0339",
@@ -13678,12 +13706,16 @@
       "values_compared": 2
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0341",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=16427432855511491195",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -13896,7 +13928,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "intersect.topology_solver_p1"
+        "unit": "surface.surface_cache_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0365",
@@ -14170,12 +14202,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "surface.surface_cache_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0396",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=16427432855511491250",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -14207,14 +14243,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 293,
+  "cases_deferred": 302,
   "cases_failed": 0,
-  "cases_passed": 1336,
+  "cases_passed": 1327,
   "cases_total": 1629,
   "deferred_by_unit": {
     "intersect.curve_class_p4": 1,
     "intersect.surface_drop_lib_p3": 74,
-    "intersect.topology_solver_p1": 25,
+    "surface.surface_cache_p2": 34,
     "topology.face_p2": 19,
     "topology.face_p3": 136,
     "topology.face_p4": 38

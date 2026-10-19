@@ -779,8 +779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op4",
@@ -791,8 +791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op5",
@@ -803,8 +803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op6",
@@ -875,8 +875,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op13",
@@ -911,8 +911,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op17",
@@ -935,8 +935,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind4_op19",
@@ -1135,8 +1135,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "face_kind5_op17",
@@ -1219,8 +1219,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op4",
@@ -1231,8 +1231,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op5",
@@ -1243,8 +1243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op6",
@@ -1315,8 +1315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op13",
@@ -1351,8 +1351,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op17",
@@ -1371,8 +1371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "face_kind6_op19",
@@ -1767,8 +1767,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "upstream_box10_op4",
@@ -1807,8 +1807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "upstream_box10_op13",
@@ -1979,8 +1979,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "rational_kind8_op17",
@@ -2203,8 +2203,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "spherical_band_op17",
@@ -3599,8 +3599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0004",
@@ -3643,8 +3643,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0009",
@@ -3715,8 +3715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0017",
@@ -3759,8 +3759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0022",
@@ -3779,8 +3779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0024",
@@ -3791,8 +3791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0025",
@@ -3883,8 +3883,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0035",
@@ -3951,8 +3951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0042",
@@ -4051,8 +4051,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0053",
@@ -4210,21 +4210,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0071",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337137",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0072",
@@ -4263,8 +4259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0076",
@@ -4386,16 +4382,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0090",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337156",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -4463,8 +4455,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0098",
@@ -4579,8 +4571,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0112",
@@ -4815,8 +4807,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0140",
@@ -4859,8 +4851,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0145",
@@ -4879,8 +4871,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0147",
@@ -4903,8 +4895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0149",
@@ -5375,8 +5367,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0204",
@@ -5439,8 +5431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0211",
@@ -5575,8 +5567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0225",
@@ -5919,8 +5911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0265",
@@ -6019,8 +6011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0276",
@@ -6111,8 +6103,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0286",
@@ -6167,8 +6159,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0292",
@@ -6179,8 +6171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0293",
@@ -6191,8 +6183,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0294",
@@ -6202,16 +6194,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0295",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337361",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -6275,8 +6263,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0302",
@@ -6355,8 +6343,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0311",
@@ -6463,8 +6451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0324",
@@ -6531,8 +6519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0331",
@@ -6619,8 +6607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0340",
@@ -6647,8 +6635,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0343",
@@ -6718,16 +6706,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0351",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337417",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -6751,8 +6735,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0354",
@@ -6803,8 +6787,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0360",
@@ -6863,8 +6847,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0367",
@@ -6939,8 +6923,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0375",
@@ -7078,16 +7062,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0391",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337457",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -7171,8 +7151,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0402",
@@ -7411,8 +7391,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0427",
@@ -7507,8 +7487,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0438",
@@ -7519,8 +7499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0439",
@@ -7599,8 +7579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0447",
@@ -7627,8 +7607,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0450",
@@ -7651,8 +7631,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0452",
@@ -7903,8 +7883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0482",
@@ -8043,8 +8023,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0497",
@@ -8055,8 +8035,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0498",
@@ -8107,8 +8087,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0504",
@@ -8159,8 +8139,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0509",
@@ -8227,8 +8207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0516",
@@ -8255,8 +8235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0519",
@@ -8315,8 +8295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0525",
@@ -8343,8 +8323,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0528",
@@ -8375,8 +8355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0531",
@@ -8386,16 +8366,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0532",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337598",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8455,8 +8431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0540",
@@ -8583,8 +8559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0554",
@@ -8643,8 +8619,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0561",
@@ -8703,8 +8679,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0568",
@@ -8723,8 +8699,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0570",
@@ -8783,8 +8759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0577",
@@ -8915,8 +8891,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0592",
@@ -8975,8 +8951,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0599",
@@ -9067,8 +9043,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0609",
@@ -9203,8 +9179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0624",
@@ -9243,8 +9219,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0628",
@@ -9263,8 +9239,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0630",
@@ -9319,8 +9295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0636",
@@ -9330,16 +9306,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0637",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337703",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9439,8 +9411,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0648",
@@ -9459,8 +9431,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0650",
@@ -9539,8 +9511,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0659",
@@ -9550,16 +9522,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0660",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337726",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -9619,8 +9587,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0668",
@@ -9655,8 +9623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0672",
@@ -9727,8 +9695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0679",
@@ -9755,8 +9723,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0682",
@@ -9811,8 +9779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0688",
@@ -9839,8 +9807,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0691",
@@ -10127,8 +10095,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0724",
@@ -10167,8 +10135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0728",
@@ -10291,8 +10259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0742",
@@ -10562,33 +10530,25 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0773",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337839",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateTightBoundingBox",
-        "unit": "query.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0774",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337840",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
-        "symbol": "sm_FaceClassifyUVLine",
-        "unit": "query.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0775",
@@ -10695,8 +10655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::PointClassify",
-        "unit": "query.face_p2"
+        "symbol": "SmFace::GetUpwardLoopuses",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0787",
@@ -10815,18 +10775,18 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 297,
+  "cases_deferred": 287,
   "cases_failed": 0,
-  "cases_passed": 906,
+  "cases_passed": 916,
   "cases_total": 1203,
   "deferred_by_unit": {
+    "curve.crv_on_surf": 10,
     "curve.curve_p2": 110,
     "curve.curve_p6": 31,
-    "intersect.surface_drop_lib_p3": 7,
-    "query.face_p2": 56,
-    "query.face_p3": 51,
+    "intersect.surface_drop_lib_p3": 28,
     "topology.edge": 1,
-    "topology.face_p2": 41
+    "topology.face_p2": 51,
+    "topology.face_p4": 56
   },
   "max_rel_err": 0.0,
   "pass": true,
