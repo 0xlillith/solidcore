@@ -6792,7 +6792,8 @@ holds an `SmBSplineSurface` only, so the curve on it and its `ApproximateCurve` 
 `SmFace::CreateUVTrimCurves` (`topology.face_p3`, inside `UpdateFaceSurfaceDomain`'s
 `CalculateUVDomainFromUVTrimCurves`, wired since `topology.face_p1` merged); the
 trimmed surface cache of a face's own surface (its construction first reaches
-`SmTol::GetZoneTol3d(const SmObject*)`, `topology.brep_p1`, the label all 78 print; then the
+`SmTol::GetZoneTol3d(const SmObject*)`, labelled `surface.surface_cache_p2` on main since
+`topology.brep_p1` merged (`topology.brep_p1` before), the label all 78 print; then the
 face's B-rep editing flag and `SmFace::CreateUVTrimCurves`): the seeded
 `GetCreateExtendedSurface` hands `MateEdges` / `TrimExtendedEdge` the face's surface, and the
 surface intersections build that cache; `SmSurface::DropCurve` and the drop-curve tracer
@@ -6879,10 +6880,12 @@ offset edge's tolerance raised from 0.004051 to 0.007557) and finds the intersec
 the port's `make_trim_srf_cache` built its cache on `surface.clone()`, which drops the owner
 (the copy constructor), so the cache ran as a standalone surface and found no curve. PR
 #147 builds the caches on `clone_for_evaluation()`, which keeps the owner; merged here, the
-five defer at `topology.brep_p1` and 17 cases that had passed through the standalone path
-defer too (97 cases newly pass). The other units do not reach that path: every regenerated
-report of `green` on main + #147 + this PR has the same per-case outcomes as main's,
-`nurbs.b_spline_surface_p2`'s WR-103 case (this PR) aside. #175's own
+five defer at `SmTol::GetZoneTol3d` and 17 cases that had passed through the standalone path
+defer too (97 cases newly pass). Main's other units barely reach that path: on main
+cd483d51 + #147 (b396cdd3) + this PR every regenerated `green` report has main's per-case
+outcomes except `nurbs.b_spline_surface_p2`'s WR-103 case (this PR) and
+`topology.brep_p1` (merged after the first comparison), where #147's change moves one
+pass (`Endcap_parallel_proj_1`) and 36 deferrals to the same `GetZoneTol3d` stub. #175's own
 `UNPORTED(offset.offset_geometry_creation)` `EdgeuseOffset` / `VertexOffset` calls stay
 stubbed: they need an `OffsetBrep` over the executive's original and offset B-reps and
 #175's code after `EdgeuseOffset` (cpp:2956-3071), which reaches `topology.brep_p7/p8`; a
@@ -6894,7 +6897,7 @@ where both sides reject the script. 426 passes compare an upstream result; 2 (`g
 `gen0685`) are guard agreements: the shim refuses the only op as an upstream null
 dereference, so no C++ runs and both sides compare `[0, op, -2]` (they count under
 `with_values=428 no_values=0` because the record has three values). Deferred, by the unit that blocks: `topology.brep_p2` 166,
-`topology.brep_p1` 78, `harness:analytic-geometry-export` 70, `topology.face_p3` 42,
+`surface.surface_cache_p2` 78, `harness:analytic-geometry-export` 70, `topology.face_p3` 42,
 `intersect.surface_drop_curve` 27, `curve.crv_on_surf` 25, `topology.face_p2` 12,
 `intersect.surface_drop_lib_p3` 7, `blend.fillet_standard_solver_p1` 4, `surface.cone_p2` 2.
 Success-path coverage (counted at this head): 211 of the 428 passes complete at least one
@@ -6917,8 +6920,8 @@ op family plus eight built-in ones, and ten new deferrals including the five abo
 `nurbs.b_spline_surface_p2` (touched): 764 cases, 759 pass, 5 deferred; its
 `three_arcs_about_two_centres` case (arcs about two centres, the first two sharing their
 start point) compares 94 values and fails with the first arc's centre captured by value, so
-it pins WR-103. All green/partial units: `green-par: 208 units, failed=0` on main d045b293 +
-#147 (f0240ceb) + this PR; the 206 other units' reports keep main's per-case outcomes.
+it pins WR-103. All green/partial units: `green-par: 212 units, failed=0` on main cd483d51 +
+#147 (b396cdd3) + this PR.
 
 ## boolean.topology_intersector_p1 (`SmTopologyIntersector.cpp` part 1, PR #146, 2026-10-16; partial, no disagreements)
 
