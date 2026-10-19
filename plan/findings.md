@@ -7527,6 +7527,29 @@ rejected: nothing runs on either side.
 
 ## topology.brep_p9: per-call continuations and coverage limits (PR #183)
 
+### After topology.brep_p1 (#145) merged (2026-10-19)
+
+- **Part 1 wired.** Every former `UNPORTED(topology.brep_p1)` call in p9 is real.
+  Part 1's `add_*_record` appends faces, edges and vertices to their owning lists at
+  allocation, while native `PostInsert`s at the end of the operation. No same-kind
+  record is allocated in between, so the order matches; a record allocated before a
+  dependency error stays listed, where native would leak it unlisted. Deleted loops and
+  loop uses are reset in place, as part 1 deletes vertex uses.
+- **Editing state.** `MakeVertexSplitEdge`, `MakeEdgeInFaceWithVU` and point
+  classification read `Brep::editing_enabled`. The offset executive's
+  `sm_InsertBreaks` wiring had forced editing on; the native shim's offset B-rep keeps
+  the constructor's FALSE, so native refused those splits while Rust attempted them
+  and deferred. Reading the B-rep's flag makes the 11 cases compare (offset: 676 to
+  687 passed).
+- **New p9 callers from main.** `topology.brep_p7`'s `MakeShellVertex` and
+  `heal.stitch_p1`'s `MakeVertexSplitEdge` are wired. The stitch's 26 former p9
+  deferrals pass as matching refusals; no split mutation is compared there.
+- **Coverage.** 684 cases, 539 passed, 145 deferred, 0 failed (head `145e1693`),
+  including real-file fixtures and nonfinite point/tolerance cases, with no native
+  crash. `FindInfiniteRegion` compares 4 successful results, all through its
+  single-region early return. A wire split now runs to its final `SmBrep::Notify`
+  (`topology.brep_p2`); no topology mutation is certified yet.
+
 ### Issue #210 continuation revision (source `84ee130c`)
 
 All six owned bodies now continue after individual dependency calls. This replaces
