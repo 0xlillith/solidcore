@@ -7885,3 +7885,10 @@ passed. Both affected difftest summaries, fuzz 2000, perturb and both Valgrind
 checks exactly retain the preceding counts, with 0 mismatches/crashes/panics/
 timeouts, 0 memory errors and 0 lost bytes in the constructor regression. The
 pre-#85 210-unit green gate passed; the final merged set now contains 211 units.
+
+Final verification completed on the merged snapshot: `green-par: 211 units,
+failed=0`. All reported partial statuses match the plan and no plan-green unit
+deferred. The worktree's report remains partial: 303 cases, 22 matching null-input
+errors, 278 query.brep deferrals and 3 constructor rejections; real success
+passes=0. All pre-review findings are addressed, with no success-path parity
+claim or tolerance change.
