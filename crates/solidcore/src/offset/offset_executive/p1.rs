@@ -822,10 +822,12 @@ impl OffsetExecutive {
             // merge self-intersections when enabled, reject faces whose lamina
             // edge sample (0.4567) is closer than distance - 2*approximation_tol.
             // Finally relate each face and call this unit's MapEdgeuses.
-            // UNPORTED(topology.brep_p7): SmBrep::MakeFaceWithCurves
+            // SmBrep::MakeFaceWithCurves (topology::brep::p7::make_face_with_curves)
+            // takes m_pOffsetBrep->GetInfiniteRegion() as its first argument.
+            // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
             return Err(SolidError::unported(
-                "SmBrep::MakeFaceWithCurves",
-                "topology.brep_p7",
+                "SmBrep::GetInfiniteRegion",
+                "topology.brep_p1",
             ));
         }
 
@@ -2085,8 +2087,8 @@ mod tests {
         let mut offset = Some(plane(1.0));
         assert_dependency(
             executive.build_offset_of_faceuse(&kernel, &mut original, Some(faceuse), &mut offset),
-            "SmBrep::MakeFaceWithCurves",
-            "topology.brep_p7",
+            "SmBrep::GetInfiniteRegion",
+            "topology.brep_p1",
         );
         let smaller = Surface::from(Plane::new(
             Vec3::ZERO,
@@ -2105,8 +2107,8 @@ mod tests {
         let mut offset = Some(smaller);
         assert_dependency(
             executive.build_offset_of_faceuse(&kernel, &mut original, Some(faceuse), &mut offset),
-            "SmBrep::MakeFaceWithCurves",
-            "topology.brep_p7",
+            "SmBrep::GetInfiniteRegion",
+            "topology.brep_p1",
         );
     }
 
