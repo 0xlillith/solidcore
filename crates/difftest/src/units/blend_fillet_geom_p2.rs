@@ -1185,9 +1185,14 @@ mod tests {
                 Ok(o) if o.deferred.is_some() => {
                     format!("deferred {}", o.deferred.map(|d| d.unit).unwrap_or_default())
                 }
-                Ok(o) => match o.values.get("status").and_then(|v| v.first()) {
-                    Some(&s) if s == 0.0 => "status0".to_string(),
-                    Some(&s) => format!("status {s}"),
+                Ok(o) => match o.values.get("status").and_then(|v| v.first()).copied() {
+                    Some(s) => {
+                        if s == 0.0 {
+                            "status0".to_string()
+                        } else {
+                            format!("status {s}")
+                        }
+                    }
                     None => "construction".to_string(),
                 },
                 Err(e) => format!("harness {e}"),
