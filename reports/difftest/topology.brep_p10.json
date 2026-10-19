@@ -1919,8 +1919,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::TestClosureSplitRegion",
-        "unit": "topology.brep_p6"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "closure_noinf_spine_doubled",
@@ -1931,8 +1931,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::TestClosureSplitRegion",
-        "unit": "topology.brep_p6"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "closure_inf_spine_doubled",
@@ -1952,6 +1952,1078 @@
       "pass": false,
       "source": "fixture:fixtures/topology.brep_p10/edge_cases.json#225 (upstream crafted)",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_make",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#0",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_analytics",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#1",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_noforce",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#2",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_stamp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#3",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_closure",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#4",
+      "values_compared": 338
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_remove_noedit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#5",
+      "values_compared": 338
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_borrowed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#6",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_shelltype0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#7",
+      "values_compared": 141
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_eutype0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#8",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_prim_wire_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#9",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_prim_other",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#10",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_make",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#11",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_analytics",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#12",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_noforce",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#13",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_stamp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#14",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_closure",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#15",
+      "values_compared": 338
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_remove_noedit",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#16",
+      "values_compared": 338
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_borrowed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#17",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_shelltype0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#18",
+      "values_compared": 141
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_eutype0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#19",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_prim_wire_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#20",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_vertex_nm_prim_other",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#21",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_m0_closure_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#22",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_m0_closure_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#23",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_m1_closure_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#24",
+      "values_compared": 538
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_m1_closure_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#25",
+      "values_compared": 538
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_prim_m2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#26",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_prim_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#27",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_prim_m4_nm",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#28",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_sharecurve_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#29",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_sharecurve3_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#30",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_sharesurf_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#31",
+      "values_compared": 269
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_sharecurve_an",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#32",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_sharecurve3_an",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#33",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_sharesurf_an",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#34",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_scale_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#35",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_scale_1e-300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#36",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_scale_1e+300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#37",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_scale_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#38",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_scale_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#39",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_scale_1000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#40",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_1e-300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#41",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_force_1e-300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#42",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#43",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_force_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#44",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#45",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_force_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#46",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_1e+300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#47",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_force_1e+300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#48",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_-0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#49",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_zt_force_-0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#50",
+      "values_compared": 269
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_fan_iges",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#51",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_m0_closure_False",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#52",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_m0_closure_True",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#53",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_m1_closure_False",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#54",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_m1_closure_True",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#55",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_prim_m2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#56",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_prim_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#57",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_prim_m4_nm",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#58",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_sharecurve_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#59",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_sharecurve3_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#60",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_sharesurf_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#61",
+      "values_compared": 225
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_sharecurve_an",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#62",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_sharecurve3_an",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#63",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_sharesurf_an",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#64",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_scale_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#65",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_scale_1e-300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#66",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_scale_1e+300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#67",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_scale_-1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#68",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_scale_1e-06",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#69",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_scale_1000000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#70",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_1e-300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#71",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_force_1e-300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#72",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#73",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_force_1e-12",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#74",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#75",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_force_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#76",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_1e+300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#77",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_force_1e+300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#78",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_-0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#79",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_zt_force_-0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#80",
+      "values_compared": 225
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_spine_doubled_iges",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#81",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_sphere.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#82",
+      "values_compared": 99
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_closure_sphere.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#83",
+      "values_compared": 198
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_nm_closure_sphere.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#84",
+      "values_compared": 198
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_analytics_sphere.smb",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#85",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_stamp_scale_sphere.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#86",
+      "values_compared": 99
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_Boolean_extrudeHoles1.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#87",
+      "values_compared": 897
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_closure_Boolean_extrudeHoles1.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#88",
+      "values_compared": 1794
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_nm_closure_Boolean_extrudeHoles1.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#89",
+      "values_compared": 1842
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_analytics_Boolean_extrudeHoles1.smb",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#90",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_stamp_scale_Boolean_extrudeHoles1.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#91",
+      "values_compared": 921
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_Solids_fillet_ts.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#92",
+      "values_compared": 1719
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_closure_Solids_fillet_ts.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#93",
+      "values_compared": 3438
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_nm_closure_Solids_fillet_ts.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#94",
+      "values_compared": 3438
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_analytics_Solids_fillet_ts.smb",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#95",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_stamp_scale_Solids_fillet_ts.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#96",
+      "values_compared": 1719
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_Mouse.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#97",
+      "values_compared": 485
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_closure_Mouse.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#98",
+      "values_compared": 970
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_nm_closure_Mouse.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#99",
+      "values_compared": 970
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "review_analytics_Mouse.smb",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#100",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_stamp_scale_Mouse.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#101",
+      "values_compared": 485
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_plane_square.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#102",
+      "values_compared": 201
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_iges_closure_plane_square.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#103",
+      "values_compared": 402
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_nm_closure_plane_square.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#104",
+      "values_compared": 402
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_analytics_plane_square.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#105",
+      "values_compared": 201
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_stamp_scale_plane_square.smb",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#106",
+      "values_compared": 201
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_full_an",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#107",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_full_an_borrowed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#108",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_full_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#109",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_full_plain_borrowed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#110",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_full_an_closure",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#111",
+      "values_compared": 338
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_sub_an",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#112",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_sub_an_borrowed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#113",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_sub_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#114",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_sub_plain_borrowed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#115",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_sub_an_closure",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#116",
+      "values_compared": 338
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_rev_nm_an",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#117",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_rev_nm_an_borrowed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#118",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_rev_nm_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#119",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_rev_nm_plain_borrowed",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#120",
+      "values_compared": 169
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_wire_quad_rev_nm_an_closure",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#121",
+      "values_compared": 338
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_uv_bspline_an",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#122",
+      "values_compared": 186
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_uv_bspline_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#123",
+      "values_compared": 186
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_uv_line_v38_an",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#124",
+      "values_compared": 2031
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_uv_line_v38_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#125",
+      "values_compared": 2031
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_uv_composite_v38_an",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#126",
+      "values_compared": 2014
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "review_uv_composite_v38_plain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p10/review_cases.json#127",
+      "values_compared": 2014
     },
     {
       "deferred": {
@@ -4335,8 +5407,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "read_Fillet_fillet1017",
@@ -4347,8 +5419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "noheal_Fillet_fillet1017",
@@ -4358,16 +5430,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "plain_Fillet_fillet1017",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p10/upstream_files.json#227 (upstream TestFiles/pt_TestFiles (no analytics, data tolerance clamped, healer disabled))",
-      "values_compared": 0
+      "values_compared": 1757
     },
     {
       "deferred": {
@@ -5407,8 +6475,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "read_Fillet_vase",
@@ -5419,8 +6487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "noheal_Fillet_vase",
@@ -5430,21 +6498,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "plain_Fillet_vase",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p10/upstream_files.json#329 (upstream TestFiles/pt_TestFiles (no analytics, data tolerance clamped, healer disabled))",
-      "values_compared": 0
+      "values_compared": 1757
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "read_Fillet_vase1",
@@ -5455,8 +6519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "noheal_Fillet_vase1",
@@ -5466,21 +6530,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "plain_Fillet_vase1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p10/upstream_files.json#332 (upstream TestFiles/pt_TestFiles (no analytics, data tolerance clamped, healer disabled))",
-      "values_compared": 0
+      "values_compared": 3405
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "read_Fillet_vase2",
@@ -5491,8 +6551,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "noheal_Fillet_vase2",
@@ -5502,21 +6562,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "plain_Fillet_vase2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p10/upstream_files.json#335 (upstream TestFiles/pt_TestFiles (no analytics, data tolerance clamped, healer disabled))",
-      "values_compared": 0
+      "values_compared": 1757
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "read_Fillet_vase3",
@@ -5527,8 +6583,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "noheal_Fillet_vase3",
@@ -5538,16 +6594,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "plain_Fillet_vase3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p10/upstream_files.json#338 (upstream TestFiles/pt_TestFiles (no analytics, data tolerance clamped, healer disabled))",
-      "values_compared": 0
+      "values_compared": 3133
     },
     {
       "deferred": {
@@ -8566,16 +9618,12 @@
       "values_compared": 1619
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0073",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13374710602729021218",
-      "values_compared": 0
+      "values_compared": 3405
     },
     {
       "deferred": {
@@ -8682,16 +9730,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0085",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13374710602729021230",
-      "values_compared": 0
+      "values_compared": 3405
     },
     {
       "max_rel_err": 0.0,
@@ -9102,16 +10146,12 @@
       "values_compared": 19734
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0129",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13374710602729021274",
-      "values_compared": 0
+      "values_compared": 1773
     },
     {
       "max_rel_err": 0.0,
@@ -9122,14 +10162,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0131",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13374710602729021276",
       "values_compared": 0
     },
@@ -9862,16 +10898,12 @@
       "values_compared": 297
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0210",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13374710602729021355",
-      "values_compared": 0
+      "values_compared": 3405
     },
     {
       "max_rel_err": 0.0,
@@ -10014,16 +11046,12 @@
       "values_compared": 3831
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0227",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13374710602729021372",
-      "values_compared": 0
+      "values_compared": 1757
     },
     {
       "max_rel_err": 0.0,
@@ -10071,8 +11099,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
+        "symbol": "SmCone::IsNurbSurfaceCone",
+        "unit": "surface.cone_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0233",
@@ -10206,16 +11234,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0247",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13374710602729021392",
-      "values_compared": 0
+      "values_compared": 6810
     },
     {
       "max_rel_err": 0.0,
@@ -10226,16 +11250,12 @@
       "values_compared": 1407
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::SmOffsetSurface",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0249",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=13374710602729021394",
-      "values_compared": 0
+      "values_compared": 3405
     },
     {
       "max_rel_err": 0.0,
@@ -10707,18 +11727,16 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 508,
+  "cases_deferred": 507,
   "cases_failed": 0,
-  "cases_passed": 576,
-  "cases_total": 1084,
+  "cases_passed": 705,
+  "cases_total": 1212,
   "deferred_by_unit": {
     "surface.cone_p1": 41,
-    "surface.cone_p2": 346,
-    "surface.offset_surface": 24,
+    "surface.cone_p2": 367,
     "surface.surf_of_extrusion_p2": 10,
     "topology.brep_p1": 71,
-    "topology.brep_p2": 14,
-    "topology.brep_p6": 2
+    "topology.brep_p2": 18
   },
   "max_rel_err": 0.0,
   "pass": true,

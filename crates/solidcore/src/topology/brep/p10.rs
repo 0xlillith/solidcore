@@ -63,6 +63,12 @@
 //!   [`test_closure_split_region`] stop with [`SolidError::InvalidInput`] after
 //!   visiting more edge uses than the B-rep holds (upstream would loop forever).
 //!   There is no recursion.
+//! - **Face-use closure.** The edge version calls the face use version of
+//!   `TestClosureSplitRegion` ([`super::p6::test_closure_split_region`]) with a fresh
+//!   [`Marks`] record per call (each call claims a new mark upstream); a NULL face use
+//!   (upstream dereferences it) is [`SolidError::InvalidInput`].
+//! - **UV trim curves.** `m_pUVTrimCurve = SM_CAST_PTR(SmBSplineCurve, pNewUV)`: a copy
+//!   that is not a B-spline curve is made and owned but not stored.
 
 use crate::curve::curve::p2::{BSPLINE_CURVE_TYPE, LINE_TYPE};
 use crate::curve::curve::Curve;
@@ -82,11 +88,13 @@ use crate::math::{max2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::Surface;
+use crate::topology::brep::p6;
 use crate::topology::brep_cache::{make_brep_cache, BrepObjects, CacheObject, CacheSource};
 use crate::topology::brep_data::{BrepData, TopologyData, NO_OBJECT, UNSURE};
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::shell::{ShellMembers, ShellType};
 use crate::topology::topology::Topology;
+use crate::topology::topology_traverser::Marks;
 use crate::topology::{
     edge, vertex, Brep, BrepId, Edge, EdgeId, EdgeuseId, EdgeuseOwner, Face, FaceId, Faceuse,
     FaceuseId, Loop, LoopId, Loopuse, LoopuseId, LoopuseStart, Region, RegionId, Shell, ShellId,
@@ -412,7 +420,7 @@ fn make_topology(
             c.key = env.new_key()?;
         }
         for s in &mut data.surfaces {
-            s.object = s.object.copy()?;
+            s.object = s.object.copy(k)?;
             s.key = env.new_key()?;
         }
         data.is_geom_borrowed = false;
@@ -768,9 +776,9 @@ fn face_surface(
 
         // when asked and geometrically possible, copy pFaceSurf as an Analytic
         let mut copy = if add_analytics {
-            src.object.copy_and_add_analytics()?
+            src.object.copy_and_add_analytics(k)?
         } else {
-            src.object.copy()?
+            src.object.copy(k)?
         };
         let key = env.new_key()?;
         give_attributes(env, key, &attrs)?;
@@ -805,7 +813,7 @@ fn face_surface(
         .surface
         .as_ref()
         .ok_or(SolidError::null_pointer(OP_MAKE))?;
-    let mut copy = owner.copy()?;
+    let mut copy = owner.copy(k)?;
     let key = env.new_key()?;
     let copy_ref = ObjectRef {
         type_code: copy.type_code(),
@@ -1191,8 +1199,11 @@ fn build_edgeuses(
             // Put trim curve on EU1 if it is present
             if reu.uv_curve < NO_UV_CURVE {
                 let ui = index(reu.uv_curve, data.uv_curves.len(), "UV curve index")?;
+                // SM_CAST_PTR(SmBSplineCurve, pNewUV): NULL for a curve that is not an
+                // SmBSplineCurve (the copy is owned by the edge use but not stored)
                 let uv = uv_trim_curve(k, data, env, ui, eu1, add_analytics)?;
-                b.edgeuse_mut(eu1)?.uv_trim_curve = Some(uv);
+                b.edgeuse_mut(eu1)?.uv_trim_curve =
+                    Some(uv).filter(|c| c.is_kind_of(BSPLINE_CURVE_TYPE));
             }
         }
 
@@ -1216,7 +1227,8 @@ fn build_edgeuses(
 }
 
 /// A copy of a data UV curve for an edge use (a line when it is one and analytics are
-/// asked for), owned by the edge use.
+/// asked for), owned by the edge use. The caller stores it only when it is an
+/// `SmBSplineCurve` (upstream `SM_CAST_PTR`).
 fn uv_trim_curve(
     k: &mut Kernel,
     data: &BrepData,
@@ -2051,19 +2063,28 @@ pub struct ClosureSplit {
     pub new_regions: Vec<RegionId>,
 }
 
-/// `SmBrep::TestClosureSplitRegion(SmBoolean, SmFaceuse*, ...)`: splits a region
-/// closed off at a face use.
+/// `SmBrep::TestClosureSplitRegion(SmBoolean, SmFaceuse*, ...)` (unit
+/// `topology.brep_p6`) as the edge version calls it: `Some` outputs only for
+/// `SM_SUCCESS` (`eStat == SM_SUCCESS`), `None` for a native error status; Rust-side
+/// refusals and unported callees propagate. Each call claims a fresh mark (upstream
+/// `SmNewMarkAndLock`), so a fresh [`Marks`] record per call is equivalent.
 fn test_closure_split_region_at_faceuse(
-    _k: &mut Kernel,
-    _b: &mut Brep,
-    _do_infinite_region_testing: bool,
-    _faceuse: Option<FaceuseId>,
-) -> Result<(Option<ShellId>, Option<RegionId>)> {
-    // UNPORTED(topology.brep_p6): SmBrep::TestClosureSplitRegion (face use version)
-    Err(SolidError::Unported {
-        upstream: "SmBrep::TestClosureSplitRegion",
-        unit: "topology.brep_p6",
-    })
+    k: &mut Kernel,
+    b: &mut Brep,
+    do_infinite_region_testing: bool,
+    faceuse: Option<FaceuseId>,
+) -> Result<Option<(Option<ShellId>, Option<RegionId>)>> {
+    // pFUStart->GetMate() dereferences a NULL face use upstream
+    let fu = faceuse.ok_or(SolidError::invalid_input(
+        OP_CLOSURE,
+        "edge use without face use",
+    ))?;
+    match p6::test_closure_split_region(k, b, &mut Marks::default(), do_infinite_region_testing, fu)
+    {
+        Ok(v) => Ok(Some(v)),
+        Err(SolidError::Upstream { .. }) => Ok(None),
+        Err(e) => Err(e),
+    }
 }
 
 fn find_and_set_infinite_region(_k: &mut Kernel, _b: &mut Brep) -> Result<()> {
@@ -2098,7 +2119,7 @@ fn cw(b: &Brep, eu: EdgeuseId) -> Result<EdgeuseId> {
 ///
 /// [`SolidError::InvalidInput`] for an edge use without mate, radial or clockwise
 /// neighbour (upstream dereferences null) or a walk that does not close;
-/// [`SolidError::Unported`] for the face use version and `FindAndSetInfiniteRegion`.
+/// [`SolidError::Unported`] for unported callees of the face use version (`topology.brep_p6`) and `FindAndSetInfiniteRegion`.
 pub fn test_closure_split_region(
     k: &mut Kernel,
     b: &mut Brep,
@@ -2186,7 +2207,7 @@ pub fn test_closure_split_region(
             let fu = eu1::faceuse(b, eu)?;
             // Note: don't SER here; no region nesting in these calls.
             if let Some((shell, Some(region))) =
-                ignored(test_closure_split_region_at_faceuse(k, b, false, fu))?
+                test_closure_split_region_at_faceuse(k, b, false, fu)?
             {
                 out.new_shells.push(shell);
                 out.new_regions.push(region);
