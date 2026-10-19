@@ -473,6 +473,54 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTopologyIntersector::IntersectInsertRelate",
+        "unit": "boolean.topology_intersector_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "piecewise_point_other_shell_vertex_imprint_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/boolean.merge_p3/cases.json#44",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmTopologyIntersector::IntersectInsertRelate",
+        "unit": "boolean.topology_intersector_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "piecewise_box_other_shell_vertex_imprint_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/boolean.merge_p3/cases.json#45",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmTopologyIntersector::IntersectInsertRelate",
+        "unit": "boolean.topology_intersector_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "piecewise_point_other_shell_vertex_imprint_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/boolean.merge_p3/cases.json#46",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmTopologyIntersector::IntersectInsertRelate",
+        "unit": "boolean.topology_intersector_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "piecewise_box_other_shell_vertex_imprint_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/boolean.merge_p3/cases.json#47",
+      "values_compared": 0
+    },
+    {
       "max_rel_err": 0.0,
       "name": "vg_family0_0",
       "outcome": "pass",
@@ -3531,14 +3579,14 @@
     }
   ],
   "cases_both_errored": 56,
-  "cases_deferred": 168,
+  "cases_deferred": 172,
   "cases_failed": 0,
   "cases_passed": 182,
-  "cases_total": 350,
+  "cases_total": 354,
   "deferred_by_unit": {
     "boolean.merge_p2": 47,
     "boolean.merge_p4": 40,
-    "boolean.topology_intersector_p2": 44,
+    "boolean.topology_intersector_p2": 48,
     "topology.brep_p3": 37
   },
   "max_rel_err": 0.0,

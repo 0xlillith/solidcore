@@ -7775,8 +7775,8 @@ All five functions are ported: `PiecewiseMerge`, `merge_breps`, `BooleanLists`,
 call remains present. The engine/storage adapters delegate to the canonical
 constructor, intersector and manifold-boolean owners instead of duplicating their
 claimed implementations. No geometric-success parity is claimed: list preparation
-currently stops at `topology.brep_p3`'s copy constructor (or the missing sliced-base constructor
-branch of `surface.surface_p1` for surface inputs), binary trees/folds at `boolean.merge_p2`'s constructor, piecewise
+currently stops at `topology.brep_p3`'s copy constructor (or its empty constructor
+for surface inputs), binary trees/folds at `boolean.merge_p2`'s constructor, piecewise
 cases at `boolean.topology_intersector_p2`'s `IntersectInsertRelate`, and the isolated
 nonmanifold wrapper at `boolean.merge_p4`'s `ManifoldBoolean`.
 
@@ -7816,7 +7816,7 @@ PRs; none is reimplemented here):
 | --- | --- | --- |
 | `boolean.merge_p2` | `SmMerge::SmMerge` | todo; argument-complete constructor adapter |
 | `boolean.merge_p4` | `SmMerge::ManifoldBoolean` | todo; argument-complete engine adapter |
-| `topology.brep_p3` | `SmBrep` copy constructor, `SmBrep::MergeBrep` | todo; complete copy maps/flags retained |
+| `topology.brep_p3` | `SmBrep` empty/copy constructors, `SmBrep::MergeBrep` | todo (#204); allocation context, both empty-constructor defaults, null stack context, copy maps/flags retained |
 | `topology.brep_p8` | `SmBrep::CreateFaceFromSurface` | todo; surface and UV domain retained |
 | `surface.surface_p1` | sliced-base `SmSurface` copy constructor | partial; exact missing branch described above |
 | `topology.brep_p5` | `SmBrep::StitchAndOrient`, `SmBrep::RemoveFaces` | todo; default arguments retained |
@@ -7842,19 +7842,22 @@ imprinting and no keep-other flag. The overseer's independent diagnostic found
 that the imprint early return deletes the other B-rep even for PARTIAL_MERGE;
 PiecewiseMerge then reuses it for the next surface. The persistent-context
 lifetime correction does not change this upstream defect. FFI and shim now
-refuse that effective option combination only when the other operand is a box with multiple surfaces. A shell-vertex other operand has no surfaces and never enters the per-surface loop, so imprinting without keep-other remains accepted for it, even when the primary is a box.
+refuse that effective option combination only when the other operand is a box
+with multiple surfaces. A shell-vertex other operand has no surfaces and never
+enters the per-surface loop, so imprinting without keep-other remains accepted
+for it, even when the primary is a box.
 The two refusal fixtures compare only the FFI guard (both-errored/no_values),
 not a native result or a dependency deferral. Their keep-other variants remain
 native comparisons, as do all other accepted cases. Generated piecewise inputs
 use shell vertices and retain all option masks, including imprinting without
 keep-other. Four explicit point/box-primary fixtures cover that accepted path.
 
-Final default comparison: 350 cases, 182 matched, 0 failed, 168 deferred,
+Final default comparison after review fixes: 354 cases, 182 matched, 0 failed, 172 deferred,
 `max_rel_err=0`, no absolute floors. The 126 matches with values comprise 103
 nonempty leaf graph transfers and 23 empty forests. Of the 56 both-errored cases,
 54 compare native error statuses and two check only the UB-190 guard. There are
 zero geometric-success comparisons. Perturbation detected all 182 changed
-outputs. Guard fuzzing passed 2,000 mutations: 1,304 rejected, 696 ran, zero
+outputs. Guard fuzzing passed 2,000 mutations: 1,292 rejected, 708 ran, zero
 differences, crashes, panics or timeouts.
 
 The wired API unit has 287 cases: 151 matching integer status/list records,
@@ -7873,13 +7876,12 @@ without suppressions. Leak checking was disabled: unknown live objects after a
 failed consuming native call are retained, as described above. This does not
 claim that those failure paths are leak-free.
 
-Reverified after merging main's curve_class_p2 (#85): the two default unit
-reports, perturbation, fuzz counts and Valgrind baseline stayed identical.
-Both clippy configurations, formatting (including explicit include files),
-1,389 kernel tests, three FFI guard tests and wasm passed. The complete
-211-unit green/partial matrix passed with zero failures; a per-log audit found
-zero green units with deferred cases. The earlier interrupted matrix on the old
-main base is excluded from this verification evidence.
+Reverified after merging main's curve_class_p2 (#85) and generated progress
+through 45a4ee3f, including the review fixes below: both clippy configurations,
+formatting (including explicit include files), 1,390 kernel tests, three FFI guard
+tests and wasm passed. Native comparison, perturbation, fuzz and Valgrind results
+above are from this corrected tree. Full matrix rerun is pending. The earlier
+interrupted matrix on the old main base is excluded from verification evidence.
 
 Review 183c96b7 constructor correction: BooleanLists surface-list preparation
 and disconnected-component extraction now call an argument-complete
