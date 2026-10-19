@@ -22,9 +22,11 @@
 //! `SmEdge::IsConnectedTo` (null dereference status when the loop has no loop use, or,
 //! for a vertex, a loop use whose vertices cannot be walked).
 //!
+//! `GetUVCornerBoundaries` of an edge loop runs `GetOrCreateUVTrimCurve` on both sides
+//! (`topology.edgeuse_p3`; creating a curve defers on its own callees).
+//!
 //! Deferred: `FlipLoopOrientation` of a loop on a face (`SmFace::Notify`,
-//! `topology.face_p3`), `GetUVCornerBoundaries` of an edge loop
-//! (`GetOrCreateUVTrimCurve`, `topology.edgeuse_p3`), and `IsMissingSeamAtVertices` past
+//! `topology.face_p3`), and `IsMissingSeamAtVertices` past
 //! the closure test (the sector computation's own deferrals). `IsClosed3d` on edges
 //! whose curve the export holds only as its B-spline part (ellipses and other
 //! `SmBSplineCurve` subclasses of the `.smb` files) and `IsMissingSeamAtVertices` on such
@@ -820,7 +822,7 @@ fn inexact_geometry(s: &Setup) -> Option<Output> {
                 15014 => ("surface.sphere", "SmSphere"),
                 15015 => ("surface.torus", "SmTorus (no SurfaceKind)"),
                 15030 => ("surface.surf_of_extrusion_p2", "SurfaceKind::SurfOfExtrusion"),
-                _ => ("topology.brep_p7", "SmBrep::ReadFromFile"),
+                _ => ("topology.brep_p10", "SmBrep::MakeTopologyFromData"),
             };
             return Some(Output::deferred(unit, symbol));
         }
@@ -833,7 +835,10 @@ fn inexact_geometry(s: &Setup) -> Option<Output> {
         };
         let t = s.types.edge_curve_types.get(e.index() as usize).copied().unwrap_or(-1);
         if t >= 0 && !EXACT_CURVES.contains(&t) {
-            return Some(Output::deferred("topology.brep_p7", "SmBrep::ReadFromFile"));
+            return Some(Output::deferred(
+                "topology.brep_p10",
+                "SmBrep::MakeTopologyFromData",
+            ));
         }
     }
     None
