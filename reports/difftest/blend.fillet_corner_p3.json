@@ -2,6 +2,450 @@
   "abs_floors": [],
   "cases": [
     {
+      "max_rel_err": 0.0,
+      "name": "line_ext_bent_on_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#0",
+      "values_compared": 271
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_ext_line_on_bspline_s1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#1",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_ext_line_on_line_s1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#2",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bspline_ext_line_on_s1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#3",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_kinked_on_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#4",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_kinked_on_line_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#5",
+      "values_compared": 259
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.0005_s1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#6",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.0005_s1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#7",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.0015_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#8",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.0015_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#9",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.003_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#10",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.003_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#11",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.01_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#12",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.01_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#13",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_bent_on_calc_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#14",
+      "values_compared": 271
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_bent_on_noorig_s1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#15",
+      "values_compared": 271
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_bent_on_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#16",
+      "values_compared": 271
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_ext_line_on_bspline_s0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#17",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_ext_line_on_line_s0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#18",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bspline_ext_line_on_s0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#19",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_kinked_on_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#20",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_kinked_on_line_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#21",
+      "values_compared": 259
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.0005_s0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#22",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.0005_s0.001",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#23",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.0015_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#24",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.0015_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#25",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.003_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#26",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.003_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#27",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.01_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#28",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.01_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#29",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_bent_on_calc_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#30",
+      "values_compared": 271
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_bent_on_noorig_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#31",
+      "values_compared": 271
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_bent_on_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#32",
+      "values_compared": 271
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_ext_line_on_bspline_s1000",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#33",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_ext_line_on_line_s1000",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#34",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "bspline_ext_line_on_s1000",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#35",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_kinked_on_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#36",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_kinked_on_line_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#37",
+      "values_compared": 259
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.0005_s1000",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#38",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.0005_s1000",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#39",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.0015_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#40",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.0015_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#41",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.003_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#42",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.003_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#43",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_gap0.01_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#44",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_both_gap0.01_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#45",
+      "values_compared": 259
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_bent_on_calc_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#46",
+      "values_compared": 271
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "line_ext_bent_on_noorig_s1000",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_corner_p3/review_line_join.json#47",
+      "values_compared": 271
+    },
+    {
       "deferred": {
         "symbol": "SmFilletEdge::MakeFilletEdge",
         "unit": "blend.fillet_geom_p5"
@@ -3886,6 +4330,7 @@
           "edges": [4, 5],
           "ext": true,
           "kind": 7,
+          "line_edges": [],
           "orig_faces": [],
           "setback": 0.0,
           "solver": [
@@ -5284,6 +5729,7 @@
           "edges": [4, 5],
           "ext": true,
           "kind": 7,
+          "line_edges": [],
           "orig_faces": [],
           "setback": 0.0,
           "solver": [
@@ -6935,6 +7381,7 @@
           "edges": [4, 5],
           "ext": false,
           "kind": 7,
+          "line_edges": [],
           "orig_faces": [],
           "setback": 0.0,
           "solver": [
@@ -7784,6 +8231,7 @@
           "edges": [0, 1, 2, 3],
           "ext": false,
           "kind": 6,
+          "line_edges": [],
           "orig_faces": [],
           "setback": 0.0,
           "solver": [
@@ -8876,6 +9324,7 @@
           "edges": [4, 5],
           "ext": true,
           "kind": 7,
+          "line_edges": [],
           "orig_faces": [],
           "setback": 0.0,
           "solver": [
@@ -9395,6 +9844,7 @@
           "edges": [1],
           "ext": true,
           "kind": 7,
+          "line_edges": [],
           "orig_faces": [],
           "setback": 0.0,
           "solver": null,
@@ -9728,18 +10178,18 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 320,
+  "cases_deferred": 335,
   "cases_failed": 0,
-  "cases_passed": 433,
+  "cases_passed": 466,
   "cases_rejected": 15,
-  "cases_total": 768,
+  "cases_total": 816,
   "deferred_by_unit": {
     "blend.fillet_corner_p1": 111,
     "blend.fillet_corner_p2": 126,
     "blend.fillet_executive_p1": 6,
     "blend.fillet_geom_p5": 13,
     "blend.fillet_geom_p6": 33,
-    "intersect.surface_drop_lib_p3": 8,
+    "intersect.surface_drop_lib_p3": 23,
     "surface.cone_p1": 11,
     "surface.surf_of_extrusion_p2": 12
   },

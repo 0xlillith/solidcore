@@ -198,6 +198,10 @@ pub fn validate_corner(input: &[f64]) -> Result<(), FfiError> {
         rd.opt_index(b.ne())?.ok_or_else(|| bad("original face: edge -1"))?;
         rd.opt_index(b.nf)?.ok_or_else(|| bad("original face: face -1"))?;
     }
+    let nl = rd.index(MAX_LIST)?;
+    for _ in 0..nl {
+        rd.opt_index(b.ne())?.ok_or_else(|| bad("line edge: edge -1"))?;
+    }
     rd.done()
 }
 

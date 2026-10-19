@@ -149,6 +149,9 @@ struct CornerIn {
     /// `SetOriginalFace` of pseudo edges: `[edge, target face]`.
     #[serde(default)]
     orig_faces: Vec<[usize; 2]>,
+    /// Pseudo edges whose curve becomes a real `SmLine` through its end points.
+    #[serde(default)]
+    line_edges: Vec<usize>,
 }
 
 fn yes() -> bool {
@@ -507,6 +510,8 @@ fn corner_input(model: &Model, c: &CornerIn) -> Result<Vec<f64>, HarnessError> {
     for [e, f] in &c.orig_faces {
         o.extend([*e as f64, *f as f64]);
     }
+    o.push(c.line_edges.len() as f64);
+    o.extend(c.line_edges.iter().map(|&e| e as f64));
     Ok(o)
 }
 
@@ -641,6 +646,22 @@ fn corner_rust(op: CornerOp, model: &Model, ci: &CornerIn) -> Result<Output, Har
         let eid = rm.edge(e)?;
         let face = *rm.target_faces.get(f).ok_or_else(|| harness("face"))?;
         rm.fb.fillet_edge_mut(eid).map_err(h)?.set_original_face(Some(face));
+    }
+    for &e in &ci.line_edges {
+        let eid = rm.edge(e)?;
+        let ends = rm
+            .fb
+            .brep()
+            .edge(eid)
+            .map_err(h)?
+            .curve
+            .as_ref()
+            .ok_or_else(|| harness("line edge without curve"))?
+            .ends()
+            .map_err(h)?;
+        let mut l = solidcore::curve::line::Line::from_points(ends.start, ends.end, 3);
+        let _ = l.make_nurb();
+        rm.fb.brep_mut().edge_mut(eid).map_err(h)?.curve = Some(solidcore::curve::curve::Curve::from(l));
     }
     let r = {
         let mut env = CornerEnv {
@@ -1086,6 +1107,7 @@ fn gen_corner(rng: &mut Rng) -> Inputs {
                     tan,
                     tsects,
                     orig_faces: Vec::new(),
+                    line_edges: Vec::new(),
                 },
             }
         }
@@ -1127,6 +1149,7 @@ fn gen_corner(rng: &mut Rng) -> Inputs {
                     tan,
                     tsects: Vec::new(),
                     orig_faces: if rng.chance(0.85) { vec![[3, 0]] } else { Vec::new() },
+                    line_edges: Vec::new(),
                 },
             }
         }
@@ -1175,6 +1198,7 @@ fn gen_corner(rng: &mut Rng) -> Inputs {
                     tan,
                     tsects: Vec::new(),
                     orig_faces: Vec::new(),
+                    line_edges: Vec::new(),
                 },
                 model,
             }
