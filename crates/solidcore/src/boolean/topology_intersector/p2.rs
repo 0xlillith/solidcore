@@ -96,7 +96,7 @@ use crate::topology::proto_topology::p3::Mates;
 use crate::topology::proto_topology::{ProtoEdgeId, ProtoTopologyManager, ProtoVertexId};
 
 use super::p1::{
-    add_unique, brep_glue_edges_general, brep_make_edge_in_face, can_imprint, contains, dangling,
+    add_unique, brep_glue_edges_general, brep_make_edge_in_face, can_imprint, contains,
     eval_curve_point, face_brep, face_edges, face_face_intersect_curves, face_vertices,
     find_common_elements, ignore_soft, intersect_shell_vertices, intersect_wire_lamina_edges,
     surface_coincidence_check, IntersectionCurves, IntersectionResults, IntersectorBrep,
@@ -111,6 +111,20 @@ const OP_CLASS_MATES: &str = "boolean::topology_intersector::p2::fixup_class_mat
 const OP_SPLIT_PAIR: &str = "boolean::topology_intersector::p2::fixup_split_vertex_pair";
 const OP_EDGE_EDGE: &str = "boolean::topology_intersector::p2::edge_edge_intersect";
 const OP_EDGE_FACE_COIN: &str = "boolean::topology_intersector::p2::edge_face_coincidence";
+const OP_DELETE_FACES: &str = "boolean::topology_intersector::p2::delete_faces";
+const OP_INSERT_RELATE: &str = "boolean::topology_intersector::p2::intersect_insert_relate";
+const OP_INTERSECT_TOPOLOGY: &str = "boolean::topology_intersector::p2::intersect_topology";
+const OP_SET_RELS: &str = "boolean::topology_intersector::p2::set_relationships";
+const OP: &str = "boolean::topology_intersector::p2";
+
+/// The error for a handle or state upstream dereferences without checking (part 1's
+/// `dangling`, with `op` naming the part 2 function).
+const fn invalid(op: &'static str, reason: &'static str) -> SolidError {
+    SolidError::InvalidInput {
+        operation: op,
+        reason,
+    }
+}
 
 /// Most edges the working lists of [`TopologyIntersector::edge_edge_intersect`] may
 /// hold (the inputs plus every split edge appended again); a bound of the port.
@@ -343,14 +357,14 @@ pub struct EdgeFaceCoincidence<O> {
 /// The tolerance of a vertex, edge or face handle (`GetTolerance`).
 fn tol_of<O: Copy>(brep: &impl IntersectorBrep<O>, topo: O) -> Result<f64> {
     brep.topology_tolerance(topo)
-        .ok_or(dangling("topology handle is unknown"))
+        .ok_or(invalid(OP, "topology handle is unknown"))
 }
 
 /// The curve behind a handle (a null dereference upstream for none).
 fn curve_of<O: Copy>(geometry: &impl ClassGeometry<O>, curve: Option<O>) -> Result<&Curve> {
     curve
         .and_then(|c| geometry.curve(c))
-        .ok_or(dangling("curve handle cannot be resolved"))
+        .ok_or(invalid(OP, "curve handle cannot be resolved"))
 }
 
 impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
@@ -401,9 +415,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     *slot = Some(copy);
                 }
                 for uv in [&mut c.uv_curves1, &mut c.uv_curves2] {
-                    let slot = uv
-                        .get_mut(ii)
-                        .ok_or(dangling("UV curve list shorter than the 3D list"))?;
+                    let slot = uv.get_mut(ii).ok_or(invalid(
+                        OP_REGISTER,
+                        "UV curve list shorter than the 3D list",
+                    ))?;
                     if let Some(h) = Self::b_spline_copy(geometry, *slot)? {
                         *slot = Some(h);
                     }
@@ -448,7 +463,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     fn as_vertex(mate: Option<O>) -> Result<Option<O>> {
         match mate {
             Some(m) if m.class_kind() != ClassObjectKind::Vertex => {
-                Err(dangling("vertex mated to a non-vertex"))
+                Err(invalid(OP, "vertex mated to a non-vertex"))
             }
             m => Ok(m),
         }
@@ -518,7 +533,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             self.remove_relationship(Some(brep_vertex), Some(other_v))?;
 
             // Combine two vertices which are coincident or nearly so
-            let other = self.other.ok_or(dangling("no other B-rep"))?;
+            let other = self.other.ok_or(invalid(OP_SQUEEZE, "no other B-rep"))?;
             let deleted_other_edge =
                 brep_combine_coincident_vertices(other, other_vertex, other_v)?;
             if let Some(e) = deleted_other_edge {
@@ -535,7 +550,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
         // Check for a pre-existing, conflicting relationship.
         if let Some(brep_v) = brep_v.filter(|&v| v != brep_vertex) {
-            let brep_v = Self::as_vertex(Some(brep_v))?.ok_or(dangling("no B-rep mate"))?;
+            let brep_v =
+                Self::as_vertex(Some(brep_v))?.ok_or(invalid(OP_SQUEEZE, "no B-rep mate"))?;
             tol_of(brep, brep_v)?;
 
             let p = brep.vertex_point(other_vertex)?;
@@ -547,7 +563,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
             self.remove_relationship(Some(brep_v), Some(other_vertex))?;
 
-            let this = self.brep.ok_or(dangling("no B-rep"))?;
+            let this = self.brep.ok_or(invalid(OP_SQUEEZE, "no B-rep"))?;
             let deleted_brep_edge = brep_combine_coincident_vertices(this, brep_vertex, brep_v)?;
             if let Some(e) = deleted_brep_edge {
                 out.deleted_edges.push(e);
@@ -604,7 +620,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
             // TargetFace->Brep - to edit
             face_brep_h = face_brep(f)?;
-            let b = face_brep_h.ok_or(dangling("face without B-rep"))?;
+            let b = face_brep_h.ok_or(invalid(OP_DELETE_FACES, "face without B-rep"))?;
 
             // delete TargetFace from its Brep (FALSE = don't delete dangling edges and
             // vertices, we do that below in accordance with pOptKeepAsWires; the rest
@@ -634,7 +650,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             // delete the Edge from the Brep
             let b = brep
                 .edge_brep_handle(e)?
-                .ok_or(dangling("edge without B-rep"))?;
+                .ok_or(invalid(OP_DELETE_FACES, "edge without B-rep"))?;
             brep_delete_edge(b, e, None)?;
         }
 
@@ -648,7 +664,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             }
             let b = brep
                 .vertex_brep(v)?
-                .ok_or(dangling("vertex without B-rep"))?;
+                .ok_or(invalid(OP_DELETE_FACES, "vertex without B-rep"))?;
             brep_delete_vertex(b, v)?;
         }
 
@@ -677,9 +693,13 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
         // Look for gaps bigger than the sum of the two vertices' tolerances.
         for ii in 0..num_single_verts {
-            let v1 = *single_vertices.get(ii).ok_or(dangling("vertex list"))?;
+            let v1 = *single_vertices
+                .get(ii)
+                .ok_or(invalid(OP_FIX_GAPS, "vertex list"))?;
             for jj in ii + 1..num_single_verts {
-                let v2 = *single_vertices.get(jj).ok_or(dangling("vertex list"))?;
+                let v2 = *single_vertices
+                    .get(jj)
+                    .ok_or(invalid(OP_FIX_GAPS, "vertex list"))?;
 
                 // Increase tol just a bit.  Was 10.0.  [B498]
                 let tol_factor = 1.01;
@@ -699,10 +719,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     if contains(&edges2, &test) {
                         let curve = brep
                             .edge_curve(test)
-                            .ok_or(dangling("edge handle is unknown"))?;
+                            .ok_or(invalid(OP_FIX_GAPS, "edge handle is unknown"))?;
                         let ivl = brep
                             .edge_interval(test)
-                            .ok_or(dangling("edge handle is unknown"))?;
+                            .ok_or(invalid(OP_FIX_GAPS, "edge handle is unknown"))?;
                         let edge_leng = curve_of(brep, curve)?
                             .approximate_length(&ivl, 10, false)?
                             .0;
@@ -726,12 +746,12 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     Self::as_vertex(Some(other_v2))?;
 
                     // combine coincident vertices
-                    let this = self.brep.ok_or(dangling("no B-rep"))?;
+                    let this = self.brep.ok_or(invalid(OP_FIX_GAPS, "no B-rep"))?;
                     let deleted_brep_edge = brep_combine_coincident_vertices(this, v2, v1)?;
                     out.deleted_vertices.push(v1);
                     out.deleted_edges.push(deleted_brep_edge);
 
-                    let other = self.other.ok_or(dangling("no other B-rep"))?;
+                    let other = self.other.ok_or(invalid(OP_FIX_GAPS, "no other B-rep"))?;
                     let deleted_other_edge =
                         brep_combine_coincident_vertices(other, other_v2, other_v1)?;
                     ignore_soft(self.remove_relationship(Some(v1), Some(other_v1)))?;
@@ -790,8 +810,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             capture_distance = topo_int_tol * 2000.0;
         }
 
-        let this = self.brep.ok_or(dangling("no B-rep"))?;
-        let other = self.other.ok_or(dangling("no other B-rep"))?;
+        let this = self.brep.ok_or(invalid(OP_INSERT_RELATE, "no B-rep"))?;
+        let other = self
+            .other
+            .ok_or(invalid(OP_INSERT_RELATE, "no other B-rep"))?;
         self.proto_topo_mgr = Some(ProtoTopologyManager::new(
             this,
             other,
@@ -824,7 +846,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         }
         status?;
         if reads_freed {
-            return Err(dangling(
+            return Err(invalid(
+                OP_INSERT_RELATE,
                 "~SmProtoTopologyManager reads a freed proto edge (UB-175)",
             ));
         }
@@ -857,14 +880,18 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     ) -> Result<Vec<O>> {
         let approx_tol = self.this_approx_tol_3d;
         let lamina = self.intersect_lamina_edges;
-        let this = self.brep.ok_or(dangling("no B-rep"))?;
-        let other = self.other.ok_or(dangling("no other B-rep"))?;
+        let this = self
+            .brep
+            .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "no B-rep"))?;
+        let other = self
+            .other
+            .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "no other B-rep"))?;
         let mut deleted: Vec<O> = Vec::new();
 
         // Init output
         self.proto_topo_mgr
             .as_mut()
-            .ok_or(dangling("no proto topology manager"))?
+            .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "no proto topology manager"))?
             .reset();
 
         let faces1 = brep_faces(this, None)?;
@@ -874,7 +901,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             let mgr = self
                 .proto_topo_mgr
                 .as_mut()
-                .ok_or(dangling("no proto topology manager"))?;
+                .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "no proto topology manager"))?;
 
             // Process ShellVertex Intersections (statuses unchecked).
             ignore_soft(intersect_shell_vertices(k, brep, this, other, false, mgr))?;
@@ -896,10 +923,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             for &f2 in &faces2 {
                 let s1 = brep
                     .face_surface(f1)
-                    .ok_or(dangling("face handle is unknown"))?;
+                    .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "face handle is unknown"))?;
                 let s2 = brep
                     .face_surface(f2)
-                    .ok_or(dangling("face handle is unknown"))?;
+                    .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "face handle is unknown"))?;
 
                 // See if this surface/surface xsect has been saved (status unchecked;
                 // the copies it makes are not deleted upstream).
@@ -912,8 +939,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 let tol = self.this_approx_tol_3d();
 
                 // Check for coincident surfaces -- partial coincidence is ok.
-                let surf1 = s1.ok_or(dangling("face without surface"))?;
-                let surf2 = s2.ok_or(dangling("face without surface"))?;
+                let surf1 = s1.ok_or(invalid(OP_INTERSECT_TOPOLOGY, "face without surface"))?;
+                let surf2 = s2.ok_or(invalid(OP_INTERSECT_TOPOLOGY, "face without surface"))?;
                 let (are_coincident, _coincident_distance) =
                     surface_coincidence_check(k, brep, surf1, surf2, tol, false)?;
                 let mut coinc_pes = Vec::new();
@@ -950,7 +977,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 let mgr = self
                     .proto_topo_mgr
                     .as_mut()
-                    .ok_or(dangling("no proto topology manager"))?;
+                    .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "no proto topology manager"))?;
 
                 // for each CurveClassification pair returned from intersector
                 // (SM_ASSERT(sCCs2.GetSize() == lNumCCs) only reports; a shorter
@@ -958,7 +985,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 let num_ccs = fi.cc1.len();
                 for kk in 0..num_ccs {
                     let (Some(cc1), Some(cc2)) = (fi.cc1.get_mut(kk), fi.cc2.get_mut(kk)) else {
-                        return Err(dangling("classification lists differ"));
+                        return Err(invalid(
+                            OP_INTERSECT_TOPOLOGY,
+                            "classification lists differ",
+                        ));
                     };
                     let num_ivls = cc1.size();
 
@@ -1053,7 +1083,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         let mgr = self
             .proto_topo_mgr
             .as_mut()
-            .ok_or(dangling("no proto topology manager"))?;
+            .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "no proto topology manager"))?;
 
         // 1. for every ProtoEdge pair - split ProtoEdges at ProtoEdge/ProtoEdge XSects
         // (the list is re-read after each split: splitting appends proto edges)
@@ -1062,13 +1092,13 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             let pe1 = *mgr
                 .proto_edges()
                 .get(ii)
-                .ok_or(dangling("proto edge list"))?;
+                .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "proto edge list"))?;
             let mut jj = ii + 1;
             while jj < mgr.proto_edges().len() {
                 let pe2 = *mgr
                     .proto_edges()
                     .get(jj)
-                    .ok_or(dangling("proto edge list"))?;
+                    .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "proto edge list"))?;
                 // (status unchecked)
                 if let Some(d) = ignore_soft(mgr.split_intersecting_proto_edges(k, brep, pe1, pe2))?
                 {
@@ -1086,7 +1116,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             let pv = *mgr
                 .proto_vertices()
                 .get(ii - 1)
-                .ok_or(dangling("proto vertex list"))?;
+                .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "proto vertex list"))?;
             let pes = mgr.proto_edges().to_vec();
             for pe in pes {
                 // a failure is FALSE (the SmBoolean function's error return)
@@ -1120,20 +1150,20 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         let mgr = self
             .proto_topo_mgr
             .as_ref()
-            .ok_or(dangling("no proto topology manager"))?;
+            .ok_or(invalid(OP_SET_RELS, "no proto topology manager"))?;
 
         // (the manager is not changed by Relate: collect the pairs first)
         let mut pairs: Vec<(Option<O>, Option<O>)> = Vec::new();
         for vd in mgr.all_vertex_definitions()? {
             let d = mgr
                 .vertex_def(vd)
-                .ok_or(dangling("vertex definition is deleted"))?;
+                .ok_or(invalid(OP_SET_RELS, "vertex definition is deleted"))?;
             pairs.push((d.final_vertex(1), d.final_vertex(2)));
         }
         for ed in mgr.all_edge_definitions()? {
             let d = mgr
                 .edge_def(ed)
-                .ok_or(dangling("edge definition is deleted"))?;
+                .ok_or(invalid(OP_SET_RELS, "edge definition is deleted"))?;
             pairs.push((d.final_edge(1), d.final_edge(2)));
         }
 
@@ -1299,11 +1329,15 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
         // drop the mated vertices to the curve to find their best projection points
         let drop = |pc: &PointClassification<O>| -> Result<(bool, f64, f64)> {
-            let v = pc
-                .vertex_object()
-                .ok_or(dangling("vertex classification without object"))?;
+            let v = pc.vertex_object().ok_or(invalid(
+                OP_SPLIT_PAIR,
+                "vertex classification without object",
+            ))?;
             if v.class_kind() != ClassObjectKind::Vertex {
-                return Err(dangling("vertex classification of a non-vertex"));
+                return Err(invalid(
+                    OP_SPLIT_PAIR,
+                    "vertex classification of a non-vertex",
+                ));
             }
             let point = geometry.vertex_point(v)?;
             let guess = pc.t_param();
@@ -1575,7 +1609,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 if !contains(given_verts, &other_v) {
                     continue;
                 }
-                let other_v = other_v.ok_or(dangling("edge without other vertex"))?;
+                let other_v =
+                    other_v.ok_or(invalid(OP_EDGE_FACE_COIN, "edge without other vertex"))?;
 
                 // Find all faces that contain both vertices.
                 let faces1 = brep.vertex_faces(v)?;
@@ -1591,18 +1626,18 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     // Check for coincidence of pE and pF.
                     let curve_h = brep
                         .edge_curve(e)
-                        .ok_or(dangling("edge handle is unknown"))?
-                        .ok_or(dangling("edge without curve"))?;
+                        .ok_or(invalid(OP_EDGE_FACE_COIN, "edge handle is unknown"))?
+                        .ok_or(invalid(OP_EDGE_FACE_COIN, "edge without curve"))?;
                     let surf_h = brep
                         .face_surface(f)
-                        .ok_or(dangling("face handle is unknown"))?
-                        .ok_or(dangling("face without surface"))?;
+                        .ok_or(invalid(OP_EDGE_FACE_COIN, "face handle is unknown"))?
+                        .ok_or(invalid(OP_EDGE_FACE_COIN, "face without surface"))?;
                     let edge_dom = brep
                         .edge_interval(e)
-                        .ok_or(dangling("edge handle is unknown"))?;
+                        .ok_or(invalid(OP_EDGE_FACE_COIN, "edge handle is unknown"))?;
                     let mut face_dom = brep
                         .face_uv_domain(f)
-                        .ok_or(dangling("face handle is unknown"))?;
+                        .ok_or(invalid(OP_EDGE_FACE_COIN, "face handle is unknown"))?;
                     let edge_zone_tol = tol_of(brep, e)?;
 
                     // (status unchecked: the domain stays GetUVDomain's on failure)
@@ -1611,9 +1646,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     }
 
                     let sol = {
-                        let surface = brep
-                            .surface(surf_h)
-                            .ok_or(dangling("surface handle cannot be resolved"))?;
+                        let surface = brep.surface(surf_h).ok_or(invalid(
+                            OP_EDGE_FACE_COIN,
+                            "surface handle cannot be resolved",
+                        ))?;
                         let curve = curve_of(brep, Some(curve_h))?;
                         // (status unchecked: not coincident on failure)
                         ignore_soft(surface.simple_coincidence_checker(
@@ -1696,14 +1732,15 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     };
 
                     let edge_tol = tol_of(brep, e)?;
-                    let face_b = face_brep(f)?.ok_or(dangling("face without B-rep"))?;
+                    let face_b =
+                        face_brep(f)?.ok_or(invalid(OP_EDGE_FACE_COIN, "face without B-rep"))?;
 
                     // We have to make a copy of the curve: what's passed in gets
                     // installed in the new edge.
                     let copy = curve_of(brep, Some(curve_h))?.clone();
                     let curve_copy = brep
                         .insert_curve(copy)
-                        .ok_or(dangling("curve store is full"))?;
+                        .ok_or(invalid(OP_EDGE_FACE_COIN, "curve store is full"))?;
                     // (status unchecked: no new edge, loop or face on failure)
                     let made = ignore_soft(brep_make_edge_in_face(
                         face_b, f, v, other_v, curve_copy, None, edge_dom, orient, edge_tol,
