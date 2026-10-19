@@ -5927,6 +5927,19 @@ mutated scales and accepted/reduced step counts are compared.
   `CalculateAnInternalPoint`. `sms_FindAndClassifyLoopBisector` is not declared in a
   header; the shim declares it. The shim `#include`s the `query.face_p4` shim (entry
   point renamed) for the B-rep builders, so both units build identical B-reps.
+- **Main merge, 2026-10-18.** `SmEdgeuse::EvaluateBinormal` (PR #117) is wired: the 106
+  sector deferrals now pass or defer further in (`SmSurface::DropCurve`,
+  `SmFace::CreateUVTrimCurves`). Main's `CurveOnClassifyObjects` now names every boundary
+  object (vertex, edge, uses, edge and trim curves) and resolves them through
+  `ClassGeometry`: `LoopObject` gained `from_topology` / `as_topology`, `from_edge_curve`
+  / `as_edge_curve` and `from_trim_curve` / `as_trim_curve` (default `None`; `as_loop` and
+  `as_vertex` became default `None` too), and `LoopObjectCurves` borrows the B-rep to
+  resolve them. `PointClassify` and `SmEdge::IsSeam` now take the B-rep mutably; the tight
+  box and the bisector run them on a private copy. The `query.face_p4` shim's export
+  appends the shared shell state (as main's `query.face_p2` shim does) for
+  `topology_face_p2::import`. The `heal.face_props` notes' "green" from the first round
+  was overtaken by main's richer runner (closed surfaces of revolution defer at
+  `HasSeamProblem`); it stays partial. 408 pass, 393 deferred, 0 failed.
 ## intersect.curve_class_p6 (partial; PR #138)
 
 - **Certified scope.** 4438 default cases: 3927 bit-identical kernel comparisons,
