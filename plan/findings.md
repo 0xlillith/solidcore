@@ -8112,6 +8112,29 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   `SmFilletExecutive`). The block's fillet corners are opaque tags, so the shim refuses
   runs that would call into a corner (and solver/rail dereferences the block cannot
   satisfy); see the FFI module docs.
+- **Coverage gap, to be closed by later porters.** Only `sm_CreateUVCurve` is compared
+  on real values. `MakeFaceBrep`, `CalcBlendingGeom` and the three vertex calculators
+  are compared only on early exits: everything after `JoinTwoFilletVertsByCurves`
+  (`blend.fillet_geom_p6`) or `sm_SrfSrfIntersection` (`blend.fillet_geom_p2`) is
+  deferred, and the p1 model cannot express an original face on a fillet edge, so
+  `CalcRailIntExtendedEdgeuse` never gets past `NER(pSideFace)`. The porters of p2 and
+  p6 should extend the runner (and the p1 model) to reach those paths. Once original
+  faces are expressible, the shim must also refuse `CalcRailIntExtendedEdgeuse` on a
+  vertex *without* a corner that has a side face (upstream then dereferences `NULL`
+  `m_cpCorner` in `GetExtendedSurface`).
+- **Review fixes (found by reading the C++; not reachable by difftest yet).**
+  (1) `SM_CAST_PTR(SmBSplineCurve, ..)` also succeeds for `SmLine`, `SmEllipse`/`SmCircle`,
+  `SmHyperbola` and `SmParabola` (all derive from `SmBSplineCurve`); the first port
+  accepted only `CurveKind::BSpline`, so a line or circle rail/side curve would have been
+  `SM_ERR_NULL_POINTER` in `MakeFaceBrep` and `CalcBlendingGeom`. (2)
+  `InsertIntersectionTopology` keeps one `aDeletedEdges` for the whole routine
+  (`MergeCurveOnSurfaces` appends, `SmTopologyIntersector.cpp:3879`); the first port
+  passed only the current merge's edges to `ClearFilletBrepEdges`, leaving stale edge ids
+  on later rails/side edges. (3) `CalcFilletInt2Fillets` now checks the fillet surfaces
+  before resolving the solvers, as upstream (a geometry with neither returns
+  `SM_SUCCESS`). 20 adversarial `sm_CreateUVCurve` cases (seam pairs with negative and
+  zero tolerances, cut corners, swapped revolution parameters, cone apexes, huge/tiny
+  planes, coincident points) were added as fixtures; all bit-identical.
 - **Disagreement outside this unit (fuzz, `--fuzz 30000`, 2 notes).**
   `SmSurface::GlobalPointSolve(SM_SO_INTERSECT)` on a real `SmPlane` *without* its NURB
   (`MakeNurb` not called) whose origin is very far from the test point (origin

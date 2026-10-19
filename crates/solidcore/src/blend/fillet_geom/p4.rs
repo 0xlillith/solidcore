@@ -63,6 +63,17 @@
 //!   its call; the code behind it is ported. The 777/778 marker attributes
 //!   `InsertIntersectionTopology` puts on a face for the executive's split check travel
 //!   with the `UpdateTopologyChanges` stub.
+//! - **B-spline casts.** `SM_CAST_PTR(SmBSplineCurve, ..)` succeeds for every kind
+//!   derived from `SmBSplineCurve` upstream (`SmLine`, `SmEllipse`/`SmCircle`,
+//!   `SmHyperbola`, `SmParabola`): `as_b_spline` returns their B-spline base.
+//! - **Corner blend curves.** `CalcBlendingGeom` passes `pFE->GetCurve()` (an
+//!   `SmCurve*`, uncast and unchecked) to `CreateCornerBlend`; the Rust
+//!   `BSplineSurface::create_corner_blend` takes B-spline curves, so a fillet edge
+//!   without a curve, or with a curve of a kind not derived from `SmBSplineCurve`, is
+//!   `SM_ERR_NULL_POINTER` here.
+//! - **Deleted edges.** `InsertIntersectionTopology` keeps one `aDeletedEdges` list for
+//!   the whole routine, as upstream: each `MergeCurveOnSurfaces` appends to it and
+//!   every `ClearFilletBrepEdges` clears against all edges deleted so far.
 //! - **Arguments.** Out-params become return values; `iDebugLevel` and debug drawing
 //!   are dropped.
 
@@ -186,11 +197,24 @@ fn solution_uv(sols: &SolutionArray<NoObject>, i: usize, op: &'static str) -> Re
     Ok(Point2::new(s.start.parameters[0], s.start.parameters[1]))
 }
 
-/// A B-spline 3D or UV curve held as a [`Curve`] (`SM_CAST_PTR(SmBSplineCurve, ..)`).
-fn as_b_spline(c: &Curve) -> Option<&BSplineCurve> {
+/// A B-spline 3D or UV curve held as a [`Curve`] (`SM_CAST_PTR(SmBSplineCurve, ..)`):
+/// the B-spline (base) of the kinds derived from `SmBSplineCurve` (`SmLine`,
+/// `SmEllipse`/`SmCircle`, `SmHyperbola`, `SmParabola`), `None` for the others.
+const fn as_b_spline(c: &Curve) -> Option<&BSplineCurve> {
     match c.kind() {
         CurveKind::BSpline(b) => Some(b),
-        _ => None,
+        CurveKind::Line(l) => Some(l.base()),
+        CurveKind::Ellipse(e) => Some(e.base()),
+        CurveKind::Hyperbola(h) => Some(h.base()),
+        CurveKind::Parabola(p) => Some(p.base()),
+        CurveKind::Hermite(_)
+        | CurveKind::Conic(_)
+        | CurveKind::Projected(_)
+        | CurveKind::Iso(_)
+        | CurveKind::Offset(_)
+        | CurveKind::CrvInVolume(_)
+        | CurveKind::CrvOnSurf(_)
+        | CurveKind::Composite(_) => None,
     }
 }
 
@@ -363,7 +387,9 @@ fn executive_attribute_e_users(solver: &FilletSolver) -> Result<Vec<EdgeId>> {
 }
 
 /// `SmTopologyIntersector::MergeCurveOnSurfaces` (unit
-/// `boolean.topology_intersector_p3`): whether topology was deleted, the deleted edges.
+/// `boolean.topology_intersector_p3`): whether topology was deleted, the edges this call
+/// deleted (upstream appends them to the caller's `paDeletedEdges`; the caller
+/// accumulates them).
 #[allow(clippy::too_many_arguments)]
 fn merge_curve_on_surfaces(
     ti: TopologyIntersectorRef,
@@ -1092,14 +1118,24 @@ impl FilletBrep {
 
             // Do surface/surface intersection
             let (prim, mate) = self.prim_and_mate(curr_edge, OP_INT2)?;
-            let (g1, fs1) = self.eu_geom_solver(prim, solvers, OP_INT2)?;
-            let (g2, fs2) = self.eu_geom_solver(mate, solvers, OP_INT2)?;
+            let g1 = self
+                .fillet_edgeuse(prim)?
+                .fillet_geom()
+                .ok_or_else(|| SolidError::null_pointer(OP_INT2))?;
+            let g2 = self
+                .fillet_edgeuse(mate)?
+                .fillet_geom()
+                .ok_or_else(|| SolidError::null_pointer(OP_INT2))?;
             let (Some(fillet_surface1), Some(fillet_surface2)) = (
                 self.geom(g1)?.fillet_surface(),
                 self.geom(g2)?.fillet_surface(),
             ) else {
                 return Ok(()); // Fillet surfaces have not yet been computed
             };
+            // The solvers are dereferenced only past the surface test (upstream
+            // fetches the pointers before it but does not use them)
+            let (_, fs1) = self.eu_geom_solver(prim, solvers, OP_INT2)?;
+            let (_, fs2) = self.eu_geom_solver(mate, solvers, OP_INT2)?;
 
             let approx_tol = smin(fs1.approx_tol_3d, fs2.approx_tol_3d);
             let ang_tol = smin(fs1.ang_tol_rad, fs2.ang_tol_rad);
@@ -1830,6 +1866,11 @@ impl FilletBrep {
         let ti = executive_topology_intersector(fs)?;
         let fillet_surface = geom.fillet_surface().ok_or_else(nul)?;
 
+        // aDeletedEdges: one array for the whole routine; MergeCurveOnSurfaces appends
+        // to it, so every ClearFilletBrepEdges sees the edges deleted by all the merges
+        // so far
+        let mut deleted_edges: Vec<EdgeId> = Vec::new();
+
         // Merge each rail into originating face
         for ii in 0..2 {
             // Collect all extra rails for case ii
@@ -1873,12 +1914,11 @@ impl FilletBrep {
 
                 // If MergeCurveOnSurface deleted an edge that rThisRail points to,
                 // clear out that pointer.
-                let deleted = match &merged {
-                    Ok((_, deleted)) => deleted.clone(),
-                    Err(_) => Vec::new(),
-                };
+                if let Ok((_, deleted)) = &merged {
+                    deleted_edges.extend_from_slice(deleted);
+                }
                 self.fillet_edge_mut(this_rail)?
-                    .clear_fillet_brep_edges(&deleted);
+                    .clear_fillet_brep_edges(&deleted_edges);
 
                 // If any Faces were split, check the objects sitting on the face
                 update_topology_changes(fs, 777, base_face)?;
@@ -1924,7 +1964,9 @@ impl FilletBrep {
                 orig_uv,
                 fill_edge,
             )?;
-            self.fillet_edge_mut(fe)?.clear_fillet_brep_edges(&deleted);
+            deleted_edges.extend(deleted);
+            self.fillet_edge_mut(fe)?
+                .clear_fillet_brep_edges(&deleted_edges);
             update_topology_changes(fs, 778, face)?;
             register_existing_ssi(ti, face, fillet_surface)?;
         }
@@ -2207,6 +2249,25 @@ mod tests {
         );
         let e = create_uv_curve(&k, &fb, v[0], v[1], true, &srf, 1e-6).unwrap_err();
         assert!(matches!(e, SolidError::Upstream { .. }));
+    }
+
+    #[test]
+    fn b_spline_cast_accepts_b_spline_derived_kinds() {
+        // SM_CAST_PTR(SmBSplineCurve, ..) succeeds for an SmLine (derived from
+        // SmBSplineCurve upstream)
+        let line = Curve::from(crate::curve::line::Line::from_points(
+            Point3::new(0.0, 0.0, 0.0),
+            Point3::new(1.0, 2.0, 3.0),
+            3,
+        ));
+        assert!(as_b_spline(&line).is_some());
+        let seg = BSplineCurve::create_line_segment(
+            3,
+            Point3::new(0.0, 0.0, 0.0),
+            Point3::new(1.0, 0.0, 0.0),
+        )
+        .unwrap();
+        assert!(as_b_spline(&Curve::from(seg)).is_some());
     }
 
     #[test]
