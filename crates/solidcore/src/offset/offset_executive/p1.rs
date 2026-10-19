@@ -11,6 +11,7 @@
 //! | [`OffsetExecutive::replace_implicit_offsets`] | `ReplaceImplicitOffsets` |
 //! | [`OffsetExecutive::remove_excess_faces`] | `RemoveExcessFaces` |
 //! | [`OffsetExecutive::get_create_extended_surface`] | `GetCreateExtendedSurface` |
+//! | [`OffsetExecutive::insert_extended_surface`] | `m_vSurfExtSurf.Insert` (protected upstream; harness seeding) |
 //! | [`OffsetExecutive::piecewise_merge`] | `PiecewiseMerge` |
 //! | `sort_edgeuses`, `insert_breaks`, `remove_small_stuff`, `extract_gaps` (private) | `sm_SortEdgeuses`, `sm_InsertBreaks`, `sm_RemoveSmallStuff`, `sm_ExtractGaps` |
 //! | [`OffsetExecutive::offset_edgeuse`] | `GetOffsetEdgeuse` |
@@ -386,6 +387,14 @@ impl OffsetExecutive {
                 Ok(entry.insert(extension))
             }
         }
+    }
+
+    /// Caches `surface` as the extension of `base_key` (`m_vSurfExtSurf.Insert`), replacing
+    /// any earlier entry. Upstream's map is protected; the offset difftest shims reach it
+    /// through a subclass to seed every base with itself, so that a lookup never extends,
+    /// and their runners seed the port's cache through this method.
+    pub fn insert_extended_surface(&mut self, base_key: u64, surface: Surface) {
+        self.extended_surfaces.insert(base_key, surface);
     }
 
     /// Replaces implicit offset surfaces with approximations (`ReplaceImplicitOffsets`).
