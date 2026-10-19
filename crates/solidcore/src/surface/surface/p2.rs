@@ -705,7 +705,7 @@ impl Surface {
     /// Those of the kind's override (the base default is [`Surface::copy`]).
     pub fn copy_and_add_analytics(&self, k: &Kernel) -> Result<Self> {
         match &self.kind {
-            SurfaceKind::BSpline(s) => s.copy_and_add_analytics(),
+            SurfaceKind::BSpline(s) => s.copy_and_add_analytics(k),
             SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {
                 base_copy_and_add_analytics()
             }
@@ -1646,7 +1646,7 @@ impl Surface {
         let bs = BSplineSurface::create_bilinear_surface(pt00, pt10, pt01, pt11)?;
 
         // Copy pBS, when possible as an analytic surface (the SmBSplineSurface override)
-        let plane = bs.copy_and_add_analytics()?;
+        let plane = bs.copy_and_add_analytics(k)?;
 
         Ok(PlaneWith3dCurves {
             plane,
@@ -2675,7 +2675,7 @@ fn is_contained(c: f64, a: f64, b: f64) -> bool {
 }
 
 /// `smos_Max` of two doubles.
-fn smos_max(a: f64, b: f64) -> f64 {
+pub(crate) fn smos_max(a: f64, b: f64) -> f64 {
     if a > b {
         a
     } else {
