@@ -733,7 +733,7 @@ out-of-memory kill after a successful reservation.
 
 ## nlib.basis_adv (green; no disagreements)
 
-1744 default cases (244 fixture + 1500 generated) and a 100,244-case run (`--seeds 100000`)
+1751 default cases (251 fixture + 1500 generated) and a 100,251-case run (`--seeds 100000`)
 agree bit for bit with upstream (`max_rel_err = 0`). Fixtures use the 33 knot vectors of
 the `nlib.basis_basic` fixtures (every `.smc`/`.sms` in `pt_TestFiles`, `smTopoTest.cpp`,
 SM_API_test rectangle/polygon layouts, doc examples) plus edge cases. Upstream behaviour
@@ -791,7 +791,8 @@ fuzzed Rust/C++ disagreements reported in #182 remain unassessed by this fix.
   The Rust port already returned those knots; the shim now sizes its output for them,
   so the reference runs and the values are compared.
 
-Regression fixtures: `fixtures/nlib.basis_adv/fuzz_regressions.json`.
+Regression fixtures: `fixtures/nlib.basis_adv/fuzz_regressions.json`. After the fix,
+`--fuzz 3000`, `30000` and `100000` give 0 differs, crashes, panics and timeouts.
 
 ## geom.grid (partial; no disagreements)
 
