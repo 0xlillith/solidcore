@@ -324,7 +324,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         )
         .map(|_| ())),
         Inputs::Trees { breps: list, tree } => {
-            let mut v = breps(list.len());
+            let mut v = breps(list.len()).into_iter().map(Some).collect();
             match api::boolean_trees(&mut k, &mut v, tree) {
                 Ok(()) if v.is_empty() => {
                     Ok(Output::new().int("status", 0).ints("record", vec![0]))

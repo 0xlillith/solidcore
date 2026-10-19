@@ -43,11 +43,8 @@
 //!   Two-B-rep entry points still await the `merge_p2` engine constructor.
 //! - **List context.** `boolean_lists` takes a mutable kernel for the connected
 //!   component traversal's mark locks.
-//! - **Nullable tree output.** The kernel-level tree evaluator keeps null slots.
-//!   This owned-value API returns `InvalidInput` if a malformed repeated-leaf tree
-//!   succeeds with a null result slot, which `Vec<Brep>` cannot represent.
-//!   On failure this API retains the surviving non-null operands, compacting
-//!   slots the kernel-level API preserves as null.
+//! - **Nullable tree output.** Tree operands are `Option<Brep>` slots, preserving
+//!   consumed entries on failure and defined null outputs of repeated leaves.
 //! - The debug drawing (`SM_DEBUG_CODE`) and `SM_ASSERT_VALID` checks are not ported.
 
 use crate::boolean::merge::MergeOptions;
@@ -274,26 +271,20 @@ pub fn boolean_lists(
 ///
 /// # Errors
 ///
-/// The first dependency error reached by `merge::p3::boolean_trees`, or
-/// `InvalidInput` when a repeated-leaf tree returns a null output slot.
-pub fn boolean_trees(k: &mut Kernel, breps: &mut Vec<Brep>, post_fix_trees: &[i64]) -> Result<()> {
-    let mut slots = breps.drain(..).map(Some).collect();
-    let result = crate::boolean::merge::p3::boolean_trees(
+/// Dependency errors, or `InvalidInput` for an out-of-range executed leaf or
+/// a binary operation that would dereference a null operand upstream.
+pub fn boolean_trees(
+    k: &mut Kernel,
+    breps: &mut Vec<Option<Brep>>,
+    post_fix_trees: &[i64],
+) -> Result<()> {
+    crate::boolean::merge::p3::boolean_trees(
         k,
-        &mut slots,
+        breps,
         post_fix_trees,
         None,
         &mut crate::boolean::merge::p3::DependencyMerge,
-    );
-    let null_result = result.is_ok() && slots.iter().any(Option::is_none);
-    breps.extend(slots.into_iter().flatten());
-    if null_result {
-        return Err(SolidError::invalid_input(
-            "boolean::api_brep::boolean_trees",
-            "null result cannot be represented by Vec<Brep>",
-        ));
-    }
-    result
+    )
 }
 
 #[cfg(test)]
@@ -403,9 +394,23 @@ mod tests {
         let mut k = Kernel::default();
         let e = boolean_lists(&mut k, &[Brep::new()], &[], &[Brep::new()], &[], 1).unwrap_err();
         assert_eq!(unported_unit(&e), "topology.brep_p3");
-        let mut breps = vec![Brep::new(), Brep::new()];
+        let mut breps = vec![Some(Brep::new()), Some(Brep::new())];
         let tree = vec![0, 1, -1];
         let e = boolean_trees(&mut k, &mut breps, &tree).unwrap_err();
         assert_eq!(unported_unit(&e), "boolean.merge_p2");
+    }
+    #[test]
+    fn tree_api_preserves_defined_null_outputs_and_failure_slots() {
+        let mut k = Kernel::default();
+        let mut breps = vec![Some(Brep::new()), Some(Brep::new())];
+        boolean_trees(&mut k, &mut breps, &[0, 0]).unwrap();
+        assert_eq!(breps.len(), 3);
+        assert!(breps.first().unwrap().is_some());
+        assert!(breps.get(1).unwrap().is_none());
+        assert!(breps.get(2).unwrap().is_some());
+        let mut breps = vec![Some(Brep::new()), Some(Brep::new())];
+        assert!(boolean_trees(&mut k, &mut breps, &[0, -1]).is_err());
+        assert!(breps.first().unwrap().is_none());
+        assert!(breps.get(1).unwrap().is_some());
     }
 }

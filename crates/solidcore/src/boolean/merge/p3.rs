@@ -21,11 +21,14 @@
 //! error if removal fails to make progress.
 //! `BooleanLists` slices surface copies to base `SmSurface` upstream; the missing
 //! base-only constructor branch is deferred to partial `surface.surface_p1`.
+//! Skip relations reuse `geom::tol::Relation` and its documented sorted-handle
+//! query order, rather than upstream's address-dependent hash order.
 
 use super::p1::MergeOptions;
 use crate::error::{Result, SolidError};
 use crate::geom::a_object::BooleanOperation;
 use crate::geom::context::MarkLock;
+use crate::geom::tol::Relation;
 use crate::kernel::Kernel;
 use crate::surface::surface::Surface;
 use crate::topology::Brep;
@@ -284,18 +287,18 @@ fn ignored<T>(result: Result<T>) -> Result<Option<T>> {
 
 /// Merge each surface of the other operand, optionally through a stand-alone
 /// face B-rep. `skip_pairs` is the surface relation (other surface, skipped primary
-/// surface); `Some(&[])` still enables attribute and SSI cleanup behavior.
+/// surface); an empty non-null relation still enables attribute and SSI cleanup.
 /// `use_existing_topology` is deliberately unused upstream.
 pub fn piecewise_merge<D: PiecewiseAccess>(
     k: &mut Kernel,
     driver: &mut D,
-    skip_pairs: Option<&[(D::Surface, D::Surface)]>,
+    skip_pairs: Option<&Relation<D::Surface, D::Surface>>,
     use_existing_topology: bool,
     create_new_breps_for_faces: bool,
 ) -> Result<Option<D::Operand>>
 where
     D::Operand: Copy,
-    D::Surface: PartialEq,
+    D::Surface: Ord,
 {
     let (final_result, original_other) = driver.operands();
     let final_result = final_result.ok_or_else(|| SolidError::null_pointer(OP))?;
@@ -308,7 +311,7 @@ where
     if let Some(pairs) = skip_pairs {
         for &surface in &surfaces {
             driver.surface_map(surface, false)?;
-            for &(_, skip) in pairs.iter().filter(|(first, _)| *first == surface) {
+            for skip in pairs.seconds(surface) {
                 driver.surface_map(skip, true)?;
             }
         }
@@ -351,7 +354,7 @@ where
                     .surface_map_users(surface)?
                     .ok_or_else(|| SolidError::null_pointer(OP))?;
                 for user in users {
-                    for &(_, skip) in pairs.iter().filter(|(first, _)| *first == surface) {
+                    for skip in pairs.seconds(surface) {
                         if let Some(skip_users) = driver.surface_map_users(skip)? {
                             for skip_user in skip_users {
                                 driver.register_empty_ssi(skip_user, user)?;

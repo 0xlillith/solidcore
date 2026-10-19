@@ -134,16 +134,21 @@ SC_EXPORT int32_t sc_boolean_merge_p3_eval(const double* input, int64_t n,
             else if(depth>=2) tree_no_binary=false;
             else break;
         }
+        // BooleanLists retains every original and returns independent copies.
+        // Release those copies first, while any source attribute users are live.
+        if(family==2) {
+            std::set<SmBrep*> copied;
+            for(ULONG i=0;i<result.GetSize();++i) if(result[i]) copied.insert(result[i]);
+            for(auto* live:copied) delete live;
+            for(ULONG i=0;i<result_surfaces.GetSize();++i) delete result_surfaces[i];
+        }
         std::set<SmBrep*> cleanup;
         if(tree_no_binary || family==2 || (family==1 && (na<2 || operation<0 || operation>3))) {
             cleanup.insert(originals.begin(),originals.end());
         }
         if(status==SM_SUCCESS) {
             if(family==0) for(ULONG i=0;i<a.GetSize();++i) {if(a[i]) cleanup.insert(a[i]);}
-            else if(family==2) {
-                for(ULONG i=0;i<result.GetSize();++i) if(result[i]) cleanup.insert(result[i]);
-                for(ULONG i=0;i<result_surfaces.GetSize();++i) delete result_surfaces[i];
-            } else if(single) cleanup.insert(single);
+            else if(family!=2 && single) cleanup.insert(single);
         }
         for(auto* live:cleanup) delete live;
         *len=static_cast<int64_t>(values.size());

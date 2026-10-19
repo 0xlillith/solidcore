@@ -7686,9 +7686,11 @@ parity is claimed for planar extraction or SURFACEMAP branches. This is a covera
 limit, not a passing branch.
 
 The kernel tree API uses `Vec<Option<Operand>>`, preserving consumed input slots
-on failure and defined null outputs of repeated leaves. The existing owned-value
-`api_brep::boolean_trees` API cannot represent a null result; it explicitly returns
-`InvalidInput` for that malformed success output rather than silently dropping it.
+on failure and defined null outputs of repeated leaves. The wired
+`api_brep::boolean_trees` now uses `Vec<Option<Brep>>` for the same lossless
+behavior. Its FFI wrapper reuses the merge_p3 guard, accepting safe repeated
+leaves and refusing binary null dereferences rather than classifying all repeated
+leaves as undefined behavior.
 The `BooleanLists` connected-component loop retains the mark lock through copy and
 removal, bounds iterations by the initial face count, and errors if removal makes
 no progress. UB-188 records the native tree-index/null-dereference guard (source

@@ -53,16 +53,32 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     if family != 0 && nt != 0 {
         return Err(bad("unexpected tree"));
     }
-    let mut used = vec![false; na];
-    let mut stack = Vec::new();
-    let mut active = true;
+    let mut nodes = Vec::new();
     for _ in 0..nt {
         let node = rd.num()?;
         if !node.is_finite() || node.fract() != 0.0 || !(-64.0..=64.0).contains(&node) {
             return Err(bad("invalid tree token"));
         }
+        nodes.push(node as i64);
+    }
+    validate_tree_nodes(na, &nodes)?;
+    rd.done()
+}
+/// Shared native-tree guard: safe repeated leaves and definite early errors
+/// remain valid; executed binary operations cannot consume null operands.
+pub(crate) fn validate_tree_nodes(count: usize, nodes: &[i64]) -> Result<(), FfiError> {
+    if count > 16 || nodes.len() > 128 {
+        return Err(bad("tree resource limit"));
+    }
+    let mut used = vec![false; count];
+    let mut stack = Vec::new();
+    let mut active = true;
+    for &node in nodes {
+        if !(-64..=64).contains(&node) {
+            return Err(bad("invalid tree token"));
+        }
         if active {
-            if node >= 0.0 {
+            if node >= 0 {
                 let flag = used
                     .get_mut(node as usize)
                     .ok_or_else(|| bad("tree leaf out of range"))?;
@@ -76,7 +92,7 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
                 if !primary || !other {
                     return Err(bad("binary operation dereferences a null operand"));
                 }
-                if node < -6.0 {
+                if node < -6 {
                     active = false;
                 } else {
                     stack.push(true);
@@ -84,7 +100,7 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
             }
         }
     }
-    rd.done()
+    Ok(())
 }
 /// Run a validated program on the C++ reference. No native pointers escape.
 pub fn eval(input: &[f64]) -> Result<Vec<f64>, FfiError> {
