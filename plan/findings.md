@@ -759,7 +759,8 @@ worth knowing:
 - **`N_GetCompatibleKnotArrayMult`** has the same structure as `N_MakeKnotsCompatible`
   (same degree for both vectors, multiplicities merged to the maximum) and the same
   out-of-bounds reads past `U[m]` on unusual inputs and endless loop on NaN knots. The
-  shim pads with `+inf`; the generator keeps to clamped vectors of degree >= 1.
+  ffi rejects exactly the inputs that read past `U[m]` (issue #182 follow-up below); the
+  shim still pads with `+inf`.
 - No `UNPORTED(nlib.basis_adv)` stubs existed to wire.
 
 **Issue #182, arithmetic-overflow follow-up.** The Rust API accepts `usize`
@@ -771,6 +772,26 @@ degree and returns the existing `NL_KNT_ERR`. Three regression tests cover both
 initial-index sites and both sum additions (single and repeated inner knots).
 No floating-point formulas or comparison tolerances change. The separate 41
 fuzzed Rust/C++ disagreements reported in #182 remain unassessed by this fix.
+
+**Issue #182, fuzz follow-up.** On main after the overflow fix, `--fuzz 3000` gave
+0 panics and 55 `differs`; `--fuzz 30000` gave 501 `differs` and 2 crashes. Two causes:
+
+- *All differs: `compat_mult` reads past the ends (UB-13).* Rust returned its
+  out-of-range `InvalidInput` while the C++ "succeeded" on the shim's `+inf` padding
+  (garbage-dependent in real callers). Inputs: degree 0 on vectors whose end knots
+  repeat (the fuzz `/p = 0` mutation, most cases), an inner knot moved above the end,
+  an end knot replaced by a smaller value. The ffi guard now rejects exactly these:
+  `compat_mult_reads_in_bounds` has the shim replay upstream's rescale (calling
+  `N_BasisReparam`) and index walk, checking each `R[i]`/`S[j]` index before the read.
+  The runner reports such inputs as `read_past_end` on both sides (C++ from the walk
+  check, Rust from its out-of-range error), so the two detections are compared; the
+  generator emits degree 0 on clamped vectors in 4 % of `compat_mult` cases.
+- *Crashes: `insert` with fewer than `2p+2` knots (UB-191).* An unsorted `R` can pass
+  the range check; upstream then writes `2p+2+mx+1` knots into an `mr+mx+2` buffer.
+  The Rust port already returned those knots; the shim now sizes its output for them,
+  so the reference runs and the values are compared.
+
+Regression fixtures: `fixtures/nlib.basis_adv/fuzz_regressions.json`.
 
 ## geom.grid (partial; no disagreements)
 
