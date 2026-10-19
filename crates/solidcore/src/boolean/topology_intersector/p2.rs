@@ -692,8 +692,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// # Errors
     ///
     /// `SM_ERR_NULL_POINTER` when a candidate vertex has no mate; those of
-    /// [`IntersectorBrepP2::brep_combine_coincident_vertices`] and of the edge length; [`SolidError::InvalidInput`] for an unknown handle, an edge
-    /// without curve, a mate that is not a vertex or a missing B-rep.
+    /// [`IntersectorBrepP2::brep_combine_coincident_vertices`] and of the edge length;
+    /// [`SolidError::InvalidInput`] for an unknown handle, an edge without curve, a mate
+    /// that is not a vertex or a missing B-rep.
     #[allow(clippy::neg_cmp_op_on_partial_ord)] // upstream's NaN-safe test
     pub fn fix_gaps(
         &mut self,
