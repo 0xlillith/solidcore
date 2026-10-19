@@ -1518,7 +1518,8 @@ impl FilletBrep {
     /// curves to the max-v rail(s), those reversed and the side curves back (gaps
     /// capped when the side curves do not connect); with UV curves
     /// (`MakeFaceWithCurves`) unless the geometry is a cliff side patch
-    /// (`TrimSurfaceWithModelSpaceCurves`). Sets the geometry's capped flags.
+    /// (`TrimSurfaceWithModelSpaceCurves`). Sets the geometry's capped flags. `env`
+    /// carries the notifications the face makers send to `brep`'s entities.
     ///
     /// # Errors
     ///
@@ -1533,6 +1534,7 @@ impl FilletBrep {
         g: FilletGeomId,
         solvers: &[FilletSolver],
         brep: &mut Brep,
+        env: &mut edge::NotifyEnv<'_>,
     ) -> Result<()> {
         let nul = || SolidError::null_pointer(OP_FACE);
 
@@ -1793,6 +1795,7 @@ impl FilletBrep {
                 OrientType::Same,
                 None,
                 &face_ref,
+                env,
             )?;
         } else {
             let input = TrimInput {
@@ -1805,7 +1808,7 @@ impl FilletBrep {
                 surface_orientation: OrientType::Same,
             };
             trim_surface_with_model_space_curves(
-                k, brep, region, d3d_tol, input, true, false, false,
+                k, brep, region, d3d_tol, input, true, false, false, env,
             )?;
         }
 
@@ -2334,7 +2337,19 @@ mod tests {
         let mut fb = FilletBrep::new();
         let g = fb.add_geom(FilletGeom::new(&k, None, FilletGeomType::Default).unwrap());
         let mut b = Brep::new();
-        assert!(fb.make_face_brep(&k, g, &[], &mut b).is_err());
+        let mut records = std::collections::BTreeMap::new();
+        let mut attributes = crate::geom::attribute::AttributeStore::default();
+        let key_of = |_e: EntityRef| ObjectRef {
+            type_code: 0,
+            key: crate::geom::attribute::ObjectKey(0),
+        };
+        let mut env = edge::NotifyEnv {
+            records: &mut records,
+            attributes: &mut attributes,
+            context: None,
+            key_of: &key_of,
+        };
+        assert!(fb.make_face_brep(&k, g, &[], &mut b, &mut env).is_err());
     }
 
     #[test]

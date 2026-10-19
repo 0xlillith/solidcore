@@ -415,7 +415,30 @@ fn rust(i: &Inputs) -> Result<Rec, HarnessError> {
         Query::MakeFace { g } => {
             let gid: FilletGeomId = rm.geom(*g)?;
             let mut brep = Brep::new();
-            let r = rm.fb.make_face_brep(&k, gid, &solvers, &mut brep);
+            let mut records = std::collections::BTreeMap::new();
+            let mut attributes = solidcore::geom::attribute::AttributeStore::default();
+            // distinct identities for the face makers' notifications, keyed as the
+            // face reference make_face_brep passes (faces from 1)
+            let key_of = |e: solidcore::EntityRef| {
+                use solidcore::EntityRef as E;
+                let (type_code, key) = match e {
+                    E::Face(f) => (solidcore::topology::face::p2::TYPE, 1 + u64::from(f.index())),
+                    E::Edge(x) => (solidcore::topology::edge::TYPE, 1 << 40 | u64::from(x.index())),
+                    E::Edgeuse(x) => (16005, 2 << 40 | u64::from(x.index())),
+                    _ => (0, 3 << 40),
+                };
+                solidcore::geom::object::ObjectRef {
+                    type_code,
+                    key: solidcore::geom::attribute::ObjectKey(key),
+                }
+            };
+            let mut env = solidcore::topology::edge::NotifyEnv {
+                records: &mut records,
+                attributes: &mut attributes,
+                context: None,
+                key_of: &key_of,
+            };
+            let r = rm.fb.make_face_brep(&k, gid, &solvers, &mut brep, &mut env);
             o.push(status_of!(r));
         }
         Query::Blending { g } => {
