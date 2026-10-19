@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` by `harness/plan/progress.py`; do not edit by hand.
 
-**208 / 261 units ported** (113 green, 95 partial), **292,216 / 387,903 upstream lines (75.3%)**. 37 claimed, 0 blocked, 16 todo.
+**208 / 261 units ported** (113 green, 95 partial), **292,216 / 387,903 upstream lines (75.3%)**. 39 claimed, 0 blocked, 14 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -14,8 +14,6 @@ _None right now; see the next section._
 
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
-- [ ] `blend.fillet_executive_p3` (1608 lines) — missing: `blend.fillet_solver_p1`, `topology.brep_p3`
-- [ ] `boolean.merge_p4` (2590 lines) — missing: `boolean.merge_p2`, `boolean.topology_intersector_p2`, `topology.brep_p2`
 - [ ] `boolean.merge_p3` (1152 lines) — missing: `boolean.merge_p2`, `boolean.merge_p4`, `topology.brep_p3`
 - [ ] `blend.fillet_executive_p1` (2063 lines) — missing: `blend.fillet_executive_p3`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +3 more
 - [ ] `primitive.primitive_creation_p2` (2258 lines) — missing: `primitive.primitive_creation_p1`, `primitive.primitive_creation_p3`, `topology.brep_p4`, `topology.brep_p5` +1 more
@@ -65,7 +63,9 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `sweep.topology_sweep` (2456 lines) — in progress: #222 @damgru (ready for review)
 - [ ] 🔨 `boolean.topology_intersector_p3` (1849 lines) — in progress: #211 @oursland (draft)
 - [ ] 🔨 `primitive.primitive_creation_p3` (1842 lines) — in progress: #233 @damgru (ready for review)
+- [ ] 🔨 `blend.fillet_executive_p3` (1608 lines) — in progress: #244 @bluecmd (draft)
 - [ ] 🔨 `boolean.merge_p2` (1967 lines) — in progress: #229 @Pluto-XI (ready for review)
+- [ ] 🔨 `boolean.merge_p4` (2590 lines) — in progress: #243 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_solver_p3` (1112 lines) — in progress: #236 @denelson1-dot (ready for review)
 - [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (ready for review)
 - [ ] 🔨 `blend.fillet_geom_p3` (1032 lines) — in progress: #242 @denelson1-dot (ready for review)
@@ -346,7 +346,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `boolean.merge_p1` (993 lines) — partial, 248 cases
 - [ ] 🔨 `boolean.merge_p2` (1967 lines) — in progress: #229 @Pluto-XI (ready for review)
 - [ ] 🟡 `boolean.merge_p5` (475 lines) — partial, 140 cases
-- [ ] ⏳ `boolean.merge_p4` (2590 lines) — waiting
+- [ ] 🔨 `boolean.merge_p4` (2590 lines) — in progress: #243 @bluecmd (draft)
 - [ ] ⏳ `boolean.merge_p3` (1152 lines) — waiting
 - [ ] 🟡 `boolean.api_brep` (410 lines) — partial
 
@@ -360,7 +360,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `blend.fillet_solver_p5` (848 lines) — in progress: #208 @damgru (ready for review)
 - [ ] 🔨 `blend.fillet_standard_solver_p1` (2336 lines) — in progress: #168 @bherbruck (ready for review)
 - [ ] 🔨 `blend.fillet_solver_p4` (1404 lines) — in progress: #212 @blackveilprecision (ready for review)
-- [ ] ⏳ `blend.fillet_executive_p3` (1608 lines) — waiting
+- [ ] 🔨 `blend.fillet_executive_p3` (1608 lines) — in progress: #244 @bluecmd (draft)
 - [ ] ⏳ `blend.fillet_executive_p1` (2063 lines) — waiting
 - [ ] ⏳ `blend.fillet_corner_p1` (1971 lines) — waiting
 - [ ] ⏳ `blend.fillet_solver_p2` (1939 lines) — waiting
