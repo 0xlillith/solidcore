@@ -108,14 +108,16 @@ use crate::math::{
 use crate::surface::volume::Volume;
 use crate::topology::{Brep, EdgeId, FaceId, VertexId};
 
-// UNPORTED(topology.brep_p1): SmTol::GetModelSizeEstimate(const SmBrep&),
+// UNPORTED(geom.tol): SmTol::GetModelSizeEstimate(const SmBrep&),
 // SmTol::SetModelSizeEstimate(SmBrep&, double), SmTol::GetZoneTol3d(const SmBrep*),
 // SmTol::GetApproxTol3d(const SmBrep*), SmTol::CalcFaceZoneTol3d(SmBrep*),
 // SmTol::CalcEdgeZoneTol3d(.., SmBrep*, ..), SmTol::CalcVertexZoneTol3d(.., SmBrep*, ..)
-// need SmBrep::GetTolerance / SmBrep::SetThisModelSizeEstimate; and
-// SmTol::GetScaledZero(const SmBrep&) needs SmBrep::CalculateBoundingBox.
+// can now be written over `topology::Brep` (`Brep::tolerance`,
+// `Brep::this_model_size_estimate`, `Brep::set_this_model_size_estimate`, unit
+// topology.brep_p1); SmTol::GetScaledZero(const SmBrep&) needs SmBrep::CalculateBoundingBox
+// (query.brep).
 // UNPORTED(topology.vertex), UNPORTED(topology.edge), UNPORTED(topology.face_p2),
-// UNPORTED(topology.edgeuse_p1), UNPORTED(topology.brep_p1): SmTol::GetZoneTol3d(const
+// UNPORTED(topology.edgeuse_p1): SmTol::GetZoneTol3d(const
 // SmObject*), SmTol::GetZoneTol3d(const SmBrepData*), SmTol::GetApproxTol3d(const
 // SmObject*), SmTol::GetXSectTol3d(const SmObject*, const SmObject*, ..),
 // SmTol::GetZoneTol3d_ForXSectResult(const SmObject*, const SmObject*),
@@ -124,7 +126,8 @@ use crate::topology::{Brep, EdgeId, FaceId, VertexId};
 // virtual GetTolerance: the base is topology::topology::Topology::tolerance, the
 // overrides belong to SmVertex, SmEdge, SmFace, SmEdgeuse), SmSurface/SmCurve
 // (GetFace/GetEdge), SmBrep, SmBrepData and SmCurveClassification; those classes have
-// no Rust object type yet.
+// no Rust object type yet (the SmBrep arm itself, SmBrep::GetTolerance, is
+// `Brep::tolerance`).
 // UNPORTED(curve.curve_p2): SmTol::IsDegenerate(const SmCurve*, SmExtent1d, ..),
 // SmTol::MapTo1d(SmTol3d&, double, const SmCurve&) and SmTol::GetScaledZero(const
 // SmCurve&) need SmCurve::IsDegenerate / Evaluate / GetNaturalInterval /
@@ -159,8 +162,10 @@ use crate::topology::{Brep, EdgeId, FaceId, VertexId};
 // UNPORTED(topology.vertex): SmTol::GetScaledZero(const SmVertex&) (SmVertex::GetPoint).
 // UNPORTED(topology.edge): SmTol::GetScaledZero(const SmEdge&) (SmEdge::GetCurve).
 // UNPORTED(topology.face_p2): SmTol::GetScaledZero(const SmFace&) (SmFace::GetSurface).
-// UNPORTED(topology.shell): SmTol::GetScaledZero(const SmRegion&) and (const SmShell&)
-// (CalculateBoundingBox).
+// UNPORTED(query.face_p1): SmTol::GetScaledZero(const SmRegion&) and (const SmShell&) are
+// each one call to SmRegion::CalculateBoundingBox / SmShell::CalculateBoundingBox, which
+// harness/callgraph/units.json assigns to query.face_p1 (the blocking callee is in that
+// unit, not in geom.tol).
 // SmTol::UpdateObjectTolerance(SmTopology*, double, double, SmBoolean) is
 // update_object_tolerance below (CO-PORTED in boolean.topology_intersector_p1).
 
@@ -1162,17 +1167,19 @@ fn ignore_soft<T>(r: Result<T>) -> Result<Option<T>> {
 
 /// `SmFace::SetTolerance(tol)`.
 fn face_set_tolerance(
-    _b: &mut Brep,
-    _f: FaceId,
-    _tol: f64,
-    _update_only_if_larger: bool,
-    _cascade_to_boundaries: bool,
+    b: &mut Brep,
+    f: FaceId,
+    tol: f64,
+    update_only_if_larger: bool,
+    cascade_to_boundaries: bool,
 ) -> Result<()> {
-    // UNPORTED(topology.face_p3): SmFace::SetTolerance
-    Err(SolidError::unported(
-        "SmFace::SetTolerance",
-        "topology.face_p3",
-    ))
+    crate::topology::face::p3::set_tolerance(
+        b,
+        f,
+        tol,
+        update_only_if_larger,
+        cascade_to_boundaries,
+    )
 }
 
 /// `SmFace::GetEdges(rEdges)`.
@@ -1205,8 +1212,8 @@ pub enum TopologyToUpdate {
 /// # Errors
 ///
 /// `SM_ERR_INVALID_INPUT` (as [`SolidError::Upstream`]) when the tolerance to use is
-/// below `SM_EFF_ZERO`; [`SolidError::Unported`] for `SmFace::SetTolerance`
-/// (`topology.face_p3`) and `SmFace::GetEdges` (`topology.face_p4`); those of the
+/// below `SM_EFF_ZERO`; [`SolidError::Unported`] for `SmFace::GetEdges`
+/// (`topology.face_p4`); those of `SmFace::SetTolerance`, the
 /// setters and gap queries.
 pub fn update_object_tolerance(
     k: &Kernel,

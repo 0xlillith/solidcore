@@ -1779,8 +1779,14 @@ pub(super) fn face_silhouettes<O: Copy + PartialEq>(
     }
 
     // Create the planar section curves from the brep and the plane
-    let (_curves_3d, _curves_uv) =
-        srf.create_silhouette_curves(k, &objects.face_uv_domain(face)?, view, false)?;
+    let (_curves_3d, _curves_uv) = srf.create_silhouette_curves(
+        k,
+        &objects.face_uv_domain(face)?,
+        view,
+        false,
+        Some(approx_tol),
+        Some(angle_tol),
+    )?;
 
     // Now trim the curves (then SmSurfaceCache::AddCurvesToCache(SM_AS_TRIMMED_SILHOUETTE,
     // ..) and HasCachedCurves again, SM_ERR when they are not found).
@@ -1858,10 +1864,13 @@ fn curve_global_curve_solve<O: SolutionObject>(
 
 /// `SmTol::GetZoneTol3d(m_pPointVertex)`.
 pub(super) fn object_zone_tol_3d<O>(_vertex: Option<O>) -> Result<f64> {
-    // UNPORTED(topology.brep_p1): SmTol::GetZoneTol3d(const SmObject*)
+    // UNPORTED(intersect.topology_solver_p1): SmTol::GetZoneTol3d(const SmObject*) on an opaque handle. Every
+    // arm it dispatches to is ported (topology::{vertex, edge, face::p2, edgeuse::p1}::tolerance,
+    // Brep::tolerance) but each takes `&Brep` and none is in scope here; wire once this code
+    // receives the owning B-rep
     Err(SolidError::unported(
         "SmTol::GetZoneTol3d(const SmObject*)",
-        "topology.brep_p1",
+        "intersect.topology_solver_p1",
     ))
 }
 

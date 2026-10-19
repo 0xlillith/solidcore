@@ -362,24 +362,18 @@ fn face_box(_b: &Brep, _f: FaceId) -> Result<Extent3d> {
         "query.face_p1",
     ))
 }
-fn faces(_b: &Brep) -> Result<Vec<FaceId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetFaces
-    Err(SolidError::unported("SmBrep::GetFaces", "topology.brep_p1"))
+fn faces(b: &Brep) -> Result<Vec<FaceId>> {
+    crate::topology::brep::p1::faces(b, None)
 }
-fn edges(_b: &Brep) -> Result<Vec<EdgeId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetEdges
-    Err(SolidError::unported("SmBrep::GetEdges", "topology.brep_p1"))
+fn edges(b: &Brep) -> Result<Vec<EdgeId>> {
+    crate::topology::brep::p1::edges(b, None)
 }
-fn vertices(_b: &Brep) -> Result<Vec<VertexId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetVertices
-    Err(SolidError::unported(
-        "SmBrep::GetVertices",
-        "topology.brep_p1",
-    ))
+fn vertices(b: &Brep) -> Result<Vec<VertexId>> {
+    crate::topology::brep::p1::vertices(b, None)
 }
-fn region_void(_b: &Brep, _r: RegionId) -> Result<bool> {
-    // UNPORTED(topology.shell): SmRegion::IsVoid
-    Err(SolidError::unported("SmRegion::IsVoid", "topology.shell"))
+/// `SmRegion::IsVoid` as a C truth value (`UNSURE`, 2, counts as void).
+fn region_void(b: &Brep, r: RegionId) -> Result<bool> {
+    Ok(b.region(r)?.is_void() != 0)
 }
 fn manifold_solid(_b: &Brep) -> Result<bool> {
     // UNPORTED(topology.brep_p2): SmBrep::IsManifoldSolid
