@@ -7742,3 +7742,27 @@ The two refusal fixtures compare only the FFI guard (both-errored/no_values),
 not a native result or a dependency deferral. Their keep-other variants remain
 native comparisons, as do all other accepted cases. Generated piecewise inputs
 retain imprinting coverage by setting keep-other when imprinting is selected.
+
+Final default comparison: 350 cases, 182 matched, 0 failed, 168 deferred,
+`max_rel_err=0`, no absolute floors. The 126 matches with values comprise 103
+nonempty leaf graph transfers and 23 empty forests. Of the 56 both-errored cases,
+54 compare native error statuses and two check only the UB-190 guard. There are
+zero geometric-success comparisons. Perturbation detected all 182 changed
+outputs. Guard fuzzing passed 2,000 mutations: 1,304 rejected, 696 ran, zero
+differences, crashes, panics or timeouts.
+
+The wired API unit has 287 cases: 151 matching integer status/list records,
+zero failures and 136 deferrals (merge_p2 114, brep_p3 21, brep_p2 1).
+All seven existing cases that flipped from deferred to matching were audited:
+`lists_empty`, `trees_not_binary`, and generated 0003/0025/0122/0208/0228.
+They reach only the native empty-first-list or stack-underflow errors, before
+missing geometry code. The new empty forest and unreachable-leaf cases match;
+the defined null-leaf result defers at the existing IsManifoldSolid serializer.
+API perturbation detected 151/151, and 2,000 guard mutations passed with zero
+differences, crashes, panics or timeouts (325 rejected, 1,122 malformed, 553 ran).
+
+Valgrind executed 50 programs, ten per family, through both native and Rust
+runners. Its baseline output matched exactly and Memcheck reported zero errors
+without suppressions. Leak checking was disabled: unknown live objects after a
+failed consuming native call are retained, as described above. This does not
+claim that those failure paths are leak-free.
