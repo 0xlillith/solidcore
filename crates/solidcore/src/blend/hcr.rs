@@ -224,47 +224,50 @@ fn brep_bounding_box(brep: &Brep) -> Result<Extent3d> {
 }
 
 /// `SmBrep::GetInfiniteRegion` (unit `topology.brep_p1`).
-fn infinite_region(brep: &Brep) -> Result<Option<RegionId>> {
-    let _ = brep;
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::GetInfiniteRegion",
-        "topology.brep_p1",
-    ))
+const fn infinite_region(brep: &Brep) -> Option<RegionId> {
+    brep.infinite_region()
 }
 
-/// `SmBrep::GetEdges(rEdges)` without an attribute filter (unit `topology.brep_p1`, not
-/// ported yet): its CO-PORT in `topology.shell`, the B-rep's edges in `m_pEdgeListHead`
-/// order. Every call upstream's `SmHCR` makes passes no attribute id.
-fn brep_edges(brep: &Brep) -> Vec<EdgeId> {
-    crate::topology::shell::brep_get_edges(brep)
+/// `SmBrep::GetEdges(rEdges)` without an attribute filter (unit `topology.brep_p1`):
+/// the B-rep's edges in `m_pEdgeListHead` order. Every call upstream's `SmHCR` makes
+/// passes no attribute id.
+fn brep_edges(brep: &Brep) -> Result<Vec<EdgeId>> {
+    crate::topology::brep::p1::edges(brep, None)
 }
 
-/// `SmBrep::GetFaces` (unit `topology.brep_p1`).
+/// `SmBrep::GetFaces` without an attribute filter (unit `topology.brep_p1`).
 fn brep_faces(brep: &Brep) -> Result<Vec<FaceId>> {
-    let _ = brep;
-    // UNPORTED(topology.brep_p1): SmBrep::GetFaces
-    Err(SolidError::unported("SmBrep::GetFaces", "topology.brep_p1"))
+    crate::topology::brep::p1::faces(brep, None)
 }
 
-/// `SmBrep::GetSurfaces` (unit `topology.brep_p1`): each face surface, by its face.
+/// `SmBrep::GetSurfaces` without an attribute filter (unit `topology.brep_p1`): each
+/// surface owned by its face, by its face, in face order (the selection of
+/// `topology::brep::p1::surfaces`, which returns the surfaces themselves).
 fn brep_surfaces(brep: &Brep) -> Result<Vec<FaceId>> {
-    let _ = brep;
-    // UNPORTED(topology.brep_p1): SmBrep::GetSurfaces
-    Err(SolidError::unported(
-        "SmBrep::GetSurfaces",
-        "topology.brep_p1",
-    ))
+    let mut out = Vec::new();
+    // for every face
+    for f in crate::topology::brep::p1::faces(brep, None)? {
+        let surface = brep
+            .face(f)?
+            .surface
+            .as_ref()
+            .ok_or_else(|| SolidError::null_pointer(OP))?;
+        // add all standalone face->Surfaces to the list
+        if surface.owner()
+            == Some(crate::topology::brep_cache::arena_identity(
+                crate::topology::brep_cache::CacheObject::Face(f),
+            ))
+        {
+            out.push(f);
+        }
+    }
+    Ok(out)
 }
 
-/// `SmBrep::AddDeletedSurface` (unit `topology.brep_p1`).
-fn add_deleted_surface(brep: &mut Brep) -> Result<()> {
-    let _ = brep;
-    // UNPORTED(topology.brep_p1): SmBrep::AddDeletedSurface
-    Err(SolidError::unported(
-        "SmBrep::AddDeletedSurface",
-        "topology.brep_p1",
-    ))
+/// `SmBrep::AddDeletedSurface` (unit `topology.brep_p1`): the scene keeps the copy
+/// until it is destroyed (here a clone of the surface the ray tracer owns).
+fn add_deleted_surface(brep: &mut Brep, surface: &Surface) {
+    brep.add_deleted_surface(surface.clone());
 }
 
 /// `SmBrep::MergeCurvesOnSurface` (unit `topology.brep_p2`): the new faces and the
@@ -672,7 +675,7 @@ impl Hcr {
     /// # Errors
     ///
     /// Those of [`Hcr::intersect_curve_with_silhouettes`], the curve evaluation and
-    /// [`Hcr::is_point_visible`]; [`SolidError::Unported`] for the infinite region.
+    /// [`Hcr::is_point_visible`].
     pub fn compute_curve_visibility(
         &mut self,
         k: &Kernel,
@@ -721,7 +724,7 @@ impl Hcr {
                     .mid
                     .set_class_object(PointClassType::Unknown, None);
             } else {
-                let region = infinite_region(&self.scene)?;
+                let region = infinite_region(&self.scene);
                 cc.at_mut(i)?
                     .mid
                     .set_class_object(PointClassType::Region, region.map(HcrObject::Region));
@@ -735,15 +738,15 @@ impl Hcr {
     ///
     /// # Errors
     ///
-    /// Those of [`Hcr::compute_edge_visibility`] and of the curve copies;
-    /// [`SolidError::Unported`] from the scene B-rep queries (unit `topology.brep_p1`).
+    /// Those of [`Hcr::compute_edge_visibility`], of the curve copies and of the scene
+    /// B-rep queries.
     pub fn compute_global_visibility(&mut self, k: &Kernel) -> Result<()> {
         // Find silhouette curves on faces
         ignore_status(self.compute_silhouettes(k))?;
 
         // Attributes for curves are attached to the scene edge curves (graphics only):
         // the edge list is the first scene query.
-        let edges = brep_edges(&self.scene);
+        let edges = brep_edges(&self.scene)?;
 
         // Disable editing now
         self.scene.set_editing_enabled(false);
@@ -792,7 +795,7 @@ impl Hcr {
         }
 
         // For each invisible edge: copy it, trim the copy to Edge interval, and add it.
-        let edges2 = brep_edges(&self.scene);
+        let edges2 = brep_edges(&self.scene)?;
         let _ = edges;
         for &e in &edges2 {
             if marked.contains(&e) {
@@ -988,8 +991,8 @@ impl Hcr {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] from the scene B-rep queries (unit `topology.brep_p1`)
-    /// and the silhouette curve walk.
+    /// Those of the scene B-rep queries; [`SolidError::Unported`] from the silhouette
+    /// curve walk.
     pub fn compute_silhouettes(&mut self, k: &Kernel) -> Result<()> {
         // Get SceneBrep Surfaces
         let surfaces = brep_surfaces(&self.scene)?;
@@ -1071,7 +1074,7 @@ impl Hcr {
         }
 
         // classify every edge in the scene (adding silhouettes may have split edges)
-        let edges = brep_edges(&self.scene);
+        let edges = brep_edges(&self.scene)?;
         for e in edges {
             if self.is_silhouette_edge(k, e)? {
                 self.add_silhouette_edge(k, e)?;
@@ -1138,7 +1141,7 @@ impl Hcr {
             return Ok(false);
         }
 
-        let inf = infinite_region(&self.scene)?;
+        let inf = infinite_region(&self.scene);
         let inf_this = self.region_of(prime)? == inf;
         let mate =
             edgeuse::p1::mate(&self.scene, prime)?.ok_or(undefined("edge use without mate"))?;
@@ -1185,8 +1188,7 @@ impl Hcr {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] from the infinite region (unit `topology.brep_p1`)
-    /// and the edge use binormals (their own callees); `InvalidInput` for topology upstream would
+    /// [`SolidError::Unported`] from the edge use binormals (their own callees); `InvalidInput` for topology upstream would
     /// dereference as null.
     pub fn is_back_facing_edge(&mut self, k: &Kernel, e: EdgeId) -> Result<bool> {
         // low work - edge already classified
@@ -1206,7 +1208,7 @@ impl Hcr {
         let first_mate =
             edgeuse::p1::mate(&self.scene, first)?.ok_or(undefined("edge use without mate"))?;
         // the scene edge's B-rep is the scene
-        let inf = infinite_region(&self.scene)?;
+        let inf = infinite_region(&self.scene);
         let r_first = self.region_of(first)?;
         let r_mate = self.region_of(first_mate)?;
         let prime = if r_first == inf && r_mate != inf {
@@ -1251,8 +1253,7 @@ impl Hcr {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] from the scene surfaces (unit `topology.brep_p1`) and
-    /// the ray tracer.
+    /// Those of the scene surfaces; [`SolidError::Unported`] from the ray tracer.
     pub fn is_point_visible(&mut self, k: &Kernel, point: Point3) -> Result<bool> {
         if self.ray.is_none() {
             let surfaces = brep_surfaces(&self.scene)?;
@@ -1299,7 +1300,7 @@ impl Hcr {
                     if natural {
                         // Domain match, no trimming needed: just copy.
                         if let Some(copy) = ignored(surface.copy(k))? {
-                            add_deleted_surface(&mut self.scene)?;
+                            add_deleted_surface(&mut self.scene, &copy);
                             entry = RaySurface::Owned(Box::new(copy));
                         } else {
                             self.ray = Some(setup);
@@ -1310,7 +1311,7 @@ impl Hcr {
                         let mut domain = domain;
                         let _ = ignored(trimmed.trim_with_domain(&mut domain))?;
                         if let Some(copy) = ignored(trimmed.copy_and_add_analytics())? {
-                            add_deleted_surface(&mut self.scene)?;
+                            add_deleted_surface(&mut self.scene, &copy);
                             entry = RaySurface::Owned(Box::new(copy));
                         } else {
                             self.ray = Some(setup);
