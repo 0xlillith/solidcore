@@ -8993,8 +8993,8 @@ port must not substitute a derived-preserving `Surface::copy` and silently fix
 the native behavior. `surface.surface_p1` remains partial; its notes record the
 missing base-copy branch. No crash or geometric result is claimed for it.
 
-Dependency-tag audit against the merged plan (all `todo` owners may have claimed
-PRs; none is reimplemented here):
+Dependency-tag audit at reviewed f0957fc5 (`todo` owners may have claimed PRs;
+none is reimplemented here). Batch #259 updates are recorded below:
 
 | Tag | Upstream callee | Owner status / action |
 | --- | --- | --- |
@@ -9118,6 +9118,19 @@ that result to an original identity. Track operand liveness or null deleted
 entries before enabling those paths. They remain deferred today; this is a
 harness limitation, not an upstream defect or an observed comparison failure.
 No shim lifetime change is made here.
+
+After batch #259 / main 7374781c5, the surface-slicing note is WR-196 (the
+shared UB/WR number space had a collision). `CopyFaces` now requires a real
+`NotifyEnv`: `boolean_lists_with_notifications` forwards caller-owned notification
+state, while the existing arena-only entry retains its signature and explicitly
+defers at the missing `topology.brep_p2` notification boundary if reached. The
+component-copy tail still calls the canonical `copy_faces` with `use_merge=true`.
+No temporary records/attributes are fabricated. The now-landed brep_p5
+`StitchAndOrient` and `RemoveFaces` calls are wired, retaining all input options
+and the actual editing flag. The fixture Pool still lacks the SmMerge engine's
+concrete `IntersectorBrep` binding; the topology_intersector_p2 adapter deferrals
+remain integration limitations, not a claim that its generic algorithms are
+absent from main. No intersector or merge engine is reimplemented here.
 
 Final ready verification after a clean merge of origin/main 154853c7 (including
 46ddc4ff): workspace fmt and explicit own include rustfmt, workspace/CPP compile

@@ -7,6 +7,7 @@
 //! | [`piecewise_merge`] | `SmMerge::PiecewiseMerge` |
 //! | [`merge_breps`] | `SmMerge::merge_breps` |
 //! | [`boolean_lists`] | `SmMerge::BooleanLists` |
+//! | [`boolean_lists_with_notifications`] | `SmMerge::BooleanLists` with caller notification state |
 //! | [`boolean_trees`] | `SmMerge::BooleanTrees` |
 //! | [`non_manifold_boolean`] | `SmMerge::NonManifoldBoolean` |
 //!
@@ -21,6 +22,8 @@
 //! error if removal fails to make progress.
 //! `BooleanLists` slices surface copies to base `SmSurface` upstream (WR-196); the missing
 //! base-only constructor branch is deferred to partial `surface.surface_p1`.
+//! Component-copy notifications use caller-owned records/attributes through
+//! `boolean_lists_with_notifications`; the arena-only entry defers at that boundary.
 //! Skip relations reuse `geom::tol::Relation` and its documented sorted-handle
 //! query order, rather than upstream's address-dependent hash order.
 
@@ -484,17 +487,21 @@ fn copy_base_surface(_k: &mut Kernel, _source: &Surface) -> Result<Surface> {
 
 fn stitch_and_orient(
     _k: &mut Kernel,
-    _brep: &mut Brep,
-    _tolerance: f64,
-    _allow_spine_edges: bool,
-    _faces_to_swap: Option<&mut Vec<FaceId>>,
-    _just_unify: Option<&mut bool>,
+    brep: &mut Brep,
+    tolerance: f64,
+    allow_spine_edges: bool,
+    faces_to_swap: Option<&mut Vec<FaceId>>,
+    just_unify: Option<&mut bool>,
 ) -> Result<()> {
-    // UNPORTED(topology.brep_p5): SmBrep::StitchAndOrient
-    Err(SolidError::unported(
-        "SmBrep::StitchAndOrient",
-        "topology.brep_p5",
-    ))
+    crate::topology::brep::p5::stitch_and_orient(
+        brep,
+        &crate::topology::brep::p5::StitchAndOrientOptions {
+            stitch_tolerance: tolerance,
+            allow_spine_edges,
+            faces_to_swap: faces_to_swap.as_deref().cloned(),
+            just_unify: just_unify.as_deref().copied(),
+        },
+    )
 }
 
 fn shrink_geometry(_k: &mut Kernel, _brep: &mut Brep) -> Result<()> {
@@ -518,12 +525,9 @@ fn boolean_2d(
     ))
 }
 
-fn remove_faces(_k: &mut Kernel, _brep: &mut Brep, _faces: &[FaceId]) -> Result<()> {
-    // UNPORTED(topology.brep_p5): SmBrep::RemoveFaces
-    Err(SolidError::unported(
-        "SmBrep::RemoveFaces",
-        "topology.brep_p5",
-    ))
+fn remove_faces(k: &mut Kernel, brep: &mut Brep, faces: &[FaceId]) -> Result<()> {
+    let editing_enabled = brep.editing_enabled();
+    crate::topology::brep::p5::remove_faces(k, brep, editing_enabled, faces)
 }
 
 fn list_operand(k: &mut Kernel, breps: &[Brep], surfaces: &[Surface]) -> Result<(Brep, bool)> {
@@ -579,6 +583,24 @@ pub fn boolean_lists(
     surfaces2: &[Surface],
     operation: i32,
     options: Option<&MergeOptions>,
+) -> Result<BooleanListsResult> {
+    boolean_lists_with_notifications(
+        k, breps1, surfaces1, breps2, surfaces2, operation, options, None,
+    )
+}
+
+/// [`boolean_lists`] with caller-owned topology records, attributes and identity
+/// routing for the component-copy notifications. The arena-only entry defers if
+/// it reaches this environment boundary; no temporary notification store is used.
+pub fn boolean_lists_with_notifications(
+    k: &mut Kernel,
+    breps1: &[Brep],
+    surfaces1: &[Surface],
+    breps2: &[Brep],
+    surfaces2: &[Surface],
+    operation: i32,
+    options: Option<&MergeOptions>,
+    mut notifications: Option<&mut crate::topology::edge::NotifyEnv<'_>>,
 ) -> Result<BooleanListsResult> {
     let (mut primary, planar1) = list_operand(k, breps1, surfaces1)?;
     let (mut other, planar2) = list_operand(k, breps2, surfaces2)?;
@@ -667,6 +689,13 @@ pub fn boolean_lists(
                         };
                         // Defaults: pOptNewFaces=NULL, bUseMerge=TRUE,
                         // pOptMergeObject=NULL. Returned outputs are not inspected.
+                        let notify = notifications.as_deref_mut().ok_or_else(|| {
+                            // UNPORTED(topology.brep_p2): SmBrep::Notify (component-copy environment)
+                            SolidError::unported(
+                                "SmBrep::Notify (component-copy environment)",
+                                "topology.brep_p2",
+                            )
+                        })?;
                         bp7::copy_faces(
                             k,
                             &mut result,
@@ -674,6 +703,7 @@ pub fn boolean_lists(
                             &mut component,
                             true,
                             &face_ref,
+                            notify,
                         )?;
                         ignored(stitch_and_orient(
                             k,
