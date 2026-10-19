@@ -1504,7 +1504,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** hang (unbounded slowness). A caller argument: no [PSIRT].
 - **Rust port:** unchanged. The `topology.brep_p1` shim rejects a tangency tolerance below `1e-20` (four decades of margin above the measured knee) only where its replay of the call reaches the cross-tangent approximation; earlier statuses stay compared.
 
-#### UB-184. `sm_CreateNonRationalCurve` reads the first dropped curve of an empty array [PSIRT]
+#### UB-195. `sm_CreateNonRationalCurve` reads the first dropped curve of an empty array [PSIRT]
 - **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:2938`-`2949` (`sm_CreateNonRationalCurve`, rational curve branch), reached from `SmBSplineSurface::CreateCornerBlend` (`:3100`-`3110`) and so from `SmBrep::CreateCornerBlend`.
 - **What happens:** For a rational B-spline boundary curve with a neighbour surface, the curve is approximated, reparametrised and dropped onto the surface with `DropCurve`. `DropCurve` can return `SM_SUCCESS` with no curve; `SM_ASSERT(sUVCurves.GetSize() == 1)` is a release no-op and `pNewUVTrimCurve = sUVCurves[0]` reads the array's NULL data (SIGSEGV).
 - **Trigger:** a corner blend whose ordered boundary curves include a rational B-spline edge curve of a tangent edge use whose drop onto its face surface yields no curve, with no earlier status stopping the call. The difftest met it on a face of a perturbed closed surface.

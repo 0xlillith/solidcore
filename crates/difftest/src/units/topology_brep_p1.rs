@@ -1936,7 +1936,7 @@ fn run_rust_op(
                     }
                 }
                 Err(e) if e.is_unported() => return Err(e.into()),
-                // UB-184: an empty rational-curve drop is where upstream reads sUVCurves[0]
+                // UB-195: an empty rational-curve drop is where upstream reads sUVCurves[0]
                 // of an empty array; the port's InvalidInput there is that null dereference
                 Err(SolidError::InvalidInput {
                     operation: "nurbs::b_spline_surface_n_lib::p1::create_non_rational_curve",

@@ -8249,7 +8249,7 @@ rejected: nothing runs on either side.
     failing.
   - **Fuzz findings on the corner-blend path** (the shim has run the real C++ since the edge-use
     wiring; the new fixtures give the mutator new shapes):
-    - UB-184 [PSIRT]: `sm_CreateNonRationalCurve` reads `sUVCurves[0]` after a rational curve's
+    - UB-195 [PSIRT]: `sm_CreateNonRationalCurve` reads `sUVCurves[0]` after a rational curve's
       `DropCurve` succeeds with no curve. Located with gdb on a `-g` build at
       SmBSplineSurfaceNLib.cpp:2949. The shim's corner-blend replay now runs on to that drop, and
       both sides report the guard.

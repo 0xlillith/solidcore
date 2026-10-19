@@ -808,7 +808,7 @@ void attach(Rd& rd, Graph& g, int64_t id)
 // call would dereference memory it does not have:
 // - the UV phase copies a NULL UV trim curve (`SM_ASSERT(pUVCurve != NULL)` is a release no-op
 //   and `pUVCurve->Copy` dereferences it);
-// - UB-184: a rational B-spline 3D curve with a neighbour surface whose DropCurve succeeds with
+// - UB-195: a rational B-spline 3D curve with a neighbour surface whose DropCurve succeeds with
 //   no curve, and `sUVCurves[0]` reads the empty array (the `SM_ASSERT(GetSize() == 1)` is a
 //   release no-op).
 // The replay keeps upstream's ordering, statuses and early returns, so it is TRUE exactly when
@@ -999,7 +999,7 @@ static bool corner_blend_refused(SmBrep* brep, const SmContext& ctx, const SmTAr
             if (osrf[ii]->DropCurve(ctx, dom, *approx, trim, tol / 2.0, max_dist, deviation, dropped) != SM_SUCCESS)
                 return false;
             if (dropped.GetSize() == 0)
-                return true; // UB-184
+                return true; // UB-195
         }
     }
     reaches_tangents = n > 4;
