@@ -295,7 +295,25 @@ impl Pool {
             // leading success tag. Geometry comes only from fixture construction.
             let mut tagged = vec![0.0];
             tagged.extend(&exported);
-            let (brep, _) = super::topology_vertexuse::import(&tagged)?;
+            let (mut brep, _) = super::topology_vertexuse::import(&tagged)?;
+            // The vertexuse importer predates canonical arena owner keys. Preserve
+            // its native owned/unowned flag, but translate existing owners so
+            // canonical GetSurfaces sees the same standalone surfaces as C++.
+            let faces: Vec<_> = brep.faces().ids().collect();
+            for face in faces {
+                if let Some(surface) = brep
+                    .face_mut(face)
+                    .map_err(|error| harness(&error))?
+                    .surface
+                    .as_mut()
+                {
+                    if surface.owner().is_some() {
+                        surface.set_owner(Some(solidcore::topology::brep_cache::arena_identity(
+                            solidcore::topology::brep_cache::CacheObject::Face(face),
+                        )));
+                    }
+                }
+            }
             breps.push(brep);
         }
         Ok(Self {
@@ -901,6 +919,8 @@ mod tests {
     #[test]
     fn piecewise_adapter_uses_canonical_subset_attributes_controls_and_marks() {
         let mut pool = Pool::load(&inputs()).unwrap();
+        assert_eq!(pool.surfaces(0).unwrap().len(), 6);
+        assert!(pool.surfaces(1).unwrap().is_empty());
         pool.set_subset(&[(0, 0), (0, 0)]);
         assert_eq!(pool.intersector.subset().unwrap().len(), 1);
         pool.set_subset(&[]);

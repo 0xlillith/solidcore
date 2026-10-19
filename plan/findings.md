@@ -7913,7 +7913,12 @@ PRs; none is reimplemented here):
 
 The Pool now delegates subset/control/SSI storage to the canonical
 `TopologyIntersector`, SURFACEMAP lookup/users to `AttributeStore`, and mark
-release to `MarkLock::release`. A small public `clear_relationships` accessor
+release to `MarkLock::release`.
+Its imported surface owners preserve the native owned/unowned flag, with existing
+legacy importer keys translated to canonical face arena identities. Without this
+translation GetSurfaces missed the real box planes; the new adapter test caught
+that latent mismatch and now asserts six box surfaces and zero shell-vertex
+surfaces. A small public `clear_relationships` accessor
 clears the intersector's existing private mate maps; it does not introduce a
 second map or implementation. Existing SSI curve arrays are empty in this
 adapter; a nonempty curve-storage path still explicitly defers to its unported
