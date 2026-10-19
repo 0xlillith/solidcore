@@ -78,22 +78,9 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
+crate::reader::unit_reader!(MAX_COORD);
 
 impl Reader<'_> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
     fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
         if !v.is_finite() || v.abs() > MAX_COORD {
@@ -130,13 +117,6 @@ impl Reader<'_> {
     fn flag(&mut self) -> Result<bool, FfiError> {
         Ok(self.index(1)? == 1)
     }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
-    }
 }
 
 /// Checks a clamped knot vector of degree `p`; returns its range.
@@ -171,7 +151,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64), FfiErr
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     Ok((a, b))
@@ -195,7 +177,10 @@ fn check_points(rd: &mut Reader<'_>, k: usize, planar: bool, what: &str) -> Resu
             return Err(bad(format!("{what}: weight out of range")));
         }
         let z = if z == NOZ { 0.0 } else { z };
-        if [x, y, z].iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
+        if [x, y, z]
+            .iter()
+            .any(|c| !c.is_finite() || c.abs() > MAX_COORD)
+        {
             return Err(bad(format!("{what}: point out of range")));
         }
     }
@@ -211,7 +196,9 @@ fn nurb_curve(rd: &mut Reader<'_>, dim: usize) -> Result<(), FfiError> {
         return Err(bad("curve: need 1 <= p <= n and m = n + p + 1"));
     }
     check_points(rd, n + 1, dim == 2, "curve")?;
-    let knots = (0..=m).map(|_| rd.finite()).collect::<Result<Vec<_>, _>>()?;
+    let knots = (0..=m)
+        .map(|_| rd.finite())
+        .collect::<Result<Vec<_>, _>>()?;
     check_knots(&knots, p, "curve")?;
     Ok(())
 }
@@ -232,8 +219,12 @@ fn bspline_surface(rd: &mut Reader<'_>) -> Result<(), FfiError> {
         ));
     }
     check_points(rd, (n + 1) * (m + 1), false, "surface")?;
-    let u = (0..=r).map(|_| rd.finite()).collect::<Result<Vec<_>, _>>()?;
-    let v = (0..=s).map(|_| rd.finite()).collect::<Result<Vec<_>, _>>()?;
+    let u = (0..=r)
+        .map(|_| rd.finite())
+        .collect::<Result<Vec<_>, _>>()?;
+    let v = (0..=s)
+        .map(|_| rd.finite())
+        .collect::<Result<Vec<_>, _>>()?;
     check_knots(&u, p, "surface u")?;
     check_knots(&v, q, "surface v")?;
     Ok(())
@@ -376,7 +367,7 @@ fn raw_point(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 }
 
 fn check(op: Op, input: &[f64]) -> Result<(), FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     match op {
         Op::Gf => {
             function(&mut rd)?;
@@ -485,7 +476,7 @@ pub fn export(path: &str, block: &[f64]) -> Result<Vec<f64>, FfiError> {
 /// failure.
 pub fn topo(path: &str, block: &[f64], args: &[f64]) -> Result<Vec<f64>, FfiError> {
     let ex = export(path, block)?;
-    let mut rd = Reader { input: args, at: 0 };
+    let mut rd = Reader::new(args);
     let kind = rd.index(5)?;
     let counts = vu::counts(&ex);
     let n = match counts {

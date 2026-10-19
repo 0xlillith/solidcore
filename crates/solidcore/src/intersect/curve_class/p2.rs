@@ -73,6 +73,7 @@ use crate::intersect::point_class::{
 };
 use crate::kernel::Kernel;
 use crate::math::{Point2, Point3, Vec3};
+use crate::topology::Brep;
 
 use super::p1::{
     xsect_tol_2d_or_3d_for_classify_pair, CurveClassification, CurveInterval, IntervalPosition,
@@ -244,7 +245,7 @@ impl<O: ClassObject> CurveClassification<O> {
     ///
     /// [`SolidError::Unported`] for any such topology object
     /// (`SmBrep::IsLiveTopologyMember`, unit `topology.brep_p1`).
-    pub fn has_dead_topology_point_object(&self, brep: Option<O>) -> Result<bool> {
+    pub fn has_dead_topology_point_object(&self, brep: Option<&Brep>) -> Result<bool> {
         if brep.is_none() {
             return Ok(false);
         }
@@ -1004,7 +1005,7 @@ mod tests {
         assert_eq!((p.x, t), (1.0, 1.0));
         assert!(c.classify_crv_loc_by_index(&g, 3).is_err());
         assert!(!c
-            .has_dead_topology_point_object(Some(H(9, ClassObjectKind::Other)))
+            .has_dead_topology_point_object(Some(&Brep::new()))
             .unwrap());
         assert!(c
             .interval_min_uv(&g, 0, Point2::new(0.0, 0.0))

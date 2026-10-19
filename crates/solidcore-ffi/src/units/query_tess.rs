@@ -119,23 +119,9 @@ fn bad(msg: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(msg.into())
 }
 
-/// Sequential reader over the input.
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
+crate::reader::unit_reader!(MAX_COORD);
 
 impl Reader<'_> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
     fn finite(&mut self) -> Result<f64, FfiError> {
         let v = self.num()?;
         if !v.is_finite() || v.abs() > MAX_COORD {
@@ -205,13 +191,6 @@ impl Reader<'_> {
             return Err(bad("domain too small"));
         }
         Ok(d)
-    }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
     }
 }
 
@@ -371,7 +350,9 @@ fn tree(rd: &mut Reader<'_>, srf: &[f64; 4]) -> Result<usize, FfiError> {
         let c2 = rd.opt_index(n as i64)?;
         let aux = rd.index(6)?;
         if !matches!(aux, 4 | 6) {
-            return Err(bad("tree: aux type must be SM_AD_BEZIER_SURFACE_HEAD or SM_AD_AUX_DATA"));
+            return Err(bad(
+                "tree: aux type must be SM_AD_BEZIER_SURFACE_HEAD or SM_AD_AUX_DATA",
+            ));
         }
         rd.index(2)?;
         rd.flag()?;
@@ -459,7 +440,10 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
         }
         Op::BuildSub => {
             need(driver != 0, "build: upstream reads the driver unchecked")?;
-            need(n == 0, "build with subdivision: the tree must not exist (it would leak)")?;
+            need(
+                n == 0,
+                "build with subdivision: the tree must not exist (it would leak)",
+            )?;
         }
         Op::Implant => {
             let e = edges.ok_or_else(|| bad("implant: needs a poly B-rep"))?;
@@ -487,7 +471,7 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
 ///
 /// [`FfiError::InvalidArgument`] for input the shim must not see.
 pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     validate_op(op, &mut rd)?;
     rd.done()
 }

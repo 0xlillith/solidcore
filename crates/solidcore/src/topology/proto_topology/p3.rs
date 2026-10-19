@@ -18,17 +18,18 @@
 //! - **B-rep access.** Topology objects are the caller's handles `O`, as in
 //!   [`p1`](super::p1). What these functions read from vertices and edges, and the
 //!   store new curves go to, is [`ProtoBrep`] (of `topology.proto_topology_p2`, which
-//!   gained `vertex_point`, `edge_faces`, `vertex_common_edges`, `edge_other_vertex` and
-//!   `face_curve_on_classify` (`SmFace::CurveOnClassify(TRUE, cc)`, implemented by the
-//!   B-rep owner with `query::face::p2::curve_on_classify`) for these functions), which the owner of the B-reps implements. `SmTol::GetZoneTol3d` of a vertex is
+//!   gained `vertex_common_edges` and `face_curve_on_classify` (`SmFace::CurveOnClassify(TRUE, cc)`, implemented by the
+//!   B-rep owner with `query::face::p2::curve_on_classify`) for these functions; `vertex_point`, `edge_faces` and `edge_other_vertex` are
+//!   those of its supertrait [`ProtoTopology`](super::p1::proto::ProtoTopology)), which the owner of the B-reps implements. `SmTol::GetZoneTol3d` of a vertex is
 //!   [`ProtoBrep::topology_tolerance`]; `SmTol::GetXSectTol3d(v1, v2)` is the
 //!   sum of the two.
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
 //!   each tagged `UNPORTED(<unit>)`: `SmBrep::Point3DClassify` (`query.brep`),
 //!   `SmBrep::GlueVertices` /
 //!   `SqueezeEdge` / `DeleteEdge` (`topology.brep_p5` / `_p3` / `_p4`),
-//!   `SmTopologyIntersector::GetOtherMate` / `RemoveRelationship`
-//!   (`boolean.topology_intersector_p1` / `_p2`) and the `SmCurveClassification`
+//!   `SmTopologyIntersector::RemoveRelationship` (`boolean.topology_intersector_p2`;
+//!   `GetOtherMate` is the `other_mate` closure the caller passes to
+//!   [`ProtoTopologyManager::glue_coincident_brep_vertices`]) and the `SmCurveClassification`
 //!   constructor (`intersect.curve_class_p4`). `ExtractGeometry` calls part 5 and
 //!   currently reaches part 6's `Homogenize` dependency. The code
 //!   after a stub is ported in full. The callees of `topology.proto_topology_p2` are
@@ -188,15 +189,6 @@ fn brep_delete_edge<O>(_which: i32, _edge: O) -> Result<()> {
     Err(SolidError::unported(
         "SmBrep::DeleteEdge",
         "topology.brep_p4",
-    ))
-}
-
-/// `SmTopologyIntersector::GetOtherMate`.
-fn ti_get_other_mate<O>(_object: O) -> Result<Option<O>> {
-    // UNPORTED(boolean.topology_intersector_p1): SmTopologyIntersector::GetOtherMate
-    Err(SolidError::unported(
-        "SmTopologyIntersector::GetOtherMate",
-        "boolean.topology_intersector_p1",
     ))
 }
 
@@ -906,7 +898,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
     /// `SmProtoTopologyManager::GlueCoincidentBrepVertices()`: glues the final
     /// vertices of the vertex definitions of each proto vertex, squeezing or deleting
     /// the short edges between them, and drops the definitions that referred to what
-    /// was deleted. Returns the curves deleted.
+    /// was deleted. Returns the curves deleted. `other_mate` is the intersector's
+    /// `GetOtherMate` (`m_pTI`), used to drop the relationship of deleted topology.
     ///
     /// # Errors
     ///
@@ -917,6 +910,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         &mut self,
         k: &Kernel,
         brep: &impl ProtoBrep<O>,
+        other_mate: &dyn Fn(O) -> Option<O>,
     ) -> Result<Vec<O>> {
         let mut deleted_curves: Vec<O> = Vec::new();
         let pvs: Vec<ProtoVertexId> = self.proto_vertices().to_vec();
@@ -1071,11 +1065,11 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
                             if len < xs {
                                 // If any to-be-deleted topology is mated, remove the
                                 // relationship when done.
-                                let edge_mate = ti_get_other_mate(edge)?
+                                let edge_mate = other_mate(edge)
                                     .filter(|m| m.class_kind() == ClassObjectKind::Edge);
-                                let vertex_mate = ti_get_other_mate(v2)?
+                                let vertex_mate = other_mate(v2)
                                     .filter(|m| m.class_kind() == ClassObjectKind::Vertex);
-                                let other_vtx = brep.edge_other_vertex(edge, v1)?;
+                                let other_vtx = brep.edge_other_vertex(edge, Some(v1))?;
                                 let stat = if other_vtx == Some(v1) {
                                     // Can't call SqueezeEdge() in this case.
                                     brep_delete_edge(which, edge)
@@ -1581,8 +1575,8 @@ fn dimension<O: ClassObject>(topo: Option<O>) -> Result<u64> {
 
 /// `pV1->GetPoint().DistanceBetween(pV2->GetPoint())`.
 fn vertex_distance<O: Copy>(brep: &impl ProtoBrep<O>, v1: O, v2: O) -> Result<f64> {
-    let p1 = brep.vertex_point(v1).ok_or(dangling("vertex is unknown"))?;
-    let p2 = brep.vertex_point(v2).ok_or(dangling("vertex is unknown"))?;
+    let p1 = brep.vertex_point(v1)?;
+    let p2 = brep.vertex_point(v2)?;
     Ok(p1.distance(p2))
 }
 

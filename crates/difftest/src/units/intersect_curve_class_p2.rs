@@ -318,9 +318,6 @@ fn shim_accepts(s: &Script) -> bool {
 
 // ---- Rust side --------------------------------------------------------------------------
 
-/// The brep handed to `HasDeadTopologyPointObject` (an empty brep on the C++ side).
-const BREP: H = H(usize::MAX, ClassObjectKind::Other);
-
 /// A solution handle naming nothing.
 #[derive(Debug, Clone, Copy, PartialEq)]
 struct NoObj;
@@ -467,7 +464,9 @@ fn rust_run(s: &Script) -> Result<Vec<f64>, Fail> {
                 o.extend([0.0, tol]);
             }
             OpIn::Dead { brep, .. } => {
-                let r = must(cc.has_dead_topology_point_object(brep.then_some(BREP)))?;
+                // an empty brep, as on the C++ side
+                let empty_brep = solidcore::topology::Brep::new();
+                let r = must(cc.has_dead_topology_point_object(brep.then_some(&empty_brep)))?;
                 o.extend([0.0, b(r)]);
             }
             OpIn::CrvLoc { j, .. } => {
