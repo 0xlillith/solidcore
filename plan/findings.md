@@ -8000,7 +8000,7 @@ claim that those failure paths are leak-free.
 
 Reverified after integrating topology.brep_p10 (#130), main through 0cf3e290:
 workspace/CPP compile checks, clippy x2, workspace fmt and explicit own include
-rustfmt, 1,402 kernel tests, four serializer/adapter tests, three FFI guard tests
+rustfmt, 1,402 kernel tests, four serializer/adapter tests, two merge_p3 FFI guard tests
 and wasm all passed. Native comparison, perturbation, 2,000-case guard fuzz runs
 for p3/API and the 50-program Valgrind sample passed on this corrected tree.
 The touched intersector_p1 passed its default run: 827 cases, 690 matched,
@@ -8010,6 +8010,15 @@ actual Rust digest data instead of C++ graph echoes. The full 213-unit matrix
 passed: 114 PASS / 99 PARTIAL, zero failures. Its per-log audit checked all exit
 codes and count categories (including rejected fixtures), with zero green units
 carrying deferrals. Previous 212/211-unit runs are historical evidence only.
+
+Latent shim identity limitation (Opus re-check f0957fc5, source inspection only):
+`harness/cpp/shim/boolean_merge_p3.cpp::put()` resolves a result identity by
+pointer lookup in `originals`. Once merge_p2/p4 permit consuming Boolean success
+paths, a freed operand address could be reused for a result allocation and alias
+that result to an original identity. Track operand liveness or null deleted
+entries before enabling those paths. They remain deferred today; this is a
+harness limitation, not an upstream defect or an observed comparison failure.
+No shim lifetime change is made here.
 
 Review 183c96b7 constructor correction: BooleanLists surface-list preparation
 and disconnected-component extraction now call an argument-complete
