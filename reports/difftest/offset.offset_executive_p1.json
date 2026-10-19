@@ -439,8 +439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmStitch::StitchIntoSolid",
-        "unit": "heal.stitch_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "probe_piecewise_empty",
@@ -5639,8 +5639,8 @@
   "cases_rejected": 1,
   "cases_total": 693,
   "deferred_by_unit": {
-    "heal.stitch_p2": 1,
     "offset.offset_geometry_creation": 1,
+    "query.brep": 1,
     "topology.brep_p4": 1,
     "topology.brep_p5": 1,
     "topology.brep_p9": 12,

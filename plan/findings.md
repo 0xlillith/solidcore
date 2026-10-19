@@ -7578,5 +7578,5 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   underflows to zero (HANG-23, confirmed by a C++ run), `StitchIntoSolid` from a zero
   or negative B-rep tolerance (HANG-24; a non-finite diagonal ends or skips the loop).
   The FFI refuses a vertex repeated in the one-list `StitchVertexPairs` list (UB-178).
-  Upstream defects kept by the port: WR-180 (`DoStitching`'s sticky candidate flags),
-  WR-181 (a cancelled squeeze reported as done), UB-179 (stale edge after a failed glue with `m_bIgnoreProblems`).
+  Upstream defects kept by the port: WR-186 (`DoStitching`'s sticky candidate flags),
+  WR-187 (a cancelled squeeze reported as done), UB-179 (stale edge after a failed glue with `m_bIgnoreProblems`).
