@@ -1838,6 +1838,1834 @@
       "values_compared": 1
     },
     {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_o0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#0",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_o0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#1",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_o0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#2",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone0_o0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#3",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_o0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#4",
+      "values_compared": 479
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_o0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#5",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_onan",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#6",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_onan",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#7",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_onan",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#8",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone0_onan",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#9",
+      "values_compared": 1
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_onan",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#10",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_oinf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#11",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_oinf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#12",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_oinf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#13",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone0_oinf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#14",
+      "values_compared": 1
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_oinf",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#15",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_oninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#16",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_oninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#17",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_oninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#18",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone0_oninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#19",
+      "values_compared": 1
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_oninf",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#20",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_obig",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#21",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_obig",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#22",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_obig",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#23",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone0_obig",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#24",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_obig",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#25",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_obig",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#26",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_o1e17",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#27",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_o1e17",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#28",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_o1e17",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#29",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone0_o1e17",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#30",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_o1e17",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#31",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_o1e17",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#32",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_otiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#33",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_otiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#34",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_otiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#35",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone0_otiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#36",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_otiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#37",
+      "values_compared": 479
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_otiny",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#38",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_onegz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#39",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_onegz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#40",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_onegz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#41",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone0_onegz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#42",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_onegz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#43",
+      "values_compared": 479
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_onegz",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#44",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#45",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#46",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#47",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#48",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#49",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#50",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#51",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#52",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#53",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#54",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#55",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#56",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#57",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#58",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#59",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#60",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#61",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#62",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#63",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#64",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#65",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#66",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#67",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#68",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#69",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#70",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#71",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#72",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#73",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#74",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#75",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#76",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_negz",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#77",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#78",
+      "values_compared": 53
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#79",
+      "values_compared": 53
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#80",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#81",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#82",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#83",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_inf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#84",
+      "values_compared": 1
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_inf",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#85",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_inf",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#86",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#87",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#88",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#89",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#90",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#91",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#92",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#93",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#94",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#95",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#96",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_ninf",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#97",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#98",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#99",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#100",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#101",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#102",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#103",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#104",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#105",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#106",
+      "values_compared": 1
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_huge",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#107",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_huge",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#108",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#109",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#110",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#111",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#112",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#113",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#114",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#115",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_max",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#116",
+      "values_compared": 1
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_max",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#117",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_max",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#118",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#119",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#120",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#121",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#122",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#123",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#124",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#125",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#126",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#127",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_sub",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#128",
+      "values_compared": 1
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_sub",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#129",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#130",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#131",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#132",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#133",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#134",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#135",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#136",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#137",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#138",
+      "values_compared": 1
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_eff",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#139",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_eff",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#140",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_effp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#141",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_effp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#142",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_effp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#143",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_effp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#144",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_effp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#145",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_effp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#146",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_effp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#147",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_effp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#148",
+      "values_compared": 479
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_effp",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#149",
+      "values_compared": 479
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_effp",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#150",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_effp",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#151",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#152",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#153",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#154",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#155",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#156",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#157",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#158",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#159",
+      "values_compared": 479
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_one",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#160",
+      "values_compared": 479
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_one",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#161",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_one",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#162",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_big18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#163",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_big18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#164",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_big18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#165",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_big18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#166",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_big18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#167",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_big18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#168",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_big18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#169",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_big18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#170",
+      "values_compared": 479
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_big18",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#171",
+      "values_compared": 479
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_big18",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#172",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_big18",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#173",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_l_big18p",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#174",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_w_big18p",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#175",
+      "values_compared": 153
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_r_big18p",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#176",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_h_big18p",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#177",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rb_big18p",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#178",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_rt_big18p",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#179",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_h_big18p",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#180",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_maj_big18p",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#181",
+      "values_compared": 479
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_min_big18p",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#182",
+      "values_compared": 479
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_big18p",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#183",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_big18p",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#184",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_both_neg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#185",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_plane_both_zero",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#186",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_equal",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#187",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_equal_tiny_diff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#188",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_top0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#189",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_both_eff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#190",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_eff_top",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#191",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_steep",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#192",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_flat",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#193",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cone_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#194",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_cyl_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#195",
+      "values_compared": 219
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_spindle",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#196",
+      "values_compared": 479
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_horn",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#197",
+      "values_compared": 479
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_neg_both",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#198",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_huge",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#199",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_huge2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#200",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_torus_tiny",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#201",
+      "values_compared": 479
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_big_origin_small",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#202",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_1e-300",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#203",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_tiny_near",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#204",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_1e-13",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#205",
+      "values_compared": 1
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_l_1e-10",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#206",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CreatePlanarFaceWith3DCurves",
+        "unit": "topology.brep_p8"
+      },
+      "max_rel_err": 0.0,
+      "name": "rv_pyr_h_tiny",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#207",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_t_nan_o_min0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#208",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_t_nan_o_maj0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#209",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_t_inf_o_minneg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#210",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_t_inf_maj_min0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#211",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_t_inf_min_majneg",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#212",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_t_inf_min_majnan",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#213",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_t_max_min_maj0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#214",
+      "values_compared": 1
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rv_t_ninf_o_majeff",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/primitive.api_primitives/review_adversarial.json#215",
+      "values_compared": 1
+    },
+    {
       "deferred": {
         "symbol": "SmPrimitiveCreation::CreateSphere",
         "unit": "primitive.primitive_creation_p2"
@@ -9190,16 +11018,12 @@
       "values_compared": 153
     },
     {
-      "deferred": {
-        "symbol": "SmPrimitiveCreation::CreateConeEllipticEnds",
-        "unit": "primitive.primitive_creation_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0732",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=18138518039855535451",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16171,15 +17995,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 512,
+  "cases_deferred": 536,
   "cases_failed": 0,
-  "cases_passed": 1253,
-  "cases_total": 1765,
+  "cases_passed": 1445,
+  "cases_total": 1981,
   "deferred_by_unit": {
-    "primitive.primitive_creation_p1": 137,
+    "primitive.primitive_creation_p1": 136,
     "primitive.primitive_creation_p2": 282,
     "primitive.primitive_creation_p3": 31,
-    "topology.brep_p8": 62
+    "topology.brep_p8": 87
   },
   "max_rel_err": 0.0,
   "pass": true,

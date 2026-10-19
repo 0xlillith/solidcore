@@ -55,9 +55,10 @@
 //! - `PlaneSurface`: a NaN length or width reaches `SmExtent2d::SetMinMax` (which keeps it)
 //!   and then the NLib clamp of the plane's NURB, which indexes outside its knot arrays
 //!   (a NaN length segfaults; a NaN width returns a plane built from garbage);
-//! - `TorusSurface`: a non-finite origin, an infinite radius, or radii above `SM_EFF_ZERO`
-//!   whose sum overflows or with a minor radius within `1e-8` (relative) of `DBL_MAX`
-//!   segfault in `SmTorus::CreateCanonical` (a NaN or negative radius is rejected there);
+//! - `TorusSurface`: with both radii above `SM_EFF_ZERO`, a non-finite origin, an infinite
+//!   radius, radii whose sum overflows or a minor radius within `1e-8` (relative) of
+//!   `DBL_MAX` segfault in `SmTorus::CreateCanonical` (a radius not above `SM_EFF_ZERO`,
+//!   NaN included, is rejected there first and always passes);
 //! - `Sphere`: a non-finite center, or a radius magnitude above [`MAX_SPHERE_RADIUS`]
 //!   (about `7e9` and up segfault in `SmPrimitiveCreation::CreateSphere`);
 //! - `SphereNoPole`: radius magnitudes below [`MIN_NO_POLE_RADIUS`] (crashes or hangs,
@@ -135,17 +136,18 @@ pub fn guard(op: Op, args: &[f64], arcs: Option<(&[Arc], &[Arc])>) -> Result<(),
         }
         Op::TorusSurface => {
             let (major, minor) = (a(3), a(4));
-            if !origin.iter().all(|x| x.is_finite())
-                || major == f64::INFINITY
-                || minor == f64::INFINITY
-            {
-                return Err(bad("torus surface: non-finite origin or infinite radius"));
-            }
-            if major > EFF_ZERO
-                && minor > EFF_ZERO
-                && ((major + minor).is_infinite() || minor > f64::MAX * (1.0 - 1.0e-8))
-            {
-                return Err(bad("torus surface: radii sum near DBL_MAX"));
+            // `SmTorus::CreateCanonical` rejects (`SM_ERR`) any radius not above
+            // `SM_EFF_ZERO` (NaN included) before it touches the origin or builds the NURB.
+            if major > EFF_ZERO && minor > EFF_ZERO {
+                if !origin.iter().all(|x| x.is_finite())
+                    || major == f64::INFINITY
+                    || minor == f64::INFINITY
+                {
+                    return Err(bad("torus surface: non-finite origin or infinite radius"));
+                }
+                if (major + minor).is_infinite() || minor > f64::MAX * (1.0 - 1.0e-8) {
+                    return Err(bad("torus surface: radii sum near DBL_MAX"));
+                }
             }
         }
         Op::Sphere => {
