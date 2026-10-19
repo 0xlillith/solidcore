@@ -61,8 +61,7 @@
 //! - **`CurveOnClassify`** stores handles of the caller's choosing in the curve
 //!   classification; [`CurveOnClassifyObjects`] makes the face and surface handles and
 //!   resolves curve and loop handles, and the caller's [`ClassGeometry`] resolves them
-//!   for `ClassifyFaceInterval` (`lFaceIndx` left at its default). Its callees `SmCurveClassification::ReSet`
-//!   (`intersect.curve_class_p2`), `IntersectTSBound` / `IntersectEdges`
+//!   for `ClassifyFaceInterval` (`lFaceIndx` left at its default). Its callees `IntersectTSBound` / `IntersectEdges`
 //!   (part 9, wired through borrowed boundary views) and `SmFace::GetEdges`
 //!   (`topology.face_p4`) retain their dependency boundaries. `IntersectVertices`
 //!   and `ClassifyFaceInterval` call their landed implementations through the
@@ -78,6 +77,7 @@ use crate::geom::extent2d::Extent2d;
 use crate::geom::point_set::PointContainment;
 use crate::geom::tree::{NodeClass, NodeData};
 use crate::intersect::curve_class::p1::{src_zone_tol_3d_of, CurveClassification};
+use crate::intersect::curve_class::p2::ResetOptions;
 use crate::intersect::curve_class::p9::{
     BoundaryEdge, BoundaryEdgeuse, BoundaryFace, BoundaryLoop, BoundaryVertex,
     IntersectEdgesOptions,
@@ -743,8 +743,7 @@ fn boundary_loops<O: ClassObject>(
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: `SmCurveClassification::ReSet` (`intersect.curve_class_p2`)
-/// and the boundary intersections and interval classification (see the module
+/// [`SolidError::Unported`]: the boundary intersections and interval classification (see the module
 /// Deviations); `SM_ERR` when the trim boundary intersection fails;
 /// [`SolidError::InvalidInput`] for a classification without (resolvable) curve or an
 /// unresolvable target loop.
@@ -761,7 +760,7 @@ pub fn curve_on_classify<O: ClassObject>(
     uv_space_okay: bool,
 ) -> Result<bool> {
     // init output
-    reset_classification(cc)?;
+    reset_classification(k, cc)?;
     cc.set_face(Some(objects.face(f)));
     let mut modified = false;
 
@@ -774,7 +773,7 @@ pub fn curve_on_classify<O: ClassObject>(
                 continue;
             }
             modified = true;
-            reset_classification(cc)?;
+            reset_classification(k, cc)?;
         }
 
         let curve = classification_curve(objects, cc)?;
@@ -871,12 +870,8 @@ fn classification_curve<'o, O: ClassObject>(
 }
 
 /// `SmCurveClassification::ReSet`.
-fn reset_classification<O>(_cc: &mut CurveClassification<O>) -> Result<()> {
-    // UNPORTED(intersect.curve_class_p2): SmCurveClassification::ReSet
-    Err(SolidError::unported(
-        "SmCurveClassification::ReSet",
-        "intersect.curve_class_p2",
-    ))
+fn reset_classification<O: ClassObject>(k: &Kernel, cc: &mut CurveClassification<O>) -> Result<()> {
+    cc.reset(k, &ResetOptions::default())
 }
 
 /// `SmCurveClassification::IntersectTSBound(this, bDoCheck3d)`.

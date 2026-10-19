@@ -219,18 +219,10 @@ enum ClassifyCrv {
     Bisector,
 }
 
-/// What `sms_FindAndClassifyLoopBisector` returns besides the classification it leaves
-/// in the scratch classification.
-struct Bisector {
-    /// `rbClassifyCrv_StartOnSeam`.
-    start_on_seam: bool,
-    /// `rbClassifyCrv_StopOnSeam`.
-    stop_on_seam: bool,
-}
-
 /// `sms_FindAndClassifyLoopBisector(ii, rLoops, rClassifyLoopIOs, eMarkType, pFace,
 /// pSurface, &rFaceProps, sLocalContext, &rCrvClassification, pCrvOnSurf, pUVTrimLine,
-/// bStartOnSeam, bStopOnSeam, ebClosed3d)`.
+/// bStartOnSeam, bStopOnSeam, ebClosed3d)`: the seam flags are the caller's variables,
+/// which the bisector sets (and leaves set when it fails) as upstream's references.
 #[allow(clippy::too_many_arguments)]
 fn find_and_classify_loop_bisector<O: LoopObject>(
     k: &Kernel,
@@ -243,8 +235,16 @@ fn find_and_classify_loop_bisector<O: LoopObject>(
     props: &FaceProps<O>,
     curves: &mut qf3::LoopObjectCurves<'_, O>,
     classification: &mut CurveClassification<O>,
-) -> Result<Bisector> {
-    let r = qf3::find_and_classify_loop_bisector(
+    start_on_seam: &mut bool,
+    stop_on_seam: &mut bool,
+) -> Result<()> {
+    let mut out = qf3::LoopBisector {
+        start_on_seam: *start_on_seam,
+        stop_on_seam: *stop_on_seam,
+        closed_3d: None,
+        has_curve: false,
+    };
+    let r = qf3::find_and_classify_loop_bisector_into(
         k,
         b,
         face,
@@ -255,11 +255,11 @@ fn find_and_classify_loop_bisector<O: LoopObject>(
         props,
         curves,
         classification,
-    )?;
-    Ok(Bisector {
-        start_on_seam: r.start_on_seam,
-        stop_on_seam: r.stop_on_seam,
-    })
+        &mut out,
+    );
+    *start_on_seam = out.start_on_seam;
+    *stop_on_seam = out.stop_on_seam;
+    r
 }
 
 /// `rCrvClassification.GetLoopCrossings(rLoops, &rFaceProps, &sCrossingCounts,
@@ -444,7 +444,7 @@ pub fn classify_loops<O: LoopObject>(
             // checked upstream; a handle type that cannot name the bisector's curves is
             // an error of the caller, not a status)
             let mut bisector_curves = qf3::LoopObjectCurves::new(b, face)?;
-            if let Some(bisector) = ignored(find_and_classify_loop_bisector(
+            ignored(find_and_classify_loop_bisector(
                 k,
                 b,
                 face,
@@ -455,10 +455,9 @@ pub fn classify_loops<O: LoopObject>(
                 props,
                 &mut bisector_curves,
                 scratch,
-            ))? {
-                start_on_seam = bisector.start_on_seam;
-                stop_on_seam = bisector.stop_on_seam;
-            }
+                &mut start_on_seam,
+                &mut stop_on_seam,
+            ))?;
             if scratch.size() == 0 {
                 continue;
             }

@@ -117,8 +117,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "internal_Mouse_f2",
@@ -169,8 +169,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmFace::PointClassify",
+        "unit": "query.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "internal_Mouse_f3",
@@ -229,8 +229,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "internal_Endcap_f0",
@@ -289,8 +289,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "internal_Endcap_f1",
@@ -341,8 +341,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "internal_box_with_large_fillet_f0",
@@ -393,7 +393,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
+        "symbol": "SmCurveClassification::InsertAt",
         "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
@@ -445,8 +445,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "internal_box_with_large_fillet_f2",
@@ -497,8 +497,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "internal_box_with_large_fillet_f3",
@@ -549,8 +549,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "internal_box_with_large_fillet_f4",
@@ -601,8 +601,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "internal_box_with_large_fillet_f5",
@@ -698,8 +698,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "internal_box_with_large_fillet_f7",
@@ -795,8 +795,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmFace::PointClassify",
+        "unit": "query.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "internal_disk_f0",
@@ -855,8 +855,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "internal_ellips_ts2_f0",
@@ -907,8 +907,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "internal_plane_circ_f0",
@@ -959,8 +959,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "internal_plane_square_f0",
@@ -1272,8 +1272,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "internal_holed_box_top_flat",
@@ -1308,8 +1308,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "internal_holed_box_top_flat_hole",
@@ -1344,8 +1344,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "internal_holed_box_top_tilted",
@@ -1380,8 +1380,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "internal_holed_box_top_tilted_hole",
@@ -1982,6 +1982,4398 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#0 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane0_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#1 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane0_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#2 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#3 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane0_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#4 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane0_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#5 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane0_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#6 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane0_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#7 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane0_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#8 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane0_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#9 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane0_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#10 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane0_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#11 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#12 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane1_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#13 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane1_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#14 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#15 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane1_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#16 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane1_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#17 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane1_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#18 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane1_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#19 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane1_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#20 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane1_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#21 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane1_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#22 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane1_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#23 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane2_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#24 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane2_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#25 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane2_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#26 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane2_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#27 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane2_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#28 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane2_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#29 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane2_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#30 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane2_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#31 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane2_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#32 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane2_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#33 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane2_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#34 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane2_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#35 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane3_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#36 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane3_0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#37 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane3_0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#38 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane3_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#39 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane3_1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#40 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane3_1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#41 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane3_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#42 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane3_2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#43 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane3_2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#44 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_plane3_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#45 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_plane3_3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#46 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_tight_plane3_3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#47 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 6
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs48_t0_m0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#48 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs48_t0_m1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#49 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs48_t0_m2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#50 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs48_t0_m3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#51 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_flatbs48",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#52 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_flatbs48",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#53 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs54_t0_m0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#54 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs54_t0_m1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#55 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs54_t0_m2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#56 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs54_t0_m3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#57 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_flatbs54",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#58 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_flatbs54",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#59 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs60_t0_m0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#60 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs60_t0_m1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#61 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs60_t0_m2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#62 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs60_t0_m3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#63 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs60_t1_m0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#64 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs60_t1_m1",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#65 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs60_t1_m2",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#66 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_bis_flatbs60_t1_m3",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#67 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_int_flatbs60",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#68 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_flatbs60",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#69 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_bs0_[0, 0, 1, 1]",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#70 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_bs0_[0.2, 0.3, 0.4, 0.9]",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#71 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_bs0_[0, 0, 1e-06, 1e-06]",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#72 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_bs0_[0.5, 0.5, 0.5000001, 1]",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#73 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_bs1_[0, 0, 1, 1]",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#74 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_bs1_[0.2, 0.3, 0.4, 0.9]",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#75 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_bs1_[0, 0, 1e-06, 1e-06]",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#76 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_tight_bs1_[0.5, 0.5, 0.5000001, 1]",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#77 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e0_m1_f0.5_c1_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#78 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m0_f0.5_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#79 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m0_f1e-09_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#80 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f1e-09_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#81 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m0_f0.0_c0_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#82 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m0_f0.0_c1_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#83 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e2_m1_f0.5_c0_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#84 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e0_m1_f0.5_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#85 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m0_f1e-09_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#86 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e2_m0_f0.5_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#87 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e3_m1_f0.5_c0_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#88 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m2_f0.5_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#89 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m0_f1.0_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#90 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e0_m0_f0.5_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#91 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e0_m0_f0.5_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#92 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e0_m2_f0.5_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#93 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e1_m0_f0.0_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#94 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m2_f0.5_c0_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#95 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e2_m0_f1e-09_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#96 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m0_f1e-09_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#97 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m2_f0.5_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#98 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m0_f1.0_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#99 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m0_f1e-09_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#100 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f0.0_c0_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#101 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e0_m0_f1e-09_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#102 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e0_m1_f0.5_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#103 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m0_f0.5_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#104 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e3_m0_f1.0_c1_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#105 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m2_f0.5_c0_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#106 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e2_m0_f0.0_c2_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#107 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m0_f1.0_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#108 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e0_m0_f1.0_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#109 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m0_f0.0_c1_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#110 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m2_f0.5_c2_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#111 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e3_m0_f0.5_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#112 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f1.0_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#113 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e3_m0_f0.5_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#114 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m0_f0.0_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#115 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m2_f0.5_c0_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#116 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e2_m2_f0.5_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#117 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m0_f1.0_c1_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#118 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e3_m0_f0.5_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#119 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e2_m0_f1e-09_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#120 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e0_m0_f0.5_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#121 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m0_f0.0_c1_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#122 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m2_f0.5_c0_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#123 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e1_m0_f1e-09_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#124 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m0_f1e-09_c1_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#125 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e1_m0_f0.5_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#126 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e0_m0_f1.0_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#127 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m1_f0.5_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#128 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e2_m0_f1.0_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#129 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m0_f1.0_c2_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#130 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m2_f0.5_c0_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#131 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m0_f1e-09_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#132 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m0_f0.0_c1_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#133 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e3_m0_f0.0_c1_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#134 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e3_m1_f0.5_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#135 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e2_m0_f0.0_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#136 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e2_m2_f0.5_c1_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#137 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e3_m0_f0.0_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#138 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e3_m2_f0.5_c0_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#139 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m1_f0.5_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#140 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e0_m0_f1.0_c0_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#141 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e1_m0_f1e-09_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#142 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e0_m0_f1e-09_c0_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#143 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e1_m0_f0.5_c1_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#144 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f0.5_c0_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#145 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m0_f1e-09_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#146 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e1_m2_f0.5_c0_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#147 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m0_f1e-09_c1_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#148 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e0_m0_f0.5_c1_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#149 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e3_m2_f0.5_c0_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#150 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m2_f0.5_c1_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#151 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e2_m0_f1e-09_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#152 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m1_f0.5_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#153 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m0_f0.5_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#154 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m0_f1e-09_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#155 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e3_m0_f0.5_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#156 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m2_f0.5_c2_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#157 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m0_f1e-09_c2_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#158 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m1_f0.5_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#159 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e0_m1_f0.5_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#160 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e0_m2_f0.5_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#161 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f0.5_c1_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#162 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f1e-09_c2_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#163 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e3_m0_f0.5_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#164 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e2_m0_f0.0_c2_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#165 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e1_m0_f1.0_c1_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#166 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f1.0_c0_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#167 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m2_f0.5_c2_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#168 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m2_f0.5_c0_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#169 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e1_m0_f1e-09_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#170 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f1e-09_c2_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#171 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e0_m0_f1.0_c0_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#172 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e0_m2_f0.5_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#173 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e1_m0_f0.0_c2_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#174 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e0_m0_f1.0_c1_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#175 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e1_m1_f0.5_c1_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#176 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m0_f1.0_c0_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#177 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e3_m1_f0.5_c0_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#178 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e3_m0_f1e-09_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#179 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e3_m0_f0.0_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#180 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e3_m1_f0.5_c0_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#181 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e0_m2_f0.5_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#182 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m1_f0.5_c2_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#183 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e2_m2_f0.5_c0_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#184 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e3_m0_f1e-09_c0_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#185 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e3_m0_f0.0_c0_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#186 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f1e-09_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#187 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e0_m0_f0.5_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#188 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f0.5_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#189 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f0.5_c2_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#190 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e1_m0_f1e-09_c0_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#191 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m1_f0.5_c2_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#192 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m1_f0.5_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#193 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m2_f0.5_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#194 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e3_m0_f1e-09_c0_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#195 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m1_f0.5_c2_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#196 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e3_m1_f0.5_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#197 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e1_m2_f0.5_c2_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#198 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m1_f0.5_c2_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#199 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m0_f1e-09_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#200 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m0_f0.5_c1_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#201 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m0_f1e-09_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#202 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e1_m0_f1.0_c1_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#203 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m0_f0.5_c1_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#204 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m0_f1.0_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#205 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e0_m2_f0.5_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#206 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e2_m0_f0.0_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#207 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m0_f0.0_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#208 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e1_m0_f1.0_c2_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#209 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f0.5_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#210 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e0_m0_f0.5_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#211 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f1.0_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#212 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e2_m2_f0.5_c0_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#213 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m0_f1e-09_c0_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#214 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m2_f0.5_c0_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#215 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m0_f1.0_c0_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#216 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m0_f1e-09_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#217 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e2_m0_f0.0_c2_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#218 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m2_f0.5_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#219 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e1_m1_f0.5_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#220 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m0_f0.5_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#221 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m0_f1e-09_c1_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#222 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m2_f0.5_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#223 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m0_f0.0_c2_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#224 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e2_m1_f0.5_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#225 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f1.0_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#226 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m0_f1e-09_c0_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#227 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m0_f0.0_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#228 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m0_f0.5_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#229 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f0.0_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#230 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e3_m0_f1.0_c0_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#231 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e0_m0_f0.0_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#232 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m1_f0.5_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#233 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f0.5_c1_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#234 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m0_f1.0_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#235 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e1_m0_f0.5_c2_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#236 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m0_f1e-09_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#237 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e0_m0_f0.5_c1_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#238 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m0_f1.0_c0_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#239 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m0_f1e-09_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#240 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m0_f0.5_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#241 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m1_f0.5_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#242 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e1_m0_f1e-09_c0_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#243 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m0_f0.0_c2_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#244 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m0_f1.0_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#245 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e0_m2_f0.5_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#246 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m2_f0.5_c1_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#247 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e3_m1_f0.5_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#248 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f1.0_c1_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#249 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m0_f1.0_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#250 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e1_m0_f1e-09_c1_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#251 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m0_f0.0_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#252 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m0_f1e-09_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#253 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e2_m0_f0.5_c1_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#254 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m2_f0.5_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#255 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m1_f0.5_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#256 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m2_f0.5_c0_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#257 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e3_m1_f0.5_c0_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#258 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e3_m1_f0.5_c2_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#259 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m0_f1.0_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#260 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e0_m0_f0.0_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#261 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m1_f0.5_c2_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#262 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e3_m0_f0.5_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#263 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m2_f0.5_c1_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#264 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m0_f1e-09_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#265 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m2_f0.5_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#266 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m0_f0.0_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#267 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m0_f1.0_c0_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#268 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m0_f0.0_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#269 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m0_f1.0_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#270 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e0_m0_f1.0_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#271 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e0_m0_f1e-09_c0_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#272 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m0_f1.0_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#273 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m0_f0.5_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#274 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m2_f0.5_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#275 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e3_m0_f0.5_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#276 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e1_m0_f0.5_c1_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#277 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m0_f1.0_c1_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#278 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e0_m0_f1e-09_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#279 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m0_f0.5_c0_t0.5_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#280 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f1e-09_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#281 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e2_m0_f1.0_c1_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#282 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m0_f1.0_c0_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#283 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e0_m0_f0.5_c2_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#284 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e0_m0_f1e-09_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#285 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m0_f0.5_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#286 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e2_m1_f0.5_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#287 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m0_f1.0_c0_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#288 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m0_f0.0_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#289 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m1_f0.5_c1_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#290 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m0_f1.0_c2_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#291 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m0_f0.5_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#292 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e1_m0_f0.5_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#293 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e2_m0_f0.5_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#294 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e2_m0_f0.0_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#295 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m0_f0.0_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#296 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m0_f0.0_c0_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#297 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m0_f0.5_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#298 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e1_m0_f0.0_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#299 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e0_m1_f0.5_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#300 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f0.5_c0_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#301 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e3_m2_f0.5_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#302 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m2_f0.5_c0_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#303 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e1_m0_f0.0_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#304 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e2_m0_f0.0_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#305 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e0_m0_f1e-09_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#306 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f1e-09_c1_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#307 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e2_m1_f0.5_c1_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#308 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e3_m0_f1e-09_c0_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#309 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e2_m0_f1e-09_c2_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#310 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e3_m0_f0.0_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#311 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m0_f0.0_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#312 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m0_f1e-09_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#313 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e1_m0_f1e-09_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#314 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e0_m0_f1e-09_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#315 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e3_m0_f0.5_c0_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#316 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m1_f0.5_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#317 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e2_m2_f0.5_c2_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#318 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m2_f0.5_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#319 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e1_m0_f1.0_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#320 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e1_m0_f1e-09_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#321 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e0_m2_f0.5_c1_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#322 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e3_m2_f0.5_c1_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#323 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f0.5_c0_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#324 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f0.5_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#325 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f1.0_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#326 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e2_m2_f0.5_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#327 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e3_m0_f0.0_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#328 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e3_m1_f0.5_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#329 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e0_m1_f0.5_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#330 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m2_f0.5_c0_t0.5_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#331 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e2_m1_f0.5_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#332 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m2_f0.5_c0_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#333 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m0_f1e-09_c0_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#334 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e2_m0_f1.0_c1_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#335 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m1_f0.5_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#336 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e0_m1_f0.5_c0_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#337 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e1_m0_f1e-09_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#338 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e0_m0_f0.5_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#339 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e2_m0_f0.5_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#340 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f1.0_c2_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#341 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m2_f0.5_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#342 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m1_f0.5_c1_t0.25_0.75",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#343 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e2_m0_f1e-09_c0_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#344 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e1_m0_f0.0_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#345 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e1_m0_f1.0_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#346 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e3_m1_f0.5_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#347 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m0_f0.0_c0_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#348 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e2_m1_f0.5_c1_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#349 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f1.0_c1_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#350 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m1_f0.5_c1_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#351 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e2_m0_f0.5_c0_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#352 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f0.5_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#353 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m2_f0.5_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#354 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m0_f0.0_c1_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#355 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e0_m1_f0.5_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#356 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e1_m2_f0.5_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#357 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e2_m2_f0.5_c0_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#358 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f1.0_c2_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#359 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m0_f1e-09_c1_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#360 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e0_m0_f0.0_c0_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#361 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e3_m0_f1e-09_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#362 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m0_f1e-09_c0_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#363 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f1e-09_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#364 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e3_m1_f0.5_c0_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#365 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e2_m0_f1.0_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#366 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e2_m1_f0.5_c0_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#367 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e0_m0_f0.0_c2_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#368 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e0_m0_f1e-09_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#369 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f0.0_c2_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#370 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e3_m0_f0.5_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#371 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m0_f1.0_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#372 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e3_m0_f0.5_c0_t0.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#373 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m0_f1.0_c2_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#374 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e2_m0_f1e-09_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#375 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m0_f1.0_c2_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#376 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e2_m0_f1e-09_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#377 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e1_m1_f0.5_c1_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#378 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b0_e0_m1_f0.5_c0_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#379 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m1_f0.5_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#380 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m0_f0.0_c1_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#381 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m0_f1.0_c1_t0.25_0.75",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#382 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m0_f1.0_c0_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#383 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b6_e1_m2_f0.5_c1_t1.0_0.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#384 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m0_f0.5_c1_t0.0_0.5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#385 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e0_m0_f0.0_c0_t0.5_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#386 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e0_m0_f1e-09_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#387 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e1_m0_f1e-09_c2_t0.5_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#388 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b1_e3_m0_f0.0_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#389 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m0_f0.0_c1_t0.0_0.5",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#390 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m2_f0.5_c2_t1.0_1.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#391 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b7_e2_m0_f1.0_c2_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#392 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b5_e3_m0_f0.5_c2_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#393 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::CreateUVTrimCurves",
+        "unit": "topology.face_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b4_e0_m2_f0.5_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#394 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b2_e3_m2_f0.5_c1_t1.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#395 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "both_errored": true,
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b8_e3_m0_f0.0_c0_t1.0_1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#396 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "adv_sec_b3_e1_m0_f1e-09_c0_t0.0_0.0",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/query.face_p3/review_adversarial.json#397 (upstream review adversarial case (PR #132): source/SMLib/src/SmFace.cpp)",
+      "values_compared": 0
+    },
+    {
       "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
@@ -2417,8 +6809,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0043",
@@ -2495,8 +6887,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0051",
@@ -2567,8 +6959,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0058",
@@ -2704,8 +7096,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0071",
@@ -3029,8 +7421,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0102",
@@ -3272,8 +7664,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0126",
@@ -3390,8 +7782,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0138",
@@ -3553,8 +7945,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0154",
@@ -3720,8 +8112,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0171",
@@ -3767,8 +8159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0176",
@@ -3779,8 +8171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0177",
@@ -3791,8 +8183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0178",
@@ -3861,8 +8253,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0185",
@@ -3921,8 +8313,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0191",
@@ -4031,8 +8423,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0202",
@@ -4175,8 +8567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0216",
@@ -4347,8 +8739,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0232",
@@ -4826,8 +9218,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0279",
@@ -4866,8 +9258,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0283",
@@ -5006,8 +9398,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0296",
@@ -5219,8 +9611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0317",
@@ -5263,8 +9655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0321",
@@ -5275,8 +9667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0322",
@@ -5409,8 +9801,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "gen0335",
@@ -5667,8 +10059,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0359",
@@ -5732,8 +10124,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0365",
@@ -5808,8 +10200,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0372",
@@ -6122,8 +10514,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0402",
@@ -6380,8 +10772,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0427",
@@ -6538,8 +10930,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0442",
@@ -6695,8 +11087,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0457",
@@ -6791,8 +11183,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0466",
@@ -6899,8 +11291,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0477",
@@ -6936,8 +11328,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0481",
@@ -6948,8 +11340,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0482",
@@ -7285,8 +11677,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0516",
@@ -7363,8 +11755,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0524",
@@ -7440,8 +11832,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0532",
@@ -7589,8 +11981,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0547",
@@ -7846,8 +12238,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0573",
@@ -7983,8 +12375,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0585",
@@ -8141,17 +12533,18 @@
       "values_compared": 0
     }
   ],
-  "cases_both_errored": 159,
-  "cases_deferred": 393,
+  "cases_both_errored": 235,
+  "cases_deferred": 676,
   "cases_failed": 0,
-  "cases_passed": 408,
-  "cases_total": 801,
+  "cases_passed": 523,
+  "cases_total": 1199,
   "deferred_by_unit": {
-    "curve.crv_on_surf": 20,
-    "intersect.curve_class_p2": 60,
-    "intersect.surface_drop_lib_p3": 56,
-    "topology.face_p2": 244,
-    "topology.face_p3": 13
+    "curve.crv_on_surf": 98,
+    "intersect.curve_class_p2": 1,
+    "intersect.surface_drop_lib_p3": 215,
+    "query.face_p2": 2,
+    "topology.face_p2": 305,
+    "topology.face_p3": 55
   },
   "max_rel_err": 0.0,
   "pass": true,

@@ -756,7 +756,7 @@ fn find_element_in_masked_array(arr: &[Point3], p: Point3, mask: u64) -> bool {
 /// interval (`SM_EFF_ZERO * 1000`), a target index out of range, a missing loop use and
 /// a face without surface; those of the surface drop,
 /// the classification reset and `objects`; [`SolidError::Unported`] from the callees.
-#[allow(clippy::too_many_arguments, clippy::too_many_lines)]
+#[allow(clippy::too_many_arguments)]
 pub fn find_and_classify_loop_bisector<O: LoopObject + PartialEq>(
     k: &Kernel,
     b: &Brep,
@@ -769,6 +769,41 @@ pub fn find_and_classify_loop_bisector<O: LoopObject + PartialEq>(
     objects: &mut impl ClassifyCurveObjects<O>,
     cc: &mut CurveClassification<O>,
 ) -> Result<LoopBisector> {
+    let mut out = LoopBisector {
+        start_on_seam: false,
+        stop_on_seam: false,
+        closed_3d: None,
+        has_curve: false,
+    };
+    find_and_classify_loop_bisector_into(
+        k, b, f, target, loops, ios, marked, props, objects, cc, &mut out,
+    )?;
+    Ok(out)
+}
+
+/// [`find_and_classify_loop_bisector`] with upstream's out-parameters: `out` is
+/// initialised (no seam, `closed_3d` `None`, no curve) after the face domain check and
+/// keeps what the bisector set when it fails later (`SmFace::ClassifyLoops` ignores the
+/// status and reads the seam flags), as upstream's references do; `has_curve` is set
+/// only on success (`rpCrvOnSurf` is assigned at the end).
+///
+/// # Errors
+///
+/// As [`find_and_classify_loop_bisector`].
+#[allow(clippy::too_many_arguments, clippy::too_many_lines)]
+pub fn find_and_classify_loop_bisector_into<O: LoopObject + PartialEq>(
+    k: &Kernel,
+    b: &Brep,
+    f: FaceId,
+    target: usize,
+    loops: &[LoopId],
+    ios: &[ClassifyLoopIo],
+    marked: &BTreeSet<LoopId>,
+    props: &FaceProps<O>,
+    objects: &mut impl ClassifyCurveObjects<O>,
+    cc: &mut CurveClassification<O>,
+    out: &mut LoopBisector,
+) -> Result<()> {
     let surface = face_surface(b, f, OP_BISECTOR)?;
 
     // check state - FaceDomain within SurfaceDomain
@@ -785,13 +820,14 @@ pub fn find_and_classify_loop_bisector<O: LoopObject + PartialEq>(
     let mut snapshot = b.clone();
 
     // init output
-    cc.reset(k, &ResetOptions::default())?;
-    let mut out = LoopBisector {
+    *out = LoopBisector {
         start_on_seam: false,
         stop_on_seam: false,
         closed_3d: None,
         has_curve: false,
     };
+    cc.reset(k, &ResetOptions::default())?;
+    let mut has_curve = false;
 
     // locals
     let tgt_loop = *loops
@@ -1081,7 +1117,7 @@ pub fn find_and_classify_loop_bisector<O: LoopObject + PartialEq>(
             );
             let (h_curve, h_uv) =
                 objects.set_classify_curves(Curve::from(crv_on_surf), Some(uv_curve))?;
-            out.has_curve = true;
+            has_curve = true;
 
             // set CrvClassification object with current ClassifyCrv
             cc.reset(
@@ -1191,8 +1227,11 @@ pub fn find_and_classify_loop_bisector<O: LoopObject + PartialEq>(
         }
     } // end iter ii, every Loop->edge looking for a good UVTrimCurve Loop bisector
 
+    // set remaining output
+    out.has_curve = has_curve;
+
     // all done
-    Ok(out)
+    Ok(())
 }
 
 // ---- SmFace::SectorClassifyCurveOn ----------------------------------------------------------
@@ -2218,6 +2257,57 @@ mod tests {
             &mut cc,
         );
         assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
+    }
+
+    #[test]
+    fn bisector_into_sets_its_outputs_before_failing() {
+        // upstream initialises the seam flags (references to the caller's variables)
+        // before it fails on the target loop; ClassifyLoops ignores the status and reads
+        // them
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        let f = square(&mut b, 0.0);
+        let props: FaceProps<H> = FaceProps::for_face(f, 0);
+        let mut objects: LoopObjectCurves<H> = LoopObjectCurves::new(&b, f).unwrap();
+        let mut cc: CurveClassification<H> = CurveClassification::new(&k);
+        let mut out = LoopBisector {
+            start_on_seam: true,
+            stop_on_seam: true,
+            closed_3d: Some(true),
+            has_curve: true,
+        };
+        let r = find_and_classify_loop_bisector_into(
+            &k,
+            &b,
+            f,
+            3,
+            &[LoopId::from_index(0)],
+            &[],
+            &BTreeSet::new(),
+            &props,
+            &mut objects,
+            &mut cc,
+            &mut out,
+        );
+        assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
+        assert_eq!(
+            out,
+            LoopBisector {
+                start_on_seam: false,
+                stop_on_seam: false,
+                closed_3d: None,
+                has_curve: false,
+            }
+        );
+    }
+
+    #[test]
+    fn heal_loop_handles_name_the_bisector_objects() {
+        // SmBrep::HealBrep's handles reach the bisector through SetProps_Stage3
+        use crate::topology::brep::p1::HealLoopHandle;
+        let mut b = Brep::new();
+        let f = square(&mut b, 0.0);
+        assert!(LoopObjectCurves::<HealLoopHandle>::new(&b, f).is_ok());
     }
 
     #[test]

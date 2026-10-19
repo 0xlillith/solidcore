@@ -2620,9 +2620,12 @@ mod tests {
                 type_code: TYPE,
                 key: ObjectKey(1),
             }));
-        assert!(calculate_an_internal_point(&k, &b, f)
-            .unwrap_err()
-            .is_unported());
+        // no loops: no line interval classifies into the face (the line statuses are
+        // ignored), so the final SM_ERR
+        assert!(matches!(
+            calculate_an_internal_point(&k, &b, f),
+            Err(SolidError::Upstream { .. })
+        ));
     }
 
     #[test]

@@ -5941,6 +5941,41 @@ mutated scales and accepted/reduced step counts are compared.
   `topology_face_p2::import`. The `heal.face_props` notes' "green" from the first round
   was overtaken by main's richer runner (closed surfaces of revolution defer at
   `HasSeamProblem`); it stays partial. 408 pass, 393 deferred, 0 failed.
+- **Review fixes, 2026-10-19.** (1) The library's healer handle
+  `topology::brep::p1::HealLoopHandle` was a bare loop id, so `SmBrep::HealBrep` reaching
+  the bisector through `SetProps_Stage3` got `InvalidInput(NO_CURVE_HANDLES)`, which
+  `FaceProps` returns as a status and `heal_brep` swallows: the healer went on with a
+  result upstream would not produce (before #132 that path deferred). No runner reaches it
+  (the heal_data_p1 Api runner heals an empty B-rep). It is now an enum naming the face,
+  surface, topology, bisector curves, edge curves and trim curves. (2) Upstream's bisector
+  writes `rbClassifyCrv_StartOnSeam` / `StopOnSeam` (references to `ClassifyLoops`'
+  variables) before failing on e.g. `SER(DropPoint)`, and `ClassifyLoops` ignores the
+  status and reads them; the port kept the previous target loop's flags on a failure.
+  `find_and_classify_loop_bisector_into` now writes them as upstream does. Not visible in
+  difftest until `GetLoopCrossings` (`intersect.curve_class_p4`) lands. (3) Coverage, said
+  plainly: values are compared only for `CalculateTightBoundingBox` (192 cases) and
+  `SectorClassifyCurveOn` (96). `sm_FaceClassifyUVLine` (op internal) and
+  `sms_FindAndClassifyLoopBisector` (op bisector) compare none: every case defers
+  (`SmFace::GetTolerance` in DropPoint, `topology.face_p2`; DropCurve,
+  `intersect.surface_drop_lib_p3`) or both sides return the same status. (4) The stale
+  `SmCurveClassification::ReSet` stubs in `query::face::p2` and `heal::face_props` are
+  wired; the `query.face_p2` runner built its Rust classification without the
+  constructor's `ReSet` (no interval) and with a `Line` parametrised by length instead of
+  the shim's `SmBSplineCurve::CreateLineSegment` on `[0, 1]`, so 6 CurveOnClassify cases
+  failed once they stopped deferring; it now matches the shim and compares the result.
+  (5) `--fuzz 300` hit a C++ timeout (a tight box over a B-spline face with a `-1e300`
+  control point ran over 10 minutes; `1e10`..`1e200` take 20-55 s). The FFI guard rejects
+  tight-op B-rep values beyond `1e6`; generated and fixture cases stay below `1e4`;
+  `--fuzz 300` now passes (0 crashes, panics or timeouts).
+  (6) Known gaps left: the sector shim always passes eu1 `SM_OT_SAME` / eu2
+  `SM_OT_OPPOSITE`, so the `eEU1Orientation == SM_OT_OPPOSITE` tangent flip and PART 2's
+  eu2/mate vertex use choices are never compared; the tight op's `has_trim_cache`
+  output is not asserted (5 compared cases had a C++ `TRIMSRF` cache where the Rust
+  passes no trim cache to PointClassify, and still agreed); the tight box drops partial
+  `GlobalPointSolve` solutions on failure (upstream appends `sSols_1` even when
+  `GlobalPointSolve_1` fails; `Surface::global_point_solve_into` has the same gap in
+  `surface.surface_p4`), not seen in any case. The 398 review adversarial cases are
+  `fixtures/query.face_p3/review_adversarial.json` (none is undefined in C++).
 ## intersect.curve_class_p6 (partial; PR #138)
 
 - **Certified scope.** 4438 default cases: 3927 bit-identical kernel comparisons,

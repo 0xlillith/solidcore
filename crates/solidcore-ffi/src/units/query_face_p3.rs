@@ -46,6 +46,11 @@
 //! [`eval`] accepts only what upstream handles without undefined behaviour: the B-rep
 //! block of [`super::query_face_p4::check_brep_block`], selectors up to `2^20`, fractions in
 //! `[0, 1]`, tolerances in `[0, 1]`, a mask up to `255`, a containment code up to `8`.
+//! For `Tight` the B-rep block's values (other than the rational / planar markers) are
+//! also bounded by [`TIGHT_MAX_COORD`]: upstream's global point solves on a B-spline
+//! face with a control point of `1e10` take 20-55 s and one of `1e300` over 10 minutes
+//! (a time bound, not undefined behaviour; the generated and fixture cases stay below
+//! `1e4`).
 
 use crate::{call_with_buffer, FfiError};
 
@@ -115,6 +120,9 @@ impl Reader<'_> {
 /// The largest selector value.
 pub const MAX_SELECTOR: usize = 1 << 20;
 
+/// The largest magnitude of a B-rep block value for `Tight` (module docs).
+pub const TIGHT_MAX_COORD: f64 = 1.0e6;
+
 /// Runs `kind` on `input` (a B-rep block, `face_sel` and the case block); `path` is the
 /// `.smb` file of a kind `0` B-rep block (ignored otherwise). With `export_only` the
 /// B-rep graph and the resolved case are returned instead of the results.
@@ -128,7 +136,17 @@ pub fn eval(kind: Kind, export_only: bool, path: &str, input: &[f64]) -> Result<
     let mut rd = Reader { input, at };
     rd.index(MAX_SELECTOR)?;
     match kind {
-        Kind::Tight | Kind::Internal => {}
+        Kind::Tight => {
+            // the query.face_p4 markers: no weight (-f64::MAX), planar data (f64::MAX)
+            let block = input.get(..at).unwrap_or_default();
+            if block
+                .iter()
+                .any(|v| v.abs() > TIGHT_MAX_COORD && v.abs() != f64::MAX)
+            {
+                return Err(bad("tight: B-rep value beyond TIGHT_MAX_COORD"));
+            }
+        }
+        Kind::Internal => {}
         Kind::Bisector => {
             rd.index(MAX_SELECTOR)?;
             rd.index(255)?;
