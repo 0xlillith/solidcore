@@ -31,6 +31,7 @@ use crate::geom::attribute::{
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::context::{MarkLock, MarkType};
 use crate::geom::object::ObjectRef;
+use crate::intersect::point_class::{PointClassType, PointClassification};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3};
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
@@ -39,6 +40,7 @@ use crate::topology::edgeuse::p1 as eu;
 use crate::topology::face::p2 as face;
 use crate::topology::topology_traverser::{self as traverser, Entity, Marks};
 use crate::topology::{edge, vertex, Brep, EdgeId, FaceId, FaceuseId, RegionId, VertexId};
+use crate::EntityRef;
 
 const OP: &str = "boolean::merge::p4::manifold_boolean";
 
@@ -149,10 +151,14 @@ pub struct FixedGaps {
     pub deleted_edges: Vec<EdgeId>,
 }
 
-/// Calls into the canonical intersector and other merge units. Implementors
-/// delegate the required methods to the existing ports; no second mate map is
-/// maintained by this unit. Missing dependency methods have narrowly scoped,
-/// argument-complete defaults, to be wired by their owning units.
+/// Interface for calls into the canonical intersector and other merge units.
+/// No concrete kernel adapter implements this interface yet. Required methods
+/// below are integration gaps owned by the `boolean.merge_p4` follow-up, including
+/// calls to already-ported `merge_p1`, `merge_p5` and intersector `Relations`.
+/// They are not missing dependency implementations and must not be labelled
+/// `Unported`. The follow-up must reuse `p1::MergeState` and the canonical maps,
+/// notification records and caller attributes. No second mate map lives here.
+/// Defaults replace only calls into genuinely unported dependencies.
 pub trait ManifoldIntersector {
     /// `SmBrep::Transform` for the temporary scope's surviving operands. The
     /// adapter supplies notification records and selects the operand's live
@@ -175,22 +181,29 @@ pub trait ManifoldIntersector {
     }
 
     /// `GetMappedBrepObjects(SmEdge_TYPE)` before later topology copies.
+    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector::GetMappedBrepObjects(edge) in this unit's follow-up.
     fn mapped_edges(&self) -> Result<Vec<EdgeId>>;
     /// `GetMappedBrepObjects(SmVertex_TYPE)` before later topology copies.
+    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector::GetMappedBrepObjects(vertex) in this unit's follow-up.
     fn mapped_vertices(&self) -> Result<Vec<VertexId>>;
     /// `GetCommonEdges`, in primary B-rep list order, paired with other mates.
+    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector::common_edges in this unit's follow-up.
     fn common_edges(&self, primary: &Brep, other: &Brep) -> Result<(Vec<EdgeId>, Vec<EdgeId>)>;
     /// `GetCommonVertices`, in primary B-rep list order.
+    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector::common_vertices in this unit's follow-up.
     fn common_vertices(
         &self,
         primary: &Brep,
         other: &Brep,
     ) -> Result<(Vec<VertexId>, Vec<VertexId>)>;
     /// `GetOtherMate` for a primary edge.
+    // INTEGRATION-GAP(boolean.merge_p4): wire Relations::edges.other in this unit's follow-up.
     fn edge_mate(&self, edge: EdgeId) -> Option<EdgeId>;
     /// `GetOtherMate` for a primary face.
+    // INTEGRATION-GAP(boolean.merge_p4): wire Relations::faces.other in this unit's follow-up.
     fn face_mate(&self, face: FaceId) -> Option<FaceId>;
     /// `Relate` for coincident faces (the `topology_intersector_p1` port).
+    // INTEGRATION-GAP(boolean.merge_p4): wire Relations::relate_faces in this unit's follow-up.
     fn relate_faces(
         &mut self,
         primary: &mut Brep,
@@ -198,7 +211,8 @@ pub trait ManifoldIntersector {
         other: &mut Brep,
         other_face: FaceId,
     ) -> Result<()>;
-    /// `FixFoundFaceCoincidence`, delegated to `merge_p1` with the live edge maps.
+    /// `FixFoundFaceCoincidence`: adapter target is `merge_p1` with the live edge maps.
+    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p1::fix_found_face_coincidence in this unit's follow-up.
     fn fix_face_coincidence(
         &mut self,
         primary: &mut Brep,
@@ -206,9 +220,10 @@ pub trait ManifoldIntersector {
         face: FaceId,
         other_face: FaceId,
     ) -> Result<(Vec<FaceId>, Vec<FaceId>, bool)>;
-    /// `ProcessWiresAndShellVertices`, delegated to `merge_p5` using the same mates.
+    /// `ProcessWiresAndShellVertices`: adapter target is `merge_p5` using the same mates.
     /// Build `VertexCopy` with these caller attributes and the adapter's records;
     /// no separate attribute store may be retained by the adapter.
+    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p5::process_wires_and_shell_vertices in this unit's follow-up.
     fn process_wires(
         &mut self,
         kernels: &mut BooleanKernels<'_>,
@@ -221,7 +236,8 @@ pub trait ManifoldIntersector {
         other_mark: MarkType,
         keep: &mut Vec<EdgeId>,
     ) -> Result<()>;
-    /// `sm_FindBrepRegionOfOtherFace`, delegated to `merge_p1` with live edge maps.
+    /// `sm_FindBrepRegionOfOtherFace`: adapter target is `merge_p1` with live edge maps.
+    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p1::find_brep_region_of_other_face in this unit's follow-up.
     fn find_region_of_other_face(
         &mut self,
         k: &Kernel,
@@ -229,8 +245,9 @@ pub trait ManifoldIntersector {
         other: &mut Brep,
         faceuse: FaceuseId,
     ) -> Result<Option<RegionId>>;
-    /// `PropagateOtherSrcRegionAttribs`, delegated to `merge_p1` with source lookups
+    /// `PropagateOtherSrcRegionAttribs`: adapter target is `merge_p1` with source lookups
     /// and the contexts' notification handlers. Its ordinary status is ignored.
+    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p1::propagate_other_src_region_attribs in this unit's follow-up.
     fn propagate_regions(
         &mut self,
         kernels: &mut BooleanKernels<'_>,
@@ -239,8 +256,9 @@ pub trait ManifoldIntersector {
         attributes: &mut AttributeStore,
         operation: BooleanOperation,
     ) -> Result<()>;
-    /// `BooleanPostProcess(FALSE)`, delegated to `merge_p1` with intersection lists
+    /// `BooleanPostProcess(FALSE)`: adapter target is `merge_p1` with intersection lists
     /// and live mates rather than all topology objects.
+    // INTEGRATION-GAP(boolean.merge_p4): wire merge::p1::boolean_post_process in this unit's follow-up.
     fn post_process(
         &mut self,
         kernels: &mut BooleanKernels<'_>,
@@ -250,9 +268,11 @@ pub trait ManifoldIntersector {
     ) -> Result<()>;
     /// A globally distinct attribute/notification identity for an arena entity.
     /// `other` distinguishes equal ids in independently owned arenas.
+    // INTEGRATION-GAP(boolean.merge_p4): wire canonical notification/attribute identities in this unit's follow-up.
     fn object_key(&self, other: bool, entity: MergeEntity) -> ObjectKey;
     /// Whether a partial-merge subset exists and excludes this other face's
     /// surface. Uses surface identity, not face identity.
+    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector partial-merge surface subset in this unit's follow-up.
     fn excluded_surface(&self, other: &Brep, face: FaceId) -> Result<bool>;
 
     /// `IntersectInsertRelate()`; all subsequent orchestration remains after it.
@@ -277,8 +297,10 @@ pub trait ManifoldIntersector {
         ))
     }
     /// Reset `m_bTopologyDeleted` before attempting to close a single vertex.
+    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector topology-deleted state in this unit's follow-up.
     fn clear_topology_deleted(&mut self);
     /// Current `m_bTopologyDeleted`, including changes during a failed close.
+    // INTEGRATION-GAP(boolean.merge_p4): wire TopologyIntersector topology-deleted state in this unit's follow-up.
     fn topology_deleted(&self) -> bool;
     /// `CloseIntersectionLoop(pVertex,bMadeNewTopology)`. The callgraph omits
     /// this live callee; its proposed owner is `topology_intersector_p2` (see
@@ -719,15 +741,14 @@ fn classify_edge_faces(
     Ok(true)
 }
 
-fn point_region(
+fn classify_point(
     _k: &Kernel,
     _brep: &Brep,
     _point: Point3,
     _tolerance: f64,
     _boundary_intersections: bool,
-    _zone_tolerance: f64,
-    _require_region_kind: bool,
-) -> Result<Option<RegionId>> {
+    _classification: &mut PointClassification<EntityRef>,
+) -> Result<()> {
     // UNPORTED(query.brep): SmBrep::Point3DClassify
     Err(SolidError::unported(
         "SmBrep::Point3DClassify",
@@ -813,19 +834,27 @@ fn classify_remaining(
                 } else {
                     0.45678
                 }))?;
+                let mut classification = PointClassification::new(e.tolerance);
                 let edit = opposite.editing_enabled();
                 opposite.set_editing_enabled(false);
-                let located = ignored(point_region(
+                let located = ignored(classify_point(
                     opposite_k,
                     opposite,
                     point,
                     crate::math::EFF_ZERO,
                     false,
-                    e.tolerance,
-                    reverse,
+                    &mut classification,
                 ));
                 opposite.set_editing_enabled(edit);
-                if let Some(Some(r)) = located? {
+                if located?.is_none() {
+                    continue;
+                }
+                // The other pass checks PC_REGION; the primary pass only casts
+                // GetObject(). These are caller decisions, not query behaviour.
+                if reverse && classification.point_class() != PointClassType::Region {
+                    continue;
+                }
+                if let Some(EntityRef::Region(r)) = classification.object() {
                     region = Some(r);
                     break;
                 }
@@ -982,7 +1011,13 @@ fn remember_split(
     let (r1, r2) = region_pair(primary, required(face::upward_faceuse(primary, new_face)?)?)?;
     let (o1, o2) = region_pair(other, required(face::upward_faceuse(other, other_face)?)?)?;
     let key = |r| intersector.object_key(false, MergeEntity::Region(r));
-    let old_infinite = merge_data(attributes, key(original))
+    // Capture both handles before either AddAttribute, even when r1 == r2.
+    let handle1 = attributes.find_attribute(key(r1), ids::OTHER_REGION_ID);
+    let handle2 = attributes.find_attribute(key(r2), ids::OTHER_REGION_ID);
+    let old_handle = if r1 == original { handle1 } else { handle2 };
+    let old_infinite = old_handle
+        .and_then(|h| attributes.get(h))
+        .and_then(Attribute::merge_region_data)
         .is_some_and(MergeRegionData::has_this_infinite_region)
         || Some(original) == primary.infinite_region();
     let this_infinite = merge_data(attributes, key(r1))
@@ -991,11 +1026,11 @@ fn remember_split(
         || Some(r1) == primary.infinite_region()
         || Some(r2) == primary.infinite_region();
     let old_type = source_type(primary, original, old_infinite)?;
-    for (r, o) in [(r1, o1), (r2, o2)] {
+    for (r, o, handle) in [(r1, o1, handle1), (r2, o2, handle2)] {
         let other_key = intersector.object_key(true, MergeEntity::Region(o));
         let this_type = source_type(primary, r, this_infinite)?;
         let other_type = source_type(other, o, Some(o) == other.infinite_region())?;
-        if let Some(handle) = attributes.find_attribute(key(r), ids::OTHER_REGION_ID) {
+        if let Some(handle) = handle {
             let data = required(
                 attributes
                     .get_mut(handle)
@@ -1475,19 +1510,25 @@ fn manifold_boolean_translated(
             *other = None;
         }
         kernels.doing_boolean(false);
-        if !caller_owned {
-            kernels.mark_action(|contexts| lock.release(contexts))?;
-        }
+        let released = if caller_owned {
+            Ok(())
+        } else {
+            kernels.mark_action(|contexts| lock.release(contexts))
+        };
         required(primary.as_mut())?.set_editing_enabled(edit_a);
+        released?;
         return Ok(true);
     }
     // The local mark lock belongs to the editing scope. It is destroyed
     // before the earlier-declared editing guards; extraction follows both.
-    if !caller_owned {
-        kernels.mark_action(|contexts| lock.release(contexts))?;
-    }
+    let released = if caller_owned {
+        Ok(())
+    } else {
+        kernels.mark_action(|contexts| lock.release(contexts))
+    };
     a.set_editing_enabled(edit_a);
     b.set_editing_enabled(edit_b);
+    released?;
     result?;
     if operation == BooleanOperation::ExtractSeparate {
         for (source, reverse, sets, components) in [

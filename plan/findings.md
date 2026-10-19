@@ -7840,127 +7840,65 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   valgrind with `harness/valgrind/ub11.supp` gives 0 errors on the simple, unify, select and split
   samples.
 
-## boolean.merge_p4 — dependency-limited parity and live callgraph gap (PR #243)
+## boolean.merge_p4 — coverage and integration gaps (PR #243)
 
-`SmMerge::ManifoldBoolean` calls `SmTopologyIntersector::CloseIntersectionLoop` at
-`source/SMLib/src/SmMerge.cpp:2958`; the callee is defined at
-`source/SMLib/src/SmTopologyIntersector.cpp:6108-6354`. The callgraph omits it from
-`harness/callgraph/units.json` and lists it in `unused_functions.txt` despite this
-live call. Per overseer direction, its proposed home is
-`boolean.topology_intersector_p2` (#203), where the overseer will co-port it in a
-follow-up. merge_p4 does not duplicate the function. Its adapter has an
-argument-complete `UNPORTED(boolean.topology_intersector_p2)` call and retains the
-entire subsequent retry, topology-deletion, single-vertex and gap-repair tail.
+`SmMerge::ManifoldBoolean` calls `SmTopologyIntersector::CloseIntersectionLoop`
+at `source/SMLib/src/SmMerge.cpp:2958`, defined at
+`source/SMLib/src/SmTopologyIntersector.cpp:6108-6354`. `units.json` omits its
+assignment and lists it as unused despite the live call. Per overseer direction,
+its proposed owner is `boolean.topology_intersector_p2` (#203); the overseer will
+co-port it there. The complete retry/cleanup tail follows the stub. COORD requires
+#203 to recheck this label when landing/going green so it cannot remain a stub
+against a green owner without that co-port.
 
-The first non-null-operand operation is merge_p1's temporary B-rep transform,
-which currently returns `Unported(query.brep)` for
-`SmBrep::CalculateBoundingBox`. Consequently **no success path is compared yet**.
-The native oracle calls the real `ManifoldBoolean`; every valid Rust operand pair
-is deferred before mutation. Null-operand matches compare error statuses only and
-are reported as both-errored/no-values cases, not successful Boolean evidence.
-The complete classification/copy/delete/region-bookkeeping tail is present but
-has no end-to-end numerical or topology parity certification. Required adapters
-to existing merge/intersector ports deliberately fail if reached until integrated;
-they never supply invented classifications or geometry, nor defer under a false
-owner. No absolute floors or tolerance changes are used.
+**No success path is compared yet.** Every non-null Rust operand pair stops at
+merge_p1's `SmBrep::CalculateBoundingBox` prerequisite (`query.brep`) before
+mutation. Matches cover null-operand errors only, across all eleven operation
+codes. Status is now data, so those matches compare doing-Boolean/editing flags,
+intersection/component counts and surviving operand graphs as well. Error records
+and success records use the same snapshot path. Native post-state imports are
+used only on the C++ side; the Rust side serializes its own arenas. Shared p10
+serialization compares exact integer topology and geometry samples under 1e-9
+relative tolerance, plus gap initialization and UV fields. No absolute floors.
+These error-state values do not certify the classification/copy/delete/region tail;
+its evidence remains source review, including the review's undetected four-point
+logic mutation. There are zero compared Boolean successes for every operation.
 
-Validation of reviewed `3e12f4c6` on sc-builder-5: 302 cases, 22 matching null-input errors, 278
-`query.brep` deferrals, 2 native constructor rejections, 0 failures;
-`with_values=0`, `no_values=22`, **real success passes=0**. Perturb detected 22/22
-comparable cases. `FUZZ-PASS boolean.merge_p4 cases=2000 rejected=191 malformed=897
-ran=912 differs=0 crashes=0 panics=0 timeouts=0`. The 110-seed valgrind sample
-(396 cases, covering both runners and native setup/teardown) matched its ordinary
-baseline and reported `ERROR SUMMARY: 0 errors from 0 contexts`.
+**No concrete kernel ManifoldIntersector adapter exists.** Already-ported callees
+remain unwired: merge_p1::{fix_found_face_coincidence,
+find_brep_region_of_other_face, propagate_other_src_region_attribs,
+boolean_post_process}, merge_p5::process_wires_and_shell_vertices, and
+intersector_p1 Relations/TopologyIntersector mates, relate and common/mapped lists.
+Every required interface method carries INTEGRATION-GAP(boolean.merge_p4), not a
+false Unported label for a ported callee. Owner: the boolean.merge_p4 author
+follow-up, including p1::MergeState, canonical relations, notification records and
+shared caller AttributeStore. The harness deliberately errors/panics if that gap
+is reached after wiring the bounding-box prerequisite. This is the review's
+explicit disclosure fallback; the integration is not claimed complete.
 
-New remaining `UNPORTED` sites and the owners' current main statuses (all `todo`):
+Remaining UNPORTED calls and owner statuses (current main: all todo):
 
 | Owner | Callees |
 | --- | --- |
-| `boolean.topology_intersector_p2` | `IntersectInsertRelate`, `RemoveRelationship`, `FixGaps`, `DeleteFaces`; proposed owner of `CloseIntersectionLoop` as explained above |
-| `boolean.merge_p2` | `SmMerge::MakeFaceuse` |
-| `query.brep` | `SmBrep::Point3DClassify`; the pre-existing merge_p1 prerequisite is `SmBrep::CalculateBoundingBox` |
-| `topology.brep_p2` | `SmBrep::IsSheet`, `IsOrientedSheet`, `DeleteStaleCaches` |
-| `topology.brep_p3` | `SmBrep::SmBrep` (component construction, including its infinite region) |
-| `topology.brep_p5` | `SmBrep::FindAndSetInfiniteRegion`; pre-review fix adds argument-complete `SmBrep::Transform` for the inverse-transform token |
-| `topology.brep_p9` | `SmBrep::OrientSheetSurfaces` |
+| boolean.topology_intersector_p2 | IntersectInsertRelate, RemoveRelationship, FixGaps, DeleteFaces; proposed CloseIntersectionLoop owner as above |
+| boolean.merge_p2 | MakeFaceuse |
+| query.brep | Point3DClassify; pre-existing merge_p1 CalculateBoundingBox prerequisite |
+| topology.brep_p2 | IsSheet, IsOrientedSheet, DeleteStaleCaches |
+| topology.brep_p3 | component SmBrep constructor, including its infinite region |
+| topology.brep_p5 | FindAndSetInfiniteRegion, inverse-scope Transform |
+| topology.brep_p9 | OrientSheetSurfaces |
 
-No pre-existing kernel stub is relabelled or removed, and no incoming
-`UNPORTED(boolean.merge_p4)` call exists in the kernel. The new CopyFaces stub
-is wired after the main merge as described below. Other units' code and plan
-entries remain unchanged.
+All stub signatures retain upstream arguments/defaults and the caller tail.
+Point3DClassify receives the full PointClassification out-record; PC_REGION and
+region casts remain in the caller. CopyFaces is wired to brep_p7 with native
+merge defaults. No incoming UNPORTED(boolean.merge_p4) sites or dependency co-ports.
+The inverse token encloses the complete operation and restores surviving operands
+through the same kernels/intersector/attributes environment. Editing flags are
+restored even if mark release fails. Split-region handles are captured before
+mutation, including aliasing children, with native old-region selection.
+The shim frees unowned planes on constructor rejection and exports all components.
+The FFI's supported coordinate/dimension domain is bounded at 1e100 via the shared
+reader. Current operand families avoid closed edges; adding closed-wire/circle
+kinds requires rechecking the registered UB-175 path.
 
-After merging main's PR #155, merge_p4's `UNPORTED(topology.brep_p7)`
-`SmBrep::CopyFaces` site is removed and wired to `brep::p7::copy_faces`. The
-call uses the exact upstream defaults (no optional face-output list, merge
-enabled, no supplied merge object); the returned face list and ordinary status
-are ignored, while `Unported` propagates. Its caller tail remains unchanged.
-This path is still behind the temporary-transform prerequisite and the unported
-component B-rep constructor, so no parity promotion is claimed.
-
-Final post-main verification on sc-builder-5 passed: workspace fmt, direct
-rustfmt checks of both include! files, clippy with and without `cpp`, all 1,380
-kernel tests and wasm. The unit, fuzz, perturb and 396-case Valgrind results above
-were repeated after wiring CopyFaces. The full green/partial set completed with
-`green-par: 210 units, failed=0`; every reported partial status matches the plan,
-and no plan-green unit deferred. This remains a partial unit with zero compared
-success paths.
-
-Pre-review of `3e12f4c6` found two latent integration gaps masked by the honest
-`query.brep` deferral. `temporary_brep_transform` now returns a must-use inverse
-placement token; p4 runs the complete operation inside its closure so cleanup
-follows mark/edit scopes, extraction and deletion on every Result exit. Cleanup
-restores surviving primary then other operands, uses `Transform(xfm,NULL,TRUE)`,
-and ignores ordinary transform statuses as the native destructor does. The
-constructor remains `UNPORTED(query.brep)` before mutation; the restoration's
-argument-complete `SmBrep::Transform` adapter call is `UNPORTED(topology.brep_p5)` (todo).
-No bounding-box or B-rep-transform implementation is duplicated. A regression
-injects the unavailable transform to check error/success returns, each survivor
-combination, inverse coordinates, cleanup order and ignored ordinary statuses.
-
-The adapter's `make_faceuse` and `process_wires` now borrow the same authoritative
-caller `AttributeStore` used by classification and region bookkeeping. Their
-canonical integration is still pending; adapters use their own notification
-records and live contexts with this store when constructing `TopologyCopy` or
-`VertexCopy`, including copies to already-mated faces. No separate store is used.
-The native shim now deletes an unconsumed plane on constructor rejection, and
-exports every extracted component graph with a record-length prefix instead of
-only component counts. The reported safe width-2000000 domain rejection is a
-fixed regression case. This was a shim ownership defect, not an upstream issue.
-Post-fix gate results will supersede the earlier snapshot's validation above.
-
-Post-fix verification on sc-builder-5: fmt and direct rustfmt (including the
-updated merge_p1 runner), both checks and clippy configurations, 1,381 kernel
-tests and wasm passed. The merge_p1 temporary-transform probe explicitly restores
-its token before exporting, matching its native constructor/destructor scope.
-Its difftest remains 248/203/0/45 (total/pass/fail/deferred), with 203 value
-comparisons. merge_p4 is 303/22/0/278, rejected=3, with_values=0, no_values=22:
-all matches remain null-input errors, real success passes=0.
-`FUZZ-PASS boolean.merge_p4 cases=2000 rejected=206 malformed=872 ran=922
-differs=0 crashes=0 panics=0 timeouts=0`. Perturb detected 22/22, deferred=278,
-rejected=3. The 110-seed (397-case) Valgrind sample matched its baseline exactly
-and reported 0 errors. The safe constructor-rejection-only full-leak probe had
-0 definitely/indirectly/possibly lost bytes and 0 errors (544 bytes of Rust
-runtime stack-overflow bookkeeping remain reachable). Both its ordinary and
-Valgrind CLI exits are 1 because the single case is rejected, failed=0; this is
-not a Rust/C++ mismatch. The full green gate is being repeated for this snapshot.
-
-After merging main #85, the scope callback also borrows the same live environment
-as its body: kernels, intersector/notification records and caller AttributeStore.
-The token restores through an argument-complete adapter method, so wiring
-`brep_p5::Transform` does not require a second kernel or attribute store. The
-regression checks shared-environment visibility and the operand selector too.
-Latest-main gates are being repeated on the resulting snapshot.
-
-Validation repeated after main #85 and the shared cleanup-environment refinement:
-fmt/include rustfmt, workspace checks, clippy x2, 1386 kernel tests and wasm
-passed. Both affected difftest summaries, fuzz 2000, perturb and both Valgrind
-checks exactly retain the preceding counts, with 0 mismatches/crashes/panics/
-timeouts, 0 memory errors and 0 lost bytes in the constructor regression. The
-pre-#85 210-unit green gate passed; the final merged set now contains 211 units.
-
-Final verification completed on the merged snapshot: `green-par: 211 units,
-failed=0`. All reported partial statuses match the plan and no plan-green unit
-deferred. The worktree's report remains partial: 303 cases, 22 matching null-input
-errors, 278 query.brep deferrals and 3 constructor rejections; real success
-passes=0. All pre-review findings are addressed, with no success-path parity
-claim or tolerance change.
+Final verification: pending the new gate run on sc-builder-5.
