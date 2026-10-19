@@ -68,7 +68,12 @@
 //! [`MAX_PARAM`]; the Jacobians every `crX`, `rF` and Jacobian entry the upstream index
 //! logic reads or writes in range and `crX` within [`MAX_PARAM`]; `CdInit` a non-`NULL`
 //! first surface and the guess and interval indices it reads and writes in range (with
-//! `do2` also rail 0 or 1); `Vr`, `VrSetup` a surface generator type 1 to 3. Two inputs
+//! `do2` also rail 0 or 1); `Vr`, `VrSetup` a surface generator type 1 to 3; the base
+//! surfaces of the solvers' offset surfaces, when planes, a domain with `u0 <= u1` and
+//! `v0 <= v1` (`SmPlane::MakeNurb` takes its knots from the domain, so a reversed one
+//! gives NLib a decreasing knot vector; the offset surface's extension then fails inside
+//! `N_SrfEvalPtDerivsUnbounded` and its retry reads the half-built extension, a
+//! segfault for a domain reversed by `1e10`). Two inputs
 //! make upstream read out of bounds only after work the validation cannot predict; the
 //! shim detects them with a dry run and rejects them (status `-1`): a ruled or revolved
 //! circular-section surface with approximated arcs of different knot counts (the second
@@ -342,6 +347,11 @@ fn surface(rd: &mut Reader<'_>) -> Result<(), FfiError> {
         rd.finites(15)?;
         return Ok(());
     }
+    bspline_surface(rd)
+}
+
+/// The B-spline part of [`surface`] (after its kind).
+fn bspline_surface(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     let n = rd.index(MAX_INDEX)?;
     let m = rd.index(MAX_INDEX)?;
     let p = rd.index(MAX_DEGREE)?;
@@ -360,6 +370,21 @@ fn surface(rd: &mut Reader<'_>) -> Result<(), FfiError> {
     check_knots(&u, p, "surface u")?;
     check_knots(&v, q, "surface v")?;
     Ok(())
+}
+
+/// A solver's base surface ([`surface`]): a plane's domain must not be reversed (its
+/// NURB knots are the domain's corners, see the module docs).
+fn offset_base(rd: &mut Reader<'_>) -> Result<(), FfiError> {
+    if rd.index(1)? == 1 {
+        let d = rd.finites(15)?;
+        if let [.., u0, v0, u1, v1] = d[..] {
+            if u0 > u1 || v0 > v1 {
+                return Err(bad("plane: reversed domain (decreasing NURB knots)"));
+            }
+        }
+        return Ok(());
+    }
+    bspline_surface(rd)
 }
 
 fn kinds(rd: &mut Reader<'_>) -> Result<(), FfiError> {
@@ -427,9 +452,9 @@ fn validate_base(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 /// their base.
 fn solver_block(rd: &mut Reader<'_>, distance: bool) -> Result<bool, FfiError> {
     let same = rd.flag()?;
-    surface(rd)?;
+    offset_base(rd)?;
     if !same {
-        surface(rd)?;
+        offset_base(rd)?;
     }
     if distance {
         rd.finites(6)?;
@@ -602,8 +627,8 @@ fn validate_cd_init(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 }
 
 fn vr_block(rd: &mut Reader<'_>) -> Result<(), FfiError> {
-    surface(rd)?;
-    surface(rd)?;
+    offset_base(rd)?;
+    offset_base(rd)?;
     rd.finites(2)?;
     curve(rd)?;
     if rd.index(1)? == 0 {

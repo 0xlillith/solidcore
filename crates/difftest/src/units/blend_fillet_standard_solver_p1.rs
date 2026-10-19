@@ -685,10 +685,8 @@ fn surface_of(s: &SrfIn) -> Result<Surface, HarnessError> {
             v3(*x),
             v3(*y),
             Vec2::new(scale[0], scale[1]),
-            &Extent2d::from_points(
-                Point2::new(domain[0], domain[1]),
-                Point2::new(domain[2], domain[3]),
-            ),
+            // (`SmExtent2d(u0, v0, u1, v1)`: stored as given, as the shim builds it)
+            &Extent2d::from_bounds(domain[0], domain[1], domain[2], domain[3]),
         )),
     })
 }
@@ -879,6 +877,18 @@ fn he(e: &SolidError) -> HarnessError {
     harness(e.to_string())
 }
 
+/// The `LoadJacobian` matrix of a case, bounded as the FFI validator bounds it (a size
+/// above `MAX_ARRAY` is refused there, so it is never allocated here).
+fn jac_matrix(jac: &JacIn) -> Result<Option<solidcore::geom::matrix::Matrix>, HarnessError> {
+    match jac.jac {
+        Some([r, c]) if r > ffi::MAX_ARRAY || c > ffi::MAX_ARRAY => {
+            Err(harness("jacobian: matrix size above the FFI bound"))
+        }
+        Some([r, c]) => Ok(Some(solidcore::geom::matrix::Matrix::new(r, c))),
+        None => Ok(None),
+    }
+}
+
 /// `new SmOffsetSurface(d, surface)` (upstream's default `SM_SS_UNKNOWN`).
 fn offset_of(k: &Kernel, d: f64, s: Surface, id: SurfaceId) -> Result<OffsetSurface, HarnessError> {
     OffsetSurface::new(k, d, s, id, SS_UNKNOWN).map_err(|e| he(&e))
@@ -1002,6 +1012,11 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
             fs.set_original_curve(Some(curve_of(curve)?));
             o.push(0.0);
             for &(t, n) in calls {
+                // (bounded as the FFI validator bounds it: `Curve::evaluate` allocates
+                // `n + 1` vectors)
+                if n > ffi::MAX_DERIV {
+                    return Err(harness("base: derivative count above the FFI bound"));
+                }
                 match fs.evaluate_base_curve(t, n) {
                     Ok(pv) => {
                         o.push(0.0);
@@ -1044,10 +1059,8 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
                 trim_type: BoundaryTrimmingType::None,
             };
             let s = surface_of(surface)?;
-            let mut d = Extent2d::from_points(
-                Point2::new(domain[0], domain[1]),
-                Point2::new(domain[2], domain[3]),
-            );
+            // (`SmExtent2d(u0, v0, u1, v1)`: stored as given, as the shim builds it)
+            let mut d = Extent2d::from_bounds(domain[0], domain[1], domain[2], domain[3]);
             match fs.setup_offset_extension(&k, &s, &mut d) {
                 Ok(()) => o.push(0.0),
                 // (no status upstream: a void function)
@@ -1117,7 +1130,7 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
             let (mut ne, mut np) = (jac.ne, jac.np);
             let mut offs = [jac.off1, jac.off2];
             let mut f = jac.f.clone();
-            let mut m = jac.jac.map(|[r, c]| solidcore::geom::matrix::Matrix::new(r, c));
+            let mut m = jac_matrix(jac)?;
             let res = fs.load_jacobian(
                 &mut ne,
                 &mut np,
@@ -1187,7 +1200,7 @@ fn rust_record(i: &Inputs) -> Result<Rec, HarnessError> {
             };
             let (mut ne, mut np) = (jac.ne, jac.np);
             let mut f = jac.f.clone();
-            let mut m = jac.jac.map(|[r, c]| solidcore::geom::matrix::Matrix::new(r, c));
+            let mut m = jac_matrix(jac)?;
             let res = fs.load_jacobian(
                 &mut ne,
                 &mut np,
@@ -2383,6 +2396,67 @@ mod tests {
         assert!(ok("Circ") > 40, "too few successful Circ cases");
         assert!(ok("Blend") > 20, "too few successful Blend cases");
         assert!(ok("CrEu") > 10, "too few successful CrEu cases");
+    }
+
+    /// A `cr_jac` case on two planes (`domain` of the first plane given).
+    fn cr_jac_planes(domain: [f64; 4], jac: Option<[usize; 2]>) -> Inputs {
+        let plane = |y: [f64; 3], domain: [f64; 4]| SrfIn::Plane {
+            o: [0.0, 0.0, 0.0],
+            x: [1.0, 0.0, 0.0],
+            y,
+            scale: [1.0, 1.0],
+            domain,
+        };
+        Inputs::CrJac {
+            solver: CrIn {
+                a: plane([0.0, 1.0, 0.0], domain),
+                b: Some(plane([0.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0])),
+                r: [0.5, 0.5],
+                o: [false, false],
+            },
+            jac: JacIn {
+                rail: 0,
+                ne: 0,
+                np: 1,
+                sel1: 1,
+                off1: 0,
+                sel2: 2,
+                off2: 2,
+                x: vec![0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.25, 0.75, 0.5],
+                f: vec![0.1, -0.2, 0.3, -0.4],
+                jac,
+            },
+        }
+    }
+
+    /// Sizes above the FFI bounds are refused before anything is allocated (review
+    /// fuzz: a `2^31 x 12` Jacobian or `2^31` derivatives aborted the Rust side).
+    #[test]
+    fn oversized_jacobian_and_derivative_counts_are_refused() {
+        let i = cr_jac_planes([0.0, 0.0, 1.0, 1.0], Some([1 << 31, 12]));
+        assert!(rust(&i).is_err());
+        let ok = cr_jac_planes([0.0, 0.0, 1.0, 1.0], Some([4, 12]));
+        assert!(rust(&ok).is_ok());
+        let base = Inputs::Base {
+            curve: CurveIn::Line {
+                start: [0.0, 0.0, 0.0],
+                end: [1.0, 0.0, 0.0],
+            },
+            calls: vec![(0.5, 1 << 31)],
+            kinds: vec![],
+        };
+        assert!(rust(&base).is_err());
+    }
+
+    /// A solver's plane with a reversed domain is refused (decreasing NURB knots: the
+    /// C++ segfaults extending it when reversed by `1e10`); an ordered one is accepted.
+    #[cfg(feature = "cpp")]
+    #[test]
+    fn reversed_plane_domain_of_a_solver_is_refused() {
+        let bad = cr_jac_planes([0.0, 0.0, 1.0, -1e10], Some([4, 12]));
+        let e = cpp(&bad).err().map(|e| e.to_string()).unwrap_or_default();
+        assert!(e.contains("reversed domain"), "{e}");
+        assert!(cpp(&cr_jac_planes([0.0, 0.0, 1.0, 1e10], Some([4, 12]))).is_ok());
     }
 }
 

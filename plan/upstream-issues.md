@@ -982,6 +982,24 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** crash/UB (out-of-bounds read).
 - **Rust port:** The bounds-checked skinning fails the first attempt (`InvalidInput`) and `CreateSkinnedSurface` retries as upstream does after a failure. The shim rejects both inputs (a dry run of the knot insertion and the ruled / revolved tests).
 
+#### UB-186. `SmCircularCrossSectionFSG::CreateSurfaceFromCurves` `G1` skin retry interpolates cross sections of different control point counts
+- **Location:** `source/SMLib/src/NL_SrfAdv.cpp:15096` (`N_CreateSkinSrfBoundaryContinuity`: `N_CrvGetCPts( cur[i], &nc, &Cw ); N_CopyCPt( Cw[j], &Qw[i] )` for `j` up to the first section's `nc`), reached from `SmFilletStandardSolver.cpp:3917` (`CreateSkinnedSurface` with the `G1` derivative surfaces) through `SmBSplineSurface::CreateSkinnedSurface`'s retry without the knot vector.
+- **What happens:** The second pass of approximated arcs inserts `lMaxNumUniqueKnots - 2` evenly spaced knots into an unequal-radius section whose arc already has that many unique knots (`:3654`): each inserted knot is within one ulp of an existing one (`5/11` against `5 * (1/11)`). `N_CrvsMakeCompatibleKnotTol(cur, k, 0)` makes the sections and derivative curves compatible, but `N_CrvElevateDegree` then gives the section with the near-duplicate knots fewer control points than the others (39 against 41), and the interpolation loop reads one control point past that section's array.
+- **Trigger:** `G1`, approximated arcs, a second pass, a section with `|r1 - r2| >= tol` whose first-pass arc has the maximum unique knot count, and a first skinning attempt that fails (the usual `N_AdjustDerivSrf` extension failure). Example: the circular case `rev_twist_n6p3_t0.05_m0_c1_dr1e-06_g1_s10000.0` of the `blend.fillet_standard_solver_p1` review (free-form centre, rails twisting from 0.4 to 2.6 rad, radius 1e4 with a 1e-6 relative mismatch, `tol = 0.01`, complement).
+- **How found:** adversarial difftest case during review of PR #168; the counts were confirmed by calling `N_CrvsMakeCompatibleKnotTol` and `N_CrvElevateDegree` on the exact curves in a C++ build.
+- **Confirmed:** yes (the C++ build reads `Pw[39]` of a 39-point section).
+- **Severity:** crash/UB (out-of-bounds read).
+- **Rust port:** The bounds-checked interpolation fails the attempt (`InvalidInput`) and `CreateSkinnedSurface` retries without derivative surfaces. The `blend.fillet_standard_solver_p1` shim does not detect these inputs yet; its generated cases do not reach them.
+
+#### UB-187. `SmOffsetSurface` extension of a plane with a reversed domain reads a half-built NLib surface
+- **Location:** `source/SMLib/src/SmPlane.cpp:3013-3016` (`SmPlane::MakeNurb`: the knots are the domain's corners as stored), `source/SMLib/src/SmOffsetSurface.cpp:527-533` (`sm_ExtendSurface`: a failed `N_SrfEvalPtDerivsUnbounded` is retried with the same `esur`), `source/SMLib/src/NL_SrfAdv.cpp:5470` (`N_SrfGetParameterBounds` on the partly extended `esur`).
+- **What happens:** `SmPlane(o, x, y, scale, SmExtent2d(u0, v0, u1, v1))` keeps a reversed domain, so `MakeNurb` gives NLib a decreasing knot vector. Evaluating an offset of it outside that domain extends it: the first `N_SrfEvalPtDerivsUnbounded` call fails part-way through the extension, and the retry reads the `esur` it left behind.
+- **Trigger:** `SmConstantRadiusFS::LoadJacobian` (via `SmSurface::Evaluate1stDerivatives` on its `SmOffsetSurface`) on a plane whose domain is `[0, 1] x [0, -1e10]`. Reversed by `1e9` or less, the calls return.
+- **How found:** `difftest --fuzz 3000` of `blend.fillet_standard_solver_p1` (PR #168 review fixes), case built on a two-plane `cr_jac` fixture.
+- **Confirmed:** yes (SIGSEGV in `N_SrfGetParameterBounds` under gdb).
+- **Severity:** crash/UB (read of a freed or uninitialised surface).
+- **Rust port:** no crash. The `blend.fillet_standard_solver_p1` FFI validator rejects a reversed plane domain for the solvers' base surfaces, so the case is not compared.
+
 ### Intersection
 
 #### UB-89. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]

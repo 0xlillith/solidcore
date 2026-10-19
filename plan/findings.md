@@ -6859,7 +6859,8 @@ independent p6 integration.
 
 ## blend.fillet_standard_solver_p1 (`SmFilletStandardSolver.cpp` part 1, 2026-10-16; partial, no disagreements)
 
-- **Corpus.** 505 cases (25 fixture, 480 generated): no failure at max_rel_err 0. After
+- **Corpus.** 1214 cases (25 fixture, 709 review fixtures, 480 generated): no failure at
+  max_rel_err 0. After
   surface.offset_surface landed (merge of main, 2026-10-18) the Jacobians and
   `SmConstantDistanceFS::LoadInitialValues` with `rbDoSurf2Calcs` run on the ported
   `SmOffsetSurface` and are compared; the variable-radius `SetupOffsetValues` stays
@@ -6918,7 +6919,52 @@ independent p6 integration.
   `SmFilletSolver::SetExtensionFlags`, which dereferences the fillet executive
   (blend.fillet_solver_p1): unit tested only. The Jacobians and the edge-use branch
   of `LoadInitialValues` run in C++ with cleared edge uses (as
-  blend.fillet_custom_solver).
+  blend.fillet_custom_solver). That edge-use branch (UV trim curve guess, `IsClosed`
+  snapping, `LocalPointSolve`, the 30-150 degree and singularity checks) was read
+  line by line against upstream in the PR #168 review and looks faithful; a
+  follow-up with real edge uses would compare it.
+- **PR #168 review fixes (2026-10-19).**
+  - *Runner allocations from case sizes.* The Rust runner built the `LoadJacobian`
+    matrix and called `EvaluateBaseCurve` with the case's sizes unchecked; the fuzz
+    child runs Rust whenever the C++ side returns a harness error, so a `2^31 x 12`
+    Jacobian or `2^31` derivatives aborted it ("memory allocation of ... failed").
+    Both are now harness errors above `ffi::MAX_ARRAY` / `ffi::MAX_DERIV`, as the
+    FFI validator bounds them.
+  - *Reversed plane domains.* The runner built plane domains (and the `SsExt`
+    domain) with `Extent2d::from_points`, which swaps reversed corners, while the
+    shim's `SmExtent2d(u0, v0, u1, v1)` stores them as given: `fuzz00403`/`00484`
+    disagreed (`SsExt` out[0] cpp 0, rust -0.313). Now `Extent2d::from_bounds`.
+  - *FFI guard gap: reversed plane under an offset surface.* `SmPlane::MakeNurb`
+    takes the NURB knots from the plane's domain, so a reversed domain gives NLib a
+    decreasing knot vector. With a solver's offset of such a plane, `LoadJacobian`
+    extends it through `sm_ExtendSurface`; for a domain reversed by `>= 1e10` (`1e9`
+    and less run) `N_SrfEvalPtDerivsUnbounded` fails and the retry segfaults in
+    `N_SrfGetParameterBounds` (UB-187; found by `--fuzz 3000` once a `cr_jac` fixture gave
+    it a base). The validator now rejects reversed plane domains for the solvers'
+    base surfaces (`Cr`, `CrJac`, `Cd*`, `Vr*`); `SsExt` (which only reads the
+    domain) keeps them. The generators never make reversed planes.
+  - *UB-186 (not detected by the shim).* A circular `G1` skin with approximated arcs
+    whose second pass inserts knots within one ulp of existing ones (`5/11` against
+    `5 * (1/11)`) leaves one section with 39 control points against 41 after
+    `N_CrvsMakeCompatibleKnotTol` + `N_CrvElevateDegree` on `CreateSkinnedSurface`'s
+    retry, and `N_CreateSkinSrfBoundaryContinuity` reads past it
+    (plan/upstream-issues.md UB-186). Two of the reviewer's 708 adversarial cases
+    reach it (`rev_twist_n6p3_t0.05_m{0,1}_c1_dr1e-06_g1_s10000.0`: out.len cpp 1765,
+    rust 1839; the C++ fillet's v knots equal a C++ `CreateSkinnedSurface` call on
+    the same inputs, so the C++ value is the UB one). They are not fixtures. The
+    shim's circular dry run does not detect this yet (it does for UB-158/159); the
+    generated corpus never reaches it.
+  - *Out of scope, noted.* The nurbs.b_spline_surface_n_lib_p1/_p2 runners and shims
+    build curves with `SmBSplineCurve(gw, 3, FALSE)` / `from_nurb(.., false)`, which
+    runs `sm_FixupKnotVector` and snaps knots within an ulp of each other, so the
+    skin and ruled-surface difftests can never feed them the near-duplicate knots
+    that reach UB-186.
+  - The reviewer's 708 adversarial cases (ruled, revolved and skinned circular and
+    blend-curve sections with twisted rails, near-equal radii, tiny tolerances,
+    scales 1e-6..1e4; `EvaluateBaseCurve` extensions; the two reversed-domain
+    `SsExt` cases) and a planes `cr_jac` case are fixtures
+    (`fixtures/blend.fillet_standard_solver_p1/review_adversarial.json`): all pass
+    at max_rel_err 0.
 
 ## heal.heal_data_p3 (healer sequencing, target refresh and repair stages; PR #164, 2026-10-16; partial, no disagreements)
 

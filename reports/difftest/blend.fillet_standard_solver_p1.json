@@ -202,6 +202,5678 @@
       "values_compared": 33
     },
     {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#0",
+      "values_compared": 331
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#1",
+      "values_compared": 636
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#2",
+      "values_compared": 331
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#3",
+      "values_compared": 636
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#4",
+      "values_compared": 331
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#5",
+      "values_compared": 636
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#6",
+      "values_compared": 331
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#7",
+      "values_compared": 636
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#8",
+      "values_compared": 481
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#9",
+      "values_compared": 1080
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#10",
+      "values_compared": 481
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#11",
+      "values_compared": 1080
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#12",
+      "values_compared": 481
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#13",
+      "values_compared": 1080
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#14",
+      "values_compared": 481
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#15",
+      "values_compared": 1080
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#16",
+      "values_compared": 331
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#17",
+      "values_compared": 636
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#18",
+      "values_compared": 331
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#19",
+      "values_compared": 636
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#20",
+      "values_compared": 331
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#21",
+      "values_compared": 636
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#22",
+      "values_compared": 331
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#23",
+      "values_compared": 636
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#24",
+      "values_compared": 481
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#25",
+      "values_compared": 1080
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#26",
+      "values_compared": 481
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#27",
+      "values_compared": 1080
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#28",
+      "values_compared": 481
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#29",
+      "values_compared": 1080
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#30",
+      "values_compared": 481
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.05_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#31",
+      "values_compared": 1080
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#32",
+      "values_compared": 456
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#33",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#34",
+      "values_compared": 456
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#35",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#36",
+      "values_compared": 456
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#37",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#38",
+      "values_compared": 456
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#39",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#40",
+      "values_compared": 781
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#41",
+      "values_compared": 1968
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#42",
+      "values_compared": 781
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#43",
+      "values_compared": 1968
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#44",
+      "values_compared": 781
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#45",
+      "values_compared": 1968
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#46",
+      "values_compared": 781
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#47",
+      "values_compared": 1968
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#48",
+      "values_compared": 456
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#49",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#50",
+      "values_compared": 456
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#51",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#52",
+      "values_compared": 456
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#53",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#54",
+      "values_compared": 456
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#55",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#56",
+      "values_compared": 781
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#57",
+      "values_compared": 1968
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#58",
+      "values_compared": 781
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#59",
+      "values_compared": 1968
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#60",
+      "values_compared": 781
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#61",
+      "values_compared": 1968
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#62",
+      "values_compared": 781
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t0.001_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#63",
+      "values_compared": 1968
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#64",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#65",
+      "values_compared": 2634
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#66",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#67",
+      "values_compared": 2634
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#68",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#69",
+      "values_compared": 2634
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#70",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#71",
+      "values_compared": 2634
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#72",
+      "values_compared": 1931
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#73",
+      "values_compared": 5372
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#74",
+      "values_compared": 1931
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#75",
+      "values_compared": 5372
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#76",
+      "values_compared": 1931
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#77",
+      "values_compared": 5372
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#78",
+      "values_compared": 1931
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#79",
+      "values_compared": 5372
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#80",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#81",
+      "values_compared": 2634
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#82",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#83",
+      "values_compared": 2634
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#84",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#85",
+      "values_compared": 2634
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#86",
+      "values_compared": 1006
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#87",
+      "values_compared": 2634
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#88",
+      "values_compared": 1931
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#89",
+      "values_compared": 5372
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#90",
+      "values_compared": 1931
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#91",
+      "values_compared": 5372
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#92",
+      "values_compared": 1931
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#93",
+      "values_compared": 5372
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#94",
+      "values_compared": 1931
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n4p3_t1e-05_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#95",
+      "values_compared": 5372
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#96",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#97",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#98",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#99",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#100",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#101",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#102",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#103",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#104",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#105",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#106",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#107",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#108",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#109",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#110",
+      "values_compared": 413
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#111",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#112",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#113",
+      "values_compared": 730
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#114",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#115",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#116",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#117",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#118",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c0_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#119",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#120",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#121",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#122",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#123",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#124",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#125",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#126",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#127",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#128",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#129",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#130",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#131",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#132",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#133",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#134",
+      "values_compared": 848
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#135",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#136",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#137",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#138",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#139",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#140",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#141",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m0_c1_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#142",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#143",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#144",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#145",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#146",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#147",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#148",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#149",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#150",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#151",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#152",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#153",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#154",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#155",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#156",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#157",
+      "values_compared": 413
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#158",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#159",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#160",
+      "values_compared": 730
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#161",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#162",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#163",
+      "values_compared": 384
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#164",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#165",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c0_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#166",
+      "values_compared": 656
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#167",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#168",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#169",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#170",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#171",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#172",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#173",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#174",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#175",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#176",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#177",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#178",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#179",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#180",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#181",
+      "values_compared": 848
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#182",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#183",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#184",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#185",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#186",
+      "values_compared": 558
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#187",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#188",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.05_m1_c1_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#189",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#190",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#191",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#192",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#193",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#194",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#195",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#196",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#197",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#198",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#199",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#200",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#201",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#202",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#203",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#204",
+      "values_compared": 587
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#205",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#206",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#207",
+      "values_compared": 1174
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#208",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#209",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#210",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#211",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#212",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c0_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#213",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#214",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#215",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#216",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#217",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#218",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#219",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#220",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#221",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#222",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#223",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#224",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#225",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#226",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#227",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#228",
+      "values_compared": 1544
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#229",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#230",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#231",
+      "values_compared": 3024
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#232",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#233",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#234",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#235",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#236",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m0_c1_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#237",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#238",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#239",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#240",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#241",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#242",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#243",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#244",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#245",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#246",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#247",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#248",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#249",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#250",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#251",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#252",
+      "values_compared": 587
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#253",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#254",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#255",
+      "values_compared": 1174
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#256",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#257",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#258",
+      "values_compared": 529
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#259",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#260",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c0_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#261",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#262",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#263",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#264",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#265",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#266",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#267",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#268",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#269",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#270",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#271",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#272",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#273",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#274",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#275",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#276",
+      "values_compared": 1544
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#277",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#278",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#279",
+      "values_compared": 3024
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#280",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#281",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#282",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#283",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#284",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t0.001_m1_c1_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#285",
+      "values_compared": 1988
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#286",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#287",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#288",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#289",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#290",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#291",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#292",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#293",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#294",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#295",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#296",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#297",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#298",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#299",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#300",
+      "values_compared": 1312
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#301",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#302",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#303",
+      "values_compared": 2987
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#304",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#305",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#306",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#307",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#308",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c0_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#309",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#310",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#311",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#312",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#313",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#314",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#315",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#316",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#317",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#318",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#319",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#320",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#321",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#322",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#323",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#324",
+      "values_compared": 4212
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#325",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#326",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#327",
+      "values_compared": 8463
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#328",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#329",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#330",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#331",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#332",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m0_c1_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#333",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#334",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#335",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#336",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#337",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#338",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#339",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#340",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#341",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#342",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#343",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#344",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#345",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#346",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#347",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#348",
+      "values_compared": 1312
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#349",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#350",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#351",
+      "values_compared": 2987
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#352",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#353",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#354",
+      "values_compared": 1167
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#355",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#356",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c0_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#357",
+      "values_compared": 2654
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#358",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.0_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#359",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.0_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#360",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#361",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.0_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#362",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.0_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#363",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#364",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr5e-09_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#365",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr5e-09_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#366",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#367",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr5e-09_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#368",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr5e-09_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#369",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#370",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr1e-06_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#371",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr1e-06_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#372",
+      "values_compared": 4212
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#373",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr1e-06_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#374",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr1e-06_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#375",
+      "values_compared": 8463
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#376",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.02_g0_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#377",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.02_g0_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#378",
+      "values_compared": 2240
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#379",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.02_g1_s0.0001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#380",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n6p3_t1e-05_m1_c1_dr0.02_g1_s10000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#381",
+      "values_compared": 5392
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#382",
+      "values_compared": 398
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#383",
+      "values_compared": 690
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#384",
+      "values_compared": 398
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#385",
+      "values_compared": 690
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#386",
+      "values_compared": 398
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#387",
+      "values_compared": 690
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#388",
+      "values_compared": 398
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#389",
+      "values_compared": 690
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#390",
+      "values_compared": 596
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#391",
+      "values_compared": 1182
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#392",
+      "values_compared": 596
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#393",
+      "values_compared": 1182
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#394",
+      "values_compared": 596
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#395",
+      "values_compared": 1182
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#396",
+      "values_compared": 596
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#397",
+      "values_compared": 1182
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#398",
+      "values_compared": 398
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#399",
+      "values_compared": 690
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#400",
+      "values_compared": 398
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#401",
+      "values_compared": 690
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#402",
+      "values_compared": 398
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#403",
+      "values_compared": 690
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#404",
+      "values_compared": 398
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#405",
+      "values_compared": 690
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#406",
+      "values_compared": 596
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#407",
+      "values_compared": 1182
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#408",
+      "values_compared": 596
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#409",
+      "values_compared": 1182
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#410",
+      "values_compared": 596
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#411",
+      "values_compared": 1182
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#412",
+      "values_compared": 596
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.05_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#413",
+      "values_compared": 1182
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#414",
+      "values_compared": 563
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#415",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#416",
+      "values_compared": 563
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#417",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#418",
+      "values_compared": 563
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#419",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#420",
+      "values_compared": 563
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#421",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#422",
+      "values_compared": 992
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#423",
+      "values_compared": 2166
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#424",
+      "values_compared": 992
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#425",
+      "values_compared": 2166
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#426",
+      "values_compared": 992
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#427",
+      "values_compared": 2166
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#428",
+      "values_compared": 992
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#429",
+      "values_compared": 2166
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#430",
+      "values_compared": 563
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#431",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#432",
+      "values_compared": 563
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#433",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#434",
+      "values_compared": 563
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#435",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#436",
+      "values_compared": 563
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#437",
+      "values_compared": 1100
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#438",
+      "values_compared": 992
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#439",
+      "values_compared": 2166
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#440",
+      "values_compared": 992
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#441",
+      "values_compared": 2166
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#442",
+      "values_compared": 992
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#443",
+      "values_compared": 2166
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#444",
+      "values_compared": 992
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t0.001_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#445",
+      "values_compared": 2166
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#446",
+      "values_compared": 1289
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#447",
+      "values_compared": 2904
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#448",
+      "values_compared": 1289
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#449",
+      "values_compared": 2904
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#450",
+      "values_compared": 1289
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#451",
+      "values_compared": 2904
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#452",
+      "values_compared": 1289
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#453",
+      "values_compared": 2904
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#454",
+      "values_compared": 2510
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#455",
+      "values_compared": 5938
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#456",
+      "values_compared": 2510
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#457",
+      "values_compared": 5938
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#458",
+      "values_compared": 2510
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#459",
+      "values_compared": 5938
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#460",
+      "values_compared": 2510
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#461",
+      "values_compared": 5938
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#462",
+      "values_compared": 1289
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#463",
+      "values_compared": 2904
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#464",
+      "values_compared": 1289
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#465",
+      "values_compared": 2904
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#466",
+      "values_compared": 1289
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#467",
+      "values_compared": 2904
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#468",
+      "values_compared": 1289
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#469",
+      "values_compared": 2904
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#470",
+      "values_compared": 2510
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#471",
+      "values_compared": 5938
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#472",
+      "values_compared": 2510
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#473",
+      "values_compared": 5938
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#474",
+      "values_compared": 2510
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#475",
+      "values_compared": 5938
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#476",
+      "values_compared": 2510
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n5p2_t1e-05_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#477",
+      "values_compared": 5938
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#478",
+      "values_compared": 432
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#479",
+      "values_compared": 671
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#480",
+      "values_compared": 432
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#481",
+      "values_compared": 671
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#482",
+      "values_compared": 564
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#483",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#484",
+      "values_compared": 432
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#485",
+      "values_compared": 671
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#486",
+      "values_compared": 630
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#487",
+      "values_compared": 1115
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#488",
+      "values_compared": 630
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#489",
+      "values_compared": 1115
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#490",
+      "values_compared": 828
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#491",
+      "values_compared": 1559
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#492",
+      "values_compared": 630
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#493",
+      "values_compared": 1115
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#494",
+      "values_compared": 432
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#495",
+      "values_compared": 671
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#496",
+      "values_compared": 432
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#497",
+      "values_compared": 671
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#498",
+      "values_compared": 564
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#499",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#500",
+      "values_compared": 432
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#501",
+      "values_compared": 671
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#502",
+      "values_compared": 630
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#503",
+      "values_compared": 1115
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#504",
+      "values_compared": 630
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#505",
+      "values_compared": 1115
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#506",
+      "values_compared": 828
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#507",
+      "values_compared": 1559
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#508",
+      "values_compared": 630
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.05_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#509",
+      "values_compared": 1115
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#510",
+      "values_compared": 597
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#511",
+      "values_compared": 1041
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#512",
+      "values_compared": 597
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#513",
+      "values_compared": 1041
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#514",
+      "values_compared": 894
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#515",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#516",
+      "values_compared": 597
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#517",
+      "values_compared": 1041
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#518",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#519",
+      "values_compared": 2003
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#520",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#521",
+      "values_compared": 2003
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#522",
+      "values_compared": 1488
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#523",
+      "values_compared": 3039
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#524",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#525",
+      "values_compared": 2003
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#526",
+      "values_compared": 597
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#527",
+      "values_compared": 1041
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#528",
+      "values_compared": 597
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#529",
+      "values_compared": 1041
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#530",
+      "values_compared": 894
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#531",
+      "values_compared": 165
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#532",
+      "values_compared": 597
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#533",
+      "values_compared": 1041
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#534",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#535",
+      "values_compared": 2003
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#536",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#537",
+      "values_compared": 2003
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#538",
+      "values_compared": 1488
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#539",
+      "values_compared": 3039
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#540",
+      "values_compared": 1026
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t0.001_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#541",
+      "values_compared": 2003
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#542",
+      "values_compared": 1323
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#543",
+      "values_compared": 2669
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#544",
+      "values_compared": 1323
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#545",
+      "values_compared": 2669
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#546",
+      "values_compared": 2346
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#547",
+      "values_compared": 3816
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#548",
+      "values_compared": 1323
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#549",
+      "values_compared": 2669
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#550",
+      "values_compared": 2544
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#551",
+      "values_compared": 5407
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#552",
+      "values_compared": 2544
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#553",
+      "values_compared": 5407
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#554",
+      "values_compared": 3996
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#555",
+      "values_compared": 8663
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#556",
+      "values_compared": 2544
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m0_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#557",
+      "values_compared": 5407
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c0_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#558",
+      "values_compared": 1323
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c0_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#559",
+      "values_compared": 2669
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c0_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#560",
+      "values_compared": 1323
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c0_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#561",
+      "values_compared": 2669
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c0_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#562",
+      "values_compared": 2346
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c0_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#563",
+      "values_compared": 3816
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c0_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#564",
+      "values_compared": 1323
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c0_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#565",
+      "values_compared": 2669
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c1_dr0.0_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#566",
+      "values_compared": 2544
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c1_dr0.0_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#567",
+      "values_compared": 5407
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c1_dr5e-09_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#568",
+      "values_compared": 2544
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c1_dr5e-09_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#569",
+      "values_compared": 5407
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c1_dr1e-06_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#570",
+      "values_compared": 3996
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c1_dr1e-06_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#571",
+      "values_compared": 8663
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c1_dr0.02_g0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#572",
+      "values_compared": 2544
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_twist_n7p3_t1e-05_m1_c1_dr0.02_g1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#573",
+      "values_compared": 5407
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_touch0_a1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#574",
+      "values_compared": 1281
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_touch0_a0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#575",
+      "values_compared": 306
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_touch2_a1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#576",
+      "values_compared": 110
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_touch2_a0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#577",
+      "values_compared": 110
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_touch4_a1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#578",
+      "values_compared": 906
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_touch4_a0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#579",
+      "values_compared": 231
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_skip0_a1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#580",
+      "values_compared": 97
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_skip0_a0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#581",
+      "values_compared": 97
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_skip2_a1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#582",
+      "values_compared": 97
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_skip2_a0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#583",
+      "values_compared": 97
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_skip4_a1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#584",
+      "values_compared": 117
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_skip4_a0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#585",
+      "values_compared": 117
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc1.5_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#586",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc1.5_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#587",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc1.5_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#588",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc1.5_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#589",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc1.5_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#590",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc1.5_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#591",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc1.5_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#592",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc1.5_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#593",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc1.5_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#594",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc0.7_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#595",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc0.7_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#596",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc0.7_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#597",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc0.7_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#598",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc0.7_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#599",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc0.7_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#600",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc0.7_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#601",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc0.7_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#602",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc0.7_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#603",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc2.5_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#604",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc2.5_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#605",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc2.5_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#606",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc2.5_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#607",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc2.5_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#608",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc2.5_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#609",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc2.5_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#610",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc2.5_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#611",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c1_sc2.5_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#612",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc1.5_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#613",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc1.5_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#614",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc1.5_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#615",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc1.5_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#616",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc1.5_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#617",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc1.5_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#618",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc1.5_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#619",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc1.5_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#620",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc1.5_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#621",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc0.7_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#622",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc0.7_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#623",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc0.7_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#624",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc0.7_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#625",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc0.7_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#626",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc0.7_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#627",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc0.7_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#628",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc0.7_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#629",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc0.7_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#630",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc2.5_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#631",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc2.5_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#632",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc2.5_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#633",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc2.5_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#634",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc2.5_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#635",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc2.5_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#636",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc2.5_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#637",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc2.5_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#638",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c2_sc2.5_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#639",
+      "values_compared": 288
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc1.5_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#640",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc1.5_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#641",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc1.5_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#642",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc1.5_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#643",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc1.5_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#644",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc1.5_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#645",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc1.5_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#646",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc1.5_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#647",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc1.5_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#648",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc0.7_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#649",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc0.7_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#650",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc0.7_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#651",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc0.7_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#652",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc0.7_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#653",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc0.7_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#654",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc0.7_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#655",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc0.7_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#656",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc0.7_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#657",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc2.5_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#658",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc2.5_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#659",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc2.5_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#660",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc2.5_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#661",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc2.5_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#662",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc2.5_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#663",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc2.5_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#664",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc2.5_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#665",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c3_sc2.5_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#666",
+      "values_compared": 340
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc1.5_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#667",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc1.5_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#668",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc1.5_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#669",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc1.5_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#670",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc1.5_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#671",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc1.5_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#672",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc1.5_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#673",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc1.5_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#674",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc1.5_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#675",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc0.7_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#676",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc0.7_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#677",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc0.7_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#678",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc0.7_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#679",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc0.7_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#680",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc0.7_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#681",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc0.7_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#682",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc0.7_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#683",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc0.7_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#684",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc2.5_side0_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#685",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc2.5_side0_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#686",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc2.5_side0_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#687",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc2.5_side1_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#688",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc2.5_side1_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#689",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc2.5_side1_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#690",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc2.5_side2_s1.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#691",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc2.5_side2_s0.001",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#692",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_blend_c4_sc2.5_side2_s1000.0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#693",
+      "values_compared": 236
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_bs0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#694",
+      "values_compared": 73
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_line0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#695",
+      "values_compared": 98
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_herm0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#696",
+      "values_compared": 37
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_bs1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#697",
+      "values_compared": 137
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_line1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#698",
+      "values_compared": 120
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_herm1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#699",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_bs2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#700",
+      "values_compared": 154
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_line2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#701",
+      "values_compared": 112
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_herm2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#702",
+      "values_compared": 38
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_bs3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#703",
+      "values_compared": 123
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_line3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#704",
+      "values_compared": 101
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_base_herm3",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#705",
+      "values_compared": 49
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_ss_ext_inverted_fuzz00403",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#706",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_ss_ext_inverted_fuzz00484",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#707",
+      "values_compared": 31
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "rev_cr_jac_planes",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_standard_solver_p1/review_adversarial.json#708",
+      "values_compared": 60
+    },
+    {
       "inputs": {
         "center": {
           "cpts": [
@@ -4905,9 +10577,9 @@
   "cases_both_errored": 2,
   "cases_deferred": 42,
   "cases_failed": 0,
-  "cases_passed": 452,
+  "cases_passed": 1161,
   "cases_rejected": 11,
-  "cases_total": 505,
+  "cases_total": 1214,
   "deferred_by_unit": {
     "blend.fillet_executive_p1": 16,
     "intersect.surface_drop_lib_p3": 6,
