@@ -424,6 +424,18 @@ use crate::topology::proto_topology::p1::CopyBrepMap;
 use crate::topology::topology_traverser::{collect_faces, Marks};
 use crate::topology::FaceId;
 
+fn empty_brep(
+    _allocation_context: &mut Kernel,
+    _model_size_estimate: f64,
+    _large_small_size_ratio: f64,
+    _stack_context: Option<&Kernel>,
+) -> Result<Brep> {
+    // Brep::new is an arena container, not the native constructor: it does not
+    // create the void infinite region or initialize context-derived tolerances.
+    // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+    Err(SolidError::unported("SmBrep::SmBrep", "topology.brep_p3"))
+}
+
 fn copy_brep(
     _k: &mut Kernel,
     _source: &Brep,
@@ -535,7 +547,12 @@ fn list_operand(k: &mut Kernel, breps: &[Brep], surfaces: &[Surface]) -> Result<
         if surfaces.is_empty() {
             return Err(SolidError::sm_err(OP));
         }
-        let mut result = Brep::new();
+        let mut result = empty_brep(
+            k,
+            crate::geom::tol::USE_DEFAULT,
+            crate::geom::tol::USE_DEFAULT,
+            None,
+        )?;
         let mut planar = false;
         for source in surfaces {
             let copy = copy_base_surface(k, source)?;
@@ -637,7 +654,12 @@ pub fn boolean_lists(
                         if connected.len() == faces.len() {
                             return Ok(true);
                         }
-                        let mut component = Brep::new();
+                        let mut component = empty_brep(
+                            k,
+                            crate::geom::tol::USE_DEFAULT,
+                            crate::geom::tol::USE_DEFAULT,
+                            None,
+                        )?;
                         let face_ref = |face| {
                             crate::topology::brep_cache::arena_identity(
                                 crate::topology::brep_cache::CacheObject::Face(face),
@@ -732,6 +754,23 @@ mod tests {
             Ok(Some(a - b))
         }
     }
+    #[test]
+    fn surface_list_requires_native_empty_brep_constructor_before_surface_copy() {
+        let mut k = Kernel::default();
+        k.tolerances.zone_tol_3d = 0.002;
+        let surface = Surface::from(crate::surface::plane::Plane::from_normal(
+            crate::math::Vec3::ZERO,
+            crate::math::Vec3::new(0.0, 0.0, 1.0),
+        ));
+        assert!(matches!(
+            list_operand(&mut k, &[], &[surface]),
+            Err(SolidError::Unported {
+                upstream: "SmBrep::SmBrep",
+                unit: "topology.brep_p3",
+            })
+        ));
+    }
+
     #[test]
     fn fold_order_is_last_to_first_and_validation_preserves_input() {
         let mut k = Kernel::default();

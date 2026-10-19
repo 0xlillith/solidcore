@@ -32,11 +32,6 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     }
     let options = rd.index(31)?;
     let have_options = rd.flag()?;
-    // UB-190: the imprint early return deletes the other operand even during
-    // PARTIAL_MERGE; PiecewiseMerge reuses that operand on the next surface.
-    if family == 4 && have_options && options & 2 != 0 && options & 16 == 0 {
-        return Err(bad("UB-190: piecewise imprinting requires keep-other"));
-    }
     let na = rd.index(16)?;
     let nb = rd.index(16)?;
     if na + nb > 16
@@ -47,12 +42,22 @@ pub fn validate(input: &[f64]) -> Result<(), FfiError> {
     {
         return Err(bad("operand list shape or enum"));
     }
-    for _ in 0..na + nb {
+    let mut other_has_surfaces = false;
+    for operand in 0..na + nb {
         let shape = rd.index(1)?;
+        if operand == na {
+            other_has_surfaces = shape == 1;
+        }
         rd.slice(3)?;
         if shape == 1 && rd.slice(3)?.iter().any(|&d| d <= 0.0) {
             return Err(bad("nonpositive box dimension"));
         }
+    }
+    // UB-190: boxes have multiple surfaces. The imprint early return deletes
+    // the other operand during PARTIAL_MERGE, before the next surface reuses it.
+    // A shell vertex has no surfaces, so its per-surface loop is never entered.
+    if family == 4 && other_has_surfaces && have_options && options & 2 != 0 && options & 16 == 0 {
+        return Err(bad("UB-190: piecewise imprinting requires keep-other"));
     }
     let nt = rd.index(128)?;
     if family != 0 && nt != 0 {
@@ -161,24 +166,34 @@ mod tests {
     }
 
     #[test]
-    fn piecewise_imprinting_guard_preserves_keep_other_and_null_options() {
+    fn piecewise_imprinting_guard_checks_other_surfaces_and_effective_options() {
         for mask in 0..32 {
             for have_options in [false, true] {
-                let mut input = vec![
-                    4.0,
-                    0.0,
-                    f64::from(mask),
-                    f64::from(u8::from(have_options)),
-                    1.0,
-                    1.0,
-                ];
-                input.extend([0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0]);
-                assert_eq!(
-                    validate(&input).is_err(),
-                    have_options && mask & 2 != 0 && mask & 16 == 0
-                );
-                input[0] = 3.0;
-                assert!(validate(&input).is_ok());
+                for primary_box in [false, true] {
+                    for other_box in [false, true] {
+                        let mut input = vec![
+                            4.0,
+                            0.0,
+                            f64::from(mask),
+                            f64::from(u8::from(have_options)),
+                            1.0,
+                            1.0,
+                        ];
+                        for (is_box, x) in [(primary_box, 0.0), (other_box, 2.0)] {
+                            input.extend([f64::from(u8::from(is_box)), x, 0.0, 0.0]);
+                            if is_box {
+                                input.extend([1.0, 1.0, 1.0]);
+                            }
+                        }
+                        input.push(0.0);
+                        assert_eq!(
+                            validate(&input).is_err(),
+                            other_box && have_options && mask & 2 != 0 && mask & 16 == 0
+                        );
+                        input[0] = 3.0;
+                        assert!(validate(&input).is_ok());
+                    }
+                }
             }
         }
     }

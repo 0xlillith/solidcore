@@ -1290,6 +1290,124 @@
         "tree": []
       },
       "upstream_ref": "tests/SM_API_test/src/TestSmBrep.cpp:2485 (TestSmPiecewiseMerge geometry with both piecewise flags; result path deferred)"
+    },
+    {
+      "name": "piecewise_point_other_shell_vertex_imprint_2",
+      "inputs": {
+        "family": 4,
+        "operation": 0,
+        "options": 2,
+        "a": [
+          {
+            "point": [
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "b": [
+          {
+            "point": [
+              5,
+              0,
+              0
+            ]
+          }
+        ],
+        "tree": []
+      }
+    },
+    {
+      "name": "piecewise_box_other_shell_vertex_imprint_2",
+      "inputs": {
+        "family": 4,
+        "operation": 0,
+        "options": 2,
+        "a": [
+          {
+            "point": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              10,
+              10,
+              10
+            ]
+          }
+        ],
+        "b": [
+          {
+            "point": [
+              5,
+              0,
+              0
+            ]
+          }
+        ],
+        "tree": []
+      }
+    },
+    {
+      "name": "piecewise_point_other_shell_vertex_imprint_3",
+      "inputs": {
+        "family": 4,
+        "operation": 0,
+        "options": 3,
+        "a": [
+          {
+            "point": [
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "b": [
+          {
+            "point": [
+              5,
+              0,
+              0
+            ]
+          }
+        ],
+        "tree": []
+      }
+    },
+    {
+      "name": "piecewise_box_other_shell_vertex_imprint_3",
+      "inputs": {
+        "family": 4,
+        "operation": 0,
+        "options": 3,
+        "a": [
+          {
+            "point": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              10,
+              10,
+              10
+            ]
+          }
+        ],
+        "b": [
+          {
+            "point": [
+              5,
+              0,
+              0
+            ]
+          }
+        ],
+        "tree": []
+      }
     }
   ]
 }

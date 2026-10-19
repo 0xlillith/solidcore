@@ -43,9 +43,6 @@ SC_EXPORT int32_t sc_boolean_merge_p3_eval(const double* input, int64_t n,
         Reader rd{input,n};
         int family=rd.integer(0,5); int operation=rd.integer(-64,64);
         int mask=rd.integer(0,31); bool have_options=rd.integer(0,1)!=0;
-        // UB-190: imprinting deletes PiecewiseMerge's reusable other operand
-        // during PARTIAL_MERGE, unless keep-other is enabled.
-        if(family==4 && have_options && (mask&2) && !(mask&16)) throw Bad();
         int na=rd.integer(0,16), nb=rd.integer(0,16);
         if(na+nb>16 || ((family==3 || family==4) && (na!=1 || nb!=1))) throw Bad();
         std::vector<SmPoint3d> points;
@@ -59,6 +56,9 @@ SC_EXPORT int32_t sc_boolean_merge_p3_eval(const double* input, int64_t n,
             if(kind==1) for(int j=0;j<3;++j) { double d=rd.number(); if(!std::isfinite(d)||d<=0) throw Bad(); dimensions.push_back(d); }
             sizes.push_back(dimensions);
         }
+        // UB-190: boxes have multiple surfaces and reuse the other operand
+        // after imprinting deletes it. Shell vertices have no surface loop.
+        if(family==4 && !sizes[na].empty() && have_options && (mask&2) && !(mask&16)) throw Bad();
         int nt=rd.integer(0,128); SmTArray<long> tree;
         std::set<int> used;
         std::vector<bool> stack; bool active=true;

@@ -453,18 +453,11 @@ impl UnitDiff for Runner {
         } else {
             rng.range_i64(-1, 5) as i32
         };
-        let mut options = if rng.below(2) == 0 {
+        let options = if rng.below(2) == 0 {
             None
         } else {
             Some(rng.below(32) as u8)
         };
-        if family == 4 {
-            if let Some(mask) = &mut options {
-                if *mask & 2 != 0 {
-                    *mask |= 16;
-                }
-            }
-        }
         Some(json!(Inputs {
             family,
             operation,

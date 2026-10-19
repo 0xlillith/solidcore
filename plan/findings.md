@@ -7842,11 +7842,12 @@ imprinting and no keep-other flag. The overseer's independent diagnostic found
 that the imprint early return deletes the other B-rep even for PARTIAL_MERGE;
 PiecewiseMerge then reuses it for the next surface. The persistent-context
 lifetime correction does not change this upstream defect. FFI and shim now
-refuse exactly the effective option combination for the piecewise family.
+refuse that effective option combination only when the other operand is a box with multiple surfaces. A shell-vertex other operand has no surfaces and never enters the per-surface loop, so imprinting without keep-other remains accepted for it, even when the primary is a box.
 The two refusal fixtures compare only the FFI guard (both-errored/no_values),
 not a native result or a dependency deferral. Their keep-other variants remain
 native comparisons, as do all other accepted cases. Generated piecewise inputs
-retain imprinting coverage by setting keep-other when imprinting is selected.
+use shell vertices and retain all option masks, including imprinting without
+keep-other. Four explicit point/box-primary fixtures cover that accepted path.
 
 Final default comparison: 350 cases, 182 matched, 0 failed, 168 deferred,
 `max_rel_err=0`, no absolute floors. The 126 matches with values comprise 103
@@ -7879,3 +7880,11 @@ Both clippy configurations, formatting (including explicit include files),
 211-unit green/partial matrix passed with zero failures; a per-log audit found
 zero green units with deferred cases. The earlier interrupted matrix on the old
 main base is excluded from this verification evidence.
+
+Review 183c96b7 constructor correction: BooleanLists surface-list preparation
+and disconnected-component extraction now call an argument-complete
+`UNPORTED(topology.brep_p3): SmBrep::SmBrep` adapter, with both model-size
+defaults and the null stack context explicit. `Brep::new()` cannot substitute
+for the native constructor: it lacks the void infinite region and context
+tolerance initialization. All surface-copy/face-construction and component
+copy/stitch/remove tails remain after this call. No #204 constructor is co-ported.
