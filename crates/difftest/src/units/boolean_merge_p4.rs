@@ -296,6 +296,7 @@ impl UnitDiff for Runner {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use solidcore::topology::VertexId;
 
     #[test]
     fn error_post_state_detects_mutations() {
