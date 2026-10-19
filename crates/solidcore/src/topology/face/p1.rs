@@ -78,7 +78,9 @@
 //!   upstream and are not ported. The `SmTemporaryChangeValue`s of `SplitAtSeam`
 //!   (`m_bEditingEnabled`, `GetDoingBooleanRef`) are not set: they guard
 //!   `HasSeamProblem` (unported) and `MergeIntervals`, whose port reads neither flag
-//!   (its topology edits defer to `intersect.curve_class_p2`).
+//!   (its topology edits defer to `intersect.curve_class_p6`, the imprinting after
+//!   `GetPointObjZoneTol3d`). `SplitAtSeam` takes the caller's [`ClassGeometry`] for
+//!   the zone tolerances `MergeIntervals` reads.
 //! - **`MergeIntervals`** returns handles; the port maps its new faces, edges and
 //!   vertices to ids with the caller's `resolve` and returns
 //!   [`SolidError::InvalidInput`] for a handle that does not resolve to an entity of
@@ -91,9 +93,9 @@
 //! - **Unported callees** return [`SolidError::Unported`]: `SmFace::Notify` and
 //!   `CreateUVTrimCurves` (`topology.face_p3`); `SmFace::GetUpwardLoopuses`,
 //!   `GetUpwardVertexuses`, `GetEdges`, `GetBrep` and `HasSeamProblem`
-//!   (`topology.face_p4`); `SmEdgeuse::NormalizedEvaluate` and
-//!   `GetOrCreateUVTrimCurve` (`topology.edgeuse_p3`); `SmBrep::ReplaceSurface`
-//!   (`topology.brep_p2`).
+//!   (`topology.face_p4`); `SmBrep::ReplaceSurface` (`topology.brep_p2`).
+//!   `SmEdgeuse::NormalizedEvaluate` and `GetOrCreateUVTrimCurve` call
+//!   [`crate::topology::edgeuse::p3`] (wired in PR #117).
 //! - **Bounds.** `SplitAtSeam` recurses into the faces its U merge made, once per face
 //!   (upstream asserts the recursion only fixes V seams); the port carries a depth and
 //!   returns [`SolidError::InvalidInput`] past [`MAX_SPLIT_AT_SEAM_DEPTH`]. Every other
@@ -130,6 +132,7 @@ use crate::surface::surface::p5::DropPointOptions;
 use crate::surface::surface::p7::drop_vectors_at;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::edgeuse::p1 as eu1;
+use crate::topology::edgeuse::p3 as eu3;
 use crate::topology::face::p2 as fp2;
 use crate::topology::loopuse as lu1;
 use crate::topology::trimming_tools as tt;
@@ -241,23 +244,32 @@ fn has_seam_problem<O: LoopObject>(
     ))
 }
 
-/// `pEU->NormalizedEvaluate(dT, TRUE, rUV)` (UV evaluation).
-fn normalized_evaluate_uv(_b: &Brep, _eu: EdgeuseId, _t: f64) -> Result<Point3> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::NormalizedEvaluate
-    Err(SolidError::unported(
-        "SmEdgeuse::NormalizedEvaluate",
-        "topology.edgeuse_p3",
-    ))
+/// `pEU->NormalizedEvaluate(dT, TRUE, rUV)` (UV evaluation; default arguments: no
+/// first derivative, `bOKToMakeUVTrimCurve = TRUE`).
+fn normalized_evaluate_uv(k: &Kernel, b: &mut Brep, eu: EdgeuseId, t: f64) -> Result<Point3> {
+    Ok(eu3::normalized_evaluate(k, b, eu, t, true, false, true)?.point)
 }
 
-/// `pEU->GetOrCreateUVTrimCurve(rpUVCurve)`: the edge use's UV trim curve (made when
-/// missing).
-fn get_or_create_uv_trim_curve(_b: &mut Brep, _eu: EdgeuseId) -> Result<Curve> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::GetOrCreateUVTrimCurve
-    Err(SolidError::unported(
-        "SmEdgeuse::GetOrCreateUVTrimCurve",
-        "topology.edgeuse_p3",
-    ))
+/// `pEU->GetOrCreateUVTrimCurve(rpUVCurve)` (default arguments: no distance or
+/// deviation, `bOKToMakeUVTrimCurve = TRUE`): the returned status, and the edge use's
+/// (or its mate's) UV trim curve afterwards, which a failing status can still leave
+/// attached.
+fn fetch_uv_trim_curve(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+) -> Result<(std::result::Result<(), SolidError>, Option<Curve>)> {
+    let fetch = eu3::get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
+    let curve = eu1::uv_trim_curve(b, eu)?.0.cloned();
+    Ok((fetch.status, curve))
+}
+
+/// `SER(pEU->GetOrCreateUVTrimCurve(rpUVCurve))`: the UV trim curve; a failing status
+/// returns, and a missing curve is the null dereference that follows upstream.
+fn get_or_create_uv_trim_curve(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<Curve> {
+    let (status, curve) = fetch_uv_trim_curve(k, b, eu)?;
+    status?;
+    curve.ok_or_else(|| SolidError::null_pointer(OP))
 }
 
 /// `rCrvClass.IsCrossedByEdge()`: upstream returns a plain boolean, so a failure other
@@ -285,13 +297,17 @@ fn has_near_misses<O: LoopObject>(
 /// `intersect.curve_class_p5`; the original face is a debug-only argument there): the
 /// faces, edges and vertices the merge made, resolved to ids by `resolve`.
 fn merge_intervals<O: LoopObject>(
+    k: &Kernel,
     c: &mut CurveClassification<O>,
+    geometry: &impl ClassGeometry<O>,
     resolve: &dyn Fn(O) -> Option<EntityRef>,
 ) -> Result<SeamSplit> {
-    // (the merge's status is ignored, as upstream; an output the caller cannot resolve
-    // is caller error and propagates)
-    let Some(merged) = ignored(c.merge_intervals(false))? else {
-        return Ok(SeamSplit::default());
+    // (the merge's status is ignored, as upstream; a handle `geometry` or the caller
+    // cannot resolve is caller error and propagates)
+    let merged = match c.merge_intervals(k, geometry, false) {
+        Ok(merged) => merged,
+        Err(e) if e.is_unported() || matches!(e, SolidError::InvalidInput { .. }) => return Err(e),
+        Err(_) => return Ok(SeamSplit::default()),
     };
     let mut out = SeamSplit::default();
     for o in merged.faces {
@@ -545,8 +561,8 @@ pub struct OrientedTrimBoundary {
 /// `SM_ERR_INVALID_INPUT` for a loop of another face; `SM_ERR_NULL_POINTER` for a 3D
 /// edge curve that is not a B-spline kind; [`SolidError::InvalidInput`] where upstream
 /// dereferences null; those of the copies, conversions, reversals and evaluations;
-/// [`SolidError::Unported`] (`CreateUVTrimCurves`, `NormalizedEvaluate`,
-/// `GetOrCreateUVTrimCurve`).
+/// [`SolidError::Unported`] (`CreateUVTrimCurves`, and the deferred callees of
+/// `NormalizedEvaluate` / `GetOrCreateUVTrimCurve`).
 #[allow(clippy::too_many_lines)] // one upstream routine
 pub fn create_oriented_trim_boundary(
     k: &Kernel,
@@ -601,7 +617,7 @@ pub fn create_oriented_trim_boundary(
 
         // the last edge's end-point (status ignored)
         let mut last_pnt = Vec3::UNDEF;
-        if let Some(p) = ignored(normalized_evaluate_uv(b, last_eu, 1.0))? {
+        if let Some(p) = ignored(normalized_evaluate_uv(k, b, last_eu, 1.0))? {
             last_pnt = p;
         }
 
@@ -610,7 +626,7 @@ pub fn create_oriented_trim_boundary(
         // for every edgeuse in this loop
         for &eu in &edgeuses {
             if eu1::orientation(b, eu)? == OrientType::Same {
-                let uv_curve = get_or_create_uv_trim_curve(b, eu)?;
+                let uv_curve = get_or_create_uv_trim_curve(k, b, eu)?;
                 let ivl = uv_curve.natural_interval();
 
                 // get trim curve's start UV point
@@ -630,7 +646,8 @@ pub fn create_oriented_trim_boundary(
                 edges_in_loop += 1;
                 if parameter_space {
                     // (status ignored upstream; only NER(pOrig))
-                    let orig = ignored(get_or_create_uv_trim_curve(b, eu))?
+                    let orig = fetch_uv_trim_curve(k, b, eu)?
+                        .1
                         .ok_or_else(|| SolidError::null_pointer(OP))?;
                     let mut bsc = orig.copy(k)?;
                     bsc.convert_to_2d(k)?;
@@ -642,7 +659,7 @@ pub fn create_oriented_trim_boundary(
                 }
             } else {
                 let mut bsc = if parameter_space {
-                    let orig = get_or_create_uv_trim_curve(b, eu)?;
+                    let orig = get_or_create_uv_trim_curve(k, b, eu)?;
                     let mut bsc = orig.copy(k)?;
                     bsc.convert_to_2d(k)?;
                     let _ = bsc.set_owner(orig.owner(), None);
@@ -1624,7 +1641,7 @@ pub fn move_seam<O: LoopObject>(
             let mut joined = Surface::from(joined);
             if surface_is_analytic {
                 if let SurfaceKind::BSpline(j) = joined.kind() {
-                    if let Some(a) = ignored(j.copy_and_add_analytics())? {
+                    if let Some(a) = ignored(j.copy_and_add_analytics(k))? {
                         if a.is_kind_of(B_SPLINE_SURFACE_TYPE)? {
                             joined = a;
                         }
@@ -1679,6 +1696,7 @@ pub fn move_seam<O: LoopObject>(
             crv_class_v,
             problem,
             props,
+            geometry,
             resolve,
             0,
         ))? {
@@ -1738,6 +1756,7 @@ pub fn split_at_seam<O: LoopObject>(
     crv_class_v: &mut CurveClassification<O>,
     problem: SeamProblem,
     props: Option<&FaceProps<O>>,
+    geometry: &impl ClassGeometry<O>,
     resolve: &dyn Fn(O) -> Option<EntityRef>,
 ) -> Result<SeamSplit> {
     split_at_seam_depth(
@@ -1748,6 +1767,7 @@ pub fn split_at_seam<O: LoopObject>(
         crv_class_v,
         problem,
         props,
+        geometry,
         resolve,
         0,
     )
@@ -1762,6 +1782,7 @@ fn split_at_seam_depth<O: LoopObject>(
     crv_class_v: &mut CurveClassification<O>,
     mut problem: SeamProblem,
     props: Option<&FaceProps<O>>,
+    geometry: &impl ClassGeometry<O>,
     resolve: &dyn Fn(O) -> Option<EntityRef>,
     depth: usize,
 ) -> Result<SeamSplit> {
@@ -1826,7 +1847,7 @@ fn split_at_seam_depth<O: LoopObject>(
         // (upstream sets pBrep->m_bEditingEnabled and the context's DoingBoolean flag
         // around the merges with SmTemporaryChangeValue; neither is set here: the B-rep
         // flag is unit topology.brep_p1's and the context flag needs a mutable kernel)
-        this_new = merge_intervals(crv_class_u, resolve)?;
+        this_new = merge_intervals(k, crv_class_u, geometry, resolve)?;
         if !merge_v {
             out.faces.extend_from_slice(&this_new.faces);
             out.edges.extend_from_slice(&this_new.edges);
@@ -1866,6 +1887,7 @@ fn split_at_seam_depth<O: LoopObject>(
                     &mut cv,
                     this_problem,
                     props,
+                    geometry,
                     resolve,
                     depth + 1,
                 ))?
@@ -1883,7 +1905,7 @@ fn split_at_seam_depth<O: LoopObject>(
             Some(EntityRef::Vertex(v)) => Some(v),
             _ => None,
         })?;
-        this_new = merge_intervals(crv_class_v, resolve)?;
+        this_new = merge_intervals(k, crv_class_v, geometry, resolve)?;
         out.faces.extend_from_slice(&this_new.faces);
         out.edges.extend_from_slice(&this_new.edges);
         out.vertices.extend_from_slice(&this_new.vertices);
@@ -2054,12 +2076,34 @@ mod tests {
         assert_eq!(r.v, FixSeamPlanType::NoChanges);
         // a plane is periodic in neither direction
         p.crossed = SurfParamType::Both;
-        let s = split_at_seam(&k, &mut b, f, &mut cu, &mut cv, p, None, &|_| None).unwrap();
+        let s = split_at_seam(
+            &k,
+            &mut b,
+            f,
+            &mut cu,
+            &mut cv,
+            p,
+            None,
+            &NoGeometry,
+            &|_| None,
+        )
+        .unwrap();
         assert_eq!(s, SeamSplit::default());
         // face properties saying no missing seam end the split early
         let mut props = FaceProps::<H>::new();
         props.bad_missing_seam_dir = SurfParamType::Neither;
-        let s = split_at_seam(&k, &mut b, f, &mut cu, &mut cv, p, Some(&props), &|_| None).unwrap();
+        let s = split_at_seam(
+            &k,
+            &mut b,
+            f,
+            &mut cu,
+            &mut cv,
+            p,
+            Some(&props),
+            &NoGeometry,
+            &|_| None,
+        )
+        .unwrap();
         assert_eq!(s, SeamSplit::default());
         // a problem reported by the face properties reaches the unported loop walk
         props.bad_crossed_seam_dir = SurfParamType::U;
@@ -2098,6 +2142,7 @@ mod tests {
             &mut cv,
             p,
             None,
+            &NoGeometry,
             &|_| None,
             MAX_SPLIT_AT_SEAM_DEPTH + 1,
         );

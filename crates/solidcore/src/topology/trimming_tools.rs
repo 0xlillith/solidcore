@@ -249,13 +249,48 @@ fn brep_set_tolerance(_b: &mut Brep, _tol: f64) -> Result<()> {
 }
 
 /// `SmBrep::MakeFaceWithCurves(region, loops, 3d curves, NULL, ...)` (unit
-/// `topology.brep_p7`).
-fn make_face_with_curves(_b: &mut Brep, _input: TrimInput) -> Result<FaceId> {
-    // UNPORTED(topology.brep_p7): SmBrep::MakeFaceWithCurves
-    Err(SolidError::unported(
-        "SmBrep::MakeFaceWithCurves",
-        "topology.brep_p7",
-    ))
+/// `topology.brep_p7`). The new face owns the surface under the face identity
+/// `(SmFace_TYPE, 1 + index)`.
+fn make_face_with_curves(
+    k: &Kernel,
+    b: &mut Brep,
+    region: RegionId,
+    input: TrimInput,
+) -> Result<FaceId> {
+    let TrimInput {
+        loop_counts,
+        curves,
+        orientations,
+        loop_points,
+        surface,
+        uv_domain,
+        surface_orientation,
+    } = input;
+    let curves_input = crate::topology::brep::p7::FaceCurvesInput {
+        loops: loop_counts,
+        curves_3d: Some(curves.into_iter().map(Some).collect()),
+        uv_curves: None,
+        orientations,
+        loop_points,
+    };
+    let face_ref = |f: FaceId| crate::geom::object::ObjectRef {
+        type_code: fp2::TYPE,
+        key: crate::geom::attribute::ObjectKey(1 + u64::from(f.index())),
+    };
+    let made = crate::topology::brep::p7::make_face_with_curves(
+        k,
+        b,
+        Some(region),
+        curves_input,
+        surface,
+        &uv_domain,
+        surface_orientation,
+        None,
+        &face_ref,
+    )?;
+    // (upstream adds the new face pointer as is)
+    made.face
+        .ok_or_else(|| SolidError::invalid_input(OP, "MakeFaceWithCurves made no face"))
 }
 
 /// `SmBrep::MakeFacesWithCurves(region, loops, 3d curves, NULL, ...)` (unit
@@ -331,6 +366,25 @@ impl crate::heal::face_props::LoopObject for SeamObject {
     }
 }
 
+/// Classification geometry for [`SeamObject`]s: loops and vertices name no curve,
+/// surface, volume or point here (their zone tolerances come from the topology).
+struct SeamGeometry;
+
+impl crate::intersect::point_class::ClassGeometry<SeamObject> for SeamGeometry {
+    fn curve(&self, _: SeamObject) -> Option<&Curve> {
+        None
+    }
+    fn surface(&self, _: SeamObject) -> Option<&Surface> {
+        None
+    }
+    fn volume(&self, _: SeamObject) -> Option<&crate::surface::volume::Volume> {
+        None
+    }
+    fn point(&self, _: SeamObject) -> Option<Point3> {
+        None
+    }
+}
+
 /// `SmFace::HasSeamProblem(rCrvClassU, rCrvClassV, eCrossed, eMissing, eNearMiss)` (unit
 /// `topology.face_p4`).
 fn face_has_seam_problem(
@@ -365,6 +419,7 @@ fn face_split_at_seam_problem(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<Vec
         &mut cv,
         problem,
         None,
+        &SeamGeometry,
         &|o: SeamObject| match o {
             SeamObject::Vertex(v) => Some(EntityRef::Vertex(v)),
             SeamObject::Loop(_) => None,
@@ -438,7 +493,7 @@ pub fn trim_surface_with_model_space_curves(
 
     let mut new_faces = if g1_surface {
         // when Surface is G1Continuous - just call MakeFaceWithCurves()
-        vec![make_face_with_curves(b, input)?]
+        vec![make_face_with_curves(k, b, region, input)?]
     } else {
         // MakeFacesWithCurves, then clear the UV trim curves of the new faces
         let faces = make_faces_with_curves(b, input)?;
@@ -1093,7 +1148,7 @@ pub fn fix_trim_loop_order(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<bool> 
         let mut uv_box = Extent3d::new();
         for (jj, e) in lu1::loop_edges(b, l)?.into_iter().enumerate() {
             let e = e.ok_or_else(|| null("loop edge use without edge"))?;
-            let holder = crate::topology::edge::uv_trim_curve_of_surface(b, e, Some(f))?
+            let holder = crate::topology::edge::uv_trim_curve_of_surface(k, b, e, Some(f))?
                 .ok_or_else(|| null("edge without UV trim curve on the face's surface"))?;
             let crv = eu1::uv_trim_curve(b, holder)?
                 .0
