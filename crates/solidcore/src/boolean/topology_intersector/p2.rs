@@ -1706,7 +1706,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                         .ok_or(dangling("curve store is full"))?;
                     // (status unchecked: no new edge, loop or face on failure)
                     let made = ignore_soft(brep_make_edge_in_face(
-                        face_b, f, v, other_v, curve_copy, None, edge_dom, orient, edge_tol,
+                        brep, face_b, f, v, other_v, curve_copy, None, edge_dom, orient, edge_tol,
                     ))?;
                     let (new_edge, _new_loop, new_face) =
                         made.map_or((None, None, None), |(e, l, f)| (Some(e), l, f));

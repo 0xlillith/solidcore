@@ -26,7 +26,7 @@
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
 //!   each tagged `UNPORTED(<unit>)`: `SmBrep::Point3DClassify` (`query.brep`),
 //!   `SmBrep::GlueVertices` /
-//!   `SqueezeEdge` / `DeleteEdge` (`topology.brep_p5` / `_p3` / `_p4`).
+//!   `SqueezeEdge` / `DeleteEdge` (`topology.brep_p2` via part 5 / `_p3` / `_p4`).
 //!   The intersector's `GetOtherMate` /
 //!   `RemoveRelationship` are reached through [`Mates`] (ported in
 //!   `boolean.topology_intersector_p1` / `_p2`; [`NoMates`] for no intersector maps). The
@@ -180,12 +180,8 @@ fn new_curve_classification<O: ClassObject>(
 }
 
 /// `SmBrep::GlueVertices` of B-rep `which`.
-fn brep_glue_vertices<O>(_which: i32, _v1: O, _v2: O) -> Result<()> {
-    // UNPORTED(topology.brep_p5): SmBrep::GlueVertices
-    Err(SolidError::unported(
-        "SmBrep::GlueVertices",
-        "topology.brep_p5",
-    ))
+fn brep_glue_vertices<O: Copy + PartialEq>(_which: i32, v1: O, v2: O) -> Result<()> {
+    crate::topology::brep::p5::opaque_glue_preflight(v1 == v2)
 }
 
 /// `SmBrep::SqueezeEdge` of B-rep `which`.

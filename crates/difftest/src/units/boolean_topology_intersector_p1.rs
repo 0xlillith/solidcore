@@ -1477,6 +1477,20 @@ impl IntersectorBrep<H> for Two {
             ],
         })
     }
+    fn editing_enabled(&self, brep: H) -> solidcore::Result<bool> {
+        let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
+        if brep.kind != K_BREP {
+            return Err(invalid("not a B-rep handle"));
+        }
+        self.breps
+            .get(slot)
+            .and_then(Option::as_ref)
+            .map(Brep::editing_enabled)
+            .ok_or_else(|| invalid("not a B-rep handle"))
+    }
+    fn brep_tolerance(&self, brep: H) -> solidcore::Result<f64> {
+        Ok(self.brep_r(brep)?.tolerance())
+    }
     fn set_editing_enabled(&mut self, brep: H, enabled: bool) -> solidcore::Result<bool> {
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
         if brep.kind != K_BREP {
