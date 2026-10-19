@@ -34,7 +34,8 @@
 //! Deviations:
 //! - **Handles and B-reps** as in [`p1`](super::p1): objects are handles `O`, the
 //!   B-reps are read and edited through [`IntersectorBrep`] plus [`IntersectorBrepP2`]
-//!   (`SmVertex::GetEdges` / `GetFaces`, `SmBrep::GetFaces`). `IntersectInsertRelate`
+//!   (`SmVertex::GetEdges` / `GetFaces`, `SmBrep::GetFaces` /
+//!   `CombineCoincidentVertices`). `IntersectInsertRelate`
 //!   takes the handle the manager stores for the intersector (`pTI`).
 //! - **Out-params** become return values ([`SqueezeVertices`], [`FixGaps`],
 //!   [`EdgeEdgeIntersect`], [`EdgeFaceCoincidence`], `bool` for
@@ -59,13 +60,14 @@
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
 //!   each tagged `UNPORTED(<unit>)`: `SmBrep::DeleteFace` (`topology.brep_p3`),
 //!   `SmBrep::DeleteEdge` / `DeleteVertex` (`topology.brep_p4`),
-//!   `SmBrep::CombineCoincidentVertices` (`topology.brep_p5`),
 //!   `SmFace::Point3DClassify` (`query.face_p1`), and the stubs of [`p1`](super::p1)
-//!   for `SmFace::GetEdges` / `GetVertices` / `GetBrep` (`topology.face_p4`),
-//!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::MakeEdgeInFace`
-//!   (`topology.brep_p5`). The code after a stub is ported in full.
-//!   `SmBrep::GlueEdgesGeneral` (`topology.brep_p7`) goes through
-//!   [`IntersectorBrep::brep_glue_edges_general`], as in part 1.
+//!   for `SmFace::GetEdges` / `GetVertices` / `GetBrep` (`topology.face_p4`) and
+//!   `SmFace::FaceIntersect` (`topology.face_p3`). The code after a stub is ported in
+//!   full. `SmBrep::GlueEdgesGeneral` (`topology.brep_p7`) goes through
+//!   [`IntersectorBrep::brep_glue_edges_general`] and `SmBrep::MakeEdgeInFace`
+//!   (`topology.brep_p5`) through part 1's `brep_make_edge_in_face`, as in part 1;
+//!   `SmBrep::CombineCoincidentVertices` (`topology.brep_p5`) goes through
+//!   [`IntersectorBrepP2::brep_combine_coincident_vertices`].
 //! - **Undefined behaviour upstream** (a null or deleted object dereferenced, an
 //!   index past a list, a vertex mated to a non-vertex used as a vertex) is
 //!   [`SolidError::InvalidInput`].
@@ -158,6 +160,22 @@ pub trait IntersectorBrepP2<O>: IntersectorBrep<O> {
     ///
     /// [`SolidError::InvalidInput`] for an unknown B-rep.
     fn brep_faces(&self, brep: O) -> Result<Vec<O>>;
+    /// `SmBrep::CombineCoincidentVertices(pSurvivingVertex, pVertexToDelete,
+    /// rpDeletedEdge)` on B-rep `brep` (unit `topology.brep_p5`:
+    /// `topology::brep::p5::combine_with_notifications` on the B-rep behind the
+    /// handle): the deleted edge, if any (`rpDeletedEdge`, null on failure as well).
+    ///
+    /// # Errors
+    ///
+    /// Those of the combination; [`SolidError::InvalidInput`] for an unknown B-rep or
+    /// a vertex of another B-rep.
+    fn brep_combine_coincident_vertices(
+        &mut self,
+        k: &mut Kernel,
+        brep: O,
+        surviving: O,
+        to_delete: O,
+    ) -> Result<Option<O>>;
 }
 
 /// `GetOtherMate` and `RemoveRelationship` over an intersector's mate maps, for
@@ -241,20 +259,6 @@ fn brep_delete_vertex<O>(_brep: O, _vertex: O) -> Result<()> {
     Err(SolidError::unported(
         "SmBrep::DeleteVertex",
         "topology.brep_p4",
-    ))
-}
-
-/// `SmBrep::CombineCoincidentVertices(pSurvivingVertex, pVertexToDelete,
-/// rpDeletedEdge)`: the deleted edge, if any.
-fn brep_combine_coincident_vertices<O>(
-    _brep: O,
-    _surviving: O,
-    _to_delete: O,
-) -> Result<Option<O>> {
-    // UNPORTED(topology.brep_p5): SmBrep::CombineCoincidentVertices
-    Err(SolidError::unported(
-        "SmBrep::CombineCoincidentVertices",
-        "topology.brep_p5",
     ))
 }
 
@@ -485,17 +489,18 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     ///
     /// `SM_ERR` when an existing relationship is better (closer by more than
     /// `SM_EFF_ZERO_SQRT`); those of `RemoveRelationship` and
-    /// `CombineCoincidentVertices` ([`SolidError::Unported`], `topology.brep_p5`);
+    /// [`IntersectorBrepP2::brep_combine_coincident_vertices`];
     /// [`SolidError::InvalidInput`] for an unknown vertex, a mate that is not a vertex
     /// or a missing B-rep.
     pub fn check_for_squeeze_vertices(
         &mut self,
-        brep: &mut impl IntersectorBrep<O>,
+        k: &mut Kernel,
+        brep: &mut impl IntersectorBrepP2<O>,
         brep_vertex: O,
         other_vertex: O,
     ) -> Result<SqueezeVertices<O>> {
         let mut out = SqueezeVertices::default();
-        self.check_for_squeeze_vertices_into(brep, brep_vertex, other_vertex, &mut out)?;
+        self.check_for_squeeze_vertices_into(k, brep, brep_vertex, other_vertex, &mut out)?;
         Ok(out)
     }
 
@@ -509,7 +514,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// As [`TopologyIntersector::check_for_squeeze_vertices`].
     pub fn check_for_squeeze_vertices_into(
         &mut self,
-        brep: &mut impl IntersectorBrep<O>,
+        k: &mut Kernel,
+        brep: &mut impl IntersectorBrepP2<O>,
         brep_vertex: O,
         other_vertex: O,
         out: &mut SqueezeVertices<O>,
@@ -541,7 +547,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             // Combine two vertices which are coincident or nearly so
             let other = self.other.ok_or(invalid(OP_SQUEEZE, "no other B-rep"))?;
             let deleted_other_edge =
-                brep_combine_coincident_vertices(other, other_vertex, other_v)?;
+                brep.brep_combine_coincident_vertices(k, other, other_vertex, other_v)?;
             if let Some(e) = deleted_other_edge {
                 out.deleted_edges.push(e);
                 if let Some(b) = self.brep_mate(Some(e)) {
@@ -570,7 +576,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             self.remove_relationship(Some(brep_v), Some(other_vertex))?;
 
             let this = self.brep.ok_or(invalid(OP_SQUEEZE, "no B-rep"))?;
-            let deleted_brep_edge = brep_combine_coincident_vertices(this, brep_vertex, brep_v)?;
+            let deleted_brep_edge =
+                brep.brep_combine_coincident_vertices(k, this, brep_vertex, brep_v)?;
             if let Some(e) = deleted_brep_edge {
                 out.deleted_edges.push(e);
                 if let Some(o) = self.other_mate(Some(e)) {
@@ -685,12 +692,12 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// # Errors
     ///
     /// `SM_ERR_NULL_POINTER` when a candidate vertex has no mate; those of
-    /// `CombineCoincidentVertices` ([`SolidError::Unported`], `topology.brep_p5`) and
-    /// of the edge length; [`SolidError::InvalidInput`] for an unknown handle, an edge
+    /// [`IntersectorBrepP2::brep_combine_coincident_vertices`] and of the edge length; [`SolidError::InvalidInput`] for an unknown handle, an edge
     /// without curve, a mate that is not a vertex or a missing B-rep.
     #[allow(clippy::neg_cmp_op_on_partial_ord)] // upstream's NaN-safe test
     pub fn fix_gaps(
         &mut self,
+        k: &mut Kernel,
         brep: &mut impl IntersectorBrepP2<O>,
         single_vertices: &[O],
     ) -> Result<FixGaps<O>> {
@@ -753,13 +760,14 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
 
                     // combine coincident vertices
                     let this = self.brep.ok_or(invalid(OP_FIX_GAPS, "no B-rep"))?;
-                    let deleted_brep_edge = brep_combine_coincident_vertices(this, v2, v1)?;
+                    let deleted_brep_edge =
+                        brep.brep_combine_coincident_vertices(k, this, v2, v1)?;
                     out.deleted_vertices.push(v1);
                     out.deleted_edges.push(deleted_brep_edge);
 
                     let other = self.other.ok_or(invalid(OP_FIX_GAPS, "no other B-rep"))?;
                     let deleted_other_edge =
-                        brep_combine_coincident_vertices(other, other_v2, other_v1)?;
+                        brep.brep_combine_coincident_vertices(k, other, other_v2, other_v1)?;
                     ignore_soft(self.remove_relationship(Some(v1), Some(other_v1)))?;
                     if let (Some(db), Some(dother)) = (deleted_brep_edge, deleted_other_edge) {
                         // If these are not already a mated pair, then calling
@@ -1436,10 +1444,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// # Errors
     ///
     /// Unless `ignore_problems`, a failing split (`SER`); `SM_ERR` past
-    /// [`MAX_EDGE_LIST`] edges; [`SolidError::Unported`] for the splits
-    /// (`SmBrep::MakeVertexSplitEdge`, `topology.brep_p9`; `GlueVertices`,
-    /// `topology.brep_p5`); [`SolidError::InvalidInput`] for null handles upstream
-    /// dereferences.
+    /// [`MAX_EDGE_LIST`] edges; those of the splits (`SmBrep::MakeVertexSplitEdge`
+    /// through [`IntersectorBrep`], `GlueVertices` of `topology::brep::p5`);
+    /// [`SolidError::InvalidInput`] for null handles upstream dereferences.
     #[allow(clippy::too_many_lines)]
     pub fn edge_edge_intersect(
         &mut self,
