@@ -653,6 +653,15 @@ fn curve_output(status: i32, values: [f64; 9]) -> Output {
 }
 
 fn run_curve(input: &CurveInput, cpp: bool) -> Result<Output, HarnessError> {
+    // Inputs the FFI refuses before any C++ runs: nothing runs on either side.
+    if !(0..=2).contains(&input.kind)
+        || !(0..=7).contains(&input.mask)
+        || input.data.iter().any(|x| !x.is_finite())
+    {
+        return Ok(Output::rejected(
+            "curve kind, data or output mask outside the shim's inputs",
+        ));
+    }
     if cpp {
         let (status, values) = ffi::evaluate_curve(
             input.kind,
