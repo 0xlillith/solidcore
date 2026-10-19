@@ -2,7 +2,7 @@
 
 Generated from `plan/modules.toml` and `reports/difftest/*.json` by `harness/plan/progress.py`; do not edit by hand.
 
-**219 / 261 units ported** (114 green, 105 partial), **314,510 / 387,903 upstream lines (81.1%)**. 38 claimed, 0 blocked, 4 todo.
+**222 / 261 units ported** (114 green, 108 partial), **321,181 / 387,903 upstream lines (82.8%)**. 38 claimed, 0 blocked, 1 todo.
 
 Legend: ✅ green (identical to C++) · 🟡 partial (passes; some cases wait on unported code) · 🔨 claimed · ▶️ ready (all dependencies done) · ⏳ claimable, dependencies still missing · ⛔ blocked.
 
@@ -14,9 +14,6 @@ _None right now; see the next section._
 
 Anything `todo` can be claimed. These need stubs for, or co-porting of, the listed dependencies (AGENTS.md section 4).
 
-- [ ] `blend.fillet_corner_p1` (1971 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1`
-- [ ] `blend.fillet_executive_p2` (1152 lines) — missing: `blend.fillet_executive_p1`, `blend.fillet_geom_p1`, `blend.fillet_solver_p1`, `blend.fillet_standard_solver_p1` +1 more
-- [ ] `blend.fillet_corner_p2` (1892 lines) — missing: `blend.fillet_corner_p1`, `blend.fillet_geom_p1`, `blend.fillet_geom_p2`, `blend.fillet_solver_p1`
 - [ ] `audit.recursion` (0 lines) — missing: `blend.fillet_corner_p2`, `blend.fillet_corner_p3`, `offset.offset_executive_p2`, `primitive.api_primitives`
 
 ## In progress
@@ -29,16 +26,13 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (draft)
 - [ ] 🔨 `topology.brep_p2` (2443 lines) — in progress: #149 @bluecmd (ready for review)
-- [ ] 🔨 `blend.fillet_geom_p1` (2113 lines) — in progress: #147 @bluecmd (ready for review)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_p3` (2503 lines) — in progress: #204 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_solver_p1` (1861 lines) — in progress: #192 @froglemonade2 (ready for review)
 - [ ] 🔨 `primitive.primitive_creation_p1` (2322 lines) — in progress: #213 @damgru (ready for review)
 - [ ] 🔨 `blend.fillet_solver_p5` (848 lines) — in progress: #208 @damgru (ready for review)
 - [ ] 🔨 `blend.fillet_standard_solver_p1` (2336 lines) — in progress: #168 @bherbruck (ready for review)
-- [ ] 🔨 `heal.stitch_p2` (1906 lines) — in progress: #205 @bluecmd (ready for review)
 - [ ] 🔨 `blend.fillet_solver_p4` (1404 lines) — in progress: #212 @blackveilprecision (ready for review)
-- [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (ready for review)
 - [ ] 🔨 `sweep.topology_sweep` (2456 lines) — in progress: #222 @damgru (ready for review)
 - [ ] 🔨 `boolean.topology_intersector_p3` (1849 lines) — in progress: #211 @oursland (draft)
 - [ ] 🔨 `primitive.primitive_creation_p3` (1842 lines) — in progress: #233 @damgru (ready for review)
@@ -48,6 +42,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `boolean.merge_p3` (1152 lines) — in progress: #245 @bluecmd (ready for review)
 - [ ] 🔨 `blend.fillet_executive_p1` (2063 lines) — in progress: #260 @H1D (draft)
 - [ ] 🔨 `primitive.primitive_creation_p2` (2258 lines) — in progress: #250 @CamWight (ready for review)
+- [ ] 🔨 `blend.fillet_corner_p1` (1971 lines) — in progress: #266 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_solver_p2` (1939 lines) — in progress: #249 @froglemonade2 (draft)
 - [ ] 🔨 `blend.fillet_solver_p3` (1112 lines) — in progress: #236 @denelson1-dot (ready for review)
 - [ ] 🔨 `primitive.api_primitives` (885 lines) — in progress: #160 @bherbruck (ready for review)
@@ -57,8 +52,10 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `blend.fillet_standard_solver_p2` (1989 lines) — in progress: #265 @froglemonade2 (draft)
 - [ ] 🔨 `offset.offset_executive_p2` (1846 lines) — in progress: #201 @altvnk (ready for review)
 - [ ] 🔨 `blend.fillet_corner_p3` (1697 lines) — in progress: #256 @bherbruck (ready for review)
+- [ ] 🔨 `blend.fillet_executive_p2` (1152 lines) — in progress: #267 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_geom_p2` (2077 lines) — in progress: #263 @bherbruck (draft)
 - [ ] 🔨 `blend.fillet_geom_p5` (1952 lines) — in progress: #264 @froglemonade2 (draft)
+- [ ] 🔨 `blend.fillet_corner_p2` (1892 lines) — in progress: #268 @bluecmd (draft)
 
 ## By module
 
@@ -101,7 +98,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [x] ✅ `nlib.geom` (1244 lines) — green, 3173 cases
 - [x] ✅ `nlib.basis_basic` (786 lines) — green, 2596 cases
 - [x] ✅ `nlib.srf_basic` (1088 lines) — green, 3220 cases
-- [x] ✅ `nlib.basis_adv` (361 lines) — green, 1744 cases
+- [x] ✅ `nlib.basis_adv` (361 lines) — green, 1751 cases
 - [x] ✅ `nlib.bezier` (1154 lines) — green, 2223 cases
 - [x] ✅ `nlib.funcs_basic` (538 lines) — green, 3130 cases
 - [x] ✅ `nlib.crv_basic` (1542 lines) — green, 3417 cases
@@ -143,7 +140,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [x] ✅ `nlib.srf_offset` (613 lines) — green, 424 cases
 - [x] ✅ `nurbs.b_spline_surface_n_lib_p1` (2033 lines) — green, 665 cases
 - [ ] 🟡 `nurbs.b_spline_surface_n_lib_p2` (1932 lines) — partial, 654 cases
-- [ ] 🟡 `nurbs.b_spline_surface_p2` (1338 lines) — partial, 763 cases
+- [ ] 🟡 `nurbs.b_spline_surface_p2` (1338 lines) — partial, 764 cases
 
 ### curve (25/25)
 
@@ -276,7 +273,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `intersect.curve_class_p5` (2017 lines) — partial, 1081 cases
 - [ ] 🟡 `intersect.surface_intersector_p5` (622 lines) — partial, 1725 cases
 - [ ] 🟡 `intersect.curve_class_p8` (1900 lines) — partial, 1127 cases
-- [ ] 🟡 `intersect.curve_class_p9` (1220 lines) — partial, 425 cases
+- [ ] 🟡 `intersect.curve_class_p9` (1220 lines) — partial, 428 cases
 
 ### primitive (1/5)
 
@@ -311,7 +308,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `sweep.api_brep` (529 lines) — partial, 573 cases
 - [ ] 🟡 `sweep.api_surfaces` (381 lines) — partial, 882 cases
 
-### heal (6/7)
+### heal (7/7)
 
 - [ ] 🟡 `heal.gap` (1475 lines) — partial, 445 cases
 - [ ] 🟡 `heal.face_props` (1410 lines) — partial, 1528 cases
@@ -319,11 +316,11 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `heal.heal_data_p1` (922 lines) — partial, 493 cases
 - [ ] 🟡 `heal.stitch_p1` (2037 lines) — partial, 300 cases
 - [ ] 🟡 `heal.heal_data_p3` (1967 lines) — partial, 474 cases
-- [ ] 🔨 `heal.stitch_p2` (1906 lines) — in progress: #205 @bluecmd (ready for review)
+- [ ] 🟡 `heal.stitch_p2` (1906 lines) — partial, 556 cases
 
-### offset (1/3)
+### offset (2/3)
 
-- [ ] 🔨 `offset.offset_geometry_creation` (2652 lines) — in progress: #156 @bluecmd (ready for review)
+- [ ] 🟡 `offset.offset_geometry_creation` (2652 lines) — partial, 861 cases
 - [ ] 🟡 `offset.offset_executive_p1` (2107 lines) — partial, 693 cases
 - [ ] 🔨 `offset.offset_executive_p2` (1846 lines) — in progress: #201 @altvnk (ready for review)
 
@@ -339,10 +336,10 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `boolean.merge_p3` (1152 lines) — in progress: #245 @bluecmd (ready for review)
 - [ ] 🟡 `boolean.api_brep` (410 lines) — partial, 284 cases
 
-### blend (3/22)
+### blend (4/22)
 
 - [ ] 🟡 `blend.fillet_custom_solver` (1236 lines) — partial, 448 cases
-- [ ] 🔨 `blend.fillet_geom_p1` (2113 lines) — in progress: #147 @bluecmd (ready for review)
+- [ ] 🟡 `blend.fillet_geom_p1` (2113 lines) — partial, 480 cases
 - [ ] 🔨 `blend.fillet_solver_p1` (1861 lines) — in progress: #192 @froglemonade2 (ready for review)
 - [ ] 🟡 `blend.hcr` (1875 lines) — partial, 434 cases
 - [ ] 🟡 `blend.fillet_intersector` (1708 lines) — partial, 1286 cases
@@ -351,7 +348,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `blend.fillet_solver_p4` (1404 lines) — in progress: #212 @blackveilprecision (ready for review)
 - [ ] 🔨 `blend.fillet_executive_p3` (1608 lines) — in progress: #244 @bluecmd (ready for review)
 - [ ] 🔨 `blend.fillet_executive_p1` (2063 lines) — in progress: #260 @H1D (draft)
-- [ ] ⏳ `blend.fillet_corner_p1` (1971 lines) — waiting
+- [ ] 🔨 `blend.fillet_corner_p1` (1971 lines) — in progress: #266 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_solver_p2` (1939 lines) — in progress: #249 @froglemonade2 (draft)
 - [ ] 🔨 `blend.fillet_solver_p3` (1112 lines) — in progress: #236 @denelson1-dot (ready for review)
 - [ ] 🔨 `blend.fillet_geom_p3` (1032 lines) — in progress: #242 @denelson1-dot (ready for review)
@@ -359,10 +356,10 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `blend.fillet_geom_p6` (1813 lines) — in progress: #247 @brett19 (ready for review)
 - [ ] 🔨 `blend.fillet_standard_solver_p2` (1989 lines) — in progress: #265 @froglemonade2 (draft)
 - [ ] 🔨 `blend.fillet_corner_p3` (1697 lines) — in progress: #256 @bherbruck (ready for review)
-- [ ] ⏳ `blend.fillet_executive_p2` (1152 lines) — waiting
+- [ ] 🔨 `blend.fillet_executive_p2` (1152 lines) — in progress: #267 @bluecmd (draft)
 - [ ] 🔨 `blend.fillet_geom_p2` (2077 lines) — in progress: #263 @bherbruck (draft)
 - [ ] 🔨 `blend.fillet_geom_p5` (1952 lines) — in progress: #264 @froglemonade2 (draft)
-- [ ] ⏳ `blend.fillet_corner_p2` (1892 lines) — waiting
+- [ ] 🔨 `blend.fillet_corner_p2` (1892 lines) — in progress: #268 @bluecmd (draft)
 
 ### (crate-wide) (0/1)
 
