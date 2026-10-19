@@ -34,8 +34,8 @@
 //! Deviations:
 //! - **Handles and B-reps** as in [`p1`](super::p1): objects are handles `O`, the
 //!   B-reps are read and edited through [`IntersectorBrep`] plus [`IntersectorBrepP2`]
-//!   (`SmVertex::GetEdges` / `GetFaces`). `IntersectInsertRelate` takes the handle
-//!   the manager stores for the intersector (`pTI`).
+//!   (`SmVertex::GetEdges` / `GetFaces`, `SmBrep::GetFaces`). `IntersectInsertRelate`
+//!   takes the handle the manager stores for the intersector (`pTI`).
 //! - **Out-params** become return values ([`SqueezeVertices`], [`FixGaps`],
 //!   [`EdgeEdgeIntersect`], [`EdgeFaceCoincidence`], `bool` for
 //!   `bChangedClassifications`); on an error status the partly filled out-lists are
@@ -57,8 +57,7 @@
 //!   original edge after `MakeEdgeInFace`; the port has no curve owners (the curve
 //!   copy is a new handle), so there is nothing to reset.
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
-//!   each tagged `UNPORTED(<unit>)`: `SmBrep::GetFaces` (`topology.brep_p1`),
-//!   `SmBrep::DeleteFace` (`topology.brep_p3`), `SmBrep::DeleteEdge` /
+//!   each tagged `UNPORTED(<unit>)`: `SmBrep::DeleteFace` (`topology.brep_p3`), `SmBrep::DeleteEdge` /
 //!   `DeleteVertex` (`topology.brep_p4`), `SmBrep::CombineCoincidentVertices`
 //!   (`topology.brep_p5`), `SmFace::Point3DClassify` (`query.face_p1`), and the
 //!   stubs of [`p1`](super::p1) for `SmFace::GetEdges` / `GetVertices` / `GetBrep`
@@ -147,6 +146,14 @@ pub trait IntersectorBrepP2<O>: IntersectorBrep<O> {
     ///
     /// Those of the topology walk.
     fn vertex_faces(&self, vertex: O) -> Result<Vec<O>>;
+    /// The faces of `brep` in its list order (`SmBrep::GetFaces(rFaces)` with no
+    /// attribute filter, unit `topology.brep_p1`: `topology::brep::p1::faces` on the
+    /// B-rep behind the handle).
+    ///
+    /// # Errors
+    ///
+    /// [`SolidError::InvalidInput`] for an unknown B-rep.
+    fn brep_faces(&self, brep: O) -> Result<Vec<O>>;
 }
 
 /// `GetOtherMate` and `RemoveRelationship` over an intersector's mate maps, for
@@ -196,12 +203,6 @@ impl<O: Ord + Copy> Mates<O> for MapMates<O> {
 }
 
 // ---- unported callees ----------------------------------------------------------------------
-
-/// `SmBrep::GetFaces(rFaces, pOptAttributeId)`.
-fn brep_faces<O>(_brep: O, _opt_attribute_id: Option<u64>) -> Result<Vec<O>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetFaces
-    Err(SolidError::unported("SmBrep::GetFaces", "topology.brep_p1"))
-}
 
 /// `SmBrep::DeleteFace(pFace, bDeleteEdgesVertices, bDoRegionNesting,
 /// pOptDeletedEdgesVertices, pOptRegionToKeep)`: the deleted edges and vertices when
@@ -798,7 +799,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     pub fn intersect_insert_relate(
         &mut self,
         k: &mut Kernel,
-        brep: &mut impl IntersectorBrep<O>,
+        brep: &mut impl IntersectorBrepP2<O>,
         ti: O,
     ) -> Result<Vec<O>> {
         // Capture Distance (see upstream's [B669] note)
@@ -866,8 +867,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     ///
     /// # Errors
     ///
-    /// Those of `CoincidenceCheck` and `SmFace::FaceIntersect` (`SER`);
-    /// [`SolidError::Unported`] for `SmBrep::GetFaces` (`topology.brep_p1`),
+    /// Those of `CoincidenceCheck`, `SmFace::FaceIntersect` (`SER`) and
+    /// [`IntersectorBrepP2::brep_faces`]; [`SolidError::Unported`] for
     /// `FaceIntersect` (`topology.face_p3`), `Point3DClassify` (`query.face_p1`) and
     /// the callees of [`intersect_shell_vertices`] / [`intersect_wire_lamina_edges`];
     /// [`SolidError::InvalidInput`] without a manager or B-reps, or for a face without
@@ -876,7 +877,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     pub fn intersect_topology(
         &mut self,
         k: &Kernel,
-        brep: &mut impl IntersectorBrep<O>,
+        brep: &mut impl IntersectorBrepP2<O>,
     ) -> Result<Vec<O>> {
         let approx_tol = self.this_approx_tol_3d;
         let lamina = self.intersect_lamina_edges;
@@ -894,8 +895,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             .ok_or(invalid(OP_INTERSECT_TOPOLOGY, "no proto topology manager"))?
             .reset();
 
-        let faces1 = brep_faces(this, None)?;
-        let faces2 = brep_faces(other, None)?;
+        let faces1 = brep.brep_faces(this)?;
+        let faces2 = brep.brep_faces(other)?;
 
         {
             let mgr = self

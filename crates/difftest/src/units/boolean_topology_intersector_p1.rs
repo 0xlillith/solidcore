@@ -3308,6 +3308,13 @@ fn run_part2_op(
 }
 
 impl IntersectorBrepP2<H> for Two {
+    fn brep_faces(&self, brep: H) -> solidcore::Result<Vec<H>> {
+        let b = self.brep_r(brep)?;
+        Ok(bp1::faces(b, None)?
+            .into_iter()
+            .map(|f| hd(brep.b, K_FACE, f.index()))
+            .collect())
+    }
     fn vertex_edges(&self, vertex: H) -> solidcore::Result<Vec<H>> {
         let b = self.brep_r(vertex)?;
         Ok(vx::edges(b, vid(vertex), None)?
