@@ -20,9 +20,13 @@ SmBrep* make_operand(const SmContext& ctx, const double* input, SmStatus& status
         status = SmBSplineCurve::CreateLineSegment(ctx,3,p,p+SmVector3d(input[4],input[5],input[6]),c);
         if (status == SM_SUCCESS) { SmEdge* e = nullptr; status = b->CreateWireEdgeFromCurve(c,c->GetNaturalInterval(),e); }
     } else if (kind == 3) {
-        auto* s = new (ctx) SmPlane(p,SmVector3d(0,0,1),&ctx);
+        auto delete_unowned = [](SmPlane* s) { if (s && !s->GetOwner()) delete s; };
+        std::unique_ptr<SmPlane,decltype(delete_unowned)> s(
+            new (ctx) SmPlane(p,SmVector3d(0,0,1),&ctx), delete_unowned);
         SmFace* f = nullptr;
-        status = b->CreateFaceFromSurface(s,SmExtent2d(SmPoint2d(0,0),SmPoint2d(input[4],input[5])),f);
+        status = b->CreateFaceFromSurface(s.get(),SmExtent2d(SmPoint2d(0,0),SmPoint2d(input[4],input[5])),f);
+        // A UV-domain rejection happens before the surface gets a face owner.
+        // Delete only unconsumed geometry; attached surfaces belong to the B-rep.
     }
     if (status != SM_SUCCESS) { delete b; return nullptr; }
     return b;
@@ -54,6 +58,22 @@ struct Access : SmMerge {
             Graph g; walk(brep,g,true);
             out.push_back(flg(brep->m_bEditingEnabled));
             export_graph(brep,g,out);
+        }
+        // Counts alone cannot certify extraction after the operands are deleted.
+        // Prefix each complete fresh graph with its record length for decoding.
+        for (auto* components : {&m_vOneBrepPer_OrigBrepConnectedFaceSet,
+                                 &m_vOneBrepPer_OtherBrepConnectedFaceSet}) {
+            for (ULONG i=0; i<components->GetSize(); ++i) {
+                SmBrep* brep = (*components)[i];
+                std::vector<double> component;
+                if (brep) {
+                    Graph g; walk(brep,g,true);
+                    component.push_back(flg(brep->m_bEditingEnabled));
+                    export_graph(brep,g,component);
+                }
+                out.push_back((double)component.size());
+                out.insert(out.end(),component.begin(),component.end());
+            }
         }
     }
 };

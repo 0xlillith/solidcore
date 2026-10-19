@@ -7655,6 +7655,30 @@
         "manifold": false,
         "distinct_contexts": true
       }
+    },
+    {
+      "name": "plane-domain-constructor-rejection",
+      "inputs": {
+        "primary": [
+          3,
+          0,
+          0,
+          0,
+          2000000,
+          1,
+          0
+        ],
+        "other": [
+          -1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "operation": 0
+      }
     }
   ]
 }
