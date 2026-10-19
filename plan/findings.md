@@ -8006,8 +8006,10 @@ for p3/API and the 50-program Valgrind sample passed on this corrected tree.
 The touched intersector_p1 passed its default run: 827 cases, 690 matched,
 zero failed, 137 deferred, with_values=687/no_values=3. All p3 case outcomes and
 first-blocker labels are unchanged from a77d8005; compared payloads now contain
-actual Rust digest data instead of C++ graph echoes. The 213-unit matrix is
-running; previous 212/211-unit runs are historical evidence only.
+actual Rust digest data instead of C++ graph echoes. The full 213-unit matrix
+passed: 114 PASS / 99 PARTIAL, zero failures. Its per-log audit checked all exit
+codes and count categories (including rejected fixtures), with zero green units
+carrying deferrals. Previous 212/211-unit runs are historical evidence only.
 
 Review 183c96b7 constructor correction: BooleanLists surface-list preparation
 and disconnected-component extraction now call an argument-complete
