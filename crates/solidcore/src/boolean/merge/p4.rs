@@ -18,6 +18,7 @@
 //! Global cache queue limits are absent (the port has no global caches).
 //! The temporary origin shift still waits on `query.brep` through `merge_p1`,
 //! before any topology mutation. The complete subsequent stages remain here.
+//! Component face copies use `brep::p7::copy_faces` with the native merge defaults.
 
 use super::p1::{self, MergeOptions};
 use crate::error::{Result, SolidError};
@@ -26,6 +27,7 @@ use crate::geom::attribute::{
     ids, Attribute, AttributeStore, Behavior, MergeRegionData, ObjectKey,
 };
 use crate::geom::context::{MarkLock, MarkType};
+use crate::geom::object::ObjectRef;
 use crate::kernel::Kernel;
 use crate::math::Point3;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
@@ -1144,22 +1146,6 @@ fn new_component_brep(
     Err(SolidError::unported("SmBrep::SmBrep", "topology.brep_p3"))
 }
 
-fn copy_faces(
-    _kernels: &mut BooleanKernels<'_>,
-    _source: &mut Brep,
-    _faces: &[FaceId],
-    _destination: &mut Brep,
-    _new_faces: Option<&mut Vec<FaceId>>,
-    _use_merge: bool,
-    _merge: Option<&mut dyn ManifoldIntersector>,
-) -> Result<()> {
-    // UNPORTED(topology.brep_p7): SmBrep::CopyFaces
-    Err(SolidError::unported(
-        "SmBrep::CopyFaces",
-        "topology.brep_p7",
-    ))
-}
-
 fn delete_stale_caches(_primary: &mut Brep) -> Result<()> {
     // UNPORTED(topology.brep_p2): SmBrep::DeleteStaleCaches
     Err(SolidError::unported(
@@ -1457,14 +1443,24 @@ pub fn manifold_boolean(
                     crate::geom::tol::USE_DEFAULT,
                     None,
                 )?;
-                ignored(copy_faces(
-                    kernels,
+                let this_face = |face| ObjectRef {
+                    key: intersector.object_key(reverse, MergeEntity::Face(face)),
+                    type_code: 16002, // SmFace_TYPE
+                };
+                // CopyFaces(set, component): native defaults are new_faces=NULL,
+                // use_merge=TRUE, merge_object=NULL. The p7 merge branch creates
+                // its own merge object; discard its face outputs and status.
+                ignored(crate::topology::brep::p7::copy_faces(
+                    if reverse {
+                        kernels.other()
+                    } else {
+                        kernels.primary
+                    },
                     source,
                     set,
                     &mut component,
-                    None,
                     true,
-                    None,
+                    &this_face,
                 ))?;
                 components.push(component);
             }

@@ -7695,7 +7695,7 @@ ran=912 differs=0 crashes=0 panics=0 timeouts=0`. The 110-seed valgrind sample
 (396 cases, covering both runners and native setup/teardown) matched its ordinary
 baseline and reported `ERROR SUMMARY: 0 errors from 0 contexts`.
 
-New `UNPORTED` sites and the owners' current main statuses (all `todo`):
+New remaining `UNPORTED` sites and the owners' current main statuses (all `todo`):
 
 | Owner | Callees |
 | --- | --- |
@@ -7705,9 +7705,17 @@ New `UNPORTED` sites and the owners' current main statuses (all `todo`):
 | `topology.brep_p2` | `SmBrep::IsSheet`, `IsOrientedSheet`, `DeleteStaleCaches` |
 | `topology.brep_p3` | `SmBrep::SmBrep` (component construction, including its infinite region) |
 | `topology.brep_p5` | `SmBrep::FindAndSetInfiniteRegion` |
-| `topology.brep_p7` | `SmBrep::CopyFaces` |
 | `topology.brep_p9` | `SmBrep::OrientSheetSurfaces` |
 
-No existing stub is relabelled or removed, and no incoming
-`UNPORTED(boolean.merge_p4)` call exists in the kernel. Other units' code and plan
+No pre-existing kernel stub is relabelled or removed, and no incoming
+`UNPORTED(boolean.merge_p4)` call exists in the kernel. The new CopyFaces stub
+is wired after the main merge as described below. Other units' code and plan
 entries remain unchanged.
+
+After merging main's PR #155, merge_p4's `UNPORTED(topology.brep_p7)`
+`SmBrep::CopyFaces` site is removed and wired to `brep::p7::copy_faces`. The
+call uses the exact upstream defaults (no optional face-output list, merge
+enabled, no supplied merge object); the returned face list and ordinary status
+are ignored, while `Unported` propagates. Its caller tail remains unchanged.
+This path is still behind the temporary-transform prerequisite and the unported
+component B-rep constructor, so no parity promotion is claimed.
