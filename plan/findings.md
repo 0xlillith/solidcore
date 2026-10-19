@@ -7719,3 +7719,11 @@ enabled, no supplied merge object); the returned face list and ordinary status
 are ignored, while `Unported` propagates. Its caller tail remains unchanged.
 This path is still behind the temporary-transform prerequisite and the unported
 component B-rep constructor, so no parity promotion is claimed.
+
+Final post-main verification on sc-builder-5 passed: workspace fmt, direct
+rustfmt checks of both include! files, clippy with and without `cpp`, all 1,380
+kernel tests and wasm. The unit, fuzz, perturb and 396-case Valgrind results above
+were repeated after wiring CopyFaces. The full green/partial set completed with
+`green-par: 210 units, failed=0`; every reported partial status matches the plan,
+and no plan-green unit deferred. This remains a partial unit with zero compared
+success paths.
