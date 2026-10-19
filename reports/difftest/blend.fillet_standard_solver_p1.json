@@ -915,8 +915,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "SmBrep::MakeTopologyFromData",
+        "unit": "topology.brep_p10"
       },
       "max_rel_err": 0.0,
       "name": "gen0065",
@@ -1441,8 +1441,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "SmBrep::MakeTopologyFromData",
+        "unit": "topology.brep_p10"
       },
       "max_rel_err": 0.0,
       "name": "gen0114",
@@ -3206,8 +3206,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "SmBrep::MakeTopologyFromData",
+        "unit": "topology.brep_p10"
       },
       "max_rel_err": 0.0,
       "name": "gen0290",
@@ -3811,8 +3811,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "SmBrep::MakeTopologyFromData",
+        "unit": "topology.brep_p10"
       },
       "max_rel_err": 0.0,
       "name": "gen0358",
@@ -4027,8 +4027,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "SmBrep::MakeTopologyFromData",
+        "unit": "topology.brep_p10"
       },
       "max_rel_err": 0.0,
       "name": "gen0384",
@@ -4260,8 +4260,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::ReadFromFile",
-        "unit": "topology.brep_p7"
+        "symbol": "SmBrep::MakeTopologyFromData",
+        "unit": "topology.brep_p10"
       },
       "max_rel_err": 0.0,
       "name": "gen0408",
@@ -4914,7 +4914,7 @@
     "surface.cone_p1": 11,
     "surface.sphere": 2,
     "surface.surf_of_extrusion_p2": 1,
-    "topology.brep_p7": 6
+    "topology.brep_p10": 6
   },
   "max_rel_err": 0.0,
   "pass": true,
