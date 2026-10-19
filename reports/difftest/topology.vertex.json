@@ -11040,12 +11040,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1113 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -11368,12 +11372,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1154 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -11696,12 +11704,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1195 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -12024,12 +12036,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1236 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -12352,12 +12368,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "patch_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1277 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -12680,12 +12700,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "patch_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1318 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -13008,12 +13032,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "patch_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1359 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -13336,12 +13364,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "patch_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1400 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -13664,12 +13696,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1441 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -13992,12 +14028,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "patch_sub_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1482 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -14320,12 +14360,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "pinched_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1523 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 5
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -14648,12 +14692,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "pinched_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1564 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 5
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -14976,12 +15024,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "pinched_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1605 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 5
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -15304,12 +15356,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "pinched_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/constructed.json#1646 (upstream tests/prog_test/src/smTopoTest.cpp:4616)",
-      "values_compared": 5
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -26900,12 +26956,16 @@
       "values_compared": 8
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "Mouse_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#22 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 8
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -27264,12 +27324,16 @@
       "values_compared": 8
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "Mouse_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#63 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 8
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -27524,12 +27588,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "Mouse_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#91 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 8
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -27688,12 +27756,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "Mouse_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#109 (upstream TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 8
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -28256,12 +28328,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "Endcap_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#166 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -28584,12 +28660,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "Endcap_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#207 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -28808,12 +28888,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "Endcap_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#235 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -28952,12 +29036,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "Endcap_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#253 (upstream TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -29241,8 +29329,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_topo",
@@ -29412,12 +29500,16 @@
       "values_compared": 17
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#310 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 17
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -29437,8 +29529,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_pole_g0",
@@ -29449,8 +29541,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_pole_g1",
@@ -29461,8 +29553,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_g0",
@@ -29473,8 +29565,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_g1",
@@ -29485,8 +29577,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_tol_g0",
@@ -29497,8 +29589,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_tol_g1",
@@ -29509,8 +29601,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_noarr_g0",
@@ -29521,8 +29613,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v0_gaps_noarr_g1",
@@ -29605,8 +29697,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_topo",
@@ -29776,12 +29868,16 @@
       "values_compared": 17
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#351 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 17
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -29801,8 +29897,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_pole_g0",
@@ -29813,8 +29909,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_pole_g1",
@@ -29825,8 +29921,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_g0",
@@ -29837,8 +29933,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_g1",
@@ -29849,8 +29945,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_tol_g0",
@@ -29861,8 +29957,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_tol_g1",
@@ -29873,8 +29969,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_noarr_g0",
@@ -29885,8 +29981,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v1_gaps_noarr_g1",
@@ -29969,8 +30065,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_topo",
@@ -30036,17 +30132,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#379 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 17
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_pole_g1",
@@ -30057,8 +30157,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_gaps_g1",
@@ -30069,8 +30169,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_gaps_tol_g1",
@@ -30081,8 +30181,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v2_gaps_noarr_g1",
@@ -30133,8 +30233,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_topo",
@@ -30200,17 +30300,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#397 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 17
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_pole_g1",
@@ -30221,8 +30325,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_gaps_g1",
@@ -30233,8 +30337,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_gaps_tol_g1",
@@ -30245,8 +30349,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v3_gaps_noarr_g1",
@@ -30297,8 +30401,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_rebuild_v0_topo",
@@ -30309,8 +30413,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_rebuild_v0_gaps",
@@ -30329,8 +30433,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_rebuild_v3_topo",
@@ -30341,8 +30445,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_rebuild_v3_gaps",
@@ -30353,8 +30457,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v4_topo",
@@ -30365,8 +30469,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v5_topo",
@@ -30377,8 +30481,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v6_topo",
@@ -30389,8 +30493,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v7_topo",
@@ -30401,8 +30505,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v8_topo",
@@ -30413,8 +30517,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v9_topo",
@@ -30425,8 +30529,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v10_topo",
@@ -30437,8 +30541,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v11_topo",
@@ -30449,8 +30553,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v12_topo",
@@ -30461,8 +30565,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v13_topo",
@@ -30473,8 +30577,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v14_topo",
@@ -30485,8 +30589,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v15_topo",
@@ -30497,8 +30601,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v16_topo",
@@ -30509,8 +30613,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v17_topo",
@@ -30521,8 +30625,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v18_topo",
@@ -30533,8 +30637,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v19_topo",
@@ -30545,8 +30649,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v20_topo",
@@ -30557,8 +30661,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v21_topo",
@@ -30569,8 +30673,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v22_topo",
@@ -30581,8 +30685,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_v23_topo",
@@ -30601,8 +30705,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_topo",
@@ -30772,12 +30876,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "cone_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#454 (upstream TestFiles/pt_TestFiles/cone.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -30797,8 +30905,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_pole_g0",
@@ -30809,8 +30917,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_pole_g1",
@@ -30821,8 +30929,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_g0",
@@ -30833,8 +30941,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_g1",
@@ -30845,8 +30953,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_tol_g0",
@@ -30857,8 +30965,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_tol_g1",
@@ -30869,8 +30977,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_noarr_g0",
@@ -30881,8 +30989,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v0_gaps_noarr_g1",
@@ -30965,8 +31073,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_topo",
@@ -31136,12 +31244,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "cone_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#495 (upstream TestFiles/pt_TestFiles/cone.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -31161,8 +31273,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_pole_g0",
@@ -31173,8 +31285,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_pole_g1",
@@ -31185,8 +31297,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_g0",
@@ -31197,8 +31309,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_g1",
@@ -31209,8 +31321,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_tol_g0",
@@ -31221,8 +31333,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_tol_g1",
@@ -31233,8 +31345,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_noarr_g0",
@@ -31245,8 +31357,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v1_gaps_noarr_g1",
@@ -31329,8 +31441,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v2_topo",
@@ -31396,17 +31508,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "cone_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#523 (upstream TestFiles/pt_TestFiles/cone.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v2_pole_g1",
@@ -31417,8 +31533,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v2_gaps_g1",
@@ -31429,8 +31545,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v2_gaps_tol_g1",
@@ -31441,8 +31557,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v2_gaps_noarr_g1",
@@ -31493,8 +31609,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_topo",
@@ -31560,17 +31676,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "cone_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#541 (upstream TestFiles/pt_TestFiles/cone.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_pole_g1",
@@ -31581,8 +31701,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_gaps_g1",
@@ -31593,8 +31713,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_gaps_tol_g1",
@@ -31605,8 +31725,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v3_gaps_noarr_g1",
@@ -31657,8 +31777,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_rebuild_v0_topo",
@@ -31669,8 +31789,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_rebuild_v0_gaps",
@@ -31689,8 +31809,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_rebuild_v3_topo",
@@ -31701,8 +31821,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_rebuild_v3_gaps",
@@ -31713,8 +31833,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v4_topo",
@@ -31725,8 +31845,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v5_topo",
@@ -31737,8 +31857,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v6_topo",
@@ -31749,8 +31869,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v7_topo",
@@ -31761,8 +31881,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v8_topo",
@@ -31773,8 +31893,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v9_topo",
@@ -31785,8 +31905,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v10_topo",
@@ -31797,8 +31917,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v11_topo",
@@ -31809,8 +31929,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v12_topo",
@@ -31821,8 +31941,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v13_topo",
@@ -31833,8 +31953,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v14_topo",
@@ -31845,8 +31965,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v15_topo",
@@ -31857,8 +31977,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v16_topo",
@@ -31869,8 +31989,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v17_topo",
@@ -31881,8 +32001,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v18_topo",
@@ -31893,8 +32013,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v19_topo",
@@ -31905,8 +32025,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v20_topo",
@@ -31917,8 +32037,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v21_topo",
@@ -31929,8 +32049,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v22_topo",
@@ -31941,8 +32061,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "cone_v23_topo",
@@ -32128,12 +32248,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "disk_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#598 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -32456,12 +32580,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "disk_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#639 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -32680,12 +32808,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "disk_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#667 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -32824,12 +32956,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "disk_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#685 (upstream TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -33280,12 +33416,16 @@
       "values_compared": 24
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#742 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 24
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -33608,12 +33748,16 @@
       "values_compared": 24
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#783 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 24
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -33832,12 +33976,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#811 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 24
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -33976,12 +34124,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#829 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 24
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -34432,12 +34584,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#886 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -34760,12 +34916,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#927 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -34984,12 +35144,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#955 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -35128,12 +35292,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_circ_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#973 (upstream TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -35584,12 +35752,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_square_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1030 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -35912,12 +36084,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_square_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1071 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -36136,12 +36312,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_square_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1099 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -36280,12 +36460,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "plane_square_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1117 (upstream TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -36569,8 +36753,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_topo",
@@ -36740,12 +36924,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "sphere_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1174 (upstream TestFiles/pt_TestFiles/sphere.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -36765,8 +36953,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_pole_g0",
@@ -36777,8 +36965,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_pole_g1",
@@ -36789,8 +36977,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_g0",
@@ -36801,8 +36989,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_g1",
@@ -36813,8 +37001,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_tol_g0",
@@ -36825,8 +37013,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_tol_g1",
@@ -36837,8 +37025,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_noarr_g0",
@@ -36849,8 +37037,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v0_gaps_noarr_g1",
@@ -36933,8 +37121,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_topo",
@@ -37104,12 +37292,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "sphere_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1215 (upstream TestFiles/pt_TestFiles/sphere.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -37129,8 +37321,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_pole_g0",
@@ -37141,8 +37333,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_pole_g1",
@@ -37153,8 +37345,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_g0",
@@ -37165,8 +37357,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_g1",
@@ -37177,8 +37369,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_tol_g0",
@@ -37189,8 +37381,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_tol_g1",
@@ -37201,8 +37393,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_noarr_g0",
@@ -37213,8 +37405,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v1_gaps_noarr_g1",
@@ -37297,8 +37489,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v2_topo",
@@ -37364,17 +37556,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "sphere_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1243 (upstream TestFiles/pt_TestFiles/sphere.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v2_pole_g1",
@@ -37385,8 +37581,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v2_gaps_g1",
@@ -37397,8 +37593,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v2_gaps_tol_g1",
@@ -37409,8 +37605,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v2_gaps_noarr_g1",
@@ -37461,8 +37657,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v3_topo",
@@ -37528,17 +37724,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "sphere_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1261 (upstream TestFiles/pt_TestFiles/sphere.smb)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v3_pole_g1",
@@ -37549,8 +37749,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v3_gaps_g1",
@@ -37561,8 +37761,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v3_gaps_tol_g1",
@@ -37573,8 +37773,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v3_gaps_noarr_g1",
@@ -37625,8 +37825,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_rebuild_v0_topo",
@@ -37637,8 +37837,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_rebuild_v0_gaps",
@@ -37657,8 +37857,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_rebuild_v3_topo",
@@ -37669,8 +37869,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_rebuild_v3_gaps",
@@ -37681,8 +37881,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v4_topo",
@@ -37693,8 +37893,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v5_topo",
@@ -37705,8 +37905,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v6_topo",
@@ -37717,8 +37917,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v7_topo",
@@ -37729,8 +37929,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v8_topo",
@@ -37741,8 +37941,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v9_topo",
@@ -37753,8 +37953,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v10_topo",
@@ -37765,8 +37965,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v11_topo",
@@ -37777,8 +37977,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v12_topo",
@@ -37789,8 +37989,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v13_topo",
@@ -37801,8 +38001,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v14_topo",
@@ -37813,8 +38013,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v15_topo",
@@ -37825,8 +38025,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v16_topo",
@@ -37837,8 +38037,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v17_topo",
@@ -37849,8 +38049,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v18_topo",
@@ -37861,8 +38061,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v19_topo",
@@ -37873,8 +38073,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v20_topo",
@@ -37885,8 +38085,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v21_topo",
@@ -37897,8 +38097,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v22_topo",
@@ -37909,8 +38109,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "sphere_v23_topo",
@@ -38100,12 +38300,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1318 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -38464,12 +38668,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1359 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -38724,12 +38932,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1387 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -38888,12 +39100,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1405 (upstream TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -39460,12 +39676,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1462 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -39824,12 +40044,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1503 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -40084,12 +40308,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1531 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -40248,12 +40476,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_rev_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1549 (upstream TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -40649,8 +40881,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_topo",
@@ -40820,12 +41052,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1606 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -40845,8 +41081,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_pole_g0",
@@ -40857,8 +41093,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_pole_g1",
@@ -40869,8 +41105,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_g0",
@@ -40881,8 +41117,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_g1",
@@ -40893,8 +41129,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_tol_g0",
@@ -40905,8 +41141,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_tol_g1",
@@ -40917,8 +41153,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_noarr_g0",
@@ -40929,8 +41165,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v0_gaps_noarr_g1",
@@ -41013,8 +41249,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_topo",
@@ -41184,12 +41420,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1647 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -41209,8 +41449,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_pole_g0",
@@ -41221,8 +41461,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_pole_g1",
@@ -41233,8 +41473,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_g0",
@@ -41245,8 +41485,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_g1",
@@ -41257,8 +41497,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_tol_g0",
@@ -41269,8 +41509,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_tol_g1",
@@ -41281,8 +41521,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_noarr_g0",
@@ -41293,8 +41533,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v1_gaps_noarr_g1",
@@ -41377,8 +41617,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_topo",
@@ -41444,17 +41684,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1675 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_pole_g1",
@@ -41465,8 +41709,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_gaps_g1",
@@ -41477,8 +41721,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_gaps_tol_g1",
@@ -41489,8 +41733,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v2_gaps_noarr_g1",
@@ -41541,8 +41785,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_topo",
@@ -41608,17 +41852,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1693 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_pole_g1",
@@ -41629,8 +41877,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_gaps_g1",
@@ -41641,8 +41889,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_gaps_tol_g1",
@@ -41653,8 +41901,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v3_gaps_noarr_g1",
@@ -41705,8 +41953,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_rebuild_v0_topo",
@@ -41717,8 +41965,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_rebuild_v0_gaps",
@@ -41737,8 +41985,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_rebuild_v3_topo",
@@ -41749,8 +41997,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_rebuild_v3_gaps",
@@ -41761,8 +42009,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v4_topo",
@@ -41773,8 +42021,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v5_topo",
@@ -41785,8 +42033,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v6_topo",
@@ -41797,8 +42045,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v7_topo",
@@ -41809,8 +42057,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v8_topo",
@@ -41821,8 +42069,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v9_topo",
@@ -41833,8 +42081,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v10_topo",
@@ -41845,8 +42093,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v11_topo",
@@ -41857,8 +42105,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v12_topo",
@@ -41869,8 +42117,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v13_topo",
@@ -41881,8 +42129,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v14_topo",
@@ -41893,8 +42141,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v15_topo",
@@ -41905,8 +42153,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v16_topo",
@@ -41917,8 +42165,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v17_topo",
@@ -41929,8 +42177,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v18_topo",
@@ -41941,8 +42189,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v19_topo",
@@ -41953,8 +42201,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v20_topo",
@@ -41965,8 +42213,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v21_topo",
@@ -41977,8 +42225,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v22_topo",
@@ -41989,8 +42237,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_v23_topo",
@@ -42180,12 +42428,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "torus_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1750 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -42544,12 +42796,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "torus_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1791 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -42804,12 +43060,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "torus_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1819 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -42968,12 +43228,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "torus_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1837 (upstream TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -43540,12 +43804,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1894 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -43904,12 +44172,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1935 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -44164,12 +44436,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1963 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -44328,12 +44604,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "toruswvy_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#1981 (upstream TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 4
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -44900,12 +45180,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v0_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2038 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 5
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -45264,12 +45548,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v1_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2079 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 5
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -45524,12 +45812,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v2_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2107 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 5
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -45688,12 +45980,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "vase_rev_v3_refresh_n",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.vertex/upstream_files.json#2125 (upstream TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 5
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -46092,12 +46388,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0001",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=11202289197584117213",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -46132,12 +46432,16 @@
       "values_compared": 16
     },
     {
+      "deferred": {
+        "symbol": "SmFace::SetTolerance",
+        "unit": "topology.face_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0006",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=11202289197584117218",
-      "values_compared": 6
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -46213,15 +46517,15 @@
     }
   ],
   "cases_both_errored": 2,
-  "cases_deferred": 536,
+  "cases_deferred": 612,
   "cases_failed": 0,
-  "cases_passed": 4972,
+  "cases_passed": 4896,
   "cases_total": 5508,
   "deferred_by_unit": {
-    "surface.cone_p1": 104,
-    "surface.sphere": 104,
     "surface.surf_of_extrusion_p2": 104,
-    "topology.brep_p10": 224
+    "surface.surface_p2": 208,
+    "topology.brep_p10": 224,
+    "topology.face_p3": 76
   },
   "max_rel_err": 0.0,
   "pass": true,
