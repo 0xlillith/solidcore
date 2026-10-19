@@ -3,7 +3,7 @@
 //! Coordinates/dimensions are bounded by 1e100 through the shared reader, leaving
 //! headroom for endpoint addition and squared-distance products in constructors.
 //! This is the oracle's supported numeric domain, not a kernel input restriction.
-//! UB-175 [PSIRT] in IntersectInsertRelate / ~SmProtoTopologyManager is not
+//! UB-175 [PSIRT] in `IntersectInsertRelate` / `~SmProtoTopologyManager` is not
 //! exercised by the current empty/vertex/open-line/plane operand families (no
 //! closed edges). Adding circles or closed wires requires rechecking that guard.
 use crate::{call_with_buffer, FfiError};

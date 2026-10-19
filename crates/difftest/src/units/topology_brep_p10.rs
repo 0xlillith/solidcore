@@ -326,7 +326,7 @@ fn apply_patches(d: &mut BrepData, patches: &[PatchIn]) -> Result<(), HarnessErr
         match *p {
             PatchIn::ZoneTol(v) => d.zone_tol_3d = v,
             PatchIn::Manifold(v) => {
-                d.manifold = i32::try_from(v).map_err(|_| harness("manifold"))?
+                d.manifold = i32::try_from(v).map_err(|_| harness("manifold"))?;
             }
             PatchIn::Healer(v) => d.set_healer_version(v as u64),
             PatchIn::Borrowed(v) => d.is_geom_borrowed = v,

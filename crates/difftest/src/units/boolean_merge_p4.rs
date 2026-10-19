@@ -113,7 +113,12 @@ fn native_snapshot(raw: &[f64]) -> std::result::Result<Output, HarnessError> {
     for _ in 0..9 {
         header.push(rd.num().map_err(|e| error(&e))? as i64);
     }
-    let component_count = header[7] + header[8];
+    let component_count = header
+        .get(7)
+        .zip(header.get(8))
+        .and_then(|(&a, &b)| a.checked_add(b))
+        .and_then(|n| usize::try_from(n).ok())
+        .ok_or_else(|| error("invalid component count"))?;
     let mut output = Output::new().ints("status_and_state", header);
     let mut graph = |rd: &mut Record<'_>, prefix: &str| -> std::result::Result<(), HarnessError> {
         let n = rd.num().map_err(|e| error(&e))? as usize;
@@ -149,8 +154,8 @@ fn rust_snapshot(
     status: i32,
     returned: bool,
     kernels: &BooleanKernels<'_>,
-    primary: &Option<Brep>,
-    other: &Option<Brep>,
+    primary: Option<&Brep>,
+    other: Option<&Brep>,
     state: &ManifoldState,
 ) -> std::result::Result<Output, HarnessError> {
     let other_kernel = kernels.other.as_deref().unwrap_or(kernels.primary);
@@ -339,11 +344,23 @@ impl UnitDiff for Runner {
             Err(e) if e.is_unported() => {
                 Ok(Output::unported(&e).ok_or_else(|| error("missing deferral"))?)
             }
-            Err(SolidError::Upstream { code, .. }) => {
-                rust_snapshot(code, false, &kernels, &primary, &other, &state)
-            }
+            Err(SolidError::Upstream { code, .. }) => rust_snapshot(
+                code,
+                false,
+                &kernels,
+                primary.as_ref(),
+                other.as_ref(),
+                &state,
+            ),
             Err(e) => Err(error(&e)),
-            Ok(returned) => rust_snapshot(0, returned, &kernels, &primary, &other, &state),
+            Ok(returned) => rust_snapshot(
+                0,
+                returned,
+                &kernels,
+                primary.as_ref(),
+                other.as_ref(),
+                &state,
+            ),
         }
     }
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
@@ -384,9 +401,9 @@ mod tests {
         let mut k = Kernel::default();
         let mut other_k = Kernel::default();
         let mut primary = import(&[1.0, 2.0, 3.0, 4.0, 1.0, 1.0, 1.0]).unwrap();
-        let other = None;
+        let other: Option<Brep> = None;
         let mut state = ManifoldState::default();
-        let mut snapshot = |k: &mut Kernel, primary: &Option<Brep>, state: &ManifoldState| {
+        let mut snapshot = |k: &mut Kernel, primary: Option<&Brep>, state: &ManifoldState| {
             rust_snapshot(
                 1008,
                 false,
@@ -395,26 +412,26 @@ mod tests {
                     other: Some(&mut other_k),
                 },
                 primary,
-                &other,
+                other.as_ref(),
                 state,
             )
             .unwrap()
         };
-        let baseline = snapshot(&mut k, &primary, &state);
+        let baseline = snapshot(&mut k, primary.as_ref(), &state);
         k.context.set_doing_boolean(true);
-        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
+        assert_ne!(baseline, snapshot(&mut k, primary.as_ref(), &state));
         k.context.set_doing_boolean(false);
         primary.as_mut().unwrap().set_editing_enabled(true);
-        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
+        assert_ne!(baseline, snapshot(&mut k, primary.as_ref(), &state));
         primary.as_mut().unwrap().set_editing_enabled(false);
         state.intersection_vertices.push(VertexId::from_index(0));
-        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
+        assert_ne!(baseline, snapshot(&mut k, primary.as_ref(), &state));
         state.intersection_vertices.clear();
         let b = primary.as_mut().unwrap();
         let id = b.vertices().ids().next().unwrap();
         b.vertex_mut(id).unwrap().point.x += 1.0;
-        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
+        assert_ne!(baseline, snapshot(&mut k, primary.as_ref(), &state));
         primary = None;
-        assert_ne!(baseline, snapshot(&mut k, &primary, &state));
+        assert_ne!(baseline, snapshot(&mut k, primary.as_ref(), &state));
     }
 }
