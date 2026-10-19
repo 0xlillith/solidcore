@@ -61,7 +61,8 @@
 //!   (`topology.brep_p1`); `SmBrep::Notify`, `SetTolerance`, `sm_CheckAndFixUVTrimCurves`,
 //!   `RebuildUVTrimCurves` (`topology.brep_p2`); `MakeWireEdge`, `MakeWireEdgeVertex`
 //!   (`topology.brep_p3`); `DeleteEdge` (`topology.brep_p4`); `GlueVertices`
-//!   (`topology.brep_p5`); `MakeShellVertex` (`topology.brep_p9`);
+//!   (`topology.brep_p5`); `MakeShellVertexTopology` (`topology.brep_p2`, reached
+//!   through `topology.brep_p9`'s `MakeShellVertex`);
 //!   `MakeTopologyFromData`, `TestClosureSplitRegion(edge)` (`topology.brep_p10`);
 //!   `SmFace::Notify`, `SetTolerance`,
 //!   `CreateUVTrimCurves` (`topology.face_p3`); `SmFace::GetBrep`, `GetEdges`

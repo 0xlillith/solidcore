@@ -857,11 +857,38 @@ let mut records = BTreeMap::new();
                         return Ok(vec![NOT_RUN]);
                     }
                 }
-                // the loop needs MakeShellVertex (topology.brep_p9), then MakeWireEdgeVertex
-                // and MakeWireEdge (topology.brep_p3), before MakeFace sees it
+                // The shim's loop starts with MakeShellVertex in a fresh B-rep's region;
+                // run it, then MakeWireEdgeVertex and MakeWireEdge (topology.brep_p3)
+                // come before MakeFace sees the loop.
+                let mut b = Brep::new();
+                let region = b
+                    .add_region_record(Region {
+                        in_brep: true,
+                        ..Region::default()
+                    })
+                    .map_err(hfail)?;
+                let mut records = BTreeMap::new();
+                let mut attrs = AttributeStore::default();
+                let mut env = ed::NotifyEnv {
+                    records: &mut records,
+                    attributes: &mut attrs,
+                    context: None,
+                    key_of: &key_of,
+                };
+                if let Err(e) = solidcore::topology::brep::p9::make_shell_vertex(
+                    &mut b,
+                    Some(region),
+                    p[0],
+                    &mut env,
+                ) {
+                    return Err(match Output::unported(&e) {
+                        Some(o) => Fail::Deferred(Box::new(o)),
+                        None => hfail(e),
+                    });
+                }
                 return Err(Fail::Deferred(Box::new(Output::deferred(
-                    "topology.brep_p9",
-                    "SmBrep::MakeShellVertex",
+                    "topology.brep_p3",
+                    "SmBrep::MakeWireEdgeVertex",
                 ))));
             }
             let mut b = Brep::new();
