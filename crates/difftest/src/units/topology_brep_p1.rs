@@ -453,6 +453,28 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
 
 /// An op naming an entity kind the B-rep lacks (e.g. a face op on a wire B-rep): no code
 /// runs on either side, so the case is rejected (not counted as a pass).
+/// Inputs the FFI refuses, rejected on both sides before anything runs: a non-positive
+/// `ParallelProj` angle tolerance or an approximation tolerance below the smallest normal
+/// double (non-positive: the projector subdivides to it; subnormal: upstream spins,
+/// HANG-32), and a `CornerBlend` tangency tolerance below 1e-20 (HANG-34).
+fn refused_input(op: &OpIn) -> Option<Output> {
+    match op {
+        OpIn::ParallelProj { tol, ang, .. }
+            if tol.is_some_and(|t| t < f64::MIN_POSITIVE) || ang.is_some_and(|a| a <= 0.0) =>
+        {
+            Some(Output::rejected(
+                "projection tolerance the FFI refuses (non-positive, or subnormal: HANG-32)",
+            ))
+        }
+        OpIn::CornerBlend { ang, .. } if *ang < ffi::MIN_CORNER_BLEND_ANGLE_TOL => {
+            Some(Output::rejected(
+                "corner blend tangency tolerance below 1e-20, which the FFI refuses (HANG-34)",
+            ))
+        }
+        _ => None,
+    }
+}
+
 fn no_entity() -> Output {
     Output::rejected("no entity of the op's kind in this B-rep: nothing runs on either side")
 }
@@ -827,6 +849,9 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(op) = resolve(&i.op, c) else {
         return Ok(no_entity());
     };
+    if let Some(refused) = refused_input(&op) {
+        return Ok(refused);
+    }
     let (code, args) = op_args(&op)?;
     let mut input = brep_block(i)?;
     input.extend(args);
@@ -1872,6 +1897,12 @@ fn run_rust_op(
                     }
                 }
                 Err(e) if e.is_unported() => return Err(e.into()),
+                // UB-184: an empty rational-curve drop is where upstream reads sUVCurves[0]
+                // of an empty array; the port's InvalidInput there is that null dereference
+                Err(SolidError::InvalidInput {
+                    operation: "nurbs::b_spline_surface_n_lib::p1::create_non_rational_curve",
+                    ..
+                }) => o.extend([NULL_DEREF, 0.0]),
                 // upstream resets the output array before failing
                 Err(e) => o.extend([status_of(&e), 0.0]),
             }
@@ -1885,9 +1916,10 @@ fn run_rust_op(
             let id = |i: i64| (i >= 0).then(|| EdgeuseId::from_index(i as u32));
             match bp1::create_edge_edge_blend(
                 k,
-                b,
                 u64::from(*f),
+                b,
                 id(*eu1),
+                None,
                 id(*eu2),
                 u64::from(*dir),
                 None,
@@ -1986,6 +2018,9 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(op) = resolve(&i.op, c) else {
         return Ok(no_entity());
     };
+    if let Some(refused) = refused_input(&op) {
+        return Ok(refused);
+    }
     let mut k = Kernel::default();
     match run_rust_op(&mut k, &mut b, &types, &op) {
         Ok(Ok(o)) => Ok(guarded_output(o)),

@@ -800,12 +800,18 @@ void attach(Rd& rd, Graph& g, int64_t id)
 }
 
 
-// SmBrep::CreateCornerBlend (SmBrep.cpp:2488-2665) up to the end of its UV phase, replayed
-// read-only on a copy of the B-rep (surface types preserved): TRUE when the real call would
-// copy a NULL UV trim curve (`SM_ASSERT(pUVCurve != NULL)` is a release no-op and
-// `pUVCurve->Copy` dereferences it). The replay keeps upstream's ordering, statuses and
-// early returns, so it is TRUE exactly when the real call reaches that dereference.
-static bool corner_blend_uv_null(SmBrep* brep, const SmContext& ctx, const SmTArray<SmEdgeuse*>& eus,
+// SmBrep::CreateCornerBlend (SmBrep.cpp:2488-2775) replayed read-only on a copy of the B-rep
+// (surface types preserved), through SmBSplineSurface::CreateCornerBlend's curve conversion
+// (SmBSplineSurfaceNLib.cpp:3060-3115, sm_CreateNonRationalCurve :2906-2965). TRUE when the real
+// call would dereference memory it does not have:
+// - the UV phase copies a NULL UV trim curve (`SM_ASSERT(pUVCurve != NULL)` is a release no-op
+//   and `pUVCurve->Copy` dereferences it);
+// - UB-184: a rational B-spline 3D curve with a neighbour surface whose DropCurve succeeds with
+//   no curve, and `sUVCurves[0]` reads the empty array (the `SM_ASSERT(GetSize() == 1)` is a
+//   release no-op).
+// The replay keeps upstream's ordering, statuses and early returns, so it is TRUE exactly when
+// the real call reaches one of those dereferences.
+static bool corner_blend_refused(SmBrep* brep, const SmContext& ctx, const SmTArray<SmEdgeuse*>& eus,
                                  const SmTArray<SmBoolean>* tans, double tol)
 {
     SmCopyBrepMap rev;
@@ -884,6 +890,12 @@ static bool corner_blend_uv_null(SmBrep* brep, const SmContext& ctx, const SmTAr
         if (!found)
             tol_scale *= 2.5;
     }
+    // the CreateCornerBlend input arrays (copies owned here)
+    SmTArray<SmCurve*> o3d;
+    SmObjsDelete<SmCurve*> clean3d(&o3d);
+    SmTArray<SmBSplineCurve*> ouv;
+    SmObjsDelete<SmBSplineCurve*> cleanuv(&ouv);
+    SmTArray<SmSurface*> osrf;
     for (ULONG ii = 0; ii < ordered.GetSize(); ii++)
     {
         SmEdgeuse* eu = ordered[ii];
@@ -891,11 +903,16 @@ static bool corner_blend_uv_null(SmBrep* brep, const SmContext& ctx, const SmTAr
         SmCurve* crv = NULL;
         if (e->GetCurve()->Copy(ctx, crv) != SM_SUCCESS)
             return false;
-        SmObjDelete crv_clean(crv);
+        o3d.Add(crv);
         SmExtent1d ivl = e->GetInterval();
         if (crv->Trim(ivl) != SM_SUCCESS)
             return false;
-        if (tangencies[ii])
+        if (!tangencies[ii])
+        {
+            ouv.Add(NULL);
+            osrf.Add(NULL);
+        }
+        else
         {
             SmBSplineCurve* uv = NULL;
             eu->GetOrCreateUVTrimCurve(uv);
@@ -904,11 +921,78 @@ static bool corner_blend_uv_null(SmBrep* brep, const SmContext& ctx, const SmTAr
             SmCurve* uv_copy = NULL;
             if (uv->Copy(ctx, uv_copy) != SM_SUCCESS)
                 return false;
-            SmObjDelete uv_clean(uv_copy);
-            if (!SM_CAST_PTR(SmBSplineCurve, uv_copy))
+            SmBSplineCurve* uv_b = SM_CAST_PTR(SmBSplineCurve, uv_copy);
+            if (!uv_b)
+            {
+                delete uv_copy;
                 return false;
-            if (eu->GetFace() == NULL)
+            }
+            ouv.Add(uv_b);
+            SmFace* f = eu->GetFace();
+            if (f == NULL)
                 return false;
+            osrf.Add(f->GetSurface());
+        }
+    }
+    // pad to 4 curves with point curves, then move the last entry to the front
+    for (ULONG ii = 0; ii < 2; ii++)
+    {
+        if (o3d.GetSize() >= 4)
+            break;
+        double param = (orients[1] == SM_OT_SAME) ? 1.0 : 0.0;
+        SmPoint3d pnt;
+        if (o3d[1]->EvaluatePoint(param, pnt) != SM_SUCCESS)
+            return false;
+        SmBSplineCurve* top = NULL;
+        if (SmBSplineCurve::CreatePointCurve(ctx, pnt, top) != SM_SUCCESS)
+            return false;
+        o3d.InsertAt(2 - ii, top);
+        orients.InsertAt(2 - ii, SM_OT_SAME);
+        ouv.InsertAt(2 - ii, (SmBSplineCurve*)NULL);
+        osrf.InsertAt(2 - ii, (SmSurface*)NULL);
+    }
+    o3d.InsertAt(0, o3d.GetLast());
+    o3d.RemoveLast();
+    ouv.InsertAt(0, ouv.GetLast());
+    ouv.RemoveLast();
+    osrf.InsertAt(0, osrf.GetLast());
+    osrf.RemoveLast();
+    // SmBSplineSurface::CreateCornerBlend(.., dThisApproxTol3d, .., bCreateBilinearPatch = FALSE)
+    ULONG n = o3d.GetSize();
+    if (n < 4)
+        return false;
+    ULONG nulls = 0;
+    for (ULONG ii = 0; ii < n; ii++)
+    {
+        if (ouv[ii] == NULL || osrf[ii] == NULL)
+            nulls++;
+        if (((n == 4 && nulls > 1) || (n > 4 && nulls > 0)) && (ouv[ii] == NULL || osrf[ii] == NULL))
+            return false; // NER(crUVCurves[ii]) / NER(crSurfaces[ii])
+    }
+    for (ULONG ii = 0; ii < n; ii++)
+    {
+        SmBSplineCurve* nurb = SM_CAST_PTR(SmBSplineCurve, o3d[ii]);
+        if (!nurb)
+            return false; // NER(pNurb)
+        if (!nurb->IsRational())
+            continue; // a plain copy
+        SmBSplineCurve* approx = NULL;
+        if (nurb->ApproximateRationalCurve(ctx, tol / 2.0, approx) != SM_SUCCESS)
+            return false;
+        SmObjDelete approx_clean(approx);
+        if (approx->ReparametrizeWithArcLength() != SM_SUCCESS)
+            return false;
+        if (osrf[ii])
+        {
+            SmExtent1d trim = approx->GetNaturalInterval();
+            SmExtent2d dom = osrf[ii]->GetNaturalUVDomain();
+            double max_dist, deviation;
+            SmTArray<SmBSplineCurve*> dropped;
+            SmObjsDelete<SmBSplineCurve*> dropped_clean(&dropped);
+            if (osrf[ii]->DropCurve(ctx, dom, *approx, trim, tol / 2.0, max_dist, deviation, dropped) != SM_SUCCESS)
+                return false;
+            if (dropped.GetSize() == 0)
+                return true; // UB-184
         }
     }
     return false;
@@ -1762,7 +1846,7 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
                 if (p == NULL || p->GetEdge() == NULL)
                     null_deref = true;
             }
-            if (!null_deref && corner_blend_uv_null(brep, ctx, eus, has_tan ? &tans : NULL, tol))
+            if (!null_deref && corner_blend_refused(brep, ctx, eus, has_tan ? &tans : NULL, tol))
                 null_deref = true;
             if (null_deref)
             {

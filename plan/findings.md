@@ -7451,6 +7451,49 @@ rejected: nothing runs on either side.
     edge-edge blends reach under `CreateBlendSurface`; UB-11's entry records why that read
     cannot change a result. Without it, the edge-edge sample reports exactly that one error.
 
+- **Follow-up to #145's maintainer review (bherbruck, at 5b1b28ae; #145 merged with #196).**
+  - **Corner blend on non-B-spline edge curves.** The ordered 3D curves stay `Curve` through the
+    point-curve padding (upstream copies, trims and evaluates any `SmCurve`). At the
+    `SmBSplineSurface::CreateCornerBlend` call, the first curve that is not B-spline-derived gives
+    `SM_ERR_NULL_POINTER` (1006, `sm_CreateNonRationalCurve`'s `NER(pNurb)`), after upstream's NULL
+    UV curve / surface check, which returns the same status. When a rational curve comes before it,
+    the case defers to `nurbs.b_spline_surface_n_lib_p2`, because that conversion is not run here.
+    It used to report the null-dereference guard (-2). 30 `crv_on_surf_face` corner-blend fixtures
+    (10 B-reps x eus `[0,1,2,3]`, `[3,2,1,0]` and all-non-tangent): 25 pass and 5 defer at
+    `nurbs.b_spline_surface_n_lib_p2`.
+  - **`CreateEdgeEdgeBlend` takes each edge use's B-rep** (`b_2: None` when both are in `b_1`).
+    `offset_executive_p1`'s stub is wired: `build_side_wall_of_edgeuse` takes the original B-rep and
+    now defers at `SmBrep::CreateFaceFromSurface` (`topology.brep_p8`). No `UNPORTED(topology.brep_p1)`
+    is left anywhere.
+  - **Shared `SmCrvOnSurf` import:** owner flag 1, as the C++ graph builds it. Compared case by case
+    over all 208 green/partial units; it changes no case.
+  - **`SmTol::GetZoneTol3d(const SmObject*)` stubs** are tagged `geom.tol` (the owner in
+    `units.json`; the maintainer's answer), at the 7 call sites and the `geom/tol.rs` header. That
+    moves 26 `curve.curve_p1`, 48 `intersect.topology_solver_p1` and 6 `intersect.topology_solver_p2`
+    deferrals to the `geom.tol` label; nothing else changes.
+  - **`ParallelProj`:** a non-positive angle tolerance, or an approximation tolerance below the
+    smallest normal double (HANG-32: 5e-324 spins upstream), is rejected on both sides instead of
+    failing.
+  - **Fuzz findings on the corner-blend path** (the shim has run the real C++ since the edge-use
+    wiring; the new fixtures give the mutator new shapes):
+    - UB-184 [PSIRT]: `sm_CreateNonRationalCurve` reads `sUVCurves[0]` after a rational curve's
+      `DropCurve` succeeds with no curve. Located with gdb on a `-g` build at
+      SmBSplineSurfaceNLib.cpp:2949. The shim's corner-blend replay now runs on to that drop, and
+      both sides report the guard.
+    - HANG-34: tangency tolerances below about 1e-24 over-refine the cross tangents, and the Coons
+      knot merge then runs for tens of seconds. Refused below 1e-20.
+    - A face block with a 1e300 control point recurses in `GlobalCoincidenceChecker` while its UV
+      trim curves are built. That is HANG-29 (#147); the reserved HANG-33 was retired as a
+      duplicate. Every block value is bounded at 1e150.
+  - **Open question for the `curve.line` / `topology.edge` / `topology.face_p2` owners.** A Rust
+    `Line` whose parameterisation was edited carries no NURB, and the slicing copies
+    (`topology::edge::bspline_slice` in `CreateTrimmedNURBSCurve`, `topology::face::p2::bspline_slice`,
+    this unit's `bspline_part`) hand on that NURB-less base: a ruled `CreateEdgeEdgeBlend` over such
+    edges fails with `make_nurb` `SM_ERR`. Upstream's `new SmBSplineCurve(*SM_CAST_PTR(..))` copies
+    the base too, and whether its `MakeNurb` then succeeds depends on `SmLine::EditParameterization`.
+    Not changed here; the difftest never builds `Line` edges, and the offset unit test uses B-spline
+    edges.
+
 ## topology.face_p1 (`SmFace.cpp` part 1: `MoveSeam`, `SplitAtSeam`, `CreateOrientedTrimBoundary`, `CalculateUVDomainFromUVTrimCurves`, ...; PR #148, 2026-10-16; partial, no disagreements)
 
 - **Mostly deferred by design.** Every mutating member starts with `SmFace::Notify`

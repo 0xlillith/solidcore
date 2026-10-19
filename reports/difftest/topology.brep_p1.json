@@ -2270,6 +2270,266 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "cos_open_bicubic_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#238 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_open_bicubic_corner_blend_3210",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#239 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_open_bicubic_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#240 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_open_quad_cubic_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#241 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_open_quad_cubic_corner_blend_3210",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#242 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_open_quad_cubic_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#243 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_open_bicubic_sub_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#244 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_open_bicubic_sub_corner_blend_3210",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#245 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_open_bicubic_sub_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#246 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_cyl_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#247 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "deferred": {
+        "symbol": "SmBSplineSurface::CreateCornerBlend",
+        "unit": "nurbs.b_spline_surface_n_lib_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_cyl_corner_blend_3210",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#248 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_cyl_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#249 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_cyl_r3_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#250 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "deferred": {
+        "symbol": "SmBSplineSurface::CreateCornerBlend",
+        "unit": "nurbs.b_spline_surface_n_lib_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_cyl_r3_corner_blend_3210",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#251 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_cyl_r3_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#252 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_v_closed_cyl_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#253 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "deferred": {
+        "symbol": "SmBSplineSurface::CreateCornerBlend",
+        "unit": "nurbs.b_spline_surface_n_lib_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "cos_v_closed_cyl_corner_blend_3210",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#254 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_v_closed_cyl_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#255 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_v_closed_cyl_r3_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#256 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "deferred": {
+        "symbol": "SmBSplineSurface::CreateCornerBlend",
+        "unit": "nurbs.b_spline_surface_n_lib_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "cos_v_closed_cyl_r3_corner_blend_3210",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#257 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_v_closed_cyl_r3_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#258 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_c0_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#259 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_c0_corner_blend_3210",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#260 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_c0_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#261 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_v_closed_c0_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#262 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_v_closed_c0_corner_blend_3210",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#263 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_v_closed_c0_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#264 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_cyl_sub_corner_blend_0123",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#265 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "deferred": {
+        "symbol": "SmBSplineSurface::CreateCornerBlend",
+        "unit": "nurbs.b_spline_surface_n_lib_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_cyl_sub_corner_blend_3210",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#266 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "cos_u_closed_cyl_sub_corner_blend_0123_no_tangency",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p1/constructed.json#267 (upstream source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend) -> SmBSplineSurfaceNLib.cpp:2922 (sm_CreateNonRationalCurve: SmCrvOnSurf edge curves, NER))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "Mouse_lists_0",
       "outcome": "pass",
       "pass": true,
@@ -22883,15 +23143,16 @@
     }
   ],
   "cases_both_errored": 45,
-  "cases_deferred": 464,
+  "cases_deferred": 469,
   "cases_failed": 0,
-  "cases_passed": 2110,
+  "cases_passed": 2135,
   "cases_rejected": 15,
-  "cases_total": 2589,
+  "cases_total": 2619,
   "deferred_by_unit": {
     "curve.crv_on_surf": 4,
     "harness:analytic-geometry-export": 217,
     "intersect.surface_drop_lib_p3": 10,
+    "nurbs.b_spline_surface_n_lib_p2": 5,
     "query.brep": 71,
     "query.face_p2": 9,
     "surface.surface_cache_p1": 3,

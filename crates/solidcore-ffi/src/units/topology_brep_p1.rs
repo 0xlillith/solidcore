@@ -36,7 +36,7 @@
 //! | `Redistribute` | `edge has_uv seam u0 v0 u1 v1`                   | `0 swapped`, or `-3` where the Rust side defers (`sm_RedistributeSeamUVTrimCurves`) |
 //! | `SplitUv`      | `eu_orig eu_new P[3] t scaled_zero orient for_tess` | `status`, both edge uses' states (as `topology.edgeuse_p1`'s `SetUv`), both edge tolerances (`sm_MakeVertexSplitUVTrimCurve`) |
 //! | `BrepIntersect`| `tol ang want_points`                            | `status n_curves n_points` (with itself; `-3` when the B-rep has faces) |
-//! | `CornerBlend`  | `n eu*n has_tan nt tan*nt tol ang`               | `status n_surfaces` (`-3` for two or more edge uses) |
+//! | `CornerBlend`  | `n eu*n has_tan nt tan*nt tol ang`               | `status n_surfaces surface*n` (`-2` before an upstream null dereference) |
 //! | `EdgeEdgeBlend`| `flag eu1 eu2 dir`                               | `status [surface block]` (ruled surfaces; `-3` for a blend) |
 //! | `ParallelProj` | `curve V[3] has_dist dist has_tol tol has_ang ang want_3d want_uv want_faces` | `status [n3d (curve id)*n3d nuv (curve id)*nuv nf face*nf]` |
 //! | `Heal`         | `op make_uv`                                     | `status [healed B-rep]` (`SmBrep::HealBrep` always returns `SM_SUCCESS`; the healed B-rep follows: the `Export` extras, then the shim's `put_healed` fields) |
@@ -340,7 +340,12 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
                 return Err(bad("fewer tangency flags than edge uses"));
             }
             rd.finite()?;
-            rd.finite()?;
+            // HANG-34: a tangency tolerance below what doubles resolve makes the
+            // cross-tangent approximation refine to its limit and the Coons patch's knot
+            // merge take tens of seconds (0, negative and 1e-27 never return within 60 s)
+            if rd.finite()? < MIN_CORNER_BLEND_ANGLE_TOL {
+                return Err(bad("corner blend tangency tolerance below 1e-20 (HANG-34)"));
+            }
         }
         Op::EdgeEdgeBlend => {
             rd.index(3)?;
@@ -354,13 +359,15 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
             rd.flag()?;
             rd.finite()?;
             // a used approximation or angle tolerance must be positive (the projector
-            // subdivides to it)
+            // subdivides to it); a subnormal approximation tolerance spins upstream (HANG-32)
             let has_tol = rd.flag()?;
             let tol = rd.finite()?;
             let has_ang = rd.flag()?;
             let ang = rd.finite()?;
-            if (has_tol && tol <= 0.0) || (has_ang && ang <= 0.0) {
-                return Err(bad("projection tolerances must be positive"));
+            if (has_tol && tol < f64::MIN_POSITIVE) || (has_ang && ang <= 0.0) {
+                return Err(bad(
+                    "projection tolerances must be positive (approximation: normal, HANG-32)",
+                ));
             }
             rd.flag()?;
             rd.flag()?;
@@ -407,6 +414,17 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     let mut rd = Reader { input, at: 0 };
     brep_block(&mut rd, path)?;
     let block = input.get(..rd.at).ok_or_else(|| bad("input too short"))?;
+    // HANG-29 (#147): building a face block whose surface has a value near the top of the
+    // double range (a control point at 1e300) never returns: SmFace::CreateUVTrimCurves ->
+    // DropAndTrimCurve -> SmCurve::GlobalCoincidenceChecker recurses without bound. Every
+    // op builds the block, so bound every block value (the +-f64::MAX entries are the
+    // no-weight / no-z sentinels)
+    if block
+        .iter()
+        .any(|v| v.abs() > MAX_BLOCK_COORD && v.abs() != f64::MAX)
+    {
+        return Err(bad("B-rep block value beyond 1e150 (HANG-29)"));
+    }
     let export = raw(Op::Export, path, block)?;
     if op == Op::Export {
         rd.done()?;
@@ -420,3 +438,12 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     rd.done()?;
     raw(op, path, input)
 }
+
+/// The largest B-rep block value the shim is given (HANG-29: face surfaces at 1e154 and
+/// beyond recurse without bound while their UV trim curves are built).
+pub const MAX_BLOCK_COORD: f64 = 1e150;
+
+/// The smallest tangency tolerance `CreateCornerBlend` is given (HANG-34): measured on
+/// `plane_circ.smb`, 1e-23 returns in 0.4 s, 1e-24 in 1 s, 1e-25 in 22 s and 1e-27 not
+/// within 60 s; the bound keeps four decades of margin for slower geometry.
+pub const MIN_CORNER_BLEND_ANGLE_TOL: f64 = 1e-20;
