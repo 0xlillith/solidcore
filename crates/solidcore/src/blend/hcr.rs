@@ -353,20 +353,6 @@ pub fn new_curve_classification(
     cc
 }
 
-/// `SmCurveClassification::UpdatePointClass` (unit `intersect.curve_class_p2`).
-fn update_point_class(
-    cc: &mut CurveClassification<HcrObject>,
-    index: usize,
-    pc: &PointClassification<HcrObject>,
-) -> Result<()> {
-    let _ = (cc, index, pc);
-    // UNPORTED(intersect.curve_class_p2): SmCurveClassification::UpdatePointClass
-    Err(SolidError::unported(
-        "SmCurveClassification::UpdatePointClass",
-        "intersect.curve_class_p2",
-    ))
-}
-
 /// `SM_CAST_PTR(SmBSplineSurface, pSurface)`: the surface as an `SmBSplineSurface`.
 fn b_spline_part(surface: &Surface) -> Option<&BSplineSurface> {
     match surface.kind() {
@@ -1463,7 +1449,7 @@ impl Hcr {
                 pc.set_src_zone_tol_3d(curve_zone);
                 pc.set_pre_snap_param(sol.start.parameters[0]);
                 if replace {
-                    ignore_status(update_point_class(cc, index, &pc))?;
+                    ignore_status(cc.update_point_class(k, &geom, index, &pc))?;
                 } else {
                     ignore_status(cc.insert_point_class(k, &geom, &pc, param, BIG_DOUBLE, false))?;
                 }
