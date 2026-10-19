@@ -3783,7 +3783,8 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   geometry imported as its B-spline part were not deferred; `inexact_geometry` now defers
   them (gap ops on loop edge uses, the 3D-drop branch of `GetStartPointUVLoopGap`) to
   `surface.cone_p1`, `surface.sphere`, `surface.surf_of_extrusion_p2` or
-  `topology.brep_p7`, with the mapping of `topology.edgeuse_p2`. With the exact import,
+  `topology.brep_p7` (relabelled to `topology.brep_p10` `MakeTopologyFromData` by PR #155),
+  with the mapping of `topology.edgeuse_p2`. With the exact import,
   every computed gap agrees bit for bit. `fixtures/topology.edgeuse_p1/review_gap_values.json`
   (1680 cases) keeps them compared. The units sharing the import (`topology.edgeuse_p2`,
   `topology.loopuse`, `query.api_queries`, `query.edge`, `query.face_p2`) give unchanged
@@ -3862,6 +3863,11 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   extrusion is not yet (the `SurfaceKind` gap above), as does the
   `SmAdvSurfaceIntersector` fall-back of `GlobalSurfaceIntersect`, whose stub therefore
   stays tagged `intersect.adv_surface_intersector` although that unit is `partial`.
+  *Update (PR #85, 2026-10-18):* `ReSet` (part 2) and `IntersectNaturalBounds` (part 8) are
+  now both ported and `SmSurface::CurveOnClassify` runs them for a `Surface`; the stub here
+  is retagged `UNPORTED(intersect.curve_class_p8)` `IntersectNaturalBounds`, which needs a
+  `Surface` the surface of extrusion is not yet (the `SurfaceKind` gap above), so it stays
+  although part 8 is `partial`.
   The `sm_IntersectGenerators` status TODO above is done: `IntersectWithCylinder` and
   `IntersectWithSurfOfExtrusion` keep the partial curves/types and a `false` needs-more
   flag on failure (upstream clears it before the first failure); `Unported` and
@@ -4088,6 +4094,106 @@ cases, 169 deferred; `SmSurface::EvaluateNormal` and `DropVectors` now call the
   checks on actual object lists. Separate native and Rust tests verify success
   with zero solutions in both orders. Part-2 regressions live in p2; only their
   shared scene builder remains in p1's test module.
+
+## intersect.curve_class_p2 (`SmCurveClassification`, part 2, 2026-10-14; partial, no disagreements)
+
+- **`sm_RefineCCIToSurfaces` is only partly ported.** Its entry checks (recursion
+  counter, point-solution test, both classification surfaces) are ported and compared;
+  everything after them starts with `pEdge->GetCurve()` and walks the edge's faces, edge
+  uses and Boolean mate, so it is the `UNPORTED(topology.edge)` site in
+  `intersect::curve_class::p2::refine_cci_to_surfaces`. Whoever wires that site must port
+  the remaining ~1,250 lines (`SmCurveClass.cpp` 1690-2940); the note is also in
+  `topology.edge`'s `notes`. The shim runs only the entry checks (past them the bare
+  stand-in edge's topology would be walked and its curve edited).
+- **`EditIntervalMin` reads the stale slot past `m_lSize`.** When collapsing the
+  neighbour removes the interval before the last one, upstream's next `(*this)[lIndex]`
+  is past the end: the slot `RemoveAt` left behind, a copy of the last interval. The port
+  reads that copy the same way; the following `CollapseInterval` fails (status ignored).
+- **`InsertAt(0, ..)` into a non-empty classification** is UB-158 (unsigned shift loop);
+  Rust returns `InvalidInput` and the shim rejects it.
+- **Shim guards.** Edits are rejected when any interval end classifies to an
+  `SmPoint3d` (UB-79: its zone tolerance is taken through `SmObject` virtuals); this is
+  conservative (not every end is reached). Owned curves (`ReSet(.., bIsCurveOwned=TRUE)`,
+  copied by `operator=`) are disowned before the ops that delete them, since they may be
+  pool objects; a curve deep-copied by `operator=` reports the id of its source.
+- **`operator=` keeps the old curve when `SmCurve::Copy` fails** (review fix, PR #85).
+  For an owned source curve upstream frees this classification's owned curve, then calls
+  `crOther.m_cpCurve->Copy(..)` and ignores its status. `SmHermiteCurve`, `SmConic` and
+  `SmIsoCurve` have no `Copy` override, so the base `SmCurve::Copy` returns `SM_ERR` and
+  leaves `m_cpCurve` unchanged: the target keeps its old (non-owned) curve, or `NULL` if
+  it owned the old one. The first port always copied the handle; `--seeds 30000` found 4
+  generated failures (gen8797, gen10415, gen11711, gen21161: a Hermite curve `ReSet`
+  owned, then assigned), now `fixtures/intersect.curve_class_p2/adv.json`. Because the
+  shim disowns the target before `operator=` (its curve may be a pool object), the
+  "owned old curve freed, copy fails -> `NULL`" branch is not compared against the C++;
+  it is covered by the Rust unit test `assign_owned_curve_without_copy` only.
+- **`ReSet` with a new curve and no interval** dereferences `NULL` upstream; Rust returns
+  `InvalidInput` before changing anything (the first port had already set
+  `m_bIsCurveCurrent`).
+- **Back-edges wired after merging main (2026-10-16).** `UNPORTED(intersect.curve_class_p2)`
+  sites in `intersect::curve_class::{p3,p5,p6}`, `query::face::p2` (`CurveOnClassify`'s
+  `ReSet`) and `heal::face_props` (`SetProps_Stage2`'s `ReSet`) now call the part-2
+  members. Two sites did not become complete ports, because the code after the part-2
+  call belongs to other units and was never ported:
+  - `sm_InsertSolutions`' edge branch (part 5): its first upstream call on an edge target
+    is `pEdge->GetCurve()`. Opaque edge handles cannot be resolved to a B-rep (the same gap
+    part 3 documents), so it is now `UNPORTED(topology.edge)`. The branch body (vertex
+    snapping, `InsertAt`, `sm_RefineCCIToSurfaces`) still has to be ported with it.
+  - `MergeInterval` (part 6): the two `GetPointObjZoneTol3d` calls are wired. Everything
+    after them is part 6's unported remainder (about 1,000 lines of vertex/edge imprinting
+    through `MergePointClass` and the B-rep). It returns `Unported` naming
+    `intersect.curve_class_p6` itself, with no `UNPORTED(` marker because it is not a call
+    into another unit.
+  - `sm_RefineCCIToSurfaces` (this unit) keeps `UNPORTED(topology.edge)` at
+    `SmEdge::GetCurve`. `topology.edge` is now partial, but the classification's edge is
+    an opaque handle with no B-rep, so the stub waits on handle-to-B-rep resolution, not on
+    that unit. The same applies to `UNPORTED(topology.face_p2)` `SmFace::GetSurface` in
+    `GetMinUV` / `GetMaxUV`.
+- **Second review (2026-10-16).** The `InsertAt(0)` upstream issue was renumbered
+  UB-98 -> UB-158 (main already had a UB-98, `SmCopyBrepMap`). `UpdatePointClass` now
+  takes the mate's index from `point_class_mate_interval` instead of searching the
+  intervals by address (same result). Added `fixtures/intersect.curve_class_p2/review_extra.json`
+  (128 reviewer cases: `EditIntervalMin`/`Max` at scales 1e-6..1e5, offsets 0/1e5, shrink
+  steps 0..2e-5 including the stale-slot path; `ConnectIntervals` over all end codes x
+  allow x j; `UpdatePointClass` on a closed size-1 circle at index 0 and size; `ReSet`
+  with tolerance 0/negative/1e-12/1e3 and an inverted interval, on an empty
+  classification; assign from empty; mid insert then edits); all pass, perturb detects
+  all. Open items for other owners, flagged by the review:
+  - `intersect.curve_class_p6` is `partial` while 52 of its deferred cases are its own
+    unported `MergeInterval` imprinting (no `UNPORTED(` marker, by design). Its porter
+    should finish that remainder; those cases are not a back-edge.
+  - The ~1,250-line body of `sm_RefineCCIToSurfaces` after `SmEdge::GetCurve` has never
+    been compared against the C++ (the shim stops every refine call past the entry
+    checks). Whoever wires `UNPORTED(topology.edge)` here ports and compares it.
+  - `UNPORTED(topology.edge)` / `UNPORTED(topology.face_p2)` here name units that are now
+    `partial`, against the letter of AGENTS.md 4a: the real blocker is cross-unit
+    opaque-handle-to-`Brep` resolution (same as parts 1/3/7 and `intersect.point_class`),
+    which needs its own tracked work item.
+- **Merge of main (2026-10-18), new back-edges.** Main had moved on by about 460 commits
+  (parts 8 and 9, `heal.heal_data_p3`, the merge-status rework of part 5). Changes:
+  - `MergeIntervals` keeps main's partial-output contract (`merge_intervals_with_partial`)
+    and now takes `k` and the caller's `ClassGeometry` (for part 6's
+    `GetPointObjZoneTol3d`). `SmFace::SplitAtSeam` (`topology.face_p1`) gains a
+    `geometry` argument; the healer and `SmTrimmingTools::SplitAtSeams` pass geometry that
+    resolves nothing (their classification objects are loops and vertices, whose
+    tolerances come from the topology). `split_at_seam`'s merge helper now propagates
+    `InvalidInput` (an unresolvable handle) instead of reading it as an ignored status.
+  - `heal.heal_data_p3`'s `HasDeadTopologyPointObject` calls the part-2 member, which now
+    takes `Option<&Brep>` (it stops at `UNPORTED(topology.brep_p1)`
+    `SmBrep::IsLiveTopologyMember` for any topology object, as before).
+  - `SmSurface::CurveOnClassify` (`surface.surface_p2`) now runs part 8's
+    `IntersectNaturalBounds` (part 8 is partial) and the end classifications; it takes the
+    caller's `ClassGeometry`. It has no caller or difftest yet; a unit test covers a curve
+    inside a plane. A curve crossing the plane's boundary returns `InvalidInput` from
+    part 3's `find_interval` (a temporary boundary handle the test geometry does not
+    resolve); not investigated further, it belongs to part 8's adapter.
+  - `surface.surf_of_extrusion_p2`'s `IntersectWithPlane` stub is retagged
+    `UNPORTED(intersect.curve_class_p8)` (see that unit's entry).
+  - `query.face_p2`'s `CurveOnClassify` cases now complete in Rust (ReSet from this unit,
+    part 9 from main), so its runner compares them: the classified line is
+    `SmBSplineCurve::CreateLineSegment` on both sides (it was an analytic line over
+    `[0, |PQ|]` while every case deferred), and the status, modified flag and each
+    interval's range and three point classifications are compared. All pass.
 
 ## curve.curve_p9: zero-end-tangent Hermite pair, loose tolerance (one case in 30,093)
 
@@ -4420,7 +4526,7 @@ and the region-context coordination in #86 are not claimed complete.
   ~1e-15 (distances 6.2e-15 vs 4.0e-15). The runner therefore defers such cases (on the
   unit of the missing `SurfaceKind`, as `Surface::read_from_db` does, or on
   `topology.brep_p7` `SmBrep::ReadFromFile` where only an exact Rust B-rep reader can
-  hold the geometry). Most upstream `.smb` faces are analytic; compared
+  hold the geometry; relabelled to `topology.brep_p10` `MakeTopologyFromData` by PR #155). Most upstream `.smb` faces are analytic; compared
   `CheckAndSetUVTrimCurve` cases come from `Endcap.smb`, `ellips_ts2.smb`, `Mouse.smb`
   B-spline faces and `CreateFaceFromSurface` B-spline faces.
 - **Deferred everywhere else.** `IsTangentSector` (non-lamina), `IsConvexRadialSector`
@@ -7534,6 +7640,115 @@ rejected: nothing runs on either side.
   `CreateUVTrimCurves` must still return this clipped domain (callers in
   `boolean.topology_intersector_p1` keep it on success).
 
+## topology.brep_p7 (`SmBrep.cpp` part 7: `ReadFromFile`, `MakeFace`, `MakeFaceWithCurves`, `GlueEdgesGeneral`, `CopyFaces`, `MergeSelfIntersectionCurves`; PR #155, 2026-10-16; partial, no disagreements)
+
+- **Mostly deferred by design.** Every path that builds topology reaches an unported
+  `SmBrep` part first: `MakeTopologyFromData` (`topology.brep_p10`) for every read past
+  `SmBrepData::ReadFromFile`, `MakeShellVertex` / `GetInfiniteRegion` (`topology.brep_p9`
+  / `_p1`), or `SmFace::SetTolerance` (`topology.face_p3`) inside `topology.brep_p6`'s
+  `MakeFaceTopology`, for every face made, `SmBrep::Notify`
+  (`topology.brep_p2`) for every glue past its early returns, `SmBrep::SetTolerance`
+  (`topology.brep_p2`) for every copy. The passing cases are 12 read errors of damaged
+  streams the brep_data guard accepts (pinned by a deterministic search: an overwritten
+  digit of an integer token), the face makers' input errors, `MakeFace`'s null-surface
+  status, the glue no-ops (compared as the B-rep's counts after the op) and
+  `MergeSelfIntersectionCurves` without curves. All 197 passes are no-ops, empty inputs or error statuses; none
+  completes a path that builds topology: 110 glue no-ops (null, identical or wrapped-to-identical
+  edges; compared as the B-rep's counts and sorted edge and vertex tolerances after the op), 64
+  `MergeSelfIntersectionCurves` without curves and 23 statuses (`with_values=198`,
+  `no_values=0`; after the merge with #154 the shared fixture registers every edge, wires included, so the generated glue `gen0014` on a wire network resolves to two distinct wire edges and now defers at `SmBrep::Notify`, as upstream reaches it first); the shim's `-2` guards are deferrals, not passes. Before the pre-review of
+  PR #155 no `ReadFromFile` case compared anything.
+- **C++ guards.** A damaged `.smb` stream goes through `topology.brep_data`'s stream guard
+  on both sides (rejected streams are not generated). A damaged stream whose C++
+  `SmBrepData` read still succeeds is not run in C++: `MakeTopologyFromData` uses its
+  cross-reference indices unchecked (`plan/upstream-issues.md` UB-164). Both sides decide
+  this with the C++ reader; the Rust side defers to `cpp-guard:unvalidated-topology`. The
+  guard is needed: with it disabled, single-byte overwrites that `SmBrepData` accepts crashed C++ (SIGSEGV) in 11 of 600 streams (100 each of `Endcap`, `Mouse`, `box_with_large_fillet`, `cone`, `disk`, `ellips_ts2`), and a batch of 100 such streams per file crashed in 13 of the 15 files (pre-review of PR #155: 2 of 80 random streams). It also skips the safe streams, and no
+  input predicate short of running the C++ separates them; it costs nothing today, since
+  the Rust read defers at `MakeTopologyFromData` (`topology.brep_p10`) anyway. **Revisit
+  when `topology.brep_p10` lands** (e.g. run the C++ read out of process). The built-in
+  overwrites of the leading `//Brep Starts` comment were dropped: C++ reads them exactly as
+  the plain file. The other shim guards answer `-2` (upstream would dereference null) and
+  are deferred, not compared: `cpp-guard:ub-165` (`MakeFaceWithCurves`, below),
+  `cpp-guard:null-curve` (`GlueEdgesGeneral` with `SM_OT_SAME`, equal intervals and one
+  edge without curve, `CurveMaxDistanceBetween`; no fixture edge lacks a curve), `cpp-guard:null-surface` (`MergeSelfIntersectionCurves` on a
+  face without surface). `GlueEdgesGeneral` of distinct edges sharing both vertices runs in
+  C++ (the pre-review of PR #155 ran all 36 such calls of the fixture files to status 0); the
+  Rust side defers those at `SmBrep::Notify` (`topology.brep_p2`).
+- **Gaps in other units' ports:** the port of `SmCurve::DeformToEndPointTargets`
+  (`curve.curve_p6`, green; its own "NOT PORTED" note) has no `pOptSurfCrvOnSurf`.
+  `MakeFaceWithCurves` with `pbOptCrvOnSurf` passes the surface there, and for a curve on
+  surface with a gap target upstream edits its UV curve in place. The port defers exactly
+  that call (`UNPORTED(curve.curve_p6)`, a curve on surface with a target); other curve
+  kinds dispatch before the argument is read upstream, and without targets upstream
+  returns at once, so those call the port. One built-in case reaches the deferral
+  (`face_curves_cos_open_loop`: three UV sides with `crv_on_surf` TRUE; C++ builds it,
+  status 0 in the round-3 review run). The gap is also recorded in `curve.curve_p6`'s notes. The port's `CrvOnSurf` holds only
+  `SmBSplineSurface` kinds (`curve.crv_on_surf`, partial): a curve on surface of another
+  surface kind defers to `curve.crv_on_surf`, with the same tag and label as that gap's
+  other sites.
+- **MakeFace with a square loop** (`kind 1`): the shim builds the loop with
+  `MakeShellVertex`, `MakeWireEdgeVertex` and `MakeWireEdge`. The Rust side mirrors its
+  `-3` when `CreateLineSegment` fails for the side, and otherwise defers at
+  `MakeShellVertex` (`topology.brep_p9`; `MakeWireEdge*` are `topology.brep_p3`) until the
+  same loop can be built in Rust.
+- **Back-edge wired:** `trimming_tools::trim_surface_with_model_space_curves` calls
+  `make_face_with_curves` (its new face owns the surface as `(SmFace_TYPE, 1 + index)`).
+- **`topology.shell` wired** (after #154): `GlueEdgesGeneral`'s shell merge asks the ported
+  `Shell::is_inner_shell` (`SmShell::IsInnerShell`, status ignored as upstream: only a
+  successful TRUE swaps the shells). Its ray classification needs the kernel's mutable
+  state, so `glue_edges_general` and `merge_self_intersection_curves` take `&mut Kernel`.
+  Unreachable today: the shell merge comes after `SmBrep::Notify` (`topology.brep_p2`).
+- **Back-edge wired: `boolean.topology_intersector_p1`** (#146). Its `GlueEdgesGeneral`
+  stub over object handles became `IntersectorBrep::brep_glue_edges_general` (every
+  upstream argument, `pInsideFaceuses` `NULL` explicit); the intersector runner's adapter
+  calls `glue_edges_general` on the handle's B-rep, and `face_face_intersect` takes the
+  kernel mutably. Recorded in COORD.md with the overlap of #145, #204 and #227 on the same
+  trait.
+- **UB-165.** `MakeFaceWithCurves` with `pbOptCrvOnSurf` TRUE, 3D curves and no UV curves
+  dereferences the null UV array once `MakeFace` succeeds; the shim returns `-2` for such
+  calls and the Rust side defers them (`cpp-guard:ub-165`; the port itself returns
+  `InvalidInput`). Upstream's own input checks (`SmBrep.cpp:15722-15741`: no loops, a
+  surface degenerate to a curve or a point) return before it and are run and compared.
+- **Reviews of PR #155 (maintainer at a5359b48; cross-model and oursland at bbdb8bf1),
+  all verified against upstream and fixed:**
+  - With `pbOptCrvOnSurf` the port built the `CrvOnSurf` over a plane's or a surface of
+    revolution's B-spline base; upstream keeps the real surface (`SmPlane::EvaluatePoint`,
+    `SmSurfOfRevolution::EvaluateSTEP` are overrides). Those kinds now defer to
+    `curve.crv_on_surf` like every other non-B-spline kind; `face_curves_cos_open_loop`
+    moved to a B-spline patch so it still reaches the `curve.curve_p6` deferral.
+  - `MergeSelfIntersectionCurves` keeps upstream's loop: the classification is a stub
+    (`intersect.curve_class_p4`), then a second classification of fewer or more than one
+    interval is skipped before its merge, is `SM_ERR` after it, and one whose middle is
+    off an edge is skipped (`SE(SM_ERR)`).
+  - The `topology.edgeuse_p1`, `topology.edgeuse_p2`, `topology.loopuse` and
+    `topology.vertex` runners (and `topology.edgeuse_p3`, which shares edgeuse_p2's
+    `inexact_geometry`) deferred inexact `.smb` imports to `topology.brep_p7`
+    `ReadFromFile`; the blocker is `MakeTopologyFromData` (`topology.brep_p10`), so they
+    are relabelled.
+  - The `SmBrep::Notify` and `MakeTopologyFromData` stubs now take upstream's arguments
+    (the merged edges; `FALSE, TRUE, TRUE`).
+  - The FFI ran the native read without the B-rep data check whenever a public flag said
+    the bytes were a test file. It now decides this itself: only bytes equal to one of
+    the 15 shipped ASCII test files (compiled in) skip the check.
+  - `GlueEdgesGeneral` called `SetTolerance(r, FALSE, FALSE)`; upstream's
+    `SetTolerance(dEnclosingRadius)` takes the defaults `TRUE, TRUE` (`SmEdge.h:431`),
+    which also raise the vertex tolerances. Glue records now carry the sorted edge and
+    vertex tolerances.
+  - Two edges without curve are the same geometry upstream (`pSurvCurve == pDelCurve`,
+    `NULL == NULL`, `SmBrep.cpp:9875-9879`); the port demanded both curves.
+  - The runner decoded orientation code 0 (`SM_OT_UNKNOWN`) as `Opposite`; upstream
+    tests `== SM_OT_SAME` / `== SM_OT_OPPOSITE`, so UNKNOWN takes neither branch. Codes
+    0..2 decode exactly, others are refused, and the generator draws 0.
+  - `CopyFaces` reports `SM_ERR` when a face fails (copies kept); the runner now
+    records that status. `MakeFaceWithCurves` converts the caller's UV curves to 2D in
+    place, so the later UV trim curves are copies of the converted ones (the port
+    converted a clone). The FFI plane-normal check is upstream's precondition
+    (`LengthSquared() > SM_EFF_ZERO_SQ`) and `MakeFace` kind 0 no longer checks the
+    unused side. The `MergeIntervals` and `SmFace::Notify` stubs now take upstream's
+    arguments (the face, its surface through it, the 3D curve; the notify operation
+    and data).
+  All but the read check and the orientation decoding are behind unported stubs today.
 ## harness: analytic face/edge geometry in the shared B-rep export (cross-unit coverage gap)
 
 Raised by oursland's review of #145. The B-rep graph export of `harness/cpp/shim/sc_edgeuse_graph.h` (shared by topology.edgeuse_p1/p2, topology.vertexuse, topology.brep_p1 and every runner that imports through them, e.g. heal.stitch_p1) carries `SmBSplineSurface`/`SmPlane` faces and `SmBSplineCurve`/`SmLine` edges exactly. `SmCone`, `SmCylinder`, `SmSphere`, `SmTorus`, `SmSurfOfExtrusion`, `SmSurfOfRevolution` faces and `SmEllipse`/`SmCircle`/other analytic edges arrive as their B-spline part, so the Rust side would evaluate different geometry. Runners therefore defer every op that evaluates such geometry under `harness:analytic-geometry-export` (topology.brep_p1: 217 of 2343 cases; heal.stitch_p1: 12). Those analytic branches are never compared (AGENTS.md §4 step 5 item 5). Closing it needs the export to carry the analytic kinds (type code + defining data) and the importers to rebuild them; it is a harness task, not a unit's, and every topology unit that exports faces inherits it until then.
