@@ -6355,6 +6355,13 @@ with the runner-only profile override. No platform prerequisites enter this PR.
   cylinder face. Not investigated further (slow or a hang); a magnitude bound in the shared
   block validator of `topology.vertexuse` would reject them, but that guard is shared by
   every runner using the blocks and was not changed in this round.
+  Merge round 2026-10-19 (`--fuzz 2000` after allowing `ang_tol_deg == 0` for
+  `Intersect`): 0 crashes, 0 panics, 0 differs, 3 timeouts, all on the same `±1e300`
+  control point (`Degenerate`, `UvTrim`, `SetTol` on such a face; none is an `Intersect`).
+  The generator now draws the angle tolerance from `{0, 0.5, 5, 30}` and the fixture adds
+  7 `*_intersect_ang0*` cases; no `Intersect` with a zero angle tolerance hung or
+  crashed the C++: upstream only converts it to radians (`SmFace.cpp:11342`) and passes
+  it to the surface/surface intersector, so the guard now accepts `[0, 180]`.
 - **Upstream defects.** UB-162 (`ComputeLoopOrientation` reads the last of an empty
   edge use array), UB-165 (`FaceIntersect` hands out deleted curves through
   `pOptCC3DCrvs` without classification arrays). `sVeryFirstUV` is defined (the
