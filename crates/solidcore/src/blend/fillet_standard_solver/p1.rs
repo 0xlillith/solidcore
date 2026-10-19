@@ -64,9 +64,19 @@
 //!   arrays) is [`SolidError::InvalidInput`]. The solver type and run-time type queries
 //!   are plain functions and constants.
 //! - **Constructors.** The edge-use constructor returns `Err` where upstream signals
-//!   `SM_ERR` and leaves a half-built solver (tangent surfaces); it needs
-//!   `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`), stubbed as
-//!   [`SolidError::Unported`].
+//!   `SM_ERR` and leaves a half-built solver (tangent surfaces). It takes the B-rep
+//!   mutably (`SmEdgeuse::EvaluateBinormal` may create a UV trim curve). Its offset
+//!   surfaces share the face surfaces (the copies keep their owner); the surface
+//!   constructor's take the caller's surfaces. Constructors are fallible: the offset
+//!   surface constructor (`SM_SS_UNKNOWN` singularities) evaluates its base.
+//! - **Offset surfaces.** The rails are the ported `SmOffsetSurface`
+//!   (`surface.offset_surface`) through [`OffsetSurface`]. Evaluations store the base
+//!   extension they make, so `crSurface1` of `LoadInitialValues` is `&mut`. Its
+//!   `rpSurface2->LocalPointSolve` / `GlobalPointSolve` run on a copy of the other
+//!   rail's offset (the generic point solvers take the surface shared), so an extension
+//!   made there is not kept by the solver. The `SmTemporaryChangeValue` on the
+//!   other base's `GetOutOfBoundsEnabled()` changes the solver's surface (and
+//!   `crSurface1` when it has the same base) in place and restores it on every exit.
 //! - **Arguments.** Out-params become return values; `SmContext` arguments are dropped.
 //!   `LoadJacobian` takes the base-surface identities of `rpSurface1` / `rpSurface2`
 //!   ([`JacobianSurfaces`]) and the in/out offsets `rlSurf1Offset`, `rlSurf2Offset` as
@@ -82,16 +92,15 @@
 //!   (`SmCircularCrossSectionFSG::CreateSurfaceFromCurves` reads past its cross sections
 //!   when a ruled or revolved surface needs a second, knot-equalising pass,
 //!   `plan/upstream-issues.md`).
-//! - **Unported callees.** The offset surface evaluations (`surface.offset_surface`),
-//!   `SmEdgeuse::EvaluateBinormal` (`topology.edgeuse_p3`), the fillet law evaluation
-//!   (`blend.fillet_executive_p1`) and `SmFilletSolver::SetExtensionFlags`
-//!   (`blend.fillet_solver_p1`) return [`SolidError::Unported`].
+//! - **Unported callees.** The fillet law evaluation (`blend.fillet_executive_p1`) and
+//!   `SmFilletSolver::SetExtensionFlags` (`blend.fillet_solver_p1`) return
+//!   [`SolidError::Unported`].
 //! - No recursion.
 
 use crate::blend::fillet_custom_solver::{
     offset_compute_inward_vector, offset_evaluate_1st, offset_evaluate_2nd, offset_evaluate_point,
-    offset_local_point_solve, offset_natural_uv_domain, ConstantRadiusAssistedFs, OffsetSurface,
-    SurfaceId,
+    offset_local_point_solve, offset_natural_uv_domain, surface_global_point_solve,
+    ConstantRadiusAssistedFs, OffsetSurface, SurfaceId,
 };
 use crate::curve::curve::p1::GlobalPointSolveOptions;
 use crate::curve::curve::p4::is_closed_base;
@@ -108,18 +117,21 @@ use crate::geom::object;
 use crate::geom::vector2d::{Point2, Vec2};
 use crate::intersect::surface_intersector::p1::TsectPnt;
 use crate::kernel::Kernel;
-use crate::math::{Point3, Vec3, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI};
+use crate::math::{Point3, Vec3, EFF_ZERO, EFF_ZERO_SQ, EFF_ZERO_SQRT, PI, UNDEF_DOUBLE};
 use crate::nurbs::b_spline_curve::p1::NurbCircleParam;
 use crate::nurbs::b_spline_curve::{BSplineCurve, ControlPointForm};
 use crate::nurbs::b_spline_surface::{BSplineSurface, SurfParamType};
 use crate::nurbs::b_spline_surface_n_lib::p2::{EvaluateFlags, OrientType, SkinnedSurfaceOptions};
 use crate::nurbs::crv_fit::p1::ParamMethod;
 use crate::nurbs::knots::Side;
+use crate::surface::offset_surface::SS_UNKNOWN;
 use crate::surface::surface::p1::zone_tol_3d;
+use crate::surface::surface::p3::{out_of_bounds_enabled, set_out_of_bounds_enabled};
 use crate::surface::surface::p5::{SS_UMAX, SS_UMIN};
 use crate::surface::surface::p7::{compute_higher_order_derivs, drop_vectors_at};
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::edgeuse::p1 as edgeuse;
+use crate::topology::edgeuse::p3 as edgeuse_p3;
 use crate::topology::face::p2 as face;
 use crate::topology::{edge, Brep, EdgeuseId};
 
@@ -380,21 +392,34 @@ pub type JacobianSurfaces = [Option<SurfaceId>; 2];
 /// [`ConstantRadiusAssistedFs`] holds its members.
 pub type ConstantRadiusFs = ConstantRadiusAssistedFs;
 
-/// `SmEdgeuse::EvaluateBinormal(dT, FALSE, rPnt, rBinVec, NULL, &rFaceuseNormal)`:
-/// the point, binormal and face use normal of an edge use.
-fn evaluate_binormal(_brep: &Brep, _eu: EdgeuseId, _t: f64) -> Result<(Point3, Vec3, Vec3)> {
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
-    Err(SolidError::unported(
-        "SmEdgeuse::EvaluateBinormal",
-        "topology.edgeuse_p3",
-    ))
+/// `SE(SmEdgeuse::EvaluateBinormal(dT, FALSE, rPnt, rBinVec, NULL, &rFaceuseNormal))`:
+/// the binormal and face use normal of an edge use. The status is only signalled
+/// (`SE`): after a failure the binormal keeps its `SM_UNDEF_DOUBLE` initial value and
+/// the face use normal is zero (`EvaluateBinormal` zeroes it once the edge use passed its
+/// loop check) or `SM_UNDEF_DOUBLE` (an edge use not in a loop). Only
+/// [`SolidError::Unported`] propagates.
+fn evaluate_binormal(k: &Kernel, brep: &mut Brep, eu: EdgeuseId, t: f64) -> Result<(Vec3, Vec3)> {
+    let options = edgeuse_p3::BinormalOptions::default();
+    if let Some(r) = ignored(edgeuse_p3::evaluate_binormal(
+        k, brep, eu, t, false, &options,
+    ))? {
+        return Ok((r.binormal, r.face_normal));
+    }
+    let undef = Vec3::new(UNDEF_DOUBLE, UNDEF_DOUBLE, UNDEF_DOUBLE);
+    let normal = if edgeuse::is_loop_edgeuse(brep, eu)? {
+        Vec3::new(0.0, 0.0, 0.0)
+    } else {
+        undef
+    };
+    Ok((undef, normal))
 }
 
 /// The offset orientations of the faces at an edge use and its radial
 /// (`m_dOrientations` as the edge-use constructors compute them), with the edge use
 /// pair.
 fn edgeuse_orientations(
-    brep: &Brep,
+    k: &Kernel,
+    brep: &mut Brep,
     eu: EdgeuseId,
     op: &'static str,
 ) -> Result<([EdgeuseId; 2], [f64; 2])> {
@@ -403,9 +428,8 @@ fn edgeuse_orientations(
     let e = edgeuse::edge(brep, eu)?
         .ok_or_else(|| SolidError::invalid_input(op, "edge use without edge"))?;
     let t = edge::interval(brep, e)?.evaluate(0.5);
-    // (statuses only signalled upstream)
-    let (_, bin_vec, mut faceuse_normal) = evaluate_binormal(brep, eu, t)?;
-    let (_, bin_vec2, mut faceuse_normal2) = evaluate_binormal(brep, eu1, t)?;
+    let (bin_vec, mut faceuse_normal) = evaluate_binormal(k, brep, eu, t)?;
+    let (bin_vec2, mut faceuse_normal2) = evaluate_binormal(k, brep, eu1, t)?;
 
     let faceuse_of = |eu: EdgeuseId| -> Result<_> {
         edgeuse::faceuse(brep, eu)?
@@ -445,7 +469,8 @@ fn face_surface(brep: &Brep, eu: EdgeuseId, op: &'static str) -> Result<(Surface
         .ok_or_else(|| SolidError::invalid_input(op, "edge use without face"))?;
     let s = face::surface(brep, f)?
         .ok_or_else(|| SolidError::invalid_input(op, "face without surface"))?;
-    Ok((s.clone(), SurfaceId::Face(f)))
+    // (the offset shares the face's surface: its owner is kept)
+    Ok((s.clone_keeping_owner(), SurfaceId::Face(f)))
 }
 
 /// `SmConstantRadiusFS(crContext, dThisApproxTol3d, dAngleTolerance,
@@ -459,10 +484,13 @@ fn face_surface(brep: &Brep, eu: EdgeuseId, op: &'static str) -> Result<(Surface
 /// `SM_ERR` when the surfaces are tangent at the middle of the edge (upstream signals
 /// it and leaves the solver without edge uses or surfaces);
 /// [`SolidError::InvalidInput`] for an edge use without radial, edge, face use or face
-/// surface; [`SolidError::Unported`] (`SmEdgeuse::EvaluateBinormal`,
-/// `topology.edgeuse_p3`).
+/// surface; those of [`OffsetSurface::new`]; [`SolidError::Unported`] from
+/// `SmEdgeuse::EvaluateBinormal` (whose other failures are only signalled upstream and
+/// end here as tangent surfaces).
+#[allow(clippy::too_many_arguments)]
 pub fn constant_radius_from_edgeuse(
-    brep: &Brep,
+    k: &Kernel,
+    brep: &mut Brep,
     approx_tol_3d: f64,
     ang_tol_rad: f64,
     tangency_tolerance: f64,
@@ -477,13 +505,13 @@ pub fn constant_radius_from_edgeuse(
     }
 
     // Create offset surfaces of appropriate radius in appropriate direction.
-    let ([eu0, eu1], orientations) = edgeuse_orientations(brep, edgeuse, OP)?;
+    let ([eu0, eu1], orientations) = edgeuse_orientations(k, brep, edgeuse, OP)?;
     let (s0, id0) = face_surface(brep, eu0, OP)?;
     let (s1, id1) = face_surface(brep, eu1, OP)?;
     let [r0, r1] = radii;
     let [o0, o1] = orientations;
-    let mut off0 = OffsetSurface::new(r0 * o0, s0, id0);
-    let mut off1 = OffsetSurface::new(r1 * o1, s1, id1);
+    let mut off0 = OffsetSurface::new(k, r0 * o0, s0, id0, SS_UNKNOWN)?;
+    let mut off1 = OffsetSurface::new(k, r1 * o1, s1, id1, SS_UNKNOWN)?;
     off0.set_allow_extension(true);
     off1.set_allow_extension(true);
 
@@ -503,25 +531,30 @@ impl ConstantRadiusAssistedFs {
     /// dTangencyTolerance, dOffsetRadiusSurface1, dOffsetRadiusSurface2, crSurface1,
     /// crSurface2, bOrientationSurface1, bOrientationSurface2)`: offset surfaces of the
     /// two surfaces (offset by radius times orientation, extension allowed); an
-    /// orientation is `1.0`, or `-1.0` for `false`. No edge uses.
-    #[must_use]
+    /// orientation is `1.0`, or `-1.0` for `false`. No edge uses. The offsets take
+    /// upstream's default `lSingularities`, `SM_SS_UNKNOWN`.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`OffsetSurface::new`].
     pub fn from_surfaces(
+        k: &Kernel,
         approx_tol_3d: f64,
         ang_tol_rad: f64,
         tangency_tolerance: f64,
         offset_radii: [f64; 2],
         surfaces: [(Surface, SurfaceId); 2],
         orientations: [bool; 2],
-    ) -> Self {
+    ) -> Result<Self> {
         let o = orientations.map(|b| if b { 1.0 } else { -1.0 });
         let [(s0, id0), (s1, id1)] = surfaces;
         let [r0, r1] = offset_radii;
         let [o0, o1] = o;
-        let mut off0 = OffsetSurface::new(r0 * o0, s0, id0);
-        let mut off1 = OffsetSurface::new(r1 * o1, s1, id1);
+        let mut off0 = OffsetSurface::new(k, r0 * o0, s0, id0, SS_UNKNOWN)?;
+        let mut off1 = OffsetSurface::new(k, r1 * o1, s1, id1, SS_UNKNOWN)?;
         off0.set_allow_extension(true);
         off1.set_allow_extension(true);
-        Self::from_parts(
+        Ok(Self::from_parts(
             approx_tol_3d,
             ang_tol_rad,
             tangency_tolerance,
@@ -529,7 +562,7 @@ impl ConstantRadiusAssistedFs {
             [Some(off0), Some(off1)],
             o,
             [None, None],
-        )
+        ))
     }
 
     /// `GetFilletRadius(lIndex)`.
@@ -607,7 +640,7 @@ impl ConstantRadiusAssistedFs {
     /// # Errors
     ///
     /// `SM_ERR` for a zero first derivative of either offset surface; those of the
-    /// evaluations ([`SolidError::Unported`], `surface.offset_surface`);
+    /// evaluations;
     /// [`SolidError::InvalidInput`] for an out-of-range index (upstream reads or writes
     /// out of bounds) or a missing surface.
     pub fn load_jacobian(
@@ -646,7 +679,7 @@ impl ConstantRadiusAssistedFs {
 
         // get offsetSurface1 F Point values for given crX values
         let uv = uv_at(x, surf1_off, OP)?;
-        let (p_f, du_f, dv_f) = offset_evaluate_1st(self.surface(0)?, uv)?;
+        let (p_f, du_f, dv_f) = offset_evaluate_1st(self.surface_mut(0)?, uv)?;
 
         // get lSurf2Off index into crX array for lSurf2 parameters
         let mut surf2_off = *num_parameters;
@@ -676,7 +709,7 @@ impl ConstantRadiusAssistedFs {
 
         // get offsetSurface2 G Point values for given crX values
         let uv2 = uv_at(x, surf2_off, OP)?;
-        let (p_g, du_g, dv_g) = offset_evaluate_1st(self.surface(1)?, uv2)?;
+        let (p_g, du_g, dv_g) = offset_evaluate_1st(self.surface_mut(1)?, uv2)?;
 
         // check surface tangent magnitudes
         // failure: zero length tangents
@@ -934,9 +967,8 @@ impl ConstantDistanceFs {
     ///
     /// `SM_ERR` for a zero first derivative or normal of either base surface or rail
     /// points more than `10 L` apart; `SM_ERR_INVALID_INPUT` from `Unitize`; those of
-    /// the evaluations ([`SolidError::Unported`], `surface.offset_surface`);
-    /// [`SolidError::InvalidInput`] for an out-of-range index (upstream reads or writes
-    /// out of bounds) or a missing surface.
+    /// the evaluations; [`SolidError::InvalidInput`] for an out-of-range index
+    /// (upstream reads or writes out of bounds) or a missing surface.
     pub fn load_jacobian(
         &mut self,
         num_equations: &mut usize,
@@ -979,13 +1011,13 @@ impl ConstantDistanceFs {
         let uv = uv_at(x, surf1_off, OP)?;
         self.solver.surface_mut(0)?.set_offset_distance(0.0);
         let [p_f, du_f, dv_f, duv_f, duu_f, dvv_f] =
-            offset_evaluate_2nd(self.solver.surface(0)?, uv)?;
+            offset_evaluate_2nd(self.solver.surface_mut(0)?, uv)?;
 
         // get baseSurface2 G point values for given crX values
         let uv2 = uv_at(x, surf2_off, OP)?;
         self.solver.surface_mut(1)?.set_offset_distance(0.0);
         let [p_g, du_g, dv_g, duv_g, duu_g, dvv_g] =
-            offset_evaluate_2nd(self.solver.surface(1)?, uv2)?;
+            offset_evaluate_2nd(self.solver.surface_mut(1)?, uv2)?;
 
         // get current radius value
         let radius = x_at(x, *num_parameters, OP)?;
@@ -1121,7 +1153,7 @@ impl ConstantDistanceFs {
     /// # Errors
     ///
     /// `SM_ERR` when a point solve finds no single solution; those of the evaluations
-    /// and solves ([`SolidError::Unported`], `surface.offset_surface`);
+    /// and solves;
     /// [`SolidError::InvalidInput`] for an out-of-range index (upstream reads or writes
     /// out of bounds), a rail index above 1, a missing surface, or edge uses without
     /// `brep`.
@@ -1131,7 +1163,7 @@ impl ConstantDistanceFs {
         brep: Option<&Brep>,
         do_surf2_calcs: bool,
         rail_index: usize,
-        surface1: &OffsetSurface,
+        surface1: &mut OffsetSurface,
         surface1_index: usize,
         surface2_index: usize,
         intervals: &mut ExtentNd,
@@ -1193,28 +1225,54 @@ impl ConstantDistanceFs {
     /// The UV guess on the other rail's surface for the point `pnt` of `surface1` at
     /// `uv` (the `rbDoSurf2Calcs` body of `LoadInitialValues` up to `s2DPnt`). The
     /// other rail's base (and `surface1`'s, when it is the same surface) evaluates out
-    /// of bounds meanwhile (`SmTemporaryChangeValue`).
+    /// of bounds meanwhile (`SmTemporaryChangeValue`, restored on every exit).
     fn surface2_guess(
+        &mut self,
+        k: &Kernel,
+        brep: Option<&Brep>,
+        other_rail: usize,
+        surface1: &mut OffsetSurface,
+        uv: Point2,
+        pnt: Point3,
+    ) -> Result<Point2> {
+        let base2_id = self.solver.surface(other_rail)?.base_id;
+        let same_base = surface1.base_id == base2_id;
+        let saved2 = enable_out_of_bounds(self.solver.surface_mut(other_rail)?);
+        let saved1 = if same_base {
+            enable_out_of_bounds(surface1)
+        } else {
+            None
+        };
+        let r = self.surface2_guess_body(k, brep, other_rail, surface1, uv, pnt);
+        if let Some(old) = saved1 {
+            set_out_of_bounds_enabled(surface1.surface.base_surface_mut(), old);
+        }
+        if let Some(old) = saved2 {
+            set_out_of_bounds_enabled(
+                self.solver
+                    .surface_mut(other_rail)?
+                    .surface
+                    .base_surface_mut(),
+                old,
+            );
+        }
+        r
+    }
+
+    /// [`Self::surface2_guess`] inside the temporary change.
+    fn surface2_guess_body(
         &self,
         k: &Kernel,
         brep: Option<&Brep>,
         other_rail: usize,
-        surface1: &OffsetSurface,
+        surface1: &mut OffsetSurface,
         uv: Point2,
         pnt: Point3,
     ) -> Result<Point2> {
         const OP: &str = OP_CD_INIT;
         let solver = &self.solver;
-        let surface2_orig = solver.surface(other_rail)?;
-        let base2_id = surface2_orig.base_id;
-        let surface2 = out_of_bounds_offset(surface2_orig);
-        let surface1_oob;
-        let surface1 = if surface1.base_id == base2_id {
-            surface1_oob = out_of_bounds_offset(surface1);
-            &surface1_oob
-        } else {
-            surface1
-        };
+        let surface2 = solver.surface(other_rail)?;
+        let base2_id = surface2.base_id;
         let base2 = surface2.base_surface();
 
         // If we have edgeuses then use them to compute a point on the other surfaces
@@ -1299,8 +1357,9 @@ impl ConstantDistanceFs {
             let p2d = uv_curve.evaluate_point(t)?;
             uv2 = Point2::new(p2d.x, p2d.y);
             found_uv = true;
-            let domain2 = offset_natural_uv_domain(&surface2)?;
-            if let Some((sol_uv, dist)) = offset_local_point_solve(&surface2, &domain2, pnt, uv2)? {
+            let domain2 = offset_natural_uv_domain(surface2);
+            if let Some((sol_uv, dist)) = offset_local_point_solve(k, surface2, &domain2, pnt, uv2)?
+            {
                 if dist < 2.0 * self.distance {
                     uv2 = sol_uv;
                 }
@@ -1341,8 +1400,14 @@ impl ConstantDistanceFs {
         }
 
         if !found_uv {
-            let domain2 = offset_natural_uv_domain(&surface2)?;
-            let sols = offset_global_point_solve(&surface2, &domain2, pnt, EFF_ZERO_SQ)?;
+            let domain2 = offset_natural_uv_domain(surface2);
+            let sols = surface_global_point_solve(
+                k,
+                &Surface::from(surface2.surface.clone()),
+                &domain2,
+                pnt,
+                EFF_ZERO_SQ,
+            )?;
             if sols.len() != 1 {
                 return Err(SolidError::sm_err(OP));
             }
@@ -1355,33 +1420,15 @@ impl ConstantDistanceFs {
     }
 }
 
-/// `GlobalPointSolve(domain, SM_SO_MINIMIZE, point, tol, NULL, SM_SR_SINGLE, ..)` of an
-/// offset surface: the UV points of the solutions.
-fn offset_global_point_solve(
-    _s: &OffsetSurface,
-    _domain: &Extent2d,
-    _point: Point3,
-    _tol: f64,
-) -> Result<Vec<Point2>> {
-    // UNPORTED(surface.offset_surface): SmOffsetSurface::Evaluate (via SmSurface::GlobalPointSolve)
-    Err(SolidError::unported(
-        "SmOffsetSurface::Evaluate",
-        "surface.offset_surface",
-    ))
-}
-
-/// A copy of `s` whose base evaluates out of bounds when it is an `SmBSplineSurface`
-/// (a B-spline surface, a plane or a surface of revolution): the
-/// `SmTemporaryChangeValue` on `GetOutOfBoundsEnabled()` of the base.
-fn out_of_bounds_offset(s: &OffsetSurface) -> OffsetSurface {
-    let mut copy = s.clone();
-    match copy.base.kind_mut() {
-        SurfaceKind::BSpline(b) => *b.out_of_bounds_enabled_mut() = true,
-        SurfaceKind::Plane(p) => p.set_out_of_bounds_enabled(true),
-        SurfaceKind::SurfOfRevolution(r) => *r.base_mut().out_of_bounds_enabled_mut() = true,
-        SurfaceKind::CurveBounded(_) | SurfaceKind::Step(_) | SurfaceKind::SrfInVolume(_) => {}
-    }
-    copy
+/// Turns on out-of-bounds evaluation of an offset's base when it is an
+/// `SmBSplineSurface` (a B-spline surface, a plane or a surface of revolution): the
+/// value to restore, `None` for other kinds (`SmTemporaryChangeValue` then changes a
+/// local).
+fn enable_out_of_bounds(s: &mut OffsetSurface) -> Option<bool> {
+    let base = s.surface.base_surface_mut();
+    let old = out_of_bounds_enabled(base)?;
+    set_out_of_bounds_enabled(base, true);
+    Some(old)
 }
 
 // ---- SmCurveBasedFS -----------------------------------------------------------------------
@@ -3090,6 +3137,7 @@ mod tests {
 
     fn cr() -> ConstantRadiusFs {
         ConstantRadiusFs::from_surfaces(
+            &Kernel::default(),
             1e-6,
             0.5,
             0.03,
@@ -3100,15 +3148,16 @@ mod tests {
             ],
             [true, false],
         )
+        .expect("constant radius solver")
     }
 
     #[test]
     fn constant_radius_from_surfaces_offsets_by_oriented_radius() {
         let mut fs = cr();
         assert_eq!(fs.orientations, [1.0, -1.0]);
-        assert_eq!(fs.surface(0).expect("s0").offset_distance, 1.0);
-        assert_eq!(fs.surface(1).expect("s1").offset_distance, -2.0);
-        assert!(fs.surface(1).expect("s1").allow_extension);
+        assert_eq!(fs.surface(0).expect("s0").offset_distance(), 1.0);
+        assert_eq!(fs.surface(1).expect("s1").offset_distance(), -2.0);
+        assert!(fs.surface(1).expect("s1").surface.allow_extension());
         assert_eq!(fs.jacobian_size(), 4);
         assert!(!fs.offset_radii_can_change());
         fs.surfaces[0]
@@ -3117,14 +3166,14 @@ mod tests {
             .set_offset_distance(7.0);
         let r = fs.setup_offset_values(&TsectPnt::new()).expect("setup");
         assert_eq!(r, 1.0);
-        assert_eq!(fs.surface(0).expect("s0").offset_distance, 1.0);
+        assert_eq!(fs.surface(0).expect("s0").offset_distance(), 1.0);
         assert!(constant_radius_is_kind_of(CONSTANT_RADIUS_FS_TYPE));
         assert!(constant_radius_is_kind_of(FILLET_SOLVER_TYPE));
         assert!(!constant_radius_is_kind_of(CONSTANT_DISTANCE_FS_TYPE));
     }
 
     #[test]
-    fn constant_radius_jacobian_needs_offset_surfaces() {
+    fn constant_radius_jacobian_of_parallel_planes() {
         let mut fs = cr();
         let (mut ne, mut np) = (0, 0);
         let mut offs = [0, 0];
@@ -3139,24 +3188,25 @@ mod tests {
             &mut f,
             None,
         );
-        assert!(r.expect_err("unported").is_unported());
-        // the index logic ran up to the first evaluation
-        assert_eq!(np, 2);
+        // z = 0 offset by 1, z = 1 offset by -2: F - G = (0, 0, 2)
+        assert!(!r.expect("jacobian"));
+        assert_eq!((ne, np), (3, 4));
+        assert_eq!(offs, [0, 2]);
+        assert_eq!(f, vec![0.0, 0.0, 2.0]);
     }
 
     fn cd() -> ConstantDistanceFs {
+        let k = Kernel::default();
         let mut solver = FilletSolverData::new(1e-6, 0.5, 0.03);
         solver.surfaces = [
-            Some(OffsetSurface::new(
-                0.0,
-                plane_surface(0.0),
-                SurfaceId::Free(0),
-            )),
-            Some(OffsetSurface::new(
-                0.0,
-                plane_surface(1.0),
-                SurfaceId::Free(1),
-            )),
+            Some(
+                OffsetSurface::new(&k, 0.0, plane_surface(0.0), SurfaceId::Free(0), SS_UNKNOWN)
+                    .expect("offset"),
+            ),
+            Some(
+                OffsetSurface::new(&k, 0.0, plane_surface(1.0), SurfaceId::Free(1), SS_UNKNOWN)
+                    .expect("offset"),
+            ),
         ];
         solver.orientations = [1.0, -1.0];
         ConstantDistanceFs {
@@ -3171,16 +3221,16 @@ mod tests {
         let mut t = TsectPnt::new();
         t.user_doubles[0] = 0.75;
         assert_eq!(fs.setup_offset_values(&t).expect("setup"), 0.75);
-        assert_eq!(fs.solver.surface(1).expect("s1").offset_distance, -0.75);
+        assert_eq!(fs.solver.surface(1).expect("s1").offset_distance(), -0.75);
 
         let k = Kernel::default();
-        let s1 = fs.solver.surface(0).expect("s0").clone();
+        let mut s1 = fs.solver.surface(0).expect("s0").clone();
         let mut ivls = ExtentNd::new(4);
         let mut per = vec![true];
         let mut guess = vec![0.1, 0.2];
         let v = fs
             .load_initial_values(
-                &k, None, false, 0, &s1, 0, 1, &mut ivls, &mut per, &mut guess,
+                &k, None, false, 0, &mut s1, 0, 1, &mut ivls, &mut per, &mut guess,
             )
             .expect("init");
         assert_eq!(v.surface2_rail, None);
@@ -3190,19 +3240,32 @@ mod tests {
         assert_eq!(per, vec![true, false]);
         let r = 2.0 * 2.0_f64.sqrt() / 2.0;
         assert_eq!(guess, vec![0.1, 0.2, r]);
-        assert_eq!(fs.solver.surface(0).expect("s0").offset_distance, r);
+        assert_eq!(fs.solver.surface(0).expect("s0").offset_distance(), r);
 
         // out of range interval index: upstream writes past rIntervals
         let r = fs.load_initial_values(
-            &k, None, false, 0, &s1, 0, 3, &mut ivls, &mut per, &mut guess,
+            &k, None, false, 0, &mut s1, 0, 3, &mut ivls, &mut per, &mut guess,
         );
         assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
 
-        // the second surface needs the offset surface evaluation
-        let r = fs.load_initial_values(
-            &k, None, true, 0, &s1, 0, 0, &mut ivls, &mut per, &mut guess,
-        );
-        assert!(r.expect_err("unported").is_unported());
+        // the guess on the other plane (a global point solve on its offset) is below
+        // the first guess
+        let mut ivls = ExtentNd::new(8);
+        let mut per = vec![];
+        let mut guess = vec![0.1, 0.2];
+        let v = fs
+            .load_initial_values(
+                &k, None, true, 0, &mut s1, 0, 0, &mut ivls, &mut per, &mut guess,
+            )
+            .expect("surface 2 guess");
+        assert_eq!(v.surface2_rail, Some(1));
+        assert_eq!(v.surface2_index, 2);
+        assert_eq!(guess.len(), 5);
+        assert!((guess[2] - 0.1).abs() < 1e-9 && (guess[3] - 0.2).abs() < 1e-9);
+        assert_eq!(per, vec![false, false, false]);
+        // the temporary out-of-bounds change is undone
+        let base2 = fs.solver.surface(1).expect("s1").base_surface();
+        assert_eq!(out_of_bounds_enabled(base2), Some(false));
         assert!(fs.is_kind_of(CONSTANT_DISTANCE_FS_TYPE) && fs.is_kind_of(object::OBJECT_TYPE));
         assert!(fs.can_make_analytic());
         assert_eq!(fs.jacobian_size(), 5);

@@ -202,28 +202,139 @@
       "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+      "inputs": {
+        "center": {
+          "cpts": [
+            [0.0, 0.6390255824062299, -0.549259897884893, -1.7976931348623157e+308],
+            [2.0771661391365335, 0.06912277034241843, 0.6390333166518132, -1.7976931348623157e+308],
+            [4.154332278273067, -0.3889074106970245, 0.12101036892375183, -1.7976931348623157e+308],
+            [6.231498417409601, 0.27053445841347856, 0.7968694530430265, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
+        },
+        "cont": 1,
+        "g1": true,
+        "op": "blend",
+        "rail1": {
+          "cpts": [
+            [0.0, 2.636828893544969, -0.6341538548509306, -1.7976931348623157e+308],
+            [2.0771661391365335, 2.0669260814811574, 0.5541393596857757, -1.7976931348623157e+308],
+            [4.154332278273067, 1.6088959004417147, 0.036116411957714326, -1.7976931348623157e+308],
+            [6.231498417409601, 2.2683377695522178, 0.711975496076989, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
+        },
+        "rail2": {
+          "cpts": [
+            [0.0, 2.0237695437919667, 0.8932986153732343, -1.7976931348623157e+308],
+            [2.0771661391365335, 1.453866731728155, 2.0815918299099403, -1.7976931348623157e+308],
+            [4.154332278273067, 0.9958365506887121, 1.5635688821818792, -1.7976931348623157e+308],
+            [6.231498417409601, 1.6552784197992152, 2.239427966301154, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
+        },
+        "scale": 1.5,
+        "sides": {
+          "s1": {
+            "kind": "bspline",
+            "net": [
+              [
+                [0.0, 0.0, 0.26312450368920887, -1.7976931348623157e+308],
+                [0.0, 1.3333333333333333, -0.2795162766898293, -1.7976931348623157e+308],
+                [0.0, 2.6666666666666665, 0.23299286708633, -1.7976931348623157e+308],
+                [0.0, 4.0, 0.059627139858608125, -1.7976931348623157e+308]
+              ],
+              [
+                [2.0, 0.0, 0.12221794692106092, -1.7976931348623157e+308],
+                [2.0, 1.3333333333333333, -0.26166206223903243, -1.7976931348623157e+308],
+                [2.0, 2.6666666666666665, -0.11967906289797536, -1.7976931348623157e+308],
+                [2.0, 4.0, 0.14947277582789315, -1.7976931348623157e+308]
+              ],
+              [
+                [4.0, 0.0, 0.04330819454287915, -1.7976931348623157e+308],
+                [4.0, 1.3333333333333333, 0.16733722434272658, -1.7976931348623157e+308],
+                [4.0, 2.6666666666666665, -0.04971079688924673, -1.7976931348623157e+308],
+                [4.0, 4.0, -0.07688428583313592, -1.7976931348623157e+308]
+              ]
+            ],
+            "p": 1,
+            "q": 2,
+            "u": [0.0, 0.0, 0.5, 1.0, 1.0],
+            "v": [0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0]
+          },
+          "s2": {
+            "kind": "bspline",
+            "net": [
+              [
+                [0.0, 0.0, 1.2372421660766826, -1.7976931348623157e+308],
+                [0.0, 1.3333333333333333, 1.122144525369194, -1.7976931348623157e+308],
+                [0.0, 2.6666666666666665, 0.9047700975282795, -1.7976931348623157e+308],
+                [0.0, 4.0, 0.8442633408861147, -1.7976931348623157e+308]
+              ],
+              [
+                [1.3333333333333333, 0.0, 0.9857851518296985, -1.7976931348623157e+308],
+                [1.3333333333333333, 1.3333333333333333, 0.8413186470758925, -1.7976931348623157e+308],
+                [1.3333333333333333, 2.6666666666666665, 0.9661614372473939, -1.7976931348623157e+308],
+                [1.3333333333333333, 4.0, 1.001051312541407, -1.7976931348623157e+308]
+              ],
+              [
+                [2.6666666666666665, 0.0, 1.0925137146680877, -1.7976931348623157e+308],
+                [2.6666666666666665, 1.3333333333333333, 1.1039255535692718, -1.7976931348623157e+308],
+                [2.6666666666666665, 2.6666666666666665, 0.9409653739909287, -1.7976931348623157e+308],
+                [2.6666666666666665, 4.0, 0.9069294104691188, -1.7976931348623157e+308]
+              ],
+              [
+                [4.0, 0.0, 0.9527772596426729, -1.7976931348623157e+308],
+                [4.0, 1.3333333333333333, 1.269744040681385, -1.7976931348623157e+308],
+                [4.0, 2.6666666666666665, 0.9236302048276928, -1.7976931348623157e+308],
+                [4.0, 4.0, 0.8166327308027226, -1.7976931348623157e+308]
+              ]
+            ],
+            "p": 2,
+            "q": 3,
+            "u": [0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0],
+            "v": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
+          },
+          "uv1": {
+            "cpts": [
+              [0.8453795081000041, 0.4771729831824144, 0.0, -1.7976931348623157e+308],
+              [0.6311256525018337, 0.4191761268094383, 0.0, -1.7976931348623157e+308],
+              [0.8370861027365895, 0.20184586265072282, 0.0, -1.7976931348623157e+308]
+            ],
+            "p": 2,
+            "u": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
+          },
+          "uv2": {
+            "cpts": [
+              [0.3237261280353515, 0.3115812674412244, 0.0, -1.7976931348623157e+308],
+              [0.21867809953601489, 0.31019694622370353, 0.0, -1.7976931348623157e+308],
+              [0.43059626092411896, 0.13853536639096575, 0.0, -1.7976931348623157e+308],
+              [0.39301497070161495, 0.7528191138904593, 0.0, -1.7976931348623157e+308]
+            ],
+            "p": 2,
+            "u": [0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0]
+          }
+        },
+        "tol": 1e-6
       },
       "max_rel_err": 0.0,
       "name": "gen0000",
-      "outcome": "deferred",
+      "outcome": "rejected",
       "pass": false,
+      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
       "source": "generated:seed=7089734759426694042",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694043",
-      "values_compared": 0
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -231,7 +342,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694044",
-      "values_compared": 452
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -239,7 +350,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694045",
-      "values_compared": 311
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -247,7 +358,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694046",
-      "values_compared": 107
+      "values_compared": 61
     },
     {
       "max_rel_err": 0.0,
@@ -255,7 +366,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694047",
-      "values_compared": 31
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -263,19 +374,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694048",
-      "values_compared": 145
+      "values_compared": 76
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0007",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694049",
-      "values_compared": 0
+      "values_compared": 169
     },
     {
       "max_rel_err": 0.0,
@@ -283,7 +390,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694050",
-      "values_compared": 126
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -291,7 +398,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694051",
-      "values_compared": 33
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -307,7 +414,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694053",
-      "values_compared": 105
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -315,7 +422,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694054",
-      "values_compared": 48
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -323,7 +430,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694055",
-      "values_compared": 33
+      "values_compared": 260
     },
     {
       "max_rel_err": 0.0,
@@ -331,7 +438,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694056",
-      "values_compared": 123
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -339,7 +446,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694057",
-      "values_compared": 33
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -347,143 +454,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694058",
-      "values_compared": 48
+      "values_compared": 33
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0017",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694059",
-      "values_compared": 45
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0018",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694060",
-      "values_compared": 51
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0019",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694061",
-      "values_compared": 210
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0020",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694062",
-      "values_compared": 45
-    },
-    {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
-      "max_rel_err": 0.0,
-      "name": "gen0021",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "generated:seed=7089734759426694063",
       "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0022",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694064",
-      "values_compared": 45
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0023",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694065",
-      "values_compared": 48
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0024",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694066",
-      "values_compared": 110
-    },
-    {
-      "deferred": {
-        "symbol": "SmOffsetSurface::EvaluatePoint",
-        "unit": "surface.offset_surface"
-      },
-      "max_rel_err": 0.0,
-      "name": "gen0025",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "generated:seed=7089734759426694067",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0026",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694068",
-      "values_compared": 48
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0027",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694069",
-      "values_compared": 284
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0028",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694070",
-      "values_compared": 41
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0029",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694071",
-      "values_compared": 33
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0030",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694072",
-      "values_compared": 231
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0031",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694073",
-      "values_compared": 210
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0032",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694074",
-      "values_compared": 33
     },
     {
       "deferred": {
@@ -491,11 +474,184 @@
         "unit": "blend.fillet_executive_p1"
       },
       "max_rel_err": 0.0,
-      "name": "gen0033",
+      "name": "gen0018",
       "outcome": "deferred",
       "pass": false,
-      "source": "generated:seed=7089734759426694075",
+      "source": "generated:seed=7089734759426694060",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0019",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694061",
+      "values_compared": 23
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0020",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694062",
+      "values_compared": 41
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0021",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694063",
+      "values_compared": 234
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0022",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=7089734759426694064",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0023",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=7089734759426694065",
+      "values_compared": 0
+    },
+    {
+      "inputs": {
+        "center": {
+          "cpts": [
+            [0.0, 0.624009485454134, 0.7412055583653936, -1.7976931348623157e+308],
+            [1.330719278131758, -0.17269495634735077, -0.27265558099270426, -1.7976931348623157e+308],
+            [3.9921578343952744, -0.4294489029260383, 0.24656315459347677, -1.7976931348623157e+308],
+            [6.653596390658791, -0.7718510382112056, -0.5275130798705676, -1.7976931348623157e+308],
+            [7.984315668790549, 0.08489970855146844, 0.26220821649511317, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0]
+        },
+        "cont": 2,
+        "g1": true,
+        "op": "blend",
+        "rail1": {
+          "cpts": [
+            [0.0, 1.0426412763728876, 0.4391435616629239, -1.7976931348623157e+308],
+            [1.330719278131758, 0.24593683457140275, -0.574717577695174, -1.7976931348623157e+308],
+            [3.9921578343952744, -0.010817112007284801, -0.05549884210899292, -1.7976931348623157e+308],
+            [6.653596390658791, -0.3532192472924521, -0.8295750765730373, -1.7976931348623157e+308],
+            [7.984315668790549, 0.503531499470222, -0.039853780207356526, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0]
+        },
+        "rail2": {
+          "cpts": [
+            [0.0, 1.1296979254336508, 0.8450002330285462, -1.7976931348623157e+308],
+            [1.330719278131758, 0.33299348363216585, -0.16886090632955164, -1.7976931348623157e+308],
+            [3.9921578343952744, 0.0762395370534783, 0.3503578292566294, -1.7976931348623157e+308],
+            [6.653596390658791, -0.266162598231689, -0.423718405207415, -1.7976931348623157e+308],
+            [7.984315668790549, 0.693834267338372, 0.3660028911582658, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0]
+        },
+        "scale": 0.5,
+        "tol": 0.0
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0024",
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
+      "source": "generated:seed=7089734759426694066",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0025",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694067",
+      "values_compared": 59
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0026",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694068",
+      "values_compared": 45
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0027",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694069",
+      "values_compared": 60
+    },
+    {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0028",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=7089734759426694070",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0029",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694071",
+      "values_compared": 120
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0030",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694072",
+      "values_compared": 80
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0031",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694073",
+      "values_compared": 87
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0032",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694074",
+      "values_compared": 332
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0033",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694075",
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -503,15 +659,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694076",
-      "values_compared": 470
+      "values_compared": 128
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0035",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694077",
-      "values_compared": 125
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -519,7 +679,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694078",
-      "values_compared": 433
+      "values_compared": 86
     },
     {
       "max_rel_err": 0.0,
@@ -527,7 +687,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694079",
-      "values_compared": 102
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -535,7 +695,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694080",
-      "values_compared": 210
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -543,7 +703,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694081",
-      "values_compared": 105
+      "values_compared": 90
     },
     {
       "max_rel_err": 0.0,
@@ -567,7 +727,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694084",
-      "values_compared": 413
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -575,7 +735,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694085",
-      "values_compared": 31
+      "values_compared": 115
     },
     {
       "max_rel_err": 0.0,
@@ -583,7 +743,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694086",
-      "values_compared": 45
+      "values_compared": 266
     },
     {
       "max_rel_err": 0.0,
@@ -591,7 +751,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694087",
-      "values_compared": 60
+      "values_compared": 267
     },
     {
       "max_rel_err": 0.0,
@@ -599,7 +759,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694088",
-      "values_compared": 125
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -607,7 +767,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694089",
-      "values_compared": 33
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -615,15 +775,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694090",
-      "values_compared": 48
+      "values_compared": 84
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0049",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694091",
-      "values_compared": 269
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -631,7 +795,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694092",
-      "values_compared": 112
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -639,7 +803,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694093",
-      "values_compared": 31
+      "values_compared": 105
     },
     {
       "max_rel_err": 0.0,
@@ -647,7 +811,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694094",
-      "values_compared": 74
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -666,16 +830,12 @@
       "values_compared": 172
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0055",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694097",
-      "values_compared": 0
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -683,15 +843,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694098",
-      "values_compared": 45
+      "values_compared": 175
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0057",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694099",
-      "values_compared": 33
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -699,7 +863,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694100",
-      "values_compared": 31
+      "values_compared": 268
     },
     {
       "max_rel_err": 0.0,
@@ -707,19 +871,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694101",
-      "values_compared": 50
+      "values_compared": 328
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0060",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694102",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -735,7 +895,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694104",
-      "values_compared": 114
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -743,7 +903,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694105",
-      "values_compared": 341
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -751,15 +911,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694106",
-      "values_compared": 476
+      "values_compared": 226
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::ReadFromFile",
+        "unit": "topology.brep_p7"
+      },
       "max_rel_err": 0.0,
       "name": "gen0065",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694107",
-      "values_compared": 125
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -767,7 +931,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694108",
-      "values_compared": 129
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -775,7 +939,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694109",
-      "values_compared": 87
+      "values_compared": 107
     },
     {
       "max_rel_err": 0.0,
@@ -783,7 +947,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694110",
-      "values_compared": 48
+      "values_compared": 120
     },
     {
       "max_rel_err": 0.0,
@@ -791,7 +955,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694111",
-      "values_compared": 33
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -799,7 +963,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694112",
-      "values_compared": 31
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -807,7 +971,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694113",
-      "values_compared": 138
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -815,7 +979,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694114",
-      "values_compared": 70
+      "values_compared": 105
     },
     {
       "max_rel_err": 0.0,
@@ -823,27 +987,60 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694115",
-      "values_compared": 45
+      "values_compared": 336
     },
     {
-      "max_rel_err": 0.0,
-      "name": "gen0074",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694116",
-      "values_compared": 45
-    },
-    {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
+      "inputs": {
+        "approx": true,
+        "center": {
+          "cpts": [
+            [0.0, 0.0, 0.0, -1.7976931348623157e+308],
+            [2.933390936386789, 0.0, 0.0, -1.7976931348623157e+308],
+            [5.866781872773578, 0.0, 0.0, -1.7976931348623157e+308]
+          ],
+          "p": 1,
+          "u": [0.0, 0.0, 2.933390936386789, 5.866781872773578, 5.866781872773578]
+        },
+        "complement": false,
+        "g1": false,
+        "mirror": true,
+        "op": "circ",
+        "rail1": {
+          "cpts": [
+            [0.0, -0.466467710365348, 0.3224088880552333, -1.7976931348623157e+308],
+            [2.933390936386789, -0.466467710365348, 0.3224088880552333, -1.7976931348623157e+308],
+            [5.866781872773578, -0.466467710365348, 0.3224088880552333, -1.7976931348623157e+308]
+          ],
+          "p": 1,
+          "u": [0.0, 0.0, 2.933390936386789, 5.866781872773578, 5.866781872773578]
+        },
+        "rail2": {
+          "cpts": [
+            [0.0, -0.3545095635031866, -0.5938750770927902, -1.7976931348623157e+308],
+            [2.933390936386789, -0.3545095635031866, -0.5938750770927902, -1.7976931348623157e+308],
+            [5.866781872773578, -0.3545095635031866, -0.5938750770927902, -1.7976931348623157e+308]
+          ],
+          "p": 1,
+          "u": [0.0, 0.0, 2.933390936386789, 5.866781872773578, 5.866781872773578]
+        },
+        "tol": 1e-6,
+        "tolpct": 2.0
       },
       "max_rel_err": 0.0,
-      "name": "gen0075",
-      "outcome": "deferred",
+      "name": "gen0074",
+      "outcome": "rejected",
       "pass": false,
-      "source": "generated:seed=7089734759426694117",
+      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
+      "source": "generated:seed=7089734759426694116",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0075",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694117",
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -851,7 +1048,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694118",
-      "values_compared": 45
+      "values_compared": 635
     },
     {
       "max_rel_err": 0.0,
@@ -859,7 +1056,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694119",
-      "values_compared": 226
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -867,19 +1064,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694120",
-      "values_compared": 48
+      "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0079",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694121",
-      "values_compared": 0
+      "values_compared": 266
     },
     {
       "max_rel_err": 0.0,
@@ -887,7 +1080,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694122",
-      "values_compared": 31
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -898,16 +1091,12 @@
       "values_compared": 232
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0082",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694124",
-      "values_compared": 0
+      "values_compared": 266
     },
     {
       "max_rel_err": 0.0,
@@ -915,7 +1104,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694125",
-      "values_compared": 31
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -923,15 +1112,58 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694126",
-      "values_compared": 296
+      "values_compared": 268
     },
     {
+      "inputs": {
+        "approx": true,
+        "center": {
+          "cpts": [
+            [-0.005936716415036354, 0.004038833043031221, -0.0034962481544210016, 1.0],
+            [-0.0030275102649191957, 0.006402862576322809, -0.002803594570461504, 0.8014871112659047],
+            [-0.000076199659068505, 0.007427400795803531, -0.0009978416724589292, 1.0],
+            [0.0029053641756666697, 0.005503069439762499, 0.0012040800913418112, 0.8014871112659047],
+            [0.0035735283787406164, 0.0025964878395140028, 0.0029279510207435994, 1.0]
+          ],
+          "p": 2,
+          "u": [0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0]
+        },
+        "complement": false,
+        "g1": false,
+        "mirror": true,
+        "op": "circ",
+        "rail1": {
+          "cpts": [
+            [-0.007072284663723978, 0.004659501519720615, -0.003791368923053393, 1.0],
+            [-0.0035860534781745417, 0.007543469135048732, -0.003040413818072294, 0.8014871112659047],
+            [-0.00002116959564964649, 0.008736476662984705, -0.0007853965276672414, 1.0],
+            [0.0035521191620467396, 0.006460877751466472, 0.0017814434297557147, 0.8014871112659047],
+            [0.004370022074532562, 0.002924135438303205, 0.003937943949943078, 1.0]
+          ],
+          "p": 2,
+          "u": [0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0]
+        },
+        "rail2": {
+          "cpts": [
+            [-0.004932841873490826, 0.0034895425506476048, -0.004599718958501636, 1.0],
+            [-0.0023070090133565126, 0.0058087931563483375, -0.0036879443325987327, 0.8014871112659047],
+            [0.0006429226726048305, 0.006713465751397946, -0.002222705656786553, 1.0],
+            [0.0033375974846233144, 0.004952719386992715, 0.00012500446049425315, 0.8014871112659047],
+            [0.004115316839106385, 0.0021172783657849013, 0.001512339668660193, 1.0]
+          ],
+          "p": 2,
+          "u": [0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0]
+        },
+        "tol": 1e-9,
+        "tolpct": 0.01
+      },
       "max_rel_err": 0.0,
       "name": "gen0085",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
       "source": "generated:seed=7089734759426694127",
-      "values_compared": 298
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -939,7 +1171,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694128",
-      "values_compared": 117
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -947,19 +1179,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694129",
-      "values_compared": 31
+      "values_compared": 125
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0088",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694130",
-      "values_compared": 0
+      "values_compared": 402
     },
     {
       "max_rel_err": 0.0,
@@ -967,15 +1195,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694131",
-      "values_compared": 48
+      "values_compared": 226
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0090",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694132",
-      "values_compared": 31
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -983,7 +1215,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694133",
-      "values_compared": 48
+      "values_compared": 89
     },
     {
       "max_rel_err": 0.0,
@@ -1007,7 +1239,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694136",
-      "values_compared": 33
+      "values_compared": 83
     },
     {
       "max_rel_err": 0.0,
@@ -1023,100 +1255,27 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694138",
-      "values_compared": 51
+      "values_compared": 34
     },
     {
-      "inputs": {
-        "center": {
-          "cpts": [
-            [0.0, 0.0, 0.0, -1.7976931348623157e+308],
-            [1.330543665121969, 0.0, 0.0, -1.7976931348623157e+308],
-            [2.661087330243938, 0.0, 0.0, -1.7976931348623157e+308],
-            [3.9916309953659077, 0.0, 0.0, -1.7976931348623157e+308]
-          ],
-          "p": 3,
-          "u": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
-        },
-        "cont": 2,
-        "g1": true,
-        "op": "blend",
-        "rail1": {
-          "cpts": [
-            [0.0, 0.004446083864916181, -1.2089701530578616, -1.7976931348623157e+308],
-            [1.330543665121969, 0.004446083864916181, -1.2089701530578616, -1.7976931348623157e+308],
-            [2.661087330243938, 0.004446083864916181, -1.2089701530578616, -1.7976931348623157e+308],
-            [3.9916309953659077, 0.004446083864916181, -1.2089701530578616, -1.7976931348623157e+308]
-          ],
-          "p": 3,
-          "u": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
-        },
-        "rail2": {
-          "cpts": [
-            [0.0, 1.1717386921034005, 0.5300182452347931, -1.7976931348623157e+308],
-            [1.330543665121969, 1.1717386921034005, 0.5300182452347931, -1.7976931348623157e+308],
-            [2.661087330243938, 1.1717386921034005, 0.5300182452347931, -1.7976931348623157e+308],
-            [3.9916309953659077, 1.1717386921034005, 0.5300182452347931, -1.7976931348623157e+308]
-          ],
-          "p": 3,
-          "u": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
-        },
-        "scale": 1.0,
-        "sides": {
-          "s1": {
-            "domain": [0.0, 0.0, 0.6221786898304498, 0.7186041839979151],
-            "kind": "plane",
-            "o": [0.13825501719179378, 1.1342810950526663, 0.380648081725675],
-            "scale": [1.382801852183703, 0.616347716327647],
-            "x": [-0.3422776201288625, -0.3615619009383559, 0.8672479590917265],
-            "y": [0.2991889903771687, 0.8330158022792628, 0.4653714872981871]
-          },
-          "s2": {
-            "domain": [0.0, 0.0, 0.8358783865769179, 1.3326202194647072],
-            "kind": "plane",
-            "o": [-1.164218664093212, 0.09406652593264031, 0.6483642010887256],
-            "scale": [1.1102027301463286, 0.7669076683082022],
-            "x": [0.5378646021179713, -0.7946131951730242, 0.281587534960967],
-            "y": [0.7810267544251904, 0.5954155241529261, 0.18835488437985787]
-          },
-          "uv1": {
-            "cpts": [
-              [0.8460861770236285, 0.17538740533725772, 0.0, -1.7976931348623157e+308],
-              [0.36442752904676545, 0.8290730894389685, 0.0, -1.7976931348623157e+308],
-              [0.8552390849108585, 0.22249185477944888, 0.0, -1.7976931348623157e+308],
-              [0.5243283538408906, 0.20842877322642314, 0.0, -1.7976931348623157e+308],
-              [0.6341996667007328, 0.14410494579066901, 0.0, -1.7976931348623157e+308]
-            ],
-            "p": 3,
-            "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0]
-          },
-          "uv2": {
-            "cpts": [
-              [0.20281975610822844, 0.7466136798597617, 0.0, -1.7976931348623157e+308],
-              [0.5106800748691354, 0.8651762373700199, 0.0, -1.7976931348623157e+308],
-              [0.7295284606832392, 0.1772734721209644, 0.0, -1.7976931348623157e+308],
-              [0.8902065967988397, 0.1939469214162303, 0.0, -1.7976931348623157e+308]
-            ],
-            "p": 3,
-            "u": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
-          }
-        },
-        "tol": 1e-6
-      },
       "max_rel_err": 0.0,
       "name": "gen0097",
-      "outcome": "rejected",
-      "pass": false,
-      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
-      "source": "generated:seed=7089734759426694139",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0098",
       "outcome": "pass",
       "pass": true,
+      "source": "generated:seed=7089734759426694139",
+      "values_compared": 45
+    },
+    {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0098",
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694140",
-      "values_compared": 150
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1124,7 +1283,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694141",
-      "values_compared": 78
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1132,7 +1291,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694142",
-      "values_compared": 129
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -1140,7 +1299,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694143",
-      "values_compared": 290
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -1151,28 +1310,20 @@
       "values_compared": 236
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0103",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694145",
-      "values_compared": 0
+      "values_compared": 256
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0104",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694146",
-      "values_compared": 0
+      "values_compared": 61
     },
     {
       "max_rel_err": 0.0,
@@ -1180,7 +1331,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694147",
-      "values_compared": 32
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -1188,27 +1339,24 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694148",
-      "values_compared": 1313
+      "values_compared": 48
     },
     {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0107",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694149",
-      "values_compared": 97
+      "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0108",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694150",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "inputs": {
@@ -1265,7 +1413,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694152",
-      "values_compared": 60
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -1273,7 +1421,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694153",
-      "values_compared": 45
+      "values_compared": 117
     },
     {
       "max_rel_err": 0.0,
@@ -1281,7 +1429,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694154",
-      "values_compared": 48
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -1289,15 +1437,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694155",
-      "values_compared": 80
+      "values_compared": 130
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::ReadFromFile",
+        "unit": "topology.brep_p7"
+      },
       "max_rel_err": 0.0,
       "name": "gen0114",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694156",
-      "values_compared": 236
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1305,7 +1457,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694157",
-      "values_compared": 578
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1313,7 +1465,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694158",
-      "values_compared": 60
+      "values_compared": 217
     },
     {
       "max_rel_err": 0.0,
@@ -1321,7 +1473,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694159",
-      "values_compared": 31
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -1329,15 +1481,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694160",
-      "values_compared": 26
+      "values_compared": 44
     },
     {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0119",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694161",
-      "values_compared": 104
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1345,7 +1501,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694162",
-      "values_compared": 91
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -1353,7 +1509,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694163",
-      "values_compared": 31
+      "values_compared": 226
     },
     {
       "max_rel_err": 0.0,
@@ -1361,7 +1517,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694164",
-      "values_compared": 69
+      "values_compared": 120
     },
     {
       "max_rel_err": 0.0,
@@ -1377,7 +1533,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694166",
-      "values_compared": 31
+      "values_compared": 298
     },
     {
       "max_rel_err": 0.0,
@@ -1385,7 +1541,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694167",
-      "values_compared": 24
+      "values_compared": 232
     },
     {
       "max_rel_err": 0.0,
@@ -1393,19 +1549,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694168",
-      "values_compared": 115
+      "values_compared": 139
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0127",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694169",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1413,7 +1565,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694170",
-      "values_compared": 23
+      "values_compared": 226
     },
     {
       "max_rel_err": 0.0,
@@ -1421,7 +1573,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694171",
-      "values_compared": 190
+      "values_compared": 23
     },
     {
       "max_rel_err": 0.0,
@@ -1429,7 +1581,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694172",
-      "values_compared": 31
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1437,7 +1589,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694173",
-      "values_compared": 48
+      "values_compared": 70
     },
     {
       "max_rel_err": 0.0,
@@ -1445,7 +1597,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694174",
-      "values_compared": 212
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -1453,7 +1605,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694175",
-      "values_compared": 112
+      "values_compared": 266
     },
     {
       "max_rel_err": 0.0,
@@ -1461,7 +1613,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694176",
-      "values_compared": 98
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -1469,7 +1621,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694177",
-      "values_compared": 69
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1485,7 +1637,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694179",
-      "values_compared": 25
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -1493,7 +1645,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694180",
-      "values_compared": 210
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1509,7 +1661,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694182",
-      "values_compared": 31
+      "values_compared": 150
     },
     {
       "max_rel_err": 0.0,
@@ -1517,7 +1669,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694183",
-      "values_compared": 26
+      "values_compared": 266
     },
     {
       "max_rel_err": 0.0,
@@ -1525,27 +1677,27 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694184",
-      "values_compared": 31
+      "values_compared": 33
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0143",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694185",
+      "values_compared": 45
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
       },
       "max_rel_err": 0.0,
-      "name": "gen0143",
+      "name": "gen0144",
       "outcome": "deferred",
       "pass": false,
-      "source": "generated:seed=7089734759426694185",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0144",
-      "outcome": "pass",
-      "pass": true,
       "source": "generated:seed=7089734759426694186",
-      "values_compared": 31
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1561,15 +1713,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694188",
-      "values_compared": 104
+      "values_compared": 266
     },
     {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
       "max_rel_err": 0.0,
       "name": "gen0147",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694189",
-      "values_compared": 266
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1577,7 +1733,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694190",
-      "values_compared": 87
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1585,7 +1741,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694191",
-      "values_compared": 212
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -1593,7 +1749,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694192",
-      "values_compared": 33
+      "values_compared": 92
     },
     {
       "max_rel_err": 0.0,
@@ -1601,7 +1757,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694193",
-      "values_compared": 130
+      "values_compared": 109
     },
     {
       "max_rel_err": 0.0,
@@ -1617,7 +1773,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694195",
-      "values_compared": 115
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -1625,23 +1781,31 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694196",
-      "values_compared": 253
+      "values_compared": 190
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0155",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694197",
-      "values_compared": 116
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0156",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694198",
-      "values_compared": 212
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1649,7 +1813,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694199",
-      "values_compared": 356
+      "values_compared": 121
     },
     {
       "max_rel_err": 0.0,
@@ -1665,7 +1829,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694201",
-      "values_compared": 125
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -1681,7 +1845,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694203",
-      "values_compared": 48
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -1689,15 +1853,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694204",
-      "values_compared": 241
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0163",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694205",
-      "values_compared": 294
+      "values_compared": 33
     },
     {
       "deferred": {
@@ -1705,19 +1861,28 @@
         "unit": "blend.fillet_executive_p1"
       },
       "max_rel_err": 0.0,
-      "name": "gen0164",
+      "name": "gen0163",
       "outcome": "deferred",
       "pass": false,
-      "source": "generated:seed=7089734759426694206",
+      "source": "generated:seed=7089734759426694205",
       "values_compared": 0
     },
     {
+      "max_rel_err": 0.0,
+      "name": "gen0164",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694206",
+      "values_compared": 184
+    },
+    {
+      "both_errored": true,
       "max_rel_err": 0.0,
       "name": "gen0165",
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694207",
-      "values_compared": 143
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1725,7 +1890,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694208",
-      "values_compared": 125
+      "values_compared": 170
     },
     {
       "max_rel_err": 0.0,
@@ -1733,7 +1898,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694209",
-      "values_compared": 48
+      "values_compared": 334
     },
     {
       "max_rel_err": 0.0,
@@ -1741,7 +1906,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694210",
-      "values_compared": 137
+      "values_compared": 264
     },
     {
       "max_rel_err": 0.0,
@@ -1749,7 +1914,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694211",
-      "values_compared": 28
+      "values_compared": 125
     },
     {
       "max_rel_err": 0.0,
@@ -1757,7 +1922,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694212",
-      "values_compared": 28
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1765,81 +1930,87 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694213",
-      "values_compared": 48
+      "values_compared": 217
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0172",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694214",
-      "values_compared": 45
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0173",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694215",
-      "values_compared": 31
+      "values_compared": 0
     },
     {
       "inputs": {
         "center": {
           "cpts": [
-            [0.0, -412285.2176460601, -238578.69244601935, -1.7976931348623157e+308],
-            [2116316.929385412, 200364.28692588682, 51871.14470428633, -1.7976931348623157e+308],
-            [4232633.858770824, -567894.5137195792, -62397.24136400038, -1.7976931348623157e+308],
-            [6348950.788156235, -154820.0853473489, -119438.55415334937, -1.7976931348623157e+308]
+            [0.0, -0.7703227937353468, 0.022560045551837882, -1.7976931348623157e+308],
+            [0.34810729932721113, 0.6471136700924194, 0.5723805128858259, -1.7976931348623157e+308],
+            [1.0443218979816333, -0.030710835112444435, -0.3229431218981841, -1.7976931348623157e+308],
+            [2.0886437959632667, -0.751336485763771, -0.1599234617075036, -1.7976931348623157e+308],
+            [2.784858394617689, 0.6803111850412813, -0.26901087274296065, -1.7976931348623157e+308],
+            [3.1329656939449, -0.703370203769538, -0.608267359134135, -1.7976931348623157e+308]
           ],
           "p": 3,
-          "u": [0.0, 0.0, 0.0, 0.0, 6.348950788156236, 6.348950788156236, 6.348950788156236, 6.348950788156236]
+          "u": [0.0, 0.0, 0.0, 0.0, 0.3333333333333333, 0.6666666666666666, 1.0, 1.0, 1.0, 1.0]
         },
         "cont": 2,
         "g1": true,
         "op": "blend",
         "rail1": {
           "cpts": [
-            [0.0, -272893.3600311072, -1583296.885854995, -1.7976931348623157e+308],
-            [2116316.929385412, 339756.1445408397, -1292847.0487046894, -1.7976931348623157e+308],
-            [4232633.858770824, -428502.65610462637, -1407115.4347729762, -1.7976931348623157e+308],
-            [6348950.788156235, -15428.227732396077, -1464156.747562325, -1.7976931348623157e+308]
+            [0.0, -0.33718886199244047, -0.49867988749075853, -1.7976931348623157e+308],
+            [0.34810729932721113, 1.0802476018353258, 0.051140579843229506, -1.7976931348623157e+308],
+            [1.0443218979816333, 0.40242309663046194, -0.8441830549407805, -1.7976931348623157e+308],
+            [2.0886437959632667, -0.3182025540208646, -0.6811633947501, -1.7976931348623157e+308],
+            [2.784858394617689, 1.1134451167841877, -0.7902508057855571, -1.7976931348623157e+308],
+            [3.1329656939449, -0.2702362720266316, -1.1295072921767315, -1.7976931348623157e+308]
           ],
           "p": 3,
-          "u": [0.0, 0.0, 0.0, 0.0, 6.348950788156236, 6.348950788156236, 6.348950788156236, 6.348950788156236]
+          "u": [0.0, 0.0, 0.0, 0.0, 0.3333333333333333, 0.6666666666666666, 1.0, 1.0, 1.0, 1.0]
         },
         "rail2": {
           "cpts": [
-            [0.0, 855216.8165913183, 231671.98842382742, -1.7976931348623157e+308],
-            [2116316.929385412, 1467866.3211632653, 522121.82557413314, -1.7976931348623157e+308],
-            [4232633.858770824, 699607.5205177992, 407853.4395058464, -1.7976931348623157e+308],
-            [6348950.788156235, 1112681.9488900295, 350812.1267164974, -1.7976931348623157e+308]
+            [0.0, -0.6674565859106917, 0.7129758786228413, -1.7976931348623157e+308],
+            [0.34810729932721113, 0.7499798779170745, 1.2627963459568292, -1.7976931348623157e+308],
+            [1.0443218979816333, 0.07215537271221072, 0.3674727111728193, -1.7976931348623157e+308],
+            [2.0886437959632667, -0.6484702779391158, 0.5304923713634998, -1.7976931348623157e+308],
+            [2.784858394617689, 0.7831773928659365, 0.42140496032804275, -1.7976931348623157e+308],
+            [3.1329656939449, -0.6005039959448828, 0.08214847393686842, -1.7976931348623157e+308]
           ],
           "p": 3,
-          "u": [0.0, 0.0, 0.0, 0.0, 6.348950788156236, 6.348950788156236, 6.348950788156236, 6.348950788156236]
+          "u": [0.0, 0.0, 0.0, 0.0, 0.3333333333333333, 0.6666666666666666, 1.0, 1.0, 1.0, 1.0]
         },
         "scale": 0.5,
-        "tol": 1.0
+        "tol": 1e-9
       },
       "max_rel_err": 0.0,
-      "name": "gen0174",
+      "name": "gen0173",
       "outcome": "rejected",
       "pass": false,
       "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
-      "source": "generated:seed=7089734759426694216",
+      "source": "generated:seed=7089734759426694215",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
+      "max_rel_err": 0.0,
+      "name": "gen0174",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694216",
+      "values_compared": 33
+    },
+    {
       "max_rel_err": 0.0,
       "name": "gen0175",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694217",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -1847,19 +2018,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694218",
-      "values_compared": 28
+      "values_compared": 112
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0177",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694219",
-      "values_compared": 0
+      "values_compared": 190
     },
     {
       "max_rel_err": 0.0,
@@ -1867,7 +2034,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694220",
-      "values_compared": 31
+      "values_compared": 258
     },
     {
       "max_rel_err": 0.0,
@@ -1875,7 +2042,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694221",
-      "values_compared": 67
+      "values_compared": 156
     },
     {
       "max_rel_err": 0.0,
@@ -1883,7 +2050,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694222",
-      "values_compared": 48
+      "values_compared": 112
     },
     {
       "max_rel_err": 0.0,
@@ -1891,12 +2058,12 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694223",
-      "values_compared": 33
+      "values_compared": 212
     },
     {
       "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0182",
@@ -1907,8 +2074,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSphere",
+        "unit": "surface.sphere"
       },
       "max_rel_err": 0.0,
       "name": "gen0183",
@@ -1923,7 +2090,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694226",
-      "values_compared": 102
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -1931,15 +2098,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694227",
-      "values_compared": 364
+      "values_compared": 33
     },
     {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0186",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694228",
-      "values_compared": 31
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1947,7 +2118,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694229",
-      "values_compared": 33
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -1955,19 +2126,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694230",
-      "values_compared": 31
+      "values_compared": 254
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0189",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694231",
-      "values_compared": 0
+      "values_compared": 251
     },
     {
       "max_rel_err": 0.0,
@@ -1975,7 +2142,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694232",
-      "values_compared": 103
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -1983,7 +2150,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694233",
-      "values_compared": 45
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -1991,7 +2158,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694234",
-      "values_compared": 386
+      "values_compared": 94
     },
     {
       "max_rel_err": 0.0,
@@ -1999,56 +2166,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694235",
-      "values_compared": 31
+      "values_compared": 356
     },
     {
-      "inputs": {
-        "center": {
-          "cpts": [
-            [0.0, 4.7009201972068413e-7, -3.8856116365257024e-7, -1.7976931348623157e+308],
-            [5.699281905699096e-7, 1.5796788163780982e-7, -4.846721840654409e-7, -1.7976931348623157e+308],
-            [1.7097845717097289e-6, -7.298449225252365e-7, 5.601888592227775e-7, -1.7976931348623157e+308],
-            [2.849640952849548e-6, -4.122747963196964e-7, -1.635896642091149e-7, -1.7976931348623157e+308],
-            [3.4195691434194577e-6, -7.281343339331303e-8, 5.363240492173553e-7, -1.7976931348623157e+308]
-          ],
-          "p": 2,
-          "u": [0.0, 0.0, 0.0, 1.1398563811398192, 2.2797127622796385, 3.4195691434194577, 3.4195691434194577, 3.4195691434194577]
-        },
-        "cont": 3,
-        "g1": true,
-        "op": "blend",
-        "rail1": {
-          "cpts": [
-            [0.0, 2.204840283256967e-6, -8.374232210850352e-7, -1.7976931348623157e+308],
-            [5.699281905699096e-7, 1.8927161451740925e-6, -9.335342414979057e-7, -1.7976931348623157e+308],
-            [1.7097845717097289e-6, 1.0049033410110462e-6, 1.1132680179031262e-7, -1.7976931348623157e+308],
-            [2.849640952849548e-6, 1.3224734672165864e-6, -6.124517216415798e-7, -1.7976931348623157e+308],
-            [3.4195691434194577e-6, 1.6619348301429697e-6, 8.746199178489044e-8, -1.7976931348623157e+308]
-          ],
-          "p": 2,
-          "u": [0.0, 0.0, 0.0, 1.1398563811398192, 2.2797127622796385, 3.4195691434194577, 3.4195691434194577, 3.4195691434194577]
-        },
-        "rail2": {
-          "cpts": [
-            [0.0, 2.0328657530558155e-6, 6.976014069909426e-7, -1.7976931348623157e+308],
-            [5.699281905699096e-7, 1.7207416149729413e-6, 6.014903865780721e-7, -1.7976931348623157e+308],
-            [1.7097845717097289e-6, 8.329288108098949e-7, 1.6463514298662904e-6, -1.7976931348623157e+308],
-            [2.849640952849548e-6, 1.150498937015435e-6, 9.22572906434398e-7, -1.7976931348623157e+308],
-            [3.4195691434194577e-6, 1.8483360069558209e-6, 1.6224866198608682e-6, -1.7976931348623157e+308]
-          ],
-          "p": 2,
-          "u": [0.0, 0.0, 0.0, 1.1398563811398192, 2.2797127622796385, 3.4195691434194577, 3.4195691434194577, 3.4195691434194577]
-        },
-        "scale": 2.5,
-        "tol": 1e-12
-      },
       "max_rel_err": 0.0,
       "name": "gen0194",
-      "outcome": "rejected",
-      "pass": false,
-      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694236",
-      "values_compared": 0
+      "values_compared": 117
     },
     {
       "max_rel_err": 0.0,
@@ -2056,7 +2182,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694237",
-      "values_compared": 31
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -2064,7 +2190,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694238",
-      "values_compared": 48
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -2072,7 +2198,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694239",
-      "values_compared": 217
+      "values_compared": 337
     },
     {
       "max_rel_err": 0.0,
@@ -2080,50 +2206,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694240",
-      "values_compared": 138
+      "values_compared": 31
     },
     {
-      "inputs": {
-        "center": {
-          "cpts": [
-            [0.0, -174961.58789580286, 253483.91449188723, -1.7976931348623157e+308],
-            [1829465.8027108302, -375211.9158508881, -81215.69115224703, -1.7976931348623157e+308],
-            [3658931.6054216605, 50076.135649091746, 116553.49346849564, -1.7976931348623157e+308]
-          ],
-          "p": 2,
-          "u": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
-        },
-        "cont": 2,
-        "g1": true,
-        "op": "blend",
-        "rail1": {
-          "cpts": [
-            [0.0, -1445389.0933234682, 776265.2564618418, -1.7976931348623157e+308],
-            [1829465.8027108302, -1645639.4212785538, 441565.6508177075, -1.7976931348623157e+308],
-            [3658931.6054216605, -1220351.3697785737, 639334.8354384501, -1.7976931348623157e+308]
-          ],
-          "p": 2,
-          "u": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
-        },
-        "rail2": {
-          "cpts": [
-            [0.0, -1380630.1690433077, -405036.8904131898, -1.7976931348623157e+308],
-            [1829465.8027108302, -1580880.496998393, -739736.4960573241, -1.7976931348623157e+308],
-            [3658931.6054216605, -1155592.445498413, -541967.3114365814, -1.7976931348623157e+308]
-          ],
-          "p": 2,
-          "u": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
-        },
-        "scale": 1.0,
-        "tol": 1.0
-      },
       "max_rel_err": 0.0,
       "name": "gen0199",
-      "outcome": "rejected",
-      "pass": false,
-      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694241",
-      "values_compared": 0
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -2139,7 +2230,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694243",
-      "values_compared": 33
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -2147,7 +2238,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694244",
-      "values_compared": 313
+      "values_compared": 226
     },
     {
       "max_rel_err": 0.0,
@@ -2155,7 +2246,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694245",
-      "values_compared": 48
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -2171,7 +2262,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694247",
-      "values_compared": 33
+      "values_compared": 236
     },
     {
       "max_rel_err": 0.0,
@@ -2179,7 +2270,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694248",
-      "values_compared": 31
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -2195,7 +2286,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694250",
-      "values_compared": 130
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -2207,8 +2298,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0210",
@@ -2223,7 +2314,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694253",
-      "values_compared": 292
+      "values_compared": 217
     },
     {
       "max_rel_err": 0.0,
@@ -2239,137 +2330,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694255",
-      "values_compared": 153
+      "values_compared": 71
     },
     {
-      "inputs": {
-        "center": {
-          "cpts": [
-            [0.0, -3.6651535048305246e-7, -1.0856331834694988e-7, -1.7976931348623157e+308],
-            [1.2844812309578903e-6, 7.599581008391713e-7, -2.4222747249637587e-7, -1.7976931348623157e+308],
-            [3.853443692873671e-6, -4.258216251476359e-7, 5.64277739690074e-7, -1.7976931348623157e+308],
-            [6.4224061547894514e-6, -3.0601101808693884e-7, -8.222296340368495e-8, -1.7976931348623157e+308],
-            [7.706887385747342e-6, -4.711232922792364e-7, -4.655015471044097e-7, -1.7976931348623157e+308]
-          ],
-          "p": 2,
-          "u": [0.0, 0.0, 0.0, 0.3333333333333333, 0.6666666666666666, 1.0, 1.0, 1.0]
-        },
-        "cont": 2,
-        "g1": true,
-        "op": "blend",
-        "rail1": {
-          "cpts": [
-            [0.0, -4.59140452795268e-8, 6.780814607144505e-8, -1.7976931348623157e+308],
-            [1.2844812309578903e-6, 1.080559406042697e-6, -6.585600807798094e-8, -1.7976931348623157e+308],
-            [3.853443692873671e-6, -1.0522031994411023e-7, 7.406492041084688e-7, -1.7976931348623157e+308],
-            [6.4224061547894514e-6, 1.4590287116586775e-8, 9.414850101470998e-8, -1.7976931348623157e+308],
-            [7.706887385747342e-6, -1.5052198707571078e-7, -2.891300826860148e-7, -1.7976931348623157e+308]
-          ],
-          "p": 2,
-          "u": [0.0, 0.0, 0.0, 0.3333333333333333, 0.6666666666666666, 1.0, 1.0, 1.0]
-        },
-        "rail2": {
-          "cpts": [
-            [0.0, -7.262460158280215e-7, -4.158616724480774e-8, -1.7976931348623157e+308],
-            [1.2844812309578903e-6, 4.002274354942023e-7, -1.7525032139423373e-7, -1.7976931348623157e+308],
-            [3.853443692873671e-6, -7.855522904926048e-7, 6.312548907922162e-7, -1.7976931348623157e+308],
-            [6.4224061547894514e-6, -6.657416834319079e-7, -1.5245812301542815e-8, -1.7976931348623157e+308],
-            [7.706887385747342e-6, -8.308539576242055e-7, -3.9852439600226757e-7, -1.7976931348623157e+308]
-          ],
-          "p": 2,
-          "u": [0.0, 0.0, 0.0, 0.3333333333333333, 0.6666666666666666, 1.0, 1.0, 1.0]
-        },
-        "scale": 1.5,
-        "sides": {
-          "s1": {
-            "kind": "bspline",
-            "net": [
-              [
-                [0.0, 0.0, -0.27791615411230464, -1.7976931348623157e+308],
-                [0.0, 1.0, -0.062203688769133764, -1.7976931348623157e+308],
-                [0.0, 2.0, 0.2617815370127404, -1.7976931348623157e+308],
-                [0.0, 3.0, -0.12175406144374623, -1.7976931348623157e+308],
-                [0.0, 4.0, -0.07579845880473271, -1.7976931348623157e+308]
-              ],
-              [
-                [2.0, 0.0, 0.16613499881047789, -1.7976931348623157e+308],
-                [2.0, 1.0, 0.13572132180881152, -1.7976931348623157e+308],
-                [2.0, 2.0, 0.16968518295413604, -1.7976931348623157e+308],
-                [2.0, 3.0, 0.016175649946443327, -1.7976931348623157e+308],
-                [2.0, 4.0, -0.055258281444200585, -1.7976931348623157e+308]
-              ],
-              [
-                [4.0, 0.0, 0.06480249996997728, -1.7976931348623157e+308],
-                [4.0, 1.0, 0.011856362293967748, -1.7976931348623157e+308],
-                [4.0, 2.0, 0.09947713109983125, -1.7976931348623157e+308],
-                [4.0, 3.0, -0.15145825790412829, -1.7976931348623157e+308],
-                [4.0, 4.0, -0.004927627732499162, -1.7976931348623157e+308]
-              ]
-            ],
-            "p": 2,
-            "q": 3,
-            "u": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
-            "v": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0]
-          },
-          "s2": {
-            "kind": "bspline",
-            "net": [
-              [
-                [0.0, 0.0, 1.274913580335677, -1.7976931348623157e+308],
-                [0.0, 4.0, 1.1929138103436254, -1.7976931348623157e+308]
-              ],
-              [
-                [1.0, 0.0, 1.2756394485272269, -1.7976931348623157e+308],
-                [1.0, 4.0, 1.273175758158907, -1.7976931348623157e+308]
-              ],
-              [
-                [2.0, 0.0, 0.7251950843090755, -1.7976931348623157e+308],
-                [2.0, 4.0, 0.7337688119517634, -1.7976931348623157e+308]
-              ],
-              [
-                [3.0, 0.0, 0.755522484542031, -1.7976931348623157e+308],
-                [3.0, 4.0, 0.8606970936815541, -1.7976931348623157e+308]
-              ],
-              [
-                [4.0, 0.0, 0.8234848689945404, -1.7976931348623157e+308],
-                [4.0, 4.0, 0.9292810001214901, -1.7976931348623157e+308]
-              ]
-            ],
-            "p": 3,
-            "q": 1,
-            "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0],
-            "v": [0.0, 0.0, 1.0, 1.0]
-          },
-          "uv1": {
-            "cpts": [
-              [0.7427610033182309, 0.638638448397804, 0.0, -1.7976931348623157e+308],
-              [0.2982199235578179, 0.8277409537423176, 0.0, -1.7976931348623157e+308],
-              [0.27474673958030565, 0.5316163364950109, 0.0, -1.7976931348623157e+308],
-              [0.861073314872922, 0.8274480691460487, 0.0, -1.7976931348623157e+308]
-            ],
-            "p": 2,
-            "u": [0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0]
-          },
-          "uv2": {
-            "cpts": [
-              [0.6154549694533943, 0.12857667069066991, 0.0, -1.7976931348623157e+308],
-              [0.33475399473345624, 0.5051533794303255, 0.0, -1.7976931348623157e+308],
-              [0.8015428532570832, 0.868285616258721, 0.0, -1.7976931348623157e+308],
-              [0.2892939607333707, 0.5672578383205228, 0.0, -1.7976931348623157e+308]
-            ],
-            "p": 3,
-            "u": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
-          }
-        },
-        "tol": 1e-12
-      },
       "max_rel_err": 0.0,
       "name": "gen0214",
-      "outcome": "rejected",
-      "pass": false,
-      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694256",
-      "values_compared": 0
+      "values_compared": 291
     },
     {
       "max_rel_err": 0.0,
@@ -2380,49 +2349,12 @@
       "values_compared": 251
     },
     {
-      "inputs": {
-        "approx": true,
-        "center": {
-          "cpts": [
-            [0.0, 0.0, 0.0, -1.7976931348623157e+308],
-            [2974086.7031685337, 0.0, 0.0, -1.7976931348623157e+308],
-            [5948173.4063370675, 0.0, 0.0, -1.7976931348623157e+308]
-          ],
-          "p": 1,
-          "u": [0.0, 0.0, 0.5, 1.0, 1.0]
-        },
-        "complement": true,
-        "g1": false,
-        "mirror": false,
-        "op": "circ",
-        "rail1": {
-          "cpts": [
-            [0.0, -1656668.8848757779, -277558.77034050215, -1.7976931348623157e+308],
-            [2974086.7031685337, -1656668.8848757779, -277558.77034050215, -1.7976931348623157e+308],
-            [5948173.4063370675, -1656668.8848757779, -277558.77034050215, -1.7976931348623157e+308]
-          ],
-          "p": 1,
-          "u": [0.0, 0.0, 0.5, 1.0, 1.0]
-        },
-        "rail2": {
-          "cpts": [
-            [0.0, -1656668.8848757779, -277558.77034050215, -1.7976931348623157e+308],
-            [2974086.7031685337, -1246513.5674036, -1125963.8499468956, -1.7976931348623157e+308],
-            [5948173.4063370675, -1246513.5674036, -1125963.8499468956, -1.7976931348623157e+308]
-          ],
-          "p": 1,
-          "u": [0.0, 0.0, 0.5, 1.0, 1.0]
-        },
-        "tol": 0.001,
-        "tolpct": 0.05
-      },
       "max_rel_err": 0.0,
       "name": "gen0216",
-      "outcome": "rejected",
-      "pass": false,
-      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694258",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -2430,7 +2362,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694259",
-      "values_compared": 30
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -2438,31 +2370,23 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694260",
-      "values_compared": 25
+      "values_compared": 340
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::EvaluatePoint",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0219",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694261",
-      "values_compared": 0
+      "values_compared": 124
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0220",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694262",
-      "values_compared": 0
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -2473,12 +2397,16 @@
       "values_compared": 156
     },
     {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0222",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694264",
-      "values_compared": 93
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2502,7 +2430,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694267",
-      "values_compared": 48
+      "values_compared": 236
     },
     {
       "max_rel_err": 0.0,
@@ -2510,7 +2438,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694268",
-      "values_compared": 212
+      "values_compared": 28
     },
     {
       "max_rel_err": 0.0,
@@ -2518,7 +2446,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694269",
-      "values_compared": 31
+      "values_compared": 70
     },
     {
       "max_rel_err": 0.0,
@@ -2526,7 +2454,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694270",
-      "values_compared": 149
+      "values_compared": 73
     },
     {
       "max_rel_err": 0.0,
@@ -2534,15 +2462,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694271",
-      "values_compared": 369
+      "values_compared": 78
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0230",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694272",
-      "values_compared": 24
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2550,7 +2482,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694273",
-      "values_compared": 132
+      "values_compared": 266
     },
     {
       "max_rel_err": 0.0,
@@ -2558,7 +2490,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694274",
-      "values_compared": 128
+      "values_compared": 41
     },
     {
       "max_rel_err": 0.0,
@@ -2582,7 +2514,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694277",
-      "values_compared": 140
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -2593,20 +2525,140 @@
       "values_compared": 264
     },
     {
+      "inputs": {
+        "center": {
+          "cpts": [
+            [0.0, 0.4717235189923188, 0.7296104120841673, -1.7976931348623157e+308],
+            [0.6477901255128733, 0.15436837025860028, 0.3634531977982953, -1.7976931348623157e+308],
+            [1.94337037653862, -0.7508831085965524, 0.5248667670899854, -1.7976931348623157e+308],
+            [3.238950627564367, 0.02155805769827146, -0.6453361502585038, -1.7976931348623157e+308],
+            [3.88674075307724, 0.2031267618767283, 0.1399074623952572, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0]
+        },
+        "cont": 1,
+        "g1": true,
+        "op": "blend",
+        "rail1": {
+          "cpts": [
+            [0.0, 2.068470832585761, 0.7716104626489062, -1.7976931348623157e+308],
+            [0.6477901255128733, 1.7511156838520425, 0.40545324836303415, -1.7976931348623157e+308],
+            [1.94337037653862, 0.8458642049968899, 0.5668668176547242, -1.7976931348623157e+308],
+            [3.238950627564367, 1.6183053712917137, -0.6033360996937649, -1.7976931348623157e+308],
+            [3.88674075307724, 1.7998740754701705, 0.18190751295999602, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0]
+        },
+        "rail2": {
+          "cpts": [
+            [0.0, 0.014019747721609577, 2.2599284331111322, -1.7976931348623157e+308],
+            [0.6477901255128733, -0.30333540101210893, 1.8937712188252602, -1.7976931348623157e+308],
+            [1.94337037653862, -1.2085868798672617, 2.05518478811695, -1.7976931348623157e+308],
+            [3.238950627564367, -0.43614571357243775, 0.8849818707684611, -1.7976931348623157e+308],
+            [3.88674075307724, -0.2545770093939809, 1.670225483422222, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0]
+        },
+        "scale": 2.5,
+        "sides": {
+          "s1": {
+            "kind": "bspline",
+            "net": [
+              [
+                [0.0, 0.0, 0.08053041954926404, -1.7976931348623157e+308],
+                [0.0, 1.0, -0.26922616491837237, -1.7976931348623157e+308],
+                [0.0, 2.0, 0.1291442050036214, -1.7976931348623157e+308],
+                [0.0, 3.0, -0.15988427298413158, -1.7976931348623157e+308],
+                [0.0, 4.0, -0.047709419350305426, -1.7976931348623157e+308]
+              ],
+              [
+                [1.3333333333333333, 0.0, -0.1368462748525113, -1.7976931348623157e+308],
+                [1.3333333333333333, 1.0, -0.2361558478112306, -1.7976931348623157e+308],
+                [1.3333333333333333, 2.0, 0.052276928604643835, -1.7976931348623157e+308],
+                [1.3333333333333333, 3.0, 0.05447189962700305, -1.7976931348623157e+308],
+                [1.3333333333333333, 4.0, -0.2947721319935977, -1.7976931348623157e+308]
+              ],
+              [
+                [2.6666666666666665, 0.0, 0.005927650800509221, -1.7976931348623157e+308],
+                [2.6666666666666665, 1.0, -0.2205440384234618, -1.7976931348623157e+308],
+                [2.6666666666666665, 2.0, 0.24710096295323475, -1.7976931348623157e+308],
+                [2.6666666666666665, 3.0, -0.1665738779433458, -1.7976931348623157e+308],
+                [2.6666666666666665, 4.0, -0.15841977579224478, -1.7976931348623157e+308]
+              ],
+              [
+                [4.0, 0.0, -0.28749768576868207, -1.7976931348623157e+308],
+                [4.0, 1.0, 0.22537651308471102, -1.7976931348623157e+308],
+                [4.0, 2.0, 0.2865787460674036, -1.7976931348623157e+308],
+                [4.0, 3.0, -0.06665283258684693, -1.7976931348623157e+308],
+                [4.0, 4.0, -0.050271373989445006, -1.7976931348623157e+308]
+              ]
+            ],
+            "p": 2,
+            "q": 3,
+            "u": [0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0],
+            "v": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0]
+          },
+          "s2": {
+            "kind": "bspline",
+            "net": [
+              [
+                [0.0, 0.0, 1.21900127101346, -1.7976931348623157e+308],
+                [0.0, 4.0, 1.1615817200963692, -1.7976931348623157e+308]
+              ],
+              [
+                [4.0, 0.0, 0.8670890251104023, -1.7976931348623157e+308],
+                [4.0, 4.0, 0.7736048272035178, -1.7976931348623157e+308]
+              ]
+            ],
+            "p": 1,
+            "q": 1,
+            "u": [0.0, 0.0, 1.0, 1.0],
+            "v": [0.0, 0.0, 1.0, 1.0]
+          },
+          "uv1": {
+            "cpts": [
+              [0.3536950751600175, 0.2328105459710985, 0.0, -1.7976931348623157e+308],
+              [0.6281723974187657, 0.6416123118371421, 0.0, -1.7976931348623157e+308],
+              [0.34755071828655204, 0.2238661555040242, 0.0, -1.7976931348623157e+308]
+            ],
+            "p": 2,
+            "u": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
+          },
+          "uv2": {
+            "cpts": [
+              [0.6325456370563199, 0.5661917477267021, 0.0, -1.7976931348623157e+308],
+              [0.6484822259896614, 0.8702119410491614, 0.0, -1.7976931348623157e+308],
+              [0.32714337711967745, 0.7558006253795319, 0.0, -1.7976931348623157e+308],
+              [0.7257926854742294, 0.8817528125771182, 0.0, -1.7976931348623157e+308]
+            ],
+            "p": 2,
+            "u": [0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0]
+          }
+        },
+        "tol": 1e-6
+      },
       "max_rel_err": 0.0,
       "name": "gen0237",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
       "source": "generated:seed=7089734759426694279",
-      "values_compared": 33
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0238",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694280",
-      "values_compared": 215
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2614,7 +2666,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694281",
-      "values_compared": 48
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -2622,15 +2674,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694282",
-      "values_compared": 481
+      "values_compared": 31
     },
     {
+      "deferred": {
+        "symbol": "SmSphere",
+        "unit": "surface.sphere"
+      },
       "max_rel_err": 0.0,
       "name": "gen0241",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694283",
-      "values_compared": 31
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2638,7 +2694,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694284",
-      "values_compared": 156
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -2646,7 +2702,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694285",
-      "values_compared": 22
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -2654,7 +2710,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694286",
-      "values_compared": 45
+      "values_compared": 130
     },
     {
       "max_rel_err": 0.0,
@@ -2662,7 +2718,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694287",
-      "values_compared": 45
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -2670,7 +2726,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694288",
-      "values_compared": 253
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -2678,7 +2734,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694289",
-      "values_compared": 31
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -2702,7 +2758,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694292",
-      "values_compared": 190
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -2710,7 +2766,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694293",
-      "values_compared": 128
+      "values_compared": 84
     },
     {
       "max_rel_err": 0.0,
@@ -2718,7 +2774,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694294",
-      "values_compared": 100
+      "values_compared": 281
     },
     {
       "max_rel_err": 0.0,
@@ -2726,7 +2782,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694295",
-      "values_compared": 48
+      "values_compared": 426
     },
     {
       "max_rel_err": 0.0,
@@ -2734,7 +2790,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694296",
-      "values_compared": 31
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -2750,64 +2806,23 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694298",
-      "values_compared": 75
+      "values_compared": 331
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0257",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694299",
-      "values_compared": 0
+      "values_compared": 24
     },
     {
-      "inputs": {
-        "approx": true,
-        "center": {
-          "cpts": [
-            [0.0, 0.0, 0.0, -1.7976931348623157e+308],
-            [3.1151355588345773, 0.0, 0.0, -1.7976931348623157e+308],
-            [6.2302711176691545, 0.0, 0.0, -1.7976931348623157e+308]
-          ],
-          "p": 1,
-          "u": [-0.3841425583271958, -0.3841425583271958, 1.0812673545984235, 2.5466772675240428, 2.5466772675240428]
-        },
-        "complement": true,
-        "g1": false,
-        "mirror": false,
-        "op": "circ",
-        "rail1": {
-          "cpts": [
-            [0.0, 0.7539475651453833, 0.6184070905113976, -1.7976931348623157e+308],
-            [3.1151355588345773, 0.7539475651453833, 0.6184070905113976, -1.7976931348623157e+308],
-            [6.2302711176691545, 0.7539475651453833, 0.6184070905113976, -1.7976931348623157e+308]
-          ],
-          "p": 1,
-          "u": [-0.3841425583271958, -0.3841425583271958, 1.0812673545984235, 2.5466772675240428, 2.5466772675240428]
-        },
-        "rail2": {
-          "cpts": [
-            [0.0, -1.214572827160197, 0.4217837725617712, -1.7976931348623157e+308],
-            [3.1151355588345773, -1.214572827160197, 0.4217837725617712, -1.7976931348623157e+308],
-            [6.2302711176691545, -1.214572827160197, 0.4217837725617712, -1.7976931348623157e+308]
-          ],
-          "p": 1,
-          "u": [-0.3841425583271958, -0.3841425583271958, 1.0812673545984235, 2.5466772675240428, 2.5466772675240428]
-        },
-        "tol": 1e-9,
-        "tolpct": 0.01
-      },
       "max_rel_err": 0.0,
       "name": "gen0258",
-      "outcome": "rejected",
-      "pass": false,
-      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694300",
-      "values_compared": 0
+      "values_compared": 125
     },
     {
       "max_rel_err": 0.0,
@@ -2815,19 +2830,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694301",
-      "values_compared": 27
+      "values_compared": 48
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::EvaluatePoint",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0260",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694302",
-      "values_compared": 0
+      "values_compared": 125
     },
     {
       "max_rel_err": 0.0,
@@ -2835,7 +2846,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694303",
-      "values_compared": 48
+      "values_compared": 413
     },
     {
       "max_rel_err": 0.0,
@@ -2851,15 +2862,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694305",
-      "values_compared": 105
+      "values_compared": 226
     },
     {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0264",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694306",
-      "values_compared": 205
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2867,7 +2882,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694307",
-      "values_compared": 48
+      "values_compared": 70
     },
     {
       "max_rel_err": 0.0,
@@ -2875,7 +2890,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694308",
-      "values_compared": 210
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -2891,7 +2906,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694310",
-      "values_compared": 237
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -2899,7 +2914,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694311",
-      "values_compared": 231
+      "values_compared": 210
     },
     {
       "max_rel_err": 0.0,
@@ -2907,7 +2922,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694312",
-      "values_compared": 33
+      "values_compared": 409
     },
     {
       "max_rel_err": 0.0,
@@ -2915,7 +2930,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694313",
-      "values_compared": 236
+      "values_compared": 311
     },
     {
       "max_rel_err": 0.0,
@@ -2923,7 +2938,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694314",
-      "values_compared": 31
+      "values_compared": 70
     },
     {
       "max_rel_err": 0.0,
@@ -2931,7 +2946,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694315",
-      "values_compared": 45
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -2939,7 +2954,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694316",
-      "values_compared": 125
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -2947,7 +2962,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694317",
-      "values_compared": 45
+      "values_compared": 112
     },
     {
       "max_rel_err": 0.0,
@@ -2955,7 +2970,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694318",
-      "values_compared": 33
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -2982,24 +2997,148 @@
       "values_compared": 226
     },
     {
-      "max_rel_err": 0.0,
-      "name": "gen0280",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694322",
-      "values_compared": 97
-    },
-    {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+      "inputs": {
+        "center": {
+          "cpts": [
+            [0.0, 0.0, 0.0, -1.7976931348623157e+308],
+            [1199263.5984733333, 0.0, 0.0, -1.7976931348623157e+308],
+            [3597790.79542, 0.0, 0.0, -1.7976931348623157e+308],
+            [5996317.992366667, 0.0, 0.0, -1.7976931348623157e+308],
+            [7195581.59084, 0.0, 0.0, -1.7976931348623157e+308]
+          ],
+          "p": 2,
+          "u": [0.0, 0.0, 0.0, 2.3985271969466666, 4.797054393893333, 7.19558159084, 7.19558159084, 7.19558159084]
+        },
+        "cont": 4,
+        "g1": true,
+        "op": "blend",
+        "rail1": {
+          "cpts": [
+            [0.0, 605738.1049791889, -1294456.81065953, -1.7976931348623157e+308],
+            [1199263.5984733333, 605738.1049791889, -1294456.81065953, -1.7976931348623157e+308],
+            [3597790.79542, 605738.1049791889, -1294456.81065953, -1.7976931348623157e+308],
+            [5996317.992366667, 605738.1049791889, -1294456.81065953, -1.7976931348623157e+308],
+            [7195581.59084, 605738.1049791889, -1294456.81065953, -1.7976931348623157e+308]
+          ],
+          "p": 2,
+          "u": [0.0, 0.0, 0.0, 2.3985271969466666, 4.797054393893333, 7.19558159084, 7.19558159084, 7.19558159084]
+        },
+        "rail2": {
+          "cpts": [
+            [0.0, 490255.24594984506, 1342455.5412769835, -1.7976931348623157e+308],
+            [1199263.5984733333, 490255.24594984506, 1342455.5412769835, -1.7976931348623157e+308],
+            [3597790.79542, 490255.24594984506, 1342455.5412769835, -1.7976931348623157e+308],
+            [5996317.992366667, 490255.24594984506, 1342455.5412769835, -1.7976931348623157e+308],
+            [7195581.59084, 490255.24594984506, 1342455.5412769835, -1.7976931348623157e+308]
+          ],
+          "p": 2,
+          "u": [0.0, 0.0, 0.0, 2.3985271969466666, 4.797054393893333, 7.19558159084, 7.19558159084, 7.19558159084]
+        },
+        "scale": 1.0,
+        "sides": {
+          "s1": {
+            "kind": "bspline",
+            "net": [
+              [
+                [0.0, 0.0, -0.02936655128863641, -1.7976931348623157e+308],
+                [0.0, 2.0, -0.24957155861664024, -1.7976931348623157e+308],
+                [0.0, 4.0, 0.012743020693618323, -1.7976931348623157e+308]
+              ],
+              [
+                [1.0, 0.0, -0.1946947141145285, -1.7976931348623157e+308],
+                [1.0, 2.0, 0.17995860513179662, -1.7976931348623157e+308],
+                [1.0, 4.0, 0.19270222061485143, -1.7976931348623157e+308]
+              ],
+              [
+                [2.0, 0.0, -0.0867184759456236, -1.7976931348623157e+308],
+                [2.0, 2.0, -0.2138951984115789, -1.7976931348623157e+308],
+                [2.0, 4.0, -0.24245974092437705, -1.7976931348623157e+308]
+              ],
+              [
+                [3.0, 0.0, 0.29590380041412195, -1.7976931348623157e+308],
+                [3.0, 2.0, -0.2921766861955167, -1.7976931348623157e+308],
+                [3.0, 4.0, 0.15642999231611004, -1.7976931348623157e+308]
+              ],
+              [
+                [4.0, 0.0, 0.17443065572693872, -1.7976931348623157e+308],
+                [4.0, 2.0, 0.2450192684449342, -1.7976931348623157e+308],
+                [4.0, 4.0, -0.15307070547872123, -1.7976931348623157e+308]
+              ]
+            ],
+            "p": 3,
+            "q": 2,
+            "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0],
+            "v": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
+          },
+          "s2": {
+            "kind": "bspline",
+            "net": [
+              [
+                [0.0, 0.0, 1.049724080180356, -1.7976931348623157e+308],
+                [0.0, 2.0, 1.082335459570598, -1.7976931348623157e+308],
+                [0.0, 4.0, 0.9121548352090633, -1.7976931348623157e+308]
+              ],
+              [
+                [1.0, 0.0, 0.8542862811946115, -1.7976931348623157e+308],
+                [1.0, 2.0, 1.127037773194246, -1.7976931348623157e+308],
+                [1.0, 4.0, 0.920221951828794, -1.7976931348623157e+308]
+              ],
+              [
+                [2.0, 0.0, 1.1621353285333322, -1.7976931348623157e+308],
+                [2.0, 2.0, 0.9285457581079687, -1.7976931348623157e+308],
+                [2.0, 4.0, 0.8994078512913692, -1.7976931348623157e+308]
+              ],
+              [
+                [3.0, 0.0, 0.8831505809059476, -1.7976931348623157e+308],
+                [3.0, 2.0, 1.164477163705969, -1.7976931348623157e+308],
+                [3.0, 4.0, 1.084163904458642, -1.7976931348623157e+308]
+              ],
+              [
+                [4.0, 0.0, 1.1828711624916677, -1.7976931348623157e+308],
+                [4.0, 2.0, 0.8751146674519568, -1.7976931348623157e+308],
+                [4.0, 4.0, 0.9463944153202806, -1.7976931348623157e+308]
+              ]
+            ],
+            "p": 3,
+            "q": 2,
+            "u": [0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0, 1.0],
+            "v": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
+          },
+          "uv1": {
+            "cpts": [
+              [0.8093450815528404, 0.2017103429120688, 0.0, -1.7976931348623157e+308],
+              [0.7929129193854247, 0.6223601767037472, 0.0, -1.7976931348623157e+308]
+            ],
+            "p": 1,
+            "u": [0.0, 0.0, 7.19558159084, 7.19558159084]
+          },
+          "uv2": {
+            "cpts": [
+              [0.2422768334731097, 0.7181197058524628, 0.0, -1.7976931348623157e+308],
+              [0.4977020695589135, 0.36333162307955635, 0.0, -1.7976931348623157e+308],
+              [0.5140024761153963, 0.5505866735160306, 0.0, -1.7976931348623157e+308]
+            ],
+            "p": 2,
+            "u": [0.0, 0.0, 0.0, 7.19558159084, 7.19558159084, 7.19558159084]
+          }
+        },
+        "tol": 1.0
       },
       "max_rel_err": 0.0,
-      "name": "gen0281",
-      "outcome": "deferred",
+      "name": "gen0280",
+      "outcome": "rejected",
       "pass": false,
-      "source": "generated:seed=7089734759426694323",
+      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
+      "source": "generated:seed=7089734759426694322",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0281",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694323",
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -3007,7 +3146,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694324",
-      "values_compared": 83
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3015,7 +3154,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694325",
-      "values_compared": 31
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -3026,16 +3165,12 @@
       "values_compared": 226
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0285",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694327",
-      "values_compared": 0
+      "values_compared": 226
     },
     {
       "max_rel_err": 0.0,
@@ -3043,7 +3178,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694328",
-      "values_compared": 30
+      "values_compared": 78
     },
     {
       "max_rel_err": 0.0,
@@ -3051,19 +3186,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694329",
-      "values_compared": 113
+      "values_compared": 72
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0288",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694330",
-      "values_compared": 0
+      "values_compared": 102
     },
     {
       "max_rel_err": 0.0,
@@ -3071,12 +3202,12 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694331",
-      "values_compared": 33
+      "values_compared": 264
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+        "symbol": "SmBrep::ReadFromFile",
+        "unit": "topology.brep_p7"
       },
       "max_rel_err": 0.0,
       "name": "gen0290",
@@ -3091,7 +3222,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694333",
-      "values_compared": 231
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -3099,7 +3230,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694334",
-      "values_compared": 31
+      "values_compared": 42
     },
     {
       "max_rel_err": 0.0,
@@ -3107,7 +3238,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694335",
-      "values_compared": 48
+      "values_compared": 322
     },
     {
       "max_rel_err": 0.0,
@@ -3115,7 +3246,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694336",
-      "values_compared": 92
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -3123,7 +3254,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694337",
-      "values_compared": 41
+      "values_compared": 170
     },
     {
       "max_rel_err": 0.0,
@@ -3131,7 +3262,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694338",
-      "values_compared": 45
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -3139,7 +3270,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694339",
-      "values_compared": 146
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -3147,7 +3278,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694340",
-      "values_compared": 87
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -3155,7 +3286,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694341",
-      "values_compared": 45
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -3163,15 +3294,52 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694342",
-      "values_compared": 293
+      "values_compared": 45
     },
     {
+      "inputs": {
+        "approx": true,
+        "center": {
+          "cpts": [
+            [0.0, 0.0, 0.0, -1.7976931348623157e+308],
+            [2.2735880158366, 0.0, 0.0, -1.7976931348623157e+308],
+            [4.5471760316732, 0.0, 0.0, -1.7976931348623157e+308]
+          ],
+          "p": 1,
+          "u": [0.0, 0.0, 2.2735880158366, 4.5471760316732, 4.5471760316732]
+        },
+        "complement": false,
+        "g1": false,
+        "mirror": false,
+        "op": "circ",
+        "rail1": {
+          "cpts": [
+            [0.0, -1.1088142577840387, 0.4547271627471195, -1.7976931348623157e+308],
+            [2.2735880158366, -1.1088142577840387, 0.4547271627471195, -1.7976931348623157e+308],
+            [4.5471760316732, -1.1088142577840387, 0.4547271627471195, -1.7976931348623157e+308]
+          ],
+          "p": 1,
+          "u": [0.0, 0.0, 2.2735880158366, 4.5471760316732, 4.5471760316732]
+        },
+        "rail2": {
+          "cpts": [
+            [0.0, 0.11554589374750658, -1.1929595501077739, -1.7976931348623157e+308],
+            [2.2735880158366, 0.11554589374750658, -1.1929595501077739, -1.7976931348623157e+308],
+            [4.5471760316732, 0.3552328438140644, -1.1929595501077739, -1.7976931348623157e+308]
+          ],
+          "p": 1,
+          "u": [0.0, 0.0, 2.2735880158366, 4.5471760316732, 4.5471760316732]
+        },
+        "tol": 1e-6,
+        "tolpct": 1e-7
+      },
       "max_rel_err": 0.0,
       "name": "gen0301",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
       "source": "generated:seed=7089734759426694343",
-      "values_compared": 60
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3179,7 +3347,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694344",
-      "values_compared": 231
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -3187,12 +3355,12 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694345",
-      "values_compared": 360
+      "values_compared": 33
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+        "symbol": "SurfaceKind::SurfOfExtrusion",
+        "unit": "surface.surf_of_extrusion_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0304",
@@ -3207,7 +3375,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694347",
-      "values_compared": 78
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -3215,7 +3383,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694348",
-      "values_compared": 33
+      "values_compared": 70
     },
     {
       "max_rel_err": 0.0,
@@ -3223,7 +3391,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694349",
-      "values_compared": 105
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -3231,7 +3399,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694350",
-      "values_compared": 256
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3239,7 +3407,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694351",
-      "values_compared": 48
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -3247,7 +3415,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694352",
-      "values_compared": 264
+      "values_compared": 127
     },
     {
       "max_rel_err": 0.0,
@@ -3255,7 +3423,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694353",
-      "values_compared": 31
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3263,19 +3431,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694354",
-      "values_compared": 60
+      "values_compared": 330
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0313",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694355",
-      "values_compared": 0
+      "values_compared": 125
     },
     {
       "max_rel_err": 0.0,
@@ -3283,7 +3447,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694356",
-      "values_compared": 278
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -3291,19 +3455,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694357",
-      "values_compared": 118
+      "values_compared": 45
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0316",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694358",
-      "values_compared": 0
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -3311,7 +3471,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694359",
-      "values_compared": 45
+      "values_compared": 84
     },
     {
       "max_rel_err": 0.0,
@@ -3319,7 +3479,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694360",
-      "values_compared": 69
+      "values_compared": 277
     },
     {
       "max_rel_err": 0.0,
@@ -3327,7 +3487,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694361",
-      "values_compared": 41
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -3335,7 +3495,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694362",
-      "values_compared": 48
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3343,7 +3503,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694363",
-      "values_compared": 48
+      "values_compared": 29
     },
     {
       "max_rel_err": 0.0,
@@ -3351,7 +3511,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694364",
-      "values_compared": 342
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3359,7 +3519,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694365",
-      "values_compared": 45
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -3367,7 +3527,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694366",
-      "values_compared": 156
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3375,7 +3535,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694367",
-      "values_compared": 267
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -3383,7 +3543,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694368",
-      "values_compared": 48
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -3399,19 +3559,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694370",
-      "values_compared": 130
+      "values_compared": 319
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0329",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694371",
-      "values_compared": 0
+      "values_compared": 311
     },
     {
       "max_rel_err": 0.0,
@@ -3427,7 +3583,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694373",
-      "values_compared": 130
+      "values_compared": 120
     },
     {
       "max_rel_err": 0.0,
@@ -3443,7 +3599,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694375",
-      "values_compared": 31
+      "values_compared": 254
     },
     {
       "max_rel_err": 0.0,
@@ -3451,7 +3607,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694376",
-      "values_compared": 160
+      "values_compared": 32
     },
     {
       "max_rel_err": 0.0,
@@ -3467,7 +3623,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694378",
-      "values_compared": 210
+      "values_compared": 2394
     },
     {
       "deferred": {
@@ -3487,7 +3643,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694380",
-      "values_compared": 22
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -3495,7 +3651,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694381",
-      "values_compared": 87
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -3503,7 +3659,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694382",
-      "values_compared": 120
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -3511,19 +3667,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694383",
-      "values_compared": 414
+      "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0342",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694384",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -3531,15 +3683,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694385",
-      "values_compared": 44
+      "values_compared": 31
     },
     {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0344",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694386",
-      "values_compared": 266
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3547,7 +3703,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694387",
-      "values_compared": 31
+      "values_compared": 231
     },
     {
       "max_rel_err": 0.0,
@@ -3555,31 +3711,23 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694388",
-      "values_compared": 72
+      "values_compared": 45
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0347",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694389",
-      "values_compared": 0
+      "values_compared": 756
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0348",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694390",
-      "values_compared": 0
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -3587,15 +3735,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694391",
-      "values_compared": 130
+      "values_compared": 34
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0350",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694392",
-      "values_compared": 200
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3603,15 +3755,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694393",
-      "values_compared": 45
+      "values_compared": 355
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0352",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694394",
-      "values_compared": 104
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3622,16 +3778,12 @@
       "values_compared": 257
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0354",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694396",
-      "values_compared": 0
+      "values_compared": 169
     },
     {
       "max_rel_err": 0.0,
@@ -3639,7 +3791,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694397",
-      "values_compared": 69
+      "values_compared": 266
     },
     {
       "max_rel_err": 0.0,
@@ -3647,7 +3799,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694398",
-      "values_compared": 149
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -3655,15 +3807,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694399",
-      "values_compared": 45
+      "values_compared": 262
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::ReadFromFile",
+        "unit": "topology.brep_p7"
+      },
       "max_rel_err": 0.0,
       "name": "gen0358",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694400",
-      "values_compared": 48
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3687,7 +3843,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694403",
-      "values_compared": 273
+      "values_compared": 24
     },
     {
       "max_rel_err": 0.0,
@@ -3695,7 +3851,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694404",
-      "values_compared": 135
+      "values_compared": 46
     },
     {
       "max_rel_err": 0.0,
@@ -3703,7 +3859,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694405",
-      "values_compared": 156
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -3711,19 +3867,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694406",
-      "values_compared": 57
+      "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0365",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694407",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -3731,15 +3883,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694408",
-      "values_compared": 97
+      "values_compared": 45
     },
     {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0367",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694409",
-      "values_compared": 72
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3747,7 +3903,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694410",
-      "values_compared": 45
+      "values_compared": 328
     },
     {
       "max_rel_err": 0.0,
@@ -3755,7 +3911,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694411",
-      "values_compared": 69
+      "values_compared": 148
     },
     {
       "max_rel_err": 0.0,
@@ -3771,7 +3927,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694413",
-      "values_compared": 50
+      "values_compared": 73
     },
     {
       "max_rel_err": 0.0,
@@ -3779,7 +3935,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694414",
-      "values_compared": 231
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -3787,7 +3943,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694415",
-      "values_compared": 266
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3795,7 +3951,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694416",
-      "values_compared": 166
+      "values_compared": 230
     },
     {
       "max_rel_err": 0.0,
@@ -3803,19 +3959,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694417",
-      "values_compared": 45
+      "values_compared": 129
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0376",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694418",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3831,7 +3983,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694420",
-      "values_compared": 33
+      "values_compared": 210
     },
     {
       "max_rel_err": 0.0,
@@ -3839,7 +3991,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694421",
-      "values_compared": 120
+      "values_compared": 128
     },
     {
       "max_rel_err": 0.0,
@@ -3847,7 +3999,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694422",
-      "values_compared": 231
+      "values_compared": 254
     },
     {
       "max_rel_err": 0.0,
@@ -3863,7 +4015,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694424",
-      "values_compared": 1963
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -3874,12 +4026,16 @@
       "values_compared": 125
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::ReadFromFile",
+        "unit": "topology.brep_p7"
+      },
       "max_rel_err": 0.0,
       "name": "gen0384",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694426",
-      "values_compared": 137
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3887,7 +4043,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694427",
-      "values_compared": 130
+      "values_compared": 117
     },
     {
       "max_rel_err": 0.0,
@@ -3895,7 +4051,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694428",
-      "values_compared": 48
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -3903,15 +4059,52 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694429",
-      "values_compared": 48
+      "values_compared": 298
     },
     {
+      "inputs": {
+        "approx": true,
+        "center": {
+          "cpts": [
+            [0.0, 0.0, 0.0, -1.7976931348623157e+308],
+            [2.693813102504638, 0.0, 0.0, -1.7976931348623157e+308],
+            [5.387626205009276, 0.0, 0.0, -1.7976931348623157e+308]
+          ],
+          "p": 1,
+          "u": [0.0, 0.0, 0.5, 1.0, 1.0]
+        },
+        "complement": false,
+        "g1": true,
+        "mirror": false,
+        "op": "circ",
+        "rail1": {
+          "cpts": [
+            [0.0, 0.3820567187043328, 0.14977973095125802, -1.7976931348623157e+308],
+            [2.693813102504638, 0.3820567187043328, 0.14977973095125802, -1.7976931348623157e+308],
+            [5.387626205009276, 0.3820567187043328, 0.14977973095125802, -1.7976931348623157e+308]
+          ],
+          "p": 1,
+          "u": [0.0, 0.0, 0.5, 1.0, 1.0]
+        },
+        "rail2": {
+          "cpts": [
+            [0.0, 0.3820567187043328, 0.14977973095125802, -1.7976931348623157e+308],
+            [2.693813102504638, 0.17366557439839897, 0.3718086063290566, -1.7976931348623157e+308],
+            [5.387626205009276, 0.17366557439839897, 0.3718086063290566, -1.7976931348623157e+308]
+          ],
+          "p": 1,
+          "u": [0.0, 0.0, 0.5, 1.0, 1.0]
+        },
+        "tol": 1e-6,
+        "tolpct": 0.2
+      },
       "max_rel_err": 0.0,
       "name": "gen0388",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "rejected",
+      "pass": false,
+      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
       "source": "generated:seed=7089734759426694430",
-      "values_compared": 125
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3919,7 +4112,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694431",
-      "values_compared": 69
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3927,19 +4120,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694432",
-      "values_compared": 33
+      "values_compared": 300
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0391",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694433",
-      "values_compared": 0
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -3947,19 +4136,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694434",
-      "values_compared": 33
+      "values_compared": 207
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0393",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694435",
-      "values_compared": 0
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -3967,19 +4152,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694436",
-      "values_compared": 60
+      "values_compared": 24
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0395",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694437",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -3987,19 +4168,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694438",
-      "values_compared": 456
+      "values_compared": 45
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0397",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694439",
-      "values_compared": 0
+      "values_compared": 336
     },
     {
       "max_rel_err": 0.0,
@@ -4007,7 +4184,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694440",
-      "values_compared": 281
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -4015,19 +4192,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694441",
-      "values_compared": 491
+      "values_compared": 45
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0400",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694442",
-      "values_compared": 0
+      "values_compared": 321
     },
     {
       "max_rel_err": 0.0,
@@ -4043,7 +4216,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694444",
-      "values_compared": 125
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -4051,7 +4224,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694445",
-      "values_compared": 33
+      "values_compared": 268
     },
     {
       "max_rel_err": 0.0,
@@ -4067,7 +4240,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694447",
-      "values_compared": 110
+      "values_compared": 231
     },
     {
       "max_rel_err": 0.0,
@@ -4075,7 +4248,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694448",
-      "values_compared": 128
+      "values_compared": 120
     },
     {
       "max_rel_err": 0.0,
@@ -4083,27 +4256,27 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694449",
-      "values_compared": 47
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0408",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=7089734759426694450",
-      "values_compared": 161
+      "values_compared": 125
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+        "symbol": "SmBrep::ReadFromFile",
+        "unit": "topology.brep_p7"
       },
       "max_rel_err": 0.0,
-      "name": "gen0409",
+      "name": "gen0408",
       "outcome": "deferred",
       "pass": false,
-      "source": "generated:seed=7089734759426694451",
+      "source": "generated:seed=7089734759426694450",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "gen0409",
+      "outcome": "pass",
+      "pass": true,
+      "source": "generated:seed=7089734759426694451",
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -4111,17 +4284,60 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694452",
-      "values_compared": 130
+      "values_compared": 50
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+      "inputs": {
+        "center": {
+          "cpts": [
+            [0.0, -4.655122729575481e-7, -6.339633729284692e-7, -1.7976931348623157e+308],
+            [3.0411281882629085e-7, 6.827692999090924e-7, 2.802035880673568e-7, -1.7976931348623157e+308],
+            [9.123384564788725e-7, 5.100716680333775e-7, -2.5657164298530097e-7, -1.7976931348623157e+308],
+            [1.824676912957745e-6, -6.382833979627513e-7, -7.548712268634166e-7, -1.7976931348623157e+308],
+            [2.7370153694366175e-6, -7.297970975804828e-7, -6.31859198306255e-7, -1.7976931348623157e+308],
+            [3.3452410070891993e-6, -6.636669489725251e-7, -5.954654325377772e-7, -1.7976931348623157e+308],
+            [3.64935382591549e-6, -5.024077425768617e-7, -5.921103877487571e-7, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 0.9123384564788726, 1.8246769129577451, 2.7370153694366177, 3.6493538259154903, 3.6493538259154903, 3.6493538259154903, 3.6493538259154903]
+        },
+        "cont": 1,
+        "g1": true,
+        "op": "blend",
+        "rail1": {
+          "cpts": [
+            [0.0, -2.1410114204158435e-6, -6.318198195975788e-8, -1.7976931348623157e+308],
+            [3.0411281882629085e-7, -9.92729847549203e-7, 8.509849790360682e-7, -1.7976931348623157e+308],
+            [9.123384564788725e-7, -1.1654274794249178e-6, 3.142097479834104e-7, -1.7976931348623157e+308],
+            [1.824676912957745e-6, -2.313782545421047e-6, -1.8408983589470517e-7, -1.7976931348623157e+308],
+            [2.7370153694366175e-6, -2.4052962450387783e-6, -6.107780733754364e-8, -1.7976931348623157e+308],
+            [3.3452410070891993e-6, -2.3391660964308203e-6, -2.4684041569065895e-8, -1.7976931348623157e+308],
+            [3.64935382591549e-6, -2.177906890035157e-6, -2.1328996780045738e-8, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 0.9123384564788726, 1.8246769129577451, 2.7370153694366177, 3.6493538259154903, 3.6493538259154903, 3.6493538259154903, 3.6493538259154903]
+        },
+        "rail2": {
+          "cpts": [
+            [0.0, -1.6167824256133065e-6, -1.9784580084750893e-6, -1.7976931348623157e+308],
+            [3.0411281882629085e-7, -4.6850085274666607e-7, -1.0642910474792633e-6, -1.7976931348623157e+308],
+            [9.123384564788725e-7, -6.41198484622381e-7, -1.6010662785319209e-6, -1.7976931348623157e+308],
+            [1.824676912957745e-6, -1.7895535506185099e-6, -2.099365862410036e-6, -1.7976931348623157e+308],
+            [2.7370153694366175e-6, -1.8810672502362412e-6, -1.9763538338528753e-6, -1.7976931348623157e+308],
+            [3.3452410070891993e-6, -1.8149371016282835e-6, -1.939960068084397e-6, -1.7976931348623157e+308],
+            [3.64935382591549e-6, -1.65367789523262e-6, -1.9366050232953772e-6, -1.7976931348623157e+308]
+          ],
+          "p": 3,
+          "u": [0.0, 0.0, 0.0, 0.0, 0.9123384564788726, 1.8246769129577451, 2.7370153694366177, 3.6493538259154903, 3.6493538259154903, 3.6493538259154903, 3.6493538259154903]
+        },
+        "scale": 0.5,
+        "tol": 1e-9
       },
       "max_rel_err": 0.0,
       "name": "gen0411",
-      "outcome": "deferred",
+      "outcome": "rejected",
       "pass": false,
+      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
       "source": "generated:seed=7089734759426694453",
       "values_compared": 0
     },
@@ -4131,15 +4347,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694454",
-      "values_compared": 31
+      "values_compared": 33
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0413",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694455",
-      "values_compared": 135
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4147,7 +4367,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694456",
-      "values_compared": 48
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -4158,12 +4378,16 @@
       "values_compared": 200
     },
     {
+      "deferred": {
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0416",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694458",
-      "values_compared": 83
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4171,7 +4395,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694459",
-      "values_compared": 48
+      "values_compared": 97
     },
     {
       "max_rel_err": 0.0,
@@ -4179,7 +4403,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694460",
-      "values_compared": 1892
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -4187,7 +4411,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694461",
-      "values_compared": 160
+      "values_compared": 110
     },
     {
       "max_rel_err": 0.0,
@@ -4203,134 +4427,23 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694463",
-      "values_compared": 45
+      "values_compared": 31
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0422",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694464",
-      "values_compared": 0
+      "values_compared": 232
     },
     {
-      "inputs": {
-        "center": {
-          "cpts": [
-            [0.0, 329.39696947764617, -271.75110423152427, -1.7976931348623157e+308],
-            [340.81602568224605, -285.1400956100252, -280.6965432045215, -1.7976931348623157e+308],
-            [1022.4480770467386, 460.33170129463554, -382.4179822977612, -1.7976931348623157e+308],
-            [2044.8961540934772, 402.8224721589044, 649.6134403466258, -1.7976931348623157e+308],
-            [3067.344231140216, 137.27616711048861, -697.6697437955295, -1.7976931348623157e+308],
-            [3748.9762825047083, -728.4760046194991, -46.83767827871432, -1.7976931348623157e+308],
-            [4089.7923081869544, -561.1214662875175, 192.4059267378133, -1.7976931348623157e+308]
-          ],
-          "p": 3,
-          "u": [-1.007171765587251, -1.007171765587251, -1.007171765587251, -1.007171765587251, -0.14973924295061347, 0.707693279686024, 1.5651258023226617, 2.422558324959299, 2.422558324959299, 2.422558324959299, 2.422558324959299]
-        },
-        "cont": 1,
-        "g1": true,
-        "op": "blend",
-        "rail1": {
-          "cpts": [
-            [0.0, -414.6900055702857, 6.436413004261842, -1.7976931348623157e+308],
-            [340.81602568224605, -1029.227070657957, -2.5090259687354233, -1.7976931348623157e+308],
-            [1022.4480770467386, -283.75527375329636, -104.23046506197514, -1.7976931348623157e+308],
-            [2044.8961540934772, -341.2645028890274, 927.800957582412, -1.7976931348623157e+308],
-            [3067.344231140216, -606.8108079374432, -419.48222655974337, -1.7976931348623157e+308],
-            [3748.9762825047083, -1472.5629796674311, 231.3498389570718, -1.7976931348623157e+308],
-            [4089.7923081869544, -1305.2084413354494, 470.59344397359945, -1.7976931348623157e+308]
-          ],
-          "p": 3,
-          "u": [-1.007171765587251, -1.007171765587251, -1.007171765587251, -1.007171765587251, -0.14973924295061347, 0.707693279686024, 1.5651258023226617, 2.422558324959299, 2.422558324959299, 2.422558324959299, 2.422558324959299]
-        },
-        "rail2": {
-          "cpts": [
-            [0.0, 251.9620531538458, -1062.3569193604787, -1.7976931348623157e+308],
-            [340.81602568224605, -362.5750119338256, -1071.302358333476, -1.7976931348623157e+308],
-            [1022.4480770467386, 382.89678497083514, -1173.0237974267159, -1.7976931348623157e+308],
-            [2044.8961540934772, 325.387555835104, -140.99237478232874, -1.7976931348623157e+308],
-            [3067.344231140216, 59.84125078668823, -1488.2755589244841, -1.7976931348623157e+308],
-            [3748.9762825047083, -805.9109209432995, -837.4434934076689, -1.7976931348623157e+308],
-            [4089.7923081869544, -638.5563826113179, -598.1998883911413, -1.7976931348623157e+308]
-          ],
-          "p": 3,
-          "u": [-1.007171765587251, -1.007171765587251, -1.007171765587251, -1.007171765587251, -0.14973924295061347, 0.707693279686024, 1.5651258023226617, 2.422558324959299, 2.422558324959299, 2.422558324959299, 2.422558324959299]
-        },
-        "scale": 2.5,
-        "sides": {
-          "s1": {
-            "domain": [0.0, 0.0, 1.6011373098887582, 0.7941157662721956],
-            "kind": "plane",
-            "o": [1.024797007095628, 1.3284382626307507, 1.5014101884758766],
-            "scale": [1.2598100505339227, 1.3980642326872976],
-            "x": [-0.1979650084766782, -0.36145899748891935, 0.9111296551825838],
-            "y": [-0.9661382387295079, 0.22888562236746277, -0.11911454797002642]
-          },
-          "s2": {
-            "kind": "bspline",
-            "net": [
-              [
-                [0.0, 0.0, 1.0511017877955753, -1.7976931348623157e+308],
-                [0.0, 2.0, 1.0028569102330624, -1.7976931348623157e+308],
-                [0.0, 4.0, 1.0320956151978664, -1.7976931348623157e+308]
-              ],
-              [
-                [1.3333333333333333, 0.0, 1.1943590688321961, -1.7976931348623157e+308],
-                [1.3333333333333333, 2.0, 1.033129662682822, -1.7976931348623157e+308],
-                [1.3333333333333333, 4.0, 0.7217666295127757, -1.7976931348623157e+308]
-              ],
-              [
-                [2.6666666666666665, 0.0, 1.1341183256035752, -1.7976931348623157e+308],
-                [2.6666666666666665, 2.0, 0.7093729052171659, -1.7976931348623157e+308],
-                [2.6666666666666665, 4.0, 1.1477886814989322, -1.7976931348623157e+308]
-              ],
-              [
-                [4.0, 0.0, 1.0258811706510025, -1.7976931348623157e+308],
-                [4.0, 2.0, 0.9099231409694695, -1.7976931348623157e+308],
-                [4.0, 4.0, 1.1360801563750251, -1.7976931348623157e+308]
-              ]
-            ],
-            "p": 3,
-            "q": 2,
-            "u": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
-            "v": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
-          },
-          "uv1": {
-            "cpts": [
-              [0.6477000969027914, 0.8281420683493897, 0.0, -1.7976931348623157e+308],
-              [0.776216087180067, 0.8270676130038573, 0.0, -1.7976931348623157e+308],
-              [0.8155770250782379, 0.22210373451608476, 0.0, -1.7976931348623157e+308],
-              [0.43517385179283485, 0.5592505526097427, 0.0, -1.7976931348623157e+308]
-            ],
-            "p": 2,
-            "u": [-1.007171765587251, -1.007171765587251, -1.007171765587251, 0.707693279686024, 2.422558324959299, 2.422558324959299, 2.422558324959299]
-          },
-          "uv2": {
-            "cpts": [
-              [0.5979256259799791, 0.10911777440952096, 0.0, -1.7976931348623157e+308],
-              [0.43440014453211884, 0.5682715007176282, 0.0, -1.7976931348623157e+308],
-              [0.10495315904497966, 0.6114847489957098, 0.0, -1.7976931348623157e+308],
-              [0.6716384861484421, 0.7412599079372778, 0.0, -1.7976931348623157e+308],
-              [0.30959450919100384, 0.5059262710081545, 0.0, -1.7976931348623157e+308]
-            ],
-            "p": 3,
-            "u": [-1.007171765587251, -1.007171765587251, -1.007171765587251, -1.007171765587251, 0.707693279686024, 2.422558324959299, 2.422558324959299, 2.422558324959299, 2.422558324959299]
-          }
-        },
-        "tol": 0.001
-      },
       "max_rel_err": 0.0,
       "name": "gen0423",
-      "outcome": "rejected",
-      "pass": false,
-      "rejected": "the shim's dry run: upstream would read out of bounds (ruled/revolved circular sections with a second pass, or a blend-curve skin through a point section) or loop forever",
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694465",
-      "values_compared": 0
+      "values_compared": 403
     },
     {
       "max_rel_err": 0.0,
@@ -4346,7 +4459,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694467",
-      "values_compared": 57
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -4354,7 +4467,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694468",
-      "values_compared": 33
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -4362,7 +4475,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694469",
-      "values_compared": 84
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -4370,7 +4483,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694470",
-      "values_compared": 58
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -4378,7 +4491,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694471",
-      "values_compared": 48
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -4386,7 +4499,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694472",
-      "values_compared": 45
+      "values_compared": 41
     },
     {
       "max_rel_err": 0.0,
@@ -4394,7 +4507,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694473",
-      "values_compared": 188
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -4402,7 +4515,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694474",
-      "values_compared": 53
+      "values_compared": 186
     },
     {
       "max_rel_err": 0.0,
@@ -4410,7 +4523,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694475",
-      "values_compared": 45
+      "values_compared": 224
     },
     {
       "max_rel_err": 0.0,
@@ -4418,7 +4531,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694476",
-      "values_compared": 48
+      "values_compared": 297
     },
     {
       "max_rel_err": 0.0,
@@ -4426,19 +4539,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694477",
-      "values_compared": 269
+      "values_compared": 150
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0436",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694478",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -4446,7 +4555,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694479",
-      "values_compared": 51
+      "values_compared": 287
     },
     {
       "max_rel_err": 0.0,
@@ -4454,7 +4563,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694480",
-      "values_compared": 256
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -4462,7 +4571,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694481",
-      "values_compared": 212
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -4470,24 +4579,20 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694482",
-      "values_compared": 31
+      "values_compared": 45
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0441",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694483",
-      "values_compared": 0
+      "values_compared": 231
     },
     {
       "deferred": {
-        "symbol": "SmOffsetSurface::Evaluate",
-        "unit": "surface.offset_surface"
+        "symbol": "SmFilletLaw::Evaluate",
+        "unit": "blend.fillet_executive_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0442",
@@ -4502,7 +4607,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694485",
-      "values_compared": 95
+      "values_compared": 303
     },
     {
       "max_rel_err": 0.0,
@@ -4510,7 +4615,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694486",
-      "values_compared": 133
+      "values_compared": 130
     },
     {
       "max_rel_err": 0.0,
@@ -4526,7 +4631,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694488",
-      "values_compared": 322
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -4550,15 +4655,19 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694491",
-      "values_compared": 33
+      "values_compared": 45
     },
     {
+      "deferred": {
+        "symbol": "SmCone (no SurfaceKind)",
+        "unit": "surface.cone_p1"
+      },
       "max_rel_err": 0.0,
       "name": "gen0450",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=7089734759426694492",
-      "values_compared": 48
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4566,7 +4675,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694493",
-      "values_compared": 45
+      "values_compared": 135
     },
     {
       "max_rel_err": 0.0,
@@ -4574,7 +4683,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694494",
-      "values_compared": 380
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -4582,7 +4691,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694495",
-      "values_compared": 299
+      "values_compared": 266
     },
     {
       "max_rel_err": 0.0,
@@ -4590,7 +4699,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694496",
-      "values_compared": 33
+      "values_compared": 87
     },
     {
       "max_rel_err": 0.0,
@@ -4598,7 +4707,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694497",
-      "values_compared": 190
+      "values_compared": 78
     },
     {
       "max_rel_err": 0.0,
@@ -4606,19 +4715,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694498",
-      "values_compared": 48
+      "values_compared": 45
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetSurface::EvaluatePoint",
-        "unit": "surface.offset_surface"
-      },
       "max_rel_err": 0.0,
       "name": "gen0457",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694499",
-      "values_compared": 0
+      "values_compared": 217
     },
     {
       "max_rel_err": 0.0,
@@ -4626,7 +4731,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694500",
-      "values_compared": 45
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -4634,7 +4739,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694501",
-      "values_compared": 29
+      "values_compared": 210
     },
     {
       "max_rel_err": 0.0,
@@ -4642,7 +4747,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694502",
-      "values_compared": 266
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -4658,7 +4763,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694504",
-      "values_compared": 356
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -4666,19 +4771,15 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694505",
-      "values_compared": 31
+      "values_compared": 48
     },
     {
-      "deferred": {
-        "symbol": "SmFilletLaw::Evaluate",
-        "unit": "blend.fillet_executive_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0464",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=7089734759426694506",
-      "values_compared": 0
+      "values_compared": 97
     },
     {
       "max_rel_err": 0.0,
@@ -4694,7 +4795,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694508",
-      "values_compared": 231
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -4702,7 +4803,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694509",
-      "values_compared": 31
+      "values_compared": 87
     },
     {
       "max_rel_err": 0.0,
@@ -4710,7 +4811,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694510",
-      "values_compared": 657
+      "values_compared": 42
     },
     {
       "max_rel_err": 0.0,
@@ -4718,7 +4819,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694511",
-      "values_compared": 143
+      "values_compared": 33
     },
     {
       "max_rel_err": 0.0,
@@ -4726,7 +4827,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694512",
-      "values_compared": 31
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -4734,7 +4835,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694513",
-      "values_compared": 48
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -4742,7 +4843,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694514",
-      "values_compared": 42
+      "values_compared": 316
     },
     {
       "max_rel_err": 0.0,
@@ -4758,7 +4859,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694516",
-      "values_compared": 328
+      "values_compared": 130
     },
     {
       "max_rel_err": 0.0,
@@ -4766,7 +4867,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694517",
-      "values_compared": 128
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -4774,7 +4875,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694518",
-      "values_compared": 45
+      "values_compared": 125
     },
     {
       "max_rel_err": 0.0,
@@ -4782,7 +4883,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694519",
-      "values_compared": 115
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -4790,7 +4891,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694520",
-      "values_compared": 238
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -4798,18 +4899,22 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=7089734759426694521",
-      "values_compared": 45
+      "values_compared": 31
     }
   ],
-  "cases_both_errored": 0,
-  "cases_deferred": 56,
+  "cases_both_errored": 2,
+  "cases_deferred": 42,
   "cases_failed": 0,
-  "cases_passed": 440,
-  "cases_rejected": 9,
+  "cases_passed": 452,
+  "cases_rejected": 11,
   "cases_total": 505,
   "deferred_by_unit": {
-    "blend.fillet_executive_p1": 19,
-    "surface.offset_surface": 37
+    "blend.fillet_executive_p1": 16,
+    "intersect.surface_drop_lib_p3": 6,
+    "surface.cone_p1": 11,
+    "surface.sphere": 2,
+    "surface.surf_of_extrusion_p2": 1,
+    "topology.brep_p7": 6
   },
   "max_rel_err": 0.0,
   "pass": true,
