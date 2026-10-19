@@ -1307,7 +1307,7 @@ pub fn glue_edges_general(
         let mut new_region = None;
         for fu in test_split {
             // status ignored; each call first resets rpNewRegion to NULL
-            let attempt = p6::test_closure_split_region_attempt(k, b, &mut marks, true, fu)?;
+            let attempt = p6::test_closure_split_region_attempt(k, b, &mut marks, env, true, fu)?;
             new_region = attempt.region;
         }
         if ed::is_spine(b, surv)? && new_region.is_none() {

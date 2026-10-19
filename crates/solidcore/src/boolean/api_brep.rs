@@ -39,8 +39,8 @@
 //! - **Statuses.** `SM_ERR_INVALID_INPUT` is [`SolidError::InvalidInput`]; `SM_ERR`
 //!   is [`SolidError::Upstream`] with [`crate::error::SM_ERR`].
 //! - **Unported callees.** The merge engine `SmMerge` (units `boolean.merge_p1` to
-//!   `_p5`) and `SmBrep::IsManifoldSolid` (`topology.brep_p2`) are not ported yet: each
-//!   entry point validates its inputs as upstream, then returns
+//!   `_p5`) is not ported yet (`SmBrep::IsManifoldSolid`, `topology.brep_p2`, is only
+//!   reached after it): each entry point validates its inputs as upstream, then returns
 //!   [`SolidError::Unported`] for the first engine call it would make
 //!   (`SmMerge::SmMerge`, `SmMerge::merge_breps`, `SmMerge::BooleanLists`,
 //!   `SmMerge::BooleanTrees`).
