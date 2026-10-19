@@ -1955,6 +1955,75 @@ mod tests {
     use super::*;
     use crate::curve::hermite_curve::HermiteCurve;
 
+    /// A closed curve is split in three (recursively) and every end drop of the check
+    /// reuses one cache slot per curve (PR #224): checking again with the slots the
+    /// first check filled gives exactly the result of fresh slots.
+    #[test]
+    fn coincidence_with_prefilled_cache_slots_matches_fresh_slots() {
+        use crate::geom::axis2_placement::Axis2Placement;
+        use crate::nurbs::b_spline_curve::NurbCircleParam;
+        use crate::surface::surface::p4::NoObject;
+
+        let k = Kernel::default();
+        let circle = |start_deg: f64, end_deg: f64| {
+            Curve::from(
+                BSplineCurve::create_circle_segment(
+                    3,
+                    &Axis2Placement::IDENTITY,
+                    2.0,
+                    start_deg,
+                    end_deg,
+                    NurbCircleParam::Quadratic,
+                )
+                .unwrap(),
+            )
+        };
+        let full = circle(0.0, 360.0);
+        let half = circle(0.0, 180.0);
+        let (ivl, other_ivl) = (full.natural_interval(), half.natural_interval());
+        let tol = 1e-6;
+        let objects = [None::<NoObject>, None];
+        assert!(full.is_split_needed(&ivl, tol).unwrap());
+
+        let fresh = full
+            .global_coincidence_checker(&k, &ivl, &half, &other_ivl, tol, false, objects)
+            .unwrap();
+        assert!(!fresh.solutions.is_empty());
+
+        let mut caches = [None, None];
+        let filling = full
+            .global_coincidence_checker_at(
+                &k,
+                &ivl,
+                &half,
+                &other_ivl,
+                tol,
+                false,
+                objects,
+                0,
+                &mut caches,
+            )
+            .unwrap();
+        assert!(caches.iter().all(Option::is_some));
+        let prefilled = full
+            .global_coincidence_checker_at(
+                &k,
+                &ivl,
+                &half,
+                &other_ivl,
+                tol,
+                false,
+                objects,
+                0,
+                &mut caches,
+            )
+            .unwrap();
+
+        // `Debug` prints every float exactly, so equal strings mean bit-identical results
+        assert_eq!(format!("{fresh:?}"), format!("{filling:?}"));
+        assert_eq!(format!("{fresh:?}"), format!("{prefilled:?}"));
+    }
+
     fn quarter_line() -> Curve {
         let c = BSplineCurve::create_line_segment(
             3,
