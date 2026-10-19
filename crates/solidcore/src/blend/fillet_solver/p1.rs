@@ -21,6 +21,7 @@
 //! | [`FilletSolver::set_extension_flags`]                  | `SetExtensionFlags`                                   |
 //! | [`FilletSolver::set_offsets_data`], [`FilletSolver::offsets_data`] | `SetOffsetsData`, `GetOffsetsData`        |
 //! | [`FilletSolver::setup_offset_extension`]               | `SetupOffsetExtension`                                |
+//! | [`FilletSolverOps::setup_offset_extension`]            | `SetupOffsetExtension` (virtual dispatch)             |
 //! | [`FilletSolver::compute_surface_values`]               | `ComputeSurfaceValues`                                |
 //! | [`compute_uv_vectors`]                                 | `SmFilletSolver::ComputeUVVectors`                    |
 //! | [`FilletSolver::split_fillet_geom_at_side_edge`]       | `SplitFilletGeomAtSideEdge`                           |
@@ -1618,6 +1619,23 @@ pub trait FilletSolverOps {
         Ok(true)
     }
 
+    /// `SetupOffsetExtension(pSurf, rDomain)` (virtual): the base is
+    /// [`FilletSolver::setup_offset_extension`]. `SmSurfaceSurfaceFS` overrides it (unit
+    /// `blend.fillet_standard_solver_p1`); a solver of that class implements this hook.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`FilletSolver::setup_offset_extension`]; [`SolidError::Unported`] for
+    /// an override of an unported unit.
+    fn setup_offset_extension(
+        &self,
+        k: &Kernel,
+        surface: &Surface,
+        domain: &mut Extent2d,
+    ) -> Result<()> {
+        self.solver().setup_offset_extension(k, surface, domain)
+    }
+
     /// `CanMakeAnalytic`: `!OffsetRadiiCanChange()` for the base.
     ///
     /// # Errors
@@ -3135,7 +3153,10 @@ mod tests {
     }
 
     fn z_plane() -> Surface {
-        Surface::from(Plane::from_normal(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 1.0)))
+        Surface::from(Plane::from_normal(
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(0.0, 0.0, 1.0),
+        ))
     }
 
     /// The plane of normal `(1, 2, 3)` whose unit offset passes through `(0, 0, 1)`.
