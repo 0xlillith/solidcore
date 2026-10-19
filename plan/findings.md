@@ -9538,4 +9538,5 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   uninitialised `dParam` (UB-154), so C++ returns a value. The `surface.cone_p2` shim
   refuses these inputs (`trim_defined`); the `surface.cone_p3` path reaches the file-static
   `sm_GetEllipseTrimIntervals` through `IntersectWithCone`, which has no such guard yet.
-  Reproduced with main's unpatched `cone/p2.rs` too.
+  Reproduced with main's unpatched `cone/p2.rs` too. Tracked in issue #276; the
+  `surface.cone_p2` refusals that are now stricter than needed are issue #277.
