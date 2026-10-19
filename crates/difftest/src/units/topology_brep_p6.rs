@@ -2,21 +2,28 @@
 //! Closure passes compare actual statuses, output reset, shell ownership, context
 //! mark advancement/locks, and every face-use mark. Copy and face construction
 //! currently compare only empty-input/null-surface paths; other cases defer.
+//! Native query metadata restores list order, concrete geometry kinds and owners.
+//! Residual shell rays share a persistent caller-owned context over the same
+//! mutable B-rep. Geometry import limitations are checked at their actual reads;
+//! the reported metadata diagnostic lists the operand's representation limits.
 
+use super::topology_shell::RayQueryContext;
 use super::topology_vertexuse::{self as shared, BrepIn};
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solidcore::geom::attribute::ObjectKey;
 use solidcore::geom::context::{MarkLock, MarkType};
+use solidcore::geom::object::ObjectRef;
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
-use solidcore::topology::brep::p6::{self, FaceTopologyOptions};
+use solidcore::topology::brep::p6::{self, FaceTopologyOptions, RegionSplitQueries};
+use solidcore::topology::brep_cache::{arena_identity, CacheObject};
 use solidcore::topology::topology_traverser::{Entity, Marks};
-use solidcore::topology::{Brep, EdgeId, FaceuseId, Region};
+use solidcore::topology::{Arena, Brep, BrepId, EdgeId, FaceuseId, Region};
 use solidcore::SolidError;
 use solidcore_ffi::units::topology_brep_p6::{self as ffi, Request};
 use solidcore_ffi::units::topology_vertexuse::counts;
@@ -55,6 +62,14 @@ fn one() -> i32 {
 }
 fn harness(e: impl std::fmt::Display) -> HarnessError {
     HarnessError::new(e.to_string())
+}
+
+fn p6_query_key(object: CacheObject) -> ObjectRef {
+    let mut reference = arena_identity(object);
+    if object == CacheObject::Brep {
+        reference.key = ObjectKey(0xB000_0000);
+    }
+    reference
 }
 
 fn block(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
@@ -145,13 +160,26 @@ impl UnitDiff for Runner {
 
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
-        let fixture = ffi::export(&path_of(&i.brep)?, &block(&i)?).map_err(harness)?;
+        let path = path_of(&i.brep)?;
+        let input = block(&i)?;
+        let fixture = ffi::export(&path, &input).map_err(harness)?;
         let c = counts(&fixture.graph).ok_or_else(|| harness("fixture construction failed"))?;
         let request = request(&i, c);
         let (mut b, _) = shared::import(&fixture.graph)?;
         // SmBrep.cpp:549-552: even an empty native B-rep owns a void
         // infinite region. Re-express that input fixture, not an empty arena.
         b.set_key(ObjectKey(0xB000_0000));
+        let raw_metadata = ffi::query_metadata(&path, &input).map_err(harness)?;
+        let metadata = shared::apply_query_metadata(&mut b, &raw_metadata, &p6_query_key)?;
+        if let Some(output) = metadata.deferred_output_for(false, false) {
+            return Ok(output);
+        }
+        let mut breps: Arena<BrepId, Brep> = Arena::default();
+        let brep_id = breps.insert(b).map_err(harness)?;
+        let b = breps
+            .get_mut(brep_id)
+            .ok_or_else(|| harness("registered B-rep disappeared"))?;
+        let mut queries = RayQueryContext::new(b, brep_id, metadata, p6_query_key);
         let mut destination = Brep::new();
         destination.set_key(ObjectKey(0xD000_0000));
         let infinite = destination
@@ -177,16 +205,17 @@ impl UnitDiff for Runner {
         let mut status = 0;
         // harness env: the runner holds no attribute state (default region records,
         // empty store; see RegionNotifyState)
-        let mut notify_state = solidcore::topology::brep::p2::RegionNotifyState::new(&b);
+        let mut notify_state = solidcore::topology::brep::p2::RegionNotifyState::new(b);
         for _ in 0..request.repeat {
             let result = match request.op {
                 0 => p6::test_closure_split_region_attempt(
                     &mut k,
-                    &mut b,
+                    b,
                     &mut marks,
                     &mut notify_state.env(),
                     i.flags & 1 != 0,
                     FaceuseId::from_index(request.seed as u32),
+                    &mut queries,
                 )
                 .and_then(|attempt| {
                     body = vec![
@@ -205,13 +234,20 @@ impl UnitDiff for Runner {
                         .iter()
                         .map(|e| EdgeId::from_index(*e as u32))
                         .collect();
-                    p6::copy_edges(&k, &b, &edges, &mut destination).map(|copied| {
-                        body = if i.flags & 2 != 0 {
-                            vec![copied.len() as i64]
-                        } else {
-                            vec![]
-                        };
-                    })
+                    let geometry = if edges.is_empty() {
+                        Ok(())
+                    } else {
+                        queries.check_geometry(b, true, false)
+                    };
+                    geometry
+                        .and_then(|()| p6::copy_edges(&k, b, &edges, &mut destination))
+                        .map(|copied| {
+                            body = if i.flags & 2 != 0 {
+                                vec![copied.len() as i64]
+                            } else {
+                                vec![]
+                            };
+                        })
                 }
                 2 => {
                     let surface = (i.flags & 4 == 0).then(|| {
@@ -226,7 +262,7 @@ impl UnitDiff for Runner {
                         ..FaceTopologyOptions::default()
                     };
                     p6::make_face_topology(
-                        &mut b,
+                        b,
                         surface,
                         if i.flags & 8 == 0 {
                             OrientType::Same
@@ -252,7 +288,19 @@ impl UnitDiff for Runner {
                         lock.release(std::slice::from_mut(&mut k.context))
                             .map_err(harness)?;
                     }
-                    return Ok(output);
+                    return Ok(
+                        if matches!(
+                            error,
+                            SolidError::Unported {
+                                unit: "harness:analytic-geometry-export",
+                                ..
+                            }
+                        ) {
+                            queries.metadata().deferred_output().unwrap_or(output)
+                        } else {
+                            output
+                        },
+                    );
                 }
                 if let SolidError::Upstream { code, .. } = error {
                     status = i64::from(code);

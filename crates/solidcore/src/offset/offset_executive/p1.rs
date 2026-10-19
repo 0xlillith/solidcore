@@ -1872,15 +1872,21 @@ mod tests {
     }
 
     #[test]
-    fn original_brep_query_propagates_actual_cache_dependency() {
+    fn original_brep_query_builds_real_empty_cache_and_returns_no_solutions() {
         let kernel = Kernel::default();
-        // The real cache constructor currently defers at bounding-box calculation,
-        // not at the already implemented BrepPointSolve entry point.
-        assert_dependency(
-            make_original_brep_cache(&kernel, &Brep::new()),
-            "SmBrep::CalculateBoundingBox",
-            "query.brep",
-        );
+        let original = Brep::new();
+        let cache = make_original_brep_cache(&kernel, &original).unwrap();
+        // The cache constructor publishes all three real, empty trees. Passing
+        // that cache to the live solver must succeed without inventing a hit.
+        for tree in [
+            cache.vertex_tree(),
+            cache.curve_tree(),
+            cache.surface_tree(),
+        ] {
+            assert!(tree.unwrap().object_list().unwrap().is_empty());
+        }
+        let solutions = solve_original_brep_point(&kernel, &original, &cache, Vec3::ZERO).unwrap();
+        assert!(solutions.is_empty());
     }
 
     #[test]
@@ -1902,8 +1908,22 @@ mod tests {
     fn original_brep_query_rejects_unmapped_geometry_owners() {
         let kernel = Kernel::default();
         let mut original = Brep::new();
-        let edgeuse = add_use(&mut original, 0.0, 1.0, 1.0);
-        let edge_id = edge_of(&original, edgeuse).unwrap();
+        let start = original.add_vertex_record(Vertex::default()).unwrap();
+        let end = original
+            .add_vertex_record(Vertex {
+                point: Vec3::X,
+                ..Vertex::default()
+            })
+            .unwrap();
+        let edge_id = original
+            .add_edge_record(Edge {
+                vertices: [start, end],
+                edgeuses: Vec::new(),
+                interval: Extent1d::from_raw(0.0, 1.0),
+                tolerance: 0.0,
+                curve: Some(Curve::from(Line::from_points(Vec3::ZERO, Vec3::X, 3))),
+            })
+            .unwrap();
         original
             .edge_mut(edge_id)
             .unwrap()
@@ -1928,11 +1948,17 @@ mod tests {
             .as_mut()
             .unwrap()
             .set_owner(Some(arena_identity(CacheObject::Edge(edge_id))), None);
-        assert_dependency(
-            make_original_brep_cache(&kernel, &original),
-            "SmBrep::CalculateBoundingBox",
-            "query.brep",
-        );
+        let cache = make_original_brep_cache(&kernel, &original).unwrap();
+        let curves = cache.curve_tree().unwrap();
+        let curve_objects: Vec<_> = curves
+            .object_list()
+            .unwrap()
+            .into_iter()
+            .map(|entry| curves.list(entry).unwrap().object)
+            .collect();
+        // A correct direct owner includes this exact curve in the cache; the
+        // incompatible owner above must be rejected, never silently omitted.
+        assert_eq!(curve_objects, vec![Some(CacheObject::Curve(edge_id))]);
     }
 
     #[test]

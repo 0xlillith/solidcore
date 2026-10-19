@@ -94,6 +94,14 @@ impl Op {
 
 mod sys {
     extern "C" {
+        pub fn sc_topology_brep_p1_query_metadata(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            n_in: i64,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
         pub fn sc_topology_brep_p1_eval(
             op: i32,
             path: *const std::ffi::c_char,
@@ -419,4 +427,32 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     brep_args(op, &mut rd, c)?;
     rd.done()?;
     raw(op, path, input)
+}
+
+/// Export the native construction's ordered topology and query geometry metadata.
+/// Accepts only the B-rep construction block, with no operation parameters. The
+/// same builder and graph registration as [`Op::Export`] issue every index.
+///
+/// # Errors
+/// Malformed input, a native construction failure or an output-buffer failure.
+pub fn query_metadata(path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
+    let mut rd = Reader { input, at: 0 };
+    brep_block(&mut rd, path)?;
+    rd.done()?;
+    let cpath = std::ffi::CString::new(path).map_err(|_| bad("path has a NUL byte"))?;
+    call_with_buffer(4096, |buffer, len| {
+        // SAFETY: the complete construction block is validated above; the input
+        // and NUL-terminated path remain live, and the shim uses the actual
+        // writable output capacity. Native objects never cross this boundary.
+        unsafe {
+            sys::sc_topology_brep_p1_query_metadata(
+                cpath.as_ptr(),
+                input.as_ptr(),
+                input.len() as i64,
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
 }

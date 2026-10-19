@@ -56,7 +56,7 @@
 //! - The calls into `SmBrep::GlueVertices`, `RemoveFaces`, `StitchAndOrient`
 //!   (`topology.brep_p5`), `GlueEdgesGeneral` (`topology.brep_p7`), `SqueezeEdge`
 //!   (`topology.brep_p3`), `MakeVertexSplitEdge` (`topology.brep_p9`), `Notify`
-//!   (`topology.brep_p2`), `CalculateBoundingBox` (`query.brep`), `SmFace::GetBrep`,
+//!   (`topology.brep_p2`), `SmFace::GetBrep`,
 //!   `GetVertices`, `GetEdges` (`topology.face_p4`), `SmMerge::MergeAddedFace`
 //!   (`boolean.merge_p2`) and `SmStitch::DoStitching`, `StitchIntoSolid`,
 //!   `StitchIntoShell` (`heal.stitch_p2`) return [`SolidError::Unported`].
@@ -1151,7 +1151,8 @@ impl<'c> Stitch<'c> {
 
             // CalculateBoundingBox(sBrepBBox) with the header defaults; status ignored
             // upstream (a failure leaves the default-initialised box)
-            let brep_bbox = ignored(brep_bounding_box(b, false, false, true))?.unwrap_or_default();
+            let brep_bbox =
+                ignored(brep_bounding_box(k, b, false, false, true))?.unwrap_or_default();
 
             let edges = bp1::edges(b, None)?;
             // lNumPerNode = max(500, edges/10) only sizes the memory blocks
@@ -2055,17 +2056,21 @@ pub(crate) fn brep_notify_pre_edit(b: &mut Brep) -> Result<()> {
 /// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
 /// `query.brep`; header defaults FALSE, FALSE, TRUE).
 fn brep_bounding_box(
+    k: &Kernel,
     b: &Brep,
     approx: bool,
     tight: bool,
     expand_by_zone_tol_3d: bool,
 ) -> Result<Extent3d> {
-    let _ = (b, approx, tight, expand_by_zone_tol_3d);
-    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
-    Err(SolidError::unported(
-        "SmBrep::CalculateBoundingBox",
-        "query.brep",
-    ))
+    crate::query::brep::calculate_bounding_box(
+        k,
+        b,
+        crate::query::brep::BoundingBoxOptions {
+            approximate: approx,
+            tight,
+            expand_by_zone_tolerance: expand_by_zone_tol_3d,
+        },
+    )
 }
 
 /// Whether `SmFace::GetBrep()` is `b` (unit `topology.face_p4`).

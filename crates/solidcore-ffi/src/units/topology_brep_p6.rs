@@ -26,6 +26,14 @@ pub struct Request {
 
 mod sys {
     extern "C" {
+        pub fn sc_topology_brep_p6_query_metadata(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            out: *mut f64,
+            cap: i64,
+            len: *mut i64,
+        ) -> i32;
         pub fn sc_topology_brep_p6_eval(
             op: i32,
             path: *const std::ffi::c_char,
@@ -49,12 +57,37 @@ pub fn export(path: &str, input: &[f64]) -> Result<Fixture, FfiError> {
     graph::export(path, input)
 }
 
+/// Export exact query metadata from the native construction underlying [`export`].
+/// No closure, copy or face-construction result is part of this payload.
+///
+/// # Errors
+/// Invalid construction input or a native fixture/export failure.
+pub fn query_metadata(path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
+    let _fixture = export(path, input)?;
+    let path = std::ffi::CString::new(path)
+        .map_err(|_| FfiError::InvalidArgument("path has a NUL byte".into()))?;
+    call_with_buffer(1024, |out, len| {
+        // SAFETY: export validated the complete construction block. The path,
+        // input and output remain live and the shim honours the actual capacity.
+        unsafe {
+            sys::sc_topology_brep_p6_query_metadata(
+                path.as_ptr(),
+                input.as_ptr(),
+                input.len() as i64,
+                out.as_mut_ptr(),
+                out.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
 /// Execute a checked native request. `[-1, status]` means fixture construction
 /// failed, `[-2]` means a trimmed curve constructor returned null; both happen
 /// before the operation. Other statuses/exceptions are operation/harness errors.
 /// Closure outputs and face-use shell links use -1 for null, -3 for a non-null
 /// object outside the original graph, and nonnegative original-graph indices.
-/// These new-object paths are currently deferred in the differential runner.
+/// New-object paths retain this mapping as region distribution proceeds.
 pub fn eval(path: &str, input: &[f64], request: &Request) -> Result<Vec<f64>, FfiError> {
     let invalid = || FfiError::InvalidArgument("brep_p6 request".into());
     if !(0..=2).contains(&request.op)

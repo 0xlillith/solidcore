@@ -418,7 +418,12 @@ fn merge_shells(k: &mut Kernel, b: &mut Brep, mut del: ShellId, mut keep: ShellI
     // pReg->Remove(pDelShell), then pReg->GetSize()
     crate::topology::shell::region_remove_shell(b, reg, del)?;
     if b.region(reg)?.shells.is_empty() {
-        b.region_mut(reg)?.in_brep = false;
+        // Native this->Remove(pReg) ignores SmStatus; typed-id failures still
+        // refuse the operation instead of silently leaving a dangling list.
+        match b.remove_region_from_list(reg) {
+            Ok(()) | Err(SolidError::Upstream { .. }) => {}
+            Err(error) => return Err(error),
+        }
         reset_infinite_region(b)?;
     }
     Ok(())
@@ -1009,7 +1014,8 @@ pub fn make_face_with_curves(
 /// edge, widens the surviving edge's tolerance by `edge_gap`, merges the shells that now
 /// touch and, with `do_region_nesting`, places the edge uses in their radial sectors and
 /// tests for split regions. A wire `to_delete` is deleted. Nothing happens without both
-/// edges or for one edge.
+/// edges or for one edge. `queries` supplies the caller's live shell ray context if
+/// a region split reaches the infinite-region test.
 ///
 /// # Errors
 ///
@@ -1027,6 +1033,7 @@ pub fn glue_edges_general(
     to_delete: Option<EdgeId>,
     inside_faceuses: Option<&[FaceuseId]>,
     env: &mut ed::NotifyEnv<'_>,
+    queries: &mut dyn p6::RegionSplitQueries,
 ) -> Result<()> {
     let (Some(surv), Some(del)) = (surviving, to_delete) else {
         return Ok(());
@@ -1307,7 +1314,8 @@ pub fn glue_edges_general(
         let mut new_region = None;
         for fu in test_split {
             // status ignored; each call first resets rpNewRegion to NULL
-            let attempt = p6::test_closure_split_region_attempt(k, b, &mut marks, env, true, fu)?;
+            let attempt =
+                p6::test_closure_split_region_attempt(k, b, &mut marks, env, true, fu, queries)?;
             new_region = attempt.region;
         }
         if ed::is_spine(b, surv)? && new_region.is_none() {
@@ -1446,6 +1454,7 @@ pub fn merge_self_intersection_curves(
     tol_3d: f64,
     curves: &[SelfIntersectionCurve],
     env: &mut ed::NotifyEnv<'_>,
+    queries: &mut dyn p6::RegionSplitQueries,
 ) -> Result<Vec<EdgeId>> {
     let mut new_edges = Vec::new();
     let mut all_faces: Vec<FaceId> = face.into_iter().collect();
@@ -1505,6 +1514,7 @@ pub fn merge_self_intersection_curves(
                     Some(e2),
                     None,
                     env,
+                    queries,
                 )?;
             }
             new_edges.push(e1);
@@ -1559,6 +1569,13 @@ mod tests {
             context: None,
             key_of: &key_of,
         };
+        let mut queries = |_: &mut Kernel,
+                           _: &mut Brep,
+                           _: ShellId,
+                           _: crate::topology::shell::ShellRayInput<EntityRef>|
+         -> crate::topology::shell::ShellRayAttempt<EntityRef> {
+            panic!("a no-op glue must not fire a shell ray")
+        };
         for (s, d) in [
             (None, Some(e)),
             (Some(e), None),
@@ -1575,6 +1592,7 @@ mod tests {
                 d,
                 None,
                 &mut env,
+                &mut queries,
             )
             .unwrap();
         }
@@ -1589,6 +1607,7 @@ mod tests {
             Some(e2),
             None,
             &mut env,
+            &mut queries,
         );
         assert!(r.unwrap_err().is_unported());
     }

@@ -19,6 +19,7 @@
 // m_pProtoTopoMgr of the intersector is reached through a pointer-to-member (the manager is
 // made by IntersectInsertRelate, unit boolean.topology_intersector_p2, not ported yet).
 #include "sc_topology_fixture.h"
+#include "sc_brep_query_metadata.h"
 
 #include <SmBrepCache.h>
 #include <SmCacheMgr.h>
@@ -1679,6 +1680,14 @@ void run_ti(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
             export_graph(t.brep[b], t.g[b], ex);
             o.push_back((double)ex.size());
             o.insert(o.end(), ex.begin(), ex.end());
+        }
+        for (int b = 0; b < 2; b++)
+        {
+            std::vector<double> metadata;
+            if (t.brep[b] != nullptr)
+                append_query_metadata(t.brep[b], t.g[b], metadata);
+            o.push_back((double)metadata.size());
+            o.insert(o.end(), metadata.begin(), metadata.end());
         }
         return;
     }

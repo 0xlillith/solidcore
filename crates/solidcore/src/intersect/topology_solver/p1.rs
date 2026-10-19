@@ -117,7 +117,11 @@ const fn null_deref(operation: &'static str, reason: &'static str) -> SolidError
 pub trait TopologyObjects<O> {
     /// The cache associated with a B-rep handle. Adapters that expose B-reps
     /// provide this, or override `brep_trees` with their own tree storage.
-    fn brep_cache(&self, _brep: O) -> Result<&crate::topology::brep_cache::BrepCache<O>> {
+    fn brep_cache(
+        &self,
+        _kernel: &Kernel,
+        _brep: O,
+    ) -> Result<&crate::topology::brep_cache::BrepCache<O>> {
         Err(SolidError::invalid_input(
             "intersect::topology_solver::p1::TopologyObjects::brep_cache",
             "adapter has no B-rep cache mapping",
@@ -125,9 +129,9 @@ pub trait TopologyObjects<O> {
     }
 
     /// The B-rep's three cache trees, addressed by this adapter's handles.
-    fn brep_trees(&self, brep: O) -> Result<super::p2::TopologyTrees<'_, O>> {
+    fn brep_trees(&self, kernel: &Kernel, brep: O) -> Result<super::p2::TopologyTrees<'_, O>> {
         const OP: &str = "intersect::topology_solver::p1::TopologyObjects::brep_trees";
-        let cache = self.brep_cache(brep)?;
+        let cache = self.brep_cache(kernel, brep)?;
         Ok(super::p2::TopologyTrees {
             vertices: cache.vertex_tree().ok_or(SolidError::null_pointer(OP))?,
             curves: cache.curve_tree().ok_or(SolidError::null_pointer(OP))?,

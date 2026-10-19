@@ -324,7 +324,8 @@ pub fn min_edge_bbox_size(k: &Kernel, b: &Brep) -> Result<(f64, Option<EdgeId>)>
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for the B-rep box (`query.brep`) and `SmFace::SetTolerance` (`topology.face_p3`);
+/// [`SolidError::Unported`] from unavailable bounding-box dependencies or
+/// `SmFace::SetTolerance` (`topology.face_p3`);
 /// [`SolidError::NotFound`] for a dangling id.
 pub fn set_tolerance(
     k: &Kernel,
@@ -339,7 +340,7 @@ pub fn set_tolerance(
 
     // when sZoneTol3d <= 0.0 compute tol from Bounding box size
     if new_tol <= 0.0 {
-        let bbox = brep_bounding_box(k, b)?;
+        let bbox = crate::error::ignored(brep_bounding_box(k, b))?.unwrap_or_default();
         let mut size = bbox.size().length();
         if size >= 1.0e15 || size <= 0.0 {
             size = 1.0;
@@ -502,12 +503,11 @@ fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<bool> {
 
 /// `SmBrep::CalculateBoundingBox(box)` with defaults (unit `query.brep`).
 fn brep_bounding_box(k: &Kernel, b: &Brep) -> Result<Extent3d> {
-    let _ = (k, b);
-    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
-    Err(SolidError::unported(
-        "SmBrep::CalculateBoundingBox",
-        "query.brep",
-    ))
+    crate::query::brep::calculate_bounding_box(
+        k,
+        b,
+        crate::query::brep::BoundingBoxOptions::default(),
+    )
 }
 
 /// `SmFace::SetTolerance(tol, bUpdateOnlyIfLarger, FALSE)` (unit `topology.face_p3`).
@@ -582,8 +582,8 @@ pub const fn brep_ref(b: &Brep) -> ObjectRef {
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] where upstream dereferences null (a cache without the
-/// tree, a face without surface); [`SolidError::Unported`] from unported callees
-/// (`SmFace::CalculateBoundingBox`, `query.face_p1`; rebuilding a cache, `query.brep`);
+/// tree, a face without surface); [`SolidError::Unported`] from unavailable
+/// box, geometry or cache dependencies;
 /// errors of `SmSAGObject::Notify`.
 pub fn notify(
     b: &Brep,
@@ -926,12 +926,7 @@ fn edge_box(k: &Kernel, b: &Brep, e: EdgeId) -> Result<Extent3d> {
 
 /// `SmFace::CalculateBoundingBox(box)` (unit `query.face_p1`).
 fn face_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
-    let _ = (k, b, f);
-    // UNPORTED(query.face_p1): SmFace::CalculateBoundingBox
-    Err(SolidError::unported(
-        "SmFace::CalculateBoundingBox",
-        "query.face_p1",
-    ))
+    crate::query::face::p1::calculate_bounding_box(k, b, f, false)
 }
 
 // ---- caches -------------------------------------------------------------------------------
@@ -1263,6 +1258,46 @@ pub fn ray_fire(
     ray_zone_tol_3d: f64,
     answer_limit: Option<f64>,
 ) -> Result<RayFireResult> {
+    ray_fire_with_cache(
+        k,
+        b,
+        brep_id,
+        |_| Ok(cache),
+        keys,
+        owner_of,
+        start,
+        direction,
+        ray_zone_tol_3d,
+        answer_limit,
+    )
+}
+
+/// The `RayFire` body with lazy access to the B-rep's caller-owned cache.
+/// `cache` is invoked at `BrepPointSolve`, after the bounding sphere and ray
+/// direction have been computed; cache errors must not precede those operations.
+/// The returned cache borrows caller storage, independently of the B-rep borrow,
+/// so sectoring can subsequently create UV trim curves in the live B-rep.
+/// Its trees must describe this B-rep with the supplied `keys` and `owner_of`, as
+/// for [`BrepObjects`]. A caller with no cache can build it in this callback;
+/// constructing it before calling [`ray_fire`] would change the first error.
+///
+/// # Errors
+///
+/// The errors of [`ray_fire`] and of the cache accessor, at its native position
+/// after the bounding box and ray direction calculations.
+#[allow(clippy::too_many_arguments)] // same upstream routine with a cache accessor
+pub fn ray_fire_with_cache<'cache>(
+    k: &Kernel,
+    b: &mut Brep,
+    brep_id: BrepId,
+    cache: impl FnOnce(&Brep) -> Result<&'cache BrepCache>,
+    keys: &dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+    start: Point3,
+    direction: Vec3,
+    ray_zone_tol_3d: f64,
+    answer_limit: Option<f64>,
+) -> Result<RayFireResult> {
     // get Brep BoundingBox and BoundingSphere
     let bbox = brep_bounding_box(k, b)?;
     let sphere = bbox.sphere_bound();
@@ -1275,6 +1310,7 @@ pub fn ray_fire(
     // cast ray through Brep
     let best_sq = answer_limit.map_or(BIG_DOUBLE, |l| l * l);
     let vectors = [ray];
+    let cache = cache(b)?;
     let objects = BrepObjects {
         brep: b,
         brep_id,
@@ -1303,7 +1339,9 @@ pub fn ray_fire(
         // But sometimes callers will set the infinite region to Null... [B111]
         let region = match b.infinite_region() {
             Some(r) => Some(r),
-            None => b.region_list_head(),
+            // The recorded head is optional in the arena model; GetRegions
+            // resolves its implicit first record and any explicit rotation.
+            None => p1::regions(b, None)?.first().copied(),
         };
         intersection.set_class_object(PointClassType::Unknown, None);
         return Ok(RayFireResult {
@@ -2618,6 +2656,74 @@ mod tests {
         let (mut b, ..) = brep();
         let k = Kernel::default();
         check_and_fix_uv_trim_curves(&k, &mut b).unwrap();
+    }
+
+    #[test]
+    fn ray_fire_uses_effective_region_head_when_infinite_is_null() {
+        use crate::query::brep::{point_3d_classify, BrepPointObjects};
+        use crate::topology::{Arena, Region};
+
+        let k = Kernel::default();
+        let mut breps: Arena<BrepId, Brep> = Arena::default();
+        let id = breps.insert(Brep::new()).unwrap();
+        let b = breps.get_mut(id).unwrap();
+        // Real vertex boxes make a nondegenerate B-rep box. Neither vertex lies
+        // on the +X ray, so the actual cache and solver produce no intersections.
+        b.add_vertex(Point3::new(-2.0, 3.0, 1.0)).unwrap();
+        b.add_vertex(Point3::new(4.0, 5.0, 2.0)).unwrap();
+        // A detached first arena record must never become the list's implicit
+        // head. The two attached records supply the implicit and rotated heads.
+        b.add_region_record(Region::default()).unwrap();
+        let first = b
+            .add_region_record(Region {
+                in_brep: true,
+                is_void: 1,
+                ..Region::default()
+            })
+            .unwrap();
+        let second = b
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
+        b.set_infinite_region(None);
+        let keys = brep_cache::arena_identity;
+        let owner_of = |_: ObjectRef| None;
+        let mut cache = Some(brep_cache::make_brep_cache(&k, CacheSource::Brep(b), &keys).unwrap());
+        for (head, expected) in [(None, first), (Some(second), second)] {
+            b.set_region_list_head(head);
+            let hit = ray_fire(
+                &k,
+                b,
+                id,
+                cache.as_ref().unwrap(),
+                &keys,
+                &owner_of,
+                Point3::new(0.0, 0.0, 0.0),
+                Vec3::new(1.0, 0.0, 0.0),
+                ZONE_TOL_3D,
+                None,
+            )
+            .unwrap();
+            assert_eq!(hit.region, Some(expected));
+            assert_eq!(hit.intersection.point_class(), PointClassType::Unknown);
+            assert_eq!(hit.intersection.object(), None);
+
+            let mut pc = PointClassification::new(ZONE_TOL_3D);
+            let mut objects = BrepPointObjects::new(b, id, &mut cache, &keys, &owner_of);
+            point_3d_classify(
+                &k,
+                &mut objects,
+                Point3::new(0.0, 0.0, 0.0),
+                ZONE_TOL_3D,
+                false,
+                &mut pc,
+            )
+            .unwrap();
+            assert_eq!(pc.point_class(), PointClassType::Region);
+            assert_eq!(pc.object(), Some(EntityRef::Region(expected)));
+        }
     }
 
     #[test]

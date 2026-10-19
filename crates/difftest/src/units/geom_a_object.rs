@@ -48,14 +48,17 @@ use std::sync::{Arc, Mutex};
 use serde_json::{json, Value};
 
 use solidcore::geom::a_object::{
-    self, AObject, CacheCheckOutIn, CacheId, CacheMaker, CacheStore, ObjectCacheType,
+    self, AObject, CacheCheckOutIn, CacheId, CacheStore, ObjectCacheType,
 };
 use solidcore::geom::attribute::{
     ids, Attribute, AttributeHandle, AttributeStore, AttributeValue, Behavior, ObjectKey,
 };
 use solidcore::geom::context::{Context, NotifyCallback};
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
+use solidcore::kernel::Kernel;
 use solidcore::nurbs::math::CPoint;
+use solidcore::topology::brep_cache::BrepCache;
+use solidcore::topology::{Arena, Brep, BrepId, Region};
 use solidcore::{SolidError, Vec3};
 use solidcore_ffi::units::geom_a_object::{self as ffi, op};
 use solidcore_ffi::FfiError;
@@ -428,6 +431,7 @@ struct Obj {
     kind: i64,
     r: ObjectRef,
     a: AObject,
+    brep: Option<BrepId>,
 }
 
 struct RustRun {
@@ -436,10 +440,12 @@ struct RustRun {
     objs: Vec<Obj>,
     handles: Vec<AttributeHandle>,
     consumed: Vec<bool>,
-    caches: CacheStore<()>,
+    // None is the shim's plain ScCache; newly built B-rep caches retain their data.
+    caches: CacheStore<Option<BrepCache>>,
+    breps: Arena<BrepId, Brep>,
     cache_ids: Vec<CacheId>,
     guards: Vec<CacheCheckOutIn>,
-    ctx: Context,
+    kernel: Kernel,
     rec: Arc<Mutex<Vec<i64>>>,
     pay_d: std::vec::IntoIter<f64>,
 }
@@ -536,13 +542,23 @@ impl RustRun {
             .ok_or_else(|| h(format!("cache {c}")))
     }
 
-    fn new_brep_cache(&mut self) -> solidcore::Result<CacheId> {
+    fn build_brep_cache(
+        kernel: &Kernel,
+        breps: &Arena<BrepId, Brep>,
+        target: Option<BrepId>,
+    ) -> solidcore::Result<Option<BrepCache>> {
         use solidcore::topology::brep_cache::{arena_identity, make_brep_cache, CacheSource};
-        let brep = solidcore::topology::Brep::new();
-        let _cache = make_brep_cache(&solidcore::kernel::Kernel::default(), CacheSource::Brep(&brep), &arena_identity)?;
-        // This runner compares cache lifetime metadata only; geometry is covered
-        // by topology.brep_cache. Fresh native caches are not in cache_ids either.
-        self.caches.insert(())
+        let brep = target.and_then(|id| breps.get(id)).ok_or_else(|| {
+            SolidError::invalid_input("difftest::geom_a_object", "missing target B-rep")
+        })?;
+        let keys = |object| match object {
+            solidcore::topology::brep_cache::CacheObject::Brep => ObjectRef {
+                type_code: a_object::BREP_TYPE,
+                key: brep.key(),
+            },
+            other => arena_identity(other),
+        };
+        make_brep_cache(kernel, CacheSource::Brep(brep), &keys).map(Some)
     }
 
     fn cache_index(&self, c: Option<CacheId>) -> i64 {
@@ -765,7 +781,7 @@ impl RustRun {
                     tryr!(a_object::sag_notify_with_regions(
                         &mut records,
                         &mut self.store,
-                        Some(&mut self.ctx),
+                        Some(&mut self.kernel.context),
                         opn,
                         this,
                         d1,
@@ -779,7 +795,7 @@ impl RustRun {
                     }
                     tryr!(a_object::notify_with_regions(
                         &mut self.store,
-                        Some(&mut self.ctx),
+                        Some(&mut self.kernel.context),
                         opn,
                         this,
                         d1,
@@ -806,6 +822,7 @@ impl RustRun {
                         key: new,
                     },
                     a: AObject::new(),
+                    brep: None,
                 });
                 tryr!(a_object::copy_construct(&mut self.store, src, new));
                 out.push(self.objs.len() as i64 - 1);
@@ -817,7 +834,7 @@ impl RustRun {
                 Ok(Step::Status(0))
             }
             op::NEW_CACHE => {
-                let c = tryr!(self.caches.insert(()));
+                let c = tryr!(self.caches.insert(None));
                 self.cache_ids.push(c);
                 out.push(self.cache_ids.len() as i64 - 1);
                 Ok(Step::Status(0))
@@ -885,27 +902,32 @@ impl RustRun {
             op::GET_OR_CREATE => {
                 let ct = cache_type(a2)?;
                 let o = self.obj(a1)?;
-                let maker = if o.kind == O_BREP {
-                    CacheMaker::SagObject
-                } else {
-                    CacheMaker::AObject
-                };
-                let needs_build = o.kind == O_BREP && o.a.cache_obj().is_none();
-                let c = if needs_build {
-                    let c = tryr!(self.new_brep_cache());
-                    if let Some(o) = self.objs.get_mut(a1 as usize) {
-                        o.a.set_cache_obj(Some(c));
-                    }
-                    Some(c)
-                } else {
-                    tryr!(a_object::get_or_create_object_cache(
-                        ct,
-                        Some(&self.ctx),
-                        maker,
-                        o.r.type_code,
-                        &o.a
-                    ))
-                };
+                let (kind, target_type, target, mut object) = (o.kind, o.r.type_code, o.brep, o.a);
+                let kernel = &self.kernel;
+                let breps = &self.breps;
+                let caches = &mut self.caches;
+                let c = tryr!(a_object::get_or_create_object_cache_with(
+                    ct,
+                    Some(&kernel.context),
+                    &mut object,
+                    |ct, this, old| {
+                        if kind == O_BREP {
+                            a_object::sag_cache_make_or_validate_with(
+                                ct,
+                                target_type,
+                                old,
+                                this,
+                                caches,
+                                || Self::build_brep_cache(kernel, breps, target),
+                            )
+                        } else {
+                            Ok(a_object::cache_make_or_validate(ct, old))
+                        }
+                    },
+                ));
+                if let Some(o) = self.objs.get_mut(a1 as usize) {
+                    o.a = object;
+                }
                 out.push(self.cache_index(c));
                 Ok(Step::Status(0))
             }
@@ -915,12 +937,22 @@ impl RustRun {
                     return Err(h("sag_make on a non-B-rep"));
                 }
                 let target = self.obj(a2)?.r.type_code;
+                let target_brep = self.obj(a2)?.brep;
                 let old = self.cache_arg(a3)?;
-                let made = if target == a_object::BREP_TYPE && old.is_none() {
-                    self.new_brep_cache().map(Some)
-                } else {
-                    a_object::sag_cache_make_or_validate(ct, target, old)
-                };
+                let mut this = self.obj(a1)?.a;
+                let kernel = &self.kernel;
+                let breps = &self.breps;
+                let made = a_object::sag_cache_make_or_validate_with(
+                    ct,
+                    target,
+                    old,
+                    &mut this,
+                    &mut self.caches,
+                    || Self::build_brep_cache(kernel, breps, target_brep),
+                );
+                if let Some(o) = self.objs.get_mut(a1 as usize) {
+                    o.a = this;
+                }
                 match made {
                     Ok(c) => {
                         out.push(self.cache_index(c));
@@ -1029,19 +1061,41 @@ fn run_rust_script(v: &Value) -> Result<Output, HarnessError> {
             out: Arc::clone(&rec),
         })));
     }
+    let mut breps: Arena<BrepId, Brep> = Arena::default();
     let objs = s
         .objects
         .iter()
         .enumerate()
-        .map(|(i, &k)| Obj {
-            kind: k,
-            r: ObjectRef {
-                type_code: type_code_of(k),
+        .map(|(i, &kind)| {
+            let r = ObjectRef {
+                type_code: type_code_of(kind),
                 key: ObjectKey(i as u64),
-            },
-            a: AObject::new(),
+            };
+            let brep = if kind == O_BREP {
+                // The shim constructs each SmBrep in its shared context, including
+                // its real infinite, void region. Keep that exact fixture object.
+                let mut b = Brep::new();
+                b.set_key(r.key);
+                let infinite = b.add_region_record(Region {
+                    in_brep: true,
+                    is_void: 1,
+                    ..Region::default()
+                })?;
+                b.set_infinite_region_record(Some(infinite));
+                b.set_region_list_head(Some(infinite));
+                Some(breps.insert(b)?)
+            } else {
+                None
+            };
+            Ok(Obj {
+                kind,
+                r,
+                a: AObject::new(),
+                brep,
+            })
         })
-        .collect();
+        .collect::<solidcore::Result<Vec<_>>>()
+        .map_err(|e| h(e.to_string()))?;
     let regions = crate::fixtures::regions::RegionScene::orphan_objects(
         s.objects
             .iter()
@@ -1057,9 +1111,13 @@ fn run_rust_script(v: &Value) -> Result<Output, HarnessError> {
         handles: Vec::new(),
         consumed: Vec::new(),
         caches: CacheStore::new(),
+        breps,
         cache_ids: Vec::new(),
         guards: Vec::new(),
-        ctx,
+        kernel: Kernel {
+            context: ctx,
+            ..Kernel::default()
+        },
         rec,
         pay_d: s.payload_d.clone().into_iter(),
     };

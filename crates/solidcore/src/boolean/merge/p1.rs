@@ -27,9 +27,10 @@
 //! Region propagation takes refs and
 //! their `IsVoid` results and source-list callback handles, because arena regions
 //! do not yet carry shell state.
-//! Missing topology mutations and point classification return
-//! Unported at the first call reached. The temporary transform waits on B-rep
-//! bounding boxes before any mutation; no translation is faked. Destruction is
+//! Missing topology mutations return Unported at the first call reached. Point
+//! classification uses the caller's live B-rep, identity, owners and cache. The
+//! temporary transform calculates both boxes before reaching `SmBrep::Transform`
+//! (`topology.brep_p5`); no translation is faked. Destruction is
 //! Rust ownership. There is no input-dependent recursion.
 
 use std::collections::BTreeMap;
@@ -38,15 +39,20 @@ use crate::boolean::topology_intersector::p1::Relations;
 use crate::error::{Result, SolidError};
 use crate::geom::a_object::{self, BooleanOperation};
 use crate::geom::attribute::{ids, AttributeStore, ObjectKey};
+use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::context::Context;
+use crate::geom::extent3d::Extent3d;
 use crate::geom::object::{NotifyOperation, ObjectRef};
+use crate::intersect::point_class::{PointClassType, PointClassification};
 use crate::kernel::Kernel;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
+use crate::query::brep::{self as brep_query, BoundingBoxOptions, BrepQueryContext};
 use crate::topology::edgeuse::p1 as eu;
 use crate::topology::shell;
 use crate::topology::topology::{self as topo, Topology};
 use crate::topology::topology_traverser::face_edges;
 use crate::topology::{edge, vertex, Brep, EdgeId, FaceId, FaceuseId, RegionId, ShellId, VertexId};
+use crate::EntityRef;
 
 const OP: &str = "boolean::merge::p1";
 
@@ -190,15 +196,21 @@ fn merge_coincident_surfaces(
 /// Classify an other-operand face use into a primary region. A single primary
 /// region wins immediately. Otherwise try mated-edge radial sectors, then sample
 /// unmated edges at 0.456789 of their interval and classify each point.
+/// The query contexts must describe the matching operands; their geometry checks
+/// run only before geometric work. The primary spatial cache is built only if
+/// classification needs it. Editing is restored before handling any result.
 pub fn find_brep_region_of_other_face(
     k: &Kernel,
     brep: &mut Brep,
     other: &mut Brep,
+    query: &mut BrepQueryContext<'_>,
+    other_query: &BrepQueryContext<'_>,
     other_faceuse: FaceuseId,
     brep_mates: &BTreeMap<EdgeId, EdgeId>,
 ) -> Result<Option<RegionId>> {
-    if brep.regions().len() == 1 {
-        return Ok(brep.regions().ids().next());
+    let regions = crate::topology::brep::p1::regions(brep, None)?;
+    if regions.len() == 1 {
+        return Ok(regions.first().copied());
     }
     let edges = eu::faceuse_edgeuses(other, other_faceuse, false, None)?;
     for &other_eu in &edges {
@@ -206,6 +218,8 @@ pub fn find_brep_region_of_other_face(
         let Some(&mate) = brep_mates.get(&e) else {
             continue;
         };
+        query.check_geometry()?;
+        other_query.check_geometry()?;
         let Some(sector) = ignore_failure(edge::find_radial_sector_between(
             k,
             brep,
@@ -232,7 +246,7 @@ pub fn find_brep_region_of_other_face(
         }
         break;
     }
-    for other_eu in edges {
+    for other_eu in eu::faceuse_edgeuses(other, other_faceuse, false, None)? {
         let e = eu::edge(other, other_eu)?.ok_or_else(|| SolidError::null_pointer(OP))?;
         if brep_mates.contains_key(&e) {
             continue;
@@ -242,14 +256,36 @@ pub fn find_brep_region_of_other_face(
             .curve
             .as_ref()
             .ok_or_else(|| SolidError::null_pointer(OP))?;
-        let Some(_point) = ignore_failure(curve.evaluate_point(edge.interval.evaluate(0.456789)))?
+        other_query.check_geometry()?;
+        let Some(point) = ignore_failure(curve.evaluate_point(edge.interval.evaluate(0.456789)))?
         else {
             continue;
         };
-        // Point classification uses tolerance 0.0, boundary intersections FALSE,
-        // a classification initialised with edge.tolerance and editing disabled.
-        // UNPORTED(query.brep): SmBrep::Point3DClassify
-        return unavailable("SmBrep::Point3DClassify", "query.brep");
+        let mut classification = PointClassification::new(edge.tolerance);
+        let editing = brep.editing_enabled();
+        brep.set_editing_enabled(false);
+        let result = brep_query::point_3d_classify(
+            k,
+            &mut query.objects(brep),
+            point,
+            0.0,
+            false,
+            &mut classification,
+        );
+        brep.set_editing_enabled(editing);
+        if ignore_failure(result)?.is_none()
+            || classification.point_class() != PointClassType::Region
+        {
+            continue;
+        }
+        let Some(EntityRef::Region(region)) = classification.object() else {
+            return Err(SolidError::invalid_input(
+                OP,
+                "region classification has no region",
+            ));
+        };
+        brep.region(region)?;
+        return Ok(Some(region));
     }
     Ok(None)
 }
@@ -587,12 +623,57 @@ pub fn propagate_other_src_region_attribs(
     Ok(())
 }
 
-/// Scoped origin shift used by manifold Booleans. Bounding boxes are not yet
-/// available on arena B-reps; fail at that dependency before translating either
-/// operand. The eventual implementation must undo the shift on every exit path.
-pub fn temporary_brep_transform(_brep: &mut Brep, _other: &mut Brep) -> Result<()> {
-    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
-    unavailable("SmBrep::CalculateBoundingBox", "query.brep")
+/// Construct and immediately destroy the Boolean operation's temporary origin
+/// shift. [`with_temporary_brep_transform`] runs work within the translated scope.
+pub fn temporary_brep_transform(k: &Kernel, brep: &mut Brep, other: &mut Brep) -> Result<()> {
+    with_temporary_brep_transform(k, brep, other, |_, _| Ok(()))
+}
+
+/// Run work within `SmTemporaryBrepTransform`'s origin shift. Both operands are
+/// restored before returning the work's result, including an ordinary error.
+/// Native box/transform errors are ignored; unavailable callees remain explicit.
+/// A combined-box center at most 1000 units from the origin needs no transform.
+pub fn with_temporary_brep_transform<T>(
+    k: &Kernel,
+    brep: &mut Brep,
+    other: &mut Brep,
+    work: impl FnOnce(&mut Brep, &mut Brep) -> Result<T>,
+) -> Result<T> {
+    let bbox = ignore_failure(brep_query::calculate_bounding_box(
+        k,
+        brep,
+        BoundingBoxOptions::default(),
+    ))?
+    .unwrap_or_else(Extent3d::new);
+    let other_bbox = ignore_failure(brep_query::calculate_bounding_box(
+        k,
+        other,
+        BoundingBoxOptions::default(),
+    ))?
+    .unwrap_or_else(Extent3d::new);
+    let mut center = bbox.union(&other_bbox).evaluate(0.5, 0.5, 0.5);
+    let needs_translation = center.length_squared() > 1.0e6;
+    if needs_translation {
+        let mut axes = Axis2Placement::default();
+        center = -center;
+        axes.translate(center);
+        ignore_failure(transform_brep(brep, &axes))?;
+        ignore_failure(transform_brep(other, &axes))?;
+    }
+    let result = work(brep, other);
+    if needs_translation {
+        let mut axes = Axis2Placement::default();
+        center = -center;
+        axes.translate(center);
+        ignore_failure(transform_brep(brep, &axes))?;
+        ignore_failure(transform_brep(other, &axes))?;
+    }
+    result
+}
+
+fn transform_brep(_brep: &mut Brep, _axes: &Axis2Placement) -> Result<()> {
+    // UNPORTED(topology.brep_p5): SmBrep::Transform
+    unavailable("SmBrep::Transform", "topology.brep_p5")
 }
 
 #[cfg(test)]
@@ -625,6 +706,18 @@ mod tests {
                 &Kernel::default(),
                 &mut b,
                 &mut Brep::new(),
+                &mut BrepQueryContext::new(
+                    crate::topology::BrepId::from_index(0),
+                    &mut None,
+                    &crate::topology::brep_cache::arena_identity,
+                    &|_| None,
+                ),
+                &BrepQueryContext::new(
+                    crate::topology::BrepId::from_index(1),
+                    &mut None,
+                    &crate::topology::brep_cache::arena_identity,
+                    &|_| None,
+                ),
                 FaceuseId::from_index(u32::MAX),
                 &BTreeMap::new()
             )

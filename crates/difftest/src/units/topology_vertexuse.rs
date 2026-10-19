@@ -15,6 +15,10 @@
 //! The vertex use selector is taken modulo the vertex use count (so generated cases need
 //! no counts); target selectors of `IsConnectedTo` likewise, `-1` selecting null.
 
+#[path = "topology_vertexuse/query_metadata.rs"]
+mod query_metadata;
+pub(crate) use query_metadata::{apply_query_metadata, QueryMetadata};
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 

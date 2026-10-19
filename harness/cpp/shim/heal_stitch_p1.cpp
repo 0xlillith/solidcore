@@ -28,6 +28,7 @@
 #undef SmStitchCallback
 
 #include "sc_edgeuse_graph.h"
+#include "sc_brep_query_metadata.h"
 
 #include <SmApiBrep.h>
 #include <SmApiGeneral.h>
@@ -698,5 +699,30 @@ SC_EXPORT int32_t sc_heal_stitch_p1_eval(int32_t op, const char* path, const dou
     std::vector<double> o;
     run_op(op, rd, path, o);
     return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);
+    SC_CATCH
+}
+
+// Import-only metadata of the same construction and registry as OP_EXPORT.
+// Never call UnifyNormals or another operation under test while exporting.
+SC_EXPORT int32_t sc_heal_stitch_p1_query_metadata(const char* path, const double* input, int64_t count,
+                                                 double* out, int64_t cap, int64_t* out_len)
+{
+    if (!path || !input || !out_len || count < 1)
+        return SC_ERR_ARG;
+    SC_TRY
+    Rd rd{input, 0};
+    Built built;
+    SmStatus status = SM_SUCCESS;
+    built.brep = build_block(rd, path, status);
+    if (!built.brep || status != SM_SUCCESS)
+        return status == SM_SUCCESS ? SC_ERR_ARG : (int32_t)status;
+    if (rd.at != count)
+        return SC_ERR_ARG;
+    Graph graph;
+    walk(built.brep, graph);
+    walk_more(built.brep, graph);
+    std::vector<double> metadata;
+    append_query_metadata(built.brep, graph, metadata);
+    return sc_copy_out(metadata.data(), (int64_t)metadata.size(), out, cap, out_len);
     SC_CATCH
 }

@@ -241,18 +241,45 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             Ok(None) => Ok(status_only(SM_ERR)),
             Err(e) => Ok(rust_err(&e)),
         },
-        Inputs::Face { file, pnt } => match tools::find_face(
-            &solidcore::kernel::Kernel::default(),
-            &file_brep(file)?,
-            solidcore::topology::BrepId::from_index(0),
-            p3(*pnt),
-            &solidcore::topology::brep_cache::arena_identity,
-            &|_| None,
-        ) {
-            Ok(Some(f)) => Ok(status_only(0).int("face", i64::from(f.index()))),
-            Ok(None) => Ok(status_only(SM_ERR)),
-            Err(e) => Ok(rust_err(&e)),
-        },
+        Inputs::Face { file, pnt } => rust_face(file, p3(*pnt)),
+    }
+}
+
+fn rust_face(file: &str, point: Point3) -> Result<Output, HarnessError> {
+    use solidcore::topology::brep::p1;
+    use solidcore::topology::{Arena, BrepId};
+
+    // Cache construction reads every edge and face. The independent native file
+    // export preserves owner links and primary faceuses as well as geometry.
+    let export = ffi::query_export(file).map_err(|e| harness(&e))?;
+    let (graph, metadata) = super::geom_object::import_query_graph(&export)?;
+    if let Some(deferred) = metadata.deferred_output() {
+        return Ok(deferred);
+    }
+    let mut breps: Arena<BrepId, Brep> = Arena::default();
+    let id = breps.insert(graph).map_err(|e| harness(&e))?;
+    let brep = breps
+        .get_mut(id)
+        .ok_or_else(|| harness(&"registered B-rep missing"))?;
+    let faces = p1::faces(brep, None).map_err(|e| harness(&e))?;
+    let kernel = solidcore::kernel::Kernel::default();
+    match tools::find_face(
+        &kernel,
+        brep,
+        id,
+        point,
+        &super::geom_object::query_graph_identity,
+        &|_| None,
+    ) {
+        Ok(Some(face)) => {
+            let index = faces
+                .iter()
+                .position(|&f| f == face)
+                .ok_or_else(|| harness(&"selected face is outside the native B-rep list"))?;
+            Ok(status_only(0).int("face", index_i64(index)?))
+        }
+        Ok(None) => Ok(status_only(SM_ERR)),
+        Err(e) => Ok(rust_err(&e)),
     }
 }
 

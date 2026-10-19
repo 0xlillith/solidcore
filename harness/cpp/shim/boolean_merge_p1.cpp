@@ -2,6 +2,7 @@
 // Compile renamed upstream classes to expose the file-local helpers as well as
 // real SmMerge members. No algorithm is reimplemented in this shim.
 #include "sc_topology_fixture.h"
+#include "sc_brep_query_metadata.h"
 #include <SmBrepData.h>
 #include <SmBrepCache.h>
 #include <SmCacheMgrBrep.h>
@@ -76,13 +77,14 @@ void options(std::vector<double>& v, sc_mp1_Options& o) {
 // op: 0 control, 1 cleanup, 2 face coincidence, 3 vertex copy, 4 region attrs,
 // 5 face-region lookup, 6 solid-border lookup, 7 scoped translation,
 // 8 RadialSectorClassify, 9 FindRadialSector across independent operands.
+// 10 exports input query metadata only; it never calls a merge/query operation.
 // a/b/c are operation selectors; fixture bytes are validated by the safe wrapper.
 SC_EXPORT int32_t sc_boolean_merge_p1_eval(int32_t op, int32_t a, int32_t b, int32_t c,
     const char* path, const double* in, int64_t n,
     const char* other_path, const double* other_in, int64_t other_n,
     int32_t edit_tolerances, double primary_tolerance, double other_tolerance, double parameter,
     double* out, int64_t cap, int64_t* len) {
-    if (op < 0 || op > 9 || a < 0 || a > 31 || b < 0 || b > 31 || c < 0 || c > 31) return SC_ERR_ARG;
+    if (op < 0 || op > 10 || a < 0 || a > 31 || b < 0 || b > 31 || c < 0 || c > 31) return SC_ERR_ARG;
     SC_TRY
     std::vector<double> record;
     Probe merge;
@@ -108,6 +110,16 @@ SC_EXPORT int32_t sc_boolean_merge_p1_eval(int32_t op, int32_t a, int32_t b, int
     if (!other.brep) return SC_ERR_ARG;
     if (rd.at != n || rd2.at != other_n) return SC_ERR_ARG;
     Graph g,h; walk(primary.brep,g); walk(other.brep,h);
+    if (op == 10) {
+        std::vector<double> primary_metadata,other_metadata,result;
+        append_query_metadata(primary.brep,g,primary_metadata);
+        append_query_metadata(other.brep,h,other_metadata);
+        result.push_back((double)primary_metadata.size());
+        result.insert(result.end(),primary_metadata.begin(),primary_metadata.end());
+        result.push_back((double)other_metadata.size());
+        result.insert(result.end(),other_metadata.begin(),other_metadata.end());
+        return sc_copy_out(result.data(),result.size(),out,cap,len);
+    }
     merge.operands(primary.brep,other.brep);
     SmStatus status = SM_SUCCESS;
     if (op == 1) {

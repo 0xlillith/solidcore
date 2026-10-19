@@ -1,6 +1,13 @@
 //! Real B-rep box scripts and independent graph export for `query.brep`.
 //! Layout: has-graph [standard P1 B-rep block], extra vertices/edges, three
-//! tolerances, drop-wire-curves, step count, then (code, approx, tight, expand).
+//! tolerances, drop-wire-curves, reverse-registry, step count, then four values
+//! per step: `(code, approx, tight, expand)` for codes 0..=4, or
+//! `(5, edge-list-index, interval-min, interval-max)` for `SmEdge::SetInterval`.
+//! Export output is `graph-length, common-graph, face-list, edge-list, vertex-list,
+//! metadata-length, query-metadata`; each list is its count followed by native-order
+//! registry indices. Metadata preserves the concrete geometry, actual owners,
+//! primary faceuses, trim flags and native region state. Script output
+//! compares native list counts/order before the per-step status and box sentinels.
 //! Counts are bounded before C++ allocates or reads them. `Export` constructs the
 //! exact same graph without executing any box operation; setup failures remain
 //! harness errors in the runner. No geometry approximation is used here.
@@ -30,12 +37,17 @@ pub fn validate(path: &str, input: &[f64]) -> Result<(), FfiError> {
     rd.index(120)?;
     rd.finites(3)?;
     rd.flag()?;
+    rd.flag()?;
     let n = rd.index(16)?;
     for _ in 0..n {
-        rd.index(4)?;
-        rd.flag()?;
-        rd.flag()?;
-        rd.flag()?;
+        if rd.index(5)? == 5 {
+            rd.index(1_000_000)?;
+            rd.finites(2)?;
+        } else {
+            rd.flag()?;
+            rd.flag()?;
+            rd.flag()?;
+        }
     }
     rd.done()
 }
@@ -67,12 +79,12 @@ mod tests {
     use super::*;
     #[test]
     fn rejects_malformed_counts_before_native_reads_or_construction() {
-        for (index, value) in [(1, 1e30), (2, f64::NAN), (7, f64::INFINITY)] {
-            let mut input = [0.0; 8];
+        for (index, value) in [(1, 1e30), (2, f64::NAN), (8, f64::INFINITY)] {
+            let mut input = [0.0; 9];
             input[index] = value;
             assert!(eval(true, "", &input).is_err());
         }
-        assert!(eval(true, "", &[0.0; 7]).is_err());
-        assert!(eval(true, "contains\0nul", &[0.0; 8]).is_err());
+        assert!(eval(true, "", &[0.0; 8]).is_err());
+        assert!(eval(true, "contains\0nul", &[0.0; 9]).is_err());
     }
 }

@@ -186,7 +186,11 @@ fn static_tree(
     Ok(tree)
 }
 impl TopologyObjects<StaticHandle> for StaticScene {
-    fn brep_trees(&self, brep: StaticHandle) -> SolidResult<TopologyTrees<'_, StaticHandle>> {
+    fn brep_trees(
+        &self,
+        _kernel: &Kernel,
+        brep: StaticHandle,
+    ) -> SolidResult<TopologyTrees<'_, StaticHandle>> {
         let (vertices, empty) = match brep.0 {
             1000 => (&self.first, &self.empty_first),
             1001 => (&self.second, &self.empty_second),
@@ -362,7 +366,7 @@ fn static_rust(case: &Case) -> Result<Output, HarnessError> {
         handle: StaticHandle(999),
     };
     let interval = Extent1d::from_min_max(0.0, 1.0);
-    let shape = Shape::new(&[], &[], &[], &[]).map_err(|e| HarnessError::new(e.to_string()))?;
+    let shape = Shape::empty().map_err(|e| HarnessError::new(e.to_string()))?;
     let result = match i.entry {
         0 => TopologySolver::brep_point_solve(
             &kernel,

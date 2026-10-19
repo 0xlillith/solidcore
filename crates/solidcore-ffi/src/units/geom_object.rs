@@ -11,6 +11,7 @@
 //! | [`notify`] | `sc_geom_object_notify` | a script of `SmObject::Notify` calls             |
 //! | [`tcv`]    | `sc_geom_object_tcv`    | a script of `SmTemporaryChangeValue<TYPE>` calls |
 //! | [`shape`]  | `sc_geom_object_shape`  | `SmShape::SmShape` and its accessors             |
+//! | [`shape_export`] | `sc_geom_object_shape_export` | native source graph and query metadata before `SmShape` |
 
 use std::ffi::CString;
 
@@ -48,6 +49,14 @@ mod sys {
             path: *const std::ffi::c_char,
             sel: *const i64,
             n_sel: i64,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
+        pub fn sc_geom_object_shape_export(
+            source: i32,
+            bx: *const f64,
+            path: *const std::ffi::c_char,
             out: *mut f64,
             cap: i64,
             out_len: *mut i64,
@@ -277,6 +286,36 @@ pub fn shape(source: &ShapeSource, sel: &ShapeSelection) -> Result<Vec<f64>, Ffi
                 p,
                 s.as_ptr(),
                 s.len() as i64,
+                buf.as_mut_ptr(),
+                buf.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
+/// The shape source's real geometry and query metadata before shape construction.
+/// Its F/E/V registry numbering is independent of native list order. The result is
+/// `(geometry_length, geometry..., metadata_length, metadata...)`.
+pub fn shape_export(source: &ShapeSource) -> Result<Vec<f64>, FfiError> {
+    let (code, bx, path) = match source {
+        ShapeSource::None => return Ok(Vec::new()),
+        ShapeSource::Box(b) => (1, *b, None),
+        ShapeSource::File(p, ascii) => (
+            2,
+            [if *ascii { 1.0 } else { 0.0 }, 0.0, 0.0, 0.0, 0.0, 0.0],
+            Some(CString::new(p.as_str()).map_err(|_| FfiError::InvalidArgument("path".into()))?),
+        ),
+    };
+    let p = path.as_ref().map_or(std::ptr::null(), |c| c.as_ptr());
+    call_with_buffer(4096, |buf: &mut [f64], len| {
+        // SAFETY: bx has six values; p is null or a live NUL-terminated path;
+        // buf and len are writable for their advertised lengths.
+        unsafe {
+            sys::sc_geom_object_shape_export(
+                code,
+                bx.as_ptr(),
+                p,
                 buf.as_mut_ptr(),
                 buf.len() as i64,
                 &raw mut *len,

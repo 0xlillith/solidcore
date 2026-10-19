@@ -20,6 +20,10 @@
 //! **Inexact geometry.** The export carries B-spline curves, `SmLine`s, B-spline
 //! surfaces and `SmPlane`s exactly; other analytic kinds arrive as their B-spline part,
 //! so the ops evaluating geometry defer on B-reps holding them (as `topology.brep_p1`).
+//! Normal unification additionally installs the native query metadata: exact owner
+//! links, primary faceuses, trim flags, tolerances and B-rep lists. Unrepresentable
+//! query geometry defers before the initial box; null API arguments retain their
+//! native early exits without inspecting that geometry.
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -594,7 +598,15 @@ pub(crate) fn inexact(types: &ImportTypes) -> Option<Output> {
 /// Whether the op evaluates curves or surfaces (and so defers on inexact geometry).
 fn evaluates_geometry(op: &Resolved) -> bool {
     match op {
-        Resolved::Export | Resolved::VPairs { .. } => false,
+        // SmApiUnifyNormals rejects a null start face before reading the B-rep
+        // tolerance or constructing SmStitch, even if its geometry is inexact.
+        Resolved::Export
+        | Resolved::VPairs { .. }
+        | Resolved::Api {
+            which: 4,
+            face: None,
+            ..
+        } => false,
         Resolved::Api {
             null_brep, which, ..
         } => !*null_brep && *which != 5,
@@ -896,6 +908,27 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     }
     if matches!(op, Resolved::Export) {
         return Ok(Output::new().values("out", Vec::new()));
+    }
+    if matches!(
+        &op,
+        Resolved::Unify { .. }
+            | Resolved::Api {
+                which: 4,
+                null_brep: false,
+                face: Some(_),
+                ..
+            }
+    ) {
+        let raw = ffi::query_metadata(&path(&i.brep)?, &block_of(&i.brep)?)
+            .map_err(|e| harness(format!("query metadata: {e}")))?;
+        let metadata = super::topology_vertexuse::apply_query_metadata(
+            &mut b,
+            &raw,
+            &solidcore::topology::brep_cache::arena_identity,
+        )?;
+        if let Some(deferred) = metadata.deferred_output() {
+            return Ok(deferred);
+        }
     }
     let mut k = Kernel::default();
     match run_rust_op(&mut k, &mut b, &op) {

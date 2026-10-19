@@ -202,16 +202,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "wire_line_degenerate_huge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#25 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -346,16 +342,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "wire_line_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#35 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -610,16 +602,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_degenerate_huge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#62 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -760,16 +748,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "wire_cubic_sub_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#72 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -1032,16 +1016,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "face_plane_degenerate_huge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#99 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -1116,16 +1096,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "face_plane_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#109 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -1352,16 +1328,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_degenerate_huge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#136 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -1436,16 +1408,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#146 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -1672,16 +1640,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_sub_degenerate_huge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#173 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -1756,16 +1720,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "face_bspline_sub_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#183 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -1988,16 +1948,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "network_degenerate_huge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#210 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -2099,16 +2055,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "network_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/constructed.json#220 (upstream TestFiles/pt_TestFiles/constructed (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -2709,28 +2661,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#54 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#55 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -3074,16 +3018,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "Mouse_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#95 (upstream TestFiles/pt_TestFiles/Mouse.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -3934,64 +3874,44 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_degenerate_1e-06",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#190 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_degenerate_0.001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#191 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_degenerate_1.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#192 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#193 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#194 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -4311,16 +4231,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "Endcap_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#234 (upstream TestFiles/pt_TestFiles/Endcap.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -5158,28 +5074,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#332 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#333 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -5499,16 +5407,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#373 (upstream TestFiles/pt_TestFiles/box_with_large_fillet.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -6359,28 +6263,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "cone_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#471 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "cone_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#472 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -6720,16 +6616,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "cone_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#512 (upstream TestFiles/pt_TestFiles/cone.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -7609,28 +7501,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "disk_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#610 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "disk_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#611 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -7950,16 +7834,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "disk_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#651 (upstream TestFiles/pt_TestFiles/disk.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -8813,28 +8693,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#749 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#750 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -9154,16 +9026,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "ellips_ts2_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#790 (upstream TestFiles/pt_TestFiles/ellips_ts2.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -9969,64 +9837,44 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_degenerate_1e-06",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#885 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_degenerate_0.001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#886 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_degenerate_1.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#887 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#888 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#889 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -10346,16 +10194,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "plane_circ_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#929 (upstream TestFiles/pt_TestFiles/plane_circ.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -11201,28 +11045,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1027 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1028 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -11542,16 +11378,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "plane_square_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1068 (upstream TestFiles/pt_TestFiles/plane_square.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -12401,28 +12233,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1166 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1167 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -12758,16 +12582,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "sphere_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1207 (upstream TestFiles/pt_TestFiles/sphere.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -13642,28 +13462,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1305 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1306 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -14003,16 +13815,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "surf_extrude_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1346 (upstream TestFiles/pt_TestFiles/surf_extrude.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -14890,28 +14698,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1444 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1445 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -15251,16 +15051,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "surf_rev_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1485 (upstream TestFiles/pt_TestFiles/surf_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -16142,28 +15938,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1583 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1584 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -16499,16 +16287,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "surf_sphere150_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1624 (upstream TestFiles/pt_TestFiles/surf_sphere150.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -17366,64 +17150,44 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "torus_degenerate_1e-06",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1719 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "torus_degenerate_0.001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1720 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "torus_degenerate_1.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1721 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "torus_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1722 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "torus_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1723 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -17759,16 +17523,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "torus_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1763 (upstream TestFiles/pt_TestFiles/torus.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -18631,64 +18391,44 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_degenerate_1e-06",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1858 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_degenerate_0.001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1859 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_degenerate_1.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1860 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1861 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1862 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -19024,16 +18764,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "toruswvy_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#1902 (upstream TestFiles/pt_TestFiles/toruswvy.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -19920,28 +19656,20 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_degenerate_1000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2000 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_degenerate_1000000000000.0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2001 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -20277,16 +20005,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "vase_rev_lock_box",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p1/upstream_files.json#2041 (upstream TestFiles/pt_TestFiles/vase_rev.smb (SmBrep::ReadFromFile))",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -22738,16 +22462,12 @@
       "values_compared": 1
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::LockBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427431755999862644",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "deferred": {
@@ -22798,16 +22518,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::CalculateBoundingBox",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0007",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427431755999862650",
-      "values_compared": 0
+      "values_compared": 1
     },
     {
       "max_rel_err": 0.0,
@@ -22883,16 +22599,15 @@
     }
   ],
   "cases_both_errored": 45,
-  "cases_deferred": 464,
+  "cases_deferred": 393,
   "cases_failed": 0,
-  "cases_passed": 2110,
+  "cases_passed": 2181,
   "cases_rejected": 15,
   "cases_total": 2589,
   "deferred_by_unit": {
     "curve.crv_on_surf": 4,
     "harness:analytic-geometry-export": 217,
     "intersect.surface_drop_lib_p3": 10,
-    "query.brep": 71,
     "query.face_p2": 9,
     "surface.surface_cache_p1": 3,
     "topology.face_p2": 113,

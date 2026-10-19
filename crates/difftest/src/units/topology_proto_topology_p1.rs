@@ -28,6 +28,10 @@
 //! objects (their `SmVertex::GetPoint`, `SmEdge::GetCurve`, `SmFace::GetSurface`, ...
 //! in `intersect.point_class`), `SmBrep::Transform`, and the manager's fallback
 //! tolerance.
+//! The manager's two actual empty `SmBrep()` objects are separate from that pool.
+//! Point classification borrows matching live Rust B-reps and their lazy caches;
+//! no stand-in geometry is attached to them. Their constructor-created infinite
+//! regions keep separate handles, outside the shim's pool registry (`id == -2`).
 
 use std::collections::BTreeMap;
 
@@ -59,10 +63,12 @@ use solidcore::nurbs::b_spline_surface::BSplineSurface;
 use solidcore::nurbs::math::CPoint;
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
+use solidcore::query::brep::BrepPointObjects;
 use solidcore::query::poly::{PolyBrep, PolyNotifyEnv, PolyObjectKind};
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::surface::volume::Volume;
+use solidcore::topology::brep_cache::{arena_identity, BrepCache, CacheObject};
 use solidcore::topology::proto_topology::p1::api_transform::{
     self as api, PolyBrepTarget, PolyBrepTransform, TransformObject,
 };
@@ -78,8 +84,8 @@ use solidcore::topology::proto_topology::p1::{
 };
 use solidcore::topology::proto_topology::p2::ProtoBrep;
 use solidcore::topology::topology::{Topology, TopologyRecords};
-use solidcore::topology::Brep;
-use solidcore::SolidError;
+use solidcore::topology::{Arena, Brep, BrepId, Region, RegionId};
+use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_proto_topology_p1::{
     self as ffi, kind, list_op as lop, pool as pk, proto_op as p, proto_op_p2 as q, slot, tobj,
     PROBE_TYPES,
@@ -1226,6 +1232,114 @@ pub(super) struct Pool {
     pub(super) objs: Vec<PObj>,
     pub(super) kinds: Vec<i64>,
     pub(super) alive: Vec<bool>,
+    query_breps: Option<ProtoQueryBreps>,
+}
+
+struct ProtoQueryBrep {
+    handle: H,
+    id: BrepId,
+    infinite_region: RegionId,
+    region_handle: H,
+    cache: Option<BrepCache>,
+}
+
+/// The two real B-reps allocated by the shim after its independent object pool.
+/// Their only topology is the infinite void region created by `SmBrep()`.
+struct ProtoQueryBreps {
+    breps: Arena<BrepId, Brep>,
+    records: Vec<ProtoQueryBrep>,
+}
+
+impl ProtoQueryBreps {
+    fn new(handles: [(H, H); 2]) -> solidcore::Result<Self> {
+        let mut breps: Arena<BrepId, Brep> = Arena::default();
+        let mut records = Vec::new();
+        for (handle, region_handle) in handles {
+            let mut brep = Brep::new();
+            let infinite_region = brep.add_region_record(Region {
+                in_brep: true,
+                is_void: 1,
+                ..Region::default()
+            })?;
+            brep.set_infinite_region(Some(infinite_region));
+            brep.set_region_list_head(Some(infinite_region));
+            let id = breps.insert(brep)?;
+            breps
+                .get_mut(id)
+                .ok_or_else(|| SolidError::invalid_input("difftest::proto", "missing B-rep"))?
+                .set_key(ObjectKey(u64::from(id.index())));
+            records.push(ProtoQueryBrep {
+                handle,
+                id,
+                infinite_region,
+                region_handle,
+                cache: None,
+            });
+        }
+        Ok(Self { breps, records })
+    }
+
+    fn classify(
+        &mut self,
+        k: &Kernel,
+        handle: H,
+        point: Point3,
+        tolerance: f64,
+        boundaries: bool,
+        classification: &mut PointClassification<H>,
+    ) -> solidcore::Result<()> {
+        const OP: &str = "difftest::proto::brep_point_3d_classify";
+        let record = self
+            .records
+            .iter_mut()
+            .find(|record| record.handle == handle)
+            .ok_or_else(|| SolidError::invalid_input(OP, "unknown B-rep handle"))?;
+        let brep = self
+            .breps
+            .get_mut(record.id)
+            .ok_or_else(|| SolidError::invalid_input(OP, "missing registered B-rep"))?;
+        let brep_ref = ObjectRef {
+            type_code: solidcore::geom::a_object::BREP_TYPE,
+            key: brep.key(),
+        };
+        let keys = |object| match object {
+            CacheObject::Brep => brep_ref,
+            other => arena_identity(other),
+        };
+        // These native B-reps have no curves, surfaces or geometric owner chains.
+        let owner_of = |_: ObjectRef| None;
+        let infinite_region = record.infinite_region;
+        let region_handle = record.region_handle;
+        let entity_handle = |entity| match entity {
+            EntityRef::Region(region) if region == infinite_region => Ok(region_handle),
+            _ => Err(SolidError::invalid_input(
+                OP,
+                "empty native B-rep has no other registered topology",
+            )),
+        };
+        let mut objects = BrepPointObjects::with_handles(
+            brep,
+            record.id,
+            &mut record.cache,
+            &keys,
+            &owner_of,
+            &entity_handle,
+        );
+        solidcore::query::brep::point_3d_classify(
+            k,
+            &mut objects,
+            point,
+            tolerance,
+            boundaries,
+            classification,
+        )
+    }
+
+    fn is_external_region(&self, handle: H) -> bool {
+        self.records
+            .iter()
+            .any(|record| record.region_handle == handle)
+    }
 }
 
 impl ClassGeometry<H> for Pool {
@@ -1310,6 +1424,29 @@ impl ProtoTopology<H> for Pool {
 /// The bare stand-ins' members (upstream `SmEdge::GetInterval`, `GetCurve`, `GetTolerance`
 /// of the stand-in objects the shim makes), and new curves appended to the pool.
 impl ProtoBrep<H> for Pool {
+    fn brep_point_3d_classify(
+        &mut self,
+        k: &Kernel,
+        brep: H,
+        point: Point3,
+        point_zone_tolerance: f64,
+        boundary_intersections: bool,
+        classification: &mut PointClassification<H>,
+    ) -> solidcore::Result<()> {
+        self.query_breps
+            .as_mut()
+            .ok_or_else(|| {
+                SolidError::invalid_input("difftest::proto", "manager B-reps not constructed")
+            })?
+            .classify(
+                k,
+                brep,
+                point,
+                point_zone_tolerance,
+                boundary_intersections,
+                classification,
+            )
+    }
     fn edge_interval(&self, edge: H) -> Option<Extent1d> {
         match self.objs.get(edge.0) {
             Some(PObj::Edge { ivl, .. }) if self.live_h(edge) => Some(*ivl),
@@ -1425,7 +1562,15 @@ impl Pool {
         match h {
             None => -1.0,
             Some(h) => {
-                if self.alive.get(h.0).copied().unwrap_or(false) {
+                if self
+                    .query_breps
+                    .as_ref()
+                    .is_some_and(|breps| breps.is_external_region(h))
+                {
+                    // Pool::id in C++ distinguishes an unregistered live object
+                    // from a registered object that has been deleted (-3).
+                    -2.0
+                } else if self.alive.get(h.0).copied().unwrap_or(false) {
                     h.0 as f64
                 } else {
                     -3.0
@@ -1985,6 +2130,7 @@ fn run_proto(
         objs: Vec::new(),
         kinds: Vec::new(),
         alive: Vec::new(),
+        query_breps: None,
     };
     for ob in objects {
         let (obj, kd) = match ob {
@@ -2041,6 +2187,15 @@ fn run_proto(
     let brep1 = H(100_000, ClassObjectKind::Other);
     let brep2 = H(100_001, ClassObjectKind::Other);
     let ti = H(100_002, ClassObjectKind::Other);
+    pool.query_breps = Some(
+        match st(ProtoQueryBreps::new([
+            (brep1, H(100_003, ClassObjectKind::Region)),
+            (brep2, H(100_004, ClassObjectKind::Region)),
+        ]))? {
+            Ok(breps) => breps,
+            Err(status) => return Err(harness(format!("query B-reps: status {status}")).into()),
+        },
+    );
     let ti_tol = approx_tol;
     // two empty B-reps, as the shim's
     let (b1, b2) = (Brep::new(), Brep::new());

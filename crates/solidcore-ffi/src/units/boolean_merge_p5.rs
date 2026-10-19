@@ -3,7 +3,6 @@
 //! blocks are `[4, x, y, z]` (isolated shell vertex) and `[5]` (empty B-rep).
 //! The shim can export the complete input graph before invoking the unit.
 
-use super::topology_topology_traverser::Fixture;
 use super::topology_vertexuse::{self as shared, Op};
 use crate::{call_with_buffer, FfiError};
 use std::ffi::CString;
@@ -44,6 +43,19 @@ pub struct Operand<'a> {
     pub path: &'a str,
     /// Construction block (see module documentation).
     pub block: &'a [f64],
+}
+
+/// An operand exported before the merge, including the identity metadata needed
+/// by live B-rep queries. No merge result is included.
+#[derive(Debug, Clone)]
+pub struct Fixture {
+    /// The shared raw topology and geometry graph.
+    pub graph: Vec<f64>,
+    /// The native vertex-use list of every vertex, in graph order.
+    pub vertexuses: Vec<Vec<u32>>,
+    /// Native query metadata: list order, concrete geometry types and owners.
+    /// The shared differential-harness decoder validates its complete schema.
+    pub query_metadata: Vec<f64>,
 }
 
 /// Operation and established intersection state. Mark flags list all edges, then
@@ -162,10 +174,21 @@ pub fn export(o: Operand<'_>) -> Result<Fixture, FfiError> {
         vertexuses.push(list);
         at = end;
     }
-    if at != raw.len() {
+    let count = *raw.get(at).ok_or_else(invalid)?;
+    if !count.is_finite() || count < 0.0 || count.fract() != 0.0 || count > raw.len() as f64 {
         return Err(invalid());
     }
-    Ok(Fixture { graph, vertexuses })
+    at = at.checked_add(1).ok_or_else(invalid)?;
+    let end = at.checked_add(count as usize).ok_or_else(invalid)?;
+    let query_metadata = raw.get(at..end).ok_or_else(invalid)?.to_vec();
+    if end != raw.len() {
+        return Err(invalid());
+    }
+    Ok(Fixture {
+        graph,
+        vertexuses,
+        query_metadata,
+    })
 }
 
 /// Validate the one-to-one edge relation established by fixture `Relate` calls.

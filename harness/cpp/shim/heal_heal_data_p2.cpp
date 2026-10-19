@@ -15,6 +15,7 @@
 // rebuilds, as the heal.gap shim does), then the graph is walked (with the vertex
 // lists) and exported, followed by each vertex's vertex use list.
 #include "sc_topology_fixture.h"
+#include "sc_brep_query_metadata.h"
 
 #include <SmHashTable.h>
 #include <SmHealData.h>
@@ -34,6 +35,7 @@ enum P2Op : int32_t
     P2_PROB = 1,
     P2_HEAL = 2,
     P2_VLISTS = 3,
+    P2_QUERY_METADATA = 4,
 };
 
 struct EdgePeek : SmEdge
@@ -264,6 +266,17 @@ void run_export(Rd& rd, const char* path, std::vector<double>& o, bool lists)
     }
     else
         export_graph(brep, g, o);
+    delete brep;
+}
+
+void run_query_metadata(Rd& rd, const char* path, std::vector<double>& o)
+{
+    Graph g;
+    SmBrep* brep = prepare(rd, path, g, o);
+    if (brep == nullptr)
+        return;
+    // The same prepared geometry and traversal registry as export and Heal.
+    append_query_metadata(brep, g, o);
     delete brep;
 }
 
@@ -1575,6 +1588,7 @@ SC_EXPORT int32_t sc_heal_heal_data_p2_eval(int32_t op, const char* path, const 
     {
     case P2_EXPORT: run_export(rd, path, o, false); break;
     case P2_VLISTS: run_export(rd, path, o, true); break;
+    case P2_QUERY_METADATA: run_query_metadata(rd, path, o); break;
     case P2_PROB: run_prob(rd, o); break;
     case P2_HEAL: run_heal(rd, path, o); break;
     default: return SC_ERR_ARG;

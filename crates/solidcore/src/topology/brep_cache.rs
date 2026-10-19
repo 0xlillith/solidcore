@@ -22,8 +22,8 @@
 //! uninitialized cache return `InvalidInput` (upstream asserts). Ignored statuses
 //! propagate Unported; an ordinary ignored box failure keeps the previous box,
 //! as upstream. No new recursion; spatial-tree traversal uses geom.tree's bounds.
-//! B-rep box calculation (`query.brep`) and face queries (`topology.face_p4`) remain
-//! explicit back-edges; face boxes call `query::face::p1`; the polygon path is ported.
+//! B-rep and face boxes call `query::brep` and `query::face::p1`; face queries
+//! (`topology.face_p4`) remain explicit back-edges. The polygon path is ported.
 
 use crate::error::{Result, SolidError};
 use crate::geom::a_object::{BREP_TYPE, POLY_BREP_TYPE};
@@ -166,7 +166,7 @@ impl<O: Copy + PartialEq> BrepCache<O> {
         }
         let mut bbox = match source {
             CacheSource::Brep(b) => {
-                let mut bbox = brep_bounding_box(b)?;
+                let mut bbox = brep_bounding_box(k, b)?;
                 bbox.expand_absolute(b.tolerance() * 100.0);
                 let size = bbox.size();
                 bbox.add_point(bbox.max() + 0.15 * size);
@@ -435,17 +435,14 @@ fn resize_edge(
     Ok(())
 }
 
-fn brep_bounding_box(_b: &Brep) -> Result<Extent3d> {
-    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
-    Err(SolidError::unported(
-        "SmBrep::CalculateBoundingBox",
-        "query.brep",
-    ))
+fn brep_bounding_box(k: &Kernel, b: &Brep) -> Result<Extent3d> {
+    crate::query::brep::calculate_bounding_box(
+        k,
+        b,
+        crate::query::brep::BoundingBoxOptions::default(),
+    )
 }
 
-// (SmBrep::GetVertices / GetEdges / GetFaces are wired to topology::brep::p1; the
-// B-rep tree build calls brep_bounding_box first, so they are not reached until
-// query.brep lands and the unit's report cannot show them yet)
 fn brep_vertices(b: &Brep) -> Result<Vec<VertexId>> {
     crate::topology::brep::p1::vertices(b, None)
 }
@@ -463,9 +460,7 @@ fn face_bounding_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
 }
 
 fn face_edges(b: &Brep, f: FaceId) -> Result<Vec<EdgeId>> {
-    b.face(f)?;
-    // UNPORTED(topology.face_p4): SmFace::GetEdges
-    Err(SolidError::unported("SmFace::GetEdges", "topology.face_p4"))
+    crate::topology::topology_traverser::face_edges(b, f)
 }
 
 /// Builds a new cache for `SmSAGObject::CacheMakeOrValidate`. The source geometry
@@ -513,7 +508,7 @@ pub struct BrepObjects<'a> {
 }
 
 impl crate::intersect::topology_solver::p1::TopologyObjects<CacheObject> for BrepObjects<'_> {
-    fn brep_cache(&self, object: CacheObject) -> Result<&BrepCache> {
+    fn brep_cache(&self, _kernel: &Kernel, object: CacheObject) -> Result<&BrepCache> {
         if object != CacheObject::Brep {
             return Err(SolidError::invalid_input(OP, "expected B-rep handle"));
         }
@@ -748,17 +743,18 @@ mod tests {
         ));
         let mut cache = BrepCache::new(BREP_TYPE).unwrap();
         assert!(cache.vertex_tree().is_none());
-        let b = Brep::new();
+        let mut b = Brep::new();
+        // A real incomplete face fails its box calculation before the cache can
+        // publish any trees; an empty B-rep no longer stops at a query.brep stub.
+        let shell = b.add_shell().unwrap();
+        b.add_face(shell).unwrap();
         assert!(matches!(
             cache.resize_trees(&k, &b, &[], &[], &[], &arena_identity, &|_| None),
             Err(SolidError::InvalidInput { .. })
         ));
         assert!(matches!(
             cache.build_trees(&k, CacheSource::Brep(&b), |o| o, &arena_identity),
-            Err(SolidError::Unported {
-                unit: "query.brep",
-                ..
-            })
+            Err(SolidError::InvalidInput { .. })
         ));
         assert!(
             cache.vertex_tree().is_none()

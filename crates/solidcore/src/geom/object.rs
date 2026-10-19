@@ -23,7 +23,8 @@
 //! | [`TemporaryChangeValue::use_temp_value`]     | `SmTemporaryChangeValue::UseTempValue`            |
 //! | [`TemporaryChangeValue::set_new_value`]      | `SmTemporaryChangeValue::SetNewValue`             |
 //! | `Drop for TemporaryChangeValue`              | `~SmTemporaryChangeValue`                         |
-//! | [`Shape`], [`Shape::new`]                    | `SmShape`, `SmShape::SmShape`                     |
+//! | [`Shape`]                                   | `SmShape`                                        |
+//! | [`Shape::new_with_objects`], [`Shape::empty`], [`ShapeObjects`] | `SmShape::SmShape`, with explicit live context for non-empty inputs |
 //! | `Drop` (implicit)                            | `SmShape::~SmShape`                               |
 //! | [`Shape::vertex_tree`], [`Shape::curve_tree`], [`Shape::surface_tree`] | `SmShape::GetVertexTree`, `GetCurveTree`, `GetSurfaceTree` |
 //! | [`Shape::faces`], [`Shape::edges`], [`Shape::vertices`] | `SmShape::GetFaces`, `GetEdges`, `GetVertices` |
@@ -54,18 +55,22 @@
 //!   and `GetObjectColor` print or draw only and are not ported. Callback status
 //!   values are ignored, as upstream.
 //! - The shape's topology members are `(BrepId, id)` pairs over a caller-owned
-//!   B-rep slice. Building a non-empty shape needs the topology and geometry
-//!   queries of units not ported yet and returns [`SolidError::Unported`]; the
-//!   empty shape (upstream's `SE_MSG` "no Topology Objects" case, whose message is
-//!   not ported) is built exactly as upstream.
+//!   B-rep store. [`Shape::new_with_objects`] also borrows its geometry owner
+//!   resolver and persistent topology mark records, with their shared kernel.
+//!   Individual faces reuse the co-ported native face edge and vertex getters.
+//!   [`Shape::empty`] needs no geometry; non-empty inputs require the live-context
+//!   constructor. The earlier ids-only constructor was removed with its stubs.
 
-use crate::error::{Result, SolidError};
+use crate::error::Result;
 use crate::geom::attribute::ObjectKey;
 use crate::geom::context::Context;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::tree::Tree;
 use crate::math::Vec3;
 use crate::topology::{BrepId, EdgeId, FaceId, VertexId};
+
+mod shape;
+pub use shape::ShapeObjects;
 
 /// `SmObject_TYPE` (`OS_BASE_TYPE + 1`).
 pub const OBJECT_TYPE: i64 = 11001;
@@ -371,60 +376,12 @@ impl Shape {
     /// `SmShape_TYPE` (`TOPO_BASE_TYPE + 500`).
     pub const TYPE: i64 = 16500;
 
-    /// Builds a shape from whole B-reps, faces, edges and vertices
-    /// (`SmShape::SmShape`). The lower-level members of a listed entity need not be
-    /// listed again.
+    /// Builds the native empty shape, with three trees over `(0,0,0)-(1,1,1)`.
     ///
-    /// With every list empty the shape is empty and its three trees cover the box
-    /// `(0,0,0)-(1,1,1)` (upstream also reports an `SE_MSG` error and continues).
-    ///
-    /// # Errors
-    ///
-    /// [`SolidError::Unported`] for a non-empty shape: its bounding boxes, marks and
-    /// tree loading need the B-rep, face, edge, vertex and geometry queries of
-    /// units not ported yet.
-    pub fn new(
-        breps: &[BrepId],
-        faces: &[FaceKey],
-        edges: &[EdgeKey],
-        vertices: &[VertexKey],
-    ) -> Result<Self> {
-        // Compute the union of all of the extents of the input objects; the first
-        // upstream call of each list needs an unported topology query.
-        if !breps.is_empty() {
-            // UNPORTED(query.brep): SmBrep::CalculateBoundingBox (the B-rep keys here
-            // name no Brep; SmBrep::GetInfiniteRegion / GetVertices / GetEdges / GetFaces
-            // are ported in topology::brep::p1)
-            return Err(SolidError::Unported {
-                upstream: "SmBrep::CalculateBoundingBox",
-                unit: "query.brep",
-            });
-        }
-        if !faces.is_empty() {
-            // UNPORTED(query.face_p1): SmFace::CalculateBoundingBox (then
-            // SmFace::GetEdges / GetVertices). GetSurface/GetFace are ported.
-            return Err(SolidError::Unported {
-                upstream: "SmFace::CalculateBoundingBox",
-                unit: "query.face_p1",
-            });
-        }
-        if !edges.is_empty() {
-            // UNPORTED(topology.edge): SmEdge::GetCurve (then SmCurve::GetOwner,
-            // SmEdge::CalculateBoundingBox, SmEdge::GetVertices)
-            return Err(SolidError::Unported {
-                upstream: "SmEdge::GetCurve",
-                unit: "topology.edge",
-            });
-        }
-        if !vertices.is_empty() {
-            // UNPORTED(topology.vertex): SmVertex::GetPoint (then
-            // SmTopology::IsMarked / Mark)
-            return Err(SolidError::Unported {
-                upstream: "SmVertex::GetPoint",
-                unit: "topology.vertex",
-            });
-        }
-
+    /// Non-empty input requires [`Shape::new_with_objects`] and its live kernel,
+    /// geometry owners and persistent mark records. There is no ids-only
+    /// constructor for non-empty shapes.
+    pub fn empty() -> Result<Self> {
         // signal an error for empty shapes: specify BBox to be anything reasonable
         let mut bbox_union = Extent3d::new();
         bbox_union.set_min_max(Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 1.0, 1.0))?;
@@ -515,6 +472,7 @@ mod tests {
     use super::*;
     use crate::geom::context::NotifyCallback;
     use crate::geom::tree::NodeId;
+    use crate::SolidError;
 
     type Log = Arc<Mutex<Vec<(u8, NotifyOperation, ObjectRef, [Option<ObjectRef>; 3])>>>;
 
@@ -639,7 +597,7 @@ mod tests {
 
     #[test]
     fn empty_shape() {
-        let s = Shape::new(&[], &[], &[], &[]).unwrap();
+        let s = Shape::empty().unwrap();
         let top = s.vertex_tree().node(NodeId(0)).unwrap();
         assert_eq!(top.bbox.min(), Vec3::new(0.0, 0.0, 0.0));
         assert_eq!(top.bbox.max(), Vec3::new(1.0, 1.0, 1.0));
@@ -651,30 +609,5 @@ mod tests {
         assert!(!s.is_in_shape(ShapeMember::Other));
         assert!(s.is_kind_of(Shape::TYPE) && s.is_kind_of(OBJECT_TYPE) && !s.is_kind_of(1));
         assert_eq!((s.type_code(), s.type_string()), (16500, "SmShape_TYPE"));
-    }
-
-    #[test]
-    fn non_empty_shape_is_unported() {
-        let b = BrepId::from_index(0);
-        let unit = |r: Result<Shape>| match r {
-            Err(SolidError::Unported { unit, .. }) => unit,
-            _ => "",
-        };
-        assert_eq!(
-            unit(Shape::new(&[b], &[(b, FaceId::from_index(0))], &[], &[])),
-            "query.brep"
-        );
-        assert_eq!(
-            unit(Shape::new(&[], &[(b, FaceId::from_index(0))], &[], &[])),
-            "query.face_p1"
-        );
-        assert_eq!(
-            unit(Shape::new(&[], &[], &[(b, EdgeId::from_index(0))], &[])),
-            "topology.edge"
-        );
-        assert_eq!(
-            unit(Shape::new(&[], &[], &[], &[(b, VertexId::from_index(0))])),
-            "topology.vertex"
-        );
     }
 }

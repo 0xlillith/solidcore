@@ -9,6 +9,10 @@
 //! tolerance, infinite region, region list head, editing flag and each vertex's vertex
 //! use order, from the shim's `Extras`), runs the port and writes the same output
 //! layout (`out`).
+//! `RayFire` also restores native query metadata (lists, concrete geometry types
+//! and owners) from `Extras` before reading geometry. Its spatial trees are built
+//! from this B-rep at the native solve call, after its bounding sphere and ray
+//! direction, with the same object keys used by the imported owners.
 //!
 //! Entity selectors are taken modulo the matching entity count (`-1` selects null);
 //! an op that needs an entity the B-rep lacks is skipped on both sides
@@ -43,7 +47,7 @@ use solidcore::surface::surface_cache::p1::SurfaceCacheOptions;
 use solidcore::surface::trim_srf_cache::TrimSrfCache;
 use solidcore::topology::brep::p1 as bp1;
 use solidcore::topology::brep::p2 as bp2;
-use solidcore::topology::brep_cache::{BrepCache, CacheObject};
+use solidcore::topology::brep_cache::{BrepCache, CacheObject, CacheSource};
 use solidcore::topology::edge::NotifyEnv;
 use solidcore::topology::topology_traverser::Marks;
 use solidcore::topology::{
@@ -55,8 +59,8 @@ use solidcore_ffi::units::topology_brep_p2::{self as ffi, Op};
 use solidcore_ffi::units::topology_vertexuse::counts;
 
 use super::topology_vertexuse::{
-    gen_brep, gen_curve, gen_surface, import, path_of, push_curve, push_surface, BrepIn, CrvIn,
-    SrfIn,
+    apply_query_metadata, gen_brep, gen_curve, gen_surface, import, path_of, push_curve,
+    push_surface, BrepIn, CrvIn, QueryMetadata, SrfIn,
 };
 use crate::case::CaseContext;
 use crate::runner::default_cases;
@@ -389,6 +393,16 @@ fn key_of(e: EntityRef) -> ObjectRef {
     }
 }
 
+/// Query keys retain the importer's `1 + index` identity. Unlike the notification
+/// sentinel in `key_of`, the B-rep itself has its actual `SmBrep_TYPE` here.
+fn query_key(object: CacheObject) -> ObjectRef {
+    let identity = solidcore::topology::brep_cache::arena_identity(object);
+    ObjectRef {
+        key: ObjectKey(identity.key.0 + 1),
+        ..identity
+    }
+}
+
 fn entity(ty: f64, i: f64) -> Option<EntityRef> {
     let i = i as u32;
     Some(match ty as i64 {
@@ -407,7 +421,12 @@ fn entity(ty: f64, i: f64) -> Option<EntityRef> {
 }
 
 /// The Rust B-rep of the case (with the shim's extras restored).
-fn rust_brep(path: &str, h: &[f64], c: &[usize; 10]) -> Result<Brep, HarnessError> {
+fn rust_brep(
+    path: &str,
+    h: &[f64],
+    c: &[usize; 10],
+    op: Op,
+) -> Result<(Brep, QueryMetadata), HarnessError> {
     let export = ffi::eval(Op::Export, path, h).map_err(|e| ffi_err(&e))?;
     let (mut b, exact) = import(&export)?;
     if exact.iter().any(|e| !e) {
@@ -445,7 +464,26 @@ fn rust_brep(path: &str, h: &[f64], c: &[usize; 10]) -> Result<Brep, HarnessErro
             .map_err(|e| harness(e.to_string()))?
             .vertexuses = list;
     }
-    Ok(b)
+    // Shell types are already present in the shared graph. Preserve this existing
+    // Extras field before reading the appended query metadata envelope.
+    for _ in 0..c[1] {
+        next()?;
+    }
+    let (declared_len, metadata) = ex
+        .get(at..)
+        .and_then(|tail| tail.split_first())
+        .ok_or_else(|| harness("missing query metadata envelope"))?;
+    if *declared_len != metadata.len() as f64 {
+        return Err(harness("query metadata length differs from its envelope"));
+    }
+    // Only RayFire consumes this new query context. Other operations retain their
+    // existing import contract, including Notify's separate identity sentinel.
+    let report = if op == Op::RayFire {
+        apply_query_metadata(&mut b, metadata, &query_key)?
+    } else {
+        QueryMetadata::default()
+    };
+    Ok((b, report))
 }
 
 fn rust_curve(c: &CrvIn) -> Result<BSplineCurve, HarnessError> {
@@ -809,16 +847,19 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
             let dir = Vec3::new(arg(3)?, arg(4)?, arg(5)?);
             let tol = tol::zone_tol3d(k, arg(6)?);
             let limit = (arg(7)? != 0.0).then_some(arg(8)?);
-            let cache = must(BrepCache::new(solidcore::geom::a_object::BREP_TYPE))?;
-            let keys = |o: CacheObject| solidcore::topology::brep_cache::arena_identity(o);
+            let mut cache = must(BrepCache::new(solidcore::geom::a_object::BREP_TYPE))?;
             let owners = |_: ObjectRef| None;
             let kk: &Kernel = k;
-            let (s, r) = status(bp2::ray_fire(
+            let cache_slot = &mut cache;
+            let (s, r) = status(bp2::ray_fire_with_cache(
                 kk,
                 b,
                 BrepId::from_index(0),
-                &cache,
-                &keys,
+                move |brep| {
+                    cache_slot.build_trees(kk, CacheSource::Brep(brep), |o| o, &query_key)?;
+                    Ok(&*cache_slot)
+                },
+                &query_key,
                 &owners,
                 start,
                 dir,
@@ -891,7 +932,12 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let Some((op, args)) = op_args(&i.op, &c)? else {
         return Ok(Output::err("no target"));
     };
-    let mut b = rust_brep(&path, &h, &c)?;
+    let (mut b, metadata) = rust_brep(&path, &h, &c, op)?;
+    // RayFire's first step reads the full B-rep box. Gate only genuine limitations
+    // of that input representation, before any stand-in geometry can be queried.
+    if let Some(output) = metadata.deferred_output() {
+        return Ok(output);
+    }
     let mut k = Kernel::default();
     if let OpIn::Merge { curves, tol, .. } = &i.op {
         let face = FaceId::from_index(args.first().copied().unwrap_or(0.0) as u32);

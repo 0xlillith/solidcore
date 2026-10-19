@@ -9,6 +9,8 @@
 // Edges and faces are reported by their index in SmBrep::GetEdges / GetFaces order.
 // Statuses: 0 = SM_SUCCESS, else the SmStatus value (SC_ERR_* for shim rejections).
 #include "sc_shim.h"
+#include "sc_edgeuse_graph.h"
+#include "sc_brep_query_metadata.h"
 
 #include <SmBrep.h>
 #include <SmCurve.h>
@@ -34,7 +36,7 @@ struct ScVertex : public SmVertex
     }
 };
 
-const SmContext* the_context()
+const SmContext* tools_context()
 {
     static SmContext* p = new SmContext();
     return p;
@@ -42,8 +44,8 @@ const SmContext* the_context()
 
 SmLine* the_line()
 {
-    static SmLine* p = new (the_context())
-        SmLine(SmPoint3d(0.0, 0.0, 0.0), SmPoint3d(1.0, 0.0, 0.0), 3, the_context());
+    static SmLine* p = new (tools_context())
+        SmLine(SmPoint3d(0.0, 0.0, 0.0), SmPoint3d(1.0, 0.0, 0.0), 3, tools_context());
     return p;
 }
 
@@ -61,8 +63,8 @@ SmBrep* brep_of(const char* path)
     auto it = breps.find(path);
     if (it != breps.end())
         return it->second;
-    SmBrep* b = new (*the_context()) SmBrep();
-    if (b->ReadFromFile(*the_context(), path, SM_ASCII) != SM_SUCCESS)
+    SmBrep* b = new (*tools_context()) SmBrep();
+    if (b->ReadFromFile(*tools_context(), path, SM_ASCII) != SM_SUCCESS)
         b = nullptr; // leaked on purpose (see header)
     breps[path] = b;
     return b;
@@ -146,7 +148,7 @@ SC_EXPORT int32_t sc_geom_tools_find_coincident_edge(const char* path, int64_t e
     if (copy_curve)
     {
         SmCurve* copy = nullptr;
-        if (c->Copy(*the_context(), copy) != SM_SUCCESS || copy == nullptr)
+        if (c->Copy(*tools_context(), copy) != SM_SUCCESS || copy == nullptr)
             return SC_ERR_ARG;
         c = copy; // leaked on purpose (see header)
     }
@@ -212,5 +214,40 @@ SC_EXPORT int32_t sc_geom_tools_find_face(const char* path, const double* pnt, i
         if (faces[i] == f)
             out_ints[1] = (int64_t)i;
     return status_of(st);
+    SC_CATCH
+}
+
+// An independent instance of the same ReadFromFile input, before any FindFace
+// call. Export real owners, primary faceuses, concrete types and native lists;
+// registry order is deliberately different from those lists.
+SC_EXPORT int32_t sc_geom_tools_query_export(const char* path, double* out,
+                                              int64_t cap, int64_t* out_len)
+{
+    if (path == nullptr) return SC_ERR_ARG;
+    SC_TRY
+    SmBrep* brep = new (*tools_context()) SmBrep();
+    SmObjDelete cleanup(brep);
+    SmStatus status = brep->ReadFromFile(*tools_context(), path, SM_ASCII);
+    if (status != SM_SUCCESS) return (int32_t)status;
+    SmTArray<SmFace*> faces;
+    SmTArray<SmEdge*> edges;
+    SmTArray<SmVertex*> vertices;
+    brep->GetFaces(faces);
+    brep->GetEdges(edges);
+    brep->GetVertices(vertices);
+    Graph graph;
+    for (ULONG i = faces.GetSize(); i > 0; --i) graph.face(faces[i - 1]);
+    for (ULONG i = edges.GetSize(); i > 0; --i) graph.edge(edges[i - 1]);
+    for (ULONG i = vertices.GetSize(); i > 0; --i) graph.vertex(vertices[i - 1]);
+    walk(brep, graph);
+    std::vector<double> geometry{0.0};
+    export_graph(brep, graph, geometry);
+    std::vector<double> metadata;
+    append_query_metadata(brep, graph, metadata);
+    std::vector<double> result{(double)geometry.size()};
+    result.insert(result.end(), geometry.begin(), geometry.end());
+    result.push_back((double)metadata.size());
+    result.insert(result.end(), metadata.begin(), metadata.end());
+    return sc_copy_out(result.data(), (int64_t)result.size(), out, cap, out_len);
     SC_CATCH
 }

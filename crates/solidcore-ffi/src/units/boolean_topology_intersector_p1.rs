@@ -13,7 +13,7 @@
 //!
 //! | [`Op`]   | after the blocks | outputs |
 //! |----------|------------------|---------|
-//! | `Export` |                  | per B-rep `len export` (`len 0` for an absent one), each export a `0`-prefixed graph as [`super::topology_vertexuse`] exports it |
+//! | `Export` |                  | per B-rep `len export` (`len 0` for an absent one), then per B-rep `len query_metadata`; each export a `0`-prefixed graph as [`super::topology_vertexuse`] exports it |
 //! | `Run`    | `ctor approx ang n_ops ops*` | per op its code then its outputs (below) |
 //!
 //! `ctor` 0 makes the intersector with both B-reps and the tolerances, 1 with the
@@ -532,6 +532,45 @@ pub fn split_exports(out: &[f64]) -> Option<(Vec<f64>, Option<Vec<f64>>)> {
     let a = blocks.first().cloned().flatten()?;
     let b = blocks.get(1).cloned().flatten();
     Some((a, b))
+}
+
+/// The native query metadata appended after the two graph exports.
+///
+/// The payload is decoded against the corresponding imported graph by the
+/// difftest adapter. Here only the four length-prefixed blocks are validated;
+/// graph and metadata absence must agree, and trailing bytes are rejected.
+#[must_use]
+pub fn split_query_metadata(out: &[f64]) -> Option<[&[f64]; 2]> {
+    if out.first() != Some(&0.0) {
+        return None;
+    }
+    let mut at = 1usize;
+    let mut block = || {
+        let value = *out.get(at)?;
+        if !value.is_finite() || value < 0.0 || value.fract() != 0.0 {
+            return None;
+        }
+        at = at.checked_add(1)?;
+        if value > out.len().saturating_sub(at) as f64 {
+            return None;
+        }
+        let end = at.checked_add(value as usize)?;
+        let result = out.get(at..end)?;
+        at = end;
+        Some(result)
+    };
+    let a = block()?;
+    let b = block()?;
+    let a_metadata = block()?;
+    let b_metadata = block()?;
+    if at != out.len()
+        || a.is_empty()
+        || a_metadata.is_empty()
+        || b.is_empty() != b_metadata.is_empty()
+    {
+        return None;
+    }
+    Some([a_metadata, b_metadata])
 }
 
 /// The counts the script validation checks handles against.

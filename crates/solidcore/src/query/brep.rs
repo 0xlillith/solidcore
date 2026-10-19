@@ -24,7 +24,8 @@
 //! box calculations return their outputs, preserving failure atomicity where
 //! upstream does. Classification retains its in/out state, including writes
 //! before failure. The locked box is owned by the B-rep. Unfiltered object lists
-//! are arena views in list order. No input-driven recursion is added here.
+//! use the native list order resolved by `topology::brep::p1`. No input-driven
+//! recursion is added here.
 //! Destructors use ownership rather than poisoning fields just before freeing.
 //! The quadric edge constructor leaves its sort index uninitialised in C++; the
 //! port represents that state by `None` instead of exposing undefined memory.
@@ -37,6 +38,9 @@ use crate::nurbs::knots::Side;
 use crate::surface::surface::Surface;
 use crate::topology::{Brep, FaceId};
 use crate::{Result, SolidError};
+
+pub mod objects;
+pub use objects::{BrepPointObjects, BrepQueryContext};
 
 fn checked_surface<'a>(
     surface: Option<&'a Surface>,
@@ -202,29 +206,34 @@ pub fn quadric_edge_attribute(
     )
 }
 
-/// The B-rep and region handles and ray-fire access used by [`point_3d_classify`].
-/// Geometry and cache trees use the existing topology solver adapter; handles
-/// remain caller-owned and all equality tests retain object identity.
-pub trait BrepClassifyObjects<O>:
-    crate::intersect::topology_solver::p1::TopologyObjects<O>
-{
-    /// The B-rep being queried.
-    fn brep_object(&self) -> O;
+/// The boundary solve, region list and ray-fire access used by [`point_3d_classify`].
+/// Handles remain caller-owned. [`BrepPointObjects`] resolves these operations
+/// against a live B-rep and its spatial cache, preserving its concrete geometry.
+/// Mutable access is required because ray sectoring may create UV trim curves.
+pub trait BrepClassifyObjects<O> {
+    /// The first `BrepPointSolve(INTERSECT, SINGLE)` boundary hit, loaded into
+    /// `classification` with `LoadFromIntersection`. Returns false without writing
+    /// it when there is no hit; errors retain any classification writes made.
+    fn boundary_intersection(
+        &mut self,
+        kernel: &Kernel,
+        point: Point3,
+        point_zone_tolerance: f64,
+        classification: &mut crate::intersect::point_class::PointClassification<O>,
+    ) -> Result<bool>;
     /// Its complete region list in native list order (`GetRegions`).
     fn regions(&self) -> Result<Vec<O>>;
-    /// `SmBrep::RayFire`: containing region, with the classification state written
-    /// even on failure. The default marks the actual missing callee.
+    /// `SmBrep::RayFire`: the containing region and the successful ray hit.
+    /// The coordinator only consumes the region; the classification is private
+    /// scratch, never part of its output. Ordinary failures select the next ray.
     fn ray_fire(
-        &self,
-        _kernel: &Kernel,
-        _point: Point3,
-        _direction: Vec3,
-        _point_zone_tolerance: f64,
-        _classification: &mut crate::intersect::point_class::PointClassification<O>,
-    ) -> Result<Option<O>> {
-        // UNPORTED(topology.brep_p2): SmBrep::RayFire
-        Err(SolidError::unported("SmBrep::RayFire", "topology.brep_p2"))
-    }
+        &mut self,
+        kernel: &Kernel,
+        point: Point3,
+        direction: Vec3,
+        point_zone_tolerance: f64,
+        classification: &mut crate::intersect::point_class::PointClassification<O>,
+    ) -> Result<Option<O>>;
 }
 
 /// Classify a point against the B-rep boundary and its containing region.
@@ -241,53 +250,24 @@ pub trait BrepClassifyObjects<O>:
 /// order, with a generic upstream error when no region is found.
 pub fn point_3d_classify<O>(
     kernel: &Kernel,
-    objects: &dyn BrepClassifyObjects<O>,
+    objects: &mut dyn BrepClassifyObjects<O>,
     point: Point3,
     point_zone_tolerance: f64,
     boundary_intersections: bool,
     classification: &mut crate::intersect::point_class::PointClassification<O>,
 ) -> Result<()>
 where
-    O: crate::intersect::point_class::ClassObject + crate::geom::solution_array::SolutionObject,
+    O: crate::intersect::point_class::ClassObject,
 {
     use crate::error::ignored;
-    use crate::geom::global_solver::{SolutionRequested, SolverOperation};
     use crate::intersect::point_class::{PointClassType, PointClassification};
-    use crate::intersect::topology_solver::p1::TopologySolver;
-    use crate::intersect::topology_solver::p2::TopologySolveOptions;
     const OP: &str = "query::brep::point_3d_classify";
     classification.set_class_object(PointClassType::Unknown, None);
     classification.set_src_zone_tol_3d(point_zone_tolerance);
-    if boundary_intersections {
-        let solutions = TopologySolver::brep_point_solve(
-            kernel,
-            objects,
-            Some(objects.brep_object()),
-            point,
-            TopologySolveOptions {
-                operation: SolverOperation::Intersect,
-                requested: SolutionRequested::Single,
-                tolerance_3d: point_zone_tolerance,
-                best_answer_so_far_sq: 0.0,
-                opt_vectors: &[],
-            },
-        )?;
-        if let Some(solution) = solutions.as_slice().first() {
-            let object = solution
-                .objects
-                .first()
-                .copied()
-                .flatten()
-                .ok_or_else(|| SolidError::invalid_input(OP, "null intersection object"))?;
-            classification.load_from_intersection(
-                point_zone_tolerance,
-                object,
-                &solution.start,
-                0,
-                crate::math::BIG_DOUBLE,
-            )?;
-            return Ok(());
-        }
+    if boundary_intersections
+        && objects.boundary_intersection(kernel, point, point_zone_tolerance, classification)?
+    {
+        return Ok(());
     }
     let regions = objects.regions()?;
     if let [region] = regions.as_slice() {
@@ -352,17 +332,16 @@ impl Default for BoundingBoxOptions {
     }
 }
 fn face_bounding_box(
-    _kernel: &Kernel,
-    _brep: &Brep,
-    _face: FaceId,
-    _tight: bool,
-    _out: &mut Extent3d,
+    kernel: &Kernel,
+    brep: &Brep,
+    face: FaceId,
+    tight: bool,
+    out: &mut Extent3d,
 ) -> Result<()> {
-    // UNPORTED(query.face_p1): SmFace::CalculateBoundingBox
-    Err(SolidError::unported(
-        "SmFace::CalculateBoundingBox",
-        "query.face_p1",
-    ))
+    // The loose face calculation writes its caller's box only on success. In
+    // particular, the tight B-rep loop reuses the previous face's box on failure.
+    *out = crate::query::face::p1::calculate_bounding_box(kernel, brep, face, tight)?;
+    Ok(())
 }
 fn face_tight_bounding_box(
     _kernel: &Kernel,
@@ -370,6 +349,8 @@ fn face_tight_bounding_box(
     _face: FaceId,
     _out: &mut Extent3d,
 ) -> Result<()> {
+    // Keep the in/out box when this callee is ported: SmFace.cpp:1014 writes the
+    // boundary box before fallible surface work, so a failure can leave new data.
     // UNPORTED(query.face_p3): SmFace::CalculateTightBoundingBox
     Err(SolidError::unported(
         "SmFace::CalculateTightBoundingBox",
@@ -378,30 +359,36 @@ fn face_tight_bounding_box(
 }
 
 /// The B-rep box, respecting a previously locked box before reading geometry.
-/// Unfiltered native vertex/edge/face lists are the corresponding arenas in list
-/// order. Tolerance expansion is per object, not a final global expansion.
+/// Uses the complete native vertex, edge and face lists from
+/// [`crate::topology::brep::p1`], in their recorded order. Tolerance expansion is
+/// per object, in addition to any expansion performed by that object's box
+/// calculation; disabling it does not disable the child's own expansion.
 ///
 /// # Errors
-/// Propagates the first failing edge or face box calculation. Face box callees
-/// remain explicitly unported; no surface box is substituted for a face box.
+/// Propagates the first failing list lookup or edge or face box calculation.
+/// The result is returned only after the entire selected calculation succeeds.
 pub fn calculate_bounding_box(
     kernel: &Kernel,
     brep: &Brep,
     options: BoundingBoxOptions,
 ) -> Result<Extent3d> {
     use crate::nurbs::b_spline_curve::BoundingBoxRequest;
+    use crate::topology::brep::p1;
     if let Some(locked) = brep.locked_bounding_box {
         return Ok(locked);
     }
     let mut bbox = Extent3d::new();
-    for (_, vertex) in brep.vertices().iter() {
+    let vertices = p1::vertices(brep, None)?;
+    for &id in &vertices {
+        let vertex = brep.vertex(id)?;
         let mut vbox = Extent3d::from_point(vertex.point);
         if options.expand_by_zone_tolerance {
             vbox.expand_absolute(vertex.tolerance);
         }
         bbox = bbox.union(&vbox);
     }
-    if options.approximate && brep.vertices().len() > 500 && brep.edges().len() > 100 {
+    let edges = p1::edges(brep, None)?;
+    if options.approximate && vertices.len() > 500 && edges.len() > 100 {
         return Ok(bbox);
     }
     let request = BoundingBoxRequest {
@@ -409,7 +396,8 @@ pub fn calculate_bounding_box(
         pseudo: false,
         polar: false,
     };
-    for (id, edge) in brep.edges().iter() {
+    for id in edges {
+        let edge = brep.edge(id)?;
         if edge.curve.is_some() {
             let mut ebox = crate::query::edge::calculate_bounding_box(
                 kernel,
@@ -427,7 +415,8 @@ pub fn calculate_bounding_box(
         }
     }
     if !options.approximate {
-        for (id, face) in brep.faces().iter() {
+        for id in p1::faces(brep, None)? {
+            let face = brep.face(id)?;
             let mut fbox = Extent3d::new();
             face_bounding_box(kernel, brep, id, options.tight, &mut fbox)?;
             if options.expand_by_zone_tolerance {
@@ -439,7 +428,8 @@ pub fn calculate_bounding_box(
     Ok(bbox)
 }
 
-/// The tight B-rep box, without tolerance expansion; ignores the locked box.
+/// The tight B-rep box; adds no zone tolerances and ignores the locked box.
+/// Visits the complete native vertex, edge and face lists in their recorded order.
 /// Loose boxes contained by the accumulated box skip the expensive tight call.
 /// As upstream, ordinary edge/face calculation failures are ignored, retaining
 /// their defined output state; missing callees still propagate `Unported`.
@@ -449,16 +439,19 @@ pub fn calculate_bounding_box(
 pub fn calculate_tight_bounding_box(kernel: &Kernel, brep: &Brep) -> Result<Extent3d> {
     use crate::error::ignored;
     use crate::nurbs::b_spline_curve::BoundingBoxRequest;
+    use crate::topology::brep::p1;
     let mut bbox = Extent3d::new();
-    for (_, vertex) in brep.vertices().iter() {
-        bbox.add_point(vertex.point);
+    for id in p1::vertices(brep, None)? {
+        let vbox = Extent3d::from_point(brep.vertex(id)?.point);
+        bbox = bbox.union(&vbox);
     }
     let request = BoundingBoxRequest {
         normal: true,
         pseudo: false,
         polar: false,
     };
-    for (id, _) in brep.edges().iter() {
+    for id in p1::edges(brep, None)? {
+        brep.edge(id)?;
         // SmEdge::CalculateBoundingBox always initialises the normal box first.
         // The normal-only curve routines write their final box after fallible
         // work; a composite ignores child statuses and returns its union. Thus
@@ -484,7 +477,8 @@ pub fn calculate_tight_bounding_box(kernel: &Kernel, brep: &Brep) -> Result<Exte
         bbox = bbox.union(&ebox);
     }
     let mut face_box = Extent3d::new();
-    for (id, _) in brep.faces().iter() {
+    for id in p1::faces(brep, None)? {
+        brep.face(id)?;
         crate::error::ignore_status(face_bounding_box(kernel, brep, id, false, &mut face_box))?;
         if face_box.is_contained_by(&bbox, 0.0) {
             continue;

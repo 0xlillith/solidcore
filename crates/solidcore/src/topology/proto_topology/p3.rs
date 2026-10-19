@@ -23,9 +23,11 @@
 //!   those of its supertrait [`ProtoTopology`](super::p1::proto::ProtoTopology)), which the owner of the B-reps implements. `SmTol::GetZoneTol3d` of a vertex is
 //!   [`ProtoBrep::topology_tolerance`]; `SmTol::GetXSectTol3d(v1, v2)` is the
 //!   sum of the two.
+//!   `SmBrep::Point3DClassify` goes through the mutable provider's
+//!   [`ProtoBrep::brep_point_3d_classify`], with the real B-rep identity and the
+//!   original classification out-parameter (also read after an ignored failure).
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
-//!   each tagged `UNPORTED(<unit>)`: `SmBrep::Point3DClassify` (`query.brep`),
-//!   `SmBrep::GlueVertices` /
+//!   each tagged `UNPORTED(<unit>)`: `SmBrep::GlueVertices` /
 //!   `SqueezeEdge` / `DeleteEdge` (`topology.brep_p5` / `_p3` / `_p4`),
 //!   `SmTopologyIntersector::RemoveRelationship` (`boolean.topology_intersector_p2`;
 //!   `GetOtherMate` is the `other_mate` closure the caller passes to
@@ -62,7 +64,7 @@ use crate::intersect::point_class::{
     ClassGeometry, ClassObject, ClassObjectKind, PointClassification,
 };
 use crate::kernel::Kernel;
-use crate::math::{Point3, Vec3, BIG_DOUBLE, EFF_ZERO};
+use crate::math::{Vec3, BIG_DOUBLE, EFF_ZERO};
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 
 use super::p1::proto::{can_imprint, find_position_from_pcs, topo_dimension};
@@ -137,20 +139,6 @@ fn curve_of<O: Copy>(geometry: &impl ClassGeometry<O>, o: Option<O>) -> Result<&
 }
 
 // ---- callees not ported yet ----------------------------------------------------------
-
-/// `SmBrep::Point3DClassify(point, tol, TRUE, classification)`.
-fn brep_point3d_classify<O>(
-    _brep: O,
-    _point: Point3,
-    _tol: f64,
-    _pc: &mut PointClassification<O>,
-) -> Result<()> {
-    // UNPORTED(query.brep): SmBrep::Point3DClassify
-    Err(SolidError::unported(
-        "SmBrep::Point3DClassify",
-        "query.brep",
-    ))
-}
 
 /// `SmCurveClassification(pCurve, interval, NULL, tol)`.
 fn new_curve_classification<O: ClassObject>(
@@ -461,8 +449,8 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         let brep2 = self.which_brep(2);
         let mut pc1 = PointClassification::new(zone_tol3d(k, tol));
         let mut pc2 = PointClassification::new(zone_tol3d(k, tol));
-        ignore_soft(brep_point3d_classify(brep1, crv_pt, tol, &mut pc1))?;
-        ignore_soft(brep_point3d_classify(brep2, crv_pt, tol, &mut pc2))?;
+        ignore_soft(geometry.brep_point_3d_classify(k, brep1, crv_pt, tol, true, &mut pc1))?;
+        ignore_soft(geometry.brep_point_3d_classify(k, brep2, crv_pt, tol, true, &mut pc2))?;
 
         let mid_pv = mid_pv.ok_or(dangling("mid proto vertex is null"))?;
         let (new_vd, created) = ignore_soft(

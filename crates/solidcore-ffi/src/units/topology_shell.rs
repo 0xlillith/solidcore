@@ -11,6 +11,35 @@ fn invalid(reason: impl Into<String>) -> FfiError {
     FfiError::InvalidArgument(reason.into())
 }
 
+/// Input-only query metadata of the same native B-rep fixture: owned list order,
+/// concrete geometry types, direct owners, tolerances and primary face uses.
+/// This export performs no shell query and supplies no expected result.
+///
+/// # Errors
+/// Malformed fixture input, failed native construction or an invalid output block.
+pub fn query_metadata(path: &str, block: &[f64]) -> Result<Vec<f64>, FfiError> {
+    let export = fixture::eval(Op::Export, path, block)?;
+    if fixture::counts(&export).is_none() {
+        return Err(invalid("native topology fixture construction failed"));
+    }
+    let path = std::ffi::CString::new(path).map_err(|_| invalid("path contains NUL"))?;
+    let count = i64::try_from(block.len()).map_err(|_| invalid("fixture too long"))?;
+    call_with_buffer(1024, |buffer, len| {
+        // SAFETY: the shared fixture export validates the whole input block.
+        // All pointers remain live and the native callback honours capacity.
+        unsafe {
+            sys::sc_topology_shell_query_metadata(
+                path.as_ptr(),
+                block.as_ptr(),
+                count,
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
 /// Compare-ready shell/region records, optionally setting each region's native
 /// void state. `SmBoolean` is an integer; its indeterminate state is preserved.
 ///
@@ -363,6 +392,14 @@ pub fn region_filter(
 
 mod sys {
     unsafe extern "C" {
+        pub fn sc_topology_shell_query_metadata(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            output: *mut f64,
+            capacity: i64,
+            output_len: *mut i64,
+        ) -> i32;
         pub fn sc_topology_shell_region_filter(
             path: *const std::ffi::c_char,
             input: *const f64,

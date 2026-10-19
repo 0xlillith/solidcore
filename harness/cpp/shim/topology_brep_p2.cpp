@@ -17,6 +17,7 @@
 // SetTol / Rebuild only read the entities they cannot delete (tolerances, UV curve
 // presence), so no pointer captured before a mutation is followed after it.
 #include "sc_topology_fixture.h"
+#include "sc_brep_query_metadata.h"
 
 #include <SmCacheMgr.h>
 #include <SmPointClass.h>
@@ -247,6 +248,10 @@ void run(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         }
         for (SmShell* s : g.shells)
             o.push_back((double)(s->*ShPeek::type()));
+        std::vector<double> query_metadata;
+        append_query_metadata(brep, g, query_metadata);
+        o.push_back((double)query_metadata.size());
+        o.insert(o.end(), query_metadata.begin(), query_metadata.end());
         break;
     }
     case P2_QUERY:

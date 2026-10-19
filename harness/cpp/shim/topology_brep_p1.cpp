@@ -70,6 +70,7 @@
 #include <SmSurfaceCache.h>
 
 #include "sc_edgeuse_graph.h"
+#include "sc_brep_query_metadata.h"
 
 // SmBrep.cpp helpers with external linkage (no header declares them)
 SmBoolean sm_RedistributeSeamUVTrimCurves(SmEdge* pNewE, SmBSplineCurve* pUVTrimCurve, SmSurfParamType eSeamEdge, SmExtent2d sSrfDomain);
@@ -1888,5 +1889,32 @@ SC_EXPORT int32_t sc_topology_brep_p1_eval(int32_t op, const char* path, const d
     std::vector<double> o;
     run_op(op, rd, path, o);
     return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);
+    SC_CATCH
+}
+
+// Query metadata for the same construction and Graph registration as OP_EXPORT
+// and OP_HEAL. This entry point never invokes the healer or uses its result.
+SC_EXPORT int32_t sc_topology_brep_p1_query_metadata(
+    const char* path, const double* in, int64_t n_in,
+    double* out, int64_t cap, int64_t* out_len)
+{
+    if (in == NULL || n_in < 1 || out_len == NULL || path == NULL)
+        return SC_ERR_ARG;
+    SC_TRY
+    SmContext& ctx = const_cast<SmContext&>(the_context());
+    CtxSave save(ctx);
+    Rd rd{in, 0};
+    Built built;
+    SmStatus status = SM_SUCCESS;
+    built.brep = build(rd, path, status);
+    if (!built.brep || status != SM_SUCCESS)
+        return status == SM_SUCCESS ? SC_ERR_ARG : (int32_t)status;
+    if (rd.at != n_in) return SC_ERR_ARG;
+    Graph graph;
+    walk(built.brep, graph);
+    walk_more(built.brep, graph);
+    std::vector<double> metadata;
+    append_query_metadata(built.brep, graph, metadata);
+    return sc_copy_out(metadata.data(), (int64_t)metadata.size(), out, cap, out_len);
     SC_CATCH
 }

@@ -31,6 +31,10 @@
 //! early returns, every copy (`SmBrep::SetTolerance`). The comparisons are the read
 //! errors of damaged files, the input errors of the face makers, the null-surface status
 //! of `MakeFace`, the glue no-ops and `MergeSelfIntersectionCurves` without curves.
+//! Region nesting borrows the live B-rep through the shell query provider. Native
+//! owner/list metadata uses the same build and traversal registry as each input;
+//! topology limitations are checked before traversal, and geometry limitations
+//! only when a query consumes that geometry.
 
 use std::cell::RefCell;
 use std::collections::BTreeMap;
@@ -57,16 +61,18 @@ use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::brep::p7;
+use solidcore::topology::brep_cache::{arena_identity, CacheObject};
 use solidcore::topology::database_io::FileType;
 use solidcore::topology::edge as ed;
-use solidcore::topology::{Brep, EdgeId, FaceId, Region};
+use solidcore::topology::{Arena, Brep, BrepId, EdgeId, FaceId, Region};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_data as bd;
 use solidcore_ffi::units::topology_brep_p7::{self as ffi, Op};
 use solidcore_ffi::units::topology_vertexuse as fixture;
 use solidcore_ffi::FfiError;
 
-use super::topology_vertexuse::{self as shared, BrepIn};
+use super::topology_shell::RayQueryContext;
+use super::topology_vertexuse::{self as shared, apply_query_metadata, BrepIn, QueryMetadata};
 use crate::case::CaseContext;
 use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -635,6 +641,38 @@ fn this_face(f: FaceId) -> ObjectRef {
     key_of(EntityRef::Face(f))
 }
 
+fn query_key(object: CacheObject) -> ObjectRef {
+    match object {
+        CacheObject::Edge(edge) | CacheObject::Curve(edge) => key_of(EntityRef::Edge(edge)),
+        CacheObject::Face(face) | CacheObject::Surface(face) => key_of(EntityRef::Face(face)),
+        _ => arena_identity(object),
+    }
+}
+
+fn query_metadata(input: &BrepIn, brep: &mut Brep) -> Result<QueryMetadata, Fail> {
+    let raw = ffi::eval(
+        Op::QueryMetadata,
+        &shared::path_of(input)?,
+        &brep_block(input)?,
+    )
+    .map_err(|error| hfail(format!("c++ query metadata: {error}")))?;
+    let metadata = apply_query_metadata(brep, &raw, &query_key)?;
+    if let Some(output) = metadata.deferred_output_for(false, false) {
+        return Err(Fail::Deferred(Box::new(output)));
+    }
+    Ok(metadata)
+}
+
+fn query_status<T>(result: &Result<T, SolidError>, queries: &RayQueryContext) -> Result<f64, Fail> {
+    if matches!(result, Err(SolidError::Unported { unit, .. }) if *unit == "harness:analytic-geometry-export")
+    {
+        if let Some(output) = queries.metadata().deferred_output() {
+            return Err(Fail::Deferred(Box::new(output)));
+        }
+    }
+    status(result)
+}
+
 /// The record of a run.
 type Record = Result<Vec<f64>, Fail>;
 
@@ -890,25 +928,32 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             new_face_record(&b, &r)
         }
         Inputs::Glue {
+            brep,
             e1,
             e2,
             orient,
             gap,
             nesting,
-            ..
         } => {
             let ex = ex.ok_or_else(|| hfail("no export"))?;
             let (mut b, _) = shared::import(ex)?;
+            let metadata = query_metadata(brep, &mut b)?;
+            let mut breps = Arena::<BrepId, Brep>::default();
+            let id = breps.insert(b).map_err(hfail)?;
+            let b = breps
+                .get_mut(id)
+                .ok_or_else(|| hfail("missing registered B-rep"))?;
+            let mut queries = RayQueryContext::new(b, id, metadata, query_key);
             let eid = |x: i64| (x >= 0).then(|| EdgeId::from_index(x as u32));
             // the shim's guard: upstream dereferences a null edge curve
             // (CurveMaxDistanceBetween) when gluing two distinct non-wire edges with
             // SM_OT_SAME, the same intervals and exactly one curve (two null curves
             // compare equal)
             if let (Some(a), Some(d)) = (eid(*e1), eid(*e2)) {
-                if a != d && !ed::is_wire(&b, d).map_err(hfail)? && *orient == 1 {
+                if a != d && !ed::is_wire(b, d).map_err(hfail)? && *orient == 1 {
                     let (ia, id) = (
-                        ed::interval(&b, a).map_err(hfail)?,
-                        ed::interval(&b, d).map_err(hfail)?,
+                        ed::interval(b, a).map_err(hfail)?,
+                        ed::interval(b, d).map_err(hfail)?,
                     );
                     let one_null = b.edge(a).map_err(hfail)?.curve.is_none()
                         != b.edge(d).map_err(hfail)?.curve.is_none();
@@ -930,7 +975,7 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             };
             let r = p7::glue_edges_general(
                 k,
-                &mut b,
+                b,
                 eid(*e1),
                 orient_of(*orient)?,
                 *gap,
@@ -938,13 +983,14 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 eid(*e2),
                 None,
                 &mut env,
+                &mut queries,
             );
-            let s = status(&r)?;
+            let s = query_status(&r, &queries)?;
             // the B-rep's counts and tolerances after the op (the shim walks the C++ B-rep
             // afterwards)
             let mut o = vec![0.0, s];
-            o.extend(brep_counts(&b));
-            o.extend(brep_tolerances(&b));
+            o.extend(brep_counts(b));
+            o.extend(brep_tolerances(b));
             Ok(o)
         }
         Inputs::Copy { n, merge, .. } => {
@@ -963,9 +1009,16 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             o.extend(brep_counts(&dest));
             Ok(o)
         }
-        Inputs::MergeSelf { face, tol, .. } => {
+        Inputs::MergeSelf { brep, face, tol } => {
             let ex = ex.ok_or_else(|| hfail("no export"))?;
             let (mut b, _) = shared::import(ex)?;
+            let metadata = query_metadata(brep, &mut b)?;
+            let mut breps = Arena::<BrepId, Brep>::default();
+            let id = breps.insert(b).map_err(hfail)?;
+            let b = breps
+                .get_mut(id)
+                .ok_or_else(|| hfail("missing registered B-rep"))?;
+            let mut queries = RayQueryContext::new(b, id, metadata, query_key);
             let f = FaceId::from_index(*face as u32);
             if b.face(f).map_err(hfail)?.surface.is_none() {
                 return Err(cpp_null_deref(
@@ -981,8 +1034,16 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 context: None,
                 key_of: &key_of,
             };
-            let r = p7::merge_self_intersection_curves(k, &mut b, Some(f), *tol, &[], &mut env);
-            let s = status(&r)?;
+            let r = p7::merge_self_intersection_curves(
+                k,
+                b,
+                Some(f),
+                *tol,
+                &[],
+                &mut env,
+                &mut queries,
+            );
+            let s = query_status(&r, &queries)?;
             let n = r.map_or(0, |v| v.len());
             Ok(vec![0.0, s, n as f64])
         }

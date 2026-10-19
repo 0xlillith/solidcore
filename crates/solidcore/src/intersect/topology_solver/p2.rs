@@ -728,7 +728,7 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, O> {
         }
         let brep = brep.ok_or(SolidError::null_pointer(OP))?;
         let mut ts = new_topology_solver(kernel, objects, options);
-        let trees = objects.brep_trees(brep)?;
+        let trees = objects.brep_trees(kernel, brep)?;
         let query = point_tree(point);
         if options.operation != SolverOperation::Normalize {
             let mut vertices = LocalSolver::new(LocalSolverKind::PointVertex, false, None);
@@ -805,7 +805,7 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, O> {
             options.operation = SolverOperation::Intersect;
         }
         let mut ts = new_topology_solver(kernel, objects, options);
-        let trees = objects.brep_trees(brep.ok_or(SolidError::null_pointer(OP))?)?;
+        let trees = objects.brep_trees(kernel, brep.ok_or(SolidError::null_pointer(OP))?)?;
         let query = curve_tree(kernel, curve, interval)?;
         if options.operation != SolverOperation::Normalize {
             let mut vertices = LocalSolver::new(LocalSolverKind::CurveVertex, false, None);
@@ -976,8 +976,8 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, O> {
             return Err(SolidError::invalid_input(OP, "unsupported operation"));
         }
         let mut ts = new_topology_solver(kernel, objects, options);
-        let first = objects.brep_trees(first.ok_or(SolidError::null_pointer(OP))?)?;
-        let second = objects.brep_trees(second.ok_or(SolidError::null_pointer(OP))?)?;
+        let first = objects.brep_trees(kernel, first.ok_or(SolidError::null_pointer(OP))?)?;
+        let second = objects.brep_trees(kernel, second.ok_or(SolidError::null_pointer(OP))?)?;
         ts.solve_two_tree_sets(first, second)?;
         Ok(ts.base.solutions)
     }

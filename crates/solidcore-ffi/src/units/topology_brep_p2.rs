@@ -14,7 +14,7 @@
 //! | [`Op`]     | parameters | outputs |
 //! |------------|------------|---------|
 //! | `Export`   |            | the graph in [`super::topology_vertexuse`]'s export layout (faces, edges and vertices registered in B-rep list order first, the walk including the vertex lists) |
-//! | `Extras`   |            | `tol infinite_region region_list_head editing`, per vertex `n vu*`, per shell its `m_tShellType` |
+//! | `Extras`   |            | `tol infinite_region region_list_head editing`, per vertex `n vu*`, per shell its `m_tShellType`, then `query_metadata_len query_metadata*` (native input lists, concrete geometry types and owners; `sc_brep_query_metadata.h`) |
 //! | `Query`    | `which`    | `0`: `n eu*` (`GetEdgeuses`), `1`: `n v*` (`GetShellVertices`), `2` `IsManifoldSolid`, `3` `IsSheet`, `4` `IsOrientedSheet`, `5`: `size edge` (`GetMinEdgeBBoxSize`) |
 //! | `SetTol`   | `tol only_larger cascade` | `brep_tol`, every face, edge and vertex tolerance |
 //! | `Rebuild`  |            | `status`, per edge use whether it has a UV trim curve, every edge tolerance |

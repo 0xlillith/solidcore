@@ -530,7 +530,7 @@ impl Default for Vertexuse {
 
 /// A boundary representation (`SmBrep`): arenas of shells, faces, loops, edges and
 /// vertices linked by typed ids.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Brep {
     shells: Arena<ShellId, Shell>,
     faces: Arena<FaceId, Face>,
@@ -552,9 +552,12 @@ pub struct Brep {
     /// The identity the B-rep is attributed and notified under (`SmBrep*`).
     key: ObjectKey,
     /// `SmOwningTopology::m_pList` of the B-rep (unit `topology.brep_p1`): the head of
-    /// its circular region list, `None` for the first region record (the region arena
-    /// holds the list in traversal order; the head only rotates it).
+    /// its circular region list, `None` for the first listed region during record
+    /// construction. Changing the head rotates the list without changing its links.
     region_list_head: Option<RegionId>,
+    /// Region list links in circular order, independent of the append-only arena.
+    /// A new attached record joins the tail relative to `region_list_head`.
+    region_list: Vec<RegionId>,
     /// `m_pFaceListHead` (unit `topology.brep_p1`): the face list in its list order
     /// (every face record, once; an importer may reorder it). Upstream appends on
     /// `PostInsert` and unlinks on `Remove`: a record deletion (`DeleteFace` /
@@ -577,6 +580,39 @@ pub struct Brep {
     deleted_surfaces: Vec<Surface>,
 }
 
+impl Clone for Brep {
+    fn clone(&self) -> Self {
+        Self {
+            shells: self.shells.clone(),
+            faces: self.faces.clone(),
+            loops: self.loops.clone(),
+            edges: self.edges.clone(),
+            vertices: self.vertices.clone(),
+            regions: self.regions.clone(),
+            infinite_region: self.infinite_region,
+            faceuses: self.faceuses.clone(),
+            loopuses: self.loopuses.clone(),
+            edgeuses: self.edgeuses.clone(),
+            vertexuses: self.vertexuses.clone(),
+            validate_only: self.validate_only,
+            tolerance: self.tolerance,
+            // SmBrep's copy constructor initializes m_pLockedBoundingBox to NULL
+            // (SmBrep.cpp:618), so edited copies calculate their own bounds.
+            locked_bounding_box: None,
+            key: self.key,
+            region_list_head: self.region_list_head,
+            region_list: self.region_list.clone(),
+            face_list: self.face_list.clone(),
+            edge_list: self.edge_list.clone(),
+            vertex_list: self.vertex_list.clone(),
+            editing_enabled: self.editing_enabled,
+            model_size_estimate: self.model_size_estimate,
+            large_small_size_ratio: self.large_small_size_ratio,
+            deleted_surfaces: self.deleted_surfaces.clone(),
+        }
+    }
+}
+
 impl Default for Brep {
     fn default() -> Self {
         Self {
@@ -596,6 +632,7 @@ impl Default for Brep {
             locked_bounding_box: None,
             key: ObjectKey(0),
             region_list_head: None,
+            region_list: Vec::new(),
             face_list: Vec::new(),
             edge_list: Vec::new(),
             vertex_list: Vec::new(),
@@ -880,9 +917,27 @@ impl Brep {
         self.key = key;
     }
 
-    /// Appends a region record as is (no validation).
+    /// Appends a region record as is. An attached record also joins the tail of
+    /// the B-rep's circular region list (`SmOwningTopology::PostInsert`), keeping
+    /// its arena id independent of list order. Detached records are not listed.
     pub fn add_region_record(&mut self, region: Region) -> Result<RegionId> {
-        self.regions.insert(region)
+        let attached = region.in_brep;
+        let id = self.regions.insert(region)?;
+        if attached {
+            // Inserting just before the current head appends to its traversal.
+            // None retains the construction convention of the first list item;
+            // a friend-write head referring to a later record is not resolved here.
+            let position = self
+                .region_list_head
+                .and_then(|head| self.region_list.iter().position(|&region| region == head));
+            match position {
+                // The start and end are adjacent in the circular list. Avoid
+                // shifting every existing item when the head is the first one.
+                None | Some(0) => self.region_list.push(id),
+                Some(position) => self.region_list.insert(position, id),
+            }
+        }
+        Ok(id)
     }
 
     /// Appends a shell record as is (no validation).
@@ -1030,6 +1085,29 @@ impl Brep {
 mod tests {
     use super::*;
     use crate::math::Vec3;
+
+    #[test]
+    fn copied_brep_does_not_reuse_the_original_locked_box() {
+        use crate::query::brep::{calculate_bounding_box, lock_bounding_box, BoundingBoxOptions};
+
+        let k = crate::kernel::Kernel::default();
+        let mut original = Brep::new();
+        let vertex = original.add_vertex(Vec3::ZERO).unwrap();
+        lock_bounding_box(&k, &mut original, false).unwrap();
+        let original_box =
+            calculate_bounding_box(&k, &original, BoundingBoxOptions::default()).unwrap();
+
+        let mut copied = original.clone();
+        assert!(copied.locked_bounding_box.is_none());
+        copied.vertex_mut(vertex).unwrap().point = Vec3::new(10.0, 20.0, 30.0);
+        let copied_box =
+            calculate_bounding_box(&k, &copied, BoundingBoxOptions::default()).unwrap();
+        assert!(copied_box.min().x > original_box.max().x);
+        assert_eq!(
+            calculate_bounding_box(&k, &original, BoundingBoxOptions::default()).unwrap(),
+            original_box
+        );
+    }
 
     #[test]
     fn build_single_triangle_face() {

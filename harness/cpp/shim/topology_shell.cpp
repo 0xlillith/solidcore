@@ -4,6 +4,7 @@
 #include "sc_shim.h"
 #include "support/topology_fixture.h"
 #include "StdAfx.h"
+#include "sc_brep_query_metadata.h"
 #include <SmBrep.h>
 #include <SmRegion.h>
 #include <SmShell.h>
@@ -16,6 +17,31 @@
 #include <algorithm>
 
 namespace {
+// View's vectors are references into this one native fixture; adapting it adds
+// no copied graph or geometry. Unknown owner pointers remain explicit metadata.
+struct QueryView : sc_topology_fixture::View {
+    explicit QueryView(const sc_topology_fixture::View& view)
+        : sc_topology_fixture::View(view) {}
+
+    template<class T>
+    static int64_t lookup(const std::vector<T*>& values, const void* pointer) {
+        if (!pointer) return -1;
+        auto found = std::find_if(values.begin(), values.end(),
+            [&](T* value) { return static_cast<const void*>(value) == pointer; });
+        return found == values.end() ? -3 : (int64_t)(found - values.begin());
+    }
+    int64_t find(int kind, const void* pointer) const {
+        switch (kind) {
+        case 0: return lookup(regions, pointer);
+        case 2: return lookup(faceuses, pointer);
+        case 3: return lookup(faces, pointer);
+        case 7: return lookup(edges, pointer);
+        case 9: return lookup(vertices, pointer);
+        default: return pointer ? -3 : -1;
+        }
+    }
+};
+
 template<class T> double identity(const std::vector<T*>& values, T* p) {
     if (!p) return -1.0;
     auto found = std::find(values.begin(), values.end(), p);
@@ -54,6 +80,20 @@ template<class T> void list(std::vector<double>& out, const SmTArray<T*>& values
     for (ULONG i = 0; i < values.GetSize(); ++i)
         out.push_back(identity(identities, values[i]));
 }
+}
+
+SC_EXPORT int32_t sc_topology_shell_query_metadata(const char* path, const double* input,
+    int64_t count, double* output, int64_t cap, int64_t* output_len) {
+    if (!output_len || cap < 0 || (cap && !output)) return SC_ERR_ARG;
+    SC_TRY
+    return sc_topology_fixture::apply(path, input, count,
+        [&](const sc_topology_fixture::View& fixture) -> int32_t {
+            std::vector<double> out;
+            const QueryView graph(fixture);
+            append_query_metadata(&fixture.brep, graph, out);
+            return sc_copy_out(out.data(), (int64_t)out.size(), output, cap, output_len);
+        });
+    SC_CATCH
 }
 
 SC_EXPORT int32_t sc_topology_shell_query(const char* path, const double* input,

@@ -3411,6 +3411,575 @@
           }
         ]
       }
+    },
+    {
+      "name": "bbox_native_lists_reverse_registry_network",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order",
+      "inputs": {
+        "bbox_brep": {
+          "kind": "network"
+        },
+        "extra_vertices": 0,
+        "extra_edges": 0,
+        "tolerances": [
+          1e-07,
+          0.01,
+          0.1
+        ],
+        "drop_wire_curves": false,
+        "steps": [
+          {
+            "op": "bounding",
+            "approximate": false,
+            "tight": false,
+            "expand": true
+          }
+        ],
+        "reverse_registry": true
+      }
+    },
+    {
+      "name": "bbox_native_lists_reverse_registry_face",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order",
+      "inputs": {
+        "bbox_brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "net": [
+                [
+                  [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    0,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "extra_vertices": 0,
+        "extra_edges": 0,
+        "tolerances": [
+          1e-07,
+          0.01,
+          0.1
+        ],
+        "drop_wire_curves": false,
+        "steps": [
+          {
+            "op": "bounding",
+            "approximate": false,
+            "tight": false,
+            "expand": true
+          }
+        ],
+        "reverse_registry": true
+      }
+    },
+    {
+      "name": "bbox_native_lists_reverse_registry_approx_threshold",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order",
+      "inputs": {
+        "bbox_brep": {
+          "kind": "wire",
+          "curve": {
+            "dim": 3,
+            "p": 2,
+            "cpts": [
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                0.5,
+                0,
+                1000,
+                1
+              ],
+              [
+                1,
+                0,
+                0,
+                1
+              ]
+            ],
+            "u": [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          },
+          "t0": 0,
+          "t1": 1
+        },
+        "extra_vertices": 299,
+        "extra_edges": 100,
+        "tolerances": [
+          1e-07,
+          0.01,
+          0.1
+        ],
+        "drop_wire_curves": false,
+        "steps": [
+          {
+            "op": "bounding",
+            "approximate": true,
+            "tight": false,
+            "expand": false
+          }
+        ],
+        "reverse_registry": true
+      }
+    },
+    {
+      "name": "bbox_native_list_target_interval_mutation",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order",
+      "inputs": {
+        "bbox_brep": {
+          "kind": "wire",
+          "curve": {
+            "dim": 3,
+            "p": 1,
+            "cpts": [
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                0,
+                100,
+                1
+              ],
+              [
+                2,
+                0,
+                0,
+                1
+              ],
+              [
+                3,
+                0,
+                0,
+                1
+              ]
+            ],
+            "u": [
+              0,
+              0,
+              1,
+              2,
+              3,
+              3
+            ]
+          },
+          "t0": 0,
+          "t1": 3
+        },
+        "extra_vertices": 2,
+        "extra_edges": 1,
+        "tolerances": [
+          1e-07,
+          0.01,
+          0.1
+        ],
+        "drop_wire_curves": false,
+        "reverse_registry": true,
+        "steps": [
+          {
+            "op": "default"
+          },
+          {
+            "op": "set_edge_interval",
+            "edge_list_index": 0,
+            "min": 2.125,
+            "max": 2.875
+          },
+          {
+            "op": "default"
+          },
+          {
+            "op": "tight"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bbox_loose_lock_interval_mutation_and_relock",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order",
+      "inputs": {
+        "bbox_brep": {
+          "kind": "wire",
+          "curve": {
+            "dim": 3,
+            "p": 1,
+            "cpts": [
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                0,
+                100,
+                1
+              ],
+              [
+                2,
+                0,
+                0,
+                1
+              ],
+              [
+                3,
+                0,
+                0,
+                1
+              ]
+            ],
+            "u": [
+              0,
+              0,
+              1,
+              2,
+              3,
+              3
+            ]
+          },
+          "t0": 0,
+          "t1": 3
+        },
+        "extra_vertices": 2,
+        "extra_edges": 1,
+        "tolerances": [
+          1e-07,
+          0.01,
+          0.1
+        ],
+        "drop_wire_curves": false,
+        "reverse_registry": true,
+        "steps": [
+          {
+            "op": "lock",
+            "tight": false
+          },
+          {
+            "op": "set_edge_interval",
+            "edge_list_index": 0,
+            "min": 2.125,
+            "max": 2.875
+          },
+          {
+            "op": "default"
+          },
+          {
+            "op": "tight"
+          },
+          {
+            "op": "bounding",
+            "approximate": true,
+            "tight": true,
+            "expand": false
+          },
+          {
+            "op": "lock",
+            "tight": false
+          },
+          {
+            "op": "default"
+          },
+          {
+            "op": "unlock"
+          },
+          {
+            "op": "default"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bbox_tight_lock_interval_mutation_and_relock",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order",
+      "inputs": {
+        "bbox_brep": {
+          "kind": "wire",
+          "curve": {
+            "dim": 3,
+            "p": 1,
+            "cpts": [
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                0,
+                100,
+                1
+              ],
+              [
+                2,
+                0,
+                0,
+                1
+              ],
+              [
+                3,
+                0,
+                0,
+                1
+              ]
+            ],
+            "u": [
+              0,
+              0,
+              1,
+              2,
+              3,
+              3
+            ]
+          },
+          "t0": 0,
+          "t1": 3
+        },
+        "extra_vertices": 2,
+        "extra_edges": 1,
+        "tolerances": [
+          1e-07,
+          0.01,
+          0.1
+        ],
+        "drop_wire_curves": false,
+        "reverse_registry": true,
+        "steps": [
+          {
+            "op": "lock",
+            "tight": true
+          },
+          {
+            "op": "set_edge_interval",
+            "edge_list_index": 0,
+            "min": 2.125,
+            "max": 2.875
+          },
+          {
+            "op": "default"
+          },
+          {
+            "op": "tight"
+          },
+          {
+            "op": "lock",
+            "tight": true
+          },
+          {
+            "op": "default"
+          },
+          {
+            "op": "unlock"
+          },
+          {
+            "op": "default"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bbox_set_interval_native_constructor_order",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order",
+      "inputs": {
+        "bbox_brep": {
+          "kind": "wire",
+          "curve": {
+            "dim": 3,
+            "p": 1,
+            "cpts": [
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                0,
+                100,
+                1
+              ],
+              [
+                2,
+                0,
+                0,
+                1
+              ],
+              [
+                3,
+                0,
+                0,
+                1
+              ]
+            ],
+            "u": [
+              0,
+              0,
+              1,
+              2,
+              3,
+              3
+            ]
+          },
+          "t0": 0,
+          "t1": 3
+        },
+        "extra_vertices": 2,
+        "extra_edges": 1,
+        "tolerances": [
+          1e-07,
+          0.01,
+          0.1
+        ],
+        "drop_wire_curves": false,
+        "reverse_registry": true,
+        "steps": [
+          {
+            "op": "set_edge_interval",
+            "edge_list_index": 0,
+            "min": 2.875,
+            "max": 2.125
+          },
+          {
+            "op": "default"
+          },
+          {
+            "op": "tight"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bbox_set_interval_clamped_outside_domain",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order",
+      "inputs": {
+        "bbox_brep": {
+          "kind": "wire",
+          "curve": {
+            "dim": 3,
+            "p": 1,
+            "cpts": [
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                1,
+                0,
+                100,
+                1
+              ],
+              [
+                2,
+                0,
+                0,
+                1
+              ],
+              [
+                3,
+                0,
+                0,
+                1
+              ]
+            ],
+            "u": [
+              0,
+              0,
+              1,
+              2,
+              3,
+              3
+            ]
+          },
+          "t0": 0,
+          "t1": 3
+        },
+        "extra_vertices": 2,
+        "extra_edges": 1,
+        "tolerances": [
+          1e-07,
+          0.01,
+          0.1
+        ],
+        "drop_wire_curves": false,
+        "reverse_registry": true,
+        "steps": [
+          {
+            "op": "set_edge_interval",
+            "edge_list_index": 0,
+            "min": 4,
+            "max": 5
+          },
+          {
+            "op": "default"
+          },
+          {
+            "op": "tight"
+          }
+        ]
+      }
     }
   ]
 }

@@ -3,6 +3,8 @@
 //! Operations 1..9 use the validated B-rep block of `topology_vertexuse`. Selectors
 //! are nonnegative integers below 32 and resolved modulo actual entity counts by
 //! the shim. Operations requiring absent entities reject the fixture before call.
+//! Operation 10 exports only the input B-reps' query metadata (owners, kinds and
+//! native lists), with no merge or query output reused by the Rust algorithm.
 use super::topology_vertexuse::{self as fixture, Op};
 use crate::{call_with_buffer, FfiError};
 use std::ffi::CString;
@@ -41,7 +43,7 @@ pub struct Operand<'a> {
 /// Inputs to a merge helper; operations 8 and 9 compare cross-operand radial queries.
 #[derive(Clone, Copy)]
 pub struct Request<'a> {
-    /// Operation selector, 0..=9.
+    /// Operation selector, 0..=10; 10 is input metadata only.
     pub op: u8,
     /// Entity and branch selectors, each 0..=31.
     pub args: [u8; 3],
@@ -66,7 +68,7 @@ pub fn eval(request: Request<'_>) -> Result<Vec<f64>, FfiError> {
         tolerances,
         parameter,
     } = request;
-    if op > 9
+    if op > 10
         || args.iter().any(|&a| a > 31)
         || !parameter.is_finite()
         || tolerances.is_some_and(|t| t.iter().any(|v| !v.is_finite() || *v < 0.0))
@@ -131,4 +133,38 @@ pub fn eval(request: Request<'_>) -> Result<Vec<f64>, FfiError> {
             )
         }
     })
+}
+
+/// Query metadata for the two constructed operands. Each length is checked
+/// against the actual returned buffer before either metadata slice is copied.
+pub fn query_metadata(primary: Operand<'_>, other: Operand<'_>) -> Result<[Vec<f64>; 2], FfiError> {
+    let values = eval(Request {
+        op: 10,
+        args: [0; 3],
+        primary,
+        other,
+        tolerances: None,
+        parameter: 0.5,
+    })?;
+    let mut rest = values.as_slice();
+    let mut block = || -> Result<Vec<f64>, FfiError> {
+        let (&count, tail) = rest.split_first().ok_or_else(|| {
+            FfiError::InvalidArgument("missing B-rep query metadata length".into())
+        })?;
+        if !count.is_finite() || count < 0.0 || count.fract() != 0.0 || count > tail.len() as f64 {
+            return Err(FfiError::InvalidArgument(
+                "invalid B-rep query metadata length".into(),
+            ));
+        }
+        let (data, tail) = tail.split_at(count as usize);
+        rest = tail;
+        Ok(data.to_vec())
+    };
+    let result = [block()?, block()?];
+    if !rest.is_empty() {
+        return Err(FfiError::InvalidArgument(
+            "trailing B-rep query metadata".into(),
+        ));
+    }
+    Ok(result)
 }

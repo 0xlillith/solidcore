@@ -1,6 +1,8 @@
 //! Public `SmApi` queries against real native geometry. Topology inputs are imported
 //! from the established raw graph exporter; all query results come from `SmApi*`.
 //! Analytic wire curves are reconstructed as their concrete Rust kinds after import.
+//! Face closest-point queries retain the fixture's topology marks and resolve
+//! geometry owners through registered object keys when constructing their Shape.
 use crate::case::CaseContext;
 use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -10,8 +12,9 @@ use solidcore::curve::curve::Curve;
 use solidcore::curve::ellipse::{Ellipse, EllipseOptions};
 use solidcore::curve::line::{BoundedLineOptions, Line};
 use solidcore::geom::extent1d::Extent1d;
-use solidcore::geom::object::ShapeMember;
+use solidcore::geom::object::{EdgeKey, FaceKey, ObjectRef, ShapeMember, ShapeObjects};
 use solidcore::geom::solution_array::{ObjectKind, SolutionObject};
+use solidcore::intersect::point_class::PointClassification;
 use solidcore::intersect::topology_solver::p1::TopologyObjects;
 use solidcore::kernel::Kernel;
 use solidcore::math::{Point3, Vec3};
@@ -21,13 +24,15 @@ use solidcore::nurbs::crv_basic::Curve as NlCurve;
 use solidcore::nurbs::math::CPoint;
 use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::query::api_queries as api;
+use solidcore::query::brep::{point_3d_classify, BrepPointObjects};
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surf_of_revolution::SurfOfRevolution;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::brep_cache::BrepCache;
 use solidcore::topology::brep_cache::{arena_identity, CacheObject, CacheSource};
+use solidcore::topology::topology::Topology;
 use solidcore::topology::{Brep, BrepId, EdgeId, FaceId, FaceuseId, VertexId};
-use solidcore::{Result, SolidError};
+use solidcore::{EntityRef, Result, SolidError};
 use solidcore_ffi::units::query_api_queries as ffi;
 
 /// Differential coverage of the public geometry and topology queries.
@@ -415,18 +420,36 @@ impl SolutionObject for Object {
     }
 }
 
+struct ShapeRecord {
+    member: ShapeMember,
+    key: ObjectRef,
+    topology: Topology,
+}
+
 struct Objects<'a> {
-    breps: [&'a Brep; 2],
+    breps: [&'a mut Brep; 2],
     caches: [BrepCache<Object>; 2],
+    // The two-scene solve stores namespaced Object handles, while the live
+    // single-B-rep classifier stores CacheObject handles. There is no borrowed
+    // tree remapping between these types yet, so the harness keeps a separate,
+    // lazily built classification cache for each original B-rep. Geometry and
+    // owners are shared; these cases do not measure native cache-build costs.
+    point_caches: [Option<BrepCache>; 2],
+    // Records belong to this fixture's live objects and survive shape queries.
+    // They are registered only for a Shape source; other API operations need no
+    // mark storage. The closest-face fixture has one non-empty source B-rep.
+    shape_records: Vec<ShapeRecord>,
 }
 impl<'a> Objects<'a> {
-    fn new(breps: [&'a Brep; 2]) -> Result<Self> {
+    fn new(breps: [&'a mut Brep; 2]) -> Result<Self> {
         Ok(Self {
             breps,
             caches: [
                 BrepCache::new(solidcore::geom::a_object::BREP_TYPE)?,
                 BrepCache::new(solidcore::geom::a_object::BREP_TYPE)?,
             ],
+            point_caches: [None, None],
+            shape_records: Vec::new(),
         })
     }
     fn build(&mut self, k: &Kernel) -> Result<()> {
@@ -443,12 +466,148 @@ impl<'a> Objects<'a> {
     fn b(&self, o: Object) -> Result<&Brep> {
         self.breps
             .get(o.0)
-            .copied()
+            .map(|brep| &**brep)
             .ok_or(SolidError::sm_err("query api scene handle"))
     }
+
+    fn register_shape(&mut self, id: BrepId) -> Result<()> {
+        let brep = self.breps.get(id.index() as usize).ok_or_else(|| {
+            SolidError::invalid_input("query api shape context", "unregistered B-rep")
+        })?;
+        let records = &mut self.shape_records;
+        let mut register = |member, object| {
+            if !records.iter().any(|record| record.member == member) {
+                records.push(ShapeRecord {
+                    member,
+                    key: arena_identity(object),
+                    topology: Topology::new(),
+                });
+            }
+        };
+        for face in brep.faces().ids() {
+            register(ShapeMember::Face((id, face)), CacheObject::Face(face));
+        }
+        for edge in brep.edges().ids() {
+            register(ShapeMember::Edge((id, edge)), CacheObject::Edge(edge));
+        }
+        for vertex in brep.vertices().ids() {
+            register(
+                ShapeMember::Vertex((id, vertex)),
+                CacheObject::Vertex(vertex),
+            );
+        }
+        Ok(())
+    }
+
+    fn shape_owner(&self, owner: ObjectRef) -> Result<ShapeMember> {
+        // Resolve the actual owner key against registrations. In particular, do
+        // not reinterpret a key as an arena id or pick one of two ambiguous
+        // scene-local keys if a future fixture registers multiple B-reps.
+        let mut matches = self
+            .shape_records
+            .iter()
+            .filter(|record| record.key == owner);
+        let member = matches.next().map(|record| record.member).ok_or_else(|| {
+            SolidError::invalid_input("query api shape context", "unregistered geometry owner")
+        })?;
+        if matches.next().is_some() {
+            return Err(SolidError::invalid_input(
+                "query api shape context",
+                "geometry owner key is ambiguous across registered B-reps",
+            ));
+        }
+        Ok(member)
+    }
 }
+
+impl ShapeObjects for Objects<'_> {
+    fn brep(&self, id: BrepId) -> Result<&Brep> {
+        self.b(Object(id.index() as usize, CacheObject::Brep))
+    }
+
+    fn edge_owner(&self, owner: ObjectRef) -> Result<EdgeKey> {
+        match self.shape_owner(owner)? {
+            ShapeMember::Edge(edge) => Ok(edge),
+            _ => Err(SolidError::invalid_input(
+                "query api shape context",
+                "owner is not an edge",
+            )),
+        }
+    }
+
+    fn face_owner(&self, owner: ObjectRef) -> Result<FaceKey> {
+        match self.shape_owner(owner)? {
+            ShapeMember::Face(face) => Ok(face),
+            _ => Err(SolidError::invalid_input(
+                "query api shape context",
+                "owner is not a face",
+            )),
+        }
+    }
+
+    fn topology(&self, member: ShapeMember) -> Result<&Topology> {
+        self.shape_records
+            .iter()
+            .find(|record| record.member == member)
+            .map(|record| &record.topology)
+            .ok_or_else(|| {
+                SolidError::invalid_input("query api shape context", "unregistered mark record")
+            })
+    }
+
+    fn topology_mut(&mut self, member: ShapeMember) -> Result<&mut Topology> {
+        self.shape_records
+            .iter_mut()
+            .find(|record| record.member == member)
+            .map(|record| &mut record.topology)
+            .ok_or_else(|| {
+                SolidError::invalid_input("query api shape context", "unregistered mark record")
+            })
+    }
+}
+
+impl api::BrepRelationshipObjects<Object> for Objects<'_> {
+    fn brep(&self, handle: Object) -> Result<&Brep> {
+        if handle.1 != CacheObject::Brep {
+            return Err(SolidError::sm_err("query api B-rep handle"));
+        }
+        self.b(handle)
+    }
+
+    fn classify_point(
+        &mut self,
+        k: &Kernel,
+        handle: Object,
+        point: Point3,
+        tolerance: f64,
+        classification: &mut PointClassification<EntityRef>,
+    ) -> Result<()> {
+        if handle.1 != CacheObject::Brep {
+            return Err(SolidError::sm_err("query api B-rep handle"));
+        }
+        // This is the same scene-index -> BrepId identity used by shape_member;
+        // entity ids in the returned classification remain scoped to this B-rep.
+        let brep_id = BrepId::from_index(
+            u32::try_from(handle.0).map_err(|_| SolidError::sm_err("query api scene identity"))?,
+        );
+        let brep = self
+            .breps
+            .get_mut(handle.0)
+            .ok_or(SolidError::sm_err("query api scene handle"))?;
+        let cache = self
+            .point_caches
+            .get_mut(handle.0)
+            .ok_or(SolidError::sm_err("query api scene cache"))?;
+        // imported() assigns each concrete curve/surface its direct owning edge
+        // or face with arena_identity; no additional owner-chain hop is required.
+        let owner_of = |_| None;
+        let mut objects = BrepPointObjects::new(brep, brep_id, cache, &arena_identity, &owner_of);
+        point_3d_classify(k, &mut objects, point, tolerance, false, classification)
+    }
+}
+
 impl TopologyObjects<Object> for Objects<'_> {
-    fn brep_cache(&self, o: Object) -> Result<&BrepCache<Object>> {
+    fn brep_cache(&self, _kernel: &Kernel, o: Object) -> Result<&BrepCache<Object>> {
         self.caches
             .get(o.0)
             .ok_or(SolidError::sm_err("query api scene cache"))
@@ -572,7 +731,7 @@ impl TopologyObjects<Object> for Objects<'_> {
     }
 }
 
-fn topology(k: &Kernel, i: &Inputs, b: &Brep, second: &Brep) -> Result<Vec<f64>> {
+fn topology(k: &mut Kernel, i: &Inputs, b: &mut Brep, second: &mut Brep) -> Result<Vec<f64>> {
     let a = &i.data;
     let point = v([a[11], a[12], a[13]]);
     let index = a[20] as usize;
@@ -600,16 +759,13 @@ fn topology(k: &Kernel, i: &Inputs, b: &Brep, second: &Brep) -> Result<Vec<f64>>
                     }
                 }
                 _ => {
-                    let a = api::BrepRef { brep: b, handle };
-                    let b = api::BrepRef {
-                        brep: second,
-                        handle: Object(1, CacheObject::Brep),
-                    };
+                    let a = handle;
+                    let b = Object(1, CacheObject::Brep);
                     if i.op == 7 {
-                        let result = api::brep_relationship(k, &objects, a, b)?;
+                        let result = api::brep_relationship(k, &mut objects, a, b)?;
                         o.extend([result.distance, f64::from(result.relationship)]);
                     } else {
-                        o.push(api::brep_distance(k, &objects, a, b)?);
+                        o.push(api::brep_distance(k, &mut objects, a, b)?);
                     }
                 }
             }
@@ -668,8 +824,7 @@ fn topology(k: &Kernel, i: &Inputs, b: &Brep, second: &Brep) -> Result<Vec<f64>>
         18 => o.push(f64::from(
             api::face_classify_uv(
                 k,
-                // (the classification may attach missing UV trim curves: a copy)
-                &mut b.clone(),
+                b,
                 f.ok_or_else(missing)?,
                 solidcore::math::Point2::new(a[11], a[12]),
             )?
@@ -678,10 +833,12 @@ fn topology(k: &Kernel, i: &Inputs, b: &Brep, second: &Brep) -> Result<Vec<f64>>
         19 => {
             let face = f.ok_or_else(missing)?;
             let mut objects = Objects::new([b, second])?;
-            objects.build(k)?;
+            objects.register_shape(BrepId::from_index(0))?;
+            // ShapePointSolve consumes Shape's own trees. The native API builds
+            // no B-rep cache before constructing that face-scoped shape.
             closest(
                 &mut o,
-                api::face_closest_point(k, &objects, (BrepId::from_index(0), face), point)?,
+                api::face_closest_point(k, &mut objects, (BrepId::from_index(0), face), point)?,
             );
         }
         21 => cclosest(
@@ -725,7 +882,7 @@ impl UnitDiff for Runner {
     fn run_rust(&self, c: &Case) -> std::result::Result<Output, HarnessError> {
         let i: Inputs = c.parse()?;
         let a = &i.data;
-        let k = Kernel::default();
+        let mut k = Kernel::default();
         if a[16] != 0. {
             return Err(HarnessError::new(
                 "null pointers have no typed Rust equivalent; use the FFI contract tests",
@@ -761,7 +918,7 @@ impl UnitDiff for Runner {
                     o
                 }),
             _ => {
-                let b = imported(&k, a, if i.op == 11 { 26 } else { 0 })?;
+                let mut b = imported(&k, a, if i.op == 11 { 26 } else { 0 })?;
                 let mut other = *a;
                 other[0] += 3. * a[6];
                 if let Some([x, y, z, size]) = i.other_box {
@@ -770,12 +927,12 @@ impl UnitDiff for Runner {
                 }
                 other[21] = 6.;
                 other[17] = 0.;
-                let second = if i.op == 7 || i.op == 8 {
+                let mut second = if i.op == 7 || i.op == 8 {
                     imported(&k, &other, 0)?
                 } else {
                     Brep::new()
                 };
-                topology(&k, &i, &b, &second)
+                topology(&mut k, &i, &mut b, &mut second)
             }
         };
         Ok(output(i.op, result))

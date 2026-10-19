@@ -1,16 +1,35 @@
 //! Native shell/region operations on shared native B-rep fixtures: queries, wire edges,
 //! `TransferChildrenTo` (incl. face-use and wire shells in one B-rep), shell type members,
-//! `RayFire` (empty-shape branch only), degeneracy, region ordering and filtering.
+//! `RayFire` with live boundary geometry, degeneracy, region ordering and filtering.
 //! Native fixtures and raw graph imports reuse the edge-use fixture protocol.
 //! Setup failures fail the harness; topology and native integer flags compare exactly.
 
 use super::topology_edgeuse_p1::{fixture_input, import};
+use super::topology_vertexuse::{apply_query_metadata, QueryMetadata};
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use solidcore::curve::curve::Curve;
+use solidcore::geom::attribute::ObjectKey;
+use solidcore::geom::extent1d::Extent1d;
+use solidcore::geom::extent2d::Extent2d;
+use solidcore::geom::extent3d::Extent3d;
+use solidcore::geom::object::{EdgeKey, FaceKey, ObjectRef, Shape, ShapeMember, ShapeObjects};
+use solidcore::geom::solution_array::{ObjectKind, SolutionObject};
+use solidcore::intersect::point_class::{ClassGeometry, ClassObject, ClassObjectKind};
+use solidcore::intersect::topology_solver::p1::TopologyObjects;
+use solidcore::kernel::Kernel;
+use solidcore::math::Point3;
+use solidcore::surface::surface::Surface;
+use solidcore::topology::brep_cache::{arena_identity, CacheObject};
 use solidcore::topology::shell::{shell_brep, shell_region, wire_edges};
-use solidcore::topology::{FaceuseId, Region, Shell, ShellId};
+use solidcore::topology::topology::Topology;
+use solidcore::topology::{
+    Brep, BrepId, EdgeId, FaceId, FaceuseId, Region, Shell, ShellId, VertexId,
+};
+use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::{topology_edgeuse_p1 as graph, topology_shell as ffi};
+use std::collections::BTreeMap;
 
 /// The shell/region unit runner.
 pub struct Runner;
@@ -136,107 +155,526 @@ mod ray_num3 {
     }
 }
 
-// This adapter supports exactly empty shape trees (harness-limited, see below). There are no geometry
-// handles to invent: every object-dependent accessor has an uninhabited input.
+// Shape trees retain the original geometry handles. The topology owner is a
+// different handle and is resolved only through the native owner metadata.
 #[derive(Clone, Copy, Debug, PartialEq)]
-enum NoRayObject {}
-struct EmptyRayWorld;
-impl solidcore::geom::solution_array::SolutionObject for NoRayObject {
-    fn kind(&self) -> solidcore::geom::solution_array::ObjectKind {
-        match *self {}
-    }
+enum RayObject {
+    Vertex(VertexId),
+    Edge(EdgeId),
+    Face(FaceId),
+    Curve(EdgeId),
+    Surface(FaceId),
+    // Initial output state may refer to topology the ray never reads, such as
+    // a region. Preserve it through early errors instead of resolving it first.
+    Initial(EntityRef),
 }
-impl solidcore::intersect::point_class::ClassObject for NoRayObject {
-    fn class_kind(&self) -> solidcore::intersect::point_class::ClassObjectKind {
-        match *self {}
+impl RayObject {
+    fn cache_object(self) -> solidcore::Result<CacheObject> {
+        Ok(match self {
+            Self::Vertex(id) => CacheObject::Vertex(id),
+            Self::Edge(id) => CacheObject::Edge(id),
+            Self::Face(id) => CacheObject::Face(id),
+            Self::Curve(id) => CacheObject::Curve(id),
+            Self::Surface(id) => CacheObject::Surface(id),
+            Self::Initial(_) => {
+                return Err(ray_context_error("initial state is not cached geometry"))
+            }
+        })
     }
-}
-impl solidcore::topology::shell::ShellRayWorld<NoRayObject> for EmptyRayWorld {
-    // Harness-limited: a non-empty boundary-face shape needs the B-rep's cached
-    // geometry (`topology::brep_cache::BrepObjects` over a built `BrepCache`, which
-    // is `query.brep`) plus a world overriding `shell_ray_sector` with `topology::brep::p2::local_curve_sector`. The
-    // cases whose C++ run reaches that stage are deferred, never compared here;
-    // swap this world for `BrepObjects` when those units are ported.
-    fn shell_ray_shape(
-        &self,
-        faces: &[solidcore::geom::object::FaceKey],
-    ) -> solidcore::Result<solidcore::geom::object::Shape> {
-        if faces.is_empty() {
-            return solidcore::geom::object::Shape::new(&[], &[], &[], &[]);
+
+    fn from_entity(entity: EntityRef) -> Self {
+        match entity {
+            EntityRef::Vertex(id) => Self::Vertex(id),
+            EntityRef::Edge(id) => Self::Edge(id),
+            EntityRef::Face(id) => Self::Face(id),
+            entity => Self::Initial(entity),
         }
-        // UNPORTED(query.brep): SmBrep cache for SmShape/ShapePointSolve on faces
-        // (harness-limited: this adapter has no B-rep geometry; see the note above)
-        Err(solidcore::SolidError::unported(
-            "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
-            "query.brep",
-        ))
+    }
+
+    fn into_entity(self) -> solidcore::Result<EntityRef> {
+        match self {
+            Self::Vertex(id) => Ok(EntityRef::Vertex(id)),
+            Self::Edge(id) => Ok(EntityRef::Edge(id)),
+            Self::Face(id) => Ok(EntityRef::Face(id)),
+            Self::Initial(entity) => Ok(entity),
+            Self::Curve(_) | Self::Surface(_) => Err(SolidError::unported(
+                "shell ray intersection handle has no EntityRef representation",
+                "harness:shell-ray-intersection-handle",
+            )),
+        }
     }
 }
-impl solidcore::intersect::topology_solver::p1::TopologyObjects<NoRayObject> for EmptyRayWorld {
-    fn curve(&self, object: NoRayObject) -> solidcore::Result<&solidcore::curve::curve::Curve> {
-        match object {}
-    }
-    fn analytic_curve_handle(&self, object: NoRayObject) -> Option<NoRayObject> {
-        match object {}
-    }
-    fn vertex_point(&self, object: NoRayObject) -> solidcore::Result<solidcore::math::Point3> {
-        match object {}
-    }
-    fn vertex_tolerance(&self, object: NoRayObject) -> solidcore::Result<f64> {
-        match object {}
-    }
-    fn curve_edge(&self, object: NoRayObject) -> solidcore::Result<Option<NoRayObject>> {
-        match object {}
-    }
-    fn edge_curve(&self, object: NoRayObject) -> solidcore::Result<Option<NoRayObject>> {
-        match object {}
-    }
-    fn edge_interval(
-        &self,
-        object: NoRayObject,
-    ) -> solidcore::Result<solidcore::geom::extent1d::Extent1d> {
-        match object {}
-    }
-    fn surface_face(&self, object: NoRayObject) -> solidcore::Result<Option<NoRayObject>> {
-        match object {}
-    }
-    fn face_surface(&self, object: NoRayObject) -> solidcore::Result<NoRayObject> {
-        match object {}
-    }
-    fn surface(
-        &self,
-        object: NoRayObject,
-    ) -> solidcore::Result<&solidcore::surface::surface::Surface> {
-        match object {}
-    }
-    fn face_uv_domain(
-        &self,
-        object: NoRayObject,
-    ) -> solidcore::Result<solidcore::geom::extent2d::Extent2d> {
-        match object {}
-    }
-    fn face_tolerance(&self, object: NoRayObject) -> solidcore::Result<f64> {
-        match object {}
-    }
-    fn surface_owner(&self, object: NoRayObject) -> solidcore::Result<Option<NoRayObject>> {
-        match object {}
-    }
-    fn shape_member(&self, object: NoRayObject) -> solidcore::geom::object::ShapeMember {
-        match object {}
+impl SolutionObject for RayObject {
+    fn kind(&self) -> ObjectKind {
+        match self {
+            Self::Vertex(_) => ObjectKind::Vertex,
+            Self::Edge(_) => ObjectKind::Edge,
+            Self::Face(_) => ObjectKind::Face,
+            Self::Curve(_) => ObjectKind::Curve,
+            Self::Surface(_) => ObjectKind::Surface,
+            Self::Initial(_) => ObjectKind::Other,
+        }
     }
 }
-impl solidcore::intersect::point_class::ClassGeometry<NoRayObject> for EmptyRayWorld {
-    fn curve(&self, object: NoRayObject) -> Option<&solidcore::curve::curve::Curve> {
-        match object {}
+impl ClassObject for RayObject {
+    fn class_kind(&self) -> ClassObjectKind {
+        match self {
+            Self::Vertex(_) => ClassObjectKind::Vertex,
+            Self::Edge(_) => ClassObjectKind::Edge,
+            Self::Face(_) => ClassObjectKind::Face,
+            Self::Curve(_) => ClassObjectKind::Curve,
+            Self::Surface(_) => ClassObjectKind::Surface,
+            Self::Initial(entity) => entity.class_kind(),
+        }
     }
-    fn surface(&self, object: NoRayObject) -> Option<&solidcore::surface::surface::Surface> {
-        match object {}
+}
+
+const RAY_WORLD_OP: &str = "difftest::topology_shell::RayWorld";
+
+fn ray_context_error(reason: &'static str) -> SolidError {
+    SolidError::invalid_input(RAY_WORLD_OP, reason)
+}
+
+// These are registered fixture keys, not casts from an incoming owner pointer.
+// The same mapping installs the native owner links and indexes persistent marks.
+fn ray_key(object: CacheObject) -> ObjectRef {
+    let identity = arena_identity(object);
+    ObjectRef {
+        type_code: identity.type_code,
+        key: ObjectKey(identity.key.0 + 1),
     }
-    fn volume(&self, object: NoRayObject) -> Option<&solidcore::surface::volume::Volume> {
-        match object {}
+}
+
+/// One registered B-rep's native metadata and persistent shape/traversal marks.
+/// Reuse with the same live B-rep and Kernel between calls; geometry is borrowed
+/// only during a ray. `keys` must be the mapping used to apply its query metadata.
+pub(super) struct RayQueryContext {
+    id: BrepId,
+    records: BTreeMap<ObjectRef, (ShapeMember, Topology)>,
+    registered_faces: usize,
+    registered_edges: usize,
+    registered_vertices: usize,
+    metadata: QueryMetadata,
+    keys: fn(CacheObject) -> ObjectRef,
+}
+impl RayQueryContext {
+    pub(super) fn new(
+        brep: &Brep,
+        id: BrepId,
+        metadata: QueryMetadata,
+        keys: fn(CacheObject) -> ObjectRef,
+    ) -> Self {
+        let mut context = Self {
+            id,
+            records: BTreeMap::new(),
+            registered_faces: 0,
+            registered_edges: 0,
+            registered_vertices: 0,
+            metadata,
+            keys,
+        };
+        context.register_members(brep);
+        context
     }
-    fn point(&self, object: NoRayObject) -> Option<solidcore::math::Point3> {
-        match object {}
+
+    /// Original import limitations, for a caller's selective geometry guards.
+    pub(super) fn metadata(&self) -> &QueryMetadata {
+        &self.metadata
+    }
+
+    fn register_members(&mut self, brep: &Brep) {
+        let id = self.id;
+        for face in brep.faces().ids().skip(self.registered_faces) {
+            self.records
+                .entry((self.keys)(CacheObject::Face(face)))
+                .or_insert_with(|| (ShapeMember::Face((id, face)), Topology::new()));
+        }
+        for edge in brep.edges().ids().skip(self.registered_edges) {
+            self.records
+                .entry((self.keys)(CacheObject::Edge(edge)))
+                .or_insert_with(|| (ShapeMember::Edge((id, edge)), Topology::new()));
+        }
+        for vertex in brep.vertices().ids().skip(self.registered_vertices) {
+            self.records
+                .entry((self.keys)(CacheObject::Vertex(vertex)))
+                .or_insert_with(|| (ShapeMember::Vertex((id, vertex)), Topology::new()));
+        }
+        // These arenas append records and retain detached ids. Revisiting an
+        // unchanged B-rep needs no owner-map lookups, including ray retries.
+        self.registered_faces = brep.faces().len();
+        self.registered_edges = brep.edges().len();
+        self.registered_vertices = brep.vertices().len();
+    }
+
+    fn world<'a>(&'a mut self, brep: &'a mut Brep) -> RayWorld<'a> {
+        // Edits can add members between calls. Keep existing marks and register
+        // only the new topology records; do not reapply old geometry metadata.
+        self.register_members(brep);
+        RayWorld {
+            brep,
+            id: self.id,
+            records: &mut self.records,
+            metadata: &self.metadata,
+            keys: self.keys,
+        }
+    }
+
+    /// Call the real shell ray engine, retaining its status and partial state.
+    /// A geometry-only result cannot be represented by `EntityRef`: it produces an
+    /// explicit harness dependency error, which callers must propagate before
+    /// consuming the state. Ordinary native errors preserve all output fields.
+    pub(super) fn ray_fire(
+        &mut self,
+        kernel: &mut Kernel,
+        brep: &mut Brep,
+        shell: ShellId,
+        input: solidcore::topology::shell::ShellRayInput<EntityRef>,
+    ) -> solidcore::topology::shell::ShellRayAttempt<EntityRef> {
+        use solidcore::topology::shell::{ray_fire, ShellRayAttempt, ShellRayInput, ShellRayState};
+        let initial_classification = input.state.classification;
+        let classification = match initial_classification
+            .try_map_objects(|entity| Ok(RayObject::from_entity(entity)))
+        {
+            Ok(classification) => classification,
+            Err(error) => {
+                return ShellRayAttempt {
+                    status: Err(error),
+                    state: input.state,
+                };
+            }
+        };
+        let id = self.id;
+        let mut world = self.world(brep);
+        let attempt = ray_fire(
+            kernel,
+            id,
+            shell,
+            &mut world,
+            ShellRayInput {
+                start: input.start,
+                direction: input.direction,
+                zone_tolerance: input.zone_tolerance,
+                sphere_bound: input.sphere_bound,
+                state: ShellRayState {
+                    region: input.state.region,
+                    classification,
+                },
+            },
+        );
+        match attempt
+            .state
+            .classification
+            .try_map_objects(RayObject::into_entity)
+        {
+            Ok(classification) => ShellRayAttempt {
+                status: attempt.status,
+                state: ShellRayState {
+                    region: attempt.state.region,
+                    classification,
+                },
+            },
+            Err(error) => ShellRayAttempt {
+                status: Err(error),
+                state: ShellRayState {
+                    region: attempt.state.region,
+                    classification: initial_classification,
+                },
+            },
+        }
+    }
+}
+
+impl solidcore::topology::brep::p6::RegionSplitQueries for RayQueryContext {
+    fn check_geometry(
+        &mut self,
+        _brep: &Brep,
+        read_curves: bool,
+        read_surfaces: bool,
+    ) -> solidcore::Result<()> {
+        if self
+            .metadata
+            .deferred_output_for(read_curves, read_surfaces)
+            .is_some()
+        {
+            Err(SolidError::unported(
+                "native B-rep query geometry export",
+                "harness:analytic-geometry-export",
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn ray_fire(
+        &mut self,
+        kernel: &mut Kernel,
+        brep: &mut Brep,
+        shell: ShellId,
+        input: solidcore::topology::shell::ShellRayInput<EntityRef>,
+    ) -> solidcore::topology::shell::ShellRayAttempt<EntityRef> {
+        Self::ray_fire(self, kernel, brep, shell, input)
+    }
+}
+
+struct RayWorld<'a> {
+    brep: &'a mut Brep,
+    id: BrepId,
+    records: &'a mut BTreeMap<ObjectRef, (ShapeMember, Topology)>,
+    metadata: &'a QueryMetadata,
+    keys: fn(CacheObject) -> ObjectRef,
+}
+impl RayWorld<'_> {
+    fn check_brep(&self, id: BrepId) -> solidcore::Result<()> {
+        if id == self.id {
+            Ok(())
+        } else {
+            Err(ray_context_error("unregistered B-rep"))
+        }
+    }
+
+    fn owner_member(&self, owner: ObjectRef) -> solidcore::Result<ShapeMember> {
+        self.records
+            .get(&owner)
+            .map(|record| record.0)
+            .ok_or_else(|| ray_context_error("unregistered geometry owner"))
+    }
+
+    fn member_key(&self, member: ShapeMember) -> solidcore::Result<ObjectRef> {
+        let object = self.shape_member_object(member)?;
+        Ok((self.keys)(object.cache_object()?))
+    }
+}
+
+impl ShapeObjects for RayWorld<'_> {
+    fn brep(&self, id: BrepId) -> solidcore::Result<&Brep> {
+        self.check_brep(id)?;
+        Ok(self.brep)
+    }
+    fn edge_owner(&self, owner: ObjectRef) -> solidcore::Result<EdgeKey> {
+        match self.owner_member(owner)? {
+            ShapeMember::Edge(edge) => Ok(edge),
+            _ => Err(ray_context_error("geometry owner is not an edge")),
+        }
+    }
+    fn face_owner(&self, owner: ObjectRef) -> solidcore::Result<FaceKey> {
+        match self.owner_member(owner)? {
+            ShapeMember::Face(face) => Ok(face),
+            _ => Err(ray_context_error("geometry owner is not a face")),
+        }
+    }
+    fn topology(&self, member: ShapeMember) -> solidcore::Result<&Topology> {
+        self.records
+            .get(&self.member_key(member)?)
+            .map(|record| &record.1)
+            .ok_or_else(|| ray_context_error("unregistered topology mark record"))
+    }
+    fn topology_mut(&mut self, member: ShapeMember) -> solidcore::Result<&mut Topology> {
+        let key = self.member_key(member)?;
+        self.records
+            .get_mut(&key)
+            .map(|record| &mut record.1)
+            .ok_or_else(|| ray_context_error("unregistered topology mark record"))
+    }
+}
+
+impl solidcore::topology::shell::ShellRayWorld<RayObject> for RayWorld<'_> {
+    fn shell_ray_brep_mut(&mut self, id: BrepId) -> solidcore::Result<&mut Brep> {
+        self.check_brep(id)?;
+        Ok(self.brep)
+    }
+    fn shell_ray_entity(&self, id: BrepId, object: RayObject) -> solidcore::Result<EntityRef> {
+        self.check_brep(id)?;
+        Ok(match object {
+            RayObject::Vertex(id) => {
+                self.brep.vertex(id)?;
+                EntityRef::Vertex(id)
+            }
+            RayObject::Edge(id) => {
+                self.brep.edge(id)?;
+                EntityRef::Edge(id)
+            }
+            RayObject::Face(id) => {
+                self.brep.face(id)?;
+                EntityRef::Face(id)
+            }
+            RayObject::Curve(_) | RayObject::Surface(_) | RayObject::Initial(_) => {
+                return Err(ray_context_error("ray intersection has no topology owner"));
+            }
+        })
+    }
+    fn shell_ray_bounds(&self, kernel: &Kernel, id: BrepId) -> solidcore::Result<Extent3d> {
+        self.metadata.require_geometry()?;
+        solidcore::query::brep::calculate_bounding_box(
+            kernel,
+            self.brep(id)?,
+            solidcore::query::brep::BoundingBoxOptions::default(),
+        )
+    }
+    fn shell_ray_shape(
+        &mut self,
+        kernel: &mut Kernel,
+        faces: &[FaceKey],
+    ) -> solidcore::Result<Shape> {
+        // A supplied radius and empty boundary need no exported geometry. The
+        // guard is reached only when the native constructor consumes geometry;
+        // it conservatively checks the whole fixture, including indirect owners.
+        if !faces.is_empty() {
+            self.metadata.require_geometry()?;
+        }
+        Shape::new_with_objects(kernel, self, &[], faces, &[], &[])
+    }
+}
+
+impl TopologyObjects<RayObject> for RayWorld<'_> {
+    fn curve(&self, object: RayObject) -> solidcore::Result<&Curve> {
+        let RayObject::Curve(id) = object else {
+            return Err(ray_context_error("expected curve handle"));
+        };
+        self.brep
+            .edge(id)?
+            .curve
+            .as_ref()
+            .ok_or(SolidError::null_pointer(RAY_WORLD_OP))
+    }
+    fn analytic_curve_handle(&self, object: RayObject) -> Option<RayObject> {
+        matches!(object, RayObject::Curve(_)).then_some(object)
+    }
+    fn vertex_point(&self, object: RayObject) -> solidcore::Result<Point3> {
+        let RayObject::Vertex(id) = object else {
+            return Err(ray_context_error("expected vertex handle"));
+        };
+        Ok(self.brep.vertex(id)?.point)
+    }
+    fn vertex_tolerance(&self, object: RayObject) -> solidcore::Result<f64> {
+        let RayObject::Vertex(id) = object else {
+            return Err(ray_context_error("expected vertex handle"));
+        };
+        Ok(self.brep.vertex(id)?.tolerance)
+    }
+    fn curve_edge(&self, object: RayObject) -> solidcore::Result<Option<RayObject>> {
+        // Direct native owners were installed by apply_query_metadata. An
+        // unrepresentable indirect chain is gated before Shape consumes it.
+        TopologyObjects::curve(self, object)?
+            .edge(&|_| None)?
+            .map(|owner| self.edge_owner(owner).map(|(_, id)| RayObject::Edge(id)))
+            .transpose()
+    }
+    fn edge_curve(&self, object: RayObject) -> solidcore::Result<Option<RayObject>> {
+        let RayObject::Edge(id) = object else {
+            return Err(ray_context_error("expected edge handle"));
+        };
+        Ok(self
+            .brep
+            .edge(id)?
+            .curve
+            .as_ref()
+            .map(|_| RayObject::Curve(id)))
+    }
+    fn edge_interval(&self, object: RayObject) -> solidcore::Result<Extent1d> {
+        let RayObject::Edge(id) = object else {
+            return Err(ray_context_error("expected edge handle"));
+        };
+        Ok(self.brep.edge(id)?.interval)
+    }
+    fn surface_face(&self, object: RayObject) -> solidcore::Result<Option<RayObject>> {
+        TopologyObjects::surface(self, object)?
+            .face()?
+            .map(|owner| self.face_owner(owner).map(|(_, id)| RayObject::Face(id)))
+            .transpose()
+    }
+    fn face_surface(&self, object: RayObject) -> solidcore::Result<RayObject> {
+        let RayObject::Face(id) = object else {
+            return Err(ray_context_error("expected face handle"));
+        };
+        self.brep
+            .face(id)?
+            .surface
+            .as_ref()
+            .ok_or(SolidError::null_pointer(RAY_WORLD_OP))?;
+        Ok(RayObject::Surface(id))
+    }
+    fn surface(&self, object: RayObject) -> solidcore::Result<&Surface> {
+        let RayObject::Surface(id) = object else {
+            return Err(ray_context_error("expected surface handle"));
+        };
+        self.brep
+            .face(id)?
+            .surface
+            .as_ref()
+            .ok_or(SolidError::null_pointer(RAY_WORLD_OP))
+    }
+    fn face_uv_domain(&self, object: RayObject) -> solidcore::Result<Extent2d> {
+        let RayObject::Face(id) = object else {
+            return Err(ray_context_error("expected face handle"));
+        };
+        Ok(self.brep.face(id)?.uv_domain)
+    }
+    fn face_tolerance(&self, object: RayObject) -> solidcore::Result<f64> {
+        let RayObject::Face(id) = object else {
+            return Err(ray_context_error("expected face handle"));
+        };
+        Ok(self.brep.face(id)?.tolerance)
+    }
+    fn surface_owner(&self, object: RayObject) -> solidcore::Result<Option<RayObject>> {
+        TopologyObjects::surface(self, object)?
+            .owner()
+            .map(|owner| self.face_owner(owner).map(|(_, id)| RayObject::Face(id)))
+            .transpose()
+    }
+    fn shape_member(&self, object: RayObject) -> ShapeMember {
+        match object {
+            RayObject::Vertex(id) => ShapeMember::Vertex((self.id, id)),
+            RayObject::Edge(id) => ShapeMember::Edge((self.id, id)),
+            RayObject::Face(id) => ShapeMember::Face((self.id, id)),
+            RayObject::Curve(_) | RayObject::Surface(_) | RayObject::Initial(_) => {
+                ShapeMember::Other
+            }
+        }
+    }
+    fn shape_member_object(&self, member: ShapeMember) -> solidcore::Result<RayObject> {
+        Ok(match member {
+            ShapeMember::Vertex((brep, id)) => {
+                self.check_brep(brep)?;
+                self.brep.vertex(id)?;
+                RayObject::Vertex(id)
+            }
+            ShapeMember::Edge((brep, id)) => {
+                self.check_brep(brep)?;
+                self.brep.edge(id)?;
+                RayObject::Edge(id)
+            }
+            ShapeMember::Face((brep, id)) => {
+                self.check_brep(brep)?;
+                self.brep.face(id)?;
+                RayObject::Face(id)
+            }
+            ShapeMember::Other => return Err(ray_context_error("not a shape member")),
+        })
+    }
+}
+impl ClassGeometry<RayObject> for RayWorld<'_> {
+    fn curve(&self, object: RayObject) -> Option<&Curve> {
+        TopologyObjects::curve(self, object).ok()
+    }
+    fn surface(&self, object: RayObject) -> Option<&Surface> {
+        TopologyObjects::surface(self, object).ok()
+    }
+    fn volume(&self, _object: RayObject) -> Option<&solidcore::surface::volume::Volume> {
+        None
+    }
+    fn point(&self, _object: RayObject) -> Option<Point3> {
+        None
+    }
+    fn classification_vertex_point(&self, object: RayObject) -> Option<Point3> {
+        self.vertex_point(object).ok()
+    }
+    fn topology_zone_tol_3d(&self, object: RayObject) -> Option<f64> {
+        match object {
+            RayObject::Vertex(id) => self.brep.vertex(id).ok().map(|v| v.tolerance),
+            RayObject::Edge(id) => self.brep.edge(id).ok().map(|e| e.tolerance),
+            RayObject::Face(id) => self.brep.face(id).ok().map(|f| f.tolerance),
+            RayObject::Curve(_) | RayObject::Surface(_) | RayObject::Initial(_) => None,
+        }
     }
 }
 
@@ -247,13 +685,13 @@ const MARK_TYPES: [solidcore::geom::context::MarkType; 5] = {
 };
 
 /// Current mark counters of the kernel context, taken before a compared call.
-fn mark_counters(k: &solidcore::kernel::Kernel) -> [u64; 5] {
+fn mark_counters(k: &Kernel) -> [u64; 5] {
     MARK_TYPES.map(|mark| k.context.current_mark(mark))
 }
 
 /// How far a call advanced each mark counter, then whether each is still locked
 /// (the shim's `MarkSnap::put`): upstream's `SmNewMarkAndLock` side effects.
-fn mark_delta(k: &solidcore::kernel::Kernel, before: [u64; 5]) -> [i64; 10] {
+fn mark_delta(k: &Kernel, before: [u64; 5]) -> [i64; 10] {
     let mut out = [0; 10];
     for ((mark, was), slot) in MARK_TYPES.into_iter().zip(before).zip(out.iter_mut()) {
         *slot = k.context.current_mark(mark).wrapping_sub(was) as i64;
@@ -286,10 +724,14 @@ fn ray_output(values: &[f64]) -> Result<Output, HarnessError> {
         .values("classification", floats))
 }
 
-fn rust_ray(brep: &solidcore::topology::Brep, input: &RayInput) -> Result<Output, HarnessError> {
+fn rust_ray(
+    brep: &mut Brep,
+    input: &RayInput,
+    metadata: QueryMetadata,
+) -> Result<Output, HarnessError> {
     use solidcore::intersect::point_class::{PointClassType, PointClassification};
     use solidcore::topology::shell::{ray_fire, ShellRayInput, ShellRayState};
-    let mut kernel = solidcore::kernel::Kernel::default();
+    let mut kernel = Kernel::default();
     let mut out = Vec::new();
     // The shim's guard: non-finite ray values would reach the intersection solver
     // through a shell's boundary faces (a face use whose mate lies in another shell).
@@ -317,20 +759,26 @@ fn rust_ray(brep: &solidcore::topology::Brep, input: &RayInput) -> Result<Output
             }
         }
     }
-    for id in brep.shells().ids() {
+    let shells: Vec<_> = brep.shells().ids().collect();
+    let initial_region = brep.regions().ids().next();
+    let brep_id = BrepId::from_index(0);
+    // One live world spans all shells, as the shim's callback does. Sectoring
+    // may create UV trim curves; shape and traversal marks remain persistent.
+    let mut context = RayQueryContext::new(brep, brep_id, metadata, ray_key);
+    let mut world = context.world(brep);
+    for id in shells {
         let counters = mark_counters(&kernel);
-        let mut classification = PointClassification::<NoRayObject>::new(0.125);
+        let mut classification = PointClassification::<RayObject>::new(0.125);
         classification.set_class_object(PointClassType::Point, None);
         classification.set_gap_3d(123.0);
         classification.set_pre_snap_param(456.0);
         let attempt = ray_fire(
             &mut kernel,
-            brep,
-            solidcore::topology::BrepId::from_index(0),
+            brep_id,
             id,
-            &EmptyRayWorld,
+            &mut world,
             ShellRayInput {
-                start: solidcore::math::Point3::new(input.start[0], input.start[1], input.start[2]),
+                start: Point3::new(input.start[0], input.start[1], input.start[2]),
                 direction: solidcore::math::Vec3::new(
                     input.direction[0],
                     input.direction[1],
@@ -339,7 +787,7 @@ fn rust_ray(brep: &solidcore::topology::Brep, input: &RayInput) -> Result<Output
                 zone_tolerance: input.tolerance,
                 sphere_bound: input.radius,
                 state: ShellRayState {
-                    region: brep.regions().ids().next(),
+                    region: initial_region,
                     classification,
                 },
             },
@@ -347,11 +795,19 @@ fn rust_ray(brep: &solidcore::topology::Brep, input: &RayInput) -> Result<Output
         let status = match attempt.status {
             Ok(()) => 0,
             Err(error) => {
+                if matches!(&error, SolidError::Unported { unit, .. }
+                    if *unit == "harness:analytic-geometry-export")
+                {
+                    return world
+                        .metadata
+                        .deferred_output()
+                        .ok_or_else(|| failure("missing native geometry limitation"));
+                }
                 if let Some(deferred) = Output::unported(&error) {
                     return Ok(deferred);
                 }
                 match error {
-                    solidcore::error::SolidError::Upstream { code, .. } => code,
+                    SolidError::Upstream { code, .. } => code,
                     error => return Err(failure(error)),
                 }
             }
@@ -363,7 +819,7 @@ fn rust_ray(brep: &solidcore::topology::Brep, input: &RayInput) -> Result<Output
             f64::from(pc.point_class().code()),
             f64::from(pc.object().is_none()),
             pc.src_zone_tol_3d(),
-            pc.gap_3d(&kernel, &EmptyRayWorld, None).map_err(failure)?,
+            pc.gap_3d(&kernel, &world, None).map_err(failure)?,
             pc.pre_snap_param(),
         ]);
         out.extend(mark_delta(&kernel, counters).map(|v| v as f64));
@@ -415,7 +871,7 @@ fn type_probe_index(probe: &TypeProbe, counts: [usize; 10]) -> Result<Option<usi
 }
 
 fn rust_type_members(
-    brep: &mut solidcore::topology::Brep,
+    brep: &mut Brep,
     probe: &TypeProbe,
     selected: Option<usize>,
 ) -> Result<Output, HarnessError> {
@@ -584,7 +1040,7 @@ fn resolve_transfer(
 }
 
 fn rust_transfer_records(
-    brep: &mut solidcore::topology::Brep,
+    brep: &mut Brep,
     options: &ResolvedTransfer,
 ) -> Result<Output, HarnessError> {
     use solidcore::topology::shell::{faceuse_sibling_links, transfer_children, ShellMembers};
@@ -667,13 +1123,12 @@ fn rust_transfer_records(
     // The native shim rejects exactly the inputs that crash C++ (null dereferences in
     // `GetWireEdges` and in the candidate filter); mirror its predicates so a rejected
     // input compares as `rejected_input` on both sides.
-    let mut kernel = solidcore::kernel::Kernel::default();
+    let mut kernel = Kernel::default();
     let rejected = || Output::err("rejected_input");
-    let crashes_wire_edges =
-        |brep: &solidcore::topology::Brep, id: ShellId| -> Result<bool, HarnessError> {
-            let shell = brep.shell(id).map_err(failure)?;
-            Ok(shell.is_wire_shell() && shell.wire_edge(brep).map_err(failure)?.is_none())
-        };
+    let crashes_wire_edges = |brep: &Brep, id: ShellId| -> Result<bool, HarnessError> {
+        let shell = brep.shell(id).map_err(failure)?;
+        Ok(shell.is_wire_shell() && shell.wire_edge(brep).map_err(failure)?.is_none())
+    };
     let mut pre_status = Vec::new();
     for &(from, to) in &options.pre {
         for id in brep.shells().ids().collect::<Vec<_>>() {
@@ -1007,7 +1462,9 @@ impl UnitDiff for Runner {
             {
                 return Err(failure("ray cannot be combined with another operation"));
             }
-            return rust_ray(&brep, &ray);
+            let metadata = ffi::query_metadata(&path, &block).map_err(failure)?;
+            let report = apply_query_metadata(&mut brep, &metadata, &ray_key)?;
+            return rust_ray(&mut brep, &ray, report);
         }
         if let Some(degenerate) = inputs.degenerate {
             if inputs.type_probe.is_some()
@@ -1020,7 +1477,7 @@ impl UnitDiff for Runner {
                 ));
             }
             let tolerance = degeneracy_tolerance(&degenerate)?;
-            let mut kernel = solidcore::kernel::Kernel::default();
+            let mut kernel = Kernel::default();
             let mut out = vec![brep.shells().len() as i64, brep.regions().len() as i64];
             for id in brep.shells().ids() {
                 match solidcore::topology::shell::shell_is_degenerate(
@@ -1063,16 +1520,13 @@ impl UnitDiff for Runner {
         }
         if inputs.wires {
             let mut out = vec![brep.shells().len() as i64];
-            let mut kernel = solidcore::kernel::Kernel::default();
+            let mut kernel = Kernel::default();
             for shell in brep.shells().ids() {
                 let counters = mark_counters(&kernel);
                 match wire_edges(&mut kernel, &brep, shell) {
                     Ok(wires) => {
                         out.push(0);
-                        list(
-                            &mut out,
-                            wires.into_iter().map(solidcore::topology::EdgeId::index),
-                        );
+                        list(&mut out, wires.into_iter().map(EdgeId::index));
                         out.extend(mark_delta(&kernel, counters));
                     }
                     Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
@@ -1081,7 +1535,7 @@ impl UnitDiff for Runner {
             return Ok(Output::new().ints("records", out));
         }
         let mut out = vec![brep.shells().len() as i64, brep.regions().len() as i64];
-        let mut kernel = solidcore::kernel::Kernel::default();
+        let mut kernel = Kernel::default();
         for (id, shell) in brep.shells().iter() {
             out.extend([
                 Shell::type_code(),
@@ -1366,7 +1820,7 @@ fn integer_records(values: Vec<f64>) -> Result<Output, HarnessError> {
 }
 
 fn rust_region_order(
-    brep: &mut solidcore::topology::Brep,
+    brep: &mut Brep,
     prefix: usize,
     gather_faces: bool,
 ) -> Result<Output, HarnessError> {
@@ -1403,11 +1857,8 @@ fn rust_region_order(
         }
         head.extend(original);
         brep.region_mut(region).map_err(failure)?.shells = head;
-        match solidcore::topology::shell::order_region_shells(
-            &mut solidcore::kernel::Kernel::default(),
-            brep,
-            region,
-        ) {
+        match solidcore::topology::shell::order_region_shells(&mut Kernel::default(), brep, region)
+        {
             Ok(()) => out.push(0),
             Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
         }
@@ -1423,10 +1874,7 @@ fn rust_region_order(
     Ok(Output::new().ints("records", out))
 }
 
-fn rust_region_filter(
-    brep: &solidcore::topology::Brep,
-    filter: &RegionFilter,
-) -> Result<Output, HarnessError> {
+fn rust_region_filter(brep: &Brep, filter: &RegionFilter) -> Result<Output, HarnessError> {
     use solidcore::geom::attribute::{Attribute, AttributeStore, Behavior, ObjectKey};
     let mut attributes = AttributeStore::new();
     for (index, (id, _)) in brep.shells().iter().enumerate() {
@@ -1454,4 +1902,75 @@ fn rust_region_filter(
         list(&mut out, shells.into_iter().map(ShellId::index));
     }
     Ok(Output::new().ints("records", out))
+}
+
+#[cfg(test)]
+mod ray_query_tests {
+    use super::{
+        ray_key, Brep, BrepId, EntityRef, Kernel, QueryMetadata, RayQueryContext, Region, Shell,
+        SolidError,
+    };
+    use solidcore::intersect::point_class::{PointClassType, PointClassification};
+    use solidcore::math::{Point2, Point3, Vec3};
+    use solidcore::topology::shell::{ShellRayInput, ShellRayState};
+    use solidcore::topology::{Arena, Face};
+
+    #[test]
+    fn real_ray_preserves_initial_state_on_error_and_retained_fields_on_no_hit() {
+        let mut brep = Brep::new();
+        let region = brep.add_region_record(Region::default()).unwrap();
+        let shell = brep.add_shell_record(Shell::new()).unwrap();
+        let mut breps = Arena::<BrepId, Brep>::default();
+        let id = breps.insert(brep).unwrap();
+
+        // A prior classification may retain a face from another B-rep. Neither
+        // Unitize's failure nor a no-hit ray reads that auxiliary face.
+        let mut foreign = Brep::new();
+        let foreign_shell = foreign.add_shell_record(Shell::new()).unwrap();
+        let foreign_face = foreign.add_face_record(Face::new(foreign_shell)).unwrap();
+        let _foreign_id = breps.insert(foreign).unwrap();
+        let brep = breps.get_mut(id).unwrap();
+        let mut context = RayQueryContext::new(brep, id, QueryMetadata::default(), ray_key);
+        let mut kernel = Kernel::default();
+        let mut initial = PointClassification::new(0.125);
+        initial.set_class_object(PointClassType::Region, Some(EntityRef::Region(region)));
+        initial.set_face(Some(EntityRef::Face(foreign_face)));
+        initial.set_gap_3d(123.0);
+        initial.set_t_param(17.0, false);
+        initial.set_uv_param(Point2::new(19.0, 23.0));
+        initial.set_uvw_param(Point3::new(29.0, 31.0, 37.0));
+        initial.set_pre_snap_param(456.0);
+        initial.set_sss_point(Point3::new(41.0, 43.0, 47.0));
+
+        for no_hit in [false, true] {
+            let attempt = context.ray_fire(
+                &mut kernel,
+                brep,
+                shell,
+                ShellRayInput {
+                    start: Point3::new(0.0, 0.0, 0.0),
+                    direction: Vec3::new(f64::from(no_hit), 0.0, 0.0),
+                    zone_tolerance: 0.001,
+                    sphere_bound: Some(1.0),
+                    state: ShellRayState {
+                        region: Some(region),
+                        classification: initial,
+                    },
+                },
+            );
+            let mut expected = initial;
+            if no_hit {
+                assert_eq!(attempt.status, Ok(()));
+                expected.set_class_object(PointClassType::Unknown, None);
+                assert_eq!(attempt.state.region, None);
+            } else {
+                assert!(matches!(
+                    attempt.status,
+                    Err(SolidError::Upstream { code: 1007, .. })
+                ));
+                assert_eq!(attempt.state.region, Some(region));
+            }
+            assert_eq!(attempt.state.classification, expected);
+        }
+    }
 }

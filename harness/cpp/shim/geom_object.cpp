@@ -5,6 +5,8 @@
 // source/SMLib/src/SmShape.cpp). B-reps for shapes come from SmApiCreateBox /
 // SmApiReadBrepFromFile (source/SM_API).
 #include "sc_shim.h"
+#include "sc_edgeuse_graph.h"
+#include "sc_brep_query_metadata.h"
 #include <SmApiImportExport.h>
 #include <SmApiPrimitives.h>
 #include <SmBrep.h>
@@ -361,5 +363,45 @@ SC_EXPORT int32_t sc_geom_object_shape(int32_t source, const double* box, const 
             res.push_back(sShape.IsInShape(vAllV[i]) ? 1.0 : 0.0);
     }
     return sc_copy_out(res.data(), (int64_t)res.size(), out, cap, out_len);
+    SC_CATCH
+}
+
+// Import only: the same native source as sc_geom_object_shape, before constructing
+// SmShape. Deliberately number F/E/V records backwards so list order cannot be
+// confused with registry ids on the Rust side. No bounding-box query is evaluated.
+SC_EXPORT int32_t sc_geom_object_shape_export(int32_t source, const double* box,
+                                              const char* path, double* out,
+                                              int64_t cap, int64_t* out_len)
+{
+    if (source < 1 || source > 2 || box == nullptr || (source == 2 && path == nullptr))
+        return SC_ERR_ARG;
+    SC_TRY
+    SmBrep* brep = nullptr;
+    SmStatus status = source == 1
+        ? SmApiCreateBox(SmVector3d(box[0], box[1], box[2]), box[3], box[4], box[5], brep)
+        : SmApiReadBrepFromFile(path, box[0] != 0.0 ? TRUE : FALSE, FALSE, brep);
+    SmObjDelete cleanup(brep);
+    if (status != SM_SUCCESS || brep == nullptr)
+        return status == SM_SUCCESS ? SC_ERR_ARG : (int32_t)status;
+    SmTArray<SmFace*> faces;
+    SmTArray<SmEdge*> edges;
+    SmTArray<SmVertex*> vertices;
+    brep->GetFaces(faces);
+    brep->GetEdges(edges);
+    brep->GetVertices(vertices);
+    Graph graph;
+    for (ULONG i = faces.GetSize(); i > 0; --i) graph.face(faces[i - 1]);
+    for (ULONG i = edges.GetSize(); i > 0; --i) graph.edge(edges[i - 1]);
+    for (ULONG i = vertices.GetSize(); i > 0; --i) graph.vertex(vertices[i - 1]);
+    walk(brep, graph);
+    std::vector<double> geometry{0.0};
+    export_graph(brep, graph, geometry);
+    std::vector<double> metadata;
+    append_query_metadata(brep, graph, metadata);
+    std::vector<double> result{(double)geometry.size()};
+    result.insert(result.end(), geometry.begin(), geometry.end());
+    result.push_back((double)metadata.size());
+    result.insert(result.end(), metadata.begin(), metadata.end());
+    return sc_copy_out(result.data(), (int64_t)result.size(), out, cap, out_len);
     SC_CATCH
 }

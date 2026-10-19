@@ -17,6 +17,10 @@
 //! B-spline surfaces and `SmPlane`s exactly; other analytic kinds arrive as their
 //! B-spline part. The ops evaluating curves and surfaces (`topological` lists,
 //! `check_uv`) defer when the geometry they touch is inexact (as `topology.edgeuse_p1`).
+//! The Heal route additionally installs the native query metadata and retains a
+//! real registered shell-ray context for region splitting. Its geometric guards
+//! run at the selected read; a completed healer still uses the conservative
+//! whole-input representation check before comparing the resulting graph.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -44,8 +48,8 @@ use solidcore::topology::edge::AttributeFilter;
 use solidcore::topology::proto_topology::p1::CopyBrepMap;
 use solidcore::topology::topology_traverser::{Entity, Marks};
 use solidcore::topology::{
-    Brep, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId, LoopuseStart,
-    RegionId, ShellId, VertexId, VertexuseId, VertexuseOwner,
+    Arena, Brep, BrepId, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId,
+    LoopuseStart, RegionId, ShellId, VertexId, VertexuseId, VertexuseOwner,
 };
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_p1::{self as ffi, Op, N_EXTRA_SCALARS, TARGET_TYPES};
@@ -54,6 +58,8 @@ use super::topology_edgeuse_p1::{
     brep_block_of, bspline_of, flag, gen_brep, gen_curve, import_with_types, path_of, push_curve,
     sel, BrepIn, CrvIn, ImportTypes, FILES,
 };
+use super::topology_shell::RayQueryContext;
+use super::topology_vertexuse::apply_query_metadata;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// The difftest runner.
@@ -1282,6 +1288,7 @@ fn run_rust_op(
     b: &mut Brep,
     types: &ImportTypes,
     op: &OpIn,
+    queries: Option<&mut RayQueryContext>,
 ) -> Result<Result<Vec<f64>, Output>, Fail> {
     let mut o: Vec<f64> = Vec::new();
     match op {
@@ -1965,8 +1972,13 @@ fn run_rust_op(
                     "healer op {healer_op} outside SM_HO_NONE..=SM_HO_ALL (0..=26)"
                 ))
             })?;
-            bp1::heal_brep(k, b, healer_op, None, None, None, *make_uv)?;
+            let queries =
+                queries.ok_or_else(|| harness("Heal requires its registered query context"))?;
+            bp1::heal_brep(k, b, healer_op, None, None, None, *make_uv, queries)?;
             // the healer evaluates the geometry: compared only where the import is exact
+            if let Some(d) = queries.metadata().deferred_output() {
+                return Ok(Err(d));
+            }
             if let Some(d) = inexact(types, None, None) {
                 return Ok(Err(d));
             }
@@ -1986,12 +1998,45 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(op) = resolve(&i.op, c) else {
         return Ok(no_entity());
     };
+    let metadata = if matches!(op, OpIn::Heal { .. }) {
+        let raw = ffi::query_metadata(&path_of(i.brep.as_ref())?, &brep_block(i)?)
+            .map_err(|e| harness(format!("c++ query metadata: {e}")))?;
+        let report = apply_query_metadata(&mut b, &raw, &arena_identity)?;
+        if let Some(output) = report.deferred_output_for(false, false) {
+            return Ok(output);
+        }
+        Some(report)
+    } else {
+        None
+    };
+    let mut breps: Arena<BrepId, Brep> = Arena::default();
+    let brep_id = breps.insert(b).map_err(|e| harness(e.to_string()))?;
+    let b = breps
+        .get_mut(brep_id)
+        .ok_or_else(|| harness("registered B-rep disappeared"))?;
+    let mut queries =
+        metadata.map(|report| RayQueryContext::new(b, brep_id, report, arena_identity));
     let mut k = Kernel::default();
-    match run_rust_op(&mut k, &mut b, &types, &op) {
+    match run_rust_op(&mut k, b, &types, &op, queries.as_mut()) {
         Ok(Ok(o)) => Ok(guarded_output(o)),
         Ok(Err(o)) => Ok(o),
         Err(Fail::Solid(e)) => match Output::unported(&e) {
-            Some(o) => Ok(o),
+            Some(o) => Ok(
+                if matches!(
+                    e,
+                    SolidError::Unported {
+                        unit: HARNESS_ANALYTIC_IMPORT,
+                        ..
+                    }
+                ) {
+                    queries
+                        .as_ref()
+                        .and_then(|q| q.metadata().deferred_output())
+                        .unwrap_or(o)
+                } else {
+                    o
+                },
+            ),
             None => Err(harness(format!("rust: {e}"))),
         },
         Err(Fail::Harness(h)) => Err(h),

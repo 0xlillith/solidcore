@@ -335,114 +335,59 @@ struct PointInput {
     tolerance: f64,
     boundary: bool,
 }
-#[derive(Clone, Copy, PartialEq)]
-enum EmptyObject {
-    Brep,
-    Region(u8),
-}
-impl solidcore::geom::solution_array::SolutionObject for EmptyObject {
-    fn kind(&self) -> solidcore::geom::solution_array::ObjectKind {
-        solidcore::geom::solution_array::ObjectKind::Other
-    }
-}
-impl solidcore::intersect::point_class::ClassObject for EmptyObject {
-    fn class_kind(&self) -> solidcore::intersect::point_class::ClassObjectKind {
-        use solidcore::intersect::point_class::ClassObjectKind;
-        match self {
-            Self::Brep => ClassObjectKind::Other,
-            Self::Region(_) => ClassObjectKind::Region,
-        }
-    }
-}
-// Only the B-rep and its real constructor region are represented. There are no
-// curves, surfaces or vertices; requesting one is a harness/model error, never
-// a fabricated geometry result. The standard missing-cache default is retained.
-struct EmptyBrep {
-    regions: u8,
-}
-fn wrong_empty_object() -> solidcore::SolidError {
-    solidcore::SolidError::invalid_input(
-        "difftest::query_brep::EmptyBrep",
-        "object is not geometric",
-    )
-}
-impl solidcore::intersect::topology_solver::p1::TopologyObjects<EmptyObject> for EmptyBrep {
-    fn curve(&self, _: EmptyObject) -> solidcore::Result<&solidcore::curve::curve::Curve> {
-        Err(wrong_empty_object())
-    }
-    fn analytic_curve_handle(&self, _: EmptyObject) -> Option<EmptyObject> {
-        None
-    }
-    fn vertex_point(&self, _: EmptyObject) -> solidcore::Result<solidcore::math::Point3> {
-        Err(wrong_empty_object())
-    }
-    fn vertex_tolerance(&self, _: EmptyObject) -> solidcore::Result<f64> {
-        Err(wrong_empty_object())
-    }
-    fn curve_edge(&self, _: EmptyObject) -> solidcore::Result<Option<EmptyObject>> {
-        Err(wrong_empty_object())
-    }
-    fn edge_curve(&self, _: EmptyObject) -> solidcore::Result<Option<EmptyObject>> {
-        Err(wrong_empty_object())
-    }
-    fn edge_interval(
-        &self,
-        _: EmptyObject,
-    ) -> solidcore::Result<solidcore::geom::extent1d::Extent1d> {
-        Err(wrong_empty_object())
-    }
-    fn surface_face(&self, _: EmptyObject) -> solidcore::Result<Option<EmptyObject>> {
-        Err(wrong_empty_object())
-    }
-    fn face_surface(&self, _: EmptyObject) -> solidcore::Result<EmptyObject> {
-        Err(wrong_empty_object())
-    }
-    fn surface(&self, _: EmptyObject) -> solidcore::Result<&solidcore::surface::surface::Surface> {
-        Err(wrong_empty_object())
-    }
-    fn face_uv_domain(
-        &self,
-        _: EmptyObject,
-    ) -> solidcore::Result<solidcore::geom::extent2d::Extent2d> {
-        Err(wrong_empty_object())
-    }
-    fn face_tolerance(&self, _: EmptyObject) -> solidcore::Result<f64> {
-        Err(wrong_empty_object())
-    }
-    fn surface_owner(&self, _: EmptyObject) -> solidcore::Result<Option<EmptyObject>> {
-        Err(wrong_empty_object())
-    }
-    fn shape_member(&self, _: EmptyObject) -> solidcore::geom::object::ShapeMember {
-        solidcore::geom::object::ShapeMember::Other
-    }
-}
-impl brep::BrepClassifyObjects<EmptyObject> for EmptyBrep {
-    fn brep_object(&self) -> EmptyObject {
-        EmptyObject::Brep
-    }
-    fn regions(&self) -> solidcore::Result<Vec<EmptyObject>> {
-        Ok((0..self.regions).map(EmptyObject::Region).collect())
-    }
-}
-impl solidcore::intersect::point_class::ClassGeometry<EmptyObject> for EmptyBrep {
-    fn curve(&self, _: EmptyObject) -> Option<&solidcore::curve::curve::Curve> {
-        None
-    }
-    fn surface(&self, _: EmptyObject) -> Option<&solidcore::surface::surface::Surface> {
-        None
-    }
-    fn volume(&self, _: EmptyObject) -> Option<&solidcore::surface::volume::Volume> {
-        None
-    }
-    fn point(&self, _: EmptyObject) -> Option<solidcore::math::Point3> {
-        None
-    }
-}
 fn point_rust(i: &PointInput) -> Result<Output, HarnessError> {
+    use solidcore::geom::attribute::ObjectKey;
+    use solidcore::geom::object::ObjectRef;
     use solidcore::geom::vector3d::Vec3;
     use solidcore::intersect::point_class::PointClassification;
+    use solidcore::topology::brep_cache::{arena_identity, BrepCache, CacheObject};
+    use solidcore::topology::{Arena, Brep, BrepId, Region};
+    use solidcore::EntityRef;
+    if !(1..=4).contains(&i.regions) {
+        return Err(HarnessError::new(
+            "point fixture needs one to four native regions",
+        ));
+    }
     let k = solidcore::kernel::Kernel::default();
-    let scene = EmptyBrep { regions: i.regions };
+    // Match SmBrep's constructor and the shim's PostInsert calls: one infinite,
+    // void region first, then nonvoid empty regions appended in native list order.
+    let mut breps: Arena<BrepId, Brep> = Arena::default();
+    let brep_id = breps
+        .insert(Brep::new())
+        .map_err(|e| HarnessError::new(e.to_string()))?;
+    let graph = breps
+        .get_mut(brep_id)
+        .ok_or_else(|| HarnessError::new("registered point-fixture B-rep is missing"))?;
+    let brep_ref = ObjectRef {
+        type_code: solidcore::geom::a_object::BREP_TYPE,
+        key: ObjectKey(u64::from(brep_id.index())),
+    };
+    graph.set_key(brep_ref.key);
+    let infinite = graph
+        .add_region_record(Region {
+            in_brep: true,
+            is_void: 1,
+            ..Region::default()
+        })
+        .map_err(|e| HarnessError::new(e.to_string()))?;
+    graph.set_infinite_region_record(Some(infinite));
+    graph.set_region_list_head(Some(infinite));
+    for _ in 1..i.regions {
+        graph
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .map_err(|e| HarnessError::new(e.to_string()))?;
+    }
+    let keys = |object| match object {
+        CacheObject::Brep => brep_ref,
+        other => arena_identity(other),
+    };
+    // This fixture has no curves, surfaces or other geometric owner chains.
+    let owner_of = |_: ObjectRef| None;
+    let mut cache: Option<BrepCache> = None;
+    let mut scene = brep::BrepPointObjects::new(graph, brep_id, &mut cache, &keys, &owner_of);
     let mut pc = PointClassification::new(17.0);
     pc.set_gap_3d(31.0);
     pc.set_t_param(47.0, false);
@@ -453,7 +398,7 @@ fn point_rust(i: &PointInput) -> Result<Output, HarnessError> {
     let [x, y, z] = i.point_classify;
     let outcome = brep::point_3d_classify(
         &k,
-        &scene,
+        &mut scene,
         Vec3::new(x, y, z),
         tolerance,
         i.boundary,
@@ -468,15 +413,14 @@ fn point_rust(i: &PointInput) -> Result<Output, HarnessError> {
             status(&e)
         }
     };
-    let gap = pc
-        .gap_3d(&k, &scene, None)
-        .map_err(|e| HarnessError::new(e.to_string()))?;
+    // The native shim compares GetDeviation(), the stored old-tolerance gap.
+    let gap = pc.deviation();
     let uv = pc.uv_param();
     let sss = pc.sss_point();
     Ok(record(vec![
         status,
         f64::from(pc.point_class().code()),
-        if pc.object() == Some(EmptyObject::Region(0)) {
+        if pc.object() == Some(EntityRef::Region(infinite)) {
             0.0
         } else {
             -1.0
@@ -505,6 +449,9 @@ struct BboxInput {
     tolerances: [f64; 3],
     #[serde(default)]
     drop_wire_curves: bool,
+    /// Change only the fixture's registry numbering, preserving native lists.
+    #[serde(default)]
+    reverse_registry: bool,
     steps: Vec<BoxStep>,
 }
 #[derive(Clone, Serialize, Deserialize)]
@@ -521,6 +468,11 @@ enum BoxStep {
     },
     Unlock,
     Default,
+    SetEdgeInterval {
+        edge_list_index: usize,
+        min: f64,
+        max: f64,
+    },
 }
 fn bbox_input(i: &BboxInput) -> Result<(String, Vec<f64>), HarnessError> {
     use super::topology_edgeuse_p1::{brep_block_of, path_of};
@@ -532,6 +484,7 @@ fn bbox_input(i: &BboxInput) -> Result<(String, Vec<f64>), HarnessError> {
     flat.extend([i.extra_vertices as f64, i.extra_edges as f64]);
     flat.extend(i.tolerances);
     flat.push(f64::from(u8::from(i.drop_wire_curves)));
+    flat.push(f64::from(u8::from(i.reverse_registry)));
     flat.push(i.steps.len() as f64);
     for step in &i.steps {
         let row = match *step {
@@ -549,6 +502,11 @@ fn bbox_input(i: &BboxInput) -> Result<(String, Vec<f64>), HarnessError> {
             BoxStep::Lock { tight } => [2.0, 0.0, f64::from(u8::from(tight)), 0.0],
             BoxStep::Unlock => [3.0, 0.0, 0.0, 0.0],
             BoxStep::Default => [4.0, 0.0, 0.0, 0.0],
+            BoxStep::SetEdgeInterval {
+                edge_list_index,
+                min,
+                max,
+            } => [5.0, edge_list_index as f64, min, max],
         };
         flat.extend(row);
     }
@@ -560,35 +518,136 @@ fn bbox_cpp(i: &BboxInput) -> Result<Output, HarnessError> {
         .map_err(|e| HarnessError::new(e.to_string()))?;
     Ok(Output::new().values("counts_and_boxes", record))
 }
+
+fn bbox_index(value: f64, max: usize) -> Result<usize, HarnessError> {
+    if !value.is_finite() || value < 0.0 || value.fract() != 0.0 || value > max as f64 {
+        return Err(HarnessError::new("invalid bbox export count or index"));
+    }
+    Ok(value as usize)
+}
+
+fn bbox_list(
+    values: &mut std::slice::Iter<'_, f64>,
+    arena_len: usize,
+) -> Result<Vec<u32>, HarnessError> {
+    let missing = || HarnessError::new("truncated bbox list export");
+    let count = bbox_index(*values.next().ok_or_else(missing)?, arena_len)?;
+    (0..count)
+        .map(|_| {
+            let index = bbox_index(
+                *values.next().ok_or_else(missing)?,
+                arena_len.saturating_sub(1),
+            )?;
+            u32::try_from(index).map_err(|_| HarnessError::new("bbox list index overflow"))
+        })
+        .collect()
+}
+
+fn bbox_import(
+    export: &[f64],
+) -> Result<
+    (
+        solidcore::topology::Brep,
+        super::topology_vertexuse::QueryMetadata,
+    ),
+    HarnessError,
+> {
+    use solidcore::topology::{EdgeId, FaceId, VertexId};
+    let (length, rest) = export
+        .split_first()
+        .ok_or_else(|| HarnessError::new("missing bbox export envelope"))?;
+    let length = bbox_index(*length, rest.len())?;
+    let (graph_export, list_export) = rest.split_at(length);
+    let (mut graph, _) = super::topology_edgeuse_p1::import_with_types(graph_export)?;
+    let mut values = list_export.iter();
+    let faces: Vec<_> = bbox_list(&mut values, graph.faces().len())?
+        .into_iter()
+        .map(FaceId::from_index)
+        .collect();
+    let edges: Vec<_> = bbox_list(&mut values, graph.edges().len())?
+        .into_iter()
+        .map(EdgeId::from_index)
+        .collect();
+    let vertices: Vec<_> = bbox_list(&mut values, graph.vertices().len())?
+        .into_iter()
+        .map(VertexId::from_index)
+        .collect();
+    let metadata_length = bbox_index(
+        *values
+            .next()
+            .ok_or_else(|| HarnessError::new("missing bbox query metadata"))?,
+        values.len(),
+    )?;
+    if metadata_length != values.len() {
+        return Err(HarnessError::new(
+            "truncated or trailing bbox query metadata",
+        ));
+    }
+    let metadata = super::topology_vertexuse::apply_query_metadata(
+        &mut graph,
+        values.as_slice(),
+        &super::geom_object::query_graph_identity,
+    )?;
+    if metadata.deferred_output_for(false, false).is_none() {
+        use solidcore::topology::brep::p1;
+        // These lists are also part of the compared script output. Verify that
+        // both export blocks describe the same native ordering before use.
+        if p1::faces(&graph, None).map_err(|e| HarnessError::new(e.to_string()))? != faces
+            || p1::edges(&graph, None).map_err(|e| HarnessError::new(e.to_string()))? != edges
+            || p1::vertices(&graph, None).map_err(|e| HarnessError::new(e.to_string()))? != vertices
+        {
+            return Err(HarnessError::new("bbox lists disagree with query metadata"));
+        }
+    }
+    Ok((graph, metadata))
+}
+
 fn bbox_rust(i: &BboxInput) -> Result<Output, HarnessError> {
-    use solidcore::curve::curve::p2::{BSPLINE_CURVE_TYPE, LINE_TYPE};
     use solidcore::geom::extent3d::Extent3d;
     use solidcore::geom::vector3d::Vec3;
+    use solidcore::topology::brep::p1;
     let (path, flat) = bbox_input(i)?;
     let export = solidcore_ffi::units::query_brep_bbox::eval(true, &path, &flat)
         .map_err(|e| HarnessError::new(e.to_string()))?;
-    let (mut graph, types) = super::topology_edgeuse_p1::import_with_types(&export)?;
-    // Never compare a curve exported as another kind's B-spline stand-in.
-    // Unknown surface payloads are not evaluated: face boxes have real unported
-    // callees, and approximate boxes skip faces altogether.
-    if types
-        .edge_curve_types
-        .iter()
-        .any(|&t| t != -1 && t != BSPLINE_CURVE_TYPE && t != LINE_TYPE)
-    {
-        return Err(HarnessError::new(
-            "box fixture has an unrepresented native edge curve kind",
-        ));
+    let (mut graph, metadata) = bbox_import(&export)?;
+    if let Some(deferred) = metadata.deferred_output_for(false, false) {
+        return Ok(deferred);
     }
     let k = solidcore::kernel::Kernel::default();
+    let vertices = p1::vertices(&graph, None).map_err(|e| HarnessError::new(e.to_string()))?;
+    let edges = p1::edges(&graph, None).map_err(|e| HarnessError::new(e.to_string()))?;
+    let faces = p1::faces(&graph, None).map_err(|e| HarnessError::new(e.to_string()))?;
     let mut record = vec![
-        graph.vertices().len() as f64,
-        graph.edges().len() as f64,
-        graph.faces().len() as f64,
+        vertices.len() as f64,
+        edges.len() as f64,
+        faces.len() as f64,
     ];
+    record.push(faces.len() as f64);
+    record.extend(faces.iter().map(|id| f64::from(id.index())));
+    record.push(edges.len() as f64);
+    record.extend(edges.iter().map(|id| f64::from(id.index())));
+    record.push(vertices.len() as f64);
+    record.extend(vertices.iter().map(|id| f64::from(id.index())));
     let initial =
         Extent3d::from_points(Vec3::new(-17.0, -19.0, -23.0), Vec3::new(29.0, 31.0, 37.0));
+    let mut locked = false;
     for step in &i.steps {
+        // Guard only geometry actually read by this step. Approximation may
+        // skip faces and, above both native thresholds, edges too. A stored lock
+        // bypasses ordinary BoundingBox, while Tight and Lock recompute.
+        let (read_curves, read_surfaces) = match *step {
+            BoxStep::Bounding { approximate, .. } if !locked => (
+                !(approximate && vertices.len() > 500 && edges.len() > 100),
+                !approximate,
+            ),
+            BoxStep::Default if !locked => (true, true),
+            BoxStep::Tight | BoxStep::Lock { .. } => (true, true),
+            BoxStep::SetEdgeInterval { .. } => (true, false),
+            _ => (false, false),
+        };
+        if let Some(deferred) = metadata.deferred_output_for(read_curves, read_surfaces) {
+            return Ok(deferred);
+        }
         let result = match *step {
             BoxStep::Bounding {
                 approximate,
@@ -605,14 +664,35 @@ fn bbox_rust(i: &BboxInput) -> Result<Output, HarnessError> {
             ),
             BoxStep::Tight => brep::calculate_tight_bounding_box(&k, &graph),
             BoxStep::Lock { tight } => {
-                brep::lock_bounding_box(&k, &mut graph, tight).map(|()| initial)
+                locked = false;
+                brep::lock_bounding_box(&k, &mut graph, tight).map(|()| {
+                    locked = true;
+                    initial
+                })
             }
             BoxStep::Unlock => {
                 brep::unlock_bounding_box(&mut graph);
+                locked = false;
                 Ok(initial)
             }
             BoxStep::Default => {
                 brep::calculate_bounding_box(&k, &graph, brep::BoundingBoxOptions::default())
+            }
+            BoxStep::SetEdgeInterval {
+                edge_list_index,
+                min,
+                max,
+            } => {
+                let edge = edges
+                    .get(edge_list_index)
+                    .copied()
+                    .ok_or_else(|| HarnessError::new("bbox script edge outside native list"))?;
+                solidcore::topology::edge::set_interval(
+                    &mut graph,
+                    edge,
+                    &solidcore::geom::extent1d::Extent1d::from_min_max(min, max),
+                )
+                .map(|()| initial)
             }
         };
         let bbox = match result {
@@ -649,6 +729,7 @@ fn generate_bbox(rng: &mut Rng) -> BboxInput {
         extra_edges: rng.below(3) as usize,
         tolerances: [rng.unit() * 1e-4, rng.unit() * 1e-3, 0.0],
         drop_wire_curves: rng.chance(0.1),
+        reverse_registry: false,
         steps: vec![
             BoxStep::Default,
             BoxStep::Bounding {

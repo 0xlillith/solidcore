@@ -12,6 +12,7 @@
 // not one upstream handles safely and the Rust side defers that path anyway (see each
 // op).
 #include "sc_topology_fixture.h"
+#include "sc_brep_query_metadata.h"
 
 #include <SmLine.h>
 
@@ -30,6 +31,7 @@ enum : int32_t
     OP_GLUE = 4,
     OP_COPY = 5,
     OP_MERGE_SELF = 6,
+    OP_QUERY_METADATA = 7,
 };
 
 const double P7_NULL_DEREF = -2.0;
@@ -325,7 +327,7 @@ void p7_merge_self(SmBrep* b, Graph& g, Rd& rd, std::vector<double>& o)
 void p7_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
 {
     // the op's arguments come first, then the B-rep block
-    int64_t n_args = op == OP_GLUE ? 5 : 2;
+    int64_t n_args = op == OP_QUERY_METADATA ? 0 : op == OP_GLUE ? 5 : 2;
     std::vector<double> args;
     for (int64_t i = 0; i < n_args; i++)
         args.push_back(rd.num());
@@ -339,9 +341,15 @@ void p7_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         o.push_back(st(status));
         return;
     }
-    o.push_back(0.0);
     Graph g;
     walk(built.brep, g);
+    if (op == OP_QUERY_METADATA)
+    {
+        // Same build and traversal registry as the input graph and operation.
+        append_query_metadata(built.brep, g, o);
+        return;
+    }
+    o.push_back(0.0);
     switch (op)
     {
     case OP_GLUE: p7_glue(built.brep, g, ad, o); break;

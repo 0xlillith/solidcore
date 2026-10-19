@@ -109,6 +109,27 @@ const VD_TOL_FACTOR: f64 = 5.0;
 /// Every method answers for a live handle of the kind it names; `None` is an unknown
 /// handle or one of another kind (a dereference of a bad pointer upstream).
 pub trait ProtoBrep<O>: ProtoGeometry<O> + ProtoTopology<O> {
+    /// `SmBrep::Point3DClassify` against the live B-rep named by `brep`.
+    ///
+    /// The provider retains the B-rep's identity, concrete geometry, owner mapping
+    /// and valid query-cache slot. Use `query::brep::BrepPointObjects::with_handles`
+    /// to preserve application-wide handles in every classification field. The
+    /// existing output fields must remain visible after an ordinary failure:
+    /// `SmEdgeDefinition::Split` ignores that status and reads the classification.
+    /// Mutable access permits the ray-sector query to create UV trim curves.
+    ///
+    /// # Errors
+    ///
+    /// Those of the real B-rep classification; an unknown B-rep handle is invalid.
+    fn brep_point_3d_classify(
+        &mut self,
+        k: &Kernel,
+        brep: O,
+        point: Point3,
+        point_zone_tolerance: f64,
+        boundary_intersections: bool,
+        classification: &mut PointClassification<O>,
+    ) -> Result<()>;
     /// `SmEdge::GetInterval`.
     fn edge_interval(&self, edge: O) -> Option<Extent1d>;
     /// `SmEdge::GetCurve`: the handle of the edge's curve (`Some(None)` for none).
@@ -2124,6 +2145,17 @@ mod tests {
     }
 
     impl ProtoBrep<H> for Geo {
+        fn brep_point_3d_classify(
+            &mut self,
+            _k: &Kernel,
+            _brep: H,
+            _point: Point3,
+            _point_zone_tolerance: f64,
+            _boundary_intersections: bool,
+            _classification: &mut PointClassification<H>,
+        ) -> Result<()> {
+            Err(SolidError::invalid_input("test", "geometry has no B-rep"))
+        }
         fn edge_interval(&self, edge: H) -> Option<Extent1d> {
             self.edge_ivl.iter().find(|e| e.0 == edge.0).map(|e| e.1)
         }

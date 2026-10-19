@@ -15,8 +15,8 @@
 //!   type double (`ty` 0), `SmBoolean` (1) or `ULONG` (2); output is the variable
 //!   after every step and after each remaining guard is destroyed.
 //! - `shape`: `SmShape` from a B-rep (none, `SmApiCreateBox`, or a `.smb` file) and a
-//!   selection of the whole B-rep / faces / edges / vertices. Non-empty shapes need
-//!   unported topology units and are deferred on the Rust side.
+//!   selection of the whole B-rep / faces / edges / vertices. The Rust constructor
+//!   uses exported native topology, concrete geometry, owners and list order.
 
 use std::sync::{Arc, Mutex};
 
@@ -26,10 +26,16 @@ use serde_json::Value;
 use solidcore::geom::attribute::ObjectKey;
 use solidcore::geom::context::{Context, NotifyCallback};
 use solidcore::geom::object::{
-    self as obj, NotifyOperation, ObjectRef, Shape, ShapeMember, TemporaryChangeValue,
+    self as obj, EdgeKey, FaceKey, NotifyOperation, ObjectRef, Shape, ShapeMember, ShapeObjects,
+    TemporaryChangeValue,
 };
 use solidcore::geom::tree::Tree;
-use solidcore::{BrepId, EdgeId, FaceId, SolidError, VertexId};
+use solidcore::kernel::Kernel;
+use solidcore::topology::brep::p1;
+use solidcore::topology::brep_cache::{arena_identity, CacheObject};
+use solidcore::topology::topology::Topology;
+use solidcore::topology::{Arena, Brep};
+use solidcore::{BrepId, SolidError, VertexId};
 use solidcore_ffi::units::geom_object::{
     self as ffi, tcv_op, NotifyStep, ShapeSelection, ShapeSource, MAX_NOTIFY_OP, NUM_OBJECTS,
 };
@@ -184,7 +190,7 @@ fn type_string_codes(out: &mut Vec<i64>, s: &str) {
 }
 
 fn rust_types(ts: &[i64]) -> Result<Vec<i64>, SolidError> {
-    let shape = Shape::new(&[], &[], &[], &[])?;
+    let shape = Shape::empty()?;
     let mut o = Vec::new();
     for &t in ts {
         o.push(i64::from(obj::is_kind_of(t)));
@@ -432,42 +438,269 @@ fn put_tree<O: Copy + PartialEq>(o: &mut Vec<f64>, t: &Tree<O>) -> Result<(), So
     Ok(())
 }
 
-fn rust_shape(
-    whole_brep: bool,
-    faces: &[i64],
-    edges: &[i64],
-    vertices: &[i64],
-) -> Result<Vec<f64>, SolidError> {
-    let b = BrepId::from_index(0);
-    let breps: Vec<BrepId> = if whole_brep { vec![b] } else { Vec::new() };
-    let f: Vec<_> = faces
+/// Object identities registered by the geometry-query fixtures. The offset makes
+/// opaque keys observably different from topology arena ids; resolvers use the
+/// registration table, never a cast of `ObjectKey` to an entity id.
+pub(crate) fn query_graph_identity(object: CacheObject) -> ObjectRef {
+    let mut identity = arena_identity(object);
+    identity.key = ObjectKey(identity.key.0 + 0x10_0000);
+    identity
+}
+
+/// Decode the geometry/metadata envelope emitted by the Shape and `FindFace`
+/// import-only shims. Both blocks describe the same native object graph.
+pub(crate) fn import_query_graph(
+    export: &[f64],
+) -> Result<(Brep, super::topology_vertexuse::QueryMetadata), HarnessError> {
+    fn block<'a>(rest: &mut &'a [f64]) -> Result<&'a [f64], HarnessError> {
+        let (length, tail) = rest
+            .split_first()
+            .ok_or_else(|| harness("missing graph block"))?;
+        if !length.is_finite()
+            || *length < 0.0
+            || length.fract() != 0.0
+            || *length > tail.len() as f64
+        {
+            return Err(harness("invalid graph block length"));
+        }
+        let (block, tail) = tail.split_at(*length as usize);
+        *rest = tail;
+        Ok(block)
+    }
+    let mut rest = export;
+    let graph_export = block(&mut rest)?;
+    let metadata_export = block(&mut rest)?;
+    if !rest.is_empty() {
+        return Err(harness("trailing graph envelope data"));
+    }
+    let (mut graph, _) = super::topology_edgeuse_p1::import_with_types(graph_export)?;
+    let metadata = super::topology_vertexuse::apply_query_metadata(
+        &mut graph,
+        metadata_export,
+        &query_graph_identity,
+    )?;
+    Ok((graph, metadata))
+}
+
+#[derive(Default)]
+struct ShapeScene {
+    breps: Arena<BrepId, Brep>,
+    owners: Vec<(ObjectRef, ShapeMember)>,
+    // These are persistent records of the imported objects in this fixture, not
+    // temporary records created by Shape. Native fixture construction starts
+    // with SmTopology's zero marks; the constructor then obtains a fresh mark.
+    records: Vec<(ShapeMember, Topology)>,
+}
+
+impl ShapeScene {
+    fn register(&mut self, graph: Brep) -> Result<BrepId, SolidError> {
+        let id = self.breps.insert(graph)?;
+        let graph = self.breps.get(id).ok_or_else(shape_context_error)?;
+        for face in graph.faces().ids() {
+            let member = ShapeMember::Face((id, face));
+            self.owners
+                .push((query_graph_identity(CacheObject::Face(face)), member));
+            self.records.push((member, Topology::new()));
+        }
+        for edge in graph.edges().ids() {
+            let member = ShapeMember::Edge((id, edge));
+            self.owners
+                .push((query_graph_identity(CacheObject::Edge(edge)), member));
+            self.records.push((member, Topology::new()));
+        }
+        for vertex in graph.vertices().ids() {
+            self.records
+                .push((ShapeMember::Vertex((id, vertex)), Topology::new()));
+        }
+        Ok(id)
+    }
+}
+
+fn shape_context_error() -> SolidError {
+    SolidError::invalid_input(
+        "difftest::geom_object::ShapeScene",
+        "unregistered source object",
+    )
+}
+
+impl ShapeObjects for ShapeScene {
+    fn brep(&self, id: BrepId) -> Result<&Brep, SolidError> {
+        self.breps.get(id).ok_or_else(shape_context_error)
+    }
+    fn edge_owner(&self, owner: ObjectRef) -> Result<EdgeKey, SolidError> {
+        self.owners
+            .iter()
+            .find_map(|(key, member)| match *member {
+                ShapeMember::Edge(edge) if *key == owner => Some(edge),
+                _ => None,
+            })
+            .ok_or_else(shape_context_error)
+    }
+    fn face_owner(&self, owner: ObjectRef) -> Result<FaceKey, SolidError> {
+        self.owners
+            .iter()
+            .find_map(|(key, member)| match *member {
+                ShapeMember::Face(face) if *key == owner => Some(face),
+                _ => None,
+            })
+            .ok_or_else(shape_context_error)
+    }
+    fn topology(&self, member: ShapeMember) -> Result<&Topology, SolidError> {
+        self.records
+            .iter()
+            .find(|(key, _)| *key == member)
+            .map(|(_, record)| record)
+            .ok_or_else(shape_context_error)
+    }
+    fn topology_mut(&mut self, member: ShapeMember) -> Result<&mut Topology, SolidError> {
+        self.records
+            .iter_mut()
+            .find(|(key, _)| *key == member)
+            .map(|(_, record)| record)
+            .ok_or_else(shape_context_error)
+    }
+}
+
+fn shape_selection<T: Copy>(indices: &[i64], native_list: &[T]) -> Result<Vec<T>, HarnessError> {
+    indices
         .iter()
-        .map(|&i| (b, FaceId::from_index(i as u32)))
-        .collect();
-    let e: Vec<_> = edges
-        .iter()
-        .map(|&i| (b, EdgeId::from_index(i as u32)))
-        .collect();
-    let v: Vec<_> = vertices
-        .iter()
-        .map(|&i| (b, VertexId::from_index(i as u32)))
-        .collect();
-    let shape = Shape::new(&breps, &f, &e, &v)?;
+        .map(|&index| {
+            let index = usize::try_from(index).map_err(|_| harness("negative shape selection"))?;
+            native_list
+                .get(index)
+                .copied()
+                .ok_or_else(|| harness("shape selection outside native list"))
+        })
+        .collect()
+}
+
+fn shape_output(
+    shape: &Shape,
+    all_faces: &[FaceKey],
+    all_edges: &[EdgeKey],
+    all_vertices: &[(BrepId, VertexId)],
+) -> Result<Vec<f64>, HarnessError> {
     let mut o = vec![
         shape.faces().len() as f64,
         shape.edges().len() as f64,
         shape.vertices().len() as f64,
     ];
-    // B-rep list indices of the members (all B-reps are empty here)
-    o.extend(shape.faces().iter().map(|k| f64::from(k.1.index())));
-    o.extend(shape.edges().iter().map(|k| f64::from(k.1.index())));
-    o.extend(shape.vertices().iter().map(|k| f64::from(k.1.index())));
-    put_tree(&mut o, shape.vertex_tree())?;
-    put_tree(&mut o, shape.curve_tree())?;
-    put_tree(&mut o, shape.surface_tree())?;
-    // IsInShape of every B-rep entity: there is no B-rep without topology support
+    // The native shim returns positions in GetFaces/GetEdges/GetVertices, not
+    // registry ids. Its import-only export deliberately reverses the registry.
+    for face in shape.faces() {
+        o.push(
+            all_faces
+                .iter()
+                .position(|id| id == face)
+                .ok_or_else(|| harness("shape face outside native list"))? as f64,
+        );
+    }
+    for edge in shape.edges() {
+        o.push(
+            all_edges
+                .iter()
+                .position(|id| id == edge)
+                .ok_or_else(|| harness("shape edge outside native list"))? as f64,
+        );
+    }
+    for vertex in shape.vertices() {
+        o.push(
+            all_vertices
+                .iter()
+                .position(|id| id == vertex)
+                .ok_or_else(|| harness("shape vertex outside native list"))? as f64,
+        );
+    }
+    put_tree(&mut o, shape.vertex_tree()).map_err(harness)?;
+    put_tree(&mut o, shape.curve_tree()).map_err(harness)?;
+    put_tree(&mut o, shape.surface_tree()).map_err(harness)?;
+    o.extend(all_faces.iter().map(|&face| {
+        if shape.is_in_shape(ShapeMember::Face(face)) {
+            1.0
+        } else {
+            0.0
+        }
+    }));
+    o.extend(all_edges.iter().map(|&edge| {
+        if shape.is_in_shape(ShapeMember::Edge(edge)) {
+            1.0
+        } else {
+            0.0
+        }
+    }));
+    o.extend(all_vertices.iter().map(|&vertex| {
+        if shape.is_in_shape(ShapeMember::Vertex(vertex)) {
+            1.0
+        } else {
+            0.0
+        }
+    }));
     let _ = shape.is_in_shape(ShapeMember::Other);
     Ok(o)
+}
+
+fn rust_shape(
+    source: &SourceIn,
+    whole_brep: bool,
+    faces: &[i64],
+    edges: &[i64],
+    vertices: &[i64],
+) -> Result<Output, HarnessError> {
+    let src = match source {
+        SourceIn::None => {
+            if whole_brep || !faces.is_empty() || !edges.is_empty() || !vertices.is_empty() {
+                return Err(harness("selection without B-rep"));
+            }
+            let shape = Shape::empty().map_err(harness)?;
+            return Ok(Output::new().values("v", shape_output(&shape, &[], &[], &[])?));
+        }
+        SourceIn::Box(bounds) => ShapeSource::Box(*bounds),
+        SourceIn::File(path, ascii) => ShapeSource::File(path.clone(), *ascii),
+    };
+    let export = ffi::shape_export(&src).map_err(harness)?;
+    let (graph, metadata) = import_query_graph(&export)?;
+    let read_curves = whole_brep || !faces.is_empty() || !edges.is_empty();
+    let read_surfaces = whole_brep || !faces.is_empty();
+    if let Some(deferred) = metadata.deferred_output_for(read_curves, read_surfaces) {
+        return Ok(deferred);
+    }
+    let mut scene = ShapeScene::default();
+    let id = scene.register(graph).map_err(harness)?;
+    let graph = scene.brep(id).map_err(harness)?;
+    let all_faces: Vec<_> = p1::faces(graph, None)
+        .map_err(harness)?
+        .into_iter()
+        .map(|face| (id, face))
+        .collect();
+    let all_edges: Vec<_> = p1::edges(graph, None)
+        .map_err(harness)?
+        .into_iter()
+        .map(|edge| (id, edge))
+        .collect();
+    let all_vertices: Vec<_> = p1::vertices(graph, None)
+        .map_err(harness)?
+        .into_iter()
+        .map(|vertex| (id, vertex))
+        .collect();
+    let selected_faces = shape_selection(faces, &all_faces)?;
+    let selected_edges = shape_selection(edges, &all_edges)?;
+    let selected_vertices = shape_selection(vertices, &all_vertices)?;
+    let selected_breps = if whole_brep { vec![id] } else { Vec::new() };
+    let mut kernel = Kernel::default();
+    match Shape::new_with_objects(
+        &mut kernel,
+        &mut scene,
+        &selected_breps,
+        &selected_faces,
+        &selected_edges,
+        &selected_vertices,
+    ) {
+        Ok(shape) => Ok(Output::new().values(
+            "v",
+            shape_output(&shape, &all_faces, &all_edges, &all_vertices)?,
+        )),
+        Err(error) => Ok(rust_err(&error)),
+    }
 }
 
 fn rust(i: &Inputs) -> Result<Output, HarnessError> {
@@ -487,16 +720,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             faces,
             edges,
             vertices,
-        } => {
-            let empty = !*whole_brep && faces.is_empty() && edges.is_empty() && vertices.is_empty();
-            if matches!(source, SourceIn::None) && !empty {
-                return Err(harness("selection without B-rep"));
-            }
-            Ok(match rust_shape(*whole_brep, faces, edges, vertices) {
-                Ok(v) => Output::new().values("v", v),
-                Err(e) => rust_err(&e),
-            })
-        }
+        } => rust_shape(source, *whole_brep, faces, edges, vertices),
     }
 }
 

@@ -2,6 +2,7 @@
 // Calls the real protected SmMerge::ProcessWiresAndShellVertices through a
 // derived test accessor. Fixture graphs are exported BEFORE running the unit.
 #include "sc_topology_fixture.h"
+#include "sc_brep_query_metadata.h"
 #include <SmMerge.h>
 #include <memory>
 
@@ -126,6 +127,10 @@ SC_EXPORT int32_t sc_boolean_merge_p5_eval(
             for (auto* vu : list_of(v->GetList())) list.push_back(ga.find(8,vu));
             put_list(result,list);
         }
+        std::vector<double> metadata;
+        append_query_metadata(aa.brep,ga,metadata);
+        result.push_back((double)metadata.size());
+        result.insert(result.end(),metadata.begin(),metadata.end());
         return sc_copy_out(result.data(),(int64_t)result.size(),out,cap,out_len);
     }
     if (mode != 0 || !b || !path_b || nb < 1)

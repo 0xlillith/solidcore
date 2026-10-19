@@ -799,7 +799,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#0 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -807,7 +807,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#1 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -815,7 +815,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#2 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -823,7 +823,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#3 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -831,7 +831,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#4 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -839,7 +839,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#5 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -847,7 +847,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#6 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -855,7 +855,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#7 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -863,7 +863,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#8 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 69
     },
     {
       "max_rel_err": 0.0,
@@ -871,7 +871,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#9 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -879,7 +879,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#10 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -887,7 +887,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#11 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -895,7 +895,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#12 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -903,7 +903,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#13 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -911,7 +911,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#14 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -919,7 +919,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#15 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -927,7 +927,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#16 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -935,7 +935,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#17 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -943,7 +943,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#18 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -951,7 +951,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#19 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -959,7 +959,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#20 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -967,7 +967,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#21 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -975,7 +975,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#22 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -983,7 +983,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#23 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -991,7 +991,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#24 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -999,7 +999,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#25 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -1007,7 +1007,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#26 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -1015,7 +1015,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#27 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -1023,7 +1023,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#28 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -1031,7 +1031,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#29 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1039,7 +1039,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#30 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1047,7 +1047,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#31 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1055,7 +1055,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#32 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1063,7 +1063,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#33 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1071,7 +1071,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#34 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1079,7 +1079,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#35 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1087,7 +1087,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#36 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1095,7 +1095,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#37 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 78
     },
     {
       "max_rel_err": 0.0,
@@ -1103,36 +1103,28 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#38 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 78
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "bbox_face_000",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#39 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 0
+      "values_compared": 22
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "bbox_face_001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#40 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 0
+      "values_compared": 22
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmFace::CalculateTightBoundingBox",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "bbox_face_010",
@@ -1143,8 +1135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmFace::CalculateTightBoundingBox",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "bbox_face_011",
@@ -1159,7 +1151,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#43 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1167,7 +1159,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#44 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1175,7 +1167,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#45 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -1183,12 +1175,12 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#46 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 22
     },
     {
       "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
+        "symbol": "SmFace::CalculateTightBoundingBox",
+        "unit": "query.face_p3"
       },
       "max_rel_err": 0.0,
       "name": "bbox_face_cache_sequence",
@@ -1203,7 +1195,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#48 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 613
     },
     {
       "max_rel_err": 0.0,
@@ -1211,7 +1203,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#49 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 613
     },
     {
       "max_rel_err": 0.0,
@@ -1219,7 +1211,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#50 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 614
     },
     {
       "max_rel_err": 0.0,
@@ -1227,7 +1219,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#51 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 614
     },
     {
       "max_rel_err": 0.0,
@@ -1235,7 +1227,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#52 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 614
     },
     {
       "max_rel_err": 0.0,
@@ -1243,7 +1235,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#53 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 614
     },
     {
       "max_rel_err": 0.0,
@@ -1251,7 +1243,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#54 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 615
     },
     {
       "max_rel_err": 0.0,
@@ -1259,7 +1251,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#55 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 10
+      "values_compared": 615
     },
     {
       "max_rel_err": 0.0,
@@ -1267,7 +1259,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#56 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 71
     },
     {
       "max_rel_err": 0.0,
@@ -1275,7 +1267,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#57 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -1283,7 +1275,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#58 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -1291,7 +1283,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#59 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -1299,7 +1291,71 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/query.brep/bounding_boxes.json#60 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; tests/prog_test/src/smTopoTest.cpp:my_test_topology)",
-      "values_compared": 66
+      "values_compared": 72
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_native_lists_reverse_registry_network",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#61 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order)",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_native_lists_reverse_registry_face",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#62 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order)",
+      "values_compared": 22
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_native_lists_reverse_registry_approx_threshold",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#63 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order)",
+      "values_compared": 615
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_native_list_target_interval_mutation",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#64 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order)",
+      "values_compared": 42
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_loose_lock_interval_mutation_and_relock",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#65 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order)",
+      "values_compared": 77
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_tight_lock_interval_mutation_and_relock",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#66 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order)",
+      "values_compared": 70
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_set_interval_native_constructor_order",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#67 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order)",
+      "values_compared": 35
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "bbox_set_interval_clamped_outside_domain",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/query.brep/bounding_boxes.json#68 (upstream source/SMLib/src/SmBrep.cpp:1009-1258; source/SMLib/inc/SmEdge.h:446; native GetFaces/GetEdges/GetVertices list order)",
+      "values_compared": 35
     },
     {
       "max_rel_err": 0.0,
@@ -1310,16 +1366,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_0_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#1 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1330,16 +1382,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_0_-1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#3 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1350,16 +1398,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_0_-1e-12_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#5 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1370,16 +1414,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_0_1e-07_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#7 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1390,16 +1430,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_0_100_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#9 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1410,16 +1446,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e-200_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#11 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1430,16 +1462,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e-200_-1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#13 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1450,16 +1478,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e-200_-1e-12_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#15 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1470,16 +1494,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e-200_1e-07_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#17 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1490,16 +1510,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e-200_100_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#19 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1510,16 +1526,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#21 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1530,16 +1542,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1_-1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#23 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1550,16 +1558,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1_-1e-12_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#25 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1570,16 +1574,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1_1e-07_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#27 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1590,16 +1590,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1_100_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#29 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1610,16 +1606,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e+100_0_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#31 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1630,16 +1622,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e+100_-1_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#33 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1650,16 +1638,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e+100_-1e-12_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#35 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1670,16 +1654,12 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e+100_1e-07_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#37 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -1690,160 +1670,108 @@
       "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrepCache::GetVertexTree",
-        "unit": "topology.brep_cache"
-      },
       "max_rel_err": 0.0,
       "name": "empty_brep_classify_1e+100_100_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#39 (upstream source/SMLib/src/SmBrep.cpp:493-582,24687-24841)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_2_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#40 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_2_0_1e-07",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#41 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_2_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#42 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_2_1_1e-07",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#43 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_2_1000000.0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#44 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_2_1000000.0_1e-07",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#45 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_4_0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#46 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_4_0_1e-07",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#47 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_4_1_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#48 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_4_1_1e-07",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#49 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_4_1000000.0_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#50 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::RayFire",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "multi_region_classify_4_1000000.0_1e-07",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.brep/point_classify.json#51 (upstream source/SMLib/src/SmBrep.cpp:24687-24841,25312-25455)",
-      "values_compared": 0
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -7611,7 +7539,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701846",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -7619,7 +7547,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701847",
-      "values_compared": 45
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -7627,7 +7555,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701848",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -7635,7 +7563,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701849",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -7643,7 +7571,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701850",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -7651,7 +7579,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701851",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -7659,7 +7587,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701852",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -7667,7 +7595,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701853",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -7675,7 +7603,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701854",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -7683,7 +7611,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701855",
-      "values_compared": 45
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -7691,7 +7619,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701856",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -7699,7 +7627,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701857",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -7707,7 +7635,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701858",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -7715,7 +7643,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701859",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -7723,7 +7651,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701860",
-      "values_compared": 45
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -7731,7 +7659,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701861",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -7739,7 +7667,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701862",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -7747,7 +7675,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701863",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -7755,7 +7683,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701864",
-      "values_compared": 45
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -7763,7 +7691,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701865",
-      "values_compared": 45
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -7771,7 +7699,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701866",
-      "values_compared": 45
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -7779,7 +7707,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701867",
-      "values_compared": 45
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -7787,7 +7715,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701868",
-      "values_compared": 45
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -7795,7 +7723,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701869",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -7803,7 +7731,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701870",
-      "values_compared": 45
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -7811,7 +7739,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701871",
-      "values_compared": 45
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -7819,7 +7747,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701872",
-      "values_compared": 45
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -7827,7 +7755,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701873",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -7835,7 +7763,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701874",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -7843,7 +7771,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701875",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -7851,7 +7779,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701876",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -7859,7 +7787,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701877",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -7867,7 +7795,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701878",
-      "values_compared": 45
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -7875,7 +7803,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701879",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -7883,7 +7811,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701880",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -7891,7 +7819,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701881",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -7899,7 +7827,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701882",
-      "values_compared": 45
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -7907,7 +7835,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701883",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -7915,7 +7843,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701884",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -7923,7 +7851,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701885",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -7931,7 +7859,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701886",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -7939,7 +7867,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701887",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -7947,7 +7875,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701888",
-      "values_compared": 45
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -7955,7 +7883,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701889",
-      "values_compared": 45
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -7963,7 +7891,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701890",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -7971,7 +7899,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701891",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -7979,7 +7907,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701892",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -7987,7 +7915,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701893",
-      "values_compared": 45
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -7995,7 +7923,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701894",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -8003,7 +7931,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701895",
-      "values_compared": 45
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -8011,7 +7939,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701896",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -8019,7 +7947,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701897",
-      "values_compared": 45
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -8027,7 +7955,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701898",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -8035,7 +7963,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701899",
-      "values_compared": 45
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -8043,7 +7971,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701900",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -8051,7 +7979,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701901",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -8059,7 +7987,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701902",
-      "values_compared": 45
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -8067,7 +7995,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701903",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -8075,7 +8003,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701904",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -8083,7 +8011,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701905",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -8091,7 +8019,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701906",
-      "values_compared": 45
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -8099,7 +8027,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701907",
-      "values_compared": 45
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -8107,7 +8035,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701908",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -8115,7 +8043,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701909",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -8123,7 +8051,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701910",
-      "values_compared": 45
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -8131,7 +8059,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701911",
-      "values_compared": 45
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -8139,7 +8067,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701912",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -8147,7 +8075,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701913",
-      "values_compared": 45
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -8155,7 +8083,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701914",
-      "values_compared": 45
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -8163,7 +8091,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701915",
-      "values_compared": 45
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -8171,7 +8099,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701916",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -8179,7 +8107,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701917",
-      "values_compared": 45
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -8187,7 +8115,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701918",
-      "values_compared": 45
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -8195,7 +8123,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701919",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -8203,7 +8131,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701920",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -8211,7 +8139,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701921",
-      "values_compared": 45
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -8219,7 +8147,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701922",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -8227,7 +8155,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701923",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -8235,7 +8163,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701924",
-      "values_compared": 45
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -8243,7 +8171,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701925",
-      "values_compared": 45
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -8251,7 +8179,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701926",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -8259,7 +8187,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701927",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -8267,7 +8195,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701928",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -8275,7 +8203,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701929",
-      "values_compared": 45
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -8283,7 +8211,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701930",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -8291,7 +8219,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701931",
-      "values_compared": 45
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -8299,7 +8227,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701932",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -8307,7 +8235,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701933",
-      "values_compared": 45
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -8315,7 +8243,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701934",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -8323,7 +8251,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701935",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -8331,7 +8259,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701936",
-      "values_compared": 45
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -8339,7 +8267,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701937",
-      "values_compared": 45
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -8347,7 +8275,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701938",
-      "values_compared": 45
+      "values_compared": 56
     },
     {
       "max_rel_err": 0.0,
@@ -8355,7 +8283,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701939",
-      "values_compared": 45
+      "values_compared": 57
     },
     {
       "max_rel_err": 0.0,
@@ -8363,7 +8291,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701940",
-      "values_compared": 45
+      "values_compared": 59
     },
     {
       "max_rel_err": 0.0,
@@ -8371,18 +8299,16 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=1767821110815701941",
-      "values_compared": 45
+      "values_compared": 54
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 37,
+  "cases_deferred": 3,
   "cases_failed": 0,
-  "cases_passed": 991,
-  "cases_total": 1028,
+  "cases_passed": 1033,
+  "cases_total": 1036,
   "deferred_by_unit": {
-    "query.face_p1": 5,
-    "topology.brep_cache": 20,
-    "topology.brep_p2": 12
+    "query.face_p3": 3
   },
   "max_rel_err": 0.0,
   "pass": true,

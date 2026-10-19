@@ -605,16 +605,22 @@ mod tests {
                 ..
             })
         ));
-        assert!(matches!(
+        // Cache construction now reaches the actual B-rep box. This fixture has
+        // no faces and its curve has no owner, so BuildTrees omits that curve and
+        // FindFace returns no face after the real point solve.
+        let mut breps = crate::topology::Arena::<BrepId, Brep>::default();
+        let id = breps.insert(brep).unwrap();
+        assert_eq!(
             find_face(
                 &Kernel::default(),
-                &brep,
-                BrepId::from_index(7),
+                breps.get(id).unwrap(),
+                id,
                 p(0.0, 0.0, 0.0),
                 &crate::topology::brep_cache::arena_identity,
                 &|_| None,
-            ),
-            Err(SolidError::Unported { .. })
-        ));
+            )
+            .unwrap(),
+            None,
+        );
     }
 }

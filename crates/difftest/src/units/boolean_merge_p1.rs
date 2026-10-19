@@ -3,7 +3,7 @@
 //! are constructed in C++ and imported as raw arena records before either helper
 //! runs, following the topology units. Deferred paths still run the native helper.
 use super::topology_edgeuse_p1::{self as spec, BrepIn};
-use super::topology_vertexuse::import;
+use super::topology_vertexuse::{apply_query_metadata, import};
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -15,13 +15,16 @@ use solidcore::geom::context::{Context, NotifyCallback};
 use solidcore::geom::object::{NotifyOperation, ObjectRef};
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
+use solidcore::query::brep::BrepQueryContext;
+use solidcore::topology::brep_cache::arena_identity;
 use solidcore::topology::topology::Topology;
 use solidcore::topology::{
-    ArenaId, Brep, EdgeId, EdgeuseOwner, FaceId, FaceuseId, LoopuseStart, RegionId, VertexId,
-    VertexuseOwner,
+    ArenaId, Brep, BrepId, EdgeId, EdgeuseOwner, FaceId, FaceuseId, LoopuseStart, RegionId,
+    VertexId, VertexuseOwner,
 };
 use solidcore::SolidError;
 use solidcore_ffi::units::{boolean_merge_p1 as ffi, topology_vertexuse as fixture};
+use std::cell::Cell;
 use std::collections::BTreeMap;
 
 /// Differential runner for `boolean.merge_p1`.
@@ -273,7 +276,7 @@ impl solidcore::topology::shell::RegionLookup for TwoRegions {
         };
         Ok(solidcore::topology::shell::RegionRef {
             brep,
-            brep_id: solidcore::topology::BrepId::from_index(index),
+            brep_id: BrepId::from_index(index),
             region_id: RegionId::from_index(0),
         })
     }
@@ -288,11 +291,34 @@ fn append_events(context: &Context, out: &mut Vec<f64>) -> solidcore::Result<()>
     out.extend(recorder.events.iter().flatten().map(|&v| v as f64));
     Ok(())
 }
-fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidError> {
+fn run_rust(
+    i: &Inputs,
+    b: &mut Brep,
+    other: &mut Brep,
+    primary_check: &dyn Fn() -> solidcore::Result<()>,
+    other_check: &dyn Fn() -> solidcore::Result<()>,
+) -> Result<Vec<f64>, SolidError> {
     let [a, c, d] = i.args;
-    let mut other = other.clone();
-    let other = &mut other;
     let mut k = Kernel::default();
+    // The two constructed operands are this runner's shape store: slot 0 is
+    // primary, slot 1 other. Metadata restores their actual owners and native
+    // list order; scoped cache handles are paired with these B-rep identities.
+    let mut primary_cache = None;
+    let mut other_cache = None;
+    let mut primary_query = BrepQueryContext::new(
+        BrepId::from_index(0),
+        &mut primary_cache,
+        &arena_identity,
+        &|_| None,
+    )
+    .with_geometry_check(primary_check);
+    let other_query = BrepQueryContext::new(
+        BrepId::from_index(1),
+        &mut other_cache,
+        &arena_identity,
+        &|_| None,
+    )
+    .with_geometry_check(other_check);
     let mut out = Vec::new();
     let mut context = Context::default();
     context.set_user_notify_callback(Some(Box::new(Recorder::default())));
@@ -333,7 +359,7 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
             let f = FaceId::from_index(u32::from(a) % b.faces().len() as u32);
             let g = FaceId::from_index(u32::from(d) % other.faces().len() as u32);
             let (x, y, changed) =
-                port::fix_found_face_coincidence(b, &mut other.clone(), f, g, &maps, &reverse)?;
+                port::fix_found_face_coincidence(b, other, f, g, &maps, &reverse)?;
             out.extend([f64::from(u8::from(changed)), x.len() as f64]);
             out.extend(x.iter().map(|f| f64::from(f.index())));
             out.push(y.len() as f64);
@@ -461,6 +487,8 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
                     &k,
                     b,
                     other,
+                    &mut primary_query,
+                    &other_query,
                     f,
                     &if c != 0 {
                         b.edges()
@@ -480,10 +508,13 @@ fn run_rust(i: &Inputs, b: &mut Brep, other: &Brep) -> Result<Vec<f64>, SolidErr
             out.push(port::edge_borders_solid(b, e)?.map_or(-1.0, |v| f64::from(v.index())));
         }
         7 => {
-            let mut other = other.clone();
-            port::temporary_brep_transform(b, &mut other)?;
+            primary_query.check_geometry()?;
+            other_query.check_geometry()?;
+            port::temporary_brep_transform(&k, b, other)?;
         }
         8 | 9 => {
+            primary_query.check_geometry()?;
+            other_query.check_geometry()?;
             let sec = solidcore::topology::EdgeuseId::from_index(
                 u32::from(a) % b.edgeuses().len() as u32,
             );
@@ -577,8 +608,52 @@ impl UnitDiff for Runner {
         let (other_path, other_block) = other_block(&i)?;
         let other_raw = fixture::eval(fixture::Op::Export, &other_path, &other_block)
             .map_err(|e| harness(e.to_string()))?;
-        let (other, _) = import(&other_raw)?;
-        match run_rust(&i, &mut b, &other) {
+        let (mut other, _) = import(&other_raw)?;
+        let [primary_metadata, other_metadata] = ffi::query_metadata(
+            ffi::Operand {
+                path: &path,
+                block: &block,
+            },
+            ffi::Operand {
+                path: &other_path,
+                block: &other_block,
+            },
+        )
+        .map_err(|e| harness(e.to_string()))?;
+        let primary_metadata = apply_query_metadata(&mut b, &primary_metadata, &arena_identity)?;
+        let other_metadata = apply_query_metadata(&mut other, &other_metadata, &arena_identity)?;
+        for metadata in [&primary_metadata, &other_metadata] {
+            if let Some(deferred) = metadata.deferred_output_for(false, false) {
+                return Ok(deferred);
+            }
+        }
+        let unavailable_operand = Cell::new(None);
+        let primary_check = || {
+            let result = primary_metadata.require_geometry();
+            if result.is_err() {
+                unavailable_operand.set(Some(0));
+            }
+            result
+        };
+        let other_check = || {
+            let result = other_metadata.require_geometry();
+            if result.is_err() {
+                unavailable_operand.set(Some(1));
+            }
+            result
+        };
+        let result = run_rust(&i, &mut b, &mut other, &primary_check, &other_check);
+        if let Some(operand) = unavailable_operand.get() {
+            let metadata = if operand == 0 {
+                &primary_metadata
+            } else {
+                &other_metadata
+            };
+            return metadata
+                .deferred_output()
+                .ok_or_else(|| harness("missing query metadata limitation"));
+        }
+        match result {
             Ok(v) => Ok(graph(&b, v)),
             Err(e) => Ok(Output::unported(&e).unwrap_or_else(|| {
                 Output::err(format!(

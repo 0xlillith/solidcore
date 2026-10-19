@@ -17,6 +17,7 @@
 //! | `Glue`              | `e1 e2 orient gap nesting`, B-rep block | `0 (-2 \| status counts edge_tols vertex_tols)` (tolerances sorted) (`-2`: `SM_OT_SAME`, equal intervals and one edge without curve) (`-1 status` when the B-rep build fails) |
 //! | `Copy`              | `n use_merge`, B-rep block | `0 status nfaces counts` |
 //! | `MergeSelf`         | `face tol`, B-rep block | `0 (-2 \| status nedges)` |
+//! | `QueryMetadata`     | B-rep block | native lists, concrete types and direct owners (`sc_brep_query_metadata.h`) |
 //!
 //! `counts` are the region, shell, face, loop, edge and vertex counts of the B-rep made.
 //!
@@ -62,6 +63,7 @@ pub enum Op {
     Glue = 4,
     Copy = 5,
     MergeSelf = 6,
+    QueryMetadata = 7,
 }
 
 mod sys {
@@ -349,6 +351,14 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
                 }
             }
             ar.done()?;
+        }
+        Op::QueryMetadata => {
+            // Validate the same native fixture block before the metadata shim
+            // builds it. A failed build retains the normal export status.
+            let export = fixture::eval(fixture::Op::Export, path, input)?;
+            if fixture::counts(&export).is_none() {
+                return Ok(export);
+            }
         }
     }
     raw(op, path, input)

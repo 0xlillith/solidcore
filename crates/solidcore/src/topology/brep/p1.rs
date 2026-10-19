@@ -53,10 +53,12 @@
 //!   typed ids and `None` is `NULL`. Where upstream dereferences a null pointer the
 //!   port returns [`SolidError::InvalidInput`]; `SM_ERR` returns are
 //!   [`SolidError::Upstream`] with that code.
-//! - The region list of the B-rep (`SmOwningTopology::m_pList`) is the region arena in
-//!   traversal order rotated to [`Brep::region_list_head`]; `ResetInfiniteRegion`
-//!   only moves the head. Regions not on the list (`Region::in_brep` false) are not
-//!   reported by [`regions`].
+//! - The region list of the B-rep (`SmOwningTopology::m_pList`) stores its circular
+//!   links independently of arena ids. [`Brep::region_list_head`] selects its first
+//!   member; `ResetInfiniteRegion` only moves that head. Importers install actual
+//!   membership/order with [`Brep::set_region_list`]; removal unlinks an id through
+//!   [`Brep::remove_region_from_list`] without renumbering the arena. Regions whose
+//!   raw `Region::in_brep` owner is false are not reported by [`regions`].
 //! - [`surfaces`] / [`curves`]: upstream's `GetOwner() == pFace` / `pEdge` test compares
 //!   the geometry's owner with the face's / edge's
 //!   [`arena_identity`](crate::topology::brep_cache::arena_identity) (the kernel's
@@ -92,8 +94,7 @@
 //!   (upstream hands back the shell's region pointer unchecked).
 //! - Calls into units not ported yet return [`SolidError::Unported`] (every site is
 //!   tagged `UNPORTED(<unit>)`, one stub per call site with the code after it ported):
-//!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
-//!   `UnLockBoundingBox` (`query.brep`), `SmBSplineSurface::CreateCornerBlend` with a
+//!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBSplineSurface::CreateCornerBlend` with a
 //!   non-B-spline neighbour surface (`nurbs.b_spline_surface_n_lib_p2`, whose port takes
 //!   B-spline neighbours only).
 //! - `CreateEdgeEdgeBlend` takes the B-rep mutably (the edge use evaluations of
@@ -313,8 +314,8 @@ impl Brep {
         Ok(())
     }
 
-    /// The head of the B-rep's region list (`SmOwningTopology::m_pList`), `None` for
-    /// the first region record.
+    /// The head of the B-rep's region list (`SmOwningTopology::m_pList`). During
+    /// record construction, `None` uses the first listed region when one exists.
     #[must_use]
     pub const fn region_list_head(&self) -> Option<RegionId> {
         self.region_list_head
@@ -323,6 +324,70 @@ impl Brep {
     /// Sets the head of the B-rep's region list (the friend write `m_pList = ..`).
     pub fn set_region_list_head(&mut self, region: Option<RegionId>) {
         self.region_list_head = region;
+    }
+
+    /// Installs the native circular region list in traversal order from its head.
+    /// Unlike the face/edge/vertex list setters, this may be a subset of the arena:
+    /// omitted regions remain allocated with `in_brep` false. Listed regions get
+    /// that owner flag, and the first listed id becomes the head. The independent
+    /// infinite-region pointer and all region contents are retained.
+    ///
+    /// # Errors
+    /// [`SolidError::NotFound`] for a dangling id, or [`SolidError::InvalidInput`]
+    /// for a repeated id. Validation finishes before any list or owner is changed.
+    pub fn set_region_list(&mut self, order: Vec<RegionId>) -> Result<()> {
+        let mut members = vec![false; self.regions.len()];
+        for &id in &order {
+            self.region(id)?;
+            let member = members.get_mut(id.index() as usize).ok_or_else(|| {
+                SolidError::invalid_input("topology::Brep::set_region_list", "invalid region id")
+            })?;
+            if *member {
+                return Err(SolidError::invalid_input(
+                    "topology::Brep::set_region_list",
+                    "repeated region id",
+                ));
+            }
+            *member = true;
+        }
+        let ids: Vec<_> = self.regions.ids().collect();
+        for (id, attached) in ids.into_iter().zip(members) {
+            self.region_mut(id)?.in_brep = attached;
+        }
+        self.region_list_head = order.first().copied();
+        self.region_list = order;
+        Ok(())
+    }
+
+    /// Unlinks a region from this B-rep (`SmOwningTopology::Remove`). The next
+    /// region becomes the head when the old head is removed; all other links and
+    /// arena ids retain their order. The infinite-region pointer is unchanged,
+    /// as native callers update it separately after deleting an empty region.
+    ///
+    /// # Errors
+    /// [`SolidError::NotFound`] for a dangling id. Native `SM_ERR` when the region
+    /// does not belong to this list; a missing head is a representation error.
+    pub fn remove_region_from_list(&mut self, region: RegionId) -> Result<()> {
+        const OP_REMOVE: &str = "topology::Brep::remove_region_from_list";
+        if !self.region(region)?.in_brep {
+            return Err(SolidError::sm_err(OP_REMOVE));
+        }
+        let position = self
+            .region_list
+            .iter()
+            .position(|&id| id == region)
+            .ok_or_else(|| SolidError::sm_err(OP_REMOVE))?;
+        let current = regions(self, None)?;
+        let head = current.first().copied();
+        let next_head = if head == Some(region) {
+            current.get(1).copied()
+        } else {
+            head
+        };
+        self.region_list.remove(position);
+        self.region_mut(region)?.in_brep = false;
+        self.region_list_head = next_head;
+        Ok(())
     }
 
     /// `AddDeletedSurface`: keeps a surface removed from the B-rep until the operation
@@ -392,12 +457,12 @@ fn filtered<I: Copy>(
 ///
 /// [`SolidError::NotFound`] when the list head is a dangling id.
 pub fn regions(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<RegionId>> {
-    let on_list: Vec<RegionId> = b
-        .regions()
-        .iter()
-        .filter(|(_, r)| r.in_brep)
-        .map(|(id, _)| id)
-        .collect();
+    let mut on_list = Vec::new();
+    for &id in &b.region_list {
+        if b.region(id)?.in_brep {
+            on_list.push(id);
+        }
+    }
     let start = match b.region_list_head() {
         None => 0,
         Some(head) => {
@@ -635,10 +700,9 @@ pub fn curves<'b>(
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] when the vertex check passes: the bounding box is
-/// `SmBrep::CalculateBoundingBox` (unit `query.brep`), then `SmExtent3d::IsPointSized`.
+/// Invalid vertex references or an unavailable bounding-box dependency. Ordinary
+/// bounding-box failure statuses are ignored, as in `SmBrep::IsDegenerate`.
 pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
-    let _ = k;
     let tol_sq = tol_3d * tol_3d;
     let verts = vertices(b, None)?;
 
@@ -656,7 +720,7 @@ pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
     // status is ignored: a failure leaves the default box)
     // CalculateBoundingBox(sBBox): header defaults bApprox = FALSE, bTight = FALSE,
     // bExpandByZoneTol3d = TRUE
-    let bbox = ignored(brep_bounding_box(b, false, false, true))?.unwrap_or_default();
+    let bbox = ignored(brep_bounding_box(k, b, false, false, true))?.unwrap_or_default();
     Ok(bbox.is_point_sized(tol_3d))
 }
 
@@ -1322,15 +1386,11 @@ impl<'b> LockBrepBox<'b> {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmBrep::LockBoundingBox` is unit `query.brep`.
+    /// An unavailable bounding-box dependency. The native constructor ignores
+    /// ordinary `LockBoundingBox` failure statuses and still creates the guard.
     pub fn new(k: &Kernel, brep: &'b mut Brep) -> Result<Self> {
-        let _ = k;
-        // UNPORTED(query.brep): SmBrep::LockBoundingBox
-        let _unlocked = Self { brep };
-        Err(SolidError::unported(
-            "SmBrep::LockBoundingBox",
-            "query.brep",
-        ))
+        ignore_status(crate::query::brep::lock_bounding_box(k, brep, false))?;
+        Ok(Self { brep })
     }
 
     /// The locked B-rep.
@@ -1342,8 +1402,7 @@ impl<'b> LockBrepBox<'b> {
 
 impl Drop for LockBrepBox<'_> {
     fn drop(&mut self) {
-        // UNPORTED(query.brep): SmBrep::UnLockBoundingBox (nothing to unlock until
-        // `new` can lock)
+        crate::query::brep::unlock_bounding_box(self.brep);
     }
 }
 
@@ -1414,17 +1473,21 @@ fn shell_mated_shells(k: &mut Kernel, b: &Brep, shell: ShellId) -> Result<Vec<Sh
 /// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
 /// `query.brep`).
 fn brep_bounding_box(
+    k: &Kernel,
     b: &Brep,
     approx: bool,
     tight: bool,
     expand_by_zone_tol_3d: bool,
 ) -> Result<Extent3d> {
-    let _ = (b, approx, tight, expand_by_zone_tol_3d);
-    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
-    Err(SolidError::unported(
-        "SmBrep::CalculateBoundingBox",
-        "query.brep",
-    ))
+    crate::query::brep::calculate_bounding_box(
+        k,
+        b,
+        crate::query::brep::BoundingBoxOptions {
+            approximate: approx,
+            tight,
+            expand_by_zone_tolerance: expand_by_zone_tol_3d,
+        },
+    )
 }
 
 /// `SmEdgeuse::GetOrCreateUVTrimCurve(rpUVTrimCurve, pdOptDistToSurf, pdOptDeviation,
@@ -2883,12 +2946,16 @@ impl LoopObject for HealLoopHandle {
 /// `HealBrep`: runs the healer sequence (`SmHealData::HealBrep`, on a fresh
 /// [`HealData`]) up to and including `healer_op` on the given vertices, edges and
 /// faces (default: all), optionally making the UV trim curves. Upstream returns
-/// `SM_SUCCESS` whatever the healer reports: only [`SolidError::Unported`] (from the
-/// healer's own stubs, `heal.heal_data_p3` and later) propagates.
+/// `SM_SUCCESS` whatever native status the healer reports. The port ignores
+/// [`SolidError::Upstream`] and [`SolidError::Nlib`], while preserving errors for
+/// missing dependencies and invalid topology or query context.
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] from the healer.
+/// Errors from the healer other than native [`SolidError::Upstream`] and
+/// [`SolidError::Nlib`] statuses, including [`SolidError::Unported`],
+/// [`SolidError::InvalidInput`] and [`SolidError::NotFound`].
+#[allow(clippy::too_many_arguments)] // native optional targets plus caller-owned query state
 pub fn heal_brep(
     k: &mut Kernel,
     b: &mut Brep,
@@ -2897,10 +2964,12 @@ pub fn heal_brep(
     opt_edges: Option<&[EdgeId]>,
     opt_faces: Option<&[FaceId]>,
     make_uv_trim_curves: bool,
+    queries: &mut dyn crate::topology::brep::p6::RegionSplitQueries,
 ) -> Result<()> {
     let mut heal_data = HealData::<HealLoopHandle>::default();
-    // pass the call along (status ignored upstream)
-    ignored(heal_data.heal_brep(
+    // Ignore native statuses only; a missing or invalid Rust query context is
+    // not an upstream failure that SmBrep::HealBrep can silently discard.
+    match heal_data.heal_brep(
         k,
         Some(b),
         healer_op,
@@ -2910,8 +2979,11 @@ pub fn heal_brep(
             faces: opt_faces,
         },
         make_uv_trim_curves,
-    ))?;
-    Ok(())
+        queries,
+    ) {
+        Ok(()) | Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => Ok(()),
+        Err(error) => Err(error),
+    }
 }
 
 #[cfg(test)]
@@ -2919,6 +2991,41 @@ mod tests {
     use super::*;
     use crate::geom::a_object;
     use crate::topology::Region;
+
+    #[test]
+    fn heal_brep_preserves_missing_target_error() {
+        fn no_shell_ray(
+            _: &mut Kernel,
+            _: &mut Brep,
+            _: ShellId,
+            _: crate::topology::shell::ShellRayInput<EntityRef>,
+        ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
+            panic!("invalid targets must fail before shell queries")
+        }
+
+        let mut k = Kernel::default();
+        let mut b = Brep::new();
+        let missing = EdgeId::from_index(0);
+        // Exercise the public wrapper and the real Cache_EdgeProps stage. The
+        // old ignored(...) wrapper turned this dangling target into success.
+        let result = heal_brep(
+            &mut k,
+            &mut b,
+            HealerOpType::CacheEdgeprops,
+            None,
+            Some(&[missing]),
+            None,
+            false,
+            &mut no_shell_ray,
+        );
+        assert!(matches!(
+            result,
+            Err(SolidError::NotFound {
+                entity: EntityRef::Edge(id),
+                ..
+            }) if id == missing
+        ));
+    }
 
     #[test]
     fn type_queries() {
@@ -2952,6 +3059,87 @@ mod tests {
         assert_eq!(regions(&b, None).unwrap(), vec![r[1], r[2], r[0]]);
         assert!(!regions(&b, None).unwrap().contains(&off));
         assert!(!is_live_topology_member(&b, None));
+    }
+
+    #[test]
+    fn region_post_insert_and_remove_preserve_links_after_head_changes() {
+        let mut b = Brep::new();
+        let mut initial = Vec::new();
+        for _ in 0..4 {
+            let id = b
+                .add_region_record(Region {
+                    in_brep: true,
+                    ..Region::default()
+                })
+                .unwrap();
+            if initial.is_empty() {
+                b.set_region_list_head(Some(id));
+            }
+            initial.push(id);
+        }
+        assert_eq!(regions(&b, None).unwrap(), initial);
+        // Import a non-arena order. SmOwningTopology::PostInsert adds at the
+        // current tail even after ResetInfiniteRegion rotates the list head.
+        b.set_region_list(vec![initial[2], initial[0], initial[3], initial[1]])
+            .unwrap();
+        b.set_region_list_head(Some(initial[0]));
+        let added = b
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
+        assert_eq!(
+            regions(&b, None).unwrap(),
+            [initial[0], initial[3], initial[1], initial[2], added]
+        );
+        let added_again = b
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
+        assert_eq!(
+            regions(&b, None).unwrap(),
+            [
+                initial[0],
+                initial[3],
+                initial[1],
+                initial[2],
+                added,
+                added_again
+            ]
+        );
+        b.set_infinite_region(Some(initial[0]));
+        b.remove_region_from_list(initial[0]).unwrap();
+        assert_eq!(
+            regions(&b, None).unwrap(),
+            [initial[3], initial[1], initial[2], added, added_again]
+        );
+        assert_eq!(b.region_list_head(), Some(initial[3]));
+        // Remove does not decide which region is infinite or renumber records.
+        assert_eq!(b.infinite_region(), Some(initial[0]));
+        assert!(!b.region(initial[0]).unwrap().in_brep);
+        assert_eq!(b.regions().len(), 6);
+        b.remove_region_from_list(initial[1]).unwrap();
+        assert_eq!(
+            regions(&b, None).unwrap(),
+            [initial[3], initial[2], added, added_again]
+        );
+
+        let mut copy = b.clone();
+        copy.set_region_list(vec![added, initial[0]]).unwrap();
+        assert_eq!(regions(&copy, None).unwrap(), [added, initial[0]]);
+        assert_eq!(
+            regions(&b, None).unwrap(),
+            [initial[3], initial[2], added, added_again]
+        );
+        assert!(copy.region(initial[0]).unwrap().in_brep);
+        assert!(!copy.region(initial[3]).unwrap().in_brep);
+        let before = regions(&copy, None).unwrap();
+        assert!(copy.set_region_list(vec![added, added]).is_err());
+        assert_eq!(regions(&copy, None).unwrap(), before);
+        assert!(copy.region(initial[0]).unwrap().in_brep);
     }
 
     #[test]

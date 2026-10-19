@@ -79,6 +79,14 @@ impl Op {
 
 mod sys {
     extern "C" {
+        pub fn sc_heal_stitch_p1_query_metadata(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
         pub fn sc_heal_stitch_p1_eval(
             op: i32,
             path: *const std::ffi::c_char,
@@ -300,6 +308,32 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
         }
     }
     raw(op, path, input)
+}
+
+/// Export native query metadata from the same B-rep construction as [`Op::Export`].
+/// The block contains only fixture input, with no operation arguments or results.
+///
+/// # Errors
+/// Invalid construction input or a native fixture/export failure.
+pub fn query_metadata(path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
+    let mut rd = Reader { input, at: 0 };
+    block(&mut rd, path)?;
+    rd.done()?;
+    let path = std::ffi::CString::new(path).map_err(|_| bad("path has a NUL byte"))?;
+    call_with_buffer(4096, |out, len| {
+        // SAFETY: the complete construction block was validated above. The path
+        // and input stay live; the shim honours the actual output capacity.
+        unsafe {
+            sys::sc_heal_stitch_p1_query_metadata(
+                path.as_ptr(),
+                input.as_ptr(),
+                input.len() as i64,
+                out.as_mut_ptr(),
+                out.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
 }
 
 /// The largest block value the full upstream stitches are given (HANG-30).

@@ -33,7 +33,7 @@ use crate::error::{ignored, Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
-use crate::geom::object::{FaceKey, ObjectRef, Shape, ShapeMember};
+use crate::geom::object::{FaceKey, ObjectRef, Shape, ShapeMember, ShapeObjects};
 use crate::geom::solution_array::{ObjectKind, Solution, SolutionArray, SolutionObject};
 use crate::geom::tools::{self, EdgePick};
 use crate::intersect::point_class::{PointClassType, PointClassification};
@@ -339,13 +339,30 @@ pub fn brep_closest_point_all<O: SolutionObject>(
         .collect()
 }
 
-/// B-rep arena and its handle in the caller's topology-solver adapter.
-#[derive(Clone, Copy)]
-pub struct BrepRef<'a, O> {
-    /// Exact topology.
-    pub brep: &'a Brep,
-    /// Adapter handle.
-    pub handle: O,
+/// Live topology and point classification used by B-rep relationship queries.
+///
+/// The same caller-owned handle identifies the B-rep for the initial topology
+/// solve, sample extraction and containment tests. Classification may update its
+/// caches or create UV trim curves, so the adapter is borrowed mutably.
+pub trait BrepRelationshipObjects<O>: TopologyObjects<O> {
+    /// The exact B-rep identified by this adapter handle.
+    fn brep(&self, handle: O) -> Result<&Brep>;
+
+    /// `SmBrep::Point3DClassify(point, tolerance, FALSE, classification)`.
+    ///
+    /// The returned entity ids are scoped to `handle`'s B-rep, including region
+    /// ids. Implementations can borrow that B-rep and its cache slot through
+    /// [`crate::query::brep::BrepPointObjects`]; they must preserve the supplied
+    /// kernel, geometry ownership and status. Ordinary failures make containment
+    /// false and skip a sample; unavailable dependencies still propagate.
+    fn classify_point(
+        &mut self,
+        k: &Kernel,
+        handle: O,
+        point: Point3,
+        tolerance: f64,
+        classification: &mut PointClassification<crate::EntityRef>,
+    ) -> Result<()>;
 }
 
 /// Relationship code and boundary distance (`SmApiBrepRelationship`).
@@ -358,45 +375,80 @@ pub struct BrepRelationship {
 }
 
 // Returns the point class and whether its region exists and is material.
-fn classify_point(
-    _target: &Brep,
-    _point: Point3,
-    _tolerance: f64,
+fn classify_point<O: SolutionObject>(
+    k: &Kernel,
+    objects: &mut impl BrepRelationshipObjects<O>,
+    target: O,
+    point: Point3,
+    tolerance: f64,
 ) -> Result<(PointClassType, bool)> {
-    // UNPORTED(query.brep): SmBrep::Point3DClassify
-    Err(SolidError::unported(
-        "SmBrep::Point3DClassify",
-        "query.brep",
-    ))
+    let mut classification = PointClassification::new(tolerance);
+    objects.classify_point(k, target, point, tolerance, &mut classification)?;
+    let class = classification.point_class();
+    let material = if class == PointClassType::Region {
+        match classification.object() {
+            Some(crate::EntityRef::Region(region)) => {
+                objects.brep(target)?.region(region)?.is_void() == 0
+            }
+            None => false,
+            Some(_) => {
+                return Err(SolidError::invalid_input(
+                    OP,
+                    "region classification has a non-region entity",
+                ));
+            }
+        }
+    } else {
+        false
+    };
+    Ok((class, material))
 }
 
-fn point_in_solid(target: &Brep, point: Point3, tolerance: f64) -> Result<bool> {
-    Ok(ignored(classify_point(target, point, tolerance))?
-        .is_some_and(|(class, material)| class == PointClassType::Region && material))
+fn point_in_solid<O: SolutionObject>(
+    k: &Kernel,
+    objects: &mut impl BrepRelationshipObjects<O>,
+    target: O,
+    point: Point3,
+    tolerance: f64,
+) -> Result<bool> {
+    Ok(
+        ignored(classify_point(k, objects, target, point, tolerance))?
+            .is_some_and(|(class, material)| class == PointClassType::Region && material),
+    )
 }
 
 fn brep_vertices(brep: &Brep) -> Result<Vec<VertexId>> {
     crate::topology::brep::p1::vertices(brep, None)
 }
 
-fn count_contained_samples(
+fn count_contained_samples<O: SolutionObject>(
     k: &Kernel,
-    sample: &Brep,
-    target: &Brep,
+    objects: &mut impl BrepRelationshipObjects<O>,
+    sample: O,
+    target: O,
     tolerance: f64,
 ) -> Result<(usize, usize)> {
-    let mut points = Vec::new();
-    for vertex in brep_vertices(sample)? {
-        points.push(sample.vertex(vertex)?.point);
-    }
-    for face in brep_faces(sample)? {
-        if let Some(point) = ignored(face_internal_point(k, sample, face))? {
-            points.push(point);
+    // Upstream gathers all vertices and then one interior point per face before
+    // classifying any sample. The owned points also release the shared topology
+    // borrow before a target query mutates its caches or trim curves.
+    let points = {
+        let sample = objects.brep(sample)?;
+        let mut points = Vec::new();
+        for vertex in brep_vertices(sample)? {
+            points.push(sample.vertex(vertex)?.point);
         }
-    }
+        for face in brep_faces(sample)? {
+            if let Some(point) = ignored(face_internal_point(k, sample, face))? {
+                points.push(point);
+            }
+        }
+        points
+    };
     let (mut inside, mut outside) = (0, 0);
     for point in points {
-        if let Some((class, material)) = ignored(classify_point(target, point, tolerance))? {
+        if let Some((class, material)) =
+            ignored(classify_point(k, objects, target, point, tolerance))?
+        {
             match class {
                 PointClassType::Region => {
                     if material {
@@ -418,22 +470,22 @@ fn count_contained_samples(
 /// being swallowed by upstream's ignored ordinary classification statuses.
 pub fn brep_relationship<O: SolutionObject>(
     k: &Kernel,
-    objects: &dyn TopologyObjects<O>,
-    a: BrepRef<'_, O>,
-    b: BrepRef<'_, O>,
+    objects: &mut impl BrepRelationshipObjects<O>,
+    a: O,
+    b: O,
 ) -> Result<BrepRelationship> {
     let solutions = TopologySolver::brep_brep_solve(
         k,
         objects,
-        Some(a.handle),
-        Some(b.handle),
+        Some(a),
+        Some(b),
         solve_options(k, SolutionRequested::Single),
     )?;
     let solution = solutions.as_slice().first().ok_or(SolidError::sm_err(OP))?;
     let distance = solution.start.solution_value;
     let tolerance =
         crate::geom::tol::context_zone_tol_3d(k, None, crate::geom::tol::SmallTopoType::NormalSize);
-    if distance > a.brep.tolerance() + b.brep.tolerance() {
+    if distance > objects.brep(a)?.tolerance() + objects.brep(b)?.tolerance() {
         let pa = ignored(solution_point(objects, solution, 0))?;
         let pb = if pa.is_some() {
             ignored(solution_point(objects, solution, 1))?
@@ -441,8 +493,8 @@ pub fn brep_relationship<O: SolutionObject>(
             None
         };
         let relationship = if let (Some(pa), Some(pb)) = (pa, pb) {
-            let bin_a = point_in_solid(a.brep, pb, tolerance)?;
-            let ain_b = point_in_solid(b.brep, pa, tolerance)?;
+            let bin_a = point_in_solid(k, objects, a, pb, tolerance)?;
+            let ain_b = point_in_solid(k, objects, b, pa, tolerance)?;
             if bin_a {
                 3
             } else if ain_b {
@@ -451,8 +503,8 @@ pub fn brep_relationship<O: SolutionObject>(
                 0
             }
         } else {
-            let (bin, bout) = count_contained_samples(k, b.brep, a.brep, tolerance)?;
-            let (ain, aout) = count_contained_samples(k, a.brep, b.brep, tolerance)?;
+            let (bin, bout) = count_contained_samples(k, objects, b, a, tolerance)?;
+            let (ain, aout) = count_contained_samples(k, objects, a, b, tolerance)?;
             if bin > 0 && bout == 0 {
                 3
             } else if ain > 0 && aout == 0 {
@@ -466,8 +518,8 @@ pub fn brep_relationship<O: SolutionObject>(
             distance,
         })
     } else {
-        let (bin, _) = count_contained_samples(k, b.brep, a.brep, tolerance)?;
-        let (ain, _) = count_contained_samples(k, a.brep, b.brep, tolerance)?;
+        let (bin, _) = count_contained_samples(k, objects, b, a, tolerance)?;
+        let (ain, _) = count_contained_samples(k, objects, a, b, tolerance)?;
         Ok(BrepRelationship {
             relationship: if bin > 0 || ain > 0 { 2 } else { 1 },
             distance: 0.0,
@@ -479,9 +531,9 @@ pub fn brep_relationship<O: SolutionObject>(
 /// Containment/classification errors propagate, even though only distance is returned.
 pub fn brep_distance<O: SolutionObject>(
     k: &Kernel,
-    objects: &dyn TopologyObjects<O>,
-    a: BrepRef<'_, O>,
-    b: BrepRef<'_, O>,
+    objects: &mut impl BrepRelationshipObjects<O>,
+    a: O,
+    b: O,
 ) -> Result<f64> {
     Ok(brep_relationship(k, objects, a, b)?.distance)
 }
@@ -578,17 +630,18 @@ pub fn brep_is_manifold_solid(brep: &Brep) -> Result<bool> {
     crate::topology::brep::p2::is_manifold_solid(brep)
 }
 
-/// Loose or tight B-rep box (`SmApiBrepBoundingBox`); missing queries are `Unported`.
-pub fn brep_bounding_box(_k: &Kernel, _brep: &Brep, tight: bool) -> Result<Extent3d> {
-    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox / CalculateTightBoundingBox
-    Err(SolidError::unported(
-        if tight {
-            "SmBrep::CalculateTightBoundingBox"
-        } else {
-            "SmBrep::CalculateBoundingBox"
-        },
-        "query.brep",
-    ))
+/// Loose or tight B-rep box (`SmApiBrepBoundingBox`). The tight query ignores a
+/// locked loose box and does not add zone tolerances.
+pub fn brep_bounding_box(k: &Kernel, brep: &Brep, tight: bool) -> Result<Extent3d> {
+    if tight {
+        crate::query::brep::calculate_tight_bounding_box(k, brep)
+    } else {
+        crate::query::brep::calculate_bounding_box(
+            k,
+            brep,
+            crate::query::brep::BoundingBoxOptions::default(),
+        )
+    }
 }
 
 /// Loose or tight face box (`SmApiFaceBoundingBox`); missing queries are `Unported`.
@@ -637,14 +690,21 @@ pub fn face_classify_uv(
 }
 
 /// Trim-aware closest point on one face (`SmApiFaceClosestPoint`).
-/// Shape construction and solver errors propagate.
+///
+/// `objects` supplies the face's live geometry, owner links and persistent mark
+/// records, shared with the supplied kernel. Shape construction advances and
+/// releases a context mark before the solver reads that same geometry.
+///
+/// # Errors
+/// Shape construction, owner resolution and solver errors propagate, including
+/// unavailable dependencies reached through the real face geometry.
 pub fn face_closest_point<O: SolutionObject>(
-    k: &Kernel,
-    objects: &dyn TopologyObjects<O>,
+    k: &mut Kernel,
+    objects: &mut (impl TopologyObjects<O> + ShapeObjects),
     face: FaceKey,
     point: Point3,
 ) -> Result<ClosestPoint> {
-    let shape = Shape::new(&[], &[face], &[], &[])?;
+    let shape = Shape::new_with_objects(k, objects, &[], &[face], &[], &[])?;
     let mut options = solve_options(k, SolutionRequested::Single);
     options.tolerance_3d =
         objects.face_tolerance(objects.shape_member_object(ShapeMember::Face(face))?)?;

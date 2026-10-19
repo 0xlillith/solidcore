@@ -28,6 +28,8 @@ use serde_json::Value;
 
 use solidcore::heal::heal_data::p1::api_heal_brep;
 use solidcore::kernel::Kernel;
+use solidcore::topology::brep_cache::arena_identity;
+use solidcore::topology::{Arena, Brep, BrepId};
 use solidcore::SolidError;
 use solidcore_ffi::units::heal_heal_data_p1 as ffi;
 
@@ -35,7 +37,8 @@ use super::heal_heal_data_p2::{
     gen_brep_in, gen_targets, log_uniform, run_cpp as p2_cpp, run_rust as p2_rust, BIn,
     Inputs as Script, Prim, Step,
 };
-use super::topology_vertexuse::{domain, gen_surface, BrepIn};
+use super::topology_shell::RayQueryContext;
+use super::topology_vertexuse::{domain, gen_surface, BrepIn, QueryMetadata};
 use crate::case::CaseContext;
 use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -94,7 +97,20 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
             // B-rep would compare a different input. Build the box with the ported
             // `SmApiCreateBox` when that lands and compare its status here.
             let r = match api.box_size {
-                None => api_heal_brep(&mut k, None),
+                None => {
+                    // A valid empty query environment is unused by the native
+                    // null-B-rep guard. No artificial query result is supplied.
+                    let mut breps = Arena::<BrepId, Brep>::default();
+                    let id = breps
+                        .insert(Brep::default())
+                        .map_err(|e| harness(e.to_string()))?;
+                    let brep = breps
+                        .get(id)
+                        .ok_or_else(|| harness("missing query environment"))?;
+                    let mut queries =
+                        RayQueryContext::new(brep, id, QueryMetadata::default(), arena_identity);
+                    api_heal_brep(&mut k, None, &mut queries)
+                }
                 Some(_) => {
                     return Ok(Output::deferred(
                         "primitive.api_primitives",

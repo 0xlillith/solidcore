@@ -31,10 +31,14 @@
 //! | [`region_remove_shell`] | `SmOwningTopology::Remove` of a shell from its region |
 //!
 //! Deviations: circular lists are typed vectors in head-first order, as in the
-//! shared Brep arena model. `GetWireEdges`, `GetMatedShells` and `RayFire` claim and
+//! shared Brep arena model. `GetWireEdges` and `GetMatedShells` claim and
 //! lock a context mark (`SmNewMarkAndLock`) and mark through
 //! [`crate::topology::topology_traverser::Marks`] (per-call, as the mark values on the
-//! objects are unique per claim), advancing the kernel context's mark counters as upstream. Incompatible array reinterpret casts return `InvalidInput`;
+//! objects are unique per claim), advancing the kernel context's mark counters as upstream.
+//! `RayFire` uses the caller's persistent topology records through [`ShellRayWorld`]
+//! for both boundary-face collection and shape construction. The world resolves
+//! the same B-rep mutably when sectoring may create UV trim curves; no parallel
+//! arena copy or synthetic cache is used. Incompatible array reinterpret casts return `InvalidInput`;
 //! checked member casts retain native NULL. Native
 //! notification/logging side effects are not represented by these arena records.
 //! Face-use sibling links survive a cleared owner head, as in native self-transfer.
@@ -841,7 +845,7 @@ pub struct ShellRaySector<'a, O> {
     /// Actual owner arena key.
     pub brep: crate::topology::BrepId,
     /// Actual line segment from ray start to intersection.
-    pub curve: &'a crate::nurbs::b_spline_curve::BSplineCurve,
+    pub curve: &'a crate::curve::curve::Curve,
     /// Natural interval of that curve.
     pub interval: crate::geom::extent1d::Extent1d,
     /// Native opposite orientation for the incoming segment.
@@ -860,39 +864,89 @@ pub struct ShellRaySectorAttempt {
 
 /// Actual geometry and owner context needed by shell ray queries.
 /// No global owner registry or duplicate geometry metadata is introduced.
-pub trait ShellRayWorld<O>: crate::intersect::topology_solver::p1::TopologyObjects<O> {
+pub trait ShellRayWorld<O>:
+    crate::intersect::topology_solver::p1::TopologyObjects<O> + crate::geom::object::ShapeObjects
+where
+    O: crate::geom::solution_array::SolutionObject + crate::intersect::point_class::ClassObject,
+{
+    /// Mutable access to the same B-rep returned by `ShapeObjects::brep`.
+    /// Sectoring may create UV trim curves in its live edge uses.
+    fn shell_ray_brep_mut(&mut self, id: crate::topology::BrepId) -> Result<&mut Brep>;
+
+    /// Resolve an intersection handle to its actual entity in this B-rep.
+    /// Curve/surface storage records must not be relabelled as their owners.
+    fn shell_ray_entity(&self, id: crate::topology::BrepId, object: O) -> Result<crate::EntityRef>;
+
     /// Default B-rep bounding box when no radius was supplied.
     fn shell_ray_bounds(
         &self,
-        _kernel: &Kernel,
-        _brep: crate::topology::BrepId,
+        kernel: &Kernel,
+        brep_id: crate::topology::BrepId,
     ) -> Result<crate::geom::extent3d::Extent3d> {
-        // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
-        Err(SolidError::unported(
-            "SmBrep::CalculateBoundingBox",
-            "query.brep",
-        ))
+        crate::query::brep::calculate_bounding_box(
+            kernel,
+            self.brep(brep_id)?,
+            crate::query::brep::BoundingBoxOptions::default(),
+        )
     }
 
     /// The shape of the shell's boundary faces (`SmShape(sBreps, sFaces, ...)`).
-    /// Worlds that cannot build the real shape (a harness without the B-rep's cached
-    /// geometry) defer here instead of failing later.
-    fn shell_ray_shape(&self, faces: &[crate::geom::object::FaceKey]) -> Result<Shape> {
-        Shape::new(&[], faces, &[], &[])
+    /// The same kernel and persistent topology records supply its marks.
+    fn shell_ray_shape(
+        &mut self,
+        kernel: &mut Kernel,
+        faces: &[crate::geom::object::FaceKey],
+    ) -> Result<Shape>
+    where
+        Self: Sized,
+    {
+        Shape::new_with_objects(kernel, self, &[], faces, &[], &[])
     }
 
     /// Classify the incoming line segment at its known intersection
-    /// (`pBrep->LocalCurveSector`). The world over the B-rep cache (`query.brep`)
-    /// overrides this with [`crate::topology::brep::p2::local_curve_sector`], which needs
-    /// the B-rep and an entity classification this generic default does not have.
-    fn shell_ray_sector(&self, _request: ShellRaySector<'_, O>) -> ShellRaySectorAttempt {
-        // UNPORTED(query.brep): ShellRayWorld over the B-rep cache (SmBrep::LocalCurveSector)
-        ShellRaySectorAttempt {
-            status: Err(SolidError::unported(
-                "SmShell::RayFire world over the B-rep cache (SmBrep::LocalCurveSector)",
-                "query.brep",
-            )),
-            region_update: None,
+    /// (`pBrep->LocalCurveSector`). The private copy preserves every scalar and
+    /// the hit object's topology kind. Its unused auxiliary face is omitted;
+    /// the caller's classification, including that face, remains unchanged.
+    fn shell_ray_sector(
+        &mut self,
+        kernel: &Kernel,
+        request: ShellRaySector<'_, O>,
+    ) -> ShellRaySectorAttempt {
+        use crate::intersect::point_class::ClassObject;
+        let result = (|| {
+            // LoadFromIntersection preserves m_cpFace, which may still name a
+            // different B-rep. LocalCurveSector never reads it: do not require
+            // that unrelated face to resolve in this B-rep's entity namespace.
+            let mut sector_input = *request.classification;
+            sector_input.set_face(None);
+            let classification = sector_input.try_map_objects(|object| {
+                let entity = self.shell_ray_entity(request.brep, object)?;
+                if entity.class_kind() != object.class_kind() {
+                    return Err(SolidError::invalid_input(
+                        "topology::shell::ShellRayWorld::shell_ray_sector",
+                        "intersection mapping changed the topology kind",
+                    ));
+                }
+                Ok(entity)
+            })?;
+            crate::topology::brep::p2::local_curve_sector(
+                kernel,
+                self.shell_ray_brep_mut(request.brep)?,
+                request.curve,
+                &request.interval,
+                request.orientation,
+                &classification,
+            )
+        })();
+        match result {
+            Ok(region) => ShellRaySectorAttempt {
+                status: Ok(()),
+                region_update: Some(region),
+            },
+            Err(error) => ShellRaySectorAttempt {
+                status: Err(error),
+                region_update: None,
+            },
         }
     }
 }
@@ -902,10 +956,9 @@ pub trait ShellRayWorld<O>: crate::intersect::topology_solver::p1::TopologyObjec
 /// Missing geometry queries are explicit dependency errors.
 pub fn ray_fire<O, W>(
     kernel: &mut Kernel,
-    brep: &Brep,
     brep_id: crate::topology::BrepId,
     shell_id: ShellId,
-    world: &W,
+    world: &mut W,
     input: ShellRayInput<O>,
 ) -> ShellRayAttempt<O>
 where
@@ -924,7 +977,7 @@ where
         let radius = if let Some(radius) = input.sphere_bound {
             radius
         } else {
-            shell_brep(brep, shell_id)?.ok_or(SolidError::null_pointer(OP))?;
+            shell_brep(world.brep(brep_id)?, shell_id)?.ok_or(SolidError::null_pointer(OP))?;
             world
                 .shell_ray_bounds(kernel, brep_id)?
                 .sphere_bound()
@@ -938,25 +991,35 @@ where
                 code: 1007, // SmVector3d::Unitize returns SM_ERR_INVALID_INPUT.
                 entity: None,
             })?;
+        let faceuses = world.brep(brep_id)?.shell(shell_id)?.get_faceuses()?;
         // `SmNewMarkAndLock` with the default (all marks) mask, released on every path.
+        // Use the same persistent face marks that the following Shape constructor
+        // and subsequent ray queries see; do not create a separate traversal map.
         let faces = with_mark_lock(kernel, ALL_MARKS, |kernel, mark| {
-            let mut marks = Marks::default();
             let mut faces = Vec::new();
-            for id in brep.shell(shell_id)?.get_faceuses()? {
-                let faceuse = brep.faceuse(id)?;
-                let face = faceuse.face.ok_or(SolidError::null_pointer(OP))?;
-                if marks.is_marked(kernel, Entity::Face(face), mark) {
+            for id in faceuses {
+                let face = world
+                    .brep(brep_id)?
+                    .faceuse(id)?
+                    .face
+                    .ok_or(SolidError::null_pointer(OP))?;
+                let member = crate::geom::object::ShapeMember::Face((brep_id, face));
+                if world.topology(member)?.is_marked(&kernel.context, mark) {
                     continue;
                 }
-                marks.mark(kernel, Entity::Face(face), mark);
-                let mate = brep.faceuse(faceuse.mate.ok_or(SolidError::null_pointer(OP))?)?;
+                world
+                    .topology_mut(member)?
+                    .mark(Some(&kernel.context), mark);
+                let brep = world.brep(brep_id)?;
+                let mate =
+                    brep.faceuse(brep.faceuse(id)?.mate.ok_or(SolidError::null_pointer(OP))?)?;
                 if mate.shell != Some(shell_id) {
                     faces.push((brep_id, face));
                 }
             }
             Ok::<_, SolidError>(faces)
         })??;
-        let shape = world.shell_ray_shape(&faces)?;
+        let shape = world.shell_ray_shape(kernel, &faces)?;
         let vectors = [direction];
         let solutions = TopologySolver::shape_point_solve(
             &*kernel,
@@ -1020,15 +1083,22 @@ where
             parameter,
         )?;
         let endpoint = input.start + direction * parameter;
-        shell_brep(brep, shell_id)?.ok_or(SolidError::null_pointer(OP))?;
-        let curve = BSplineCurve::create_line_segment(3, input.start, endpoint)?;
-        let sector = world.shell_ray_sector(ShellRaySector {
-            brep: brep_id,
-            curve: &curve,
-            interval: curve.natural_interval(),
-            orientation: OrientType::Opposite,
-            classification: &state.classification,
-        });
+        shell_brep(world.brep(brep_id)?, shell_id)?.ok_or(SolidError::null_pointer(OP))?;
+        let curve = crate::curve::curve::Curve::from(BSplineCurve::create_line_segment(
+            3,
+            input.start,
+            endpoint,
+        )?);
+        let sector = world.shell_ray_sector(
+            kernel,
+            ShellRaySector {
+                brep: brep_id,
+                curve: &curve,
+                interval: curve.natural_interval(),
+                orientation: OrientType::Opposite,
+                classification: &state.classification,
+            },
+        );
         if let Some(region) = sector.region_update {
             state.region = region;
         }
