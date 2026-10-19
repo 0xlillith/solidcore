@@ -77,9 +77,12 @@
 //! - **Arguments.** Out-params become return values; `iDebugLevel` and debug drawing
 //!   are dropped.
 
+use std::collections::BTreeMap;
+
 use crate::blend::fillet_solver::p1::{FilletSolver, FilletSurfaceGeneratorType};
 use crate::curve::curve::{Curve, CurveKind};
 use crate::error::{EntityRef, Result, SolidError};
+use crate::geom::attribute::{AttributeStore, ObjectKey};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::ObjectRef;
@@ -1762,6 +1765,17 @@ impl FilletBrep {
 
         // Make Face
         let region = brep.infinite_region();
+        // The pseudo-B-rep carries no attributes and no context: its notifications go to
+        // call-local records under call-local identities.
+        let mut records = BTreeMap::new();
+        let mut attributes = AttributeStore::default();
+        let key_of = local_identity;
+        let mut env = edge::NotifyEnv {
+            records: &mut records,
+            attributes: &mut attributes,
+            context: None,
+            key_of: &key_of,
+        };
         if use_uv_curves {
             let input = FaceCurvesInput {
                 loops: curve_loops,
@@ -1770,10 +1784,7 @@ impl FilletBrep {
                 orientations: lists1.orients,
                 loop_points: Vec::new(),
             };
-            let face_ref = |f: FaceId| ObjectRef {
-                type_code: crate::topology::face::p2::TYPE,
-                key: crate::geom::attribute::ObjectKey(1 + u64::from(f.index())),
-            };
+            let face_ref = |f: FaceId| local_identity(EntityRef::Face(f));
             make_face_with_curves(
                 k,
                 brep,
@@ -1784,6 +1795,7 @@ impl FilletBrep {
                 OrientType::Same,
                 None,
                 &face_ref,
+                &mut env,
             )?;
         } else {
             let input = TrimInput {
@@ -1796,7 +1808,7 @@ impl FilletBrep {
                 surface_orientation: OrientType::Same,
             };
             trim_surface_with_model_space_curves(
-                k, brep, region, d3d_tol, input, true, false, false,
+                k, brep, region, d3d_tol, input, true, false, false, &mut env,
             )?;
         }
 
@@ -2175,6 +2187,28 @@ impl FilletBrep {
         self.geom_mut(g)?
             .set_fillet_surface(Some(Surface::from(first)));
         Ok(())
+    }
+}
+
+/// The call-local identity `MakeFaceBrep` notifies a pseudo-B-rep entity under: the
+/// entity's type code above its index (plus one), so kinds never share a key.
+fn local_identity(entity: EntityRef) -> ObjectRef {
+    let (type_code, index) = match entity {
+        EntityRef::Brep(id) => (crate::topology::brep::p1::TYPE, id.index()),
+        EntityRef::Face(id) => (crate::topology::face::p2::TYPE, id.index()),
+        EntityRef::Edge(id) => (edge::TYPE, id.index()),
+        EntityRef::Vertex(id) => (vertex::TYPE, id.index()),
+        EntityRef::Edgeuse(id) => (eu1::TYPE, id.index()),
+        EntityRef::Vertexuse(id) => (crate::topology::vertexuse::TYPE, id.index()),
+        EntityRef::Loopuse(id) => (crate::topology::loopuse::TYPE, id.index()),
+        EntityRef::Shell(id) => (crate::topology::topology::TYPE, id.index()),
+        EntityRef::Loop(id) => (crate::topology::topology::TYPE, id.index()),
+        EntityRef::Region(id) => (crate::topology::topology::TYPE, id.index()),
+        EntityRef::Faceuse(id) => (crate::topology::topology::TYPE, id.index()),
+    };
+    ObjectRef {
+        type_code,
+        key: ObjectKey((type_code.unsigned_abs() << 32) | (1 + u64::from(index))),
     }
 }
 
