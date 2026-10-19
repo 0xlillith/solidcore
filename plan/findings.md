@@ -7033,8 +7033,9 @@ independent p6 integration.
   return, e.g. v-degree 2, are refused too; a rational corner is bounded at `1e151` on both
   its stored (homogeneous) and its Cartesian coordinate, since a small weight moves the vertex
   out and a large one the stored value, measured with corner weights `1e-3` to `1e3` and the
-  other weights `1e-3` / `1e3`). `LocalCurveSector` requires `t0 < t1` (finite; extrapolated
-  intervals are allowed) and an integer point class 100..=110; the object kind must match only
+  other weights `1e-3` / `1e3`). `LocalCurveSector` requires `t0 != t1` (finite; extrapolated
+  intervals are allowed, and an inverted pair is swapped by `SmExtent1d(t0, t1)` on both
+  sides) and an integer point class 100..=110; the object kind must match only
   for face/edge/vertex classes (102/103/104), every other class takes upstream's default
   `SM_ERR` arm with a null or vertex object. The orientation is an `SmOrientType` code 0..=2
   decoded exactly (lesson 22): `SM_OT_UNKNOWN` is neither `SAME` nor `OPPOSITE` upstream

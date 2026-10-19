@@ -3567,6 +3567,550 @@
     },
     {
       "max_rel_err": 0.0,
+      "name": "notify_all_net_op0_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#349 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op0_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#350 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op1_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#351 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op1_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#352 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op2_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#353 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op2_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#354 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op3_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#355 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op3_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#356 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op4_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#357 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op4_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#358 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op5_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#359 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op5_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#360 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op6_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#361 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op6_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#362 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op7_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#363 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op7_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#364 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op8_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#365 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op8_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#366 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op9_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#367 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op9_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#368 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op10_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#369 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op10_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#370 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op11_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#371 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op11_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#372 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op12_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#373 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op12_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#374 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op13_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#375 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op13_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#376 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op14_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#377 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op14_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#378 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op15_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#379 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op15_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#380 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op16_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#381 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_net_op16_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#382 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op0_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#383 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op0_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#384 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op1_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#385 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op1_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#386 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op2_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#387 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op2_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#388 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op3_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#389 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op3_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#390 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op4_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#391 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op4_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#392 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op5_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#393 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op5_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#394 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op6_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#395 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op6_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#396 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op7_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#397 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op7_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#398 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op8_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#399 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op8_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#400 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op9_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#401 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op9_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#402 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op10_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#403 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op10_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#404 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op11_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#405 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op11_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#406 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op12_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#407 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op12_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#408 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op13_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#409 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op13_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#410 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op14_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#411 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op14_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#412 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op15_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#413 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op15_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#414 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op16_brep2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#415 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "notify_all_plane_op16_brep1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/ops.json#416 (upstream source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02))",
+      "values_compared": 2
+    },
+    {
+      "max_rel_err": 0.0,
       "name": "query_net_0",
       "outcome": "pass",
       "pass": true,
@@ -8536,6 +9080,114 @@
       "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/sector.json#487 (upstream upstream/TestFiles/pt_TestFiles/vase_rev.smb)",
       "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sector_net_103_0_1_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#488 (upstream tests/prog_test/src/smTopoTest.cpp (my_test_topology) (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sector_net_104_0_1_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#489 (upstream tests/prog_test/src/smTopoTest.cpp (my_test_topology) (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sector_wire_103_0_1_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#490 (upstream tests/prog_test/src/smTopoTest.cpp:3861 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sector_wire_104_0_1_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#491 (upstream tests/prog_test/src/smTopoTest.cpp:3861 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sector_plane10_102_0_1_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#492 (upstream tests/prog_test/src/smTopoTest.cpp:1640 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 3
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "sector_plane10_103_0_1_inverted",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#493 (upstream tests/prog_test/src/smTopoTest.cpp:1640 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "sector_plane10_104_0_1_inverted",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#494 (upstream tests/prog_test/src/smTopoTest.cpp:1640 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sector_Mouse_102_0_1_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#495 (upstream upstream/TestFiles/pt_TestFiles/Mouse.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sector_Mouse_103_0_1_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#496 (upstream upstream/TestFiles/pt_TestFiles/Mouse.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sector_Mouse_104_0_1_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#497 (upstream upstream/TestFiles/pt_TestFiles/Mouse.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 3
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "sector_Endcap_102_0_1_inverted",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#498 (upstream upstream/TestFiles/pt_TestFiles/Endcap.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 3
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
+      },
+      "max_rel_err": 0.0,
+      "name": "sector_Endcap_103_0_1_inverted",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.brep_p2/sector.json#499 (upstream upstream/TestFiles/pt_TestFiles/Endcap.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128))",
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -14391,13 +15043,13 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 339,
+  "cases_deferred": 342,
   "cases_failed": 0,
-  "cases_passed": 1290,
-  "cases_total": 1629,
+  "cases_passed": 1367,
+  "cases_total": 1709,
   "deferred_by_unit": {
     "intersect.curve_class_p4": 1,
-    "intersect.surface_drop_lib_p3": 74,
+    "intersect.surface_drop_lib_p3": 77,
     "query.brep": 93,
     "topology.face_p2": 19,
     "topology.face_p3": 114,

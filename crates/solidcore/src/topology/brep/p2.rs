@@ -44,6 +44,9 @@
 //! points and scans the intersection curves once.
 //!
 //! Smaller deviations, none reachable as a difference today:
+//! - `ReplaceSurface` edits `pTopFace = pOld->GetFace()` (`SmBrep.cpp:26316`), the owner of
+//!   the face's surface, which can differ from `pFace` when faces share a surface upstream;
+//!   in the arena model every face owns its own surface, so the port edits `f`.
 //! - `MakeShellVertexTopology` / `MakeEdgeVertexTopology` / `MakeEdgeTopology` add their
 //!   records to the arenas as they link them, not all up front; `MakeEdgeTopology`'s
 //!   `TransferChildrenTo` (the one shell call that can fail) runs before any new record
@@ -1414,6 +1417,7 @@ pub fn replace_surface(
     if b.face(f)?.surface.is_none() {
         return Err(null_deref("face without surface"));
     }
+    // pTopFace = pOld->GetFace(): the surface's owner, `f` itself in the arena model
     let top_face = f;
 
     // inform the face

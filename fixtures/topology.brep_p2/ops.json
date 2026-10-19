@@ -10374,6 +10374,2386 @@
     "tol": 1e-05,
     "limit": 0.5
    }
+  },
+  {
+   "name": "notify_all_net_op0_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 0,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op0_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 0,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op1_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 1,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op1_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 1,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op2_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 2,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op2_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 2,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op3_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 3,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op3_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 3,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op4_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 4,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op4_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 4,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op5_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 5,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op5_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 5,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op6_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 6,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op6_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 6,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op7_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 7,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op7_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 7,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op8_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 8,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op8_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 8,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op9_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 9,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op9_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 9,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op10_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 10,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op10_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 10,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op11_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 11,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op11_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 11,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op12_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 12,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op12_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 12,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op13_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 13,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op13_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 13,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op14_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 14,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op14_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 14,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op15_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 15,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op15_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 15,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op16_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 16,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_net_op16_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "notify",
+    "operation": 16,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op0_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 0,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op0_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 0,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op1_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 1,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op1_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 1,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op2_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 2,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op2_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 2,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op3_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 3,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op3_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 3,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op4_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 4,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op4_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 4,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op5_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 5,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op5_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 5,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op6_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 6,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op6_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 6,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op7_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 7,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op7_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 7,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op8_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 8,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op8_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 8,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op9_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 9,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op9_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 9,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op10_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 10,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op10_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 10,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op11_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 11,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op11_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 11,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op12_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 12,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op12_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 12,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op13_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 13,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op13_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 13,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op14_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 14,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op14_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 14,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op15_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 15,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op15_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 15,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op16_brep2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 16,
+    "data": [
+     [
+      16012,
+      0
+     ],
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "name": "notify_all_plane_op16_brep1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Notify: every SmNotifyOperation with the B-rep as a data object (review of 87c57c02)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "notify",
+    "operation": 16,
+    "data": [
+     [
+      16011,
+      0
+     ],
+     [
+      16016,
+      0
+     ],
+     [
+      16021,
+      0
+     ]
+    ]
+   }
   }
  ]
 }

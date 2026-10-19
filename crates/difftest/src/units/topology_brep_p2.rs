@@ -367,8 +367,9 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
 
 // ---- Rust side ----------------------------------------------------------------------------
 
-/// The identity each entity is notified and attributed under (faces as the importer
-/// keys their surfaces' owners: `1 + index`).
+/// The identity each entity is notified and attributed under: faces as the importer
+/// keys their surfaces' owners (`1 + index`), every other type `type << 32 | 1 + index`
+/// (so records of different types never share a key).
 fn key_of(e: EntityRef) -> ObjectRef {
     let (type_code, i) = match e {
         EntityRef::Region(x) => (16012, x.index()),
@@ -383,9 +384,16 @@ fn key_of(e: EntityRef) -> ObjectRef {
         EntityRef::Vertex(x) => (16021, x.index()),
         EntityRef::Brep(_) => (16999, 0),
     };
+    // faces keep `1 + index` (the importer's surface owners); every other type gets its
+    // own key range, so region 0, face 0 and edge 0 are distinct records
+    let key = 1 + u64::from(i);
     ObjectRef {
         type_code,
-        key: ObjectKey(1 + u64::from(i)),
+        key: ObjectKey(if type_code == 16002 {
+            key
+        } else {
+            (type_code.unsigned_abs() << 32) | key
+        }),
     }
 }
 
@@ -682,7 +690,8 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
                 u,
             })?);
             let at = at + m + 1;
-            let ivl = Extent1d::from_raw(arg(at)?, arg(at + 1)?);
+            // the shim's SmExtent1d(t0, t1), which swaps an inverted pair
+            let ivl = Extent1d::from_min_max(arg(at)?, arg(at + 1)?);
             // `SmOrientType`: exactly the three codes (`SM_OT_UNKNOWN` is neither
             // `SAME` nor `OPPOSITE`; upstream tests both per site)
             let orient = match arg(at + 2)? {
@@ -735,7 +744,13 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
                     entity(ty, i).map(bp2::NotifyArg::Entity)
                 };
             }
+            // every notified object, the B-rep included (it is a topology object
+            // upstream: `this` and possibly a data object), has its default record
             let mut records = BTreeMap::new();
+            records.insert(
+                bp2::brep_ref(b).key,
+                solidcore::topology::topology::Topology::default(),
+            );
             for d in data.iter().flatten() {
                 if let bp2::NotifyArg::Entity(e) = d {
                     records.insert(
