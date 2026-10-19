@@ -345,6 +345,9 @@ fn make_edge_in_face<O>() -> Result<(Option<O>, Option<O>, Option<O>)> {
 fn calculate_uv_domain_from_uv_trim_curves<O: Copy>(face: O) -> Result<Extent2d> {
     let _ = face;
     // UNPORTED(topology.face_p1): SmFace::CalculateUVDomainFromUVTrimCurves
+    // (ported as topology::face::p1::calculate_uv_domain_from_uv_trim_curves, which takes
+    // a Brep face; a ProtoBrep face handle cannot reach it until the ProtoBrep trait has
+    // a B-rep face query)
     Err(SolidError::unported(
         "SmFace::CalculateUVDomainFromUVTrimCurves",
         "topology.face_p1",
@@ -383,7 +386,10 @@ fn surface_drop_point<O: Copy>(surface: Option<O>, point: Point3) -> Result<Opti
 /// `SmEdgeuse::EvaluateBinormal(dParam, FALSE, rPt, rBinormal)`: the binormal.
 fn edgeuse_evaluate_binormal<O: Copy>(edgeuse: O, param: f64) -> Result<Vec3> {
     let _ = (edgeuse, param);
-    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal
+    // UNPORTED(topology.edgeuse_p3): SmEdgeuse::EvaluateBinormal (justified: findings.md topology.edgeuse_p3)
+    // justified: findings.md, topology.edgeuse_p3 (proto topology stub): the proto topology
+    // sees the edge use only as an opaque handle (`ProtoBrep`, no `Brep`/`Kernel` to call
+    // `topology::edgeuse::p3::evaluate_binormal` on)
     Err(SolidError::unported(
         "SmEdgeuse::EvaluateBinormal",
         "topology.edgeuse_p3",

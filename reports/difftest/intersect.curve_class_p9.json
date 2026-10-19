@@ -2,40 +2,36 @@
   "abs_floors": [],
   "cases": [
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
+      "max_rel_err": 0.0,
+      "name": "fuzz_modified_cache_loopless_face",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/intersect.curve_class_p9/fuzz_regressions.json#0 (upstream source/SMLib/src/SmCurveClass.cpp:15824 (IntersectTSBound, modified trim cache on a face without loops); found by difftest --fuzz 300 (fuzz00054))",
+      "values_compared": 54
+    },
+    {
       "max_rel_err": 0.0,
       "name": "isolated_vertex_uv",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.curve_class_p9/usage.json#0 (upstream tests/prog_test/src/smTopoTest.cpp:3040 (my_test_get_loop_crossings vertex-loop recipe, isolated boundary))",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "isolated_vertex_3d",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.curve_class_p9/usage.json#1 (upstream tests/prog_test/src/smTopoTest.cpp:3040 (my_test_get_loop_crossings vertex-loop recipe, isolated boundary))",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "cached_vertex_dedup",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.curve_class_p9/usage.json#2 (upstream source/SMLib/src/SmCurveClass.cpp:16220 (cached marks))",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -47,8 +43,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "same_curve_overlap",
@@ -75,8 +71,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "trim_rectangle_crossing",
@@ -118,28 +114,20 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "two_vertex_loops_order",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.curve_class_p9/usage.json#12 (upstream source/SMLib/src/SmCurveClass.cpp:15270-16520 (boundary/tolerance regression))",
-      "values_compared": 0
+      "values_compared": 154
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "cached_two_vertex_loops_order",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.curve_class_p9/usage.json#13 (upstream source/SMLib/src/SmCurveClass.cpp:15270-16520 (boundary/tolerance regression))",
-      "values_compared": 0
+      "values_compared": 154
     },
     {
       "max_rel_err": 0.0,
@@ -278,40 +266,28 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "wide_zone_tolerance",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.curve_class_p9/usage.json#28 (upstream source/SMLib/src/SmCurveClass.cpp:16225; review #151)",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "large_scale_1e8",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.curve_class_p9/usage.json#29 (upstream source/SMLib/src/SmCurveClass.cpp:16225; review #151)",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "extended_source_interval",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/intersect.curve_class_p9/usage.json#30 (upstream source/SMLib/src/SmCurveClass.cpp:16225; review #151)",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -343,8 +319,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "extended_target_interval",
@@ -415,28 +391,20 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0001",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780695",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0002",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780696",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -447,21 +415,17 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0004",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780698",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0005",
@@ -471,21 +435,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0006",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780700",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0007",
@@ -527,16 +487,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0012",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780706",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -564,8 +520,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0016",
@@ -584,8 +540,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0018",
@@ -596,8 +552,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0019",
@@ -632,8 +588,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0023",
@@ -644,8 +600,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0024",
@@ -708,8 +664,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0031",
@@ -720,8 +676,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0032",
@@ -743,21 +699,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0034",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780728",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0035",
@@ -792,8 +744,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0039",
@@ -820,8 +772,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0042",
@@ -856,8 +808,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0046",
@@ -868,8 +820,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0047",
@@ -924,8 +876,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0053",
@@ -944,8 +896,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0055",
@@ -963,16 +915,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0057",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780751",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -984,8 +932,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0059",
@@ -995,16 +943,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0060",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780754",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -1016,8 +960,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0062",
@@ -1063,21 +1007,17 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0067",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780761",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0068",
@@ -1088,8 +1028,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0069",
@@ -1107,21 +1047,17 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0071",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780765",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0072",
@@ -1132,8 +1068,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0073",
@@ -1168,8 +1104,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0077",
@@ -1244,8 +1180,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0085",
@@ -1256,8 +1192,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0086",
@@ -1268,8 +1204,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0087",
@@ -1280,8 +1216,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0088",
@@ -1320,8 +1256,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0092",
@@ -1339,16 +1275,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0094",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780788",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -1367,16 +1299,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0097",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780791",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -1399,16 +1327,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0100",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780794",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -1452,8 +1376,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0106",
@@ -1464,8 +1388,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0107",
@@ -1523,16 +1447,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0114",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780808",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -1544,8 +1464,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0116",
@@ -1596,8 +1516,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0122",
@@ -1628,8 +1548,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0125",
@@ -1640,8 +1560,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0126",
@@ -1660,8 +1580,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0128",
@@ -1672,8 +1592,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0129",
@@ -1692,8 +1612,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0131",
@@ -1719,16 +1639,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0134",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780828",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -1752,8 +1668,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0137",
@@ -1772,8 +1688,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0139",
@@ -1784,8 +1700,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0140",
@@ -1795,16 +1711,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0141",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780835",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
@@ -1827,16 +1739,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0144",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780838",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -1848,8 +1756,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0146",
@@ -1876,8 +1784,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0149",
@@ -1887,21 +1795,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0150",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780844",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0151",
@@ -1936,8 +1840,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0155",
@@ -1992,8 +1896,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0161",
@@ -2004,8 +1908,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0162",
@@ -2016,8 +1920,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0163",
@@ -2028,8 +1932,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0164",
@@ -2056,8 +1960,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0167",
@@ -2068,8 +1972,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0168",
@@ -2087,16 +1991,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0170",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780864",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
@@ -2112,8 +2012,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0172",
@@ -2123,16 +2023,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0173",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780867",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -2144,8 +2040,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0175",
@@ -2180,8 +2076,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0179",
@@ -2199,28 +2095,20 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0181",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780875",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0182",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780876",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -2239,16 +2127,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0185",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780879",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -2268,8 +2152,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0188",
@@ -2328,8 +2212,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0194",
@@ -2380,8 +2264,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0200",
@@ -2432,8 +2316,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0206",
@@ -2467,21 +2351,17 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0210",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780904",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0211",
@@ -2524,8 +2404,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0216",
@@ -2552,8 +2432,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0219",
@@ -2571,16 +2451,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0221",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780915",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -2639,21 +2515,17 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0229",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780923",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0230",
@@ -2664,8 +2536,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0231",
@@ -2684,8 +2556,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0233",
@@ -2704,8 +2576,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0235",
@@ -2716,8 +2588,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0236",
@@ -2736,8 +2608,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0238",
@@ -2748,8 +2620,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0239",
@@ -2760,8 +2632,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0240",
@@ -2772,8 +2644,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0241",
@@ -2783,21 +2655,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0242",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780936",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0243",
@@ -2808,8 +2676,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0244",
@@ -2819,21 +2687,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0245",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780939",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0246",
@@ -2868,8 +2732,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0250",
@@ -2880,8 +2744,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0251",
@@ -2924,8 +2788,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0256",
@@ -2944,8 +2808,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0258",
@@ -2972,8 +2836,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0261",
@@ -2984,8 +2848,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0262",
@@ -3075,16 +2939,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0272",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780966",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -3103,16 +2963,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0275",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780969",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -3140,8 +2996,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0279",
@@ -3160,8 +3016,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0281",
@@ -3200,8 +3056,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0285",
@@ -3220,8 +3076,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0287",
@@ -3232,8 +3088,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0288",
@@ -3244,8 +3100,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0289",
@@ -3256,8 +3112,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0290",
@@ -3267,16 +3123,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0291",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780985",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -3312,8 +3164,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0296",
@@ -3331,21 +3183,17 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0298",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050780992",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0299",
@@ -3380,8 +3228,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0303",
@@ -3392,8 +3240,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0304",
@@ -3411,21 +3259,17 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0306",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050781000",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0307",
@@ -3452,8 +3296,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0310",
@@ -3463,21 +3307,17 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0311",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050781005",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0312",
@@ -3488,8 +3328,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0313",
@@ -3508,8 +3348,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0315",
@@ -3588,8 +3428,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0324",
@@ -3656,8 +3496,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0331",
@@ -3680,8 +3520,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0333",
@@ -3748,8 +3588,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0341",
@@ -3759,16 +3599,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0342",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050781036",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -3780,8 +3616,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0344",
@@ -3800,8 +3636,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0346",
@@ -3820,8 +3656,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0348",
@@ -3852,8 +3688,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0351",
@@ -3880,8 +3716,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0354",
@@ -3899,33 +3735,25 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0356",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050781050",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0357",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050781051",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0358",
@@ -3956,8 +3784,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0361",
@@ -3987,16 +3815,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0364",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050781058",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
@@ -4012,8 +3836,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0366",
@@ -4024,8 +3848,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0367",
@@ -4044,8 +3868,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0369",
@@ -4072,8 +3896,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0372",
@@ -4099,16 +3923,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0375",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050781069",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -4120,8 +3940,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0377",
@@ -4139,16 +3959,12 @@
       "values_compared": 54
     },
     {
-      "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
-      },
       "max_rel_err": 0.0,
       "name": "gen0379",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=12816342691050781073",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
@@ -4172,8 +3988,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0382",
@@ -4184,8 +4000,8 @@
     },
     {
       "deferred": {
-        "symbol": "sm_InsertSolutions edge branch (InsertAt / GetPointClassByIndex)",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmEdge::GetCurve",
+        "unit": "topology.edge"
       },
       "max_rel_err": 0.0,
       "name": "gen0383",
@@ -4196,15 +4012,15 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 197,
+  "cases_deferred": 149,
   "cases_failed": 0,
-  "cases_passed": 225,
+  "cases_passed": 274,
   "cases_rejected": 2,
-  "cases_total": 424,
+  "cases_total": 425,
   "deferred_by_unit": {
     "curve.crv_on_surf": 24,
-    "intersect.curve_class_p2": 163,
-    "intersect.curve_class_p4": 10
+    "intersect.curve_class_p4": 10,
+    "topology.edge": 115
   },
   "max_rel_err": 0.0,
   "pass": true,
