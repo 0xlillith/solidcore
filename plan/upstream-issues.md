@@ -985,12 +985,12 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 
 #### UB-154. `sm_GetEllipseTrimIntervals` reads the parameter of a failed line/plane intersection
 - **Location:** `source/SMLib/src/SmCone.cpp:5399`-`5405` and `:5463`-`5477`, `sm_GetEllipseTrimIntervals` (def. `:5282`, file static).
-- **What happens:** The statuses of `smgu_LinePlaneIntersect` for the two seam lines are ignored and `dParam[0]`, `dParam[1]` (uninitialised) are then compared and used. The same happens with the domain of a failed `ConvertDomainFromNURBSToSTEP` (default-constructed).
+- **What happens:** The statuses of `smgu_LinePlaneIntersect` for the two seam lines are ignored and `dParam[0]`, `dParam[1]` (uninitialised) are then compared and used. (The status of `ConvertDomainFromNURBSToSTEP` at `:5325` is ignored too, but that is defined: a failed corner conversion, e.g. of a cone without a polar curve, leaves the default-constructed domain, and a reversed one the NURB domain.)
 - **Trigger:** A seam line of the trimmed cone parallel to the ellipse plane (or of zero length, a zero-height trim domain).
 - **How found:** read during porting (`surface.cone_p2`, PR #153).
 - **Confirmed:** no. The shim runs the same calls first and refuses such inputs.
 - **Severity:** UB (uninitialised read).
-- **Rust port:** The errors are returned.
+- **Rust port:** The line/plane errors are returned. The ignored domain conversion is mirrored (fixture `surface.cone_p3/fuzz_trim_domain.json`).
 
 #### UB-179. `SmCone::ConvertUVFromSTEPToNURBS` dereferences a missing polar curve
 - **Location:** `source/SMLib/src/SmCone.cpp:1808`, called by `IntersectWithCone` at `:2966-2967`; `source/SMLib/src/SmEllipse.cpp:491` (`SmPolarConversion::ConvertToNURBSParameter`). Construction ignores `RebuildPolarConverter`'s status at `SmSurfOfRevolution.cpp:1033`.
