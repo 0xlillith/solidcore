@@ -7,7 +7,8 @@
 //!
 //! A case is one geometry op (`cleanup_noise`, `check_seam_out`, `check_seam_on`,
 //! `surface_closure`, `is_order_correct`, `adjust_uv_on_seam`, `interpolate`,
-//! `surface_drop_point`, `two_pnts`, `evaluate_mate`, `capping`, `classify_face_point`)
+//! `surface_drop_point`, `two_pnts`, `evaluate_mate`, `capping`, `classify_face_point`,
+//! `evaluate_mate_analytic`: `sm_EvaluateMate` on a real `SmPlane` or `SmSurfOfRevolution`)
 //! with its inputs, or a pseudo-B-rep op (`fb`): a model (target wire edges and faces,
 //! fillet B-rep wire edges, fillet vertices, geometries, edges with their edge and
 //! vertex uses) and one query on it. Both sides produce the same flat record (layout in
@@ -40,10 +41,12 @@ use solidcore::blend::fillet_geom::p1::{
     FilletGeomId, FilletGeomType, FilletVertex, FilletVertexType, FilletVertexuse,
 };
 use solidcore::curve::curve::{Curve, CurveKind};
+use solidcore::curve::line::Line;
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::tol::ZONE_TOL_3D;
 use solidcore::geom::vector2d::Point2;
+use solidcore::geom::vector2d::Vec2;
 use solidcore::intersect::point_class::PointClassType;
 use solidcore::intersect::surface_intersector::p1::TsectPnt;
 use solidcore::kernel::Kernel;
@@ -55,6 +58,8 @@ use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::nurbs::crv_basic::Curve as NurbCurve;
 use solidcore::nurbs::math::{CPoint, NOW};
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
+use solidcore::surface::plane::Plane;
+use solidcore::surface::surf_of_revolution::SurfOfRevolution;
 use solidcore::surface::surface::p4::NoObject;
 use solidcore::surface::surface::{Surface, SurfaceKind};
 use solidcore::topology::{
@@ -365,6 +370,32 @@ struct CaseInputs {
     inputs: Inputs,
 }
 
+/// A real analytic surface for `EvaluateMateAnalytic` (`sm_EvaluateMate` branches on
+/// `SmPlane` and `SmSurfOfRevolution`).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+enum AnalyticSrf {
+    /// `SmPlane(O, X, Y, UVScale, UVDomain)`, then `MakeNurb` when `make_nurb`.
+    Plane {
+        origin: [f64; 3],
+        x_axis: [f64; 3],
+        y_axis: [f64; 3],
+        uv_scale: [f64; 2],
+        /// `[[umin, vmin], [umax, vmax]]`.
+        domain: [[f64; 2]; 2],
+        make_nurb: bool,
+    },
+    /// `SmSurfOfRevolution::CreateCanonical` of the line `a b` (its NURB made) about the
+    /// axis through `axis_point` along `axis_dir`.
+    Revolution {
+        a: [f64; 3],
+        b: [f64; 3],
+        axis_point: [f64; 3],
+        axis_dir: [f64; 3],
+        swap: bool,
+    },
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 enum Inputs {
@@ -439,6 +470,10 @@ enum Inputs {
         surface2: Srf,
         pos: [f64; 3],
     },
+    EvaluateMateAnalytic {
+        surface: AnalyticSrf,
+        uv: [f64; 2],
+    },
     Fb {
         model: Model,
         query: Query,
@@ -460,6 +495,7 @@ impl Inputs {
             Inputs::EvaluateMate { .. } => Op::EvaluateMate,
             Inputs::Capping { .. } => Op::Capping,
             Inputs::ClassifyFacePoint { .. } => Op::ClassifyFacePoint,
+            Inputs::EvaluateMateAnalytic { .. } => Op::EvaluateMateAnalytic,
             Inputs::Fb { query, .. } => query.op(),
         }
     }
@@ -767,6 +803,41 @@ fn cpp_input(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
             push_srf(&mut o, surface)?;
             o.extend_from_slice(uv);
         }
+        Inputs::EvaluateMateAnalytic { surface, uv } => {
+            match surface {
+                AnalyticSrf::Plane {
+                    origin,
+                    x_axis,
+                    y_axis,
+                    uv_scale,
+                    domain,
+                    make_nurb,
+                } => {
+                    o.push(0.0);
+                    o.extend_from_slice(origin);
+                    o.extend_from_slice(x_axis);
+                    o.extend_from_slice(y_axis);
+                    o.extend_from_slice(uv_scale);
+                    o.extend([domain[0][0], domain[0][1], domain[1][0], domain[1][1]]);
+                    o.push(flag(*make_nurb));
+                }
+                AnalyticSrf::Revolution {
+                    a,
+                    b,
+                    axis_point,
+                    axis_dir,
+                    swap,
+                } => {
+                    o.push(1.0);
+                    o.extend_from_slice(a);
+                    o.extend_from_slice(b);
+                    o.extend_from_slice(axis_point);
+                    o.extend_from_slice(axis_dir);
+                    o.push(flag(*swap));
+                }
+            }
+            o.extend_from_slice(uv);
+        }
         Inputs::Capping {
             tol,
             surface,
@@ -984,6 +1055,10 @@ fn to_output(i: &Inputs, flat: &[f64]) -> Result<Output, HarnessError> {
             s.vals("dir", 3)?;
         }
         Inputs::EvaluateMate { .. } => s.vals("pnt", 3)?,
+        Inputs::EvaluateMateAnalytic { .. } => {
+            s.vals("mate_status", 1)?;
+            s.vals("pnt", 3)?;
+        }
         Inputs::Capping { .. } => {
             let n = s.count()?;
             s.put("n", vec![n as f64]);
@@ -1188,6 +1263,52 @@ fn orient_code(o: OrientType) -> f64 {
         OrientType::Same => 1.0,
         OrientType::Opposite => 2.0,
     }
+}
+
+/// The shim's `EvaluateMateAnalytic` surface: the plane (its NURB made when asked) or
+/// the canonical surface of revolution of a line (`SmLine` with its NURB made, that
+/// status ignored as the shim's `GetOrCreateGwNurbPointer`).
+fn analytic_surface(k: &Kernel, s: &AnalyticSrf) -> solidcore::Result<Surface> {
+    Ok(match s {
+        AnalyticSrf::Plane {
+            origin,
+            x_axis,
+            y_axis,
+            uv_scale,
+            domain,
+            make_nurb,
+        } => {
+            let dom = Extent2d::from_bounds(domain[0][0], domain[0][1], domain[1][0], domain[1][1]);
+            let mut pl = Plane::new(
+                v3(*origin),
+                v3(*x_axis),
+                v3(*y_axis),
+                Vec2::new(uv_scale[0], uv_scale[1]),
+                &dom,
+            );
+            if *make_nurb {
+                pl.make_nurb()?;
+            }
+            Surface::from(pl)
+        }
+        AnalyticSrf::Revolution {
+            a,
+            b,
+            axis_point,
+            axis_dir,
+            swap,
+        } => {
+            let mut l = Line::from_points(v3(*a), v3(*b), 3);
+            let _ = l.make_nurb();
+            Surface::from(SurfOfRevolution::create_canonical(
+                k,
+                Curve::from(l),
+                v3(*axis_point),
+                v3(*axis_dir),
+                *swap,
+            )?)
+        }
+    })
 }
 
 /// A single face on `surface` in a fresh B-rep (`CreateFaceFromSurface` over the natural
@@ -1898,6 +2019,19 @@ fn rust_geometry(i: &Inputs) -> Result<Rec, HarnessError> {
                 Err(st) => o.extend([st, 0.0, 0.0, 0.0]),
             }
         }
+        Inputs::EvaluateMateAnalytic { surface, uv: p } => {
+            match try_status!(analytic_surface(&k, surface)) {
+                Err(st) => o.extend([st, 0.0, 0.0, 0.0, 0.0]),
+                Ok(srf) => {
+                    let (b, f) = face_brep(srf)?;
+                    o.push(0.0);
+                    match try_status!(fg::evaluate_mate(&b, f, uv(*p))) {
+                        Ok(q) => o.extend([0.0, q.x, q.y, q.z]),
+                        Err(st) => o.extend([st, 0.0, 0.0, 0.0]),
+                    }
+                }
+            }
+        }
         Inputs::Capping {
             tol,
             surface,
@@ -2358,6 +2492,106 @@ fn scale_of(rng: &mut Rng) -> f64 {
         .unwrap_or(&1.0)
 }
 
+/// An `EvaluateMateAnalytic` case: a plane (scaled UVs, half with a NURB) or a surface
+/// of revolution of a line (cylinder-like when the line is parallel to the axis, else
+/// cone-like), evaluated inside or around its domain.
+fn gen_evaluate_mate_analytic(rng: &mut Rng, scale: f64) -> Inputs {
+    let pt = |rng: &mut Rng| {
+        [
+            rng.uniform(-2.0, 2.0) * scale,
+            rng.uniform(-2.0, 2.0) * scale,
+            rng.uniform(-2.0, 2.0) * scale,
+        ]
+    };
+    if rng.chance(0.5) {
+        let origin = pt(rng);
+        let x_axis = [
+            rng.uniform(0.2, 1.0),
+            rng.uniform(-0.5, 0.5),
+            rng.uniform(-0.5, 0.5),
+        ];
+        let y_axis = [
+            rng.uniform(-0.5, 0.5),
+            rng.uniform(0.2, 1.0),
+            rng.uniform(-0.5, 0.5),
+        ];
+        let uv_scale = if rng.chance(0.5) {
+            [1.0, 1.0]
+        } else {
+            [rng.uniform(0.2, 3.0), rng.uniform(0.2, 3.0)]
+        };
+        let (u0, v0) = (
+            rng.uniform(-2.0, 1.0) * scale,
+            rng.uniform(-2.0, 1.0) * scale,
+        );
+        let (du, dv) = (rng.uniform(0.5, 3.0) * scale, rng.uniform(0.5, 3.0) * scale);
+        let p = if rng.chance(0.5) {
+            [
+                u0 + rng.uniform(0.0, 1.0) * du,
+                v0 + rng.uniform(0.0, 1.0) * dv,
+            ]
+        } else {
+            [
+                u0 + rng.uniform(-0.5, 1.5) * du,
+                v0 + rng.uniform(-0.5, 1.5) * dv,
+            ]
+        };
+        Inputs::EvaluateMateAnalytic {
+            surface: AnalyticSrf::Plane {
+                origin,
+                x_axis,
+                y_axis,
+                uv_scale,
+                domain: [[u0, v0], [u0 + du, v0 + dv]],
+                make_nurb: rng.chance(0.5),
+            },
+            uv: p,
+        }
+    } else {
+        // the axis is the z axis moved and tilted a little; the line runs from radius r
+        // at height 0 to radius r2 at height h in the xz plane of that frame
+        let axis_point = pt(rng);
+        let axis_dir = [rng.uniform(-0.3, 0.3), rng.uniform(-0.3, 0.3), 1.0];
+        let r = rng.uniform(0.3, 2.0) * scale;
+        let r2 = if rng.chance(0.5) {
+            r
+        } else {
+            rng.uniform(0.3, 2.0) * scale
+        };
+        let h = rng.uniform(0.5, 3.0) * scale;
+        let at = |x: f64, z: f64| {
+            [
+                axis_point[0] + x + axis_dir[0] * z,
+                axis_point[1] + axis_dir[1] * z,
+                axis_point[2] + axis_dir[2] * z,
+            ]
+        };
+        let (a, b) = (at(r, 0.0), at(r2, h));
+        let swap = rng.chance(0.3);
+        // u turns once round (angles in radians), v runs along the line's length
+        let len = h * 1.2;
+        let (rot, lin) = if rng.chance(0.5) {
+            (
+                rng.uniform(0.0, std::f64::consts::TAU),
+                rng.uniform(0.0, 1.0) * len,
+            )
+        } else {
+            (rng.uniform(-1.0, 7.3), rng.uniform(-0.5, 1.5) * len)
+        };
+        let p = if swap { [lin, rot] } else { [rot, lin] };
+        Inputs::EvaluateMateAnalytic {
+            surface: AnalyticSrf::Revolution {
+                a,
+                b,
+                axis_point,
+                axis_dir,
+                swap,
+            },
+            uv: p,
+        }
+    }
+}
+
 fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
     let scale = scale_of(rng);
     match kind {
@@ -2534,7 +2768,11 @@ fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
             } else {
                 rng.point3(-scale, scale)
             };
-            let tol = *rng.choose(&[1e-9, 1e-6, 1e-5, 1e-3, 1e-1]).unwrap_or(&1e-6) * scale;
+            // negative tolerances too: GlobalPointSolve's SmZoneTol3d takes fabs
+            let tol = *rng
+                .choose(&[1e-9, 1e-6, 1e-5, 1e-3, 1e-1, -1e-6, -1e-3])
+                .unwrap_or(&1e-6)
+                * scale;
             Inputs::SurfaceDropPoint { surface, pnt, tol }
         }
         8 => {
@@ -2568,7 +2806,10 @@ fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
             } else {
                 None
             };
-            let tol = *rng.choose(&[1e-9, 1e-6, 1e-4, 1e-2]).unwrap_or(&1e-6) * scale;
+            let tol = *rng
+                .choose(&[1e-9, 1e-6, 1e-4, 1e-2, -1e-6, -1e-2])
+                .unwrap_or(&1e-6)
+                * scale;
             Inputs::TwoPnts {
                 surface1,
                 surface2,
@@ -2580,6 +2821,9 @@ fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
             }
         }
         9 => {
+            if rng.chance(0.4) {
+                return gen_evaluate_mate_analytic(rng, scale.max(1e-2));
+            }
             // upstream's CreateFaceFromSurface rejects surfaces below its tolerance scale
             let surface = gen_surface(rng, scale.max(1e-2));
             let (du, dv) = surface_domain(&surface);
@@ -2603,7 +2847,11 @@ fn gen_geometry(rng: &mut Rng, kind: u64) -> Inputs {
                 }
             }
             Inputs::Capping {
-                tol: *rng.choose(&[1e-9, 1e-6, 1e-3]).unwrap_or(&1e-6) * scale,
+                // negative tolerances too: LiftCurve's SmApproxTol3d takes fabs
+                tol: *rng
+                    .choose(&[1e-9, 1e-6, 1e-3, -1e-6, -1e-3])
+                    .unwrap_or(&1e-6)
+                    * scale,
                 surface,
                 uv1,
                 orient1: rng.below(3) as i64,
@@ -2936,6 +3184,10 @@ impl UnitDiff for Runner {
 
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i = case.parse::<CaseInputs>()?.inputs;
+        // an input the FFI refuses is a harness error on both sides: the Rust port loops
+        // as upstream does in the guarded hang regimes (HANG-20), so it must not run them
+        // (fuzz mutations of the flagged fixtures reach them unflagged)
+        ffi::validate(i.op(), &cpp_input(&i)?).map_err(|e| harness(e.to_string()))?;
         let rec = match &i {
             Inputs::Fb { model, query } => rust_pseudo(model, query)?,
             _ => rust_geometry(&i)?,
@@ -3143,6 +3395,7 @@ mod tests {
                     Op::EvaluateMate,
                     Op::Capping,
                     Op::ClassifyFacePoint,
+                    Op::EvaluateMateAnalytic,
                     Op::FbExport,
                     Op::FbVertexGeoms,
                     Op::FbVuAtRailEnd,
@@ -3241,11 +3494,20 @@ mod tests {
                 };
                 let kind = match Runner.run_rust(case) {
                     Ok(o) if o.deferred.is_some() => "deferred",
+                    // `evaluate_mate_analytic`: the evaluation's status once the
+                    // surface was built
                     Ok(o) => match o
                         .values
                         .get("status")
                         .and_then(|v| v.first())
-                        .map(|&st| st == 0.0)
+                        .and_then(|&st| {
+                            if st == 0.0 && inputs.op() == Op::EvaluateMateAnalytic {
+                                o.values.get("mate_status").and_then(|v| v.first()).copied()
+                            } else {
+                                Some(st)
+                            }
+                        })
+                        .map(|st| st == 0.0)
                     {
                         Some(true) => "status0",
                         Some(false) => "error_status",
@@ -3377,7 +3639,7 @@ mod tests {
             seen.insert(inputs.op() as i32);
         }
         for op in [
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 21, 22, 24, 26, 27, 29, 35, 39,
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 20, 21, 22, 24, 26, 27, 29, 35, 39,
         ] {
             assert!(seen.contains(&op), "op {op} never generated");
         }

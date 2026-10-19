@@ -2993,6 +2993,166 @@
       "values_compared": 7
     },
     {
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_negative_tol_cylinder",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#161 (upstream source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147))",
+      "values_compared": 8
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_negative_tol_bilinear_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#162 (upstream source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_negative_tol_cubic",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#163 (upstream source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_negative_tol_cubic_1e-5",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#164 (upstream source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "surface_drop_point_negative_tol_cubic_far_corner",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#165 (upstream source/SMLib/src/SmFilletGeom.cpp:161 sm_SurfaceDropPoint -> GlobalPointSolve(SmZoneTol3d): the double tolerance converts through SmZoneTol3d(double) (SmTol.cpp:107) and fabs (SmTol.h:148); negative-tolerance regression (maintainer review of #147))",
+      "values_compared": 5
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurfaceIntersector::DoPointIntersection",
+        "unit": "intersect.surface_intersector_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "two_pnts_negative_tol_on_both",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#166 (upstream source/SMLib/src/SmFilletGeom.cpp:277-359 sm_TwoPntsIntersection: the negative tolerance reaches sm_SurfaceDropPoint (SmZoneTol3d conversion) and, raw through SM_CAST_APPROXTOL3D_PTR, PointBasedSurfaceIntersect; negative-tolerance regression (maintainer review of #147))",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurfaceIntersector::DoPointIntersection",
+        "unit": "intersect.surface_intersector_p4"
+      },
+      "max_rel_err": 0.0,
+      "name": "two_pnts_negative_tol_with_end",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#167 (upstream source/SMLib/src/SmFilletGeom.cpp:277-359 sm_TwoPntsIntersection: the negative tolerance reaches sm_SurfaceDropPoint (SmZoneTol3d conversion) and, raw through SM_CAST_APPROXTOL3D_PTR, PointBasedSurfaceIntersect; negative-tolerance regression (maintainer review of #147))",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "capping_gap_negative_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#168 (upstream source/SMLib/src/SmFilletGeom.cpp:8898-8949 JoinVertsByCapping -> LiftCurve(SmApproxTol3d): the double converts through SmApproxTol3d(double) (USE_DEFAULT -> half the zone tolerance, then fabs); regression (maintainer review of #147))",
+      "values_compared": 107
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "capping_gap_use_default_tol",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#169 (upstream source/SMLib/src/SmFilletGeom.cpp:8898-8949 JoinVertsByCapping -> LiftCurve(SmApproxTol3d): the double converts through SmApproxTol3d(double) (USE_DEFAULT -> half the zone tolerance, then fabs); regression (maintainer review of #147))",
+      "values_compared": 107
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_plane_inside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#170 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_plane_outside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#171 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_plane_nurb_inside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#172 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_plane_nurb_outside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#173 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_plane_scaled_outside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#174 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_revolution_cylinder_inside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#175 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_revolution_cylinder_outside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#176 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_revolution_cylinder_outside_angle",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#177 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_revolution_cylinder_swapped",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#178 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "evaluate_mate_revolution_cone_outside",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/blend.fillet_geom_p1/cases.json#179 (upstream source/SMLib/src/SmFilletGeom.cpp:79-99 sm_EvaluateMate on a real SmPlane / SmSurfOfRevolution (maintainer review of #147: the Plane and SurfOfRevolution arms))",
+      "values_compared": 5
+    },
+    {
       "deferred": {
         "symbol": "SmFace::CreateUVTrimCurves",
         "unit": "topology.face_p3"
@@ -3074,7 +3234,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9207377415692331392",
-      "values_compared": 4
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -3146,7 +3306,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9207377415692331401",
-      "values_compared": 4
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -3170,7 +3330,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9207377415692331404",
-      "values_compared": 2
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -3258,7 +3418,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9207377415692331415",
-      "values_compared": 2
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -3514,7 +3674,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9207377415692331447",
-      "values_compared": 4
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -3702,7 +3862,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9207377415692331470",
-      "values_compared": 4
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -4006,7 +4166,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9207377415692331505",
-      "values_compared": 4
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -4158,7 +4318,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9207377415692331524",
-      "values_compared": 4
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -4538,7 +4698,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=9207377415692331571",
-      "values_compared": 4
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -5442,14 +5602,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 19,
+  "cases_deferred": 21,
   "cases_failed": 0,
-  "cases_passed": 429,
+  "cases_passed": 446,
   "cases_rejected": 13,
-  "cases_total": 461,
+  "cases_total": 480,
   "deferred_by_unit": {
     "intersect.surface_drop_curve": 2,
-    "intersect.surface_intersector_p4": 3,
+    "intersect.surface_intersector_p4": 5,
     "topology.face_p3": 14
   },
   "max_rel_err": 0.0,

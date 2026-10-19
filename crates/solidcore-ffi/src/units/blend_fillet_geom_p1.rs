@@ -24,6 +24,7 @@
 //! | `EvaluateMate`    | `sm_EvaluateMate`                 | `surface u v` (a face on the surface)        | `pnt[3]` |
 //! | `Capping`         | `JoinVertsByCapping`              | `tol surface uvcurve1 orient1 uvcurve2 orient2` | `n` then `n` x `uvcurve curve3d orient` |
 //! | `ClassifyFacePoint` | `sm_ClassifyFacePoint`          | `surface1 surface2 pos[3]` (two faces)       | `which` |
+//! | `EvaluateMateAnalytic` | `sm_EvaluateMate` on a real `SmPlane` / `SmSurfOfRevolution` | `0 O[3] X[3] Y[3] scale[2] umin vmin umax vmax make_nurb u v` (plane) or `1 a[3] b[3] axis_pnt[3] axis_dir[3] swap u v` (`CreateCanonical` of the line `a b`) | `construction_status`, then the evaluation's status and `pnt[3]` |
 //!
 //! Pseudo-B-rep ops (`op >= 20`) start with the block (the shim builds an `SmFilletBrep`
 //! per call): `nt` target wire-edge curves (3D), `nf` target face surfaces, `nfb` fillet
@@ -163,6 +164,7 @@ pub enum Op {
     EvaluateMate = 9,
     Capping = 10,
     ClassifyFacePoint = 11,
+    EvaluateMateAnalytic = 12,
     FbExport = 20,
     FbVertexGeoms = 21,
     FbVuAtRailEnd = 22,
@@ -202,7 +204,7 @@ impl Op {
     }
 
     /// Every op, in code order.
-    pub const ALL: [Self; 32] = [
+    pub const ALL: [Self; 33] = [
         Self::CleanupNoise,
         Self::CheckSeamOut,
         Self::CheckSeamOn,
@@ -215,6 +217,7 @@ impl Op {
         Self::EvaluateMate,
         Self::Capping,
         Self::ClassifyFacePoint,
+        Self::EvaluateMateAnalytic,
         Self::FbExport,
         Self::FbVertexGeoms,
         Self::FbVuAtRailEnd,
@@ -509,6 +512,17 @@ fn validate_geometry(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
             surface(rd)?;
             rd.finites(3)?;
         }
+        Op::EvaluateMateAnalytic => {
+            if rd.flag()? {
+                // surface of revolution: line ends, axis point and direction, swap
+                rd.finites(12)?;
+            } else {
+                // plane: origin, axes, scales, domain, then make_nurb
+                rd.finites(15)?;
+            }
+            rd.flag()?;
+            rd.finites(2)?;
+        }
         _ => return Err(bad("not a geometry op")),
     }
     Ok(())
@@ -797,13 +811,15 @@ fn validate_pseudo(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
     Ok(())
 }
 
-/// Runs `op` on the flat `input` (layouts above) and returns the shim's record.
+/// Checks `input` for `op` exactly as [`eval`] does before calling the shim: the
+/// layout, counts and indices, and the magnitude bounds of the hang regimes (HANG-29,
+/// HANG-20). The difftest runs the Rust side only on inputs this accepts, so an input
+/// in a hang regime never reaches the Rust port either.
 ///
 /// # Errors
 ///
-/// [`FfiError::InvalidArgument`] for an input upstream could not handle safely;
-/// [`FfiError::Status`] for a shim error (`SC_ERR_*`).
-pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
+/// [`FfiError::InvalidArgument`] for an input upstream could not handle safely.
+pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
     let mut rd = Reader {
         cursor: crate::reader::Cursor::new(input),
         bound: match op {
@@ -819,7 +835,17 @@ pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
     } else {
         validate_geometry(op, &mut rd)?;
     }
-    rd.done()?;
+    rd.done()
+}
+
+/// Runs `op` on the flat `input` (layouts above) and returns the shim's record.
+///
+/// # Errors
+///
+/// [`FfiError::InvalidArgument`] for an input upstream could not handle safely;
+/// [`FfiError::Status`] for a shim error (`SC_ERR_*`).
+pub fn eval(op: Op, input: &[f64]) -> Result<Vec<f64>, FfiError> {
+    validate(op, input)?;
     call_with_buffer(4096, |buf, len| {
         // SAFETY: input is valid for input.len() reads (validated above); buf is valid
         // for buf.len() writes; len is a valid pointer.
