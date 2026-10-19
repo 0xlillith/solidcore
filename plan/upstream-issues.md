@@ -982,6 +982,15 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Severity:** UB (uninitialised read).
 - **Rust port:** The errors are returned.
 
+#### UB-179. `SmCone::ConvertUVFromSTEPToNURBS` dereferences a missing polar curve
+- **Location:** `source/SMLib/src/SmCone.cpp:1808`, called by `IntersectWithCone` at `:2966-2967`; `source/SMLib/src/SmEllipse.cpp:491` (`SmPolarConversion::ConvertToNURBSParameter`). Construction ignores `RebuildPolarConverter`'s status at `SmSurfOfRevolution.cpp:1033`.
+- **What happens:** A degenerate sweep can leave the polar converter without a circle even though `MakeNurb` returns success. STEP-to-NURBS conversion unconditionally reads `m_cpCurve->GetSTEPInterval()` and segfaults. `HavePolarConversion()` alone does not identify this: a converter with a circle but no exact table can still perform a defined numerical conversion.
+- **Trigger:** Issue #207: equal-radius cones, first origin `(0,0,0)`, X `(1,0,0)`, Y `(0,-1e-300,0)`, radius `1.5628`, height `1.10780`, inside-out; second origin `(0,0.5539,0.5539)`, X `(1,0,0)`, Y `(0,0,1)`, same radius/height; full sweeps, tolerance `1e-7`, domains `[0,0,1,1, 0,0.125,1,0.875]`. Unitizing the tiny Y axis uses the `(0,0,1)` fallback, and the sweep iso curves used to build the converter are degenerate. Either operand can have the missing converter; direct cylinder intersection also reaches this call.
+- **How found:** crash in the C++ reference fuzz run reported in issue #207; traced through cone construction and the virtual parameter-conversion call.
+- **Confirmed:** yes (issue #207 reports native exit 139; guarded native probes confirm successful construction with a null polar curve and stop at the conversion without executing the null dereference).
+- **Severity:** crash/UB.
+- **Rust port:** Missing polar state returns an error. The differential adapter rejects only an attempted STEP-to-NURBS conversion with a null polar curve; self-intersection and disjoint early returns stay callable.
+
 ### Intersection
 
 #### UB-89. `SmVolume::ReadFromDB` fills NULL volumes and uses unread map types [PSIRT]
@@ -1670,6 +1679,16 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed:** yes (C++ run: no result after 180 s at `0` and `-0`; `-1e-5`, `-1e300`, `1e-12`, `1e-200` and `5e-324` return).
 - **Severity:** hang (needs a bad argument from the calling code).
 - **Rust port:** The callee loops are unported (`IntersectTopology` defers at `SmBrep::GetFaces`). The FFI refuses `IntersectInsertRelate` at a zero tolerance.
+
+#### HANG-23. Polar set-up of a circle with a far STEP interval shifts one turn per iteration
+- **Location:** `source/SMLib/src/SmEllipse.cpp:278-289` (`SmPolarConversion::SetUpPolarConversion`, "move to period of greatest overlap").
+- **What happens:** Two `while` loops move the NURB's start/end angles by 360 degrees per iteration until their midpoint is within 180 degrees of the STEP interval's. The run time is proportional to the distance, and once the midpoint exceeds about `2^61` degrees adding 360 no longer changes it, so the loop never ends.
+- **Trigger:** An `SmCone` built with start and end angles `9223372036854775807` (any cone/cone or cone/plane intersection through `MakeNurb`, which rebuilds the polar converter of its iso circles).
+- **How found:** `surface.cone_p3` fuzzing (issue #207, fuzz02755: the Rust side timed out), then a native-only reproduction through `sc_surface_cone_p3_intersect` on Linux.
+- **Confirmed:** yes (the native call produced no result within 60 s).
+- **Severity:** hang.
+- **Rust port:** Returns `NotConverged` after `curve::ellipse::p2::MAX_PERIOD_SHIFTS` (2^20) shifts or when a shift no longer changes the midpoint; the callers ignore that status as upstream ignores the set-up's, leaving the converter impossible.
+- **Harness:** the `surface.cone_p3` FFI accepts cone angles only within upstream's documented `[-360, 360]` (`SmCone.h:205-206`). A first guard at about `3.8e8` degrees (the Rust bound) still let fuzzed intersections run past 20 s natively: every surface evaluation of such a cone goes through `SmEllipse::STEPInversion` and `SmExtent1d::PeriodicWrap`, one turn per iteration (HANG-1), confirmed with gdb backtraces.
 
 ## Nondeterminism
 
