@@ -1,0 +1,5872 @@
+{
+  "cases": [
+    {
+      "name": "point3d_numeric_plane_containment_baseline",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_baseline_hint",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": 0,
+          "dv": 0
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_source_negative_small",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": -1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_source_negative_one",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": -1,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_classification_negative_small",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": -1e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_classification_negative_one",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": -1
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_source_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "NaN",
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_classification_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "NaN"
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_point_x_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "NaN",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_point_z_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "NaN"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_active_guess_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": "NaN",
+          "dv": "NaN"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_source_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "+inf",
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_classification_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "+inf"
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_point_x_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "+inf",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_point_z_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "+inf"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_active_guess_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": "+inf",
+          "dv": "+inf"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_source_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "-inf",
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_classification_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "-inf"
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_point_x_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "-inf",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_point_z_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "-inf"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_active_guess_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": "-inf",
+          "dv": "-inf"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_active_guess_u_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": "NaN",
+          "dv": 0
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_containment_active_guess_v_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": 0,
+          "dv": "NaN"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_baseline",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_baseline_hint",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": 0,
+          "dv": 0
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_source_negative_small",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": -1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_source_negative_one",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": -1,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_classification_negative_small",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": -1e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_classification_negative_one",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": -1
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_source_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "NaN",
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_classification_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "NaN"
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_point_x_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "NaN",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_point_z_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "NaN"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_active_guess_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": "NaN",
+          "dv": "NaN"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_source_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "+inf",
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_classification_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "+inf"
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_point_x_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "+inf",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_point_z_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "+inf"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_active_guess_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": "+inf",
+          "dv": "+inf"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_source_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "-inf",
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_classification_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "-inf"
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_point_x_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "-inf",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_point_z_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "-inf"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_active_guess_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": "-inf",
+          "dv": "-inf"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_active_guess_u_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": "NaN",
+          "dv": 0
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_plane_boundary_active_guess_v_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": 0,
+          "dv": "NaN"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_baseline",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_baseline_hint",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": 0,
+          "dv": 0
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_source_negative_small",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": -1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_source_negative_one",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": -1,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_classification_negative_small",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": -1e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_classification_negative_one",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": -1
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_source_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "NaN",
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_classification_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "NaN"
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_point_x_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "NaN",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_point_z_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "NaN"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_active_guess_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": "NaN",
+          "dv": "NaN"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_source_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "+inf",
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_classification_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "+inf"
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_point_x_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "+inf",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_point_z_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "+inf"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_active_guess_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": "+inf",
+          "dv": "+inf"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_source_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "-inf",
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_classification_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "-inf"
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_point_x_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "-inf",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_point_z_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "-inf"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_active_guess_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": "-inf",
+          "dv": "-inf"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_active_guess_u_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": "NaN",
+          "dv": -0.5
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_containment_active_guess_v_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": false,
+        "guess": {
+          "du": -0.5,
+          "dv": "NaN"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_baseline",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_baseline_hint",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": 0,
+          "dv": 0
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_source_negative_small",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": -1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_source_negative_one",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": -1,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_classification_negative_small",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": -1e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_classification_negative_one",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": -1
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_source_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "NaN",
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_classification_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "NaN"
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_point_x_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "NaN",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_point_z_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "NaN"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_active_guess_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": "NaN",
+          "dv": "NaN"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_source_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "+inf",
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_classification_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "+inf"
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_point_x_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "+inf",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_point_z_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "+inf"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_active_guess_positive_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": "+inf",
+          "dv": "+inf"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_source_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": "-inf",
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_classification_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": "-inf"
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_point_x_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          "-inf",
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_point_z_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          "-inf"
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_active_guess_negative_infinity",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": "-inf",
+          "dv": "-inf"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_active_guess_u_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": "NaN",
+          "dv": -0.5
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    },
+    {
+      "name": "point3d_numeric_bilinear_boundary_active_guess_v_nan",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    -1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    -1,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    -1,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 1,
+              "q": 1,
+              "u": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.5,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 1e-06,
+        "do_bnd": true,
+        "guess": {
+          "du": -0.5,
+          "dv": "NaN"
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 3e-06
+      }
+    }
+  ]
+}

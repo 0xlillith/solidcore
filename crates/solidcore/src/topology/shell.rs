@@ -732,7 +732,7 @@ fn refresh_faceuse_sibling_links(brep: &mut Brep, owner: ShellId) -> Result<()> 
 /// bounding-box dependency. Ordinary native box errors retain the partial box.
 pub fn shell_is_degenerate(
     kernel: &mut Kernel,
-    brep: &Brep,
+    brep: &mut Brep,
     id: ShellId,
     tolerance: Option<f64>,
 ) -> Result<bool> {
@@ -752,7 +752,7 @@ pub fn shell_is_degenerate(
 /// native box errors are ignored while retaining the initialized/partial box.
 pub fn region_is_degenerate(
     kernel: &mut Kernel,
-    brep: &Brep,
+    brep: &mut Brep,
     id: RegionId,
     tolerance: Option<f64>,
 ) -> Result<bool> {
@@ -766,7 +766,7 @@ pub fn region_is_degenerate(
 // and unsafe native graph accesses still propagate.
 fn region_bounds_for_degeneracy(
     kernel: &mut Kernel,
-    brep: &Brep,
+    brep: &mut Brep,
     id: RegionId,
 ) -> Result<crate::geom::extent3d::Extent3d> {
     let mut bounds = crate::geom::extent3d::Extent3d::new();
@@ -782,7 +782,7 @@ fn region_bounds_for_degeneracy(
 
 fn shell_bounds_for_degeneracy(
     kernel: &mut Kernel,
-    brep: &Brep,
+    brep: &mut Brep,
     id: ShellId,
 ) -> Result<crate::geom::extent3d::Extent3d> {
     let mut bounds = crate::geom::extent3d::Extent3d::new();
@@ -883,11 +883,7 @@ where
         kernel: &Kernel,
         brep_id: crate::topology::BrepId,
     ) -> Result<crate::geom::extent3d::Extent3d> {
-        crate::query::brep::calculate_bounding_box(
-            kernel,
-            self.brep(brep_id)?,
-            crate::query::brep::BoundingBoxOptions::default(),
-        )
+        crate::query::brep::calculate_loose_bounding_box(kernel, self.brep(brep_id)?, false, true)
     }
 
     /// The shape of the shell's boundary faces (`SmShape(sBreps, sFaces, ...)`).

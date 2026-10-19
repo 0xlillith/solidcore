@@ -232,7 +232,7 @@ impl<O: ClassObject> BrepClassifyObjects<O> for BrepPointObjects<'_, O> {
     ) -> Result<bool> {
         (self.geometry_check)()?;
         let cache = cache_for(kernel, self.brep, self.cache, self.keys)?;
-        let objects = BrepObjects {
+        let mut objects = BrepObjects {
             brep: self.brep,
             brep_id: self.brep_id,
             cache,
@@ -241,7 +241,7 @@ impl<O: ClassObject> BrepClassifyObjects<O> for BrepPointObjects<'_, O> {
         };
         let solutions = TopologySolver::brep_point_solve(
             kernel,
-            &objects,
+            &mut objects,
             Some(CacheObject::Brep),
             point,
             TopologySolveOptions {

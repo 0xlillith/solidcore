@@ -118,6 +118,7 @@ use super::p1::{
     CsNormalizeEnfo, SecondDerivatives,
 };
 use super::p2::{derivative_limit, drop_vectors, normal_limit, SurfaceEvaluate};
+use super::p4::FacePointTest;
 use super::{Surface, SurfaceKind};
 
 const OP_DEGEN: &str = "surface::surface::p7::Surface::find_degen_param_for_direction";
@@ -1096,8 +1097,48 @@ impl Surface {
         opt_target_distance: Option<f64>,
         requested: SolutionRequested,
     ) -> Result<SolutionArray<O>> {
+        self.global_point_solve_0_with_point_test(
+            k,
+            surface,
+            uv_domain,
+            op,
+            test_point,
+            distance_tolerance,
+            opt_target_distance,
+            requested,
+            FacePointTest::Enabled,
+        )
+    }
+
+    /// [`Surface::global_point_solve_0`] with a caller's temporary trim point-test
+    /// mode, applied before `GetTree` and before the solver borrows the cache.
+    /// Both branch rejection and the leaf solution test read that same cache.
+    ///
+    /// # Errors
+    ///
+    /// As [`Surface::global_point_solve_0`].
+    pub fn global_point_solve_0_with_point_test<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: O,
+        uv_domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        distance_tolerance: f64,
+        opt_target_distance: Option<f64>,
+        requested: SolutionRequested,
+        point_test: FacePointTest,
+    ) -> Result<SolutionArray<O>> {
         // get surface spatial decomposition tree from Surface's cache
-        let cache = self.solve_cache(k, surface, OP_SOLVE)?;
+        let mut cache = self.solve_cache(k, surface, OP_SOLVE)?;
+        point_test.apply(&mut cache);
+        // Upstream calls GetTree after acquiring the cache (SmSurface.cpp:20275-76).
+        // It may build a tree that was deferred while the context did a Boolean.
+        match cache.get_tree(k) {
+            Ok(_) => {}
+            Err(e) if e.is_unported() => return Err(e),
+            Err(_) => return Err(SolidError::null_pointer(OP_SOLVE)),
+        }
         let surface_tree = cache.tree().ok_or(SolidError::null_pointer(OP_SOLVE))?;
 
         // put point into a single node PointTree

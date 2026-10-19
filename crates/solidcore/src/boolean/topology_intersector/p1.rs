@@ -92,7 +92,6 @@
 //!   `DeleteFace` (`topology.brep_p3`),
 //!   `SmFace::GetVertices` / `GetEdges` / `GetBrep` (`topology.face_p4`),
 //!   `SmFace::FaceIntersect` / `SetTolerance` (`topology.face_p3`),
-//!   `SmFace::CalculateBoundingBox` / `Point3DClassify` (`query.face_p1`),
 //!   and the `SmCurveClassification` constructor (`intersect.curve_class_p4`). The
 //!   code after a stub is ported in full. `SmSurface::GlobalCurveIntersect` /
 //!   `CoincidenceCheck` (`surface.surface_p8`), `SmCurveClassification::Homogenize`
@@ -100,15 +99,22 @@
 //!   (`intersect.curve_class_p5`) and `SmFace::CalculateUVDomainFromUVTrimCurves`
 //!   (`topology.face_p1`, through [`IntersectorBrep`]; its `CreateUVTrimCurves` is
 //!   still `Unported` in `topology.face_p3`) are the ported calls.
+//! - **Face query state.** `SmFace::CalculateBoundingBox` and `Point3DClassify`
+//!   (`query.face_p1`) use required [`IntersectorBrep`] hooks into the live B-rep.
+//!   The face box is reused across the inner face loop, including an ignored
+//!   failure; classification retains all prior fields and partial writes. UV
+//!   guesses are inputs, and creation of UV trim curves does not copy the B-rep.
 //! - **Undefined behaviour upstream** (a null object dereferenced, a solution without
 //!   objects, the maps of an intersector made with the context-only constructor) is
 //!   [`SolidError::InvalidInput`].
 //! - **Statuses upstream ignores** (`WARN`, `SE_MSG`, the imprint loop's "record the
 //!   first problem", the unchecked statuses of the B-rep edits, bounding boxes,
 //!   surface queries and classifications) are ignored here too through
-//!   `ignore_soft`, except [`SolidError::Unported`] and [`SolidError::InvalidInput`],
-//!   which always propagate; the ignored call's outputs then stay at their initial
-//!   values (an empty solution list, an initial extent, a null edge or vertex).
+//!   `ignore_soft`, except [`SolidError::Unported`], [`SolidError::InvalidInput`]
+//!   and unresolved Rust identities ([`SolidError::NotFound`]), which propagate.
+//!   In/out boxes and classifications retain the writes
+//!   made before failure; other return-value adapters keep their initialized
+//!   outputs (an empty solution list, an initial extent, a null edge or vertex).
 //! - **Bound.** `FaceFaceIntersect` extends its working face lists with every face
 //!   split off; past [`MAX_FACE_LIST`] faces it fails with `SM_ERR` (upstream is
 //!   unbounded).
@@ -143,7 +149,7 @@ use crate::intersect::curve_class::p1::{src_zone_tol_3d_of, CurveClassification}
 use crate::intersect::point_class::{
     ClassObject, ClassObjectKind, PointClassType, PointClassification,
 };
-use crate::intersect::topology_solver::p1::{CurveRef, TopologyObjects, TopologySolver};
+use crate::intersect::topology_solver::p1::{SolverCurve, TopologyObjects, TopologySolver};
 use crate::intersect::topology_solver::p2::TopologySolveOptions;
 use crate::kernel::Kernel;
 use crate::math::{max2, min2, Point2, Point3, BIG_DOUBLE, EFF_ZERO, PI};
@@ -179,7 +185,11 @@ const fn dangling(reason: &'static str) -> SolidError {
 fn ignore_soft<T>(r: Result<T>) -> Result<Option<T>> {
     match r {
         Ok(v) => Ok(Some(v)),
-        Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => Err(e),
+        Err(
+            e @ (SolidError::Unported { .. }
+            | SolidError::InvalidInput { .. }
+            | SolidError::NotFound { .. }),
+        ) => Err(e),
         Err(_) => Ok(None),
     }
 }
@@ -307,6 +317,15 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
     ///
     /// Those of the computation.
     fn edge_bounding_box(&self, k: &Kernel, edge: O) -> Result<Extent3d>;
+    /// `SmFace::CalculateBoundingBox(rBox)` with the default `bTight = FALSE`
+    /// (`query::face::p1::calculate_bounding_box_into`). The caller reuses this
+    /// native output across faces and may ignore an ordinary error; leave every
+    /// box write intact, including the previous box when the callee writes none.
+    ///
+    /// # Errors
+    ///
+    /// Those of the computation or of resolving the live face.
+    fn face_bounding_box(&mut self, k: &Kernel, face: O, output: &mut Extent3d) -> Result<()>;
     /// `SmFace::CalculateUVDomainFromUVTrimCurves(rDomain)` with upstream's default
     /// arguments (`bLimitDomain = TRUE`, no loop gaps;
     /// `topology::face::p1::calculate_uv_domain_from_uv_trim_curves`): the new domain.
@@ -329,6 +348,25 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
         uv: Point2,
         pc: &mut PointClassification<O>,
     ) -> Result<()>;
+    /// `SmFace::Point3DClassify` on the actual mutable B-rep
+    /// (`query::face::p1::point_3d_classify`). The optional UV guess is input only;
+    /// target-loop and UV-space options use the native defaults. Preserve the
+    /// complete incoming classification and every partial write on error when
+    /// translating between application handles and B-rep entity ids.
+    ///
+    /// # Errors
+    ///
+    /// Those of the classification or of resolving the live face and its handles.
+    fn face_point_3d_classify(
+        &mut self,
+        k: &Kernel,
+        face: O,
+        point: Point3,
+        src_zone_tol_3d: f64,
+        do_boundary_intersections: bool,
+        pc: &mut PointClassification<O>,
+        guess_uv: Option<Point2>,
+    ) -> Result<()>;
     /// Sets a B-rep's `m_bEditingEnabled` and returns its previous value
     /// (`SmTemporaryChangeValue<SmBoolean>(pBrep->m_bEditingEnabled, ..)`).
     ///
@@ -338,7 +376,7 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
     fn set_editing_enabled(&mut self, brep: O, enabled: bool) -> Result<bool>;
     /// The adapter the topology solver reads the B-reps' cache trees and geometry
     /// through (`SmTopologySolver::BrepPointSolve` / `BrepCurveSolve`).
-    fn topology_objects(&self) -> &dyn TopologyObjects<O>;
+    fn topology_objects(&mut self) -> &mut dyn TopologyObjects<O>;
     /// `SmBrep::GlueEdgesGeneral(pSurvivingEdge, eRelativeOrientation, dEdgeGap,
     /// bDoRegionNesting, pEdgeToDelete, pInsideFaceuses)` on B-rep `brep`
     /// (`topology::brep::p7::glue_edges_general`; `pInsideFaceuses` defaults to `NULL`).
@@ -453,35 +491,6 @@ fn face_vertices<O>(_face: O) -> Result<Vec<O>> {
 fn face_edges<O>(_face: O) -> Result<Vec<O>> {
     // UNPORTED(topology.face_p4): SmFace::GetEdges
     Err(SolidError::unported("SmFace::GetEdges", "topology.face_p4"))
-}
-
-/// `SmFace::CalculateBoundingBox(rBox)`.
-fn face_bounding_box<O>(_face: O) -> Result<Extent3d> {
-    // DISPATCH GAP: SmFace::CalculateBoundingBox is ported (`query::face::p1::calculate_bounding_box`, query.face_p1
-    // partial; no UNPORTED marker), but it takes the face's `Brep` and `FaceId`, which this
-    // caller's opaque face handle does not carry.
-    Err(SolidError::unported(
-        "SmFace::CalculateBoundingBox",
-        "query.face_p1",
-    ))
-}
-
-/// `SmFace::Point3DClassify(pt, tol, FALSE, pc, &uv)`.
-fn face_point_3d_classify<O>(
-    _face: O,
-    _point: Point3,
-    _tol: f64,
-    _do_boundary_intersections: bool,
-    _pc: &mut PointClassification<O>,
-    _uv: &mut Point2,
-) -> Result<()> {
-    // DISPATCH GAP: SmFace::Point3DClassify is ported (`query::face::p1::point_3d_classify`, query.face_p1
-    // partial; no UNPORTED marker), but it takes the face's `Brep` and `FaceId`, which this
-    // caller's opaque face handle does not carry.
-    Err(SolidError::unported(
-        "SmFace::Point3DClassify",
-        "query.face_p1",
-    ))
 }
 
 /// The curves and classifications `SmFace::FaceIntersect` returns.
@@ -1740,8 +1749,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// # Errors
     ///
     /// Unless `ignore_problems`, a failing vertex loop or edge split (`SER`); those of
-    /// the geometry queries; [`SolidError::Unported`] for the face bounding box
-    /// (`query.face_p1`), `SmFace::CalculateUVDomainFromUVTrimCurves`'s
+    /// the geometry queries; [`SolidError::Unported`] for remaining callees of
+    /// `SmFace::CalculateUVDomainFromUVTrimCurves`'s
     /// `CreateUVTrimCurves`, `SmSurface::GlobalCurveIntersect` and the B-rep edits;
     /// [`SolidError::InvalidInput`] for null handles upstream dereferences.
     #[allow(clippy::too_many_lines)]
@@ -1808,6 +1817,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             // Find all input faces close to this edge.
             let mut e_bbox =
                 ignore_soft(brep.edge_bounding_box(k, edge))?.unwrap_or_else(Extent3d::new);
+            // Native sFBBox is initialized once per edge, then reused across
+            // faces. An ignored failure may leave the previous face's box.
+            let mut f_bbox = Extent3d::new();
             e_bbox.expand_absolute(edge_zone_tol_3d);
             for &face in faces {
                 let Some(face) = face else {
@@ -1823,7 +1835,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 }
 
                 // BBox check.
-                let f_bbox = ignore_soft(face_bounding_box(face))?.unwrap_or_else(Extent3d::new);
+                ignore_soft(brep.face_bounding_box(k, face, &mut f_bbox))?;
                 if e_bbox.are_disjoint(&f_bbox, face_zone_tol_3d) {
                     continue;
                 }
@@ -2151,9 +2163,9 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// # Errors
     ///
     /// [`SolidError::Unported`] for `SmFace::GetVertices` / `GetEdges`
-    /// (`topology.face_p4`), `SmSurface::CoincidenceCheck`, `SmFace::FaceIntersect`,
-    /// `Point3DClassify` and the B-rep edits; [`SolidError::InvalidInput`] for null
-    /// handles upstream dereferences; those of the surface queries.
+    /// (`topology.face_p4`), `SmSurface::CoincidenceCheck`, `SmFace::FaceIntersect`
+    /// and the B-rep edits; [`SolidError::InvalidInput`] for null handles upstream
+    /// dereferences; those of the surface and face-classification queries.
     #[allow(clippy::too_many_lines, clippy::too_many_arguments)]
     pub fn face_face_intersect(
         &mut self,
@@ -2503,7 +2515,6 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         mid1: &PointClassification<O>,
         mid2: &PointClassification<O>,
     ) -> Result<()> {
-        let _ = k;
         let tol = self.this_approx_tol_3d;
         // Locals
         let mut f1 = pc1
@@ -2516,24 +2527,24 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         let mut pt = ignore_soft(pc1.find_obj_point_3d(brep))?.unwrap_or(Point3::UNDEF);
 
         // This classification may be outdated. Check and update. Will either be face or vertex
-        let mut uv1 = pc1.uv_param();
-        let mut uv2 = pc2.uv_param();
+        let uv1 = pc1.uv_param();
+        let uv2 = pc2.uv_param();
         // (every status below is ignored upstream)
-        ignore_soft(face_point_3d_classify(f1, pt, tol, false, pc1, &mut uv1))?;
-        ignore_soft(face_point_3d_classify(f2, pt, tol, false, pc2, &mut uv2))?;
+        ignore_soft(brep.face_point_3d_classify(k, f1, pt, tol, false, pc1, Some(uv1)))?;
+        ignore_soft(brep.face_point_3d_classify(k, f2, pt, tol, false, pc2, Some(uv2)))?;
 
         // The CC may be unknow when a new face was created prior. m_vMid was updated, so check that face
         if pc1.point_class() == PointClassType::Unknown {
             f1 = mid1
                 .face_object()
                 .ok_or(dangling("classification without face"))?;
-            ignore_soft(face_point_3d_classify(f1, pt, tol, false, pc1, &mut uv1))?;
+            ignore_soft(brep.face_point_3d_classify(k, f1, pt, tol, false, pc1, Some(uv1)))?;
         }
         if pc2.point_class() == PointClassType::Unknown {
             f2 = mid2
                 .face_object()
                 .ok_or(dangling("classification without face"))?;
-            ignore_soft(face_point_3d_classify(f2, pt, tol, false, pc2, &mut uv2))?;
+            ignore_soft(brep.face_point_3d_classify(k, f2, pt, tol, false, pc2, Some(uv2)))?;
         }
 
         // We have intersecting 3dcurves. Imprint the point as a vertex on each face.
@@ -2555,10 +2566,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             }
 
             // Update classifications
-            let mut uv1 = pc1.uv_param();
-            let mut uv2 = pc2.uv_param();
-            ignore_soft(face_point_3d_classify(f1, pt, tol, false, pc1, &mut uv1))?;
-            ignore_soft(face_point_3d_classify(f2, pt, tol, false, pc2, &mut uv2))?;
+            let uv1 = pc1.uv_param();
+            let uv2 = pc2.uv_param();
+            ignore_soft(brep.face_point_3d_classify(k, f1, pt, tol, false, pc1, Some(uv1)))?;
+            ignore_soft(brep.face_point_3d_classify(k, f2, pt, tol, false, pc2, Some(uv2)))?;
         }
         Ok(())
     }
@@ -2627,7 +2638,6 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         new_face: O,
         approx_tol_3d: f64,
     ) -> Result<()> {
-        let _ = k;
         for cc in ccs.iter_mut().skip(from) {
             let this_curve = cc.curve();
             for nn in 0..cc.size() {
@@ -2637,25 +2647,27 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 let pt = eval_curve_point(brep, this_curve, ci.interval.mid())?;
 
                 if let Some(this_face) = this_face {
-                    let mut uv = ci.mid.uv_param();
-                    ignore_soft(face_point_3d_classify(
+                    let uv = ci.mid.uv_param();
+                    ignore_soft(brep.face_point_3d_classify(
+                        k,
                         this_face,
                         pt,
                         approx_tol_3d,
                         false,
                         &mut ci.mid,
-                        &mut uv,
+                        Some(uv),
                     ))?;
                 }
                 if ci.mid.point_class() != PointClassType::Face && this_face.is_some() {
-                    let mut uv = ci.mid.uv_param();
-                    ignore_soft(face_point_3d_classify(
+                    let uv = ci.mid.uv_param();
+                    ignore_soft(brep.face_point_3d_classify(
+                        k,
                         new_face,
                         pt,
                         approx_tol_3d,
                         false,
                         &mut ci.mid,
-                        &mut uv,
+                        Some(uv),
                     ))?;
                 }
             }
@@ -3096,15 +3108,11 @@ pub fn intersect_wire_lamina_edges<O: ClassObject + SolutionObject + Ord>(
         let old_edit = geometry.set_editing_enabled(brep2, false)?;
         let solved = {
             let objects = geometry.topology_objects();
-            let curve_ref = CurveRef {
-                curve: objects.curve(curve)?,
-                handle: curve,
-            };
             TopologySolver::brep_curve_solve(
                 k,
                 objects,
                 Some(brep2),
-                curve_ref,
+                SolverCurve::Object(curve),
                 &interval,
                 TopologySolveOptions {
                     operation: solver_op,
@@ -3119,9 +3127,11 @@ pub fn intersect_wire_lamina_edges<O: ClassObject + SolutionObject + Ord>(
 
         let solutions = match solved {
             Ok(s) => s,
-            Err(e @ (SolidError::Unported { .. } | SolidError::InvalidInput { .. })) => {
-                return Err(e)
-            }
+            Err(
+                e @ (SolidError::Unported { .. }
+                | SolidError::InvalidInput { .. }
+                | SolidError::NotFound { .. }),
+            ) => return Err(e),
             Err(_) => continue, // No ints for this Edge.
         };
         if solutions.is_empty() {

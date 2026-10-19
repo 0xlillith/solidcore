@@ -236,8 +236,15 @@ fn glue_vertices(_b: &mut Brep, _v1: VertexId, _v2: VertexId) -> Result<()> {
 
 /// `TestClosureSplitRegion(TRUE, edge, aNewShells, aNewRegions)` (unit
 /// `topology.brep_p10`; status ignored by the caller).
-fn test_closure_split_region_edge(k: &mut Kernel, b: &mut Brep, e: EdgeId) -> Result<()> {
-    p10::test_closure_split_region(k, b, true, e).map(|_| ())
+fn test_closure_split_region_edge(
+    k: &mut Kernel,
+    b: &mut Brep,
+    marks: &mut Marks,
+    env: &mut ed::NotifyEnv<'_>,
+    e: EdgeId,
+    queries: &mut dyn p6::RegionSplitQueries,
+) -> Result<()> {
+    p10::test_closure_split_region(k, b, marks, env, true, e, queries).map(|_| ())
 }
 
 /// `MakeShellVertex(region, point, rpNewShell, rpNewVertex)`.
@@ -1339,7 +1346,9 @@ pub fn glue_edges_general(
             new_region = attempt.region;
         }
         if ed::is_spine(b, surv)? && new_region.is_none() {
-            ignore_status(test_closure_split_region_edge(k, b, surv))?;
+            ignore_status(test_closure_split_region_edge(
+                k, b, &mut marks, env, surv, queries,
+            ))?;
         }
     }
     Ok(())
@@ -1789,12 +1798,20 @@ mod tests {
         let mut b = Brep::new_with_infinite_region().unwrap();
         let mut store = AttributeStore::new();
         let mut records = std::collections::BTreeMap::new();
+        let mut queries = |_: &mut Kernel,
+                           _: &mut Brep,
+                           _: ShellId,
+                           _: crate::topology::shell::ShellRayInput<EntityRef>|
+         -> crate::topology::shell::ShellRayAttempt<EntityRef> {
+            panic!("an empty input stream must fail before geometric queries")
+        };
         let mut env = TopologyEnv {
             all_attributes: &[],
             attributes: &mut store,
             key_of: &key_of,
             records: &mut records,
             next_key: 1,
+            region_queries: &mut queries,
         };
         assert!(
             read_from_file(&mut k, &mut b, Vec::new(), FileType::Ascii, false, &mut env).is_err()

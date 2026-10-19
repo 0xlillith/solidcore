@@ -280,7 +280,7 @@ fn solution_point<O: SolutionObject>(
 /// Solver errors, point-extraction failures and empty solution sets propagate.
 pub fn get_closest_point<O: SolutionObject>(
     k: &Kernel,
-    objects: &dyn TopologyObjects<O>,
+    objects: &mut dyn TopologyObjects<O>,
     brep: O,
     point: Point3,
 ) -> Result<ClosestPoint> {
@@ -291,7 +291,7 @@ pub fn get_closest_point<O: SolutionObject>(
 /// Errors are those of `BrepPointSolve` and solution point extraction.
 pub fn brep_closest_point<O: SolutionObject>(
     k: &Kernel,
-    objects: &dyn TopologyObjects<O>,
+    objects: &mut dyn TopologyObjects<O>,
     brep: O,
     point: Point3,
 ) -> Result<ClosestPoint> {
@@ -313,7 +313,7 @@ pub fn brep_closest_point<O: SolutionObject>(
 /// An empty solution set is `SM_ERR`; extraction failures propagate.
 pub fn brep_closest_point_all<O: SolutionObject>(
     k: &Kernel,
-    objects: &dyn TopologyObjects<O>,
+    objects: &mut dyn TopologyObjects<O>,
     brep: O,
     point: Point3,
 ) -> Result<Vec<ClosestPoint>> {
@@ -616,7 +616,7 @@ pub fn find_edge(brep: &Brep, point: Point3) -> Result<EdgePick> {
 /// Finds a face (`SmApiFindFaces`); missing match is `SM_ERR`.
 pub fn find_faces(
     k: &Kernel,
-    brep: &Brep,
+    brep: &mut Brep,
     id: BrepId,
     point: Point3,
     keys: &dyn Fn(CacheObject) -> ObjectRef,
@@ -632,7 +632,7 @@ pub fn brep_is_manifold_solid(brep: &Brep) -> Result<bool> {
 
 /// Loose or tight B-rep box (`SmApiBrepBoundingBox`). The tight query ignores a
 /// locked loose box and does not add zone tolerances.
-pub fn brep_bounding_box(k: &Kernel, brep: &Brep, tight: bool) -> Result<Extent3d> {
+pub fn brep_bounding_box(k: &Kernel, brep: &mut Brep, tight: bool) -> Result<Extent3d> {
     if tight {
         crate::query::brep::calculate_tight_bounding_box(k, brep)
     } else {
@@ -645,11 +645,16 @@ pub fn brep_bounding_box(k: &Kernel, brep: &Brep, tight: bool) -> Result<Extent3
 }
 
 /// Loose or tight face box (`SmApiFaceBoundingBox`); missing queries are `Unported`.
-pub fn face_bounding_box(k: &Kernel, brep: &Brep, face: FaceId, tight: bool) -> Result<Extent3d> {
+pub fn face_bounding_box(
+    k: &Kernel,
+    brep: &mut Brep,
+    face: FaceId,
+    tight: bool,
+) -> Result<Extent3d> {
     if tight {
         return crate::query::face::p3::calculate_tight_bounding_box(k, brep, face);
     }
-    crate::query::face::p1::calculate_bounding_box(k, brep, face, false)
+    crate::query::face::p1::calculate_loose_bounding_box(k, brep, face)
 }
 
 /// Interior face point (`SmApiFaceInternalPoint`). Errors from the face query
@@ -867,6 +872,60 @@ mod tests {
         }
     }
     impl TopologyObjects<Object> for Geometry {
+        fn with_brep_trees(
+            &mut self,
+            _k: &Kernel,
+            _first: Object,
+            _second: Option<Object>,
+            _solve: &mut crate::intersect::topology_solver::p1::BrepTreeSolve<'_, Object>,
+        ) -> Result<SolutionArray<Object>> {
+            Err(SolidError::invalid_input(
+                OP,
+                "extraction test has no B-rep handles",
+            ))
+        }
+        fn object_zone_tol_3d(&self, k: &Kernel, object: Option<Object>) -> Result<f64> {
+            if object.is_some() {
+                return Err(SolidError::invalid_input(
+                    OP,
+                    "extraction test has no topology tolerance",
+                ));
+            }
+            Ok(crate::geom::tol::zone_tol_3d(
+                k,
+                crate::geom::tol::SmallTopoType::NormalSize,
+            ))
+        }
+        fn face_point_classify(
+            &mut self,
+            _k: &Kernel,
+            _face: Object,
+            _uv: crate::math::Vec2,
+            _source_zone_tolerance: f64,
+            _do_boundaries: bool,
+            _use_uv: bool,
+            _classification: &mut PointClassification<crate::EntityRef>,
+        ) -> Result<()> {
+            Err(SolidError::invalid_input(
+                OP,
+                "extraction test has no faces",
+            ))
+        }
+        fn face_point_3d_classify(
+            &mut self,
+            _k: &Kernel,
+            _face: Object,
+            _point: Point3,
+            _source_zone_tolerance: f64,
+            _do_boundaries: bool,
+            _classification: &mut PointClassification<crate::EntityRef>,
+        ) -> Result<()> {
+            Err(SolidError::invalid_input(
+                OP,
+                "extraction test has no faces",
+            ))
+        }
+
         fn curve(&self, _: Object) -> Result<&Curve> {
             Ok(&self.curve)
         }

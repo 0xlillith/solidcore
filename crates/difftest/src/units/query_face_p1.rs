@@ -95,6 +95,57 @@ impl Parameter {
     }
 }
 
+impl From<f64> for Parameter {
+    fn from(value: f64) -> Self {
+        if value.is_finite() {
+            Self::Number(value)
+        } else if value.is_nan() {
+            Self::Special("NaN".into())
+        } else if value > 0.0 {
+            Self::Special("+inf".into())
+        } else {
+            Self::Special("-inf".into())
+        }
+    }
+}
+
+// Keep the point-case fields as f64 for the generator, and use the curve
+// parameter's existing JSON tokens for numeric inputs JSON cannot represent.
+#[allow(clippy::trivially_copy_pass_by_ref)] // serde `with` signature
+mod point_number {
+    use super::Parameter;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    pub fn serialize<S: Serializer>(value: &f64, serializer: S) -> Result<S::Ok, S::Error> {
+        Parameter::from(*value).serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<f64, D::Error> {
+        Parameter::deserialize(deserializer)?
+            .value()
+            .map_err(serde::de::Error::custom)
+    }
+}
+
+#[allow(clippy::trivially_copy_pass_by_ref)] // serde `with` signature
+mod point_offset {
+    use super::Parameter;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    pub fn serialize<S: Serializer>(value: &[f64; 3], serializer: S) -> Result<S::Ok, S::Error> {
+        value.map(Parameter::from).serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<[f64; 3], D::Error> {
+        let values = <[Parameter; 3]>::deserialize(deserializer)?;
+        let mut out = [0.0; 3];
+        for (slot, value) in out.iter_mut().zip(values) {
+            *slot = value.value().map_err(serde::de::Error::custom)?;
+        }
+        Ok(out)
+    }
+}
+
 /// A curve API case.
 #[derive(Serialize, Deserialize)]
 struct CurveInput {
@@ -119,7 +170,9 @@ struct BoxInput {
 /// `(du, dv)` (fractions of the UV domain size).
 #[derive(Clone, Copy, Serialize, Deserialize)]
 struct Guess {
+    #[serde(with = "point_number")]
     du: f64,
+    #[serde(with = "point_number")]
     dv: f64,
 }
 
@@ -132,7 +185,9 @@ struct PointInput {
     face: usize,
     u: f64,
     v: f64,
+    #[serde(with = "point_offset")]
     offset: [f64; 3],
+    #[serde(with = "point_number")]
     src_tol: f64,
     do_bnd: bool,
     #[serde(default)]
@@ -145,6 +200,7 @@ struct PointInput {
     loops: Vec<usize>,
     #[serde(default = "yes")]
     uv_ok: bool,
+    #[serde(with = "point_number")]
     pc_tol: f64,
 }
 
@@ -368,6 +424,7 @@ fn run_box(input: &BoxInput, cpp: bool) -> Result<Output, HarnessError> {
     if let Some(o) = inexact(&m, &faces, &edges) {
         return Ok(o);
     }
+    let mut b = m.brep;
     let mut k = Kernel::default();
     let tight = input.tight && !input.use_default;
     let mut bx = Extent3d::from_points(
@@ -375,17 +432,17 @@ fn run_box(input: &BoxInput, cpp: bool) -> Result<Output, HarnessError> {
         Vec3::new(SEED_MAX[0], SEED_MAX[1], SEED_MAX[2]),
     );
     let r = match input.target {
-        0 => p1::calculate_bounding_box(&k, b, FaceId::from_index(id), tight).map(|x| bx = x),
+        0 => p1::calculate_bounding_box_into(&k, &mut b, FaceId::from_index(id), tight, &mut bx),
         1 => p1::calculate_shell_bounding_box_into(
             &mut k,
-            b,
+            &mut b,
             ShellId::from_index(id),
             tight,
             &mut bx,
         ),
         _ => p1::calculate_region_bounding_box_into(
             &mut k,
-            b,
+            &mut b,
             RegionId::from_index(id),
             tight,
             &mut bx,

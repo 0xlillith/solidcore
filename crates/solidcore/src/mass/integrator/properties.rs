@@ -349,14 +349,10 @@ pub fn boundary_properties(
 }
 
 fn brep_box(k: &Kernel, b: &Brep) -> Result<Extent3d> {
-    crate::query::brep::calculate_bounding_box(
-        k,
-        b,
-        crate::query::brep::BoundingBoxOptions::default(),
-    )
+    crate::query::brep::calculate_loose_bounding_box(k, b, false, true)
 }
 fn face_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
-    crate::query::face::p1::calculate_bounding_box(k, b, f, false)
+    crate::query::face::p1::calculate_loose_bounding_box(k, b, f)
 }
 fn faces(b: &Brep) -> Result<Vec<FaceId>> {
     crate::topology::brep::p1::faces(b, None)

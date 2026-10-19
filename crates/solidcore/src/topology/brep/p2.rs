@@ -503,11 +503,7 @@ fn check_uv_trim_curve(k: &Kernel, b: &Brep, eu: EdgeuseId) -> Result<bool> {
 
 /// `SmBrep::CalculateBoundingBox(box)` with defaults (unit `query.brep`).
 fn brep_bounding_box(k: &Kernel, b: &Brep) -> Result<Extent3d> {
-    crate::query::brep::calculate_bounding_box(
-        k,
-        b,
-        crate::query::brep::BoundingBoxOptions::default(),
-    )
+    crate::query::brep::calculate_loose_bounding_box(k, b, false, true)
 }
 
 /// `SmFace::SetTolerance(tol, bUpdateOnlyIfLarger, FALSE)` (unit `topology.face_p3`).
@@ -926,7 +922,7 @@ fn edge_box(k: &Kernel, b: &Brep, e: EdgeId) -> Result<Extent3d> {
 
 /// `SmFace::CalculateBoundingBox(box)` (unit `query.face_p1`).
 fn face_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
-    crate::query::face::p1::calculate_bounding_box(k, b, f, false)
+    crate::query::face::p1::calculate_loose_bounding_box(k, b, f)
 }
 
 // ---- caches -------------------------------------------------------------------------------
@@ -1312,7 +1308,7 @@ pub fn ray_fire_with_cache<'cache>(
     let best_sq = answer_limit.map_or(BIG_DOUBLE, |l| l * l);
     let vectors = [ray];
     let cache = cache(b)?;
-    let objects = BrepObjects {
+    let mut objects = BrepObjects {
         brep: b,
         brep_id,
         cache,
@@ -1321,7 +1317,7 @@ pub fn ray_fire_with_cache<'cache>(
     };
     let solutions = TopologySolver::brep_point_solve(
         k,
-        &objects,
+        &mut objects,
         Some(CacheObject::Brep),
         start,
         TopologySolveOptions {
@@ -1862,7 +1858,7 @@ pub struct MergedCurves {
 #[allow(clippy::too_many_arguments)]
 pub fn merge_curves_on_surface<O: ClassObject + Copy>(
     k: &mut Kernel,
-    b: &mut Brep,
+    b: &Brep,
     objects: &impl MergeCurvesObjects<O>,
     face: FaceId,
     tolerance: f64,
@@ -1885,7 +1881,7 @@ pub fn merge_curves_on_surface<O: ClassObject + Copy>(
 #[allow(clippy::too_many_arguments)]
 fn merge_curves_body<O: ClassObject + Copy>(
     k: &Kernel,
-    b: &mut Brep,
+    b: &Brep,
     objects: &impl MergeCurvesObjects<O>,
     face: FaceId,
     tolerance: f64,

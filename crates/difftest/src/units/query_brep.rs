@@ -655,14 +655,14 @@ fn bbox_rust(i: &BboxInput) -> Result<Output, HarnessError> {
                 expand,
             } => brep::calculate_bounding_box(
                 &k,
-                &graph,
+                &mut graph,
                 brep::BoundingBoxOptions {
                     approximate,
                     tight,
                     expand_by_zone_tolerance: expand,
                 },
             ),
-            BoxStep::Tight => brep::calculate_tight_bounding_box(&k, &graph),
+            BoxStep::Tight => brep::calculate_tight_bounding_box(&k, &mut graph),
             BoxStep::Lock { tight } => {
                 locked = false;
                 brep::lock_bounding_box(&k, &mut graph, tight).map(|()| {
@@ -675,9 +675,7 @@ fn bbox_rust(i: &BboxInput) -> Result<Output, HarnessError> {
                 locked = false;
                 Ok(initial)
             }
-            BoxStep::Default => {
-                brep::calculate_bounding_box(&k, &graph, brep::BoundingBoxOptions::default())
-            }
+            BoxStep::Default => brep::calculate_loose_bounding_box(&k, &graph, false, true),
             BoxStep::SetEdgeInterval {
                 edge_list_index,
                 min,

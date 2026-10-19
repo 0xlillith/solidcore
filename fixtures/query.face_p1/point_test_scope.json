@@ -1,0 +1,604 @@
+{
+  "cases": [
+    {
+      "name": "point_test_scope_plane_interior_global",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.375,
+        "v": 0.625,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    },
+    {
+      "name": "point_test_scope_plane_edge_global",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    },
+    {
+      "name": "point_test_scope_plane_vertex_global",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0,
+        "v": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    },
+    {
+      "name": "point_test_scope_plane_boundary_without_intersections",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": false,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    },
+    {
+      "name": "point_test_scope_explicit_uv_empty_target_loops",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.375,
+        "v": 0.625,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": true,
+        "has_loops": true,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    },
+    {
+      "name": "point_test_scope_plane_local_guess",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.375,
+        "v": 0.625,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": true,
+        "guess": {
+          "du": 0,
+          "dv": 0
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    },
+    {
+      "name": "point_test_scope_face_uv_domain_still_applies",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 1.25,
+        "v": 0.5,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    },
+    {
+      "name": "point_test_scope_surface_distance_still_applies",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -1,
+            -1,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.375,
+        "v": 0.625,
+        "offset": [
+          0,
+          0,
+          0.0001
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    },
+    {
+      "name": "point_test_scope_bspline_global",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    0.5,
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    0.5,
+                    0,
+                    0,
+                    1
+                  ],
+                  [
+                    0.5,
+                    0.5,
+                    0.5,
+                    1
+                  ],
+                  [
+                    0.5,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    0,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    0.5,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 2,
+              "q": 2,
+              "u": [
+                0,
+                0,
+                0,
+                1,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                0,
+                1,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.35,
+        "v": 0.65,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": true,
+        "guess": null,
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    },
+    {
+      "name": "point_test_scope_bspline_offset_guess",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107",
+      "inputs": {
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "bspline": {
+              "oob": false,
+              "form": 0,
+              "net": [
+                [
+                  [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    0.5,
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    0.5,
+                    0,
+                    0,
+                    1
+                  ],
+                  [
+                    0.5,
+                    0.5,
+                    0.5,
+                    1
+                  ],
+                  [
+                    0.5,
+                    1,
+                    0,
+                    1
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    0,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    0.5,
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    0,
+                    1
+                  ]
+                ]
+              ],
+              "p": 2,
+              "q": 2,
+              "u": [
+                0,
+                0,
+                0,
+                1,
+                1,
+                1
+              ],
+              "v": [
+                0,
+                0,
+                0,
+                1,
+                1,
+                1
+              ]
+            }
+          },
+          "dom": [
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        "face": 0,
+        "u": 0.35,
+        "v": 0.65,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "src_tol": 0.000001,
+        "do_bnd": true,
+        "guess": {
+          "du": 0.5,
+          "dv": -0.5
+        },
+        "tgt_only": false,
+        "has_loops": false,
+        "loops": [],
+        "uv_ok": true,
+        "pc_tol": 0.000003
+      }
+    }
+  ]
+}

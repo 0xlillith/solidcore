@@ -15,7 +15,7 @@
 //! | [`quadric_edge_attribute`], [`QuadricEdgeData`] | `SmQuadricEdgeAttr` constructor/destructor |
 //! | [`crate::geom::attribute::Attribute::make_copy`] | the three `MakeCopy` overrides |
 //! | [`point_3d_classify`], [`BrepClassifyObjects`] | `SmBrep::Point3DClassify` |
-//! | [`calculate_bounding_box`], [`BoundingBoxOptions`] | `SmBrep::CalculateBoundingBox` |
+//! | [`calculate_bounding_box`], [`calculate_loose_bounding_box`], [`BoundingBoxOptions`] | `SmBrep::CalculateBoundingBox` |
 //! | [`calculate_tight_bounding_box`] | `SmBrep::CalculateTightBoundingBox` |
 //! | [`lock_bounding_box`] | `SmBrep::LockBoundingBox` |
 //! | [`unlock_bounding_box`] | `SmBrep::UnLockBoundingBox` |
@@ -331,31 +331,21 @@ impl Default for BoundingBoxOptions {
         }
     }
 }
-fn face_bounding_box(
-    kernel: &Kernel,
-    brep: &Brep,
-    face: FaceId,
-    tight: bool,
-    out: &mut Extent3d,
-) -> Result<()> {
+fn face_bounding_box(kernel: &Kernel, brep: &Brep, face: FaceId, out: &mut Extent3d) -> Result<()> {
     // The loose face calculation writes its caller's box only on success. In
     // particular, the tight B-rep loop reuses the previous face's box on failure.
-    *out = crate::query::face::p1::calculate_bounding_box(kernel, brep, face, tight)?;
+    *out = crate::query::face::p1::calculate_loose_bounding_box(kernel, brep, face)?;
     Ok(())
 }
 fn face_tight_bounding_box(
-    _kernel: &Kernel,
-    _brep: &Brep,
-    _face: FaceId,
-    _out: &mut Extent3d,
+    kernel: &Kernel,
+    brep: &mut Brep,
+    face: FaceId,
+    out: &mut Extent3d,
 ) -> Result<()> {
-    // Keep the in/out box when this callee is ported: SmFace.cpp:1014 writes the
-    // boundary box before fallible surface work, so a failure can leave new data.
-    // UNPORTED(query.face_p3): SmFace::CalculateTightBoundingBox
-    Err(SolidError::unported(
-        "SmFace::CalculateTightBoundingBox",
-        "query.face_p3",
-    ))
+    // SmFace.cpp:1014 publishes the boundary box before fallible surface work;
+    // the B-rep's tight calculation consumes that output even after an error.
+    crate::query::face::p3::calculate_tight_bounding_box_into(kernel, brep, face, out)
 }
 
 /// The B-rep box, respecting a previously locked box before reading geometry.
@@ -363,19 +353,83 @@ fn face_tight_bounding_box(
 /// [`crate::topology::brep::p1`], in their recorded order. Tolerance expansion is
 /// per object, in addition to any expansion performed by that object's box
 /// calculation; disabling it does not disable the child's own expansion.
+/// The tight face path can attach UV trim curves to the original B-rep. Use
+/// [`calculate_loose_bounding_box`] for a read-only query with `tight = false`.
 ///
 /// # Errors
 /// Propagates the first failing list lookup or edge or face box calculation.
 /// The result is returned only after the entire selected calculation succeeds.
 pub fn calculate_bounding_box(
     kernel: &Kernel,
-    brep: &Brep,
+    brep: &mut Brep,
     options: BoundingBoxOptions,
 ) -> Result<Extent3d> {
+    if !options.tight {
+        return calculate_loose_bounding_box(
+            kernel,
+            brep,
+            options.approximate,
+            options.expand_by_zone_tolerance,
+        );
+    }
+    let (mut bbox, faces) = bounding_box_before_faces(kernel, brep, options)?;
+    for id in faces {
+        let tolerance = brep.face(id)?.tolerance;
+        let mut fbox = crate::query::face::p1::calculate_bounding_box(kernel, brep, id, true)?;
+        if options.expand_by_zone_tolerance {
+            fbox.expand_absolute(tolerance);
+        }
+        bbox = bbox.union(&fbox);
+    }
+    Ok(bbox)
+}
+
+/// The read-only B-rep box with the native `bTight = false` behavior.
+///
+/// `approximate` and `expand_by_zone_tolerance` retain the corresponding options
+/// of [`BoundingBoxOptions`]; their native defaults are `false` and `true`.
+/// A previously locked box is returned before geometry is read.
+///
+/// # Errors
+///
+/// Those of the selected vertex, edge and face lists and box calculations.
+pub fn calculate_loose_bounding_box(
+    kernel: &Kernel,
+    brep: &Brep,
+    approximate: bool,
+    expand_by_zone_tolerance: bool,
+) -> Result<Extent3d> {
+    let (mut bbox, faces) = bounding_box_before_faces(
+        kernel,
+        brep,
+        BoundingBoxOptions {
+            approximate,
+            tight: false,
+            expand_by_zone_tolerance,
+        },
+    )?;
+    for id in faces {
+        let tolerance = brep.face(id)?.tolerance;
+        let mut fbox = crate::query::face::p1::calculate_loose_bounding_box(kernel, brep, id)?;
+        if expand_by_zone_tolerance {
+            fbox.expand_absolute(tolerance);
+        }
+        bbox = bbox.union(&fbox);
+    }
+    Ok(bbox)
+}
+
+/// The common lock, vertex and edge stages. No faces remain after a locked-box or
+/// approximate return; otherwise their recorded order is passed to the caller.
+fn bounding_box_before_faces(
+    kernel: &Kernel,
+    brep: &Brep,
+    options: BoundingBoxOptions,
+) -> Result<(Extent3d, Vec<FaceId>)> {
     use crate::nurbs::b_spline_curve::BoundingBoxRequest;
     use crate::topology::brep::p1;
     if let Some(locked) = brep.locked_bounding_box {
-        return Ok(locked);
+        return Ok((locked, Vec::new()));
     }
     let mut bbox = Extent3d::new();
     let vertices = p1::vertices(brep, None)?;
@@ -389,7 +443,7 @@ pub fn calculate_bounding_box(
     }
     let edges = p1::edges(brep, None)?;
     if options.approximate && vertices.len() > 500 && edges.len() > 100 {
-        return Ok(bbox);
+        return Ok((bbox, Vec::new()));
     }
     let request = BoundingBoxRequest {
         normal: true,
@@ -414,18 +468,12 @@ pub fn calculate_bounding_box(
             bbox = bbox.union(&ebox);
         }
     }
-    if !options.approximate {
-        for id in p1::faces(brep, None)? {
-            let face = brep.face(id)?;
-            let mut fbox = Extent3d::new();
-            face_bounding_box(kernel, brep, id, options.tight, &mut fbox)?;
-            if options.expand_by_zone_tolerance {
-                fbox.expand_absolute(face.tolerance);
-            }
-            bbox = bbox.union(&fbox);
-        }
-    }
-    Ok(bbox)
+    let faces = if options.approximate {
+        Vec::new()
+    } else {
+        p1::faces(brep, None)?
+    };
+    Ok((bbox, faces))
 }
 
 /// The tight B-rep box; adds no zone tolerances and ignores the locked box.
@@ -436,7 +484,7 @@ pub fn calculate_bounding_box(
 ///
 /// # Errors
 /// An unavailable face/edge callee or an invalid arena reference.
-pub fn calculate_tight_bounding_box(kernel: &Kernel, brep: &Brep) -> Result<Extent3d> {
+pub fn calculate_tight_bounding_box(kernel: &Kernel, brep: &mut Brep) -> Result<Extent3d> {
     use crate::error::ignored;
     use crate::nurbs::b_spline_curve::BoundingBoxRequest;
     use crate::topology::brep::p1;
@@ -479,7 +527,7 @@ pub fn calculate_tight_bounding_box(kernel: &Kernel, brep: &Brep) -> Result<Exte
     let mut face_box = Extent3d::new();
     for id in p1::faces(brep, None)? {
         brep.face(id)?;
-        crate::error::ignore_status(face_bounding_box(kernel, brep, id, false, &mut face_box))?;
+        crate::error::ignore_status(face_bounding_box(kernel, brep, id, &mut face_box))?;
         if face_box.is_contained_by(&bbox, 0.0) {
             continue;
         }

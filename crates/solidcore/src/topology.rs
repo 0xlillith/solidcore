@@ -670,7 +670,7 @@ impl Brep {
     pub fn new_with_infinite_region() -> Result<Self> {
         let mut b = Self::default();
         // Create infinite region and put into brep's region list
-        let r = b.regions.insert(Region {
+        let r = b.add_region_record(Region {
             in_brep: true,
             shells: Vec::new(),
             is_void: 1,
@@ -1110,24 +1110,40 @@ mod tests {
     use crate::math::Vec3;
 
     #[test]
+    fn infinite_region_constructor_initializes_the_native_list() {
+        let mut b = Brep::new_with_infinite_region().unwrap();
+        let infinite = b.infinite_region().unwrap();
+        assert_eq!(brep::p1::regions(&b, None).unwrap(), vec![infinite]);
+        assert_eq!(b.region_list_head(), Some(infinite));
+        assert_eq!(b.region(infinite).unwrap().is_void, 1);
+
+        let next = b
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
+        assert_eq!(brep::p1::regions(&b, None).unwrap(), vec![infinite, next]);
+        assert_eq!(b.infinite_region(), Some(infinite));
+    }
+
+    #[test]
     fn copied_brep_does_not_reuse_the_original_locked_box() {
-        use crate::query::brep::{calculate_bounding_box, lock_bounding_box, BoundingBoxOptions};
+        use crate::query::brep::{calculate_loose_bounding_box, lock_bounding_box};
 
         let k = crate::kernel::Kernel::default();
         let mut original = Brep::new();
         let vertex = original.add_vertex(Vec3::ZERO).unwrap();
         lock_bounding_box(&k, &mut original, false).unwrap();
-        let original_box =
-            calculate_bounding_box(&k, &original, BoundingBoxOptions::default()).unwrap();
+        let original_box = calculate_loose_bounding_box(&k, &original, false, true).unwrap();
 
         let mut copied = original.clone();
         assert!(copied.locked_bounding_box.is_none());
         copied.vertex_mut(vertex).unwrap().point = Vec3::new(10.0, 20.0, 30.0);
-        let copied_box =
-            calculate_bounding_box(&k, &copied, BoundingBoxOptions::default()).unwrap();
+        let copied_box = calculate_loose_bounding_box(&k, &copied, false, true).unwrap();
         assert!(copied_box.min().x > original_box.max().x);
         assert_eq!(
-            calculate_bounding_box(&k, &original, BoundingBoxOptions::default()).unwrap(),
+            calculate_loose_bounding_box(&k, &original, false, true).unwrap(),
             original_box
         );
     }

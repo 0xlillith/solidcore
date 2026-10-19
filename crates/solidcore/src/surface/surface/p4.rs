@@ -60,9 +60,13 @@
 //!   variables only read on paths where they were set start at zero.
 //! - **Kernel.** `is_on_seam` and `global_point_solve` (and `global_point_solve_starts`)
 //!   take the [`Kernel`] that the tolerance, drop and cache callees now need.
+//! - **Point-test scope.** [`FacePointTest`] expresses a caller's temporary
+//!   `m_bPointTestEnabled = FALSE` per solve, without changing the surface's owner or
+//!   storing mutable cache state on it. The fast drop skips only the face trim test;
+//!   the original global solver applies the mode before borrowing its cache tree.
+//!   The new global solver and the local solvers do not read that cache flag.
 //! - **Unported callees** (return [`SolidError::Unported`]): the zone tolerance of a face's
-//!   surface (`SmFace::GetTolerance`, `topology.face_p2`), `GlobalPointSolve_1`
-//!   (`surface.surface_point_solve_p3`), the trim containment of a face's surface
+//!   surface (`SmFace::GetTolerance`, `topology.face_p2`), the trim containment of a face's surface
 //!   (`SmFace::PointClassify`, `query.face_p2`) and the edge and face tolerances of owned
 //!   curves and surfaces (`topology.edge`, `topology.face_p2`).
 
@@ -94,6 +98,7 @@ use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::EvaluateFlags;
 use crate::nurbs::knots::Side;
 use crate::surface::plane::Plane;
+use crate::surface::surface_cache::SurfaceCache;
 
 use super::p1::get_surface_cache;
 use super::p1::{
@@ -114,6 +119,31 @@ const OP_SS_NORMALIZE: &str = "surface::surface::p4::SsNormalizeEnfo::evaluate";
 const OP_EVAL_NORMAL: &str = "surface::surface::p4::SurfaceEval::eval_normal";
 const OP_SEAM: &str = "surface::surface::p4::Surface::create_seam_curve";
 const OP_CLASSIFY: &str = "surface::surface::p4::classify_curve_surface_xsect_point";
+
+/// Whether a global surface-point solve may test its solutions against the owning
+/// face's trim boundaries (`SmSurfaceCache::m_bPointTestEnabled`).
+///
+/// This is a per-call override, so a disabled test cannot leak into a later solve.
+/// It does not disable the solver's UV-domain or distance tests, change boundary
+/// curve processing, or replace an explicit face classification made by the caller.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum FacePointTest {
+    /// Keep the usual trim point-test path and the cache's existing flags.
+    #[default]
+    Enabled,
+    /// Disable trim point and node tests for this solve only.
+    Disabled,
+}
+
+impl FacePointTest {
+    /// Applies only the temporary disabling requested by the caller; enabling does
+    /// not turn on a base cache's normally disabled point test.
+    pub(super) fn apply<O>(self, cache: &mut SurfaceCache<O>) {
+        if self == Self::Disabled {
+            cache.point_test_enabled = false;
+        }
+    }
+}
 
 /// Entry `i` of an evaluation result.
 fn nth(v: &[Vec3], i: usize, op: &'static str) -> Result<Vec3> {
@@ -1252,9 +1282,8 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: the trim containment of a face's surface,
-    /// `GlobalPointSolve_1` (`surface.surface_point_solve_p3`); those of
-    /// [`Surface::global_point_solve_0`] for maximize.
+    /// [`SolidError::Unported`] for the trim containment of a face's surface;
+    /// those of the fast drop and the selected global solver.
     pub fn global_point_solve<O: SolutionObject>(
         &self,
         k: &Kernel,
@@ -1266,8 +1295,7 @@ impl Surface {
         opt_target_distance: Option<f64>,
         requested: SolutionRequested,
     ) -> Result<SolutionArray<O>> {
-        let mut solutions = SolutionArray::new();
-        self.global_point_solve_into(
+        self.global_point_solve_with_point_test(
             k,
             surface,
             uv_domain,
@@ -1276,6 +1304,44 @@ impl Surface {
             src_zone_tol_3d,
             opt_target_distance,
             requested,
+            FacePointTest::Enabled,
+        )
+    }
+
+    /// [`Surface::global_point_solve`] with a caller's scoped trim point-test mode.
+    ///
+    /// [`FacePointTest::Disabled`] corresponds to temporarily setting the surface
+    /// cache's `m_bPointTestEnabled` to false around the native call. It leaves the
+    /// surface and its owner unchanged and also reaches the original solver used
+    /// for maximize. Subsequent calls use their own mode.
+    ///
+    /// # Errors
+    ///
+    /// As [`Surface::global_point_solve`], except that a disabled trim point test
+    /// cannot fail in the owning face's containment query.
+    pub fn global_point_solve_with_point_test<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: Option<O>,
+        uv_domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        src_zone_tol_3d: f64,
+        opt_target_distance: Option<f64>,
+        requested: SolutionRequested,
+        point_test: FacePointTest,
+    ) -> Result<SolutionArray<O>> {
+        let mut solutions = SolutionArray::new();
+        self.global_point_solve_into_with_point_test(
+            k,
+            surface,
+            uv_domain,
+            op,
+            test_point,
+            src_zone_tol_3d,
+            opt_target_distance,
+            requested,
+            point_test,
             &mut solutions,
         )?;
         Ok(solutions)
@@ -1298,6 +1364,101 @@ impl Surface {
         src_zone_tol_3d: f64,
         opt_target_distance: Option<f64>,
         requested: SolutionRequested,
+        solutions: &mut SolutionArray<O>,
+    ) -> Result<()> {
+        self.global_point_solve_into_with_point_test(
+            k,
+            surface,
+            uv_domain,
+            op,
+            test_point,
+            src_zone_tol_3d,
+            opt_target_distance,
+            requested,
+            FacePointTest::Enabled,
+            solutions,
+        )
+    }
+
+    /// [`Surface::global_point_solve_with_point_test`] with upstream's output array.
+    /// The array is reset first and retains values written before an error, as in
+    /// [`Surface::global_point_solve_into`].
+    ///
+    /// # Errors
+    ///
+    /// As [`Surface::global_point_solve_with_point_test`].
+    pub fn global_point_solve_into_with_point_test<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: Option<O>,
+        uv_domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        src_zone_tol_3d: f64,
+        opt_target_distance: Option<f64>,
+        requested: SolutionRequested,
+        point_test: FacePointTest,
+        solutions: &mut SolutionArray<O>,
+    ) -> Result<()> {
+        let mut cache = None;
+        self.global_point_solve_into_with_cache(
+            k,
+            surface,
+            uv_domain,
+            op,
+            test_point,
+            src_zone_tol_3d,
+            opt_target_distance,
+            requested,
+            point_test,
+            &mut cache,
+            solutions,
+        )
+    }
+
+    /// An intersection inside a caller's native cache checkout scope. The caller
+    /// acquires the cache at the point required by its own contract and keeps it
+    /// for subsequent intersections. A missing cache is allowed; the fast path
+    /// can try `smsurf_GetSurfaceCache` again, as the native wrapper does.
+    pub(crate) fn global_point_intersect_with_cache(
+        &self,
+        k: &Kernel,
+        uv_domain: &Extent2d,
+        test_point: Point3,
+        src_zone_tol_3d: f64,
+        requested: SolutionRequested,
+        point_test: FacePointTest,
+        cache: &mut Option<SurfaceCache<NoObject>>,
+    ) -> Result<SolutionArray<NoObject>> {
+        let mut solutions = SolutionArray::new();
+        self.global_point_solve_into_with_cache(
+            k,
+            Some(NoObject),
+            uv_domain,
+            SolverOperation::Intersect,
+            test_point,
+            src_zone_tol_3d,
+            None,
+            requested,
+            point_test,
+            cache,
+            &mut solutions,
+        )?;
+        Ok(solutions)
+    }
+
+    fn global_point_solve_into_with_cache<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface: Option<O>,
+        uv_domain: &Extent2d,
+        op: SolverOperation,
+        test_point: Point3,
+        src_zone_tol_3d: f64,
+        opt_target_distance: Option<f64>,
+        requested: SolutionRequested,
+        point_test: FacePointTest,
+        cache: &mut Option<SurfaceCache<NoObject>>,
         solutions: &mut SolutionArray<O>,
     ) -> Result<()> {
         // init output
@@ -1343,23 +1504,30 @@ impl Surface {
                 // values are within the trim boundaries of the face, unless flags in its
                 // surface cache indicate otherwise.
                 if self.owner().is_some_and(|o| o.type_code == FACE_TYPE) {
-                    get_surface_cache(k, self, None::<NoObject>)?;
-                    // UNPORTED(query.face_p2): SmFace::PointClassify
-                    // NOTE for the face_p2 porter: upstream callers disable the surface
-                    // cache's point test (`m_bPointTestEnabled`, SmTemporaryChangeValue)
-                    // around GlobalPointSolve so every solution is kept unclassified:
-                    // SmCurveClass.cpp:1040, SmTopologySolver.cpp:1665,
-                    // SmVertexUse.cpp:471-480, SmBrep.cpp:11098 and
-                    // SmFace.cpp:12796-12801 (Rust:
-                    // `intersect::curve_class::p1`, `intersect::topology_solver::p2`,
-                    // `topology::vertexuse`, `topology::brep::p1::find_sector_of_face`,
-                    // `query::face::p1::point_3d_classify`).
-                    // The Rust cache has no such switch yet; add it when this stub is
-                    // wired.
-                    return Err(SolidError::unported(
-                        "SmFace::PointClassify",
-                        "query.face_p2",
-                    ));
+                    if cache.is_none() {
+                        // No NER here: a failed native acquisition leaves a null
+                        // cache and keeps the drop. Reuse a caller's successful
+                        // checkout instead of building a second cache.
+                        *cache = ignored(get_surface_cache(k, self, None::<NoObject>))?;
+                    }
+                    if point_test == FacePointTest::Enabled
+                        && cache.as_ref().is_some_and(|cache| {
+                            cache.point_test_enabled && !cache.face_was_modified
+                        })
+                    {
+                        // UNPORTED(query.face_p2): SmFace::PointClassify
+                        // This enabled path still needs the owning face's mutable
+                        // topology context. Point3DClassify supplies Disabled, as its
+                        // native guard does (SmFace.cpp:12796-12801). Other native
+                        // guards still need to pass that mode at their call sites:
+                        // SmCurveClass.cpp:1040, SmVertexUse.cpp:471-480 and
+                        // SmBrep.cpp:11098 (Rust: intersect::curve_class::p1,
+                        // topology::vertexuse, topology::brep::p1::find_sector_of_face).
+                        return Err(SolidError::unported(
+                            "SmFace::PointClassify",
+                            "query.face_p2",
+                        ));
+                    }
                 }
 
                 if !solutions.is_empty() {
@@ -1385,7 +1553,7 @@ impl Surface {
                 None,
             )?
         } else if let Some(surface) = surface {
-            self.global_point_solve_0(
+            self.global_point_solve_0_with_point_test(
                 k,
                 surface,
                 uv_domain,
@@ -1394,11 +1562,12 @@ impl Surface {
                 src_zone_tol_3d,
                 opt_target_distance,
                 requested,
+                point_test,
             )?
         } else {
             // no handle for the solutions' objects (upstream passes `this`): solve with
             // a stand-in and leave the objects null
-            let found = self.global_point_solve_0(
+            let found = self.global_point_solve_0_with_point_test(
                 k,
                 NoObject,
                 uv_domain,
@@ -1407,6 +1576,7 @@ impl Surface {
                 src_zone_tol_3d,
                 opt_target_distance,
                 requested,
+                point_test,
             )?;
             let mut out = SolutionArray::new();
             for s in found.as_slice() {
@@ -1990,6 +2160,9 @@ pub fn global_point_solve_starts(
 mod tests {
     use super::*;
     use crate::nurbs::b_spline_surface::LocationType;
+    use crate::surface::surface_cache::p1::SurfaceCacheOptions;
+    use crate::topology::brep_cache::{arena_identity, CacheObject};
+    use crate::topology::Brep;
 
     fn plane() -> Surface {
         Surface::from(Plane::from_normal(
@@ -2009,6 +2182,112 @@ mod tests {
         let (uv, loc) = s.step_inversion(&k, &dom, p, 1e-6, None).unwrap();
         assert!((uv.x - 0.25).abs() < 1e-9 && (uv.y - 0.5).abs() < 1e-9);
         assert_eq!(loc, LocationType::Interior);
+    }
+
+    #[test]
+    fn cached_fast_drop_respects_trim_scope_and_cache_state() {
+        let k = Kernel::default();
+        let mut b = Brep::new();
+        let shell = b.add_shell().unwrap();
+        let face = b.add_face(shell).unwrap();
+        let owner = arena_identity(CacheObject::Face(face));
+        let dom = Extent2d::from_bounds(-2.0, -2.0, 2.0, 2.0);
+        let mut surface = plane();
+        surface.set_owner(Some(owner));
+        let record = b.face_mut(face).unwrap();
+        record.surface = Some(surface);
+        record.uv_domain = dom;
+        let surface = b.face(face).unwrap().surface.as_ref().unwrap();
+        let uv = Point2::new(0.25, 0.5);
+        let point = surface.evaluate_point(uv).unwrap();
+        // Use the trimmed-cache constructor's native point-test state. This
+        // fixture exercises fast-drop dispatch; no subdivision tree is read.
+        let mut cache = Some(
+            crate::surface::trim_srf_cache::TrimSrfCache::new(
+                surface.clone(),
+                SurfaceCacheOptions::default(),
+            )
+            .into_base(),
+        );
+        let mut solutions = SolutionArray::<NoObject>::new();
+        let solve = |mode,
+                     cache: &mut Option<SurfaceCache<NoObject>>,
+                     solutions: &mut SolutionArray<NoObject>| {
+            surface.global_point_solve_into_with_cache(
+                &k,
+                Some(NoObject),
+                &dom,
+                SolverOperation::Intersect,
+                point,
+                1e-6,
+                None,
+                SolutionRequested::Single,
+                mode,
+                cache,
+                solutions,
+            )
+        };
+
+        // The enabled trim test needs the real face's mutable context, after the
+        // plane drop has already written its numerical result.
+        let enabled = solve(FacePointTest::Enabled, &mut cache, &mut solutions);
+        assert!(matches!(
+            enabled,
+            Err(SolidError::Unported {
+                unit: "query.face_p2",
+                ..
+            })
+        ));
+        assert_eq!(solutions.len(), 1);
+
+        let dropped = surface
+            .global_point_intersect_with_cache(
+                &k,
+                &dom,
+                point,
+                1e-6,
+                SolutionRequested::Single,
+                FacePointTest::Disabled,
+                &mut cache,
+            )
+            .unwrap();
+        assert_eq!(dropped.len(), 1);
+        let found = dropped.get(0).unwrap();
+        assert_eq!(found.start.parameters.first().copied(), Some(uv.x));
+        assert_eq!(found.start.parameters.get(1).copied(), Some(uv.y));
+        assert_eq!(surface.owner(), Some(owner));
+        assert_eq!(surface.evaluate_point(uv).unwrap(), point);
+
+        // The same cache remains enabled for a later call: disabling is scoped
+        // to the solve, without overwriting a checkout shared by two endpoints.
+        let later = solve(FacePointTest::Enabled, &mut cache, &mut solutions);
+        assert!(matches!(
+            later,
+            Err(SolidError::Unported {
+                unit: "query.face_p2",
+                ..
+            })
+        ));
+        assert_eq!(solutions.len(), 1);
+
+        // A modified face bypasses the trim test, as does an ordinary base cache.
+        // Both still execute the plane drop and return the same UV solution.
+        cache.as_mut().unwrap().face_was_modified = true;
+        solve(FacePointTest::Enabled, &mut cache, &mut solutions).unwrap();
+        assert_eq!(
+            solutions.get(0).unwrap().start.parameters,
+            found.start.parameters,
+        );
+        cache = Some(SurfaceCache::new(
+            surface.clone(),
+            dom,
+            SurfaceCacheOptions::default(),
+        ));
+        solve(FacePointTest::Enabled, &mut cache, &mut solutions).unwrap();
+        assert_eq!(
+            solutions.get(0).unwrap().start.parameters,
+            found.start.parameters,
+        );
     }
 
     #[test]

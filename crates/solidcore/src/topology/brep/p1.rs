@@ -720,7 +720,7 @@ pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
     // status is ignored: a failure leaves the default box)
     // CalculateBoundingBox(sBBox): header defaults bApprox = FALSE, bTight = FALSE,
     // bExpandByZoneTol3d = TRUE
-    let bbox = ignored(brep_bounding_box(k, b, false, false, true))?.unwrap_or_default();
+    let bbox = ignored(brep_loose_bounding_box(k, b, false, true))?.unwrap_or_default();
     Ok(bbox.is_point_sized(tol_3d))
 }
 
@@ -1472,22 +1472,13 @@ fn shell_mated_shells(k: &mut Kernel, b: &Brep, shell: ShellId) -> Result<Vec<Sh
 
 /// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
 /// `query.brep`).
-fn brep_bounding_box(
+fn brep_loose_bounding_box(
     k: &Kernel,
     b: &Brep,
     approx: bool,
-    tight: bool,
     expand_by_zone_tol_3d: bool,
 ) -> Result<Extent3d> {
-    crate::query::brep::calculate_bounding_box(
-        k,
-        b,
-        crate::query::brep::BoundingBoxOptions {
-            approximate: approx,
-            tight,
-            expand_by_zone_tolerance: expand_by_zone_tol_3d,
-        },
-    )
+    crate::query::brep::calculate_loose_bounding_box(k, b, approx, expand_by_zone_tol_3d)
 }
 
 /// `SmEdgeuse::GetOrCreateUVTrimCurve(rpUVTrimCurve, pdOptDistToSurf, pdOptDeviation,

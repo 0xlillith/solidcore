@@ -21,7 +21,6 @@ use crate::geom::tree::{NodeGeomType, Tree};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3};
 use crate::nurbs::b_spline_curve::BoundingBoxRequest;
-use crate::query::brep::BoundingBoxOptions;
 use crate::topology::brep::p1;
 use crate::topology::topology::Topology;
 use crate::topology::{Brep, BrepId};
@@ -71,7 +70,7 @@ fn add_unique<T: PartialEq>(items: &mut Vec<T>, item: T) {
 fn brep_box(k: &Kernel, b: &Brep) -> Result<Extent3d> {
     let mut bbox = Extent3d::new();
     ignore_status(
-        crate::query::brep::calculate_bounding_box(k, b, BoundingBoxOptions::default())
+        crate::query::brep::calculate_loose_bounding_box(k, b, false, true)
             .map(|value| bbox = value),
     )?;
     Ok(bbox)
@@ -120,7 +119,7 @@ fn face_box(
 ) -> Result<()> {
     // The loose face call writes only on success; one precompute loop reuses out.
     ignore_status(
-        crate::query::face::p1::calculate_bounding_box(k, objects.brep(face.0)?, face.1, false)
+        crate::query::face::p1::calculate_loose_bounding_box(k, objects.brep(face.0)?, face.1)
             .map(|value| *out = value),
     )
 }

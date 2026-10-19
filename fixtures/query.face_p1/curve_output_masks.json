@@ -1,0 +1,349 @@
+{
+  "cases": [
+    {
+      "name": "curve_output_mask_kind0_high_bit_only",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 0,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": 8
+      }
+    },
+    {
+      "name": "curve_output_mask_kind0_all_bits",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 0,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": -1
+      }
+    },
+    {
+      "name": "curve_output_mask_kind0_minimum_i32",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 0,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": -2147483648
+      }
+    },
+    {
+      "name": "curve_output_mask_kind0_maximum_i32",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 0,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": 2147483647
+      }
+    },
+    {
+      "name": "curve_output_mask_kind0_high_bit_and_point",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 0,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": 9
+      }
+    },
+    {
+      "name": "curve_output_mask_kind1_high_bit_only",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 1,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": 8
+      }
+    },
+    {
+      "name": "curve_output_mask_kind1_all_bits",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 1,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": -1
+      }
+    },
+    {
+      "name": "curve_output_mask_kind1_minimum_i32",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 1,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": -2147483648
+      }
+    },
+    {
+      "name": "curve_output_mask_kind1_maximum_i32",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 1,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": 2147483647
+      }
+    },
+    {
+      "name": "curve_output_mask_kind1_high_bit_and_point",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 1,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": 9
+      }
+    },
+    {
+      "name": "curve_output_mask_kind2_high_bit_only",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 2,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": 8
+      }
+    },
+    {
+      "name": "curve_output_mask_kind2_all_bits",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 2,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": -1
+      }
+    },
+    {
+      "name": "curve_output_mask_kind2_minimum_i32",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 2,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": -2147483648
+      }
+    },
+    {
+      "name": "curve_output_mask_kind2_maximum_i32",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 2,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": 2147483647
+      }
+    },
+    {
+      "name": "curve_output_mask_kind2_high_bit_and_point",
+      "upstream_ref": "source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177",
+      "inputs": {
+        "kind": 2,
+        "data": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          4,
+          6,
+          0,
+          1,
+          0
+        ],
+        "parameter": 0.5,
+        "mask": 9
+      }
+    }
+  ]
+}

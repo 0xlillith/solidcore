@@ -16,7 +16,9 @@ use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::extent3d::Extent3d;
 use solidcore::geom::object::{EdgeKey, FaceKey, ObjectRef, Shape, ShapeMember, ShapeObjects};
 use solidcore::geom::solution_array::{ObjectKind, SolutionObject};
-use solidcore::intersect::point_class::{ClassGeometry, ClassObject, ClassObjectKind};
+use solidcore::intersect::point_class::{
+    ClassGeometry, ClassObject, ClassObjectKind, PointClassification,
+};
 use solidcore::intersect::topology_solver::p1::TopologyObjects;
 use solidcore::kernel::Kernel;
 use solidcore::math::Point3;
@@ -504,11 +506,7 @@ impl solidcore::topology::shell::ShellRayWorld<RayObject> for RayWorld<'_> {
     }
     fn shell_ray_bounds(&self, kernel: &Kernel, id: BrepId) -> solidcore::Result<Extent3d> {
         self.metadata.require_geometry()?;
-        solidcore::query::brep::calculate_bounding_box(
-            kernel,
-            self.brep(id)?,
-            solidcore::query::brep::BoundingBoxOptions::default(),
-        )
+        solidcore::query::brep::calculate_loose_bounding_box(kernel, self.brep(id)?, false, true)
     }
     fn shell_ray_shape(
         &mut self,
@@ -526,6 +524,77 @@ impl solidcore::topology::shell::ShellRayWorld<RayObject> for RayWorld<'_> {
 }
 
 impl TopologyObjects<RayObject> for RayWorld<'_> {
+    fn with_brep_trees(
+        &mut self,
+        _k: &Kernel,
+        _first: RayObject,
+        _second: Option<RayObject>,
+        _solve: &mut solidcore::intersect::topology_solver::p1::BrepTreeSolve<'_, RayObject>,
+    ) -> solidcore::Result<solidcore::geom::solution_array::SolutionArray<RayObject>> {
+        Err(ray_context_error("shape ray context has no B-rep handles"))
+    }
+    fn object_zone_tol_3d(&self, k: &Kernel, object: Option<RayObject>) -> solidcore::Result<f64> {
+        solidcore::topology::brep_cache::object_zone_tol_3d(
+            k,
+            self.brep,
+            object.map(RayObject::cache_object).transpose()?,
+            &ray_key,
+            &|_| None,
+        )
+    }
+    fn face_point_classify(
+        &mut self,
+        k: &Kernel,
+        face: RayObject,
+        uv: solidcore::math::Vec2,
+        source_zone_tolerance: f64,
+        do_boundaries: bool,
+        use_uv: bool,
+        classification: &mut PointClassification<EntityRef>,
+    ) -> solidcore::Result<()> {
+        let RayObject::Face(id) = face else {
+            return Err(ray_context_error("expected face handle"));
+        };
+        self.metadata.require_geometry()?;
+        solidcore::query::face::p2::point_classify(
+            k,
+            self.brep,
+            id,
+            uv,
+            classification,
+            solidcore::query::face::p2::PointClassifyOptions {
+                src_zone_tol_3d: source_zone_tolerance,
+                do_boundary_intersections: do_boundaries,
+                use_uv_classification: use_uv,
+                ..solidcore::query::face::p2::PointClassifyOptions::default()
+            },
+        )
+    }
+    fn face_point_3d_classify(
+        &mut self,
+        k: &Kernel,
+        face: RayObject,
+        point: Point3,
+        source_zone_tolerance: f64,
+        do_boundaries: bool,
+        classification: &mut PointClassification<EntityRef>,
+    ) -> solidcore::Result<()> {
+        let RayObject::Face(id) = face else {
+            return Err(ray_context_error("expected face handle"));
+        };
+        self.metadata.require_geometry()?;
+        solidcore::query::face::p1::point_3d_classify(
+            k,
+            self.brep,
+            id,
+            point,
+            source_zone_tolerance,
+            do_boundaries,
+            classification,
+            solidcore::query::face::p1::Point3dClassifyOptions::default(),
+        )
+    }
+
     fn curve(&self, object: RayObject) -> solidcore::Result<&Curve> {
         let RayObject::Curve(id) = object else {
             return Err(ray_context_error("expected curve handle"));
@@ -1479,10 +1548,10 @@ impl UnitDiff for Runner {
             let tolerance = degeneracy_tolerance(&degenerate)?;
             let mut kernel = Kernel::default();
             let mut out = vec![brep.shells().len() as i64, brep.regions().len() as i64];
-            for id in brep.shells().ids() {
+            for id in brep.shells().ids().collect::<Vec<_>>() {
                 match solidcore::topology::shell::shell_is_degenerate(
                     &mut kernel,
-                    &brep,
+                    &mut brep,
                     id,
                     tolerance,
                 ) {
@@ -1490,10 +1559,10 @@ impl UnitDiff for Runner {
                     Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
                 }
             }
-            for id in brep.regions().ids() {
+            for id in brep.regions().ids().collect::<Vec<_>>() {
                 match solidcore::topology::shell::region_is_degenerate(
                     &mut kernel,
-                    &brep,
+                    &mut brep,
                     id,
                     tolerance,
                 ) {

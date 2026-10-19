@@ -56,9 +56,11 @@ SC_EXPORT int32_t sc_intersect_topology_solver_p2_local(const double* input,
 #include <SmSolutionArray.h>
 #include <nurbs.h>
 #include <vector>
+#include "sc_edgeuse_graph.h"
+#include "sc_brep_query_metadata.h"
 
-SC_EXPORT int32_t sc_intersect_topology_solver_p2_static(const double* in,
-    int64_t n_in, double* out, int64_t cap, int64_t* out_len)
+static int32_t topology_solver_static_impl(const double* in,
+    int64_t n_in, double* out, int64_t cap, int64_t* out_len, bool export_fixture)
 {
     SC_TRY
     SmContext context;
@@ -100,6 +102,35 @@ SC_EXPORT int32_t sc_intersect_topology_solver_p2_static(const double* in,
             curve_consumed=true;
             if(first.CreateWireEdgeFromCurve(curve,SmExtent1d(0,1),edge)!=SM_SUCCESS || !edge) return SC_ERR_ARG;
         }
+    }
+    if (export_fixture) {
+        // Export only the input state, before any topology solver executes. The
+        // same constructors above serve this path and the reference evaluation.
+        std::vector<double> values;
+        values.push_back(1.0); // fixture envelope version
+        auto append_brep = [&](SmBrep& brep, SmFace* face, size_t first_vertex,
+                               size_t vertex_count, bool has_query_curve) {
+            Graph graph;
+            walk(&brep, graph);
+            std::vector<double> geometry(1, 0.0); // shared graph success prefix
+            export_graph(&brep, graph, geometry);
+            std::vector<double> metadata;
+            append_query_metadata(&brep, graph, metadata);
+            values.push_back((double)geometry.size());
+            values.insert(values.end(), geometry.begin(), geometry.end());
+            values.push_back((double)metadata.size());
+            values.insert(values.end(), metadata.begin(), metadata.end());
+            values.push_back((double)graph.find(3, face));
+            values.push_back((double)vertex_count);
+            for (size_t i = 0; i < vertex_count; ++i)
+                values.push_back((double)graph.find(9, vertices[first_vertex + i]));
+            values.push_back(has_query_curve
+                ? (double)graph.find(7, curve->GetEdge()) : -1.0);
+        };
+        append_brep(first, face0, 0, (size_t)n1, entry == 7);
+        append_brep(second, face1, (size_t)n1, (size_t)n2, false);
+        if (!curve_consumed) delete curve;
+        return sc_copy_out(values.data(), (int64_t)values.size(), out, cap, out_len);
     }
     SmStatus status=SM_ERR_INVALID_INPUT;
     switch(entry) {
@@ -164,6 +195,18 @@ SC_EXPORT int32_t sc_intersect_topology_solver_p2_static(const double* in,
     if(!curve_consumed) delete curve;
     return sc_copy_out(values.data(),(int64_t)values.size(),out,cap,out_len);
     SC_CATCH
+}
+
+SC_EXPORT int32_t sc_intersect_topology_solver_p2_static(const double* in,
+    int64_t n_in, double* out, int64_t cap, int64_t* out_len)
+{
+    return topology_solver_static_impl(in, n_in, out, cap, out_len, false);
+}
+
+SC_EXPORT int32_t sc_intersect_topology_solver_p2_static_fixture(const double* in,
+    int64_t n_in, double* out, int64_t cap, int64_t* out_len)
+{
+    return topology_solver_static_impl(in, n_in, out, cap, out_len, true);
 }
 
 // Probe the actual selected operand's runtime class without performing the

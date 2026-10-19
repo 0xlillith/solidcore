@@ -662,6 +662,19 @@ fn read_key_of(e: EntityRef) -> ObjectRef {
     }
 }
 
+fn read_query_key(object: CacheObject) -> ObjectRef {
+    match object {
+        CacheObject::Edge(edge) | CacheObject::Curve(edge) => read_key_of(EntityRef::Edge(edge)),
+        CacheObject::Face(face) | CacheObject::Surface(face) => read_key_of(EntityRef::Face(face)),
+        CacheObject::Vertex(vertex) => read_key_of(EntityRef::Vertex(vertex)),
+        CacheObject::Brep => ObjectRef {
+            type_code: 16011,
+            key: ObjectKey(1u64 << 40),
+        },
+        other => arena_identity(other),
+    }
+}
+
 fn this_face(f: FaceId) -> ObjectRef {
     key_of(EntityRef::Face(f))
 }
@@ -808,7 +821,16 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 ))));
             }
             // a B-rep as `new SmBrep(ctx)` makes it (with the infinite region)
-            let mut b = Brep::new_with_infinite_region().map_err(hfail)?;
+            let mut breps = Arena::<BrepId, Brep>::default();
+            let id = breps
+                .insert(Brep::new_with_infinite_region().map_err(hfail)?)
+                .map_err(hfail)?;
+            let b = breps
+                .get_mut(id)
+                .ok_or_else(|| hfail("missing registered B-rep"))?;
+            // ReadFromFile builds real geometry and owners from BrepData, without
+            // the legacy fixture importer's analytic stand-ins.
+            let mut queries = RayQueryContext::new(b, id, QueryMetadata::default(), read_query_key);
             let mut records = BTreeMap::new();
             let mut attrs = AttributeStore::default();
             let mut env = p10::TopologyEnv {
@@ -817,11 +839,12 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 key_of: &read_key_of,
                 records: &mut records,
                 next_key: 1u64 << 50,
+                region_queries: &mut queries,
             };
-            let r = p7::read_from_file(k, &mut b, bytes, FileType::Ascii, *rebuild, &mut env);
+            let r = p7::read_from_file(k, b, bytes, FileType::Ascii, *rebuild, &mut env);
             let mut o = vec![status(&r)?];
             if r.is_ok() {
-                o.extend(brep_counts(&b));
+                o.extend(brep_counts(b));
             }
             Ok(o)
         }

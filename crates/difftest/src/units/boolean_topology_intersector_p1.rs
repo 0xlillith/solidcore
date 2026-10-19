@@ -98,7 +98,10 @@ use solidcore::topology::proto_topology::p1::ProtoTopology;
 use solidcore::topology::proto_topology::{ProtoBrep, ProtoGeometry, ProtoTopologyManager};
 use solidcore::topology::topology::Topology;
 use solidcore::topology::vertex as vx;
-use solidcore::topology::{Brep, BrepId, EdgeId, EdgeuseId, FaceId, LoopId, VertexId, VertexuseId};
+use solidcore::topology::{
+    Brep, BrepId, EdgeId, EdgeuseId, FaceId, FaceuseId, LoopId, LoopuseId, RegionId, ShellId,
+    VertexId, VertexuseId,
+};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::boolean_topology_intersector_p1::{self as ffi, Op};
 
@@ -694,7 +697,7 @@ struct Two {
     env: [NotifyEnv; 2],
     /// Each B-rep's cache (`SmBrep::GetBrepCache`), built on first use as the C++
     /// topology solver builds it on demand.
-    caches: [std::cell::OnceCell<BrepCache<H>>; 2],
+    caches: [std::cell::OnceCell<std::rc::Rc<BrepCache<H>>>; 2],
     /// The classifier's `CacheObject` trees cannot borrow the H-valued solver
     /// trees. Keep a separate lazy slot in this harness only, on the same live
     /// geometry and owners. These cases do not measure native cache-build costs.
@@ -833,6 +836,52 @@ impl Two {
             EntityRef::Loopuse(lu) => Some(hd(b, K_LOOPUSE, lu.index())),
             EntityRef::Shell(s) => Some(hd(b, K_SHELL, s.index())),
             EntityRef::Brep(id) => (u32::try_from(b).ok() == Some(id.index())).then(|| brep_h(b)),
+        }
+    }
+
+    /// Resolve classification topology in the same registered operand. A handle
+    /// from the other B-rep must not alias a local arena record with the same id.
+    fn classification_entity(&self, slot: i8, h: H) -> solidcore::Result<EntityRef> {
+        if h.b != slot {
+            return Err(invalid("classification handle is outside this B-rep"));
+        }
+        let b = self.brep_r(h)?;
+        match h.kind {
+            K_VERTEX => b.vertex(vid(h)).map(|_| EntityRef::Vertex(vid(h))),
+            K_EDGE => b.edge(eid(h)).map(|_| EntityRef::Edge(eid(h))),
+            K_FACE => b.face(fid(h)).map(|_| EntityRef::Face(fid(h))),
+            K_LOOP => {
+                let id = LoopId::from_index(h.i);
+                b.loop_(id).map(|_| EntityRef::Loop(id))
+            }
+            K_EDGEUSE => {
+                let id = EdgeuseId::from_index(h.i);
+                b.edgeuse(id).map(|_| EntityRef::Edgeuse(id))
+            }
+            K_VERTEXUSE => {
+                let id = VertexuseId::from_index(h.i);
+                b.vertexuse(id).map(|_| EntityRef::Vertexuse(id))
+            }
+            K_REGION => {
+                let id = RegionId::from_index(h.i);
+                b.region(id).map(|_| EntityRef::Region(id))
+            }
+            K_FACEUSE => {
+                let id = FaceuseId::from_index(h.i);
+                b.faceuse(id).map(|_| EntityRef::Faceuse(id))
+            }
+            K_LOOPUSE => {
+                let id = LoopuseId::from_index(h.i);
+                b.loopuse(id).map(|_| EntityRef::Loopuse(id))
+            }
+            K_SHELL => {
+                let id = ShellId::from_index(h.i);
+                b.shell(id).map(|_| EntityRef::Shell(id))
+            }
+            K_BREP if u32::try_from(slot).ok() == Some(h.i) => {
+                Ok(EntityRef::Brep(BrepId::from_index(h.i)))
+            }
+            _ => Err(invalid("classification handle is not registered topology")),
         }
     }
 
@@ -1271,6 +1320,26 @@ impl IntersectorBrep<H> for Two {
         )?;
         boxes.normal.ok_or_else(|| invalid("no normal box"))
     }
+    fn face_bounding_box(
+        &mut self,
+        k: &Kernel,
+        face: H,
+        output: &mut Extent3d,
+    ) -> solidcore::Result<()> {
+        if face.kind != K_FACE {
+            return Err(invalid("not a face handle"));
+        }
+        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
+        self.require_query_geometry(slot)?;
+        let b = self
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        // Native default: bTight = FALSE. Keep the caller's previous box when
+        // the loose calculation fails before assigning its output.
+        solidcore::query::face::p1::calculate_bounding_box_into(k, b, fid(face), false, output)
+    }
     fn face_uv_domain_from_uv_trim_curves(
         &mut self,
         k: &Kernel,
@@ -1326,6 +1395,50 @@ impl IntersectorBrep<H> for Two {
         }
         r
     }
+    fn face_point_3d_classify(
+        &mut self,
+        k: &Kernel,
+        face: H,
+        point: Point3,
+        src_zone_tol_3d: f64,
+        do_boundary_intersections: bool,
+        pc: &mut PointClassification<H>,
+        guess_uv: Option<Point2>,
+    ) -> solidcore::Result<()> {
+        if face.kind != K_FACE {
+            return Err(invalid("not a face handle"));
+        }
+        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
+        self.require_query_geometry(slot)?;
+        let mut local = pc.try_map_objects(|h| self.classification_entity(face.b, h))?;
+        // Only lazy UV trim data changes. Keep both published spatial caches
+        // alive; brep_m is reserved for topology/3D geometry edits.
+        let b = self
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        let result = solidcore::query::face::p1::point_3d_classify(
+            k,
+            b,
+            fid(face),
+            point,
+            src_zone_tol_3d,
+            do_boundary_intersections,
+            &mut local,
+            solidcore::query::face::p1::Point3dClassifyOptions {
+                guess_uv,
+                ..solidcore::query::face::p1::Point3dClassifyOptions::default()
+            },
+        );
+        // Copy every field back even when the native call returns an error:
+        // its caller deliberately ignores ordinary statuses during refreshes.
+        *pc = local.try_map_objects(|entity| {
+            Self::entity_h(face.b, entity)
+                .ok_or_else(|| invalid("classification entity is outside this B-rep"))
+        })?;
+        result
+    }
     fn set_editing_enabled(&mut self, brep: H, enabled: bool) -> solidcore::Result<bool> {
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
         if brep.kind != K_BREP || self.breps.get(slot).and_then(Option::as_ref).is_none() {
@@ -1340,7 +1453,7 @@ impl IntersectorBrep<H> for Two {
         b.set_editing_enabled(enabled);
         Ok(old)
     }
-    fn topology_objects(&self) -> &dyn TopologyObjects<H> {
+    fn topology_objects(&mut self) -> &mut dyn TopologyObjects<H> {
         self
     }
     fn brep_glue_edges_general(
@@ -1367,7 +1480,7 @@ impl IntersectorBrep<H> for Two {
         };
         let (surviving, to_delete) = (edge(surviving)?, edge(to_delete)?);
         // (no face-use handles exist here: the only caller passes NULL)
-        let inside: Option<&[solidcore::topology::FaceuseId]> = match inside_faceuses {
+        let inside: Option<&[FaceuseId]> = match inside_faceuses {
             None => None,
             Some([]) => Some(&[]),
             Some(_) => return Err(invalid("face-use handles are not modelled")),
@@ -1450,6 +1563,144 @@ fn query_key_1(object: CacheObject) -> ObjectRef {
 }
 
 impl TopologyObjects<H> for Two {
+    fn with_brep_trees(
+        &mut self,
+        k: &Kernel,
+        first: H,
+        second: Option<H>,
+        solve: &mut solidcore::intersect::topology_solver::p1::BrepTreeSolve<'_, H>,
+    ) -> solidcore::Result<SolutionArray<H>> {
+        fn trees(
+            cache: &BrepCache<H>,
+        ) -> solidcore::Result<solidcore::intersect::topology_solver::p2::TopologyTrees<'_, H>>
+        {
+            Ok(solidcore::intersect::topology_solver::p2::TopologyTrees {
+                vertices: cache
+                    .vertex_tree()
+                    .ok_or_else(|| invalid("missing vertex tree"))?,
+                curves: cache
+                    .curve_tree()
+                    .ok_or_else(|| invalid("missing curve tree"))?,
+                surfaces: cache
+                    .surface_tree()
+                    .ok_or_else(|| invalid("missing surface tree"))?,
+            })
+        }
+        let cache = |world: &Self, handle: H| -> solidcore::Result<std::rc::Rc<BrepCache<H>>> {
+            world.brep_cache(k, handle)?;
+            let slot = usize::try_from(handle.b).map_err(|_| invalid("bad B-rep"))?;
+            world
+                .caches
+                .get(slot)
+                .and_then(std::cell::OnceCell::get)
+                .cloned()
+                .ok_or_else(|| invalid("B-rep cache not stored"))
+        };
+        let first_cache = cache(self, first)?;
+        let first_trees = trees(&first_cache)?;
+        let second_cache = second.map(|handle| cache(self, handle)).transpose()?;
+        let second_trees = second_cache.as_deref().map(trees).transpose()?;
+        // Owning only Rc handles keeps the same caches published while the
+        // classifiers edit UV trim state in the original B-reps.
+        solve(self, first_trees, second_trees)
+    }
+    fn object_zone_tol_3d(&self, k: &Kernel, object: Option<H>) -> solidcore::Result<f64> {
+        let system = || {
+            solidcore::geom::tol::zone_tol_3d(k, solidcore::geom::tol::SmallTopoType::NormalSize)
+        };
+        let Some(mut handle) = object else {
+            return Ok(system());
+        };
+        if handle.kind == K_CURVE {
+            let Some(owner) = self.curve_edge(handle)? else {
+                return Ok(system());
+            };
+            handle = owner;
+        }
+        let mapped = match handle.kind {
+            K_VERTEX => CacheObject::Vertex(vid(handle)),
+            K_EDGE => CacheObject::Edge(eid(handle)),
+            K_FACE => CacheObject::Face(fid(handle)),
+            K_EDGE_CURVE => CacheObject::Curve(eid(handle)),
+            K_FACE_SURFACE => CacheObject::Surface(fid(handle)),
+            K_BREP => CacheObject::Brep,
+            _ => return Err(invalid("unsupported topology tolerance handle")),
+        };
+        let slot = usize::try_from(handle.b).map_err(|_| invalid("bad B-rep"))?;
+        solidcore::topology::brep_cache::object_zone_tol_3d(
+            k,
+            self.brep_r(handle)?,
+            Some(mapped),
+            &|object| query_key(slot, object),
+            &|_| None,
+        )
+    }
+    fn face_point_classify(
+        &mut self,
+        k: &Kernel,
+        face: H,
+        uv: Point2,
+        source_zone_tolerance: f64,
+        do_boundaries: bool,
+        use_uv: bool,
+        classification: &mut PointClassification<EntityRef>,
+    ) -> solidcore::Result<()> {
+        if face.kind != K_FACE {
+            return Err(invalid("not a face handle"));
+        }
+        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
+        self.require_query_geometry(slot)?;
+        // Creating a missing UV trim does not invalidate the 3D query trees.
+        let brep = self
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        point_classify(
+            k,
+            brep,
+            fid(face),
+            uv,
+            classification,
+            PointClassifyOptions {
+                src_zone_tol_3d: source_zone_tolerance,
+                do_boundary_intersections: do_boundaries,
+                use_uv_classification: use_uv,
+                ..PointClassifyOptions::default()
+            },
+        )
+    }
+    fn face_point_3d_classify(
+        &mut self,
+        k: &Kernel,
+        face: H,
+        point: Point3,
+        source_zone_tolerance: f64,
+        do_boundaries: bool,
+        classification: &mut PointClassification<EntityRef>,
+    ) -> solidcore::Result<()> {
+        if face.kind != K_FACE {
+            return Err(invalid("not a face handle"));
+        }
+        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
+        self.require_query_geometry(slot)?;
+        let brep = self
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        solidcore::query::face::p1::point_3d_classify(
+            k,
+            brep,
+            fid(face),
+            point,
+            source_zone_tolerance,
+            do_boundaries,
+            classification,
+            solidcore::query::face::p1::Point3dClassifyOptions::default(),
+        )
+    }
+
     /// The B-rep's cache (`SmBrep::GetBrepCache`), built on demand with the caller's
     /// kernel and this adapter's handles. The geometric export is checked before
     /// `BuildTrees` consumes its bounding boxes; ordinary topology-only paths do
@@ -1491,8 +1742,10 @@ impl TopologyObjects<H> for Two {
             },
             &|object| query_key(slot, object),
         )?;
-        let _ = cell.set(cache);
-        cell.get().ok_or_else(|| invalid("B-rep cache not stored"))
+        let _ = cell.set(std::rc::Rc::new(cache));
+        cell.get()
+            .map(std::rc::Rc::as_ref)
+            .ok_or_else(|| invalid("B-rep cache not stored"))
     }
     fn curve(&self, object: H) -> solidcore::Result<&SmCurve> {
         ClassGeometry::curve(self, object).ok_or_else(|| invalid("not a curve handle"))
@@ -4058,4 +4311,170 @@ fn edge_cases() -> Vec<(String, Value)> {
         );
     }
     out
+}
+
+#[cfg(test)]
+mod face_query_tests {
+    use super::*;
+    use solidcore::nurbs::b_spline_surface::BSplineSurface;
+    use solidcore::nurbs::srf_basic::Surface as NurbSurface;
+    use solidcore::topology::shell::{ShellMembers, ShellType};
+    use solidcore::topology::{Faceuse, Region};
+    use std::rc::Rc;
+
+    /// Finite quadratic plane on a real face/use/shell/region. With no boundary
+    /// loops PointClassify returns Unknown, while still executing the point drop
+    /// and writing its gap. The two operands have distinct 3D positions.
+    fn plane_face(slot: usize, z: f64) -> (Brep, H) {
+        let mut b = Brep::new();
+        b.set_key(query_key(slot, CacheObject::Brep).key);
+        let shell = b.add_shell().unwrap();
+        let face = b.add_face(shell).unwrap();
+        let faceuse = b
+            .add_faceuse_record(Faceuse {
+                shell: Some(shell),
+                face: Some(face),
+                orientation: OrientType::Same,
+                ..Faceuse::default()
+            })
+            .unwrap();
+        let region = b
+            .add_region_record(Region {
+                in_brep: true,
+                shells: vec![shell],
+                ..Region::default()
+            })
+            .unwrap();
+        let sh = b.shell_mut(shell).unwrap();
+        sh.region = Some(region);
+        sh.shell_type = ShellType::Faceuse;
+        sh.members = ShellMembers::Faceuses(vec![faceuse]);
+        let net = (0..3)
+            .map(|i| {
+                (0..3)
+                    .map(|j| CPoint::new(f64::from(i) * 0.5, f64::from(j) * 0.5, z, NOW))
+                    .collect()
+            })
+            .collect();
+        let knots = vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0];
+        let nurb = NurbSurface::new(net, 2, 2, knots.clone(), knots).unwrap();
+        let mut surface = Surface::from(BSplineSurface::from_nurb(nurb, false));
+        surface.set_owner(Some(query_key(slot, CacheObject::Face(face))));
+        let record = b.face_mut(face).unwrap();
+        record.surface = Some(surface);
+        record.faceuse = Some(faceuse);
+        record.uv_domain = Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0);
+        record.tolerance = 0.25;
+        (b, hd(slot as i8, K_FACE, face.index()))
+    }
+
+    fn prior_classification(face: H) -> PointClassification<H> {
+        let mut pc = PointClassification::new(3.0);
+        pc.set_class_object(PointClassType::Face, Some(face));
+        pc.set_face(Some(face));
+        pc.set_gap_3d(2.0);
+        pc.set_t_param(0.875, false);
+        pc.set_uv_param(Point2::new(0.75, 0.125));
+        pc.set_uvw_param(Point3::new(4.0, 5.0, 6.0));
+        pc.set_pre_snap_param(17.0);
+        pc.set_sss_point(Point3::new(7.0, 8.0, 9.0));
+        pc.unset_parameters();
+        pc
+    }
+
+    #[test]
+    fn face_query_hooks_use_live_operand_and_preserve_complete_classification() {
+        let k = Kernel::default();
+        let (a, _) = plane_face(0, 0.0);
+        let (b, face) = plane_face(1, 4.0);
+        let mut two = Two::new(
+            a,
+            Some(b),
+            [QueryMetadata::default(), QueryMetadata::default()],
+        );
+        TopologyObjects::brep_cache(&two, &k, brep_h(1)).unwrap();
+        let published = Rc::clone(two.caches[1].get().unwrap());
+        two.point_caches[1] = Some(
+            solidcore::topology::brep_cache::make_brep_cache(
+                &k,
+                CacheSource::Brep(two.breps[1].as_ref().unwrap()),
+                &query_key_1,
+            )
+            .unwrap(),
+        );
+
+        let mut bbox = Extent3d::new();
+        IntersectorBrep::face_bounding_box(&mut two, &k, face, &mut bbox).unwrap();
+        assert_eq!(bbox.min(), Point3::new(-0.25, -0.25, 3.75));
+        assert_eq!(bbox.max(), Point3::new(1.25, 1.25, 4.25));
+
+        let mut pc = prior_classification(face);
+        let mut expected = pc;
+        expected.set_class_object(PointClassType::Unknown, None);
+        expected.set_src_zone_tol_3d(0.125);
+        expected.set_gap_3d(0.0);
+        IntersectorBrep::face_point_3d_classify(
+            &mut two,
+            &k,
+            face,
+            Point3::new(0.25, 0.75, 4.0),
+            0.125,
+            false,
+            &mut pc,
+            Some(Point2::new(0.25, 0.75)),
+        )
+        .unwrap();
+        assert_eq!(pc, expected);
+        assert!(Rc::ptr_eq(two.caches[1].get().unwrap(), &published));
+        assert!(two.point_caches[1].is_some());
+
+        // The same numeric arena id in the other operand must not be reinterpreted.
+        assert!(matches!(
+            two.classification_entity(1, hd(0, K_FACE, face.i)),
+            Err(SolidError::InvalidInput { .. })
+        ));
+    }
+
+    #[test]
+    fn face_query_hooks_keep_partial_state_on_the_rust_missing_surface_guard() {
+        let k = Kernel::default();
+        let (b, face) = plane_face(0, 2.0);
+        let mut two = Two::new(
+            b,
+            None,
+            [QueryMetadata::default(), QueryMetadata::default()],
+        );
+        let mut bbox = Extent3d::new();
+        IntersectorBrep::face_bounding_box(&mut two, &k, face, &mut bbox).unwrap();
+        let previous = bbox;
+        // This checks Rust's documented missing-surface guard, not a defined C++
+        // result for dereferencing null. The geometry edit invalidates its caches.
+        two.brep_m(face)
+            .unwrap()
+            .face_mut(fid(face))
+            .unwrap()
+            .surface = None;
+        assert!(matches!(
+            IntersectorBrep::face_bounding_box(&mut two, &k, face, &mut bbox),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        assert_eq!(bbox, previous);
+
+        let mut pc = prior_classification(face);
+        let mut expected = pc;
+        expected.set_class_object(PointClassType::Unknown, None);
+        expected.set_src_zone_tol_3d(0.125);
+        let result = IntersectorBrep::face_point_3d_classify(
+            &mut two,
+            &k,
+            face,
+            Point3::new(0.25, 0.75, 2.0),
+            0.125,
+            false,
+            &mut pc,
+            Some(Point2::new(0.25, 0.75)),
+        );
+        assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
+        assert_eq!(pc, expected);
+    }
 }

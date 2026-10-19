@@ -1572,6 +1572,30 @@ pub trait GlobalSolve<'t, O: SolutionObject + 't> {
         sort_key: SortKey,
         combine_contiguous_ranges: bool,
     ) -> Result<()> {
+        self.add_sorted_solution_with_object_tolerance(
+            solution,
+            sort_key,
+            combine_contiguous_ranges,
+            &|value, index| value.object_tolerance(index),
+        )
+    }
+
+    /// [`GlobalSolve::add_sorted_solution`] with the live object context used
+    /// by `SmSolution::GetObjectTolerance`. Only the final rayfire trimming
+    /// step asks for object tolerances: first solution, then last solution,
+    /// even when both refer to the single stored solution.
+    ///
+    /// # Errors
+    /// Insertion and combination errors, or an object-context error from
+    /// `object_tolerance`. Earlier solution and best-answer writes are retained
+    /// if the tolerance lookup fails, matching the order of the native calls.
+    fn add_sorted_solution_with_object_tolerance(
+        &mut self,
+        solution: &Solution<O>,
+        sort_key: SortKey,
+        combine_contiguous_ranges: bool,
+        object_tolerance: &dyn Fn(&Solution<O>, usize) -> Result<f64>,
+    ) -> Result<()> {
         // skip BigSolutions
         if solution.start.solution_value == BIG_DOUBLE {
             return Ok(());
@@ -1871,8 +1895,8 @@ pub trait GlobalSolve<'t, O: SolutionObject + 't> {
             // To match old behavior, we check the distance between
             // intersection points on the ray.
             if op == SolverOperation::Rayfire {
-                let first_tol = first.object_tolerance(0)?;
-                let last_tol = s.solutions.get_at(last_index)?.object_tolerance(0)?;
+                let first_tol = object_tolerance(&first, 0)?;
+                let last_tol = object_tolerance(&s.solutions.get_at(last_index)?, 0)?;
                 this_tol = max2(tol, first_tol + last_tol);
             }
 

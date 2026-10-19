@@ -28,11 +28,12 @@
 //! floating-point comparisons. Extension identity is a caller-supplied key, never an address.
 //! Every unavailable dependency is reported at its actual call, including ignored statuses.
 //! Continuations after unconditional missing calls are documented there, not reported as success.
-//! `RemoveExcessFaces` borrows the original B-rep immutably (its arenas have no editing flag)
-//! and uses the existing canonical arena-identity cache adapter; custom geometry owner keys
+//! `RemoveExcessFaces` borrows the original B-rep mutably for point classifications;
+//! its native editing-disabled scope is not yet reproduced. It uses the existing
+//! canonical arena-identity cache adapter; custom geometry owner keys
 //! or indirect owner chains are explicitly unsupported rather than silently skipped.
-//! Result-edge enumeration uses arena order, not `SmBrep::GetEdges` linked-list order
-//! (owned by `topology.brep_p1`); nonempty queries still defer at `NormalizedEvaluate`.
+//! Result edges follow `SmBrep::GetEdges` list order through `topology.brep_p1`;
+//! nonempty queries still defer at `NormalizedEvaluate`.
 //! No new input-driven recursion; existing topology walks are cycle-bounded.
 
 use std::collections::BTreeMap;
@@ -403,9 +404,9 @@ impl OffsetExecutive {
 
     /// Removes result faces too close to the original (`RemoveExcessFaces`).
     ///
-    /// The source is borrowed immutably while solving, corresponding to the upstream
-    /// editing-disabled query. `Brep` has no editing flag, so upstream's success-only
-    /// reset to `TRUE` (or leaving it `FALSE` on a solver error) cannot be represented.
+    /// The source is borrowed mutably so the solver's point classifications retain
+    /// their updates. This caller does not yet reproduce upstream's editing-disabled
+    /// scope and its success-only reset to `TRUE`.
     /// Geometry owners must use [`arena_identity`] directly; custom keys or indirect
     /// owner chains return [`SolidError::Unsupported`] rather than omitting geometry.
     /// Cache and solver errors propagate before any result-face removal. Ordinary
@@ -414,7 +415,7 @@ impl OffsetExecutive {
     pub fn remove_excess_faces(
         &self,
         kernel: &Kernel,
-        original: &Brep,
+        original: &mut Brep,
         result: &mut Brep,
     ) -> Result<()> {
         if !self.merge_results || !self.shell_faces.is_empty() {
@@ -1138,11 +1139,12 @@ fn make_original_brep_cache(kernel: &Kernel, original: &Brep) -> Result<BrepCach
 
 fn solve_original_brep_point(
     kernel: &Kernel,
-    original: &Brep,
+    original: &mut Brep,
     cache: &BrepCache,
     point: Vec3,
 ) -> Result<SolutionArray<CacheObject>> {
-    let objects = BrepObjects {
+    let tolerance_3d = original.tolerance();
+    let mut objects = BrepObjects {
         brep: original,
         // There is exactly one B-rep in this query adapter's local namespace.
         brep_id: crate::topology::BrepId::from_index(0),
@@ -1153,13 +1155,13 @@ fn solve_original_brep_point(
     };
     TopologySolver::brep_point_solve(
         kernel,
-        &objects,
+        &mut objects,
         Some(CacheObject::Brep),
         point,
         TopologySolveOptions {
             operation: SolverOperation::Minimize,
             requested: SolutionRequested::Single,
-            tolerance_3d: original.tolerance(),
+            tolerance_3d,
             best_answer_so_far_sq: BIG_DOUBLE,
             opt_vectors: &[],
         },
@@ -1734,19 +1736,19 @@ mod tests {
     fn excess_face_early_returns_and_actual_dependencies() {
         let kernel = Kernel::default();
         let mut executive = executive();
-        let original = Brep::new();
+        let mut original = Brep::new();
         let mut result = Brep::new();
         executive
-            .remove_excess_faces(&kernel, &original, &mut result)
+            .remove_excess_faces(&kernel, &mut original, &mut result)
             .unwrap();
         executive.set_merge_results(true);
         executive.set_shell_faces(&[FaceId::from_index(1)]);
         executive
-            .remove_excess_faces(&kernel, &original, &mut result)
+            .remove_excess_faces(&kernel, &mut original, &mut result)
             .unwrap();
         executive.set_shell_faces(&[]);
         assert_dependency(
-            executive.remove_excess_faces(&kernel, &original, &mut result),
+            executive.remove_excess_faces(&kernel, &mut original, &mut result),
             "SmBrep::RemoveFaces",
             "topology.brep_p5",
         );
@@ -1755,7 +1757,7 @@ mod tests {
         // Multiple arena entries do not establish linked-list order parity: this
         // prefix must still defer before collecting or removing any result faces.
         assert_dependency(
-            executive.remove_excess_faces(&kernel, &original, &mut result),
+            executive.remove_excess_faces(&kernel, &mut original, &mut result),
             "SmEdgeuse::NormalizedEvaluate",
             "topology.edgeuse_p3",
         );
@@ -1874,7 +1876,7 @@ mod tests {
     #[test]
     fn original_brep_query_builds_real_empty_cache_and_returns_no_solutions() {
         let kernel = Kernel::default();
-        let original = Brep::new();
+        let mut original = Brep::new();
         let cache = make_original_brep_cache(&kernel, &original).unwrap();
         // The cache constructor publishes all three real, empty trees. Passing
         // that cache to the live solver must succeed without inventing a hit.
@@ -1885,19 +1887,20 @@ mod tests {
         ] {
             assert!(tree.unwrap().object_list().unwrap().is_empty());
         }
-        let solutions = solve_original_brep_point(&kernel, &original, &cache, Vec3::ZERO).unwrap();
+        let solutions =
+            solve_original_brep_point(&kernel, &mut original, &cache, Vec3::ZERO).unwrap();
         assert!(solutions.is_empty());
     }
 
     #[test]
     fn original_brep_query_calls_live_solver_and_propagates_its_status() {
         let kernel = Kernel::default();
-        let original = Brep::new();
+        let mut original = Brep::new();
         let cache = BrepCache::new(crate::geom::a_object::BREP_TYPE).unwrap();
         assert!(matches!(
-            solve_original_brep_point(&kernel, &original, &cache, Vec3::ZERO),
+            solve_original_brep_point(&kernel, &mut original, &cache, Vec3::ZERO),
             Err(SolidError::Upstream {
-                operation: "intersect::topology_solver::p1::TopologyObjects::brep_trees",
+                operation: "topology::brep_cache",
                 code: crate::error::SM_ERR_NULL_POINTER,
                 ..
             })
