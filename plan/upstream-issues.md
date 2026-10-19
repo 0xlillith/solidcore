@@ -2763,7 +2763,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **Confirmed: no.** No C++ reproduction was run; the source contains unchecked indexing and null dereferences.
 - **Guard:** the `boolean_merge_p3` FFI and shim simulate reachable leaf consumption and binary stack/null state before building native objects. They preserve safe underflow errors, unknown-operation errors, repeated leaves with no dereference, and unreachable invalid leaves after a definite early error. The Rust evaluator bounds leaf indexing, keeps null slots, and returns `InvalidInput` at an attempted binary null dereference. No exploit fixture is included.
 
-#### WR-189. `BooleanLists` slices derived surfaces into base `SmSurface` objects
+#### WR-196. `BooleanLists` slices derived surfaces into base `SmSurface` objects
 
 - **Unit:** `boolean.merge_p3` (PR #245).
 - **Location:** `source/SMLib/src/SmMerge.cpp`, `SmMerge::BooleanLists`, both input surface-copy loops and the final output surface-copy loop; `source/SMLib/src/SmSurface.cpp:731` (base copy constructor), `source/SMLib/inc/SmSurface.h:1096` (base natural domain).

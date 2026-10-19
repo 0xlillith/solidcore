@@ -7938,7 +7938,7 @@ removal, bounds iterations by the initial face count, and errors if removal make
 no progress. UB-188 records the native tree-index/null-dereference guard (source
 inspection only, not a reproduced crash).
 
-Source audit also found that `BooleanLists` uses `new SmSurface(*source)` for
+Source audit WR-196 also found that `BooleanLists` uses `new SmSurface(*source)` for
 both input and output surface copies, rather than the virtual `Copy`: C++ slices
 the derived geometry. The current Rust `SurfaceKind` has no base-only variant.
 That specific missing constructor branch is `UNPORTED(surface.surface_p1)`; the

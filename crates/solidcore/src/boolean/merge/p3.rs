@@ -19,7 +19,7 @@
 //! drawing and the compile-time false IO experiment are omitted. No recursion;
 //! connected-component extraction is bounded by the initial face count, with an
 //! error if removal fails to make progress.
-//! `BooleanLists` slices surface copies to base `SmSurface` upstream; the missing
+//! `BooleanLists` slices surface copies to base `SmSurface` upstream (WR-196); the missing
 //! base-only constructor branch is deferred to partial `surface.surface_p1`.
 //! Skip relations reuse `geom::tol::Relation` and its documented sorted-handle
 //! query order, rather than upstream's address-dependent hash order.
@@ -471,7 +471,7 @@ fn create_face_from_surface(
 }
 
 fn copy_base_surface(_k: &mut Kernel, _source: &Surface) -> Result<Surface> {
-    // BooleanLists explicitly invokes the BASE copy constructor, slicing derived
+    // WR-196: BooleanLists invokes the BASE copy constructor, slicing derived
     // geometry. SurfaceKind currently has no base-only SmSurface variant. This
     // is a missing branch of the partial surface_p1 constructor port; virtual
     // Surface::copy would silently retain geometry that upstream discards.
