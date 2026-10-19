@@ -393,8 +393,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::InsertAt",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmSurface (non-B-spline) in SmCrvOnSurf",
+        "unit": "curve.crv_on_surf"
       },
       "max_rel_err": 0.0,
       "name": "internal_box_with_large_fillet_f1",
@@ -12539,8 +12539,7 @@
   "cases_passed": 523,
   "cases_total": 1199,
   "deferred_by_unit": {
-    "curve.crv_on_surf": 98,
-    "intersect.curve_class_p2": 1,
+    "curve.crv_on_surf": 99,
     "intersect.surface_drop_lib_p3": 215,
     "query.face_p2": 2,
     "topology.face_p2": 305,

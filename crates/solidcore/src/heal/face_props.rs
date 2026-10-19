@@ -60,12 +60,12 @@
 //!   and the `SM_DEBUG_CODE` graphics and asserts are dropped (asserts are compiled out
 //!   of the reference build). The unreachable `SmCurveClassification::ReSet` branch of
 //!   `SetProps_Stage2` (the classifications are deleted by `ReSet(SM_PROPSTAGE_2)`
-//!   first) is kept.
+//!   first) is kept and calls [`CurveClassification::reset`].
 //! - **Unported callees** (`UNPORTED` stubs): `SmFace::HasSeamProblem`
-//!   (`topology.face_p4`).
-//!   The `SmLoop` queries (`topology.loopuse`) and `SmFace::ClassifyLoops`
-//!   ([`crate::query::face::p4::classify_loops`], whose status `SetProps_Stage3` ignores
-//!   as upstream) are wired.
+//!   (`topology.face_p4`). The `SmLoop` queries (`topology.loopuse`),
+//!   `SmCurveClassification::ReSet` (`intersect.curve_class_p2`) and
+//!   `SmFace::ClassifyLoops` ([`crate::query::face::p4::classify_loops`], whose status
+//!   `SetProps_Stage3` ignores as upstream) are wired.
 
 use crate::error::{ignored, EntityRef, Result, SolidError};
 use crate::geom::tol::{calc_face_zone_tol_3d, xsect_tol_3d_from_zones};

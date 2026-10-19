@@ -54,10 +54,13 @@
 //!   surf/surf/surf, surface/edge and edge/surface refinements) is to be ported with the
 //!   `UNPORTED(topology.edge)` site below; it recurses through upstream's own counter
 //!   (`lRecursionCount`, at most 5 levels), which [`RefineCci::recursion_count`] carries.
-//! - **Callees in units not ported yet** return [`SolidError::Unported`]: `SmEdge::GetCurve`
-//!   (`topology.edge`), `SmFace::GetSurface` (`topology.face_p2`),
-//!   `SmBrep::IsLiveTopologyMember` (`topology.brep_p1`), and the topology zone
-//!   tolerances of point classifications (through `intersect.point_class`).
+//! - **Topology callees** return [`SolidError::Unported`]: `SmEdge::GetCurve`
+//!   (`topology.edge`) and `SmFace::GetSurface` (`topology.face_p2`) are called on
+//!   opaque edge / face handles that carry no B-rep the port can reach (as in part 3
+//!   and `intersect::point_class`: the stubs wait for handle-to-B-rep resolution, not
+//!   for those units); `SmBrep::IsLiveTopologyMember` (`topology.brep_p1`, not ported)
+//!   and the topology zone tolerances of point classifications (through
+//!   `intersect.point_class`).
 //! - **Recursion.** None here (see `sm_RefineCCIToSurfaces` above).
 
 use crate::curve::curve::p2::CurveKind;
@@ -70,6 +73,7 @@ use crate::intersect::point_class::{
 };
 use crate::kernel::Kernel;
 use crate::math::{Point2, Point3, Vec3};
+use crate::topology::Brep;
 
 use super::p1::{
     xsect_tol_2d_or_3d_for_classify_pair, CurveClassification, CurveInterval, IntervalPosition,
@@ -241,7 +245,7 @@ impl<O: ClassObject> CurveClassification<O> {
     ///
     /// [`SolidError::Unported`] for any such topology object
     /// (`SmBrep::IsLiveTopologyMember`, unit `topology.brep_p1`).
-    pub fn has_dead_topology_point_object(&self, brep: Option<O>) -> Result<bool> {
+    pub fn has_dead_topology_point_object(&self, brep: Option<&Brep>) -> Result<bool> {
         if brep.is_none() {
             return Ok(false);
         }
@@ -521,14 +525,7 @@ impl<O: ClassObject> CurveClassification<O> {
 
         // copy rNewValues into corresponding PC in adjacent interval: the mate is the
         // end of an interval
-        let mate_at = match self.point_class_mate_by_index(k, geometry, index)? {
-            Some(mate) => self
-                .data
-                .iter()
-                .position(|ivl| core::ptr::eq(&raw const ivl.end, mate)),
-            None => None,
-        };
-        if let Some(i) = mate_at {
+        if let Some(i) = self.point_class_mate_interval(k, geometry, index)? {
             self.at_mut(i)?.end = *new_values;
         }
 
@@ -1008,7 +1005,7 @@ mod tests {
         assert_eq!((p.x, t), (1.0, 1.0));
         assert!(c.classify_crv_loc_by_index(&g, 3).is_err());
         assert!(!c
-            .has_dead_topology_point_object(Some(H(9, ClassObjectKind::Other)))
+            .has_dead_topology_point_object(Some(&Brep::new()))
             .unwrap());
         assert!(c
             .interval_min_uv(&g, 0, Point2::new(0.0, 0.0))

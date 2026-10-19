@@ -61,11 +61,13 @@
 //! - **`CurveOnClassify`** stores handles of the caller's choosing in the curve
 //!   classification; [`CurveOnClassifyObjects`] makes the face and surface handles and
 //!   resolves curve and loop handles, and the caller's [`ClassGeometry`] resolves them
-//!   for `ClassifyFaceInterval` (`lFaceIndx` left at its default). Its callees `IntersectTSBound` / `IntersectEdges`
-//!   (part 9, wired through borrowed boundary views) and `SmFace::GetEdges`
-//!   (`topology.face_p4`) retain their dependency boundaries. `IntersectVertices`
-//!   and `ClassifyFaceInterval` call their landed implementations through the
-//!   caller's classification handles and [`ClassGeometry`] callbacks.
+//!   for `ClassifyFaceInterval` (`lFaceIndx` left at its default).
+//!   `SmCurveClassification::ReSet` is [`CurveClassification::reset`]; its callees
+//!   `IntersectTSBound` / `IntersectEdges` (part 9, wired through borrowed boundary
+//!   views) and `SmFace::GetEdges` (`topology.face_p4`) retain their dependency
+//!   boundaries. `pbOptModifiedCurve` is the result. `IntersectVertices` and
+//!   `ClassifyFaceInterval` call their landed implementations through the caller's
+//!   classification handles and [`ClassGeometry`] callbacks.
 //! - Boundary views use required handle mappings and the same [`ClassGeometry`]
 //!   implementation as part 5. Lazy UV and gap calculations run on a private B-rep
 //!   snapshot; numerical results are preserved while cache-only updates are discarded.
@@ -743,8 +745,8 @@ fn boundary_loops<O: ClassObject>(
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`]: the boundary intersections and interval classification (see the module
-/// Deviations); `SM_ERR` when the trim boundary intersection fails;
+/// [`SolidError::Unported`]: the boundary intersections and interval classification (see
+/// the module Deviations); `SM_ERR` when the trim boundary intersection fails;
 /// [`SolidError::InvalidInput`] for a classification without (resolvable) curve or an
 /// unresolvable target loop.
 #[allow(clippy::fn_params_excessive_bools)] // upstream's SmBoolean arguments
@@ -869,7 +871,7 @@ fn classification_curve<'o, O: ClassObject>(
         .ok_or_else(|| null(OP_CURVE, "classification without curve"))
 }
 
-/// `SmCurveClassification::ReSet`.
+/// `SmCurveClassification::ReSet()` with its defaults.
 fn reset_classification<O: ClassObject>(k: &Kernel, cc: &mut CurveClassification<O>) -> Result<()> {
     cc.reset(k, &ResetOptions::default())
 }
