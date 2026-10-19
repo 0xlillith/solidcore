@@ -1798,18 +1798,20 @@ fn merge_curves_world(
     })
 }
 
-/// `SER(MergeCurvesOnSurface(*pSurf, dTol, s3DCurves, &sUVCurves, sNewFaces,
-/// sCurveEdges))` (`SmBrep.cpp:25074`; header defaults `bUseProjection = FALSE`, no
-/// intersection surface, `bUVSpaceOkay = TRUE`):
-/// [`crate::topology::brep::p2::merge_curves_on_surface`] through the B-rep cache's
-/// classification world, which only `query.brep` provides ([`merge_curves_world`]).
-fn merge_curves_on_surface(
+/// `MergeCurvesOnSurface(*pSurf, dTol, s3DCurves, &sUVCurves, sNewFaces, sCurveEdges,
+/// bUseProjection)` with the header defaults for the rest (no intersection surface,
+/// `bUVSpaceOkay = TRUE`): [`crate::topology::brep::p2::merge_curves_on_surface`]
+/// through the B-rep cache's classification world, which only `query.brep` provides
+/// ([`merge_curves_world`]). Called here (`SmBrep.cpp:25074`, default
+/// `bUseProjection = FALSE`) and by `blend.hcr` (`SmHCR.cpp:1229`, `TRUE`).
+pub(crate) fn merge_curves_on_surface(
     k: &mut Kernel,
     b: &mut Brep,
     face: FaceId,
     tol: f64,
     curves_3d: &[Curve],
     uv_curves: &[Curve],
+    use_projection: bool,
 ) -> Result<(Vec<FaceId>, Vec<EdgeId>)> {
     let (world, curves, uv) = merge_curves_world(b, curves_3d, uv_curves)?;
     let merged = crate::topology::brep::p2::merge_curves_on_surface(
@@ -1820,7 +1822,10 @@ fn merge_curves_on_surface(
         tol,
         &curves,
         Some(&uv),
-        crate::topology::brep::p2::MergeCurvesOptions::default(),
+        crate::topology::brep::p2::MergeCurvesOptions {
+            use_projection,
+            ..crate::topology::brep::p2::MergeCurvesOptions::default()
+        },
     )?;
     Ok((merged.new_faces, merged.edges))
 }
@@ -1949,7 +1954,7 @@ fn project_and_trim_body(
                 tol = t;
             }
         }
-        let _ = merge_curves_on_surface(k, b, face, tol, &c3, &uv)?;
+        let _ = merge_curves_on_surface(k, b, face, tol, &c3, &uv, false)?;
     }
 
     // If we're just Splitting, then we're done.

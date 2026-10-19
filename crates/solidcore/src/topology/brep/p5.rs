@@ -58,6 +58,7 @@ use crate::kernel::Kernel;
 use crate::math::{max2, Point3, Vec3};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
+use crate::topology::brep::p2 as brep_p2;
 use crate::topology::VertexuseId;
 use crate::topology::{vertex, Brep, EdgeId, FaceId, LoopId, RegionId, ShellId, VertexId};
 
@@ -359,15 +360,25 @@ pub fn combine_with_notifications(
     update_vertex_edge_intervals(b, survivor)
 }
 
+/// `Notify(SM_NO_MERGE_IN_BREP, pSurvivingVertex, pVertexToDelete, this)`
+/// ([`brep_p2::notify`], no B-rep cache held by the caller).
 fn notify_merge(
     _k: &mut Kernel,
-    _b: &mut Brep,
-    _survivor: VertexId,
-    _deleted: VertexId,
-    _notifications: Option<&mut EditNotifyEnv<'_>>,
+    b: &mut Brep,
+    survivor: VertexId,
+    deleted: VertexId,
+    notifications: Option<&mut EditNotifyEnv<'_>>,
 ) -> Result<()> {
-    // UNPORTED(topology.brep_p2): SmBrep::Notify
-    missing("SmBrep::Notify", "topology.brep_p2")
+    let Some(env) = notifications else {
+        // UNPORTED(topology.brep_p2): SmBrep::Notify (arena-only notification environment)
+        return missing("SmBrep::Notify", "topology.brep_p2");
+    };
+    let data = [
+        Some(brep_p2::NotifyArg::Entity(crate::error::EntityRef::Vertex(survivor))),
+        Some(brep_p2::NotifyArg::Entity(crate::error::EntityRef::Vertex(deleted))),
+        Some(brep_p2::NotifyArg::Object(brep_p2::brep_ref(b))),
+    ];
+    brep_p2::notify(b, env, None, NotifyOperation::MergeInBrep, data)
 }
 
 fn delete_vertex(_b: &mut Brep, _vertex: VertexId) -> Result<()> {
@@ -793,15 +804,25 @@ fn notify_curve_owner_change(
     missing("SmBrep::Notify", "topology.brep_p2")
 }
 
+/// `Notify(SM_NO_MERGE_IN_BREP, pSurvivingEdge, pEdgeToDelete, this)`
+/// ([`brep_p2::notify`], no B-rep cache held by the caller).
 fn notify_edge_merge(
     _k: &mut Kernel,
-    _b: &mut Brep,
-    _survivor: EdgeId,
-    _deleted: EdgeId,
-    _notifications: Option<&mut EditNotifyEnv<'_>>,
+    b: &mut Brep,
+    survivor: EdgeId,
+    deleted: EdgeId,
+    notifications: Option<&mut EditNotifyEnv<'_>>,
 ) -> Result<()> {
-    // UNPORTED(topology.brep_p2): SmBrep::Notify
-    missing("SmBrep::Notify", "topology.brep_p2")
+    let Some(env) = notifications else {
+        // UNPORTED(topology.brep_p2): SmBrep::Notify (arena-only notification environment)
+        return missing("SmBrep::Notify", "topology.brep_p2");
+    };
+    let data = [
+        Some(brep_p2::NotifyArg::Entity(crate::error::EntityRef::Edge(survivor))),
+        Some(brep_p2::NotifyArg::Entity(crate::error::EntityRef::Edge(deleted))),
+        Some(brep_p2::NotifyArg::Object(brep_p2::brep_ref(b))),
+    ];
+    brep_p2::notify(b, env, None, NotifyOperation::MergeInBrep, data)
 }
 /// `SER(pEU->GetOrCreateUVTrimCurve(pNewCurve))` with the declaration's defaults:
 /// no distance or deviation outputs, `bOKToMakeUVTrimCurve = TRUE`.
@@ -979,13 +1000,23 @@ pub fn glue_with_notifications(
     Ok(())
 }
 
+/// `Notify(SM_NO_PRE_EDIT, this, NULL, NULL)` ([`brep_p2::notify`], no B-rep cache
+/// held by the caller).
 fn notify_pre_edit(
     _k: &mut Kernel,
-    _b: &mut Brep,
-    _notifications: Option<&mut EditNotifyEnv<'_>>,
+    b: &mut Brep,
+    notifications: Option<&mut EditNotifyEnv<'_>>,
 ) -> Result<()> {
-    // UNPORTED(topology.brep_p2): SmBrep::Notify
-    missing("SmBrep::Notify", "topology.brep_p2")
+    let Some(env) = notifications else {
+        // UNPORTED(topology.brep_p2): SmBrep::Notify (arena-only notification environment)
+        return missing("SmBrep::Notify", "topology.brep_p2");
+    };
+    let data = [
+        Some(brep_p2::NotifyArg::Object(brep_p2::brep_ref(b))),
+        None,
+        None,
+    ];
+    brep_p2::notify(b, env, None, NotifyOperation::PreEdit, data)
 }
 fn notify_vertex_pre_edit(
     k: &mut Kernel,
@@ -1994,12 +2025,14 @@ pub fn transform_with_notifications(
             let base =
                 transformed_surface_base(k, surface)?.ok_or_else(|| SolidError::sm_err(OP))?;
             replace_surface(
+                k,
                 b,
                 face,
                 crate::surface::surface::Surface::from(base),
                 false,
                 None,
                 true,
+                notifications.as_deref_mut(),
             )?;
         }
     }
@@ -2099,16 +2132,40 @@ fn transformed_surface_base(
         | SurfaceKind::SrfInVolume(_) => None,
     })
 }
+/// `SER(ReplaceSurface(pFace, pNewSurf, bAddToDeletedList, pOptFacesModified,
+/// bCreateUVTrimCurves))` ([`brep_p2::replace_surface`]); the face is notified under
+/// the caller's identity for it.
+#[allow(clippy::too_many_arguments)] // one upstream call
 fn replace_surface(
-    _b: &mut Brep,
-    _face: FaceId,
-    _surface: crate::surface::surface::Surface,
-    _add_to_deleted: bool,
-    _modified: Option<&mut Vec<FaceId>>,
-    _create_uv_trims: bool,
+    k: &Kernel,
+    b: &mut Brep,
+    face: FaceId,
+    surface: crate::surface::surface::Surface,
+    add_to_deleted: bool,
+    mut modified: Option<&mut Vec<FaceId>>,
+    create_uv_trims: bool,
+    notifications: Option<&mut EditNotifyEnv<'_>>,
 ) -> Result<()> {
-    // UNPORTED(topology.brep_p2): SmBrep::ReplaceSurface
-    missing("SmBrep::ReplaceSurface", "topology.brep_p2")
+    // init output
+    if let Some(modified) = modified.as_deref_mut() {
+        modified.clear();
+    }
+    let Some(env) = notifications else {
+        // UNPORTED(topology.brep_p2): SmBrep::Notify (arena-only notification environment)
+        return missing("SmBrep::Notify", "topology.brep_p2");
+    };
+    let face_ref = (env.key_of)(crate::error::EntityRef::Face(face));
+    let old = if add_to_deleted {
+        brep_p2::OldSurface::AddToDeletedList
+    } else {
+        brep_p2::OldSurface::Delete
+    };
+    let (_, faces) =
+        brep_p2::replace_surface(k, b, env, face, surface, face_ref, old, create_uv_trims)?;
+    if let Some(modified) = modified {
+        modified.extend(faces);
+    }
+    Ok(())
 }
 fn reverse_reflection_edgeuses(_b: &mut Brep, _edge: EdgeId) -> Result<()> {
     // UNPORTED(topology.brep_p1): sm_ReverseReflectionEdgeuses

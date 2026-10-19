@@ -360,7 +360,10 @@ fn merge_intervals<O: LoopObject>(
 /// delete the old surface here ([`OldSurface::Delete`]), no modified-face list, no new
 /// UV trim curves. Upstream ignores the status, which is always `SM_SUCCESS` without
 /// new UV trim curves; only [`SolidError::Unported`] and the port's null-dereference
-/// [`SolidError::InvalidInput`] can come back, and both propagate.
+/// [`SolidError::InvalidInput`] can come back, and both propagate. Its face
+/// notifications run under the empty environment of [`lu1::face_notify_as`] (the
+/// B-rep carries no attribute store, topology records or context callbacks), with
+/// the face notified as `this`.
 fn replace_surface(
     k: &Kernel,
     b: &mut Brep,
@@ -368,7 +371,31 @@ fn replace_surface(
     this: ObjectRef,
     new_surface: Surface,
 ) -> Result<()> {
-    brep_p2::replace_surface(k, b, f, new_surface, this, OldSurface::Delete, false)?;
+    let mut records = std::collections::BTreeMap::new();
+    let mut attributes = crate::geom::attribute::AttributeStore::default();
+    let key_of = |e: EntityRef| {
+        if e == EntityRef::Face(f) {
+            this
+        } else {
+            lu1::notify_ref(e)
+        }
+    };
+    let mut env = crate::topology::edge::NotifyEnv {
+        records: &mut records,
+        attributes: &mut attributes,
+        context: None,
+        key_of: &key_of,
+    };
+    brep_p2::replace_surface(
+        k,
+        b,
+        &mut env,
+        f,
+        new_surface,
+        this,
+        OldSurface::Delete,
+        false,
+    )?;
     Ok(())
 }
 

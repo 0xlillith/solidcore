@@ -67,7 +67,7 @@ use std::collections::BTreeMap;
 
 use crate::curve::curve::p2::is_curve_class;
 use crate::curve::curve::{p8::CurveIntersectOptions, Curve, CurveKind};
-use crate::error::{EntityRef, Result, SolidError, SM_ERR};
+use crate::error::{ignore_status, EntityRef, Result, SolidError, SM_ERR};
 use crate::geom::a_object::{self, BREP_TYPE, REGION_TYPE};
 use crate::geom::attribute::{AttributeStore, ObjectKey};
 use crate::geom::context::{MarkLock, ALL_MARKS};
@@ -78,9 +78,10 @@ use crate::geom::geom_utility::p2::ContinuityType;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::geom::solution_array::Solution;
-use crate::geom::tol::ZONE_TOL_3D;
+use crate::geom::tol::{zone_tol3d, ZONE_TOL_3D};
 use crate::geom::tree::NodeGeomType;
 use crate::intersect::curve_class::p1::{CurveClassification, IntervalPosition};
+use crate::intersect::curve_class::ClassificationInit;
 use crate::intersect::curve_class::p7::CoincidentMaybe;
 use crate::intersect::point_class::{
     ClassGeometry, ClassObject, PointClassType, PointClassification,
@@ -104,6 +105,7 @@ use crate::topology::edgeuse::p2 as eu2;
 use crate::topology::edgeuse::p3 as eu3;
 use crate::topology::face::p1 as face1;
 use crate::topology::face::p2 as face2;
+use crate::topology::face::p3 as face3;
 use crate::topology::shell::{self, ShellMembers, ShellType};
 use crate::topology::topology::Topology;
 use crate::topology::topology_traverser::Marks;
@@ -327,8 +329,8 @@ pub fn min_edge_bbox_size(k: &Kernel, b: &Brep) -> Result<(f64, Option<EdgeId>)>
 ///
 /// # Errors
 ///
-/// [`SolidError::Unported`] for the B-rep box (`query.brep`) and `SmFace::SetTolerance` (`topology.face_p3`);
-/// [`SolidError::NotFound`] for a dangling id.
+/// [`SolidError::Unported`] for the B-rep box (`query.brep`); [`SolidError::NotFound`]
+/// for a dangling id.
 pub fn set_tolerance(
     k: &Kernel,
     b: &mut Brep,
@@ -364,7 +366,7 @@ pub fn set_tolerance(
     for f in brep_faces(b)? {
         // increase small tolerances to target tol value
         if b.face(f)?.tolerance < new_tol {
-            face_set_tolerance(k, b, f, new_tol, update_only_if_larger)?;
+            face_set_tolerance(b, f, new_tol, update_only_if_larger)?;
         }
     }
 
@@ -513,20 +515,14 @@ fn brep_bounding_box(k: &Kernel, b: &Brep) -> Result<Extent3d> {
     ))
 }
 
-/// `SmFace::SetTolerance(tol, bUpdateOnlyIfLarger, FALSE)` (unit `topology.face_p3`).
+/// `SmFace::SetTolerance(tol, bUpdateOnlyIfLarger, FALSE)` ([`face3::set_tolerance`]).
 fn face_set_tolerance(
-    k: &Kernel,
     b: &mut Brep,
     f: FaceId,
     tol: f64,
     update_only_if_larger: bool,
 ) -> Result<()> {
-    let _ = (k, b, f, tol, update_only_if_larger);
-    // UNPORTED(topology.face_p3): SmFace::SetTolerance
-    Err(SolidError::unported(
-        "SmFace::SetTolerance",
-        "topology.face_p3",
-    ))
+    face3::set_tolerance(b, f, tol, update_only_if_larger, false)
 }
 
 // ---- notifications ------------------------------------------------------------------------
@@ -1400,12 +1396,15 @@ pub enum OldSurface {
 /// # Errors
 ///
 /// [`SolidError::InvalidInput`] for a face without surface (upstream dereferences it);
-/// [`SolidError::Unported`] for `SmFace::Notify`, `SmFace::CreateUVTrimCurves`
-/// (`topology.face_p3`), also reached through [`face1::set_surface`] and
-/// [`face1::remove_uv_trim_curves`].
+/// [`SolidError::Unported`] from the callees of `SmFace::Notify` ([`face3::notify`]:
+/// `GetUpwardEdgeuses`, `topology.face_p4`, for `POST_EDIT`), also reached through
+/// [`face1::set_surface`] and [`face1::remove_uv_trim_curves`], and of
+/// `SmFace::CreateUVTrimCurves` ([`face3::create_uv_trim_curves`]).
+#[allow(clippy::too_many_arguments)] // one upstream routine
 pub fn replace_surface(
     k: &Kernel,
     b: &mut Brep,
+    env: &mut NotifyEnv<'_>,
     f: FaceId,
     mut new_surface: Surface,
     face_ref: ObjectRef,
@@ -1421,7 +1420,7 @@ pub fn replace_surface(
     let top_face = f;
 
     // inform the face
-    face_notify(b, f, NotifyOperation::PreEdit)?;
+    face_notify(b, env, f, face_ref, NotifyOperation::PreEdit)?;
 
     // change surface<->owner pointers
     let _ = new_surface.set_owner(Some(face_ref));
@@ -1439,7 +1438,7 @@ pub fn replace_surface(
     let modified = vec![f];
 
     // inform the face
-    face_notify(b, f, NotifyOperation::PostEdit)?;
+    face_notify(b, env, f, face_ref, NotifyOperation::PostEdit)?;
 
     // either remember, delete, or ignore the old surface
     let kept = match old {
@@ -1680,21 +1679,26 @@ fn shell_region(b: &Brep, s: ShellId) -> Result<Option<RegionId>> {
     Ok(b.shell(s)?.region)
 }
 
-/// `SmFace::Notify(operation, face, brep, NULL)` (unit `topology.face_p3`).
-fn face_notify(b: &mut Brep, f: FaceId, operation: NotifyOperation) -> Result<()> {
-    let _ = (b, f, operation);
-    // UNPORTED(topology.face_p3): SmFace::Notify
-    Err(SolidError::unported("SmFace::Notify", "topology.face_p3"))
+/// `pFace->Notify(operation, pFace, this, NULL)` ([`face3::notify`]; upstream ignores
+/// the status). `face_ref` is the face's identity. No trimmed surface cache is passed:
+/// B-rep surfaces carry no object cache (the caller-held caches of
+/// [`delete_stale_caches`] are not threaded here), so `PRE_EDIT`'s cache flag has
+/// nothing to mark.
+fn face_notify(
+    b: &mut Brep,
+    env: &mut NotifyEnv<'_>,
+    f: FaceId,
+    face_ref: ObjectRef,
+    operation: NotifyOperation,
+) -> Result<()> {
+    let data = [Some(face_ref), Some(brep_ref(b)), None];
+    ignore_status(face3::notify(b, f, env, None, operation, data))
 }
 
-/// `SmFace::CreateUVTrimCurves(TRUE, NULL, NULL, ..)` (unit `topology.face_p3`).
+/// `SER(pTopFace->CreateUVTrimCurves(TRUE, NULL, NULL, ..))`
+/// ([`face3::create_uv_trim_curves`]; the gap statistics are dropped).
 fn face_create_uv_trim_curves(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<()> {
-    let _ = (k, b, f);
-    // UNPORTED(topology.face_p3): SmFace::CreateUVTrimCurves
-    Err(SolidError::unported(
-        "SmFace::CreateUVTrimCurves",
-        "topology.face_p3",
-    ))
+    face3::create_uv_trim_curves(k, b, f, true, None).map(|_| ())
 }
 
 /// `pRegion->PostInsert(pShell)`: the new shell goes to the tail of the region's shell
@@ -1822,8 +1826,8 @@ pub struct MergedCurves {
 /// errors of the classification; [`SolidError::InvalidInput`] for a curve handle that
 /// does not resolve or a missing UV curve; those of `ConnectIntervals` and
 /// `MergeIntervals`; [`SolidError::Unported`] from the curve classification constructor
-/// (`intersect.curve_class_p4`), from `AreCoincidentMaybe`'s edge branch, and from the
-/// graph edits `MergeIntervals` defers.
+/// (its `ReSet`, `intersect.curve_class_p2`), from `AreCoincidentMaybe`'s edge branch,
+/// and from the graph edits `MergeIntervals` defers.
 #[allow(clippy::too_many_arguments)]
 pub fn merge_curves_on_surface<O: ClassObject + Copy>(
     k: &mut Kernel,
@@ -1958,7 +1962,8 @@ fn merge_curves_body<O: ClassObject + Copy>(
 }
 
 /// `SmCurveClassification(pCurve, pCurve->GetNaturalInterval(), pUVCurve, d3DTolerance,
-/// 20, aData, FALSE, TRUE)` (unit `intersect.curve_class_p4`).
+/// 20, aData, FALSE, TRUE)` ([`CurveClassification::with_curve`]; `aData` is not
+/// modelled, see `intersect.curve_class_p1`).
 fn new_curve_classification<O: ClassObject + Copy>(
     k: &Kernel,
     curve: O,
@@ -1966,12 +1971,23 @@ fn new_curve_classification<O: ClassObject + Copy>(
     uv_curve: Option<O>,
     tolerance: f64,
 ) -> Result<CurveClassification<O>> {
-    let _ = (k, curve, interval, uv_curve, tolerance);
-    // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
-    Err(SolidError::unported(
-        "SmCurveClassification::SmCurveClassification",
-        "intersect.curve_class_p4",
-    ))
+    CurveClassification::with_curve(
+        k,
+        &ClassificationInit {
+            curve: Some(curve),
+            interval: *interval,
+            uv_curve,
+            // the SmZoneTol3d argument from the plain double
+            src_zone_tol_3d: zone_tol3d(k, tolerance),
+            opt_data_size: 20,
+            is_curve_owned: false,
+            is_curve_current: true,
+            surface1: None,
+            surface2: None,
+            uv_curve2: None,
+            ti: None,
+        },
+    )
 }
 
 /// `SER(ConnectIntervals(index, ePos, FALSE))` (`SmBrep.cpp:22072`;
@@ -2088,8 +2104,8 @@ fn give_edge_curve(
 /// `SM_ERR` when editing is disabled, the edge or a neighbour is not lamina (nor seam),
 /// or no intersection curve meets both extended curves; errors of the geometry calls;
 /// [`SolidError::InvalidInput`] where upstream dereferences null;
-/// [`SolidError::Unported`] from `SmFace::Notify` (`topology.face_p3`); those of
-/// `SmEdgeuse::GetOrCreateUVTrimCurve` / `NormalizedEvaluate`
+/// [`SolidError::Unported`] from the callees of `SmFace::Notify` ([`face3::notify`]);
+/// those of `SmEdgeuse::GetOrCreateUVTrimCurve` / `NormalizedEvaluate`
 /// ([`crate::topology::edgeuse::p3`]) and of [`replace_surface`].
 #[allow(clippy::too_many_lines)]
 pub fn mate_lamina_edge_to_surface(
@@ -2114,8 +2130,8 @@ pub fn mate_lamina_edge_to_surface(
 
     let eu = eu1::primary_edgeuse(b, lamina)?.ok_or(null_deref("edge without edge use"))?;
     let face = eu1::face(b, eu)?.ok_or(SolidError::null_pointer(OP))?;
-    face_notify(b, face, NotifyOperation::PreEdit)?;
     let face_ref = (env.key_of)(EntityRef::Face(face));
+    face_notify(b, env, face, face_ref, NotifyOperation::PreEdit)?;
 
     // no work - CW and CCW neighbors are not lamina or Seam edges
     if b.face(face)?.surface.is_none() {
@@ -2365,7 +2381,16 @@ pub fn mate_lamina_edge_to_surface(
         ext_surface.trim_with_domain(k, &mut uv_domain)?;
 
         // replace pFace's surface (deletes all pFace UVTrimCurves)
-        let _ = replace_surface(k, b, face, ext_surface, face_ref, OldSurface::Delete, true)?;
+        let _ = replace_surface(
+            k,
+            b,
+            env,
+            face,
+            ext_surface,
+            face_ref,
+            OldSurface::Delete,
+            true,
+        )?;
         None
     };
 

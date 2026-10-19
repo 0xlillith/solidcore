@@ -806,10 +806,19 @@ fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: Op, a: &[f64]) -> Result<Vec<f6
                 _ => bp2::OldSurface::Keep,
             };
             let create = arg(a.len() - 1)? != 0.0;
+            let mut records = BTreeMap::new();
+            let mut attrs = AttributeStore::default();
+            let mut env = NotifyEnv {
+                records: &mut records,
+                attributes: &mut attrs,
+                context: None,
+                key_of: &key_of,
+            };
             let kk: &Kernel = k;
             let (s, r) = status(bp2::replace_surface(
                 kk,
                 b,
+                &mut env,
                 f,
                 surf,
                 key_of(EntityRef::Face(f)),
