@@ -2054,21 +2054,29 @@ mod tests {
         assert!(caches.iter().all(Option::is_some));
         assert_eq!(format!("{filling:?}"), format!("{prefilled:?}"));
 
-        // every solution end is a point of the upper half on both curves, and the ends
-        // reach both (2, 0, 0) and (-2, 0, 0)
+        // every solution end is a point of the upper half on both curves, and the
+        // solutions' angular spans cover [0, pi] without a gap
         assert!(!prefilled.solutions.is_empty());
-        let mut xs = Vec::new();
+        let mut spans = Vec::new();
         for s in &prefilled.solutions {
-            for e in [&s.start, &s.end] {
+            let mut angles = [0.0; 2];
+            for (angle, e) in angles.iter_mut().zip([&s.start, &s.end]) {
                 let p = full.evaluate_point(e.param(0).unwrap()).unwrap();
                 let q = half.evaluate_point(e.param(1).unwrap()).unwrap();
                 assert!(p.distance(q) < tol, "{p:?} vs {q:?}");
                 assert!(p.y > -tol && (p.length() - 2.0).abs() < tol, "{p:?}");
-                xs.push(p.x);
+                *angle = p.y.max(0.0).atan2(p.x);
             }
+            let [a, b] = angles;
+            spans.push((a.min(b), a.max(b)));
         }
-        assert!(xs.iter().any(|x| (x - 2.0).abs() < tol), "{xs:?}");
-        assert!(xs.iter().any(|x| (x + 2.0).abs() < tol), "{xs:?}");
+        spans.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let mut covered = 0.0_f64;
+        for &(lo, hi) in &spans {
+            assert!(lo <= covered + tol, "gap before {lo} in {spans:?}");
+            covered = covered.max(hi);
+        }
+        assert!(covered >= std::f64::consts::PI - tol, "{spans:?}");
     }
 
     fn quarter_line() -> Curve {
