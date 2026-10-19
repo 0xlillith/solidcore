@@ -5363,8 +5363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
+        "symbol": "SmSphere::IsNurbSurfaceSphere",
+        "unit": "surface.sphere"
       },
       "max_rel_err": 0.0,
       "name": "gen0533",
@@ -8595,8 +8595,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone::IsNurbSurfaceCone",
-        "unit": "surface.cone_p2"
+        "symbol": "SmSphere::IsNurbSurfaceSphere",
+        "unit": "surface.sphere"
       },
       "max_rel_err": 0.0,
       "name": "face_guards",
@@ -8633,7 +8633,7 @@
     "harness:analytic-geometry-export": 70,
     "intersect.surface_drop_curve": 27,
     "intersect.surface_drop_lib_p3": 7,
-    "surface.cone_p2": 2,
+    "surface.sphere": 2,
     "surface.surface_cache_p2": 78,
     "topology.brep_p2": 166,
     "topology.face_p2": 12,
