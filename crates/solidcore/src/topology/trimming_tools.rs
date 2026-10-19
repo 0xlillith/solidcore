@@ -253,6 +253,7 @@ fn make_face_with_curves(
     b: &mut Brep,
     region: RegionId,
     input: TrimInput,
+    env: &mut crate::topology::edge::NotifyEnv<'_>,
 ) -> Result<FaceId> {
     let TrimInput {
         loop_counts,
@@ -284,6 +285,7 @@ fn make_face_with_curves(
         surface_orientation,
         None,
         &face_ref,
+        env,
     )?;
     // (upstream adds the new face pointer as is)
     made.face
@@ -476,6 +478,7 @@ pub fn trim_surface_with_model_space_curves(
     first_is_outer: bool,
     oriented_correctly: bool,
     may_cross_seam: bool,
+    env: &mut crate::topology::edge::NotifyEnv<'_>,
 ) -> Result<Vec<FaceId>> {
     // NER(pRegion); pBrep = pRegion->GetBrep(); NER(pBrep)
     let region = region.ok_or(SolidError::null_pointer(OP))?;
@@ -497,7 +500,7 @@ pub fn trim_surface_with_model_space_curves(
 
     let mut new_faces = if g1_surface {
         // when Surface is G1Continuous - just call MakeFaceWithCurves()
-        vec![make_face_with_curves(k, b, region, input)?]
+        vec![make_face_with_curves(k, b, region, input, env)?]
     } else {
         // MakeFacesWithCurves, then clear the UV trim curves of the new faces
         let faces = make_faces_with_curves(b, input)?;

@@ -41,7 +41,7 @@
 //!   span reads `sVeryFirstUV`, which stays at the `SmVector2d` default
 //!   (`SM_UNDEF_DOUBLE`, `SM_UNDEF_DOUBLE`) when no sample point dropped with a guess;
 //!   the port does the same (defined upstream). A loop use of edge type without edge
-//!   uses reaches `GetLast` of an empty array (UB-162) and returns
+//!   uses reaches `GetLast` of an empty array (UB-189) and returns
 //!   [`SolidError::InvalidInput`].
 //! - **`CreateUVTrimCurves`** takes the optional UV curves and their orientations as one
 //!   argument (upstream requires both or neither). The surface owner is cleared and
@@ -55,7 +55,7 @@
 //!   `IsDegenerate` name the curves by a handle carrying their natural interval; the
 //!   objects are then switched to the edges, as upstream. All returned curves are owned
 //!   (upstream hands out deleted ones through `pOptCC3DCrvs` without classification
-//!   arrays, UB-165). Outputs are return values, so upstream's quirk that
+//!   arrays, UB-193). Outputs are return values, so upstream's quirk that
 //!   `pOptThisCCUVCrvs` / `pOptOtherCCUVCrvs` are never reset (they append to the
 //!   caller's arrays) has no counterpart; in the coincident branch the failing-copy
 //!   path replaces all four vectors with the intersector's.
@@ -190,17 +190,30 @@ fn brep_tolerance(_b: &Brep, _f: FaceId) -> Result<f64> {
 
 /// `new SmCurveClassification(pCurve, sInterval, pUVCurve, sSrcZoneTol3d)`.
 fn curve_classification<O: ClassObject>(
-    _k: &Kernel,
-    _curve: O,
-    _interval: &Extent1d,
-    _uv_curve: Option<O>,
-    _src_zone_tol_3d: f64,
+    k: &Kernel,
+    curve: O,
+    interval: &Extent1d,
+    uv_curve: Option<O>,
+    src_zone_tol_3d: f64,
 ) -> Result<CurveClassification<O>> {
-    // UNPORTED(intersect.curve_class_p4): SmCurveClassification::SmCurveClassification
-    Err(SolidError::unported(
-        "SmCurveClassification::SmCurveClassification",
-        "intersect.curve_class_p4",
-    ))
+    // the remaining constructor arguments default: no interval storage, the curve not
+    // owned and current, no surfaces, no topology intersector
+    CurveClassification::with_curve(
+        k,
+        &crate::intersect::curve_class::ClassificationInit {
+            curve: Some(curve),
+            interval: *interval,
+            uv_curve,
+            src_zone_tol_3d,
+            opt_data_size: 0,
+            is_curve_owned: false,
+            is_curve_current: true,
+            surface1: None,
+            surface2: None,
+            uv_curve2: None,
+            ti: None,
+        },
+    )
 }
 
 /// `GetSurface()->CoincidenceCheck(other, tol, rbAreCoincident, rdDist, FALSE, ..)`:
@@ -506,7 +519,7 @@ const NUM_SAMPLES: u32 = 20;
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for missing
 /// topology, a face without surface, an edge loop without edge uses
-/// (upstream reads an empty array, UB-162); those of the surface copy,
+/// (upstream reads an empty array, UB-189); those of the surface copy,
 /// evaluations and solves; [`SolidError::Unported`] (from `SmEdgeuse::NormalizedEvaluate`
 /// and `GetOrCreateUVTrimCurve`).
 #[allow(clippy::too_many_lines)] // one upstream routine

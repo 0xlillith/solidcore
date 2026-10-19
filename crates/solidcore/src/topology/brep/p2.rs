@@ -277,6 +277,31 @@ pub fn is_oriented_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
 ///
 /// [`SolidError::Unported`] from the box computation's unported callees (other statuses are ignored, as upstream).
 pub fn min_edge_bbox_size(k: &Kernel, b: &Brep) -> Result<(f64, Option<EdgeId>)> {
+    min_edge_bbox_size_impl(k, b, None)
+}
+
+/// [`min_edge_bbox_size`] with a caller's check immediately before reading each
+/// visited edge's curve. The check runs in the owning edge list's order, only for
+/// edges with a curve; it does not inspect other curves or surfaces. Callers whose
+/// B-reps already contain exact geometry can use [`min_edge_bbox_size`] directly.
+///
+/// # Errors
+///
+/// The check's errors propagate unchanged. The box calculation retains the native
+/// handling of its ordinary errors, including reuse of the previous box.
+pub fn min_edge_bbox_size_with_curve_check(
+    k: &Kernel,
+    b: &Brep,
+    curve_check: &mut dyn FnMut(EdgeId) -> Result<()>,
+) -> Result<(f64, Option<EdgeId>)> {
+    min_edge_bbox_size_impl(k, b, Some(curve_check))
+}
+
+fn min_edge_bbox_size_impl(
+    k: &Kernel,
+    b: &Brep,
+    mut curve_check: Option<&mut dyn FnMut(EdgeId) -> Result<()>>,
+) -> Result<(f64, Option<EdgeId>)> {
     let edges = brep_edges(b)?;
     if edges.is_empty() {
         // the no-edge brep returns standard default 0.001
@@ -292,6 +317,14 @@ pub fn min_edge_bbox_size(k: &Kernel, b: &Brep) -> Result<(f64, Option<EdgeId>)>
     // one box for all edges: a failed call (status ignored) leaves the previous box
     let mut bbox = Extent3d::new();
     for e in edges {
+        if let Some(check) = curve_check.as_mut() {
+            // A missing edge remains the box call's error below, with its existing
+            // native handling. Only the caller's representation check introduces
+            // a new error boundary, before any geometry is evaluated.
+            if b.edge(e).is_ok_and(|edge| edge.curve.is_some()) {
+                check(e)?;
+            }
+        }
         // this is a slow process depending on tessellation
         match qedge::calculate_bounding_box(k, b, e, req, false) {
             Ok(boxes) => {
@@ -1295,6 +1328,52 @@ pub fn ray_fire_with_cache<'cache>(
     ray_zone_tol_3d: f64,
     answer_limit: Option<f64>,
 ) -> Result<RayFireResult> {
+    let mut output = RayFireResult {
+        region: None,
+        intersection: PointClassification::new(ray_zone_tol_3d),
+    };
+    ray_fire_with_cache_into(
+        k,
+        b,
+        brep_id,
+        cache,
+        keys,
+        owner_of,
+        start,
+        direction,
+        ray_zone_tol_3d,
+        answer_limit,
+        &mut output,
+    )?;
+    Ok(output)
+}
+
+/// `RayFire` with native in/out state and lazy access to the caller's cache.
+///
+/// Unlike the convenience return value of [`ray_fire_with_cache`], `output`
+/// retains every write made before an error. Native ray retries reuse the same
+/// classification and region: an early error leaves them untouched, a missed
+/// ray changes only the region, class/object and parameters-set flag. Loading a
+/// hit can precede a failure in [`local_curve_sector`]. Cache acquisition remains
+/// after the bounding box and ray direction calculations.
+///
+/// # Errors
+/// The errors of [`ray_fire_with_cache`], with `output` left at the native
+/// point of failure. Rust identity/representation errors remain errors.
+#[allow(clippy::too_many_arguments)] // native in/out parameters plus cache access
+pub fn ray_fire_with_cache_into<'cache>(
+    k: &Kernel,
+    b: &mut Brep,
+    brep_id: BrepId,
+    cache: impl FnOnce(&Brep) -> Result<&'cache BrepCache>,
+    keys: &dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+    start: Point3,
+    direction: Vec3,
+    ray_zone_tol_3d: f64,
+    answer_limit: Option<f64>,
+    output: &mut RayFireResult,
+) -> Result<()> {
     // get Brep BoundingBox and BoundingSphere
     let bbox = brep_bounding_box(k, b)?;
     let sphere = bbox.sphere_bound();
@@ -1302,7 +1381,15 @@ pub fn ray_fire_with_cache<'cache>(
 
     // let sVecs[0] = unit ray direction
     let ray_end = start + (2.0 * radius) * direction;
-    let ray = (ray_end - start).unitize()?;
+    // A zero direction is a native numeric refusal, so FindInfiniteRegion can
+    // retry it; it is not a Rust identity/representation error.
+    let ray = (ray_end - start)
+        .unitize()
+        .map_err(|_| SolidError::Upstream {
+            operation: OP,
+            code: 1007,
+            entity: None,
+        })?;
 
     // cast ray through Brep
     let best_sq = answer_limit.map_or(BIG_DOUBLE, |l| l * l);
@@ -1329,22 +1416,19 @@ pub fn ray_fire_with_cache<'cache>(
         },
     )?;
 
-    let mut intersection = PointClassification::new(ray_zone_tol_3d);
-
     // when no intersections are found - set region = infiniteRegion
     let Some(first) = solutions.get(0) else {
         // But sometimes callers will set the infinite region to Null... [B111]
-        let region = match b.infinite_region() {
-            Some(r) => Some(r),
+        output.region = b.infinite_region();
+        if output.region.is_none() {
             // The recorded head is optional in the arena model; GetRegions
             // resolves its implicit first record and any explicit rotation.
-            None => p1::regions(b, None)?.first().copied(),
-        };
-        intersection.set_class_object(PointClassType::Unknown, None);
-        return Ok(RayFireResult {
-            region,
-            intersection,
-        });
+            output.region = p1::regions(b, None)?.first().copied();
+        }
+        output
+            .intersection
+            .set_class_object(PointClassType::Unknown, None);
+        return Ok(());
     };
 
     // check all solutions to find closest one with lowest dimensional object
@@ -1370,10 +1454,11 @@ pub fn ray_fire_with_cache<'cache>(
     }
 
     // when ray solution distance is negative (the region is overwritten below)
-    let mut region = None;
     if best.start.solution_value < -EFF_ZERO {
-        region = b.infinite_region();
-        intersection.set_class_object(PointClassType::Unknown, None);
+        output.region = b.infinite_region();
+        output
+            .intersection
+            .set_class_object(PointClassType::Unknown, None);
     }
 
     // check solution tolerance for an error
@@ -1381,11 +1466,9 @@ pub fn ray_fire_with_cache<'cache>(
     if best.start.solution_value < tol {
         return Err(SolidError::sm_err(OP));
     }
-    let _ = region;
-
     // load best Ray Solution into output PointClassification
     let hit = cache_entity(best.objects[0].ok_or(null_deref("null solution object"))?)?;
-    intersection.load_from_intersection(
+    output.intersection.load_from_intersection(
         ray_zone_tol_3d,
         hit,
         &best.start,
@@ -1400,11 +1483,15 @@ pub fn ray_fire_with_cache<'cache>(
 
     // Classify from the end of the ray -- the point on the Edge -- back towards
     // the ray point: Orientation is Opposite.
-    let region = local_curve_sector(k, b, &line, &ivl, OrientType::Opposite, &intersection)?;
-    Ok(RayFireResult {
-        region,
-        intersection,
-    })
+    output.region = local_curve_sector(
+        k,
+        b,
+        &line,
+        &ivl,
+        OrientType::Opposite,
+        &output.intersection,
+    )?;
+    Ok(())
 }
 
 // ---- geometry replacement -----------------------------------------------------------------
@@ -1851,10 +1938,10 @@ pub struct MergedCurves {
 ///
 /// `SM_ERR` when editing is not enabled or a coincident-maybe test is `UNSURE`;
 /// errors of the classification; [`SolidError::InvalidInput`] for a curve handle that
-/// does not resolve or a missing UV curve; [`SolidError::Unported`] from the curve
-/// classification constructor and `ConnectIntervals` (`intersect.curve_class_p4`,
-/// `_p2`), from `AreCoincidentMaybe`'s edge branch, and from the graph edits
-/// `MergeIntervals` defers.
+/// does not resolve or a missing UV curve; those of `ConnectIntervals` and
+/// `MergeIntervals`; [`SolidError::Unported`] from the curve classification constructor
+/// (`intersect.curve_class_p4`), from `AreCoincidentMaybe`'s edge branch, and from the
+/// graph edits `MergeIntervals` defers.
 #[allow(clippy::too_many_arguments)]
 pub fn merge_curves_on_surface<O: ClassObject + Copy>(
     k: &mut Kernel,
@@ -2005,18 +2092,14 @@ fn new_curve_classification<O: ClassObject + Copy>(
     ))
 }
 
-/// `ConnectIntervals(index, ePos, FALSE)` (unit `intersect.curve_class_p2`).
-fn connect_intervals<O>(
+/// `SER(ConnectIntervals(index, ePos, FALSE))` (`SmBrep.cpp:22072`;
+/// [`CurveClassification::connect_intervals`]).
+fn connect_intervals<O: ClassObject>(
     cc: &mut CurveClassification<O>,
     index: usize,
     pos: IntervalPosition,
 ) -> Result<()> {
-    let _ = (cc, index, pos);
-    // UNPORTED(intersect.curve_class_p2): SmCurveClassification::ConnectIntervals
-    Err(SolidError::unported(
-        "SmCurveClassification::ConnectIntervals",
-        "intersect.curve_class_p2",
-    ))
+    cc.connect_intervals(index, pos, false)
 }
 
 /// `MergeIntervals(&newFaces, NULL, NULL, pFace)` (unit `intersect.curve_class_p5`,
@@ -2602,6 +2685,71 @@ mod tests {
     }
 
     #[test]
+    fn min_edge_bbox_curve_check_uses_only_present_curves_in_list_order() {
+        let k = Kernel::default();
+        let (mut b, vertex, first, _) = brep();
+        b.edge_mut(first).unwrap().interval = Extent1d::from_min_max(0.0, 1.0);
+        let no_curve = b.add_edge(vertex, vertex).unwrap();
+        let last = b.add_edge(vertex, vertex).unwrap();
+        let edge = b.edge_mut(last).unwrap();
+        edge.curve = Some(line(Point3::new(0.0, 0.0, 0.0), Point3::new(3.0, 0.0, 0.0)));
+        edge.interval = Extent1d::from_min_max(0.0, 1.0);
+        b.set_edge_list(vec![last, no_curve, first]).unwrap();
+        let expected = min_edge_bbox_size(&k, &b).unwrap();
+        let mut visited = Vec::new();
+        let actual = min_edge_bbox_size_with_curve_check(&k, &b, &mut |edge| {
+            visited.push(edge);
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(actual, expected);
+        assert_eq!(visited, vec![last, first]);
+
+        let mut no_geometry = Brep::new();
+        assert_eq!(
+            min_edge_bbox_size_with_curve_check(&k, &no_geometry, &mut |edge| {
+                visited.push(edge);
+                Ok(())
+            })
+            .unwrap(),
+            (0.001, None)
+        );
+        let vertex = no_geometry.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
+        no_geometry.add_edge(vertex, vertex).unwrap();
+        let expected = min_edge_bbox_size(&k, &no_geometry).unwrap();
+        assert_eq!(
+            min_edge_bbox_size_with_curve_check(&k, &no_geometry, &mut |edge| {
+                visited.push(edge);
+                Ok(())
+            })
+            .unwrap(),
+            expected
+        );
+        assert_eq!(visited, vec![last, first]);
+    }
+
+    #[test]
+    fn min_edge_bbox_curve_check_does_not_swallow_provider_errors() {
+        let k = Kernel::default();
+        let (b, _, edge, _) = brep();
+        for error in [
+            SolidError::invalid_input("test::curve_provider", "inconsistent metadata"),
+            SolidError::NotFound {
+                operation: "test::curve_provider",
+                entity: EntityRef::Edge(edge),
+            },
+        ] {
+            let mut visited = Vec::new();
+            let result = min_edge_bbox_size_with_curve_check(&k, &b, &mut |edge| {
+                visited.push(edge);
+                Err(error.clone())
+            });
+            assert_eq!(result, Err(error));
+            assert_eq!(visited, vec![edge]);
+        }
+    }
+
+    #[test]
     fn point_from_solution_walks_the_parameters() {
         let (b, v, e, f) = brep();
         // edge (1 parameter), face (2), vertex (0), curve (1)
@@ -2667,7 +2815,7 @@ mod tests {
         let b = breps.get_mut(id).unwrap();
         // Real vertex boxes make a nondegenerate B-rep box. Neither vertex lies
         // on the +X ray, so the actual cache and solver produce no intersections.
-        b.add_vertex(Point3::new(-2.0, 3.0, 1.0)).unwrap();
+        let vertex = b.add_vertex(Point3::new(-2.0, 3.0, 1.0)).unwrap();
         b.add_vertex(Point3::new(4.0, 5.0, 2.0)).unwrap();
         // A detached first arena record must never become the list's implicit
         // head. The two attached records supply the implicit and rotated heads.
@@ -2689,8 +2837,60 @@ mod tests {
         let keys = brep_cache::arena_identity;
         let owner_of = |_: ObjectRef| None;
         let mut cache = Some(brep_cache::make_brep_cache(&k, CacheSource::Brep(b), &keys).unwrap());
+        // Native retries retain scalar PC state, rather than constructing a new
+        // classification on entry. Give every independent scalar field a value.
+        let mut previous = PointClassification::new(1.0 / 64.0);
+        previous.set_class_object(PointClassType::Vertex, Some(EntityRef::Vertex(vertex)));
+        previous.set_gap_3d(0.125);
+        previous.set_t_param(0.375, false);
+        previous.set_uv_param(Point2::new(0.25, 0.75));
+        previous.set_uvw_param(Point3::new(0.25, 0.5, 0.75));
+        previous.set_pre_snap_param(0.625);
+        previous.set_sss_point(Point3::new(3.0, 4.0, 5.0));
+        let initial = RayFireResult {
+            region: Some(second),
+            intersection: previous,
+        };
+        let mut output = initial.clone();
+        let zero_direction = ray_fire_with_cache_into(
+            &k,
+            b,
+            id,
+            |_| panic!("a zero ray must fail before cache acquisition"),
+            &keys,
+            &owner_of,
+            Point3::new(0.0, 0.0, 0.0),
+            Vec3::ZERO,
+            ZONE_TOL_3D,
+            None,
+            &mut output,
+        );
+        assert!(matches!(
+            zero_direction,
+            Err(SolidError::Upstream { code: 1007, .. })
+        ));
+        assert_eq!(output, initial);
+        let mut missed = previous;
+        missed.set_class_object(PointClassType::Unknown, None);
         for (head, expected) in [(None, first), (Some(second), second)] {
             b.set_region_list_head(head);
+            let mut output = initial.clone();
+            ray_fire_with_cache_into(
+                &k,
+                b,
+                id,
+                |_| Ok(cache.as_ref().unwrap()),
+                &keys,
+                &owner_of,
+                Point3::new(0.0, 0.0, 0.0),
+                Vec3::new(1.0, 0.0, 0.0),
+                ZONE_TOL_3D,
+                None,
+                &mut output,
+            )
+            .unwrap();
+            assert_eq!(output.region, Some(expected));
+            assert_eq!(output.intersection, missed);
             let hit = ray_fire(
                 &k,
                 b,

@@ -58,14 +58,14 @@
 //!   [`SolidError::InvalidInput`] (upstream then dereferences the null copy), as is
 //!   `pbOptCrvOnSurf` without UV curves (upstream loops over a null array).
 //! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::GetInfiniteRegion`
-//!   (`topology.brep_p1`); `SmBrep::Notify`, `SetTolerance`, `sm_CheckAndFixUVTrimCurves`,
-//!   `RebuildUVTrimCurves` (`topology.brep_p2`); `MakeWireEdge`, `MakeWireEdgeVertex`
-//!   (`topology.brep_p3`); `DeleteEdge` (`topology.brep_p4`); `GlueVertices`
-//!   (`topology.brep_p5`); `MakeShellVertex` (`topology.brep_p9`);
+//!   (`topology.brep_p1`); `MakeWireEdge`, `MakeWireEdgeVertex`
+//!   (`topology.brep_p3`); `DeleteEdge` (`topology.brep_p4`); `MakeShellVertexTopology`
+//!   (`topology.brep_p2`, reached through `topology.brep_p9`'s `MakeShellVertex`);
 //!   `SmFace::GetBrep`, `GetEdges`
 //!   (`topology.face_p4`); `SmMerge` (`boolean.merge_p2`); the curve constructor of
 //!   `SmCurveClassification` (`intersect.curve_class_p4`), which
-//!   `MergeSelfIntersectionCurves` reaches first. Its classification of a UV curve
+//!   `MergeSelfIntersectionCurves` reaches first. `GlueVertices` calls
+//!   `topology.brep_p5` with the caller's notification environment. Its classification of a UV curve
 //!   against the faces and the `SetCurve` + `MergeIntervals` that follows are two stubs
 //!   (`classify_on_faces`, `set_curve_and_merge`) over a stand-in interval type; the
 //!   upstream interval loop around them is ported (`GetSize() != 1` skips before the
@@ -104,6 +104,7 @@ use crate::nurbs::b_spline_curve_n_lib::InValueType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::brep::p10::{self, MakeTopologyOptions, TopologyEnv};
+use crate::topology::brep::p2;
 use crate::topology::brep::p6;
 use crate::topology::brep_data::BrepData;
 use crate::topology::database_io::FileType;
@@ -142,43 +143,63 @@ fn reset_infinite_region(_b: &mut Brep) -> Result<()> {
     ))
 }
 
-/// `SmBrep::Notify(op, data1, data2, data3)` (`None` for a null datum or for the B-rep,
-/// which has no identity here).
-fn brep_notify(_b: &mut Brep, _op: NotifyOperation, _data: [Option<EntityRef>; 3]) -> Result<()> {
-    // UNPORTED(topology.brep_p2): SmBrep::Notify
-    Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
+/// Ignore native statuses without hiding a missing dependency or an invalid
+/// arena/object identity, which has no defined native continuation.
+fn ignore_native_status(result: Result<()>) -> Result<()> {
+    match result {
+        Err(
+            error @ (SolidError::Unported { .. }
+            | SolidError::InvalidInput { .. }
+            | SolidError::NotFound { .. }),
+        ) => Err(error),
+        _ => Ok(()),
+    }
 }
 
-/// `SmBrep::SetTolerance(tol, bUpdateOnlyIfLarger, bCascadeToBndries)` (`SM_USE_OLDTOL`).
-fn brep_set_tolerance(
-    _b: &mut Brep,
-    _tol: f64,
-    _update_only_if_larger: bool,
-    _cascade_to_boundaries: bool,
+/// `SmBrep::Notify(op, data1, data2, data3)` through the caller's live `env`.
+/// Callers discard externally owned B-rep caches before topology edits; there
+/// is no cache slot in this API. Native call sites ignore the returned status
+/// (`SmBrep.cpp:9840`, `:9854`).
+fn brep_notify(
+    b: &mut Brep,
+    env: &mut ed::NotifyEnv<'_>,
+    op: NotifyOperation,
+    data: [Option<p2::NotifyArg>; 3],
 ) -> Result<()> {
-    // UNPORTED(topology.brep_p2): SmBrep::SetTolerance
-    Err(SolidError::unported(
-        "SmBrep::SetTolerance",
-        "topology.brep_p2",
+    ignore_native_status(p2::notify(b, env, None, op, data))
+}
+
+/// The B-rep's actual identity as a notification datum (`this`).
+fn this_brep(b: &Brep) -> p2::NotifyArg {
+    p2::NotifyArg::Object(p2::brep_ref(b))
+}
+
+/// `SmBrep::SetTolerance(tol, bUpdateOnlyIfLarger, bCascadeToBndries)`
+/// (`SM_USE_OLDTOL`); `CopyFaces` ignores its status (`SmBrep.cpp:2014`).
+fn brep_set_tolerance(
+    k: &Kernel,
+    b: &mut Brep,
+    tol: f64,
+    update_only_if_larger: bool,
+    cascade_to_boundaries: bool,
+) -> Result<()> {
+    ignore_native_status(p2::set_tolerance(
+        k,
+        b,
+        tol,
+        update_only_if_larger,
+        cascade_to_boundaries,
     ))
 }
 
-/// `sm_CheckAndFixUVTrimCurves(this)`.
-fn check_and_fix_uv_trim_curves(_k: &Kernel, _b: &mut Brep) -> Result<()> {
-    // UNPORTED(topology.brep_p2): sm_CheckAndFixUVTrimCurves
-    Err(SolidError::unported(
-        "sm_CheckAndFixUVTrimCurves",
-        "topology.brep_p2",
-    ))
+/// `sm_CheckAndFixUVTrimCurves(this)` ([`p2::check_and_fix_uv_trim_curves`]).
+fn check_and_fix_uv_trim_curves(k: &Kernel, b: &mut Brep) -> Result<()> {
+    p2::check_and_fix_uv_trim_curves(k, b)
 }
 
-/// `RebuildUVTrimCurves()`.
-fn rebuild_uv_trim_curves(_k: &Kernel, _b: &mut Brep) -> Result<()> {
-    // UNPORTED(topology.brep_p2): SmBrep::RebuildUVTrimCurves
-    Err(SolidError::unported(
-        "SmBrep::RebuildUVTrimCurves",
-        "topology.brep_p2",
-    ))
+/// `RebuildUVTrimCurves()` ([`p2::rebuild_uv_trim_curves`]).
+fn rebuild_uv_trim_curves(k: &Kernel, b: &mut Brep) -> Result<()> {
+    p2::rebuild_uv_trim_curves(k, b)
 }
 
 /// `MakeWireEdge(region, start, end, curve, ivl, orient, rpNewEdge)`.
@@ -224,13 +245,16 @@ fn delete_edge(_b: &mut Brep, _e: EdgeId) -> Result<()> {
     ))
 }
 
-/// `GlueVertices(survivor, other)`.
-fn glue_vertices(_b: &mut Brep, _v1: VertexId, _v2: VertexId) -> Result<()> {
-    // UNPORTED(topology.brep_p5): SmBrep::GlueVertices
-    Err(SolidError::unported(
-        "SmBrep::GlueVertices",
-        "topology.brep_p5",
-    ))
+/// `GlueVertices(survivor, other)` (default `pOptWireEdgesInBrep = NULL`), with the
+/// caller's notification environment.
+fn glue_vertices(
+    k: &mut Kernel,
+    b: &mut Brep,
+    v1: VertexId,
+    v2: VertexId,
+    env: &mut ed::NotifyEnv<'_>,
+) -> Result<()> {
+    super::p5::glue_with_notifications(k, b, Some(v1), Some(v2), None, Some(env))
 }
 
 /// `TestClosureSplitRegion(TRUE, edge, aNewShells, aNewRegions)` (unit
@@ -248,15 +272,12 @@ fn test_closure_split_region_edge(
 
 /// `MakeShellVertex(region, point, rpNewShell, rpNewVertex)`.
 fn make_shell_vertex(
-    _b: &mut Brep,
-    _region: RegionId,
-    _point: Point3,
+    b: &mut Brep,
+    region: RegionId,
+    point: Point3,
+    env: &mut ed::NotifyEnv<'_>,
 ) -> Result<(ShellId, VertexId)> {
-    // UNPORTED(topology.brep_p9): SmBrep::MakeShellVertex
-    Err(SolidError::unported(
-        "SmBrep::MakeShellVertex",
-        "topology.brep_p9",
-    ))
+    super::p9::make_shell_vertex(b, Some(region), point, env)
 }
 
 /// `MakeTopologyFromData(pBrepData, sAttributes, bMakeUVTrimCurves, bAddAnalytics,
@@ -485,10 +506,10 @@ pub fn read_from_file(
 
     // check the UV trim curves unless they are rebuilt (statuses ignored)
     if !rebuild_uv_trim_curves_flag {
-        ignore_status(check_and_fix_uv_trim_curves(k, b))?;
+        ignore_native_status(check_and_fix_uv_trim_curves(k, b))?;
     }
     if rebuild_uv_trim_curves_flag {
-        ignore_status(rebuild_uv_trim_curves(k, b))?;
+        ignore_native_status(rebuild_uv_trim_curves(k, b))?;
     }
     Ok(())
 }
@@ -661,6 +682,7 @@ pub fn make_face_with_curves(
     orientation: OrientType,
     crv_on_surf: Option<bool>,
     this_face: &dyn Fn(FaceId) -> ObjectRef,
+    env: &mut ed::NotifyEnv<'_>,
 ) -> Result<NewFace> {
     let FaceCurvesInput {
         loops,
@@ -902,7 +924,7 @@ pub fn make_face_with_curves(
             }
             let found_start = m.found;
             let start_vertex = if vertices.is_empty() {
-                let (_shell, v) = make_shell_vertex(b, region, start_pt)?;
+                let (_shell, v) = make_shell_vertex(b, region, start_pt, env)?;
                 vertices.push(v);
                 // (upstream assigns the new shell only when it already has one)
                 v
@@ -978,7 +1000,7 @@ pub fn make_face_with_curves(
     // vertex loops
     let mut loop_vertices: Vec<VertexId> = Vec::new();
     for &p in &loop_points {
-        let (_shell, v) = make_shell_vertex(b, region, p)?;
+        let (_shell, v) = make_shell_vertex(b, region, p, env)?;
         loop_vertices.push(v);
     }
 
@@ -1048,12 +1070,14 @@ pub fn make_face_with_curves(
 /// tests for split regions. A wire `to_delete` is deleted. Nothing happens without both
 /// edges or for one edge. `queries` supplies the caller's live shell ray context if
 /// a region split reaches the infinite-region test.
+/// The caller invalidates any externally owned B-rep caches before this edit;
+/// notifications use the supplied live attribute and topology records in `env`.
 ///
 /// # Errors
 ///
 /// `SM_ERR` when the edges do not share both vertices; those of the radial sector, edge
-/// use and shell edits; [`SolidError::Unported`] (`SmBrep::Notify` first; see the module
-/// docs).
+/// use and shell edits and the notification's identity checks;
+/// [`SolidError::Unported`] from missing callees (see the module docs).
 #[allow(clippy::too_many_arguments, clippy::too_many_lines)] // one upstream routine
 pub fn glue_edges_general(
     k: &mut Kernel,
@@ -1075,7 +1099,8 @@ pub fn glue_edges_general(
     }
 
     // Notify(SM_NO_PRE_EDIT, this, NULL, NULL)
-    brep_notify(b, NotifyOperation::PreEdit, [None, None, None])?;
+    let this = this_brep(b);
+    brep_notify(b, env, NotifyOperation::PreEdit, [Some(this), None, None])?;
 
     // a wire edge is just deleted
     if ed::is_wire(b, del)? {
@@ -1084,23 +1109,25 @@ pub fn glue_edges_general(
     }
 
     let surv_ref = (env.key_of)(EntityRef::Edge(surv));
+    let brep_ref = p2::brep_ref(b);
     ed::notify(
         b,
         surv,
         env,
         NotifyOperation::PreEdit,
-        // (upstream passes (pSurvivingEdge, this, NULL); the B-rep has no identity here
-        // and PreEdit does not read it)
-        [Some(surv_ref), None, None],
+        // SmBrep.cpp:9853 passes the live B-rep identity to attribute/context callbacks.
+        [Some(surv_ref), Some(brep_ref), None],
     )?;
     // Notify(SM_NO_MERGE_IN_BREP, pSurvivingEdge, pEdgeToDelete, this)
+    let this = this_brep(b);
     brep_notify(
         b,
+        env,
         NotifyOperation::MergeInBrep,
         [
-            Some(EntityRef::Edge(surv)),
-            Some(EntityRef::Edge(del)),
-            None,
+            Some(p2::NotifyArg::Entity(EntityRef::Edge(surv))),
+            Some(p2::NotifyArg::Entity(EntityRef::Edge(del))),
+            Some(this),
         ],
     )?;
     for f in ed::faces(b, del, None)? {
@@ -1370,8 +1397,8 @@ pub fn glue_edges_general(
 ///
 /// # Errors
 ///
-/// `SM_ERR` for a face of another B-rep; [`SolidError::Unported`] (`SmBrep::SetTolerance`
-/// first; see the module docs).
+/// `SM_ERR` for a face of another B-rep; [`SolidError::Unported`] from missing callees
+/// (see the module docs).
 pub fn copy_faces(
     k: &Kernel,
     src: &mut Brep,
@@ -1379,9 +1406,10 @@ pub fn copy_faces(
     dest: &mut Brep,
     use_merge: bool,
     this_face: &dyn Fn(FaceId) -> ObjectRef,
+    env: &mut ed::NotifyEnv<'_>,
 ) -> Result<(Vec<FaceId>, bool)> {
     // pDestinationBrep->SetTolerance(GetTolerance()) = (tol, TRUE, TRUE): grow only
-    brep_set_tolerance(dest, src.tolerance(), true, true)?;
+    brep_set_tolerance(k, dest, src.tolerance(), true, true)?;
     let mut new_faces = Vec::new();
     let mut all_ok = true;
     // (upstream reads the destination's infinite region before both branches)
@@ -1438,6 +1466,7 @@ pub fn copy_faces(
             OrientType::Same,
             None,
             this_face,
+            env,
         ) {
             Ok(made) => {
                 if let Some(nf) = made.face {
@@ -1532,10 +1561,10 @@ pub fn merge_self_intersection_curves(
             let end2 = ed::other_vertex(b, e2, st2)?;
             let v = |x: Option<VertexId>| x.ok_or_else(|| null("edge without vertex"));
             if st1 != st2 {
-                glue_vertices(b, v(st1)?, v(st2)?)?;
+                glue_vertices(k, b, v(st1)?, v(st2)?, env)?;
             }
             if st1 != end1 && end1 != end2 {
-                glue_vertices(b, v(end1)?, v(end2)?)?;
+                glue_vertices(k, b, v(end1)?, v(end2)?, env)?;
             }
             if e1 != e2 {
                 glue_edges_general(
@@ -1561,10 +1590,40 @@ pub fn merge_self_intersection_curves(
 mod tests {
     use super::*;
     use crate::geom::attribute::{AttributeStore, ObjectKey};
+    use crate::geom::context::{Context, MarkType, NotifyCallback};
     use crate::geom::vector2d::Point2;
     use crate::math::Vec3;
     use crate::surface::plane::Plane;
+    use crate::topology::topology::{NotifyEvent, Topology};
     use crate::topology::Region;
+    use std::sync::{Arc, Mutex};
+
+    #[derive(Debug, Clone, Default)]
+    struct GlueNotifyLog(Arc<Mutex<Vec<NotifyEvent>>>);
+
+    impl NotifyCallback for GlueNotifyLog {
+        fn execute(
+            &mut self,
+            operation: NotifyOperation,
+            caller: ObjectRef,
+            data1: Option<ObjectRef>,
+            data2: Option<ObjectRef>,
+            data3: Option<ObjectRef>,
+        ) -> Result<()> {
+            self.0.lock().unwrap().push(NotifyEvent {
+                operation,
+                caller: Some(caller),
+                data1,
+                data2,
+                data3,
+            });
+            Ok(())
+        }
+
+        fn as_any(&self) -> Option<&dyn core::any::Any> {
+            Some(self)
+        }
+    }
 
     fn key_of(_e: EntityRef) -> ObjectRef {
         ObjectRef {
@@ -1589,19 +1648,56 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::too_many_lines)] // one native notification sequence and its early-out boundaries
     fn glue_no_ops() {
         let mut k = Kernel::default();
         let mut b = Brep::new();
         let v0 = b.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
         let v1 = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
         let e = b.add_edge(v0, v1).unwrap();
-        let mut records = std::collections::BTreeMap::new();
+        let e2 = b.add_edge(v0, v1).unwrap();
+        let key_of_edge = |entity| match entity {
+            EntityRef::Edge(edge) => ObjectRef {
+                type_code: ed::TYPE,
+                key: ObjectKey(1 + u64::from(edge.index())),
+            },
+            _ => panic!("this glue fixture only notifies its edges and B-rep"),
+        };
+        let this = p2::brep_ref(&b);
+        let surv = key_of_edge(EntityRef::Edge(e));
+        let deleted = key_of_edge(EntityRef::Edge(e2));
+        let log = GlueNotifyLog::default();
+        let mut context = Context::default();
+        context.set_sys_notify_callback(Some(Box::new(log.clone())));
+        let mut survivor_record = Topology::default();
+        survivor_record.set_all_flags(1);
+        survivor_record.set_user_index1(11);
+        survivor_record.mark(Some(&context), MarkType::MarkIo);
+        let mut deleted_record = Topology::default();
+        deleted_record.set_all_flags(2);
+        deleted_record.set_user_index1(22);
+        deleted_record.set_user_index2(33);
+        deleted_record.set_user_ptr1(44);
+        for mark in [MarkType::Mark, MarkType::Mark2, MarkType::Mark3] {
+            deleted_record.mark(Some(&context), mark);
+        }
+        let mut records = std::collections::BTreeMap::from([
+            (this.key, Topology::default()),
+            (surv.key, survivor_record),
+            (deleted.key, deleted_record),
+        ]);
+        assert_eq!(
+            records.len(),
+            3,
+            "fixture notification identities must differ"
+        );
+        let before_records = records.clone();
         let mut attrs = AttributeStore::default();
         let mut env = ed::NotifyEnv {
             records: &mut records,
             attributes: &mut attrs,
-            context: None,
-            key_of: &key_of,
+            context: Some(&mut context),
+            key_of: &key_of_edge,
         };
         let mut queries = |_: &mut Kernel,
                            _: &mut Brep,
@@ -1630,7 +1726,8 @@ mod tests {
             )
             .unwrap();
         }
-        let e2 = b.add_edge(v0, v1).unwrap();
+        assert!(log.0.lock().unwrap().is_empty());
+        assert_eq!(&*env.records, &before_records);
         let r = glue_edges_general(
             &mut k,
             &mut b,
@@ -1643,7 +1740,56 @@ mod tests {
             &mut env,
             &mut queries,
         );
-        assert!(r.unwrap_err().is_unported());
+        // The malformed edge fixture still stops at its missing primary edge use,
+        // after the native notification sequence (SmBrep.cpp:9840-9854) completes.
+        assert!(
+            matches!(
+                r,
+                Err(SolidError::InvalidInput {
+                    reason: "edge without primary edge use",
+                    ..
+                })
+            ),
+            "glue: {r:?}"
+        );
+        let event = |operation, caller, data: [Option<ObjectRef>; 3]| NotifyEvent {
+            operation,
+            caller: Some(caller),
+            data1: data[0],
+            data2: data[1],
+            data3: data[2],
+        };
+        assert_eq!(
+            *log.0.lock().unwrap(),
+            vec![
+                event(NotifyOperation::PreEdit, this, [Some(this), None, None]),
+                event(
+                    NotifyOperation::PreEdit,
+                    surv,
+                    [Some(surv), Some(this), None]
+                ),
+                event(
+                    NotifyOperation::MergeInBrep,
+                    this,
+                    [Some(surv), Some(deleted), Some(this)],
+                ),
+            ]
+        );
+        let survivor_after = env.records[&surv.key];
+        let deleted_after = env.records[&deleted.key];
+        assert_eq!(survivor_after.all_flags(), 3);
+        assert_eq!(deleted_after.all_flags(), 3);
+        assert_eq!(survivor_after.user_index1(), 22);
+        assert_eq!(survivor_after.user_index2(), 33);
+        assert_eq!(survivor_after.user_ptr1(), 44);
+        for mark in [MarkType::Mark, MarkType::Mark2, MarkType::Mark3] {
+            assert_eq!(survivor_after.get_mark(mark), deleted_record.get_mark(mark));
+        }
+        assert_eq!(
+            survivor_after.get_mark(MarkType::MarkIo),
+            survivor_record.get_mark(MarkType::MarkIo)
+        );
+        assert_eq!(env.records[&this.key], before_records[&this.key]);
     }
 
     #[test]
@@ -1697,7 +1843,15 @@ mod tests {
                 ..Region::default()
             })
             .unwrap();
-        let run = |b: &mut Brep, input: FaceCurvesInput, region| {
+        let mut records = std::collections::BTreeMap::new();
+        let mut attrs = AttributeStore::default();
+        let mut env = ed::NotifyEnv {
+            records: &mut records,
+            attributes: &mut attrs,
+            context: None,
+            key_of: &key_of,
+        };
+        let mut run = |b: &mut Brep, input: FaceCurvesInput, region| {
             make_face_with_curves(
                 &k,
                 b,
@@ -1708,6 +1862,7 @@ mod tests {
                 OrientType::Same,
                 None,
                 &face_ref,
+                &mut env,
             )
         };
         // no curves
@@ -1798,7 +1953,7 @@ mod tests {
     }
 
     #[test]
-    fn read_errors_and_deferral() {
+    fn empty_read_and_copy_dependency() {
         let mut k = Kernel::default();
         let mut b = Brep::new_with_infinite_region().unwrap();
         let mut store = AttributeStore::new();
@@ -1808,7 +1963,7 @@ mod tests {
                            _: ShellId,
                            _: crate::topology::shell::ShellRayInput<EntityRef>|
          -> crate::topology::shell::ShellRayAttempt<EntityRef> {
-            panic!("an empty input stream must fail before geometric queries")
+            panic!("an empty input stream must not require geometric queries")
         };
         let mut env = TopologyEnv {
             all_attributes: &[],
@@ -1818,13 +1973,43 @@ mod tests {
             next_key: 1,
             region_queries: &mut queries,
         };
-        assert!(
-            read_from_file(&mut k, &mut b, Vec::new(), FileType::Ascii, false, &mut env).is_err()
-        );
+        // Native empty input produces an empty B-rep; the real trim-curve
+        // checker finds no edge uses requiring a repair.
+        for rebuild in [false, true] {
+            let result = read_from_file(
+                &mut k,
+                &mut b,
+                Vec::new(),
+                FileType::Ascii,
+                rebuild,
+                &mut env,
+            );
+            assert!(result.is_ok(), "read (rebuild={rebuild}): {result:?}");
+        }
         let mut src = Brep::new();
         let mut dest = Brep::new();
-        assert!(copy_faces(&k, &mut src, &[], &mut dest, false, &face_ref)
-            .unwrap_err()
-            .is_unported());
+        src.set_tolerance(1.0 / 8.0);
+        dest.set_tolerance(1.0 / 32.0);
+        let mut records = std::collections::BTreeMap::new();
+        let mut attrs = AttributeStore::default();
+        let mut env = ed::NotifyEnv {
+            records: &mut records,
+            attributes: &mut attrs,
+            context: None,
+            key_of: &key_of,
+        };
+        let result = copy_faces(&k, &mut src, &[], &mut dest, false, &face_ref, &mut env);
+        assert!(
+            matches!(
+                result,
+                Err(SolidError::Unported {
+                    upstream: "SmBrep::GetInfiniteRegion",
+                    unit: "topology.brep_p1",
+                })
+            ),
+            "copy: {result:?}"
+        );
+        // SetTolerance completes before the pending infinite-region lookup.
+        assert_eq!(dest.tolerance(), 1.0 / 8.0);
     }
 }

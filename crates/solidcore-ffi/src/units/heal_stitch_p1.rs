@@ -79,6 +79,14 @@ impl Op {
 
 mod sys {
     extern "C" {
+        pub fn sc_heal_stitch_p1_split_metadata(
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            count: i64,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
         pub fn sc_heal_stitch_p1_query_metadata(
             path: *const std::ffi::c_char,
             input: *const f64,
@@ -325,6 +333,42 @@ pub fn query_metadata(path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
         // and input stay live; the shim honours the actual output capacity.
         unsafe {
             sys::sc_heal_stitch_p1_query_metadata(
+                path.as_ptr(),
+                input.as_ptr(),
+                input.len() as i64,
+                out.as_mut_ptr(),
+                out.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
+}
+
+/// Export the native state consumed by edge-split notifications from the same
+/// construction and registry as the query metadata enclosed in this payload.
+///
+/// Layout: `1 query_len query... callback_present n_records records... n_geometry
+/// geometry...`. A topology record is `kind index flags marks[3] user_index[2]
+/// user_ptr has_attributes`; every unsigned value uses two exact `u32` limbs, low
+/// then high. Kinds `0..=9` are the graph registries and kind `10` is the B-rep.
+/// A geometry row is `kind index present has_attributes`, where kinds `0`, `1`,
+/// `2` mean the edge curve, face surface and edgeuse's own UV trim, respectively.
+/// `callback_present` checks both system and user callbacks on the B-rep's context.
+/// Attribute/callback presence and marks are reported even when the Rust fixture
+/// cannot reconstruct them; they must not silently become default state.
+///
+/// # Errors
+/// Invalid construction input or a native fixture/export failure.
+pub fn split_metadata(path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
+    let mut rd = Reader { input, at: 0 };
+    block(&mut rd, path)?;
+    rd.done()?;
+    let path = std::ffi::CString::new(path).map_err(|_| bad("path has a NUL byte"))?;
+    call_with_buffer(4096, |out, len| {
+        // SAFETY: the complete construction block was validated above. The path
+        // and input stay live; the shim honours the actual output capacity.
+        unsafe {
+            sys::sc_heal_stitch_p1_split_metadata(
                 path.as_ptr(),
                 input.as_ptr(),
                 input.len() as i64,

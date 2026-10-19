@@ -522,6 +522,32 @@ pub fn point_3d_classify_initialize(
     classification.set_src_zone_tol_3d(source_zone_tolerance);
 }
 
+/// Runs a face query with an exact numerical surface view and the original mutable
+/// B-rep. The view retains its surface's owner identity and NURBS data; resolve
+/// topology, owner state and trim writes through `brep` while using the view for
+/// numerical evaluation. The view lives only for the callback, so the returned
+/// value cannot borrow it. Changes made to `brep` remain visible even on error.
+///
+/// For `Point3DClassify`, read the UV domain and call
+/// [`point_3d_classify_initialize`] before entering this bridge, preserving the
+/// native order of classification writes and surface lookup.
+///
+/// # Errors
+///
+/// Propagates face lookup errors, [`SolidError::InvalidInput`] for a face without
+/// a surface or geometry exceeding the evaluation-copy depth bound, and the
+/// callback's error without replacing it.
+pub fn with_face_surface_evaluation<T>(
+    brep: &mut Brep,
+    face: FaceId,
+    query: impl FnOnce(&Surface, &mut Brep) -> Result<T>,
+) -> Result<T> {
+    let surface = fp2::surface(brep, face)?
+        .ok_or_else(|| SolidError::invalid_input(OP_POINT, "face without surface"))?
+        .clone_for_evaluation()?;
+    query(&surface, brep)
+}
+
 /// The surface-drop phase of `SmFace::Point3DClassify`, with the live owner and
 /// trim-creation context supplied separately from the numerical surface view.
 /// Cache acquisition precedes even a hinted local drop. The global drop reuses

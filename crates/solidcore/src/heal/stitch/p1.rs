@@ -46,17 +46,20 @@
 //!   [`SolidError::InvalidInput`] there. Its rescan of a vertex after gluing a closer
 //!   one is bounded by `4 * (n1 + n2) + 16` passes (each glue empties a slot, so
 //!   upstream needs at most `n1 + 2 * n2`).
-//! - `SmVertex::SetPoint`'s change notification runs on a record set local to the call
-//!   (no attributes are attached by the stitch).
+//! - `SmVertex::SetPoint`'s notifications run on records local to the call (no
+//!   attributes are attached by the stitch). `SmBrep::MakeVertexSplitEdge` instead
+//!   receives the caller's notification records, attributes and curve identities.
+//!   A refused split (`SM_ERR` with the nearby endpoint) is reported as `SM_ERR`,
+//!   the only distinction its caller makes.
 //! - Uninitialised reads upstream: `DoSimpleFaceStitch` ignores `CurveMaxDistanceBetween`'s
 //!   status (`SE`) and reads the unset `dDistToCurve` after a failure (the port reads 0).
 //! - `UnifyNormals` ignores `NormalizedEvaluate`'s status and goes on with `sPnt` / `sDir`
 //!   as they were: `SmVector3d`'s default `SM_UNDEF_DOUBLE` (defined; the 3D evaluation
 //!   writes them only after its last status), [`Point3::UNDEF`] / [`Vec3::UNDEF`] here.
-//! - The calls into `SmBrep::GlueVertices`, `RemoveFaces`, `StitchAndOrient`
-//!   (`topology.brep_p5`), `GlueEdgesGeneral` (`topology.brep_p7`), `SqueezeEdge`
-//!   (`topology.brep_p3`), `MakeVertexSplitEdge` (`topology.brep_p9`), `Notify`
-//!   (`topology.brep_p2`), `SmFace::GetBrep`,
+//! - `SmBrep::GlueVertices`, `RemoveFaces` (with the B-rep's own editing flag) and
+//!   `StitchAndOrient` call `topology.brep_p5`, which defers at its own barriers.
+//! - The calls into `GlueEdgesGeneral` (`topology.brep_p7`), `SqueezeEdge`
+//!   (`topology.brep_p3`), `SmFace::GetBrep`,
 //!   `GetVertices`, `GetEdges` (`topology.face_p4`), `SmMerge::MergeAddedFace`
 //!   (`boolean.merge_p2`) and `SmStitch::DoStitching`, `StitchIntoSolid`,
 //!   `StitchIntoShell` (`heal.stitch_p2`) return [`SolidError::Unported`].
@@ -539,18 +542,21 @@ pub struct EdgeSplitTest {
 
 /// `sm_TestAndSplitEdge`: drops `point` onto the edge (global solve, snap distance
 /// `tol`) and, when it lands within `max(tol, edge tolerance)` in the edge's interior
-/// ([`check_interior_edge`]), splits the edge there.
+/// ([`check_interior_edge`]), splits the edge there. Notifications and new curve
+/// identities use the caller's environment, which retains the split's mutations.
 ///
 /// # Errors
 ///
 /// `SM_ERR_NULL_POINTER` for an edge without curve or a split without new vertex;
 /// those of the drop (`SER`).
 pub fn test_and_split_edge(
-    k: &Kernel,
+    k: &mut Kernel,
     b: &mut Brep,
     e: EdgeId,
     point: Point3,
     tol: f64,
+    notifications: &mut edge::NotifyEnv<'_>,
+    curve_ref: &dyn Fn(EdgeId, i64) -> ObjectRef,
 ) -> Result<EdgeSplitTest> {
     // Init outputs
     let mut out = EdgeSplitTest {
@@ -590,15 +596,16 @@ pub fn test_and_split_edge(
     }
 
     // Must have a point which can split the Edge.
-    let (e1, e2, new_v) = match make_vertex_split_edge(b, e, dropped.parameter) {
-        Ok(r) => r,
-        Err(err) if err.is_unported() => return Err(err),
-        Err(_) => {
-            // most probable reason; don't really care too much.
-            out.reason = SplitReason::CloseToBoundary;
-            return Ok(out);
-        }
-    };
+    let (e1, e2, new_v) =
+        match make_vertex_split_edge(k, b, e, dropped.parameter, notifications, curve_ref) {
+            Ok(r) => r,
+            Err(err) if err.is_unported() => return Err(err),
+            Err(_) => {
+                // most probable reason; don't really care too much.
+                out.reason = SplitReason::CloseToBoundary;
+                return Ok(out);
+            }
+        };
     out.new_vertex = Some(new_v.ok_or_else(|| ner("split without vertex"))?);
     out.new_edge = if e2 == Some(e) { e1 } else { e2 };
     Ok(out)
@@ -962,7 +969,7 @@ impl<'c> Stitch<'c> {
                 ignore_status(brep_notify_pre_edit(b))?;
 
                 // glue the coincident vertices
-                let mut wire_edges = bp1::wire_edges(b, None)?;
+                let wire_edges = bp1::wire_edges(b, None)?;
                 for (&kv, &dv) in k_vertices.iter().zip(&d_vertices) {
                     let (v0, v1) = (kv, dv);
                     if making_manifold_solid
@@ -1018,7 +1025,7 @@ impl<'c> Stitch<'c> {
                     if do_squeeze {
                         squeeze_edge_to(b, squeeze_edge, keep)?;
                     } else if do_glue {
-                        glue_vertices(b, keep, other, Some(&mut wire_edges))?;
+                        glue_vertices(k, b, keep, other, Some(&wire_edges))?;
                     }
                 }
 
@@ -1579,7 +1586,7 @@ impl<'c> Stitch<'c> {
             let old_tol = vertex::tolerance(b, vtx2_to_glue)?;
             let s_lii = at1(&sorted1, lii_to_glue)?;
             let s_ljj = at1(&sorted2, ljj_to_glue)?;
-            match glue_vertices(b, vtx1, vtx2_to_glue, None) {
+            match glue_vertices(k, b, vtx1, vtx2_to_glue, None) {
                 Ok(()) => {}
                 Err(e) if e.is_unported() => return Err(e),
                 Err(e) => {
@@ -1945,29 +1952,24 @@ pub(crate) fn update_object_tolerance(
     tol::update_object_tolerance(k, b, topo, gap, this_tol, check_gaps)
 }
 
-/// `SmBrep::GlueVertices(keep, delete, pOptWireEdges)` (unit `topology.brep_p5`).
+/// `SmBrep::GlueVertices(keep, delete, pOptWireEdges)` (unit `topology.brep_p5`):
+/// [`crate::topology::brep::p5::glue_vertices`]. Upstream only reads the wire list.
 pub(crate) fn glue_vertices(
+    k: &mut Kernel,
     b: &mut Brep,
     keep: VertexId,
     delete: VertexId,
-    wire_edges: Option<&mut Vec<EdgeId>>,
+    wire_edges: Option<&[EdgeId]>,
 ) -> Result<()> {
-    let _ = (b, keep, delete, wire_edges);
-    // UNPORTED(topology.brep_p5): SmBrep::GlueVertices
-    Err(SolidError::unported(
-        "SmBrep::GlueVertices",
-        "topology.brep_p5",
-    ))
+    crate::topology::brep::p5::glue_vertices(k, b, Some(keep), Some(delete), wire_edges)
 }
 
-/// `SmBrep::RemoveFaces` (unit `topology.brep_p5`).
+/// `SmBrep::RemoveFaces` (unit `topology.brep_p5`):
+/// [`crate::topology::brep::p5::remove_faces`], with the B-rep's own editing flag
+/// (`m_bEditingEnabled`).
 pub(crate) fn remove_faces(k: &mut Kernel, b: &mut Brep, faces: &[FaceId]) -> Result<()> {
-    let _ = (k, b, faces);
-    // UNPORTED(topology.brep_p5): SmBrep::RemoveFaces
-    Err(SolidError::unported(
-        "SmBrep::RemoveFaces",
-        "topology.brep_p5",
-    ))
+    let editing = b.editing_enabled();
+    crate::topology::brep::p5::remove_faces(k, b, editing, faces)
 }
 
 /// `SmBrep::StitchAndOrient(dStitchTol3d, bAllowSpineEdges, pOptFacesToSwap,
@@ -1980,19 +1982,17 @@ fn stitch_and_orient(
     faces_to_swap: Option<&[FaceId]>,
     just_unify: Option<bool>,
 ) -> Result<()> {
-    let _ = (
-        k,
+    // The part 5 body reaches no kernel state before its stitching dependency.
+    let _ = k;
+    crate::topology::brep::p5::stitch_and_orient(
         b,
-        stitch_tol_3d,
-        allow_spine_edges,
-        faces_to_swap,
-        just_unify,
-    );
-    // UNPORTED(topology.brep_p5): SmBrep::StitchAndOrient
-    Err(SolidError::unported(
-        "SmBrep::StitchAndOrient",
-        "topology.brep_p5",
-    ))
+        &crate::topology::brep::p5::StitchAndOrientOptions {
+            stitch_tolerance: stitch_tol_3d,
+            allow_spine_edges,
+            faces_to_swap: faces_to_swap.map(<[FaceId]>::to_vec),
+            just_unify,
+        },
+    )
 }
 
 /// `SmBrep::GlueEdgesGeneral(keep, orientation, dist, bDoRegionNesting, delete,
@@ -2032,25 +2032,41 @@ pub(crate) fn squeeze_edge_to(b: &mut Brep, e: Option<EdgeId>, keep: VertexId) -
     ))
 }
 
-/// `SmBrep::MakeVertexSplitEdge(edge, t, rpE1, rpE2, rpNewV)` (unit `topology.brep_p9`).
+/// `SmBrep::MakeVertexSplitEdge(edge, t, rpE1, rpE2, rpNewV)` (unit `topology.brep_p9`),
+/// using the caller's actual notification records, attributes and curve identities.
+/// A refused split (`SM_ERR` with the nearby endpoint) is an `SM_ERR` error: the
+/// caller only tests for `SM_SUCCESS`.
 pub(crate) fn make_vertex_split_edge(
+    k: &mut Kernel,
     b: &mut Brep,
     e: EdgeId,
     t: f64,
+    notifications: &mut edge::NotifyEnv<'_>,
+    curve_ref: &dyn Fn(EdgeId, i64) -> ObjectRef,
 ) -> Result<(Option<EdgeId>, Option<EdgeId>, Option<VertexId>)> {
-    let _ = (b, e, t);
-    // UNPORTED(topology.brep_p9): SmBrep::MakeVertexSplitEdge
-    Err(SolidError::unported(
-        "SmBrep::MakeVertexSplitEdge",
-        "topology.brep_p9",
-    ))
+    let out =
+        crate::topology::brep::p9::make_vertex_split_edge(k, b, e, t, notifications, curve_ref)?;
+    if !out.split {
+        return Err(SolidError::sm_err(OP));
+    }
+    let [e1, e2] = out.edges.ok_or_else(|| ner("split without edges"))?;
+    Ok((Some(e1), Some(e2), out.vertex))
 }
 
-/// `SmBrep::Notify(SM_NO_PRE_EDIT, this, NULL, NULL)` (unit `topology.brep_p2`).
+/// `SmBrep::Notify(SM_NO_PRE_EDIT, this, NULL, NULL)` on the heal path's
+/// notification state. This API carries no attribute state or B-rep cache;
+/// `PreEdit` reads no topology record.
 pub(crate) fn brep_notify_pre_edit(b: &mut Brep) -> Result<()> {
-    let _ = b;
-    // UNPORTED(topology.brep_p2): SmBrep::Notify
-    Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
+    use crate::topology::brep::p2;
+    let mut state = p2::RegionNotifyState::new(b);
+    let this = Some(p2::NotifyArg::Object(p2::brep_ref(b)));
+    p2::notify(
+        b,
+        &mut state.env(),
+        None,
+        crate::geom::object::NotifyOperation::PreEdit,
+        [this, None, None],
+    )
 }
 
 /// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit

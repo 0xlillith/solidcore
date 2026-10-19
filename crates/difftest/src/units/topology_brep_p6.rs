@@ -240,7 +240,7 @@ impl UnitDiff for Runner {
                         queries.check_geometry(b, true, false)
                     };
                     geometry
-                        .and_then(|()| p6::copy_edges(&k, b, &edges, &mut destination))
+                        .and_then(|()| p6::copy_edges(&mut k, b, &edges, &mut destination))
                         .map(|copied| {
                             body = if i.flags & 2 != 0 {
                                 vec![copied.len() as i64]

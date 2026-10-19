@@ -1903,6 +1903,60 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         capture_distance: f64,
         override_tol: f64,
     ) -> Result<Self> {
+        Self::new_impl(
+            k,
+            brep1,
+            brep2,
+            ti,
+            ti_approx_tol_3d,
+            capture_distance,
+            override_tol,
+            None,
+        )
+    }
+
+    /// [`Self::new`] with a caller's check before each edge-curve read in the
+    /// tolerance fallback. The check receives the original B-rep handle and its
+    /// actual edge id. It is not called when the approximation tolerance is at
+    /// least `SM_EFF_ZERO`, or for edges without curves. Both B-rep tolerances are
+    /// read first, then the first B-rep's edge list and finally the second's.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`Self::new`] and the reached curve checks, propagated unchanged
+    /// before the manager is created.
+    pub fn new_with_curve_check(
+        k: &Kernel,
+        brep1: (O, &Brep),
+        brep2: (O, &Brep),
+        ti: O,
+        ti_approx_tol_3d: f64,
+        capture_distance: f64,
+        override_tol: f64,
+        curve_check: &mut dyn FnMut(O, EdgeId) -> Result<()>,
+    ) -> Result<Self> {
+        Self::new_impl(
+            k,
+            brep1,
+            brep2,
+            ti,
+            ti_approx_tol_3d,
+            capture_distance,
+            override_tol,
+            Some(curve_check),
+        )
+    }
+
+    fn new_impl(
+        k: &Kernel,
+        brep1: (O, &Brep),
+        brep2: (O, &Brep),
+        ti: O,
+        ti_approx_tol_3d: f64,
+        capture_distance: f64,
+        override_tol: f64,
+        mut curve_check: Option<&mut dyn FnMut(O, EdgeId) -> Result<()>>,
+    ) -> Result<Self> {
         let _ = override_tol;
         let (brep1, b1) = brep1;
         let (brep2, b2) = brep2;
@@ -1910,9 +1964,18 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         let mut tol = ti_approx_tol_3d;
         if tol < EFF_ZERO {
             let brep_tol = b1.tolerance() + b2.tolerance();
+            let mut edge_bbox_size = |handle, b: &Brep| {
+                if let Some(check) = curve_check.as_deref_mut() {
+                    brep_p2::min_edge_bbox_size_with_curve_check(k, b, &mut |edge| {
+                        check(handle, edge)
+                    })
+                } else {
+                    brep_p2::min_edge_bbox_size(k, b)
+                }
+            };
             // the edges found are unused, as upstream
-            let (edge1_size, _) = brep_p2::min_edge_bbox_size(k, b1)?;
-            let (edge2_size, _) = brep_p2::min_edge_bbox_size(k, b2)?;
+            let (edge1_size, _) = edge_bbox_size(brep1, b1)?;
+            let (edge2_size, _) = edge_bbox_size(brep2, b2)?;
             let edge_size = min2(edge1_size, edge2_size);
             tol = min2(brep_tol * 1.25, edge_size * 0.5);
         }

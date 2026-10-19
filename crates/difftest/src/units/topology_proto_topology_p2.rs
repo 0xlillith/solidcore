@@ -25,11 +25,12 @@
 //! [`ProtoBrep`](solidcore::topology::proto_topology::ProtoBrep) queries with them.
 //!
 //! Deferred: everything past `SmBrep::MakeEdgeInFace` (unit `topology.brep_p5`), the
-//! merges of `SmPointClassification::MergeIntoObject` (units `topology.brep_p9`,
-//! `topology.vertex`), `UpdateFaces` (`SmFace::CalculateUVDomainFromUVTrimCurves`, unit
+//! merges of `SmPointClassification::MergeIntoObject` (unresolved region/face
+//! owners and vertex methods), `UpdateFaces` (`SmFace::CalculateUVDomainFromUVTrimCurves`, unit
 //! `topology.face_p1`), the B-rep walks of `sm_AreConnected` and point classifications on
 //! bare topology (units `topology.edge`, `topology.vertex`, `topology.face_p2`), and
-//! `SmProtoVertex::ContainsPoint` (unit `query.face_p2`).
+//! `SmProtoVertex::ContainsPoint` (unit `query.face_p2`). Bare-edge merges without
+//! an arena defer to `topology.brep_p9` until mutable arena context is supplied.
 
 use serde_json::{json, Value};
 
@@ -61,7 +62,11 @@ pub struct Runner;
 /// The value of a port call: `Some` on success; `None` with the status set on an upstream
 /// error, or with `skip` set for undefined behaviour upstream (the shim refuses those);
 /// `Unported` defers the case.
-fn res<T>(r: solidcore::Result<T>, status_out: &mut f64, skip: &mut bool) -> Result<Option<T>, Fail> {
+fn res<T>(
+    r: solidcore::Result<T>,
+    status_out: &mut f64,
+    skip: &mut bool,
+) -> Result<Option<T>, Fail> {
     match r {
         Ok(v) => Ok(Some(v)),
         Err(e) => {
@@ -88,7 +93,11 @@ pub(super) fn sync_counts(r: &mut ProtoRun) {
     while r.mgr.edge_def(EdgeDefId::from_index(r.n_ed)).is_some() {
         r.n_ed += 1;
     }
-    while r.mgr.proto_vertex(ProtoVertexId::from_index(r.n_pv)).is_some() {
+    while r
+        .mgr
+        .proto_vertex(ProtoVertexId::from_index(r.n_pv))
+        .is_some()
+    {
         r.n_pv += 1;
     }
     while r.mgr.proto_edge(ProtoEdgeId::from_index(r.n_pe)).is_some() {
@@ -127,7 +136,9 @@ fn zero_len(e: &Extent1d) -> bool {
 }
 
 fn has_dup<T: PartialEq>(v: &[T]) -> bool {
-    v.iter().enumerate().any(|(i, x)| v.iter().take(i).any(|y| y == x))
+    v.iter()
+        .enumerate()
+        .any(|(i, x)| v.iter().take(i).any(|y| y == x))
 }
 
 /// Whether the mid tangent of the proto edge evaluates (the shim's `pe_tangent_ok`).
@@ -142,7 +153,10 @@ fn pe_tangent_ok(r: &ProtoRun, pe: ProtoEdgeId) -> Result<bool, Fail> {
 }
 
 /// Whether the mid tangent of the definition evaluates (the shim's `ed_tangent_ok`).
-fn ed_tangent_ok(r: &ProtoRun, ed: solidcore::topology::proto_topology::p1::EdgeDefId) -> Result<bool, Fail> {
+fn ed_tangent_ok(
+    r: &ProtoRun,
+    ed: solidcore::topology::proto_topology::p1::EdgeDefId,
+) -> Result<bool, Fail> {
     let Some(d) = r.mgr.edge_def(ed) else {
         return Ok(false);
     };
@@ -177,7 +191,11 @@ pub(super) fn run_op(
                 *skip = true;
                 return Ok(());
             };
-            let _ = res(r.mgr.imprint_vertex_definition(&r.k, &mut r.pool, d), st, skip)?;
+            let _ = res(
+                r.mgr.imprint_vertex_definition(&r.k, &mut r.pool, d),
+                st,
+                skip,
+            )?;
             if let Some(v) = r.mgr.vertex_def(d) {
                 out.push(r.pool.id(v.final_vertex(1)));
                 out.push(r.pool.id(v.final_vertex(2)));
@@ -189,7 +207,11 @@ pub(super) fn run_op(
                 *skip = true;
                 return Ok(());
             };
-            let _ = res(r.mgr.imprint_edge_definition(&r.k, &mut r.pool, d), st, skip)?;
+            let _ = res(
+                r.mgr.imprint_edge_definition(&r.k, &mut r.pool, d),
+                st,
+                skip,
+            )?;
             if let Some(e) = r.mgr.edge_def(d) {
                 out.push(r.pool.id(e.final_edge(1)));
                 out.push(r.pool.id(e.final_edge(2)));
@@ -264,8 +286,15 @@ pub(super) fn run_op(
                 return Ok(());
             }
             let _ = res(
-                r.mgr
-                    .add_edge_definition_from_intervals(&r.k, &mut r.pool, e, &cc1, &ci1, &cc2, &ci2),
+                r.mgr.add_edge_definition_from_intervals(
+                    &r.k,
+                    &mut r.pool,
+                    e,
+                    &cc1,
+                    &ci1,
+                    &cc2,
+                    &ci2,
+                ),
                 st,
                 skip,
             )?;
@@ -300,12 +329,9 @@ pub(super) fn run_op(
             }
             if e != o {
                 // the shim's conservative guard
-                let (ne, ivl) = r
-                    .mgr
-                    .proto_edge(e)
-                    .map_or((0, Extent1d::new()), |x| {
-                        (x.num_edge_definitions(), x.xsect_interval())
-                    });
+                let (ne, ivl) = r.mgr.proto_edge(e).map_or((0, Extent1d::new()), |x| {
+                    (x.num_edge_definitions(), x.xsect_interval())
+                });
                 let others = r
                     .mgr
                     .proto_edge(o)
@@ -317,7 +343,10 @@ pub(super) fn run_op(
                         *skip = true;
                     }
                     for d in others {
-                        let short = r.mgr.edge_def(d).is_some_and(|x| zero_len(&x.xsect_interval()));
+                        let short = r
+                            .mgr
+                            .edge_def(d)
+                            .is_some_and(|x| zero_len(&x.xsect_interval()));
                         if short || !ed_tangent_ok(r, d)? {
                             *skip = true;
                         }
@@ -344,7 +373,8 @@ pub(super) fn run_op(
                 *skip = true;
                 return Ok(());
             }
-            let Some(deleted) = res(r.mgr.resolve_proto_edge(&r.k, &mut r.pool, e), st, skip)? else {
+            let Some(deleted) = res(r.mgr.resolve_proto_edge(&r.k, &mut r.pool, e), st, skip)?
+            else {
                 return Ok(());
             };
             // a curve freed twice, or freed while a kept definition uses it (the shim's)
@@ -391,7 +421,11 @@ pub(super) fn run_op(
                 sync_counts(r);
                 out.push(r.vd_id(vd));
             } else {
-                let pv = res(r.mgr.create_proto_vertex(&r.k, &r.pool, &mut pc1, &mut pc2), st, skip)?;
+                let pv = res(
+                    r.mgr.create_proto_vertex(&r.k, &r.pool, &mut pc1, &mut pc2),
+                    st,
+                    skip,
+                )?;
                 sync_counts(r);
                 out.push(r.pv_id(pv.flatten()));
             }
@@ -544,7 +578,11 @@ pub(super) fn run_op(
             if *skip {
                 return Ok(());
             }
-            match res(r.mgr.can_combine_vertex_definitions(&r.k, &r.pool, d1, d2), st, skip)? {
+            match res(
+                r.mgr.can_combine_vertex_definitions(&r.k, &r.pool, d1, d2),
+                st,
+                skip,
+            )? {
                 Some(c) => out.push(c as f64),
                 None => out.push(0.0),
             }
@@ -632,57 +670,147 @@ impl Gen {
     /// sometimes on other topology or nothing.
     fn pc(&self, rng: &mut Rng) -> Vec<f64> {
         let tol = gen_tol(rng, self.scale);
-        let gap = if rng.chance(0.4) { 0.0 } else { rng.uniform(0.0, 0.05) * self.scale };
+        let gap = if rng.chance(0.4) {
+            0.0
+        } else {
+            rng.uniform(0.0, 0.05) * self.scale
+        };
         match rng.below(20) {
             0..=5 => {
                 let o = Self::of(rng, &self.regions);
-                pcv(101.0, o, tol, f64::from(rng.below(8) as u32), rng.unit(), rng.unit(), rng.unit(), gap)
+                pcv(
+                    101.0,
+                    o,
+                    tol,
+                    f64::from(rng.below(8) as u32),
+                    rng.unit(),
+                    rng.unit(),
+                    rng.unit(),
+                    gap,
+                )
             }
             6..=11 => {
                 let (c, d) = self.curve(rng);
                 let t = d[0] + (d[1] - d[0]) * rng.uniform(-0.05, 1.05);
-                let flags = if rng.chance(0.9) { 1.0 } else { 0.0 } + if rng.chance(0.5) { 4.0 } else { 0.0 };
+                let flags = if rng.chance(0.9) { 1.0 } else { 0.0 }
+                    + if rng.chance(0.5) { 4.0 } else { 0.0 };
                 pcv(106.0, c, tol, flags, t, 0.0, 0.0, gap)
             }
             12..=14 => {
                 let s = Self::of(rng, &self.surfs);
-                let flags = if rng.chance(0.95) { 2.0 } else { 0.0 } + if rng.chance(0.5) { 4.0 } else { 0.0 };
-                pcv(107.0, s, tol, flags, 0.0, rng.uniform(-0.1, 1.1), rng.uniform(-0.1, 1.1), gap)
+                let flags = if rng.chance(0.95) { 2.0 } else { 0.0 }
+                    + if rng.chance(0.5) { 4.0 } else { 0.0 };
+                pcv(
+                    107.0,
+                    s,
+                    tol,
+                    flags,
+                    0.0,
+                    rng.uniform(-0.1, 1.1),
+                    rng.uniform(-0.1, 1.1),
+                    gap,
+                )
             }
             15..=16 => {
-                let (e, _, d) = rng.choose(&self.edges).copied().unwrap_or((-1, -1, [0.0, 1.0]));
+                let (e, _, d) = rng
+                    .choose(&self.edges)
+                    .copied()
+                    .unwrap_or((-1, -1, [0.0, 1.0]));
                 let t = d[0] + (d[1] - d[0]) * rng.uniform(-0.1, 1.1);
-                pcv(103.0, e as f64, tol, 1.0 + 4.0 * f64::from(u8::from(rng.chance(0.7))), t, 0.0, 0.0, gap)
+                pcv(
+                    103.0,
+                    e as f64,
+                    tol,
+                    1.0 + 4.0 * f64::from(u8::from(rng.chance(0.7))),
+                    t,
+                    0.0,
+                    0.0,
+                    gap,
+                )
             }
-            17 => pcv(104.0, Self::of(rng, &self.vertices), tol, 4.0, 0.0, 0.0, 0.0, gap),
-            18 => pcv(102.0, Self::of(rng, &self.faces), tol, 2.0, rng.unit(), rng.unit(), 0.0, gap),
-            _ => pcv(*rng.choose(&[100.0, 110.0]).unwrap_or(&100.0), -1.0, tol, 0.0, 0.0, 0.0, 0.0, gap),
+            17 => pcv(
+                104.0,
+                Self::of(rng, &self.vertices),
+                tol,
+                4.0,
+                0.0,
+                0.0,
+                0.0,
+                gap,
+            ),
+            18 => pcv(
+                102.0,
+                Self::of(rng, &self.faces),
+                tol,
+                2.0,
+                rng.unit(),
+                rng.unit(),
+                0.0,
+                gap,
+            ),
+            _ => pcv(
+                *rng.choose(&[100.0, 110.0]).unwrap_or(&100.0),
+                -1.0,
+                tol,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                gap,
+            ),
         }
     }
     /// A point classification on a curve or surface mostly (positions are found).
     fn pc_geom(&self, rng: &mut Rng) -> Vec<f64> {
         let tol = gen_tol(rng, self.scale);
-        let gap = if rng.chance(0.4) { 0.0 } else { rng.uniform(0.0, 0.05) * self.scale };
+        let gap = if rng.chance(0.4) {
+            0.0
+        } else {
+            rng.uniform(0.0, 0.05) * self.scale
+        };
         match rng.below(10) {
             0..=5 => {
                 let (c, d) = self.curve(rng);
                 let t = d[0] + (d[1] - d[0]) * rng.uniform(-0.05, 1.05);
-                let flags = if rng.chance(0.85) { 1.0 } else { 0.0 } + if rng.chance(0.5) { 4.0 } else { 0.0 };
+                let flags = if rng.chance(0.85) { 1.0 } else { 0.0 }
+                    + if rng.chance(0.5) { 4.0 } else { 0.0 };
                 pcv(106.0, c, tol, flags, t, 0.0, 0.0, gap)
             }
             6..=8 => {
                 let s = Self::of(rng, &self.surfs);
-                pcv(107.0, s, tol, 2.0, 0.0, rng.uniform(-0.1, 1.1), rng.uniform(-0.1, 1.1), gap)
+                pcv(
+                    107.0,
+                    s,
+                    tol,
+                    2.0,
+                    0.0,
+                    rng.uniform(-0.1, 1.1),
+                    rng.uniform(-0.1, 1.1),
+                    gap,
+                )
             }
             _ => self.pc(rng),
         }
     }
     /// A curve interval `c uv tol a b pc`, mostly on a pool curve with a region midpoint.
     fn ci(&self, rng: &mut Rng, c: f64, d: [f64; 2]) -> Vec<f64> {
-        let uv = if rng.chance(0.25) { self.curve(rng).0 } else { -1.0 };
+        let uv = if rng.chance(0.25) {
+            self.curve(rng).0
+        } else {
+            -1.0
+        };
         let tol = gen_tol(rng, self.scale);
         let mid = if rng.chance(0.9) {
-            pcv(101.0, Self::of(rng, &self.regions), tol, 0.0, 0.0, 0.0, 0.0, 0.0)
+            pcv(
+                101.0,
+                Self::of(rng, &self.regions),
+                tol,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+            )
         } else {
             self.pc(rng)
         };
@@ -754,7 +882,11 @@ fn gen_script(rng: &mut Rng) -> Script {
             continue;
         }
         let m = d[0] + (d[1] - d[0]) * rng.uniform(0.2, 0.8);
-        let tol = if rng.chance(0.5) { 1e-6 * scale } else { gen_tol(rng, scale) };
+        let tol = if rng.chance(0.5) {
+            1e-6 * scale
+        } else {
+            gen_tol(rng, scale)
+        };
         let old = objects.len() as i64;
         objects.push(ObjIn::EdgeIvl {
             c: c as usize,
@@ -763,12 +895,20 @@ fn gen_script(rng: &mut Rng) -> Script {
             tol,
         });
         let new = objects.len() as i64;
-        let (na, nb) = if rng.chance(0.85) { (m, d[1]) } else { (d[0], d[1]) };
+        let (na, nb) = if rng.chance(0.85) {
+            (m, d[1])
+        } else {
+            (d[0], d[1])
+        };
         objects.push(ObjIn::EdgeIvl {
             c: c as usize,
             a: na,
             b: nb,
-            tol: if rng.chance(0.7) { tol } else { gen_tol(rng, scale) },
+            tol: if rng.chance(0.7) {
+                tol
+            } else {
+                gen_tol(rng, scale)
+            },
         });
         g.edges.push((old, c as i64, [d[0], m]));
         g.edges.push((new, c as i64, [na, nb]));
@@ -777,7 +917,8 @@ fn gen_script(rng: &mut Rng) -> Script {
     if rng.chance(0.3) {
         let (c, _) = g.curve(rng);
         if c >= 0.0 {
-            g.edges.push((objects.len() as i64, c as i64, [-1e20, 1e20]));
+            g.edges
+                .push((objects.len() as i64, c as i64, [-1e20, 1e20]));
             objects.push(ObjIn::Edge(c as usize));
         }
     }
@@ -823,7 +964,11 @@ fn gen_script(rng: &mut Rng) -> Script {
         v.extend(g.pc(rng));
         v.extend(g.point(rng));
         v.push(gen_tol(rng, scale));
-        v.push(if rng.chance(0.8) { rng.uniform(1e-9, 1e-3) * scale } else { 0.0 });
+        v.push(if rng.chance(0.8) {
+            rng.uniform(1e-9, 1e-3) * scale
+        } else {
+            0.0
+        });
         v.push(pv);
         ops.push(v);
         g.n_vd += 1;
@@ -834,7 +979,11 @@ fn gen_script(rng: &mut Rng) -> Script {
     // proto edges with definitions (some on the split edges)
     for _ in 0..=rng.below(3) {
         let s = Gen::pick(rng, g.n_pv);
-        let e = if rng.chance(0.15) { s } else { Gen::pick(rng, g.n_pv) };
+        let e = if rng.chance(0.15) {
+            s
+        } else {
+            Gen::pick(rng, g.n_pv)
+        };
         let (c, d) = g.curve(rng);
         let dd = Gen::sub(rng, d);
         ops.push(vec![p::PE_NEW as f64, s, e, dd[0], dd[1]]);
@@ -852,7 +1001,9 @@ fn gen_script(rng: &mut Rng) -> Script {
         for _ in 0..=rng.below(2) {
             let s1 = g.topo(rng);
             let s2 = g.topo(rng);
-            let (c3, d3) = if rng.chance(0.85) { (c, dd) } else {
+            let (c3, d3) = if rng.chance(0.85) {
+                (c, dd)
+            } else {
                 let (c3, d3) = g.curve(rng);
                 (c3, Gen::sub(rng, d3))
             };
@@ -865,7 +1016,11 @@ fn gen_script(rng: &mut Rng) -> Script {
             } else {
                 (c3, d3, s1)
             };
-            let uv1 = if rng.chance(0.15) { g.curve(rng).0 } else { -1.0 };
+            let uv1 = if rng.chance(0.15) {
+                g.curve(rng).0
+            } else {
+                -1.0
+            };
             ops.push(vec![
                 p::ED_NEW as f64,
                 c3,
@@ -964,7 +1119,11 @@ fn gen_script(rng: &mut Rng) -> Script {
                 v.push(f64::from(u8::from(rng.chance(0.6))));
             }
             q::MGR_UPDATE_EDGES => {
-                let w = if rng.chance(0.99) { f64::from(1 + rng.below(2) as u32) } else { 3.0 };
+                let w = if rng.chance(0.99) {
+                    f64::from(1 + rng.below(2) as u32)
+                } else {
+                    3.0
+                };
                 let (old, new) = rng.choose(&g.splits).copied().unwrap_or((-1, -1));
                 let (old, new) = (old as f64, new as f64);
                 v.push(w);
@@ -1030,12 +1189,50 @@ fn edge_cases() -> Vec<(String, Value)> {
         // create, find, add again, add another source pair, combine, resolve, remove
         let mut ops = base.clone();
         ops.extend([
-            opv(q::MGR_CREATE_PE, &cat(&[&[0.0, 1.0], &ci(3.0, 0.0, 2.0, &reg(0.0)), &ci(3.0, 0.0, 2.0, &reg(1.0))])),
-            opv(q::PE_FIND_MATCH, &cat(&[&[0.0], &ci(3.0, 0.0, 2.0, &reg(0.0)), &ci(3.0, 0.0, 2.0, &reg(1.0))])),
-            opv(q::PE_ADD_ED_CIS, &cat(&[&[0.0], &ci(3.0, 0.0, 2.0, &reg(0.0)), &ci(3.0, 0.0, 2.0, &reg(1.0))])),
-            opv(q::PE_ADD_ED_CIS, &cat(&[&[0.0], &ci(4.0, 0.0, 2.0, &reg(0.0)), &ci(4.0, 0.0, 2.0, &reg(2.0))])),
-            opv(q::MGR_FIND_PE, &cat(&[&[0.0, 1.0], &reg(0.0), &reg(1.0), &[3.0, 0.0, 2.0]])),
-            opv(q::MGR_CREATE_PE, &cat(&[&[1.0, 0.0], &ci(4.0, 0.5, 1.5, &reg(0.0)), &ci(4.0, 0.5, 1.5, &reg(1.0))])),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[0.0, 1.0],
+                    &ci(3.0, 0.0, 2.0, &reg(0.0)),
+                    &ci(3.0, 0.0, 2.0, &reg(1.0)),
+                ]),
+            ),
+            opv(
+                q::PE_FIND_MATCH,
+                &cat(&[
+                    &[0.0],
+                    &ci(3.0, 0.0, 2.0, &reg(0.0)),
+                    &ci(3.0, 0.0, 2.0, &reg(1.0)),
+                ]),
+            ),
+            opv(
+                q::PE_ADD_ED_CIS,
+                &cat(&[
+                    &[0.0],
+                    &ci(3.0, 0.0, 2.0, &reg(0.0)),
+                    &ci(3.0, 0.0, 2.0, &reg(1.0)),
+                ]),
+            ),
+            opv(
+                q::PE_ADD_ED_CIS,
+                &cat(&[
+                    &[0.0],
+                    &ci(4.0, 0.0, 2.0, &reg(0.0)),
+                    &ci(4.0, 0.0, 2.0, &reg(2.0)),
+                ]),
+            ),
+            opv(
+                q::MGR_FIND_PE,
+                &cat(&[&[0.0, 1.0], &reg(0.0), &reg(1.0), &[3.0, 0.0, 2.0]]),
+            ),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[1.0, 0.0],
+                    &ci(4.0, 0.5, 1.5, &reg(0.0)),
+                    &ci(4.0, 0.5, 1.5, &reg(1.0)),
+                ]),
+            ),
             opv(q::PE_COMBINE, &[0.0, 1.0]),
             opv(q::PE_RESOLVE, &[0.0]),
             opv(q::MGR_REMOVE_ED, &[0.0, 1.0]),
@@ -1047,16 +1244,32 @@ fn edge_cases() -> Vec<(String, Value)> {
         // (the walk advances while the list shrinks, plan/upstream-issues.md WR-95)
         let mut ops = base.clone();
         ops.extend([
-            opv(q::MGR_CREATE_PE, &cat(&[&[0.0, 1.0], &ci(3.0, 0.0, 2.0, &reg(0.0)), &ci(3.0, 0.0, 2.0, &reg(1.0))])),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[0.0, 1.0],
+                    &ci(3.0, 0.0, 2.0, &reg(0.0)),
+                    &ci(3.0, 0.0, 2.0, &reg(1.0)),
+                ]),
+            ),
             opv(p::PE_NEW, &[0.0, 1.0, 0.0, 2.0]),
             opv(p::MGR_ADD_PE, &[1.0]),
             opv(p::PV_ADD_PE, &[0.0, 1.0]),
             opv(p::PV_ADD_PE, &[1.0, 1.0]),
-            opv(p::ED_NEW, &[3.0, 0.0, 2.0, 0.0, 2.0, 1e-6 * s, -1.0, -1.0, 1.0]),
+            opv(
+                p::ED_NEW,
+                &[3.0, 0.0, 2.0, 0.0, 2.0, 1e-6 * s, -1.0, -1.0, 1.0],
+            ),
             opv(p::PE_ADD_ED, &[1.0, 1.0]),
-            opv(p::ED_NEW, &[4.0, 0.0, 2.0, 1.0, 2.0, 1e-6 * s, -1.0, -1.0, 1.0]),
+            opv(
+                p::ED_NEW,
+                &[4.0, 0.0, 2.0, 1.0, 2.0, 1e-6 * s, -1.0, -1.0, 1.0],
+            ),
             opv(p::PE_ADD_ED, &[1.0, 2.0]),
-            opv(p::ED_NEW, &[3.0, 0.0, 2.0, 0.0, 1.0, 2e-6 * s, -1.0, -1.0, 1.0]),
+            opv(
+                p::ED_NEW,
+                &[3.0, 0.0, 2.0, 0.0, 1.0, 2e-6 * s, -1.0, -1.0, 1.0],
+            ),
             opv(p::PE_ADD_ED, &[1.0, 3.0]),
             opv(q::PE_COMBINE, &[0.0, 1.0]),
         ]);
@@ -1065,8 +1278,18 @@ fn edge_cases() -> Vec<(String, Value)> {
         // the same curve twice from the same sources: resolve drops the second
         let mut ops = base.clone();
         ops.extend([
-            opv(q::MGR_CREATE_PE, &cat(&[&[0.0, 1.0], &ci(3.0, 0.0, 2.0, &reg(0.0)), &ci(3.0, 0.0, 2.0, &reg(1.0))])),
-            opv(p::ED_NEW, &[4.0, 0.0, 2.0, 0.0, 1.0, 1e-6 * s, -1.0, -1.0, 0.0]),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[0.0, 1.0],
+                    &ci(3.0, 0.0, 2.0, &reg(0.0)),
+                    &ci(3.0, 0.0, 2.0, &reg(1.0)),
+                ]),
+            ),
+            opv(
+                p::ED_NEW,
+                &[4.0, 0.0, 2.0, 0.0, 1.0, 1e-6 * s, -1.0, -1.0, 0.0],
+            ),
             opv(q::PE_ADD_ED, &[0.0, 1.0]),
             opv(q::PE_RESOLVE, &[0.0]),
         ]);
@@ -1077,11 +1300,33 @@ fn edge_cases() -> Vec<(String, Value)> {
         let mut ops = vec![
             opv(p::PV_NEW, &cat(&[&pt(0.0), &[1e-5 * s]])),
             opv(p::MGR_ADD_PV, &[0.0]),
-            opv(p::VD_NEW, &cat(&[&pcv(106.0, 3.0, 1e-6 * s, 1.0, 0.0, 0.0, 0.0, 0.0), &reg(0.0), &pt(0.0), &[1e-6 * s, 1e-7 * s, 0.0]])),
+            opv(
+                p::VD_NEW,
+                &cat(&[
+                    &pcv(106.0, 3.0, 1e-6 * s, 1.0, 0.0, 0.0, 0.0, 0.0),
+                    &reg(0.0),
+                    &pt(0.0),
+                    &[1e-6 * s, 1e-7 * s, 0.0],
+                ]),
+            ),
             opv(p::PV_ADD_VD, &[0.0, 0.0]),
-            opv(q::MGR_CREATE_PE, &cat(&[&[0.0, 0.0], &ci(3.0, 0.0, 2.0, &reg(0.0)), &ci(3.0, 0.0, 2.0, &reg(1.0))])),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[0.0, 0.0],
+                    &ci(3.0, 0.0, 2.0, &reg(0.0)),
+                    &ci(3.0, 0.0, 2.0, &reg(1.0)),
+                ]),
+            ),
             opv(q::PE_RESOLVE, &[0.0]),
-            opv(q::MGR_CREATE_PE, &cat(&[&[0.0, 0.0], &ci(3.0, 0.0, 1e-9, &reg(0.0)), &ci(3.0, 0.0, 1e-9, &reg(1.0))])),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[0.0, 0.0],
+                    &ci(3.0, 0.0, 1e-9, &reg(0.0)),
+                    &ci(3.0, 0.0, 1e-9, &reg(1.0)),
+                ]),
+            ),
             opv(q::PE_RESOLVE, &[1.0]),
             opv(q::PV_RESOLVE, &[0.0]),
         ];
@@ -1089,7 +1334,14 @@ fn edge_cases() -> Vec<(String, Value)> {
         // the circle closes on itself
         ops.truncate(4);
         ops.extend([
-            opv(q::MGR_CREATE_PE, &cat(&[&[0.0, 0.0], &ci(5.0, 0.0, 360.0, &reg(0.0)), &ci(5.0, 0.0, 360.0, &reg(1.0))])),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[0.0, 0.0],
+                    &ci(5.0, 0.0, 360.0, &reg(0.0)),
+                    &ci(5.0, 0.0, 360.0, &reg(1.0)),
+                ]),
+            ),
             opv(q::PE_RESOLVE, &[0.0]),
         ]);
         out.push((format!("edge_pe_closed_circle_{sname}"), ops));
@@ -1106,17 +1358,57 @@ fn edge_cases() -> Vec<(String, Value)> {
             opv(p::MGR_ADD_PV, &[1.0]),
             opv(p::MGR_ADD_PV, &[2.0]),
             // the calling definition, and one on the old edge past the split
-            opv(p::VD_NEW, &cat(&[&reg(0.0), &reg(1.0), &pt(1.0), &[1e-6 * s, 1e-7 * s, 0.0]])),
+            opv(
+                p::VD_NEW,
+                &cat(&[&reg(0.0), &reg(1.0), &pt(1.0), &[1e-6 * s, 1e-7 * s, 0.0]]),
+            ),
             opv(p::PV_ADD_VD, &[0.0, 0.0]),
-            opv(p::VD_NEW, &cat(&[&edge_pc(1.5), &reg(1.0), &pt(1.5), &[1e-6 * s, 1e-7 * s, 1.0]])),
+            opv(
+                p::VD_NEW,
+                &cat(&[
+                    &edge_pc(1.5),
+                    &reg(1.0),
+                    &pt(1.5),
+                    &[1e-6 * s, 1e-7 * s, 1.0],
+                ]),
+            ),
             opv(p::PV_ADD_VD, &[1.0, 1.0]),
-            opv(p::VD_NEW, &cat(&[&edge_pc(0.5), &reg(1.0), &pt(0.5), &[1e-6 * s, 1e-7 * s, 2.0]])),
+            opv(
+                p::VD_NEW,
+                &cat(&[
+                    &edge_pc(0.5),
+                    &reg(1.0),
+                    &pt(0.5),
+                    &[1e-6 * s, 1e-7 * s, 2.0],
+                ]),
+            ),
             opv(p::PV_ADD_VD, &[2.0, 2.0]),
             // a proto edge from the calling proto vertex over [0, 2] (trimmed), one on the
             // old edge over [1.2, 1.8] (moves), one on the old edge over [0.2, 0.8] (stays)
-            opv(q::MGR_CREATE_PE, &cat(&[&[0.0, 1.0], &ci(3.0, 0.0, 2.0, &reg(0.0)), &ci(3.0, 0.0, 2.0, &reg(1.0))])),
-            opv(q::MGR_CREATE_PE, &cat(&[&[1.0, 2.0], &ci(4.0, 1.2, 1.8, &edge_pc(1.5)), &ci(4.0, 1.2, 1.8, &reg(1.0))])),
-            opv(q::MGR_CREATE_PE, &cat(&[&[2.0, 1.0], &ci(4.0, 0.2, 0.8, &edge_pc(0.5)), &ci(4.0, 0.2, 0.8, &reg(1.0))])),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[0.0, 1.0],
+                    &ci(3.0, 0.0, 2.0, &reg(0.0)),
+                    &ci(3.0, 0.0, 2.0, &reg(1.0)),
+                ]),
+            ),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[1.0, 2.0],
+                    &ci(4.0, 1.2, 1.8, &edge_pc(1.5)),
+                    &ci(4.0, 1.2, 1.8, &reg(1.0)),
+                ]),
+            ),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[2.0, 1.0],
+                    &ci(4.0, 0.2, 0.8, &edge_pc(0.5)),
+                    &ci(4.0, 0.2, 0.8, &reg(1.0)),
+                ]),
+            ),
             opv(q::MGR_UPDATE_EDGES, &[1.0, 6.0, 2.0, 6.0, 7.0, 0.0]),
             opv(q::MGR_UPDATE_EDGES, &[2.0, 6.0, 2.0, 7.0, 6.0, 0.0]),
         ];
@@ -1127,9 +1419,23 @@ fn edge_cases() -> Vec<(String, Value)> {
         let ops = vec![
             opv(p::PV_NEW, &cat(&[&pt(1.0), &[1e-5 * s]])),
             opv(p::MGR_ADD_PV, &[0.0]),
-            opv(p::VD_NEW, &cat(&[&reg(0.0), &reg(1.0), &pt(1.0), &[1e-6 * s, 2e-7 * s, 0.0]])),
-            opv(p::VD_NEW, &cat(&[&reg(0.0), &reg(1.0), &pt(1.0), &[1e-6 * s, 1e-7 * s, 0.0]])),
-            opv(p::VD_NEW, &cat(&[&reg(0.0), &pcv(106.0, 3.0, 1e-6 * s, 1.0, 1.0, 0.0, 0.0, 0.0), &pt(1.0), &[1e-6 * s, 1e-7 * s, 0.0]])),
+            opv(
+                p::VD_NEW,
+                &cat(&[&reg(0.0), &reg(1.0), &pt(1.0), &[1e-6 * s, 2e-7 * s, 0.0]]),
+            ),
+            opv(
+                p::VD_NEW,
+                &cat(&[&reg(0.0), &reg(1.0), &pt(1.0), &[1e-6 * s, 1e-7 * s, 0.0]]),
+            ),
+            opv(
+                p::VD_NEW,
+                &cat(&[
+                    &reg(0.0),
+                    &pcv(106.0, 3.0, 1e-6 * s, 1.0, 1.0, 0.0, 0.0, 0.0),
+                    &pt(1.0),
+                    &[1e-6 * s, 1e-7 * s, 0.0],
+                ]),
+            ),
             opv(p::PV_ADD_VD, &[0.0, 0.0]),
             opv(p::PV_ADD_VD, &[0.0, 1.0]),
             opv(p::PV_ADD_VD, &[0.0, 2.0]),
@@ -1137,11 +1443,36 @@ fn edge_cases() -> Vec<(String, Value)> {
             opv(q::MGR_CAN_COMBINE_VDS, &[1.0, 0.0]),
             opv(q::MGR_CAN_COMBINE_VDS, &[0.0, 2.0]),
             opv(q::PV_ADD_VD_PCS, &cat(&[&[0.0], &reg(0.0), &reg(1.0)])),
-            opv(q::PV_ADD_VD_PCS, &cat(&[&[0.0], &pcv(106.0, 3.0, 1e-6 * s, 1.0, 1.0, 0.0, 0.0, 0.0), &reg(1.0)])),
+            opv(
+                q::PV_ADD_VD_PCS,
+                &cat(&[
+                    &[0.0],
+                    &pcv(106.0, 3.0, 1e-6 * s, 1.0, 1.0, 0.0, 0.0, 0.0),
+                    &reg(1.0),
+                ]),
+            ),
             opv(q::PV_RESOLVE, &[0.0]),
-            opv(q::MGR_CREATE_VD, &cat(&[&pcv(106.0, 3.0, 1e-6 * s, 1.0, 0.5, 0.0, 0.0, 1e-7 * s), &pcv(106.0, 5.0, 1e-6 * s, 1.0, 10.0, 0.0, 0.0, 0.0)])),
-            opv(q::MGR_CREATE_VD, &cat(&[&pcv(106.0, 3.0, 1e-6 * s, 1.0, 0.5, 0.0, 0.0, 0.0), &pcv(107.0, 9.0, 1e-6 * s, 2.0, 0.0, 0.3 * s, 0.4 * s, 0.0)])),
-            opv(q::MGR_CREATE_PV, &cat(&[&pcv(106.0, 3.0, 1e-6 * s, 1.0, 0.5, 0.0, 0.0, 0.0), &reg(0.0)])),
+            opv(
+                q::MGR_CREATE_VD,
+                &cat(&[
+                    &pcv(106.0, 3.0, 1e-6 * s, 1.0, 0.5, 0.0, 0.0, 1e-7 * s),
+                    &pcv(106.0, 5.0, 1e-6 * s, 1.0, 10.0, 0.0, 0.0, 0.0),
+                ]),
+            ),
+            opv(
+                q::MGR_CREATE_VD,
+                &cat(&[
+                    &pcv(106.0, 3.0, 1e-6 * s, 1.0, 0.5, 0.0, 0.0, 0.0),
+                    &pcv(107.0, 9.0, 1e-6 * s, 2.0, 0.0, 0.3 * s, 0.4 * s, 0.0),
+                ]),
+            ),
+            opv(
+                q::MGR_CREATE_PV,
+                &cat(&[
+                    &pcv(106.0, 3.0, 1e-6 * s, 1.0, 0.5, 0.0, 0.0, 0.0),
+                    &reg(0.0),
+                ]),
+            ),
         ];
         out.push((format!("edge_vertex_defs_{sname}"), ops));
         // a proto vertex made where none is listed (with one listed, the containment test
@@ -1156,8 +1487,24 @@ fn edge_cases() -> Vec<(String, Value)> {
         let ops = vec![
             opv(p::PV_NEW, &cat(&[&pt(1.0), &[1e-5 * s]])),
             opv(p::MGR_ADD_PV, &[0.0]),
-            opv(p::VD_NEW, &cat(&[&pcv(100.0, -1.0, 1e-6 * s, 0.0, 0.0, 0.0, 0.0, 0.0), &reg(1.0), &pt(1.0), &[1e-6 * s, 1e-7 * s, 0.0]])),
-            opv(p::VD_NEW, &cat(&[&pcv(106.0, 3.0, 1e-6 * s, 1.0, 1.0, 0.0, 0.0, 0.0), &reg(1.0), &pt(1.0), &[1e-6 * s, 1e-7 * s, 0.0]])),
+            opv(
+                p::VD_NEW,
+                &cat(&[
+                    &pcv(100.0, -1.0, 1e-6 * s, 0.0, 0.0, 0.0, 0.0, 0.0),
+                    &reg(1.0),
+                    &pt(1.0),
+                    &[1e-6 * s, 1e-7 * s, 0.0],
+                ]),
+            ),
+            opv(
+                p::VD_NEW,
+                &cat(&[
+                    &pcv(106.0, 3.0, 1e-6 * s, 1.0, 1.0, 0.0, 0.0, 0.0),
+                    &reg(1.0),
+                    &pt(1.0),
+                    &[1e-6 * s, 1e-7 * s, 0.0],
+                ]),
+            ),
             opv(p::PV_ADD_VD, &[0.0, 0.0]),
             opv(p::PV_ADD_VD, &[0.0, 1.0]),
             opv(q::VD_IMPRINT, &[0.0]),
@@ -1172,9 +1519,19 @@ fn edge_cases() -> Vec<(String, Value)> {
             opv(p::PV_NEW, &cat(&[&pt(2.0), &[1e-5 * s]])),
             opv(p::MGR_ADD_PV, &[0.0]),
             opv(p::MGR_ADD_PV, &[1.0]),
-            opv(q::MGR_CREATE_PE, &cat(&[&[0.0, 1.0], &ci(3.0, 0.0, 2.0, &reg(0.0)), &ci(3.0, 0.0, 2.0, &reg(1.0))])),
+            opv(
+                q::MGR_CREATE_PE,
+                &cat(&[
+                    &[0.0, 1.0],
+                    &ci(3.0, 0.0, 2.0, &reg(0.0)),
+                    &ci(3.0, 0.0, 2.0, &reg(1.0)),
+                ]),
+            ),
             opv(q::ED_IMPRINT, &[0.0]),
-            opv(p::ED_NEW, &[4.0, 0.0, 2.0, 6.0, 7.0, 1e-6 * s, -1.0, -1.0, -1.0]),
+            opv(
+                p::ED_NEW,
+                &[4.0, 0.0, 2.0, 6.0, 7.0, 1e-6 * s, -1.0, -1.0, -1.0],
+            ),
             opv(p::ED_REVERSE, &[1.0]),
             opv(q::PE_ADD_ED, &[0.0, 1.0]),
             opv(q::PE_RESOLVE, &[0.0]),
@@ -1322,11 +1679,17 @@ mod tests {
         let mut total = 0;
         for i in 0..MIN_GENERATED {
             let mut rng = Rng::new(CaseContext::seed_for("topology.proto_topology_p2", i));
-            let Some(v) = Runner.generate(&mut rng) else { continue };
+            let Some(v) = Runner.generate(&mut rng) else {
+                continue;
+            };
             let s: Script = serde_json::from_value(v).unwrap();
             total += 1;
-            let Script::Proto { ops, .. } = &s else { continue };
-            let Ok(out) = ffi::run(&cpp_input(&s)) else { continue };
+            let Script::Proto { ops, .. } = &s else {
+                continue;
+            };
+            let Ok(out) = ffi::run(&cpp_input(&s)) else {
+                continue;
+            };
             if matches!(rust_run(&s), Err(Fail::Deferred(_))) {
                 deferred += 1;
             }

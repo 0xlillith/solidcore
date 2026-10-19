@@ -470,9 +470,7 @@ fn to_output(i: &Inputs, flat: &[f64]) -> Result<Output, HarnessError> {
     let mut out = Output::new();
     let mut rest = flat;
     if !matches!(i.op, OpIn::Coincidence { .. }) {
-        let (b, r) = rest
-            .split_first()
-            .ok_or_else(|| harness("empty record"))?;
+        let (b, r) = rest.split_first().ok_or_else(|| harness("empty record"))?;
         out = out.values("build", vec![*b]);
         rest = r;
         if *b != SUCCESS {
@@ -706,11 +704,9 @@ fn put_state(k: &Kernel, o: &mut Vec<f64>, s: &Cone) -> solidcore::Result<()> {
         flag(can.swap_uv),
         flag(can.inside_out),
     ]);
-    let height_ok = rev.base().gw_nurb().is_none() || rev.polar_curve().is_some();
-    o.push(flag(height_ok));
-    if height_ok {
-        o.push(s.height(k)?);
-    }
+    // GetHeight's failed evaluations leave initialized SmPoint3d sentinels.
+    // Compare that defined result even when the polar curve is missing.
+    o.extend([1.0, s.height(k)?]);
     let pc = rev.polar_converter();
     o.push(flag(rev.have_polar_conversion()));
     let angles = pc.angles();
@@ -797,7 +793,12 @@ fn iso_circle_inversion_fails(k: &Kernel, s: &Cone, p: Vec3, tol: f64) -> solidc
 }
 
 /// Runs the op on the Rust cone, appending its status and outputs.
-fn rust_op(k: &Kernel, s: &Cone, op: &OpIn, o: &mut Vec<f64>) -> Result<solidcore::Result<()>, HarnessError> {
+fn rust_op(
+    k: &Kernel,
+    s: &Cone,
+    op: &OpIn,
+    o: &mut Vec<f64>,
+) -> Result<solidcore::Result<()>, HarnessError> {
     let r: solidcore::Result<()> = match op {
         OpIn::Build {} => put_state(k, o, s),
         OpIn::EvalStep {
@@ -838,31 +839,40 @@ fn rust_op(k: &Kernel, s: &Cone, op: &OpIn, o: &mut Vec<f64>) -> Result<solidcor
                 only_upper_half: *upper,
                 non_zero_tangents: *non_zero,
             };
-            s.evaluate(k, Point2::new(*u, *v), *hu, *hv, flags).map(|d| {
-                o.push(SUCCESS);
-                for v in d {
-                    push_v(o, v);
-                }
-            })
+            s.evaluate(k, Point2::new(*u, *v), *hu, *hv, flags)
+                .map(|d| {
+                    o.push(SUCCESS);
+                    for v in d {
+                        push_v(o, v);
+                    }
+                })
         }
         OpIn::EvalPoint { u, v } => s.evaluate_point(k, Point2::new(*u, *v)).map(|p| {
             o.push(SUCCESS);
             push_v(o, p);
         }),
-        OpIn::ToStep { u, v } => s.convert_uv_from_nurbs_to_step(k, Point2::new(*u, *v)).map(|p| {
-            o.extend([SUCCESS, p.x, p.y]);
-        }),
+        OpIn::ToStep { u, v } => s
+            .convert_uv_from_nurbs_to_step(k, Point2::new(*u, *v))
+            .map(|p| {
+                o.extend([SUCCESS, p.x, p.y]);
+            }),
         OpIn::ToNurbs { u, v } => {
             if s.rev().polar_curve().is_none() {
                 o.push(SC_ERR_ARG);
                 Ok(())
             } else {
-                s.convert_uv_from_step_to_nurbs(k, Point2::new(*u, *v)).map(|p| {
-                    o.extend([SUCCESS, p.x, p.y]);
-                })
+                s.convert_uv_from_step_to_nurbs(k, Point2::new(*u, *v))
+                    .map(|p| {
+                        o.extend([SUCCESS, p.x, p.y]);
+                    })
             }
         }
-        OpIn::Iso { param, iso, dom, uv } => {
+        OpIn::Iso {
+            param,
+            iso,
+            dom,
+            uv,
+        } => {
             let d = dom.map(|[a, b, c, e]| Extent2d::from_bounds(a, b, c, e));
             s.create_iso_parametric_curve(k, param_of(*param), *iso, d.as_ref(), *uv)
                 .map(|c| {
@@ -950,7 +960,8 @@ fn rust_curve(k: &Kernel, c: &CurveIn) -> Result<Curve, HarnessError> {
     Ok(match c {
         CurveIn::Line { a, b } => {
             let mut l = Line::from_points(v3(*a), v3(*b), 3);
-            l.make_nurb().map_err(|e| harness(format!("line nurb: {e}")))?;
+            l.make_nurb()
+                .map_err(|e| harness(format!("line nurb: {e}")))?;
             Curve::from(l)
         }
         CurveIn::Circle { c, x, y, d, r } => {
@@ -1009,11 +1020,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             *tol,
         );
         let flat = match r {
-            Ok(c) => vec![
-                SUCCESS,
-                flag(c.coincident),
-                c.reversed.map_or(2.0, flag),
-            ],
+            Ok(c) => vec![SUCCESS, flag(c.coincident), c.reversed.map_or(2.0, flag)],
             Err(e) => {
                 if let Some(out) = Output::unported(&e) {
                     return Ok(out);
@@ -1107,7 +1114,10 @@ fn frame(rng: &mut Rng, scale: f64, degenerate: bool) -> ([f64; 3], [f64; 3], [f
     if rng.chance(0.1) {
         // skewed / non-unit axes
         let x2 = scale3(x, rng.uniform(0.5, 2.0));
-        let y2 = add3(scale3(y, rng.uniform(0.5, 2.0)), scale3(x, rng.uniform(-0.3, 0.3)));
+        let y2 = add3(
+            scale3(y, rng.uniform(0.5, 2.0)),
+            scale3(x, rng.uniform(-0.3, 0.3)),
+        );
         return (origin, x2, y2);
     }
     (origin, x, y)
@@ -1297,7 +1307,10 @@ fn step_uv(rng: &mut Rng, d: &Extent2d) -> [f64; 2] {
     } else if r < 0.2 {
         [u1, v1]
     } else if r < 0.3 {
-        [rng.uniform(u0 - 50.0, u1 + 50.0), rng.uniform(v0 - 1.0, v1 + 1.0)]
+        [
+            rng.uniform(u0 - 50.0, u1 + 50.0),
+            rng.uniform(v0 - 1.0, v1 + 1.0),
+        ]
     } else {
         [rng.uniform(u0, u1), rng.uniform(v0, v1)]
     }
@@ -1331,7 +1344,11 @@ fn gen_curve_pair(rng: &mut Rng) -> OpIn {
             // lines: same, reversed, shifted, or different
             let a = rng.point3(-5.0, 5.0);
             let b = rng.point3(-5.0, 5.0);
-            let eps = if rng.chance(0.5) { tol * 0.1 } else { tol * 10.0 };
+            let eps = if rng.chance(0.5) {
+                tol * 0.1
+            } else {
+                tol * 10.0
+            };
             let (a2, b2) = match rng.below(4) {
                 0 => (a, b),
                 1 => (b, a),
@@ -1342,7 +1359,11 @@ fn gen_curve_pair(rng: &mut Rng) -> OpIn {
                 a: CurveIn::Line { a, b },
                 a_dom: [0.0, 1.0],
                 b: CurveIn::Line { a: a2, b: b2 },
-                b_dom: if rng.chance(0.2) { [0.0, 0.5] } else { [0.0, 1.0] },
+                b_dom: if rng.chance(0.2) {
+                    [0.0, 0.5]
+                } else {
+                    [0.0, 1.0]
+                },
                 tol,
             }
         }
@@ -1446,7 +1467,9 @@ fn gen_case(rng: &mut Rng) -> Inputs {
             return rng.point3(-5.0, 5.0);
         };
         let [u, v] = step_uv(rng, &step_dom);
-        let p = s.evaluate_step_point(Point2::new(u, v)).unwrap_or(Vec3::ZERO);
+        let p = s
+            .evaluate_step_point(Point2::new(u, v))
+            .unwrap_or(Vec3::ZERO);
         let jitter = if rng.chance(0.3) {
             scale3(rng.point3(-1.0, 1.0), scale * 1e-3)
         } else {
@@ -1544,7 +1567,11 @@ fn gen_case(rng: &mut Rng) -> Inputs {
             };
             OpIn::IsoCircle {
                 p,
-                tol: if rng.chance(0.2) { 1e-9 * scale } else { 1e-6 * scale },
+                tol: if rng.chance(0.2) {
+                    1e-9 * scale
+                } else {
+                    1e-6 * scale
+                },
             }
         }
         8 => {
@@ -1564,7 +1591,11 @@ fn gen_case(rng: &mut Rng) -> Inputs {
             };
             OpIn::Inversion {
                 p,
-                tol: if rng.chance(0.2) { 1e-9 * scale } else { 1e-6 * scale },
+                tol: if rng.chance(0.2) {
+                    1e-9 * scale
+                } else {
+                    1e-6 * scale
+                },
                 guess,
             }
         }
@@ -1581,7 +1612,9 @@ fn gen_case(rng: &mut Rng) -> Inputs {
             let (a, b) = (a.min(b), a.max(b));
             let v0 = rng.uniform(-5.0, 5.0) * scale;
             let v1 = v0 + rng.uniform(0.1, 10.0) * scale;
-            OpIn::Adjust { dom: [a, v0, b, v1] }
+            OpIn::Adjust {
+                dom: [a, v0, b, v1],
+            }
         }
         11 => {
             let r = rng.unit();
@@ -1737,7 +1770,10 @@ mod tests {
     /// Most fixture cases compare real values (a successful construction and op).
     #[test]
     fn fixtures_mostly_compare_values() {
-        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../fixtures/surface.cone_p1/cases.json");
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../fixtures/surface.cone_p1/cases.json"
+        );
         let text = std::fs::read_to_string(path).expect("fixtures");
         let v: Value = serde_json::from_str(&text).expect("json");
         let cases = v["cases"].as_array().expect("cases");

@@ -35,8 +35,9 @@
 //! classes (`Sector`; any object for the other classes, which upstream rejects with
 //! `SM_ERR` untouched), a null region only when the B-rep has an infinite region
 //! (`Make`), a start vertex for the edge makers, finite values. Deliberate
-//! restrictions: a `Sector` interval must have `t0 < t1` (an empty one makes the step
-//! `0 / 0`, a NaN parameter for the curve evaluator); a `Mate` extension factor must not
+//! restrictions: a `Sector` interval must have `t0 != t1` (an empty one makes the step
+//! `0 / 0`, a NaN parameter for the curve evaluator; `SmExtent1d(t0, t1)` swaps an
+//! inverted pair, as the runner's `Extent1d::from_min_max`); a `Mate` extension factor must not
 //! be negative (a negative extension distance hangs the C++ in `N_SrfExtendByDist`,
 //! `plan/upstream-issues.md` HANG-18), and a `Mate` is refused when the `MateProbe`
 //! distance is at least `SM_EFF_ZERO` and its product with the factor is not finite, i.e.
@@ -213,7 +214,8 @@ fn args(op: Op, rd: &mut Reader<'_>, c: &[usize; 10], has_infinite: bool) -> Res
             rd.block(vu::curve_at)?;
             let t0 = rd.finite()?;
             let t1 = rd.finite()?;
-            if t0 >= t1 {
+            // SmExtent1d(t0, t1) swaps an inverted pair; only an empty one is undefined
+            if t0 == t1 {
                 return Err(bad("empty sector interval"));
             }
             rd.index(2)?;

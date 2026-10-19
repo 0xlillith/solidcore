@@ -7,7 +7,7 @@
 //! limitations before topology work, and geometric limitations only when that
 //! geometry is consumed (for example via `BrepQueryContext::with_geometry_check`).
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use solidcore::geom::a_object::BREP_TYPE;
 use solidcore::geom::object::ObjectRef;
@@ -29,7 +29,7 @@ const EXPORT_LIMITATION: &str = "harness:analytic-geometry-export";
 #[derive(Clone, Debug, Default)]
 pub(crate) struct QueryMetadata {
     topology: Vec<String>,
-    curves: Vec<String>,
+    curves: BTreeMap<EdgeId, Vec<String>>,
     surfaces: Vec<String>,
 }
 
@@ -41,6 +41,18 @@ impl QueryMetadata {
         } else {
             Err(SolidError::unported(
                 "native B-rep query geometry export",
+                EXPORT_LIMITATION,
+            ))
+        }
+    }
+
+    /// A query guard for a single edge curve that is about to be read.
+    pub(crate) fn require_curve_geometry(&self, edge: EdgeId) -> solidcore::Result<()> {
+        if self.topology.is_empty() && !self.curves.contains_key(&edge) {
+            Ok(())
+        } else {
+            Err(SolidError::unported(
+                "native edge curve geometry export",
                 EXPORT_LIMITATION,
             ))
         }
@@ -62,10 +74,20 @@ impl QueryMetadata {
     ) -> Option<Output> {
         let mut reasons: Vec<&str> = self.topology.iter().map(String::as_str).collect();
         if read_curves {
-            reasons.extend(self.curves.iter().map(String::as_str));
+            reasons.extend(self.curves.values().flatten().map(String::as_str));
         }
         if read_surfaces {
             reasons.extend(self.surfaces.iter().map(String::as_str));
+        }
+        (!reasons.is_empty()).then(|| Output::deferred(EXPORT_LIMITATION, reasons.join("; ")))
+    }
+
+    /// Explain the reached curve's limitations without naming unvisited geometry.
+    /// Topology limitations remain included, as in [`Self::deferred_output_for`].
+    pub(crate) fn deferred_output_for_curve(&self, edge: EdgeId) -> Option<Output> {
+        let mut reasons: Vec<&str> = self.topology.iter().map(String::as_str).collect();
+        if let Some(curve) = self.curves.get(&edge) {
+            reasons.extend(curve.iter().map(String::as_str));
         }
         (!reasons.is_empty()).then(|| Output::deferred(EXPORT_LIMITATION, reasons.join("; ")))
     }
@@ -274,6 +296,7 @@ pub(crate) fn apply_query_metadata(
     reader.exact_count(brep.edges().len(), "curve owner count")?;
     let mut curve_owners = Vec::new();
     for (id, edge) in brep.edges().iter() {
+        let mut limitations = Vec::new();
         curve_owners.push(
             reader.geometry(
                 edge.curve
@@ -282,9 +305,12 @@ pub(crate) fn apply_query_metadata(
                 (solidcore::topology::edge::TYPE, brep.edges().len()),
                 |id| keys(CacheObject::Edge(EdgeId::from_index(id))),
                 &format!("edge {} curve", id.index()),
-                &mut report.curves,
+                &mut limitations,
             )?,
         );
+        if !limitations.is_empty() {
+            report.curves.insert(id, limitations);
+        }
     }
     reader.exact_count(brep.faces().len(), "surface owner count")?;
     let mut surface_owners = Vec::new();
@@ -376,4 +402,115 @@ pub(crate) fn apply_query_metadata(
         face.rectangular_trim = rectangular_trim;
     }
     Ok(report)
+}
+
+#[cfg(test)]
+mod curve_guard_tests {
+    use super::*;
+    use solidcore::curve::curve::Curve;
+    use solidcore::math::{Point3, Vec3};
+    use solidcore::nurbs::b_spline_curve::BSplineCurve;
+    use solidcore::surface::plane::Plane;
+    use solidcore::surface::surface::Surface;
+    use solidcore::topology::brep_cache::arena_identity;
+
+    /// Concrete curves with metadata describing one unrepresented direct owner,
+    /// plus an unrelated surface owner. The metadata's edge list is rotated.
+    fn input() -> (Brep, Vec<f64>, [EdgeId; 2], usize) {
+        let mut brep = Brep::new();
+        brep.set_tolerance(0.0625);
+        let vertex = brep.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
+        let first = brep.add_edge(vertex, vertex).unwrap();
+        let second = brep.add_edge(vertex, vertex).unwrap();
+        for edge in [first, second] {
+            brep.edge_mut(edge).unwrap().curve = Some(Curve::from(
+                BSplineCurve::create_line_segment(
+                    3,
+                    Point3::new(0.0, 0.0, 0.0),
+                    Point3::new(1.0, 0.0, 0.0),
+                )
+                .unwrap(),
+            ));
+        }
+        let shell = brep.add_shell().unwrap();
+        let face = brep.add_face(shell).unwrap();
+        let surface = Surface::from(Plane::from_normal(
+            Point3::new(0.0, 0.0, 0.0),
+            Vec3::new(0.0, 0.0, 1.0),
+        ));
+        let surface_type = surface.type_code() as f64;
+        brep.face_mut(face).unwrap().surface = Some(surface);
+        let curve_type = brep
+            .edge(first)
+            .unwrap()
+            .curve
+            .as_ref()
+            .unwrap()
+            .type_code() as f64;
+        let mut raw = vec![
+            1.0,
+            0.125,
+            -1.0,
+            0.0,
+            0.0, // version, tolerance, infinite, regions
+            1.0,
+            f64::from(face.index()), // faces
+            2.0,
+            f64::from(second.index()),
+            f64::from(first.index()), // edges
+            1.0,
+            f64::from(vertex.index()), // vertices
+            2.0,
+            curve_type,
+            solidcore::topology::edge::TYPE as f64,
+            f64::from(first.index()),
+        ];
+        let second_record = raw.len();
+        raw.extend([curve_type, BREP_TYPE as f64, -3.0]);
+        raw.extend([1.0, surface_type, BREP_TYPE as f64, -3.0]);
+        raw.extend([1.0, -1.0, 0.0]); // face count, primary use, rectangular trim
+        (brep, raw, [first, second], second_record)
+    }
+
+    #[test]
+    fn curve_limitations_follow_edge_identity_without_unvisited_geometry() {
+        let (mut brep, raw, [first, second], _) = input();
+        let report = apply_query_metadata(&mut brep, &raw, &arena_identity).unwrap();
+        assert_eq!(brep.edge_list(), &[second, first]);
+        assert!(report.require_curve_geometry(first).is_ok());
+        assert!(report.deferred_output_for_curve(first).is_none());
+        assert!(matches!(
+            report.require_curve_geometry(second),
+            Err(SolidError::Unported {
+                unit: EXPORT_LIMITATION,
+                ..
+            })
+        ));
+        let output = report.deferred_output_for_curve(second).unwrap();
+        let diagnostic = format!("{:?}", output.deferred.unwrap());
+        assert!(diagnostic.contains(&format!("edge {} curve", second.index())));
+        assert!(!diagnostic.contains(&format!("edge {} curve", first.index())));
+        assert!(!diagnostic.contains("surface"));
+        let all = format!("{:?}", report.deferred_output().unwrap().deferred.unwrap());
+        assert!(all.contains("face 0 surface"));
+        assert!(report.deferred_output_for(false, false).is_none());
+    }
+
+    #[test]
+    fn malformed_curve_owner_is_an_error_before_metadata_installation() {
+        let (mut brep, mut raw, [first, second], record) = input();
+        raw[record + 1] = solidcore::topology::edge::TYPE as f64;
+        raw[record + 2] = brep.edges().len() as f64; // invalid registered owner
+        assert!(apply_query_metadata(&mut brep, &raw, &arena_identity).is_err());
+        assert_eq!(brep.tolerance(), 0.0625);
+        assert_eq!(brep.edge_list(), &[first, second]);
+        assert!(brep
+            .edge(first)
+            .unwrap()
+            .curve
+            .as_ref()
+            .unwrap()
+            .owner()
+            .is_none());
+    }
 }

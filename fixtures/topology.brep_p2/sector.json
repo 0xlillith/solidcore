@@ -23291,6 +23291,683 @@
      0.75
     ]
    }
+  },
+  {
+   "name": "sector_net_103_0_1_inverted",
+   "upstream_ref": "tests/prog_test/src/smTopoTest.cpp (my_test_topology) (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 103,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_net_104_0_1_inverted",
+   "upstream_ref": "tests/prog_test/src/smTopoTest.cpp (my_test_topology) (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "network"
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 104,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_wire_103_0_1_inverted",
+   "upstream_ref": "tests/prog_test/src/smTopoTest.cpp:3861 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        2,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        3,
+        -1,
+        1,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 3,
+      "u": [
+       0,
+       0,
+       0,
+       0,
+       1,
+       1,
+       1,
+       1
+      ]
+     },
+     "t0": 0.0,
+     "t1": 1.0
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 103,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_wire_104_0_1_inverted",
+   "upstream_ref": "tests/prog_test/src/smTopoTest.cpp:3861 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        2,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        3,
+        -1,
+        1,
+        -1.7976931348623157e+308
+       ],
+       [
+        4,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 3,
+      "u": [
+       0,
+       0,
+       0,
+       0,
+       1,
+       1,
+       1,
+       1
+      ]
+     },
+     "t0": 0.0,
+     "t1": 1.0
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 104,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_plane10_102_0_1_inverted",
+   "upstream_ref": "tests/prog_test/src/smTopoTest.cpp:1640 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 102,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_plane10_103_0_1_inverted",
+   "upstream_ref": "tests/prog_test/src/smTopoTest.cpp:1640 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 103,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_plane10_104_0_1_inverted",
+   "upstream_ref": "tests/prog_test/src/smTopoTest.cpp:1640 (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "face",
+     "surface": {
+      "plane": {
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        0,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      10,
+      10
+     ]
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 104,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_Mouse_102_0_1_inverted",
+   "upstream_ref": "upstream/TestFiles/pt_TestFiles/Mouse.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb"
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 102,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_Mouse_103_0_1_inverted",
+   "upstream_ref": "upstream/TestFiles/pt_TestFiles/Mouse.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb"
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 103,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_Mouse_104_0_1_inverted",
+   "upstream_ref": "upstream/TestFiles/pt_TestFiles/Mouse.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Mouse.smb"
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 104,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_Endcap_102_0_1_inverted",
+   "upstream_ref": "upstream/TestFiles/pt_TestFiles/Endcap.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb"
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 102,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
+  },
+  {
+   "name": "sector_Endcap_103_0_1_inverted",
+   "upstream_ref": "upstream/TestFiles/pt_TestFiles/Endcap.smb (inverted interval: SmExtent1d(t0, t1) swaps it, SmExtent1d.cpp:115-128)",
+   "inputs": {
+    "brep": {
+     "kind": "file",
+     "file": "Endcap.smb"
+    },
+    "op": "sector",
+    "curve": {
+     "dim": 3,
+     "cpts": [
+      [
+       0.5,
+       0.3,
+       -2.0,
+       -1.7976931348623157e+308
+      ],
+      [
+       0.5,
+       0.3,
+       2.0,
+       -1.7976931348623157e+308
+      ]
+     ],
+     "p": 1,
+     "u": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "t0": 1.0,
+    "t1": 0.0,
+    "orient": 1,
+    "class": 103,
+    "object": 0,
+    "t": 0.5,
+    "uv": [
+     0.25,
+     0.75
+    ]
+   }
   }
  ]
 }

@@ -427,9 +427,19 @@ mod tests {
                 key: ObjectKey(1_000_000 + u64::from(v.index())),
                 type_code: 16021,
             },
-            destination_key: &|v| ObjectRef {
-                key: ObjectKey(u64::from(v.index())),
-                type_code: 16021,
+            destination_key: &|e| match e {
+                EntityRef::Vertex(v) => ObjectRef {
+                    key: ObjectKey(u64::from(v.index())),
+                    type_code: 16021,
+                },
+                EntityRef::Vertexuse(v) => ObjectRef {
+                    key: ObjectKey(2_000_000 + u64::from(v.index())),
+                    type_code: 16006,
+                },
+                _ => ObjectRef {
+                    key: ObjectKey(3_000_000),
+                    type_code: 16001,
+                },
             },
         }
     }
