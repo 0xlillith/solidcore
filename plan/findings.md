@@ -7861,8 +7861,8 @@ used only on the C++ side; the Rust side serializes its own arenas. Shared p10
 serialization compares exact integer topology and geometry samples under 1e-9
 relative tolerance, plus gap initialization and UV fields. No absolute floors.
 These error-state values do not certify the classification/copy/delete/region tail;
-its evidence remains source review, including the review's undetected four-point
-logic mutation. There are zero compared Boolean successes for every operation.
+its evidence remains source review. There are zero compared Boolean successes for
+every operation.
 
 **No concrete kernel ManifoldIntersector adapter exists.** Already-ported callees
 remain unwired: merge_p1::{fix_found_face_coincidence,
@@ -7901,4 +7901,20 @@ The FFI's supported coordinate/dimension domain is bounded at 1e100 via the shar
 reader. Current operand families avoid closed edges; adding closed-wire/circle
 kinds requires rechecking the registered UB-175 path.
 
-Final verification: pending the new gate run on sc-builder-5.
+Verification on sc-builder-5 against main source 5040b0b2 plus progress refresh
+0cf3e290: fmt/include rustfmt, both workspace checks, clippy x2, 1398 kernel
+tests, coordinate-bound and error-state mutation regressions, and wasm passed.
+
+```text
+PARTIAL boolean.merge_p4 cases=311 passed=30 failed=0 deferred=278 max_rel_err=0e0 with_values=30 no_values=0 rejected=3 blocked_by=query.brep(278)
+PARTIAL boolean.merge_p1 cases=248 passed=203 failed=0 deferred=45 max_rel_err=0e0 with_values=203 no_values=0 blocked_by=boolean.topology_intersector_p3(4),intersect.surface_drop_lib_p3(18),query.brep(14),topology.brep_p9(3),topology.face_p2(6)
+FUZZ-PASS boolean.merge_p4 cases=2000 rejected=203 malformed=866 ran=931 differs=0 crashes=0 panics=0 timeouts=0
+SENSITIVE boolean.merge_p4 perturbed=30 detected=30 unperturbed=0 deferred=278 rejected=3 (perturb mode: every perturbed case must FAIL)
+```
+
+All 30 value-comparing matches remain null-error outcomes, with zero Boolean
+success paths. `cases_both_errored=0` reflects status-as-data encoding, not a
+success-path promotion. The 405-case/110-seed full-leak Valgrind sample matched
+its baseline exactly: 0 errors, 0 definitely/indirectly/possibly lost bytes;
+544 bytes of Rust runtime bookkeeping remain reachable.
+`green-par: 213 units, failed=0`. Every reported partial matches the plan; no plan-green unit deferred.
