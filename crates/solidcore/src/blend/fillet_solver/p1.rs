@@ -79,6 +79,10 @@
 //! - **Analytic surfaces.** `sm_TestAnalyticSurface` takes an [`AnalyticTestSurface`]:
 //!   a [`Surface`], a [`Cone`] (cone or cylinder), a [`Sphere`] or a [`Torus`], since
 //!   no [`Surface`] kind holds the last three yet.
+//! - **Rail trims.** `sm_TrimRail` trims curves of the rail edge and its edge uses,
+//!   whose `SmTol::GetZoneTol3d(this)` is the rail's tolerance; `Curve::trim` reads the
+//!   zone tolerance of an owner-less curve from its kernel, so the trims get a kernel
+//!   with the rail's tolerance as zone tolerance (`plan/findings.md`, probe notes).
 //! - **Arguments.** Out-params become return values; `SmContext` arguments become the
 //!   [`Kernel`]. `SmFindClippedRadiusEFO` takes the target distance its constructor
 //!   reads from the `SmConstantDistanceFS` (`GetDistance`, unit
@@ -3081,4 +3085,100 @@ pub fn compute_support_edge(
         "topology.edge",
     )?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::surface::plane::Plane;
+
+    /// A solver with offsets of `bases` (orientations `orient`) and an EFO on surface 0,
+    /// `SM_SP_U`, `iso = 0`, evaluated at `radius`; returns the result and the EFO's
+    /// `(F, F', found, guess_t)` after the call.
+    fn clipped(
+        bases: [Surface; 2],
+        orient: [f64; 2],
+        other_dom: Extent2d,
+        radius: f64,
+    ) -> (Result<(f64, f64, bool)>, (f64, f64, bool, f64)) {
+        let kern = Kernel::default();
+        let mut fs = FilletSolver::new(1e-6, 0.1, 0.01);
+        for (k, base) in bases.into_iter().enumerate() {
+            let surface =
+                OffsetSurface::new(&kern, 0.0, base, SurfaceId::Free(k as u32), SS_UNKNOWN)
+                    .unwrap();
+            fs.set_surface(
+                k,
+                Some(OffsetSurfaceSlot {
+                    key: k as u64,
+                    surface,
+                }),
+            )
+            .unwrap();
+        }
+        fs.orientations = orient;
+        let wide = Extent2d::from_points(Point2::new(-10.0, -10.0), Point2::new(10.0, 10.0));
+        let uv = [Vec2::new(0.1, 0.2), Vec2::new(0.3, -0.2)];
+        let mut e = FindClippedRadiusEfo::new(
+            &mut fs,
+            0,
+            &[wide, other_dom],
+            SurfParamType::U,
+            0.0,
+            uv,
+            0.5,
+        )
+        .unwrap();
+        let r = e.evaluate(radius);
+        let after = (e.last_f_of_t, e.last_f_prime, e.last_found, e.guess_t);
+        (r, after)
+    }
+
+    fn z_plane() -> Surface {
+        Surface::from(Plane::from_normal(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 1.0)))
+    }
+
+    /// The plane of normal `(1, 2, 3)` whose unit offset passes through `(0, 0, 1)`.
+    fn tilted() -> Surface {
+        let n = Vec3::new(1.0, 2.0, 3.0);
+        let u = n.unitize().unwrap();
+        Surface::from(Plane::from_normal(Vec3::new(0.0, 0.0, 1.0) - u, n))
+    }
+
+    fn is_sm_err(r: &Result<(f64, f64, bool)>) -> bool {
+        matches!(r, Err(SolidError::Upstream { code, .. }) if *code == crate::error::SM_ERR)
+    }
+
+    #[test]
+    fn clipped_parallel_offsets_fail_at_the_first_intersection() {
+        let wide = Extent2d::from_points(Point2::new(-10.0, -10.0), Point2::new(10.0, 10.0));
+        let (r, (f, fp, found, guess)) = clipped([z_plane(), z_plane()], [1.0, -1.0], wide, 1.0);
+        assert!(is_sm_err(&r), "{r:?}");
+        assert_eq!((f, fp, found, guess), (0.0, 0.0, false, 0.1));
+    }
+
+    #[test]
+    fn clipped_tilted_plane_evaluates() {
+        let wide = Extent2d::from_points(Point2::new(-10.0, -10.0), Point2::new(10.0, 10.0));
+        let (r, _) = clipped([z_plane(), tilted()], [1.0, 1.0], wide, 1.0);
+        let (f, fp, found) = r.unwrap();
+        assert!(f.is_finite() && fp.is_finite() && fp != 0.0 && !found);
+    }
+
+    #[test]
+    fn clipped_point_domain_fails_after_the_radius_step() {
+        let point = Extent2d::from_points(Point2::new(0.0, 0.0), Point2::new(0.0, 0.0));
+        let (r, (f, fp, _, guess)) = clipped([z_plane(), tilted()], [1.0, 1.0], point, 1.0);
+        assert!(is_sm_err(&r), "{r:?}");
+        // the first intersection set F and the guess, the second failed
+        assert!(f != 0.0 && fp == 0.0 && guess != 0.1, "{f} {fp} {guess}");
+    }
+
+    #[test]
+    fn clipped_far_domain_fails_at_the_first_intersection() {
+        let far = Extent2d::from_points(Point2::new(50.0, 50.0), Point2::new(60.0, 60.0));
+        let (r, (f, _, _, guess)) = clipped([z_plane(), tilted()], [1.0, 1.0], far, 1.0);
+        assert!(is_sm_err(&r), "{r:?}");
+        assert_eq!((f, guess), (0.0, 0.1));
+    }
 }
