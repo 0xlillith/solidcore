@@ -1762,6 +1762,31 @@ impl FilletBrep {
 
         // Make Face
         let region = brep.infinite_region();
+        // The face is made in a B-rep of its own: nothing observes its notifications,
+        // so they go to local records (keys: type code and `1 + arena index`).
+        let mut records = std::collections::BTreeMap::new();
+        let mut attributes = crate::geom::attribute::AttributeStore::default();
+        let key_of = |e: EntityRef| {
+            let (type_code, index) = match e {
+                EntityRef::Face(f) => (crate::topology::face::p2::TYPE, f.index()),
+                EntityRef::Edge(id) => (edge::TYPE, id.index()),
+                EntityRef::Vertex(id) => (vertex::TYPE, id.index()),
+                EntityRef::Edgeuse(id) => (eu1::TYPE, id.index()),
+                EntityRef::Vertexuse(id) => (crate::topology::vertexuse::TYPE, id.index()),
+                EntityRef::Loopuse(id) => (crate::topology::loopuse::TYPE, id.index()),
+                _ => (crate::topology::topology::TYPE, 0),
+            };
+            ObjectRef {
+                type_code,
+                key: crate::geom::attribute::ObjectKey(1 + u64::from(index)),
+            }
+        };
+        let mut env = edge::NotifyEnv {
+            records: &mut records,
+            attributes: &mut attributes,
+            context: None,
+            key_of: &key_of,
+        };
         if use_uv_curves {
             let input = FaceCurvesInput {
                 loops: curve_loops,
@@ -1784,6 +1809,7 @@ impl FilletBrep {
                 OrientType::Same,
                 None,
                 &face_ref,
+                &mut env,
             )?;
         } else {
             let input = TrimInput {
@@ -1796,7 +1822,7 @@ impl FilletBrep {
                 surface_orientation: OrientType::Same,
             };
             trim_surface_with_model_space_curves(
-                k, brep, region, d3d_tol, input, true, false, false,
+                k, brep, region, d3d_tol, input, true, false, false, &mut env,
             )?;
         }
 
