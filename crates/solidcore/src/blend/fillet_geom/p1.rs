@@ -86,12 +86,15 @@
 //! - **Constructors.** `SmFilletEdgeuse(SmFilletBrep*)` needs the pseudo B-rep's
 //!   infinite region and its first shell (`SmBrep::GetInfiniteRegion`,
 //!   `SmBrep::MakeShellVertexTopology`, `SmRegion::GetShells`): `GetShells` is
-//!   `topology.shell`'s, with no attribute filter as upstream's default; the units
-//!   `topology.brep_p1` and `topology.brep_p2` are not ported yet: each of their calls
-//!   is a stub carrying upstream's arguments and the rest of the constructor
-//!   (the shell-owned edge use with no fillet geometry) is ported behind them, so
-//!   [`FilletBrep::new_fillet_edgeuse`] returns [`SolidError::Unported`] today and
-//!   completes once they are wired. `SmFilletGeom(pFilletSolver, eType)` copies the
+//!   `topology.shell`'s, with no attribute filter as upstream's default;
+//!   `GetInfiniteRegion` is `topology.brep_p1`'s accessor. `SmFilletBrep()` runs
+//!   `SmBrep()`, which creates that region; the constructor is `topology.brep_p3`'s and
+//!   not ported, so [`FilletBrep::new`] has none and the edge use constructor stops
+//!   there with `UNPORTED(topology.brep_p3)` (a missing region is that gap, never
+//!   upstream's NULL). `MakeShellVertexTopology` (`topology.brep_p2`) is a stub carrying
+//!   upstream's arguments; the rest of the constructor (the shell-owned edge use with no
+//!   fillet geometry) is ported behind them, so [`FilletBrep::new_fillet_edgeuse`]
+//!   returns [`SolidError::Unported`] today and completes once they are wired. `SmFilletGeom(pFilletSolver, eType)` copies the
 //!   solver's offset surfaces with `SmOffsetSurface::Copy` (the kernel stands for the
 //!   solver's creation context; its status is ignored upstream, so a failed copy leaves
 //!   `NULL`, and only [`SolidError::Unported`] propagates). That constructor leaves `m_dOrientations` and `m_bCapped`
@@ -1379,14 +1382,20 @@ impl FilletBrep {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`]: `SmBrep::GetInfiniteRegion` (`topology.brep_p1`; then
-    /// `SmBrep::MakeShellVertexTopology` of `topology.brep_p2` when the region has no
-    /// shell); [`SolidError::Upstream`] (`SM_ERR_NULL_POINTER`) when the
-    /// region still has no shell (upstream reads `sShells[0]` of an empty array).
+    /// [`SolidError::Unported`]: `SmBrep::SmBrep` (`topology.brep_p3`) while the pseudo
+    /// B-rep has no infinite region (see below); then `SmBrep::MakeShellVertexTopology`
+    /// of `topology.brep_p2` when the region has no shell; [`SolidError::Upstream`]
+    /// (`SM_ERR_NULL_POINTER`) when the region still has no shell (upstream reads
+    /// `sShells[0]` of an empty array).
     pub fn new_fillet_edgeuse(&mut self) -> Result<EdgeuseId> {
-        // upstream dereferences m_pInfiniteRegion unchecked
-        let reg =
-            infinite_region(&self.brep)?.ok_or_else(|| SolidError::null_pointer(OP_EDGEUSE))?;
+        // upstream dereferences m_pInfiniteRegion unchecked: SmFilletBrep() runs SmBrep(),
+        // which always creates the infinite region, so it is never NULL there.
+        // [`FilletBrep::new`] cannot create it yet, so a missing region is that
+        // constructor's gap, not upstream's NULL.
+        let Some(reg) = infinite_region(&self.brep) else {
+            // UNPORTED(topology.brep_p3): SmBrep::SmBrep
+            return Err(SolidError::unported("SmBrep::SmBrep", "topology.brep_p3"));
+        };
         let mut shells = region_shells(&self.brep, reg)?;
         if shells.is_empty() {
             // Just an artifact vertex
@@ -3356,13 +3365,10 @@ fn drop_rail_onto_offset_surface(
     Ok(())
 }
 
-/// `SmBrep::GetInfiniteRegion` (unit `topology.brep_p1`).
-fn infinite_region(_brep: &Brep) -> Result<Option<RegionId>> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::GetInfiniteRegion",
-        "topology.brep_p1",
-    ))
+/// `SmBrep::GetInfiniteRegion` ([`Brep::infinite_region`], unit `topology.brep_p1`):
+/// `m_pInfiniteRegion`, which may be NULL.
+fn infinite_region(brep: &Brep) -> Option<RegionId> {
+    brep.infinite_region()
 }
 
 /// `SmRegion::GetShells(rShells)` ([`Region::get_shells`](crate::topology::Region::get_shells))
