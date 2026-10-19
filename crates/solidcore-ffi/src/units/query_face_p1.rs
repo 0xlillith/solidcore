@@ -175,6 +175,9 @@ fn check_args(op: Op, args: &[f64]) -> Result<(), FfiError> {
         }
         Op::Point3d => {
             // face P[3] src_tol do_bnd has_guess gu gv tgt_only has_loops n loop* uv_ok pc_tol
+            // Stricter than needed: the C++ also survives non-finite points/guesses and
+            // negative tolerances. Every Point3DClassify case defers on the Rust side
+            // today; narrow these checks when they start comparing (AGENTS.md §4 5.6).
             selector(at(args, 0)?, false)?;
             finite(args.get(1..4).ok_or_else(|| bad("arguments too short"))?)?;
             tolerance(at(args, 4)?)?;

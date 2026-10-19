@@ -13,7 +13,7 @@
 //! | [`calculate_region_bounding_box_into`], [`calculate_region_bounding_box`] | `SmRegion::CalculateBoundingBox` |
 //! | [`point_3d_classify`], [`Point3dClassifyOptions`] | `SmFace::Point3DClassify` |
 //! | [`edge_curve_on_classify`], [`EdgeCurveOnOptions`], [`CurveOnClassification`] | `SmFace::EdgeCurveOnClassify` |
-//! | [`ClassifyProblem`]                   | `SmClassifyProblem` (CO-PORTED; same discriminants as `query.face_p3`'s copy in PR #132) |
+//! | [`ClassifyProblem`]                   | `SmClassifyProblem` (CO-PORTED; same discriminants as the copies in PR #132 `query.face_p3` and PR #239 `topology.face_p4`) |
 //!
 //! Deviations: a nullable curve is `Option<&Curve>`; `SmApiEvaluateCurve`'s three
 //! optional output pointers become one returned `[position, d1, d2]` (all three are

@@ -7823,8 +7823,15 @@ rejected: nothing runs on either side.
   `geom_geom_utility_p1_static.cpp` (`using ::SmMatrix;` before the header's
   `class SmMatrix;`) don't compile, and the FFI build script links `-lstdc++`. Worked
   around locally; not changed in this PR.
-- **`ClassifyProblem`** is defined here and in `query.face_p3`'s open PR #132 with the
-  same variants and discriminants; whichever lands second should keep one and re-export it.
+- **`ClassifyProblem`** is defined here, in `query.face_p3`'s open PR #132 and in
+  `topology.face_p4`'s open PR #239, with the same variants and discriminants; whichever
+  lands later should keep one copy and re-export it.
+- **Generic-handle callers.** `boolean::topology_intersector::p1` (face box,
+  `Point3DClassify`), `intersect::curve_class::p7` (`EdgeCurveOnClassify`,
+  `Point3DClassify`), `intersect::topology_solver::p1` (`Point3DClassify`) and
+  `geom::object` (face box) hold opaque face handles without the `Brep` that
+  `query::face::p1` takes, so they stay unwired and are marked `DISPATCH GAP`, not
+  `UNPORTED(query.face_p1)`; their deferral label is still `query.face_p1`.
 
 ## topology.brep_p7 (`SmBrep.cpp` part 7: `ReadFromFile`, `MakeFace`, `MakeFaceWithCurves`, `GlueEdgesGeneral`, `CopyFaces`, `MergeSelfIntersectionCurves`; PR #155, 2026-10-16; partial, no disagreements)
 
