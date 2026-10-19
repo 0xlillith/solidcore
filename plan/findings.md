@@ -8182,3 +8182,27 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   (checked under gdb), so the difference is inside the surface point solver's handling
   of an un-NURBed plane at that magnitude. Not fixed here (green unit
   `surface.surface_point_solve_p2`); the generator's planes stay within `1e6`.
+
+## blend.fillet_corner_p3 (PR #256, 2026-10-19)
+
+- **Stack.** Built on PR #252 (`blend.fillet_geom_p4`, which merges #147 `blend.fillet_geom_p1`
+  and #192 `blend.fillet_solver_p1`): the corner operations run on p1's `FilletBrep` and
+  its runner/shim `Model`. The corner-operation shim is `blend_fillet_corner_p3_static.inc`,
+  included at the end of `blend_fillet_geom_p1.cpp` (as p4's), because the `Model` lives in
+  that translation unit's anonymous namespace.
+- **Intersection-point user pointers.** `SmFilletNx2Corner::AdjustTangentCorner` reads
+  `SmTsectPnt::m_apUserPointer[0..2]` of the rail vertex uses as `SmSurface*`; upstream
+  sets them only in `SmFilletGeom::MakeRailEdgeuse` (`SmFilletGeom.cpp:10083-10091`). The
+  Rust `TsectPnt` has no such member, so `FilletCorner::adjust_tangent_corner` takes them per
+  vertex use in `CornerEnv::tsect_surfaces`. Whoever ports `MakeRailEdgeuse` should store
+  the surfaces (a field on `FilletVertexuse`, or a map in the executive) and feed that map.
+- **Coverage.** `Create` runs on real B-reps (upstream `.smb` files incl. 14 of
+  `TestFiles/pt_TestFiles/Fillet`) and compares the corner type, the edge uses around the
+  vertex, tolerances and flags for the 3x2 mixed-convexity, Nx2, 4x3, closed Nx1, no-corner
+  and (all-linear) convex NxN outcomes; the 1x1, 2x2, Nx1, open, degenerate and concave NxN
+  outcomes stop at `sm_TestG1Continuity` / `CheckNx1Degeneracy` (`blend.fillet_corner_p1`) or
+  `sm_FindConcaveEdgeuses` (`blend.fillet_corner_p2`). Every corner patch builder reaches
+  `MakeAnalyticCornerSurface` (p2), `CreateEndPatch` (p1) or `SmSurface::DropCurve` after its
+  state checks, so only those checks (and the 3x2 curve join before them) are compared. The
+  shim does not call upstream on deferred paths (it repeats upstream's code up to the
+  unported call) and refuses inputs where upstream would dereference null (`-2`).

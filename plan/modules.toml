@@ -3374,7 +3374,7 @@ tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "73 fns; largest: SmFilletExecutive::DoPiecewiseMerge, SmFilletExecutive::TestAndConvertBigRadFillet, SmFilletExecutive::SetFilletParameters, SmFilletExecutive::RemoveTopoEdges; entry points: SmApiChamferFillet, SmApiCircularFillet, SmApiFilletEdges, SmApiFilletEdgesPerEdge, SmApiSetBevelCorners, SmApiSurfaceSurfaceFillet, SmApiVariableRadiusFillet; cycle back-edges (call into later units; stub or co-port): blend.fillet_corner_p1(6), blend.fillet_executive_p2(3), blend.fillet_standard_solver_p2(3), blend.fillet_corner_p3(2), blend.fillet_corner_p2(1), blend.fillet_geom_p2(1), blend.fillet_geom_p5(1), blend.fillet_geom_p6(1); unit-SCC #22 (220 units); hazards: ptr-iter; 319 upstream test entry points reach this unit"
+notes = "73 fns; largest: SmFilletExecutive::DoPiecewiseMerge, SmFilletExecutive::TestAndConvertBigRadFillet, SmFilletExecutive::SetFilletParameters, SmFilletExecutive::RemoveTopoEdges; entry points: SmApiChamferFillet, SmApiCircularFillet, SmApiFilletEdges, SmApiFilletEdgesPerEdge, SmApiSetBevelCorners, SmApiSurfaceSurfaceFillet, SmApiVariableRadiusFillet; cycle back-edges (call into later units; stub or co-port): blend.fillet_corner_p1(6), blend.fillet_executive_p2(3), blend.fillet_standard_solver_p2(3), blend.fillet_corner_p3(2), blend.fillet_corner_p2(1), blend.fillet_geom_p2(1), blend.fillet_geom_p5(1), blend.fillet_geom_p6(1); unit-SCC #22 (220 units); hazards: ptr-iter; 319 upstream test entry points reach this unit; CO-PORTED in blend.fillet_corner_p3 (PR #256): SmFilletExecutive::m_vEdgeuseSolverMap, GetFilletSolverOfEdgeuse -> blend::fillet_corner::p3::FilletExecutiveData"
 
 [[unit]]
 id = "boolean.api_brep"
@@ -3416,7 +3416,7 @@ tests = ["prog_test:my_test_extent3d", "prog_test:my_test_vector2d", "prog_test:
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "55 fns; largest: SmFilletCorner::MakeConstantRadiusFillet, SmFilletCorner::MakeFaceBrep, SmFilletCorner::InsertIntersectionTopology, sm_CreateSrfOfRevolution; cycle back-edges (call into later units; stub or co-port): blend.fillet_geom_p3(3), blend.fillet_geom_p5(1); unit-SCC #22 (220 units); hazards: ptr-hash; 319 upstream test entry points reach this unit"
+notes = "55 fns; largest: SmFilletCorner::MakeConstantRadiusFillet, SmFilletCorner::MakeFaceBrep, SmFilletCorner::InsertIntersectionTopology, sm_CreateSrfOfRevolution; cycle back-edges (call into later units; stub or co-port): blend.fillet_geom_p3(3), blend.fillet_geom_p5(1); unit-SCC #22 (220 units); hazards: ptr-hash; 319 upstream test entry points reach this unit; CO-PORTED in blend.fillet_corner_p3 (PR #256): SmFilletCorner members and constructor, GetCornerType/GetName -> blend::fillet_corner::p3::{FilletCorner, FilletCorner::new, FilletCornerKind}; its stubs there: sm_TestG1Continuity, SmFilletNx1Corner::CheckNx1Degeneracy, CreateEndPatch, MakeFaceBrep, CalcCornerVertGeom"
 
 [[unit]]
 id = "blend.fillet_solver_p2"
@@ -3581,10 +3581,10 @@ soft_depends_on = ["blend.fillet_geom_p3", "blend.fillet_geom_p4", "curve.curve_
 est_lines = 1697
 layer = 61
 tests = ["SM_API_test:TestSmFilletPreview", "SM_API_test:TestSmCircularFillet", "SM_API_test:TestSmChamferFillet", "SM_API_test:TestSmFilletEdges", "SM_API_test:TestSmFilletEdgesPerEdge", "SM_API_test:TestSmVariableRadiusFillet"]
-status = "todo"
+status = "partial"
 claimed_by = ""
 claimed_at = ""
-notes = "14 fns; largest: SmFilletNx2Corner::AdjustTangentCorner, SmFilletCorner::Create, SmFilletCorner::CreateCornerPatch, SmFilletNx2Corner::AdjustTopology; cycle back-edges (call into later units; stub or co-port): blend.fillet_corner_p2(11), blend.fillet_geom_p2(1), blend.fillet_geom_p5(1), blend.fillet_geom_p6(1); unit-SCC #22 (220 units); 26 upstream test entry points reach this unit"
+notes = "14 fns; largest: SmFilletNx2Corner::AdjustTangentCorner, SmFilletCorner::Create, SmFilletCorner::CreateCornerPatch, SmFilletNx2Corner::AdjustTopology; cycle back-edges (call into later units; stub or co-port): blend.fillet_corner_p2(11), blend.fillet_geom_p2(1), blend.fillet_geom_p5(1), blend.fillet_geom_p6(1); unit-SCC #22 (220 units); 26 upstream test entry points reach this unit; PARTIAL (PR #256, built on PR #252 = #147 + #192): 708 cases (308 upstream-file fixtures from TestFiles/pt_TestFiles/Fillet, 400 generated), 412 passed, 281 deferred (blend.fillet_corner_p1 111, blend.fillet_corner_p2 126, blend.fillet_executive_p1 6, blend.fillet_geom_p5 5, blend.fillet_geom_p6 2, intersect.surface_drop_lib_p3 8, surface.cone_p1 11, surface.surf_of_extrusion_p2 12), 15 rejected; every patch builder past its state checks is deferred (MakeAnalyticCornerSurface / CreateEndPatch / DropCurve)"
 
 [[unit]]
 id = "blend.fillet_executive_p2"
@@ -3640,7 +3640,7 @@ tests = ["SM_API_test:TestSmFilletPreview", "SM_API_test:TestSmSurfaceSurfaceFil
 status = "todo"
 claimed_by = ""
 claimed_at = ""
-notes = "16 fns; largest: SmFilletCorner::MakeVariableRadiusFillet, SmFilletNx1ClosedCorner::AdjustTangentCorner, SmFilletCorner::MakeAnalyticCornerSurface, SmFilletConvexNxNCorner::AdjustTopology; unit-SCC #22 (220 units); 31 upstream test entry points reach this unit"
+notes = "16 fns; largest: SmFilletCorner::MakeVariableRadiusFillet, SmFilletNx1ClosedCorner::AdjustTangentCorner, SmFilletCorner::MakeAnalyticCornerSurface, SmFilletConvexNxNCorner::AdjustTopology; unit-SCC #22 (220 units); 31 upstream test entry points reach this unit; CO-PORTED in blend.fillet_corner_p3 (PR #256): the constructors of SmFillet1x1Corner, SmFilletNx1ClosedCorner, SmFilletNx1Corner, SmFillet3x2MixedConvexityCorner, SmFilletNx2Corner, SmFilletNxNCorner -> blend::fillet_corner::p3::FilletCorner::new (FilletCornerKind); its stubs there: sm_FindConcaveEdgeuses, MakeAnalyticCornerSurface, AdjustConcaveCornerTopology, SmFilletConvexNxNCorner::AdjustTopology, SmFilletNx1ClosedCorner::AdjustTangentCorner"
 
 [[unit]]
 id = "audit.recursion"
