@@ -7973,7 +7973,7 @@ native comparisons, as do all other accepted cases. Generated piecewise inputs
 use shell vertices and retain all option masks, including imprinting without
 keep-other. Four explicit point/box-primary fixtures cover that accepted path.
 
-Previous a77d8005 default comparison (Opus rerun pending): 354 cases, 182 matched, 0 failed, 172 deferred,
+Current Opus-fix default comparison: 354 cases, 182 matched, 0 failed, 172 deferred,
 `max_rel_err=0`, no absolute floors. The 126 matches with values comprise 103
 leaf-only identity/order/null and B-rep-digest cases, plus 23 empty forests. Of the 56 both-errored cases,
 54 compare native error statuses and two check only the UB-190 guard (180
@@ -7998,18 +7998,16 @@ without suppressions. Leak checking was disabled: unknown live objects after a
 failed consuming native call are retained, as described above. This does not
 claim that those failure paths are leak-free.
 
-Reverified after integrating main's curve_class_p2 (#85), surface.cone_p2
-(#153), and generated progress through 28cd7d9a, including the review fixes
-below: workspace/CPP compile checks, both clippy configurations, formatting
-(including seven explicit include files), 1,396 kernel tests, three FFI guard
-tests and wasm passed. The three incoming changed include files required a
-separate rustfmt-only normalization commit; no behavior was edited there.
-Native comparison, perturbation, fuzz and Valgrind results above are unchanged
-on this corrected, main-integrated tree. The full 212-unit matrix passed with
-zero failures. Its per-log audit found 114 PASS / 98 PARTIAL, all exit codes zero,
-and zero green units with deferred cases; rejected fixtures are counted separately
-in the four units that expose them. The earlier 211-unit matrix also passed and
-is supplementary evidence on the previous main base. Earlier interrupted runs are excluded from verification evidence.
+Reverified after integrating topology.brep_p10 (#130), main through 0cf3e290:
+workspace/CPP compile checks, clippy x2, workspace fmt and explicit own include
+rustfmt, 1,402 kernel tests, four serializer/adapter tests, three FFI guard tests
+and wasm all passed. Native comparison, perturbation, 2,000-case guard fuzz runs
+for p3/API and the 50-program Valgrind sample passed on this corrected tree.
+The touched intersector_p1 passed its default run: 827 cases, 690 matched,
+zero failed, 137 deferred, with_values=687/no_values=3. All p3 case outcomes and
+first-blocker labels are unchanged from a77d8005; compared payloads now contain
+actual Rust digest data instead of C++ graph echoes. The 213-unit matrix is
+running; previous 212/211-unit runs are historical evidence only.
 
 Review 183c96b7 constructor correction: BooleanLists surface-list preparation
 and disconnected-component extraction now call an argument-complete
@@ -8019,10 +8017,8 @@ for the native constructor: it lacks the void infinite region and context
 tolerance initialization. All surface-copy/face-construction and component
 copy/stitch/remove tails remain after this call. No #204 constructor is co-ported.
 
-Opus re-review follow-up: source changes are committed in 5c66d017 after merging
-main's topology.brep_p10 (#130). Full reruns are pending; the gate figures above
-belong to a77d8005 until replaced by the new evidence. The shim still couples
-PiecewiseMerge use-existing/create-new flags to CookieCutter/Imprinting bits.
-Imprinting without create-new is not expressible. Generated cases remain
-shell-vertex only, without repeated leaves or multi-operator trees; fixed
-fixtures exercise the existing repeated-leaf/error and real-box paths.
+Opus re-review follow-up: should-fixes are implemented in 5c66d017, 4eff8875
+and 13b83371. The shim still couples PiecewiseMerge use-existing/create-new flags
+to CookieCutter/Imprinting bits. Imprinting without create-new is not expressible.
+Generated cases remain shell-vertex only, without repeated leaves or multi-operator
+trees; fixed fixtures exercise the existing repeated-leaf/error and real-box paths.
