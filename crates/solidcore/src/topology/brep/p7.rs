@@ -1637,6 +1637,35 @@ mod tests {
             &opts,
             &face_ref,
         );
+        // no infinite region: MakeFaceTopology's NULL region
+        assert!(matches!(
+            e,
+            Err(SolidError::Upstream {
+                code: crate::error::SM_ERR_NULL_POINTER,
+                ..
+            })
+        ));
+        let inf = b
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
+        b.set_infinite_region_record(Some(inf));
+        let e = make_face(
+            &k,
+            &mut b,
+            None,
+            &[],
+            &[],
+            &[],
+            Some(plane()),
+            &dom(),
+            OrientType::Same,
+            &opts,
+            &face_ref,
+        );
+        // the infinite region: MakeFaceTopology reaches SmFace::SetTolerance (unported)
         assert!(e.unwrap_err().is_unported());
     }
 
@@ -1682,7 +1711,9 @@ mod tests {
             run(&mut b, input, Some(r)),
             Err(SolidError::InvalidInput { .. })
         ));
-        // the infinite region is unported
+        // a NULL region is the infinite region: a degenerate curve only reaches
+        // unported topology
+        b.set_infinite_region_record(Some(r));
         let input = FaceCurvesInput {
             loops: vec![1],
             curves_3d: Some(vec![None]),

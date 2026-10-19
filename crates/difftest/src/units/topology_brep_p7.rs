@@ -27,8 +27,9 @@
 //! (`MergeSelfIntersectionCurves` on a face without surface).
 //!
 //! **Deferred.** Every read that gets past `SmBrepData::ReadFromFile`, every face made
-//! (`MakeShellVertex`, `MakeFaceTopology`, `GetInfiniteRegion`), every glue past its
-//! early returns, every copy (`SmBrep::SetTolerance`). The comparisons are the read
+//! (`MakeShellVertex`, `SmFace::SetTolerance` inside `MakeFaceTopology`), every glue
+//! past its early returns, every copy (`SmBrep::SetTolerance`). Every new B-rep is
+//! the shim's `new SmBrep()`, with its void infinite region (`native_brep`). The comparisons are the read
 //! errors of damaged files, the input errors of the face makers, the null-surface status
 //! of `MakeFace`, the glue no-ops and `MergeSelfIntersectionCurves` without curves.
 
@@ -59,7 +60,7 @@ use solidcore::surface::surface::Surface;
 use solidcore::topology::brep::p7;
 use solidcore::topology::database_io::FileType;
 use solidcore::topology::edge as ed;
-use solidcore::topology::{Brep, EdgeId, FaceId, Region};
+use solidcore::topology::{Brep, EdgeId, FaceId, Region, RegionId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_data as bd;
 use solidcore_ffi::units::topology_brep_p7::{self as ffi, Op};
@@ -549,6 +550,21 @@ fn hfail(e: impl core::fmt::Display) -> Fail {
     Fail::Harness(harness(e.to_string()))
 }
 
+/// The shim's `new SmBrep()`: an empty B-rep that owns its void infinite region, the
+/// head of its region list (`SmBrep.cpp:532-536`).
+fn native_brep() -> Result<(Brep, RegionId), Fail> {
+    let mut b = Brep::new();
+    let infinite = b
+        .add_region_record(Region {
+            in_brep: true,
+            is_void: 1,
+            ..Region::default()
+        })
+        .map_err(hfail)?;
+    b.set_infinite_region_record(Some(infinite));
+    Ok((b, infinite))
+}
+
 /// A case the shim answers with `-2` (upstream would dereference null): both sides would
 /// only echo that constant, so it is deferred under the guard's `label`, never compared.
 fn cpp_null_deref(label: &str, symbol: &str) -> Fail {
@@ -744,7 +760,7 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                     "SmBrep::MakeTopologyFromData",
                 ))));
             }
-            let mut b = Brep::new();
+            let (mut b, _) = native_brep()?;
             let r = p7::read_from_file(k, &mut b, bytes, FileType::Ascii, *rebuild);
             let mut o = vec![status(&r)?];
             if r.is_ok() {
@@ -773,18 +789,9 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                     "SmBrep::MakeFaceWithCurves",
                 ));
             }
-            let mut b = Brep::new();
-            let region = if *region_null {
-                None
-            } else {
-                Some(
-                    b.add_region_record(Region {
-                        in_brep: true,
-                        ..Region::default()
-                    })
-                    .map_err(hfail)?,
-                )
-            };
+            // (the shim passes the new B-rep's GetInfiniteRegion() unless null)
+            let (mut b, infinite) = native_brep()?;
+            let region = (!*region_null).then_some(infinite);
             let mut c3 = Vec::new();
             let mut uv = Vec::new();
             for c in curves {
@@ -855,18 +862,9 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                     "SmBrep::MakeShellVertex",
                 ))));
             }
-            let mut b = Brep::new();
-            let region = if *region_null {
-                None
-            } else {
-                Some(
-                    b.add_region_record(Region {
-                        in_brep: true,
-                        ..Region::default()
-                    })
-                    .map_err(hfail)?,
-                )
-            };
+            // (the shim passes the new B-rep's GetInfiniteRegion() unless null)
+            let (mut b, infinite) = native_brep()?;
+            let region = (!*region_null).then_some(infinite);
             let surface = (*kind == 1).then(|| {
                 Surface::from(Plane::from_normal(
                     Vec3::new(0.0, 0.0, 0.0),
@@ -951,7 +949,7 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             let ex = ex.ok_or_else(|| hfail("no export"))?;
             let (mut b, _) = shared::import(ex)?;
             let faces: Vec<FaceId> = b.faces().ids().take(*n as usize).collect();
-            let mut dest = Brep::new();
+            let (mut dest, _) = native_brep()?;
             let r = p7::copy_faces(k, &mut b, &faces, &mut dest, *merge, &this_face);
             // (a face that could not be copied makes upstream's status SM_ERR; the copies
             // made are kept)
