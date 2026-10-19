@@ -26,11 +26,14 @@
 //! face's own tolerance (what `SmBSplineSurface::CalculateBoundingBox` reads through
 //! `GetFace()`): arena surfaces hold no owning face, so the B-spline/plane/revolution
 //! box is computed unexpanded and expanded here, as the override's last step does.
-//! `Point3DClassify` builds no surface cache (the Rust point solvers take none, as in
-//! `topology::vertexuse` and `intersect::curve_class::p1`), so upstream's temporary
-//! switch-off of the cache's point test has nothing to act on, and `PointClassify` gets
-//! no trimmed surface cache (a fresh one is never face-containment-complete, so its
-//! cache branch cannot run). `EdgeCurveOnClassify` lifts a 2D curve to a curve on the
+//! `Point3DClassify` does not yet reproduce the temporary disabling of the surface
+//! cache's point test (`m_bPointTestEnabled`, SmFace.cpp:12796-12801). Its
+//! `GlobalPointSolve` can therefore reach the `SmFace::PointClassify` stub in
+//! `surface::surface::p4` and defer on `query.face_p2`, although upstream skips
+//! that test during the surface drop. This is a missing caller-specific switch.
+//! The subsequent explicit UV `PointClassify` call is still required; this entry
+//! point supplies it with no trimmed surface cache.
+//! `EdgeCurveOnClassify` lifts a 2D curve to a curve on the
 //! face's surface only when an upward edge use of the face is found (upstream lifts it
 //! first and ignores `SetAll`'s status); an `SmCrvOnSurf` over a surface other than a
 //! B-spline is a dispatch gap (`curve.crv_on_surf`). No recursion.

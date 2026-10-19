@@ -3455,7 +3455,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurfOfExtrusion face surface exported as its B-spline part",
+        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required; face 1 surface concrete type 15030 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -5812,7 +5812,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone / SmCylinder face surface exported as its B-spline part",
+        "symbol": "face 6 surface concrete type 15012 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -7054,7 +7054,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone / SmCylinder face surface exported as its B-spline part",
+        "symbol": "face 0 surface concrete type 15012 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -13011,7 +13011,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere face surface exported as its B-spline part",
+        "symbol": "face 0 surface concrete type 15014 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -14247,7 +14247,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurfOfExtrusion face surface exported as its B-spline part",
+        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -15487,7 +15487,7 @@
     },
     {
       "deferred": {
-        "symbol": "face surface of a kind the shared export flattens to a B-spline",
+        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -16723,7 +16723,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere face surface exported as its B-spline part",
+        "symbol": "face 0 surface concrete type 15014 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -17964,7 +17964,7 @@
     },
     {
       "deferred": {
-        "symbol": "face surface of a kind the shared export flattens to a B-spline",
+        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -19205,7 +19205,7 @@
     },
     {
       "deferred": {
-        "symbol": "face surface of a kind the shared export flattens to a B-spline",
+        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -20440,7 +20440,7 @@
     },
     {
       "deferred": {
-        "symbol": "face surface of a kind the shared export flattens to a B-spline",
+        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,

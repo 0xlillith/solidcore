@@ -1,5 +1,108 @@
 # solidcore status
 
+Last updated: 2026-10-19, PR #101 (`query.brep`, checkpoint `15a47378`; draft).
+Per-unit state is in `plan/modules.toml`; differential evidence is in
+`reports/difftest/`. The Progress table below is calculated from the manifest.
+Older per-unit tables and integration notes are historical snapshots, not a
+second current manifest.
+
+## Latest checkpoint (2026-10-19, PR #101; draft)
+
+The B-rep query integration supplies live mutable B-reps, registered identities,
+owner mappings and the caller's Kernel to classification, bounding-box, Shape,
+cache and shell callers. The faceuse region-split continuation uses the same
+RegionSplitQueries provider through p7 and Heal; native region-list order,
+partial classification state, persistent topology marks and lazy cache
+publication are retained. Earlier first-stop notes for these wired
+`UNPORTED(query.brep)` paths are superseded as detailed in `plan/findings.md`.
+
+**Readiness remains pending under AGENTS.md §4.5.9 and section 4a.** The point-face
+path of `intersect.topology_solver_p1` still has a read-only provider:
+`object_zone_tol_3d` needs the owning B-rep, and `face_point_classify` /
+`face_classifies_on_face` need mutable access to call the existing partial
+`query.face_p2` / `query.face_p1` implementations. These are incoming-backedge
+integration requirements, not absent numerical algorithms. Deferred cases do
+not satisfy this readiness gate, and the PR remains draft even if its completed
+comparisons and build checks pass.
+
+PR #238 review also confirmed a dispatch-context defect in
+`query.face_p1::Point3DClassify`: the missing `m_bPointTestEnabled = FALSE` setting
+around the solve accounts for its 57 cases labelled `query.face_p2` deferred.
+Native C++ disables that point test and does not reach `FacePointClassify` there.
+Those report labels are not faithful native dependency boundaries; the behavior
+is still unfixed in this validated source. Five direct `query.face_p1` stubs
+remain: two in `boolean.topology_intersector_p1`, one in
+`intersect.topology_solver_p1` and two in `intersect.curve_class_p7`.
+`geom.object` is no longer among those callers.
+
+**Latest-main integration is also outstanding.** This source includes main
+through `b6b6f7dd` and #149 through `3770f4b1`. Main advanced to `61670af3` (#153)
+during validation. Its merge-tree preview was clean, but that merge was not made
+into the validated source. The latest main snapshot observed at 12:10:03 UTC,
+`28cd7d9a`, adds only generated PROGRESS output on top of `61670af3`; its code and
+manifest counts are unchanged: 114 green, 97 partial and 50 todo units. The table
+below describes this PR branch after its three report-based promotions, not
+that newer main snapshot.
+
+### Final local validation of source `15a47378`
+
+These functional results belong to source
+`15a47378bc8ae2256403766fac4342f75fb77eaa`. Formatting, strict plain and
+C++-enabled all-target Clippy, 1,396 core tests and the
+`wasm32-unknown-unknown` check passed. FFI tests finished with 93 passed and one
+ignored child helper; the difftest harness finished with 155 passed and 24
+existing ignored debugging aids. The ten focused runners finished without a
+failure.
+
+The full debug-profile difftest test run was deliberately interrupted in
+`surface_surface_p7::generated_cases_are_diverse` because its 1,500 generated
+cases invoke expensive solves. The same complete battery subsequently passed
+under the optimized `difftest` profile, with debug assertions and overflow checks
+active, and without source, case or tolerance changes for that rerun.
+
+The full `--green` run covered all 213 green/partial manifest units. Its reports
+contain **495,296 cases: 477,794 passed, zero failed, 17,465 deferred and 37
+rejected**. Passes comprise 473,652 cases with compared values and 4,142 without
+compared values. The split comes from the matched full-run console summaries
+and includes both floating and exact integer/topology comparisons; a zero
+floating-comparison count alone does not mean a case compares only status.
+All 213 reports are present; 116 have green report status and
+97 are partial. Deferred and rejected cases are not passing comparisons.
+
+| Unit | Cases | Passed with values | Passed without values | Deferred | Rejected |
+|---|---:|---:|---:|---:|---:|
+| `query.brep` | 1,036 | 1,033 | 0 | 3 | 0 |
+| `geom.object` | 624 | 624 | 0 | 0 | 0 |
+| `geom.a_object` | 2,040 | 2,040 | 0 | 0 | 0 |
+| `topology.brep_cache` | 663 | 663 | 0 | 0 | 0 |
+
+These four reports have zero failures and `max_rel_err = 0`, with no absolute
+floors. `query.brep`'s three deferrals name the todo unit `query.face_p3`.
+`geom.object`, `geom.a_object` and `topology.brep_cache` are promoted from partial
+to green on this evidence. This does not certify the separate point-face bridge.
+All 450 passing p6 cases include exact integer/topology comparisons.
+
+Sensitivity detected every compared case in `query.brep` (1,033), `geom.object`
+(624), `topology.brep_cache` (663) and `harness.selftest` (28); the three
+`query.brep` deferrals remain deferred. The separate formatter/comment follow-up
+also detected all 2,040 `geom.a_object` cases, with zero deferrals.
+
+That follow-up consists of rustfmt output in two source files and comments in
+two others. Its verification completed at approximately 12:10:42 UTC:
+formatting, including the explicit include files, strict C++ all-target Clippy,
+the `query.face_p1` focal and status checks for the three promotions and
+`query.brep` passed. The face focal retained 2,224 cases, 1,535 passes with
+values, 689 deferred and zero failures. Final source hashes matched the reviewed
+follow-up and canonical reports remained unchanged. No descendant full-suite
+result or parity after merging newer main is claimed. GitHub CI run
+`39244008376` was queued at the last check; the completed local checks do not
+assert a CI pass.
+
+## Earlier headline snapshots
+
+The previous summary paragraphs are retained below as historical handoff notes.
+Their counts describe those earlier checkpoints.
+
 Last updated: 2026-10-16, PR #127 (`sweep.trans_sweep_geometry` partial: 719 bit-identical passes, 50 deferred on `surface.cone_p2`, 19 rejected native fixtures). Per-unit state and evidence are in `plan/modules.toml` and `reports/difftest/`.
 
 Latest topology integration: `topology.brep_p6` partial (PR #169, after its dependency #154: 498 cases, 450 pass, 48 deferred, 0 failed; 206 units, 113 green and 93 partial); before: `topology.shell` partial (PR #154, continuing @0xlillith's PR #80: 192 ported units, 109 green and 83 partial); before: `surface.surface_p11` partial (PR #120: 176 ported units, 98 green and 78 partial; `intersect.surface_silhouette` promoted to green); before: `mass.integrator` partial and `curve.curve_p3` green (PR #119); PR #115 (`topology.brep_cache` partial). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml` and evidence in `reports/difftest/`.
@@ -48,18 +151,27 @@ can contribute. From now on all work goes through PRs; see AGENTS.md section 4.
 
 ## Progress
 
-Counts are from `plan/modules.toml`. Line counts are the upstream function-body lines
-(`est_lines`) assigned to each unit.
+Counts and assigned upstream function-body line estimates (`est_lines`) are
+calculated from this branch's `plan/modules.toml` after the three report-based
+promotions above. Each unit contributes its
+entire assigned estimate to its manifest state, including paths still deferred
+inside a partial unit. These totals measure the planned scope grouped by state;
+they are not measured Rust lines or percentages of implemented or tested
+behavior. The manifest spans 66 layer values, numbered 0–65.
 
-| | |
-|---|---|
-| Units planned | 261 (65 layers), 387,903 upstream lines |
-| Green | **84** (105,920 lines): `geom.extent3d`, `geom.vector2d`, `nlib.knots`, `nlib.math`, `topology.database_io`, `geom.tol`, `nlib.geom`, `geom.assert_array`, `geom.context`, `geom.extent1d`, `geom.matrix`, `geom.periodic_extent1d`, `geom.vector3d`, `nlib.basis_basic`, `nlib.srf_basic`, `geom.axis2_placement`, `geom.extent2d`, `geom.geom_utility_p2`, `geom.hash_table`, `geom.local_solve1d`, `geom.local_solve_nd`, `geom.polynomial`, `nlib.basis_adv`, `nlib.bezier`, `nlib.funcs_basic`, `geom.geom_utility_p1`, `geom.polar_box`, `nlib.crv_basic`, `geom.pseudo_box`, `nlib.crv_fit_p1`, `nlib.crv_tool_p1`, `nlib.iges`, `nlib.srf_tool_p1`, `curve.hermite_curve`, `geom.point_set`, `nlib.crv_fit_p2`, `nlib.crv_nurb`, `nlib.funcs_adv`, `nlib.srf_fit`, `nlib.crv_fit_p3`, `nlib.crv_geom`, `nlib.crv_tool_p2`, `nurbs.nurbs_crv`, `topology.topology`, `nlib.crv_adv_p1`, `nlib.crv_common`, `nlib.spiral`, `nlib.crv_adv_p2`, `nlib.srf_common`, `nlib.crv_approx`, `nlib.crv_offset`, `nlib.srf_nurb`, `nlib.srf_tool_p2`, `nurbs.b_spline_curve_n_lib`, `nurbs.nurbs_srf`, `nlib.srf_adv_p2`, `nlib.srf_adv_p3`, `nlib.srf_tool_p3`, `nlib.srf_tool_p4`, `curve.conic`, `curve.projected_curve`, `nlib.srf_adv_p4`, `nlib.srf_adv_p1`, `nlib.srf_adv_p5`, `nlib.srf_adv_p6`, `nlib.srf_offset`, `curve.offset_curve`, `surface.b_spline_volume`, `nurbs.b_spline_curve_p1`, `curve.parabola`, `primitive.api_curves`, `nurbs.b_spline_curve_p2`, `curve.curve_p2`, `curve.curve_cache`, `curve.hyperbola`, `curve.line`, `curve.ellipse_p2`, `curve.curve_p6`, `curve.curve_p7`, `curve.ellipse_p1`, `curve.curve_p8`, `curve.composite_curve_p1`, `curve.composite_curve_p2`, `curve.curve_p9` |
-| Partial | **31** (41,289 lines): `geom.attribute`, `geom.tree`, `geom.object`, `geom.grid`, `geom.solution_array`, `geom.global_solver`, `geom.tools`, `geom.transform`, `geom.a_object`, `nurbs.b_spline_surface_p1`, `nurbs.b_spline_curve_p3`, `curve.crv_in_volume`, `curve.tangent_field`, `nurbs.b_spline_surface_n_lib_p1`, `curve.iso_curve`, `nurbs.b_spline_surface_n_lib_p2`, `nurbs.b_spline_surface_p2`, `surface.volume_p1`, `curve.curve_p4`, `surface.twist_volume`, `curve.curve_p3`, `curve.curve_p1`, `curve.crv_on_surf`, `surface.surface_p2`, `surface.curve_bounded_surface`, `surface.surface_cache_p1`, `curve.curve_p5`, `surface.trim_srf_cache`, `surface.plane_p1`, `surface.unbend_volume`, `surface.bend_volume` |
-| Ported (green + partial) | 115 units, 147,209 upstream lines (38.0%); about 150,000 Rust lines in `crates/solidcore/src` |
-| Claimed | 0 (claims now use draft PRs) |
-| Blocked | 0 |
-| Todo | 146 (240,694 lines) |
+| Manifest state | Units | Assigned upstream function-body lines (`est_lines`) |
+|---|---:|---:|
+| Green | 116 | 150,247 |
+| Partial | 97 | 149,825 |
+| Todo | 48 | 87,831 |
+| **Total** | **261** | **387,903** |
+
+Green and partial together account for 213 units and 300,072 assigned upstream
+lines. Partial means all compared cases pass while one or more cases remain
+deferred; it satisfies dependency scheduling, without certifying the deferred
+paths. Claims are tracked by draft PRs and are not inferred from this table.
+Current per-unit details remain in the manifest, reports and generated
+`plan/PROGRESS.md`.
 
 ## What Wave 0 produced
 

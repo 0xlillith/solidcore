@@ -254,16 +254,12 @@
       "values_compared": 85
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0031",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275499",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "max_rel_err": 0.0,
@@ -2254,16 +2250,12 @@
       "values_compared": 141
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0270",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275738",
-      "values_compared": 0
+      "values_compared": 76
     },
     {
       "max_rel_err": 0.0,
@@ -2534,16 +2526,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0303",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275771",
-      "values_compared": 0
+      "values_compared": 126
     },
     {
       "max_rel_err": 0.0,
@@ -2658,16 +2646,12 @@
       "values_compared": 158
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0318",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275786",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -2854,16 +2838,12 @@
       "values_compared": 118
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0341",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275809",
-      "values_compared": 0
+      "values_compared": 94
     },
     {
       "max_rel_err": 0.0,
@@ -2994,16 +2974,12 @@
       "values_compared": 110
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0357",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275825",
-      "values_compared": 0
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -4434,16 +4410,12 @@
       "values_compared": 65
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0525",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535275993",
-      "values_compared": 0
+      "values_compared": 95
     },
     {
       "max_rel_err": 0.0,
@@ -4850,16 +4822,12 @@
       "values_compared": 122
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0573",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276041",
-      "values_compared": 0
+      "values_compared": 85
     },
     {
       "max_rel_err": 0.0,
@@ -5114,28 +5082,20 @@
       "values_compared": 72
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0605",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276073",
-      "values_compared": 0
+      "values_compared": 65
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0606",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276074",
-      "values_compared": 0
+      "values_compared": 81
     },
     {
       "max_rel_err": 0.0,
@@ -5162,16 +5122,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0610",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276078",
-      "values_compared": 0
+      "values_compared": 84
     },
     {
       "max_rel_err": 0.0,
@@ -5530,16 +5486,12 @@
       "values_compared": 105
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0654",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276122",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -5802,16 +5754,12 @@
       "values_compared": 155
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0686",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276154",
-      "values_compared": 0
+      "values_compared": 63
     },
     {
       "max_rel_err": 0.0,
@@ -6634,16 +6582,12 @@
       "values_compared": 66
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0785",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276253",
-      "values_compared": 0
+      "values_compared": 55
     },
     {
       "max_rel_err": 0.0,
@@ -7006,16 +6950,12 @@
       "values_compared": 30
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0829",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276297",
-      "values_compared": 0
+      "values_compared": 60
     },
     {
       "max_rel_err": 0.0,
@@ -7198,16 +7138,12 @@
       "values_compared": 21
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0852",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276320",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "max_rel_err": 0.0,
@@ -7334,16 +7270,12 @@
       "values_compared": 79
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0868",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276336",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -7830,16 +7762,12 @@
       "values_compared": 82
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0926",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276394",
-      "values_compared": 0
+      "values_compared": 37
     },
     {
       "max_rel_err": 0.0,
@@ -8194,16 +8122,12 @@
       "values_compared": 159
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0969",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276437",
-      "values_compared": 0
+      "values_compared": 79
     },
     {
       "deferred": {
@@ -8378,16 +8302,12 @@
       "values_compared": 573
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen0990",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276458",
-      "values_compared": 0
+      "values_compared": 105
     },
     {
       "max_rel_err": 0.0,
@@ -8510,16 +8430,12 @@
       "values_compared": 165
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1006",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276474",
-      "values_compared": 0
+      "values_compared": 48
     },
     {
       "max_rel_err": 0.0,
@@ -9630,16 +9546,12 @@
       "values_compared": 112
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1141",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276609",
-      "values_compared": 0
+      "values_compared": 63
     },
     {
       "max_rel_err": 0.0,
@@ -11278,16 +11190,12 @@
       "values_compared": 98
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1338",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276806",
-      "values_compared": 0
+      "values_compared": 79
     },
     {
       "max_rel_err": 0.0,
@@ -11438,16 +11346,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1356",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276824",
-      "values_compared": 0
+      "values_compared": 64
     },
     {
       "deferred": {
@@ -11518,16 +11422,12 @@
       "values_compared": 120
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1365",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276833",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -11890,16 +11790,12 @@
       "values_compared": 98
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1409",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276877",
-      "values_compared": 0
+      "values_compared": 79
     },
     {
       "deferred": {
@@ -11962,16 +11858,12 @@
       "values_compared": 109
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1417",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276885",
-      "values_compared": 0
+      "values_compared": 63
     },
     {
       "max_rel_err": 0.0,
@@ -12266,16 +12158,12 @@
       "values_compared": 103
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1452",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535276920",
-      "values_compared": 0
+      "values_compared": 105
     },
     {
       "max_rel_err": 0.0,
@@ -13010,16 +12898,12 @@
       "values_compared": 140
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1540",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277008",
-      "values_compared": 0
+      "values_compared": 93
     },
     {
       "max_rel_err": 0.0,
@@ -13210,16 +13094,12 @@
       "values_compared": 109
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1562",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277030",
-      "values_compared": 0
+      "values_compared": 133
     },
     {
       "max_rel_err": 0.0,
@@ -13546,16 +13426,12 @@
       "values_compared": 157
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1603",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277071",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -13658,16 +13534,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1616",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277084",
-      "values_compared": 0
+      "values_compared": 73
     },
     {
       "max_rel_err": 0.0,
@@ -13982,16 +13854,12 @@
       "values_compared": 157
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1654",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277122",
-      "values_compared": 0
+      "values_compared": 88
     },
     {
       "max_rel_err": 0.0,
@@ -14562,16 +14430,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1723",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277191",
-      "values_compared": 0
+      "values_compared": 92
     },
     {
       "max_rel_err": 0.0,
@@ -14698,16 +14562,12 @@
       "values_compared": 34
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1739",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277207",
-      "values_compared": 0
+      "values_compared": 49
     },
     {
       "deferred": {
@@ -14890,16 +14750,12 @@
       "values_compared": 120
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1762",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277230",
-      "values_compared": 0
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -14926,16 +14782,12 @@
       "values_compared": 49
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1766",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277234",
-      "values_compared": 0
+      "values_compared": 120
     },
     {
       "max_rel_err": 0.0,
@@ -15014,16 +14866,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1776",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277244",
-      "values_compared": 0
+      "values_compared": 91
     },
     {
       "max_rel_err": 0.0,
@@ -15858,16 +15706,12 @@
       "values_compared": 67
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1874",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277342",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -16090,16 +15934,12 @@
       "values_compared": 56
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen1901",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277369",
-      "values_compared": 0
+      "values_compared": 59
     },
     {
       "deferred": {
@@ -17130,16 +16970,12 @@
       "values_compared": 102
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2024",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277492",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -17358,16 +17194,12 @@
       "values_compared": 79
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2050",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277518",
-      "values_compared": 0
+      "values_compared": 41
     },
     {
       "deferred": {
@@ -17830,16 +17662,12 @@
       "values_compared": 139
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2105",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277573",
-      "values_compared": 0
+      "values_compared": 73
     },
     {
       "max_rel_err": 0.0,
@@ -17974,16 +17802,12 @@
       "values_compared": 51
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2121",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277589",
-      "values_compared": 0
+      "values_compared": 40
     },
     {
       "max_rel_err": 0.0,
@@ -18886,16 +18710,12 @@
       "values_compared": 80
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2226",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277694",
-      "values_compared": 0
+      "values_compared": 97
     },
     {
       "max_rel_err": 0.0,
@@ -19886,16 +19706,12 @@
       "values_compared": 65
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2343",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277811",
-      "values_compared": 0
+      "values_compared": 45
     },
     {
       "max_rel_err": 0.0,
@@ -20410,16 +20226,12 @@
       "values_compared": 100
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2405",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277873",
-      "values_compared": 0
+      "values_compared": 61
     },
     {
       "max_rel_err": 0.0,
@@ -20678,16 +20490,12 @@
       "values_compared": 174
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2436",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277904",
-      "values_compared": 0
+      "values_compared": 105
     },
     {
       "max_rel_err": 0.0,
@@ -21002,16 +20810,12 @@
       "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2475",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277943",
-      "values_compared": 0
+      "values_compared": 78
     },
     {
       "max_rel_err": 0.0,
@@ -21198,16 +21002,12 @@
       "values_compared": 104
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2498",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277966",
-      "values_compared": 0
+      "values_compared": 87
     },
     {
       "max_rel_err": 0.0,
@@ -21298,16 +21098,12 @@
       "values_compared": 128
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2510",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535277978",
-      "values_compared": 0
+      "values_compared": 62
     },
     {
       "max_rel_err": 0.0,
@@ -21938,16 +21734,12 @@
       "values_compared": 83
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2587",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278055",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -21958,16 +21750,12 @@
       "values_compared": 111
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2589",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278057",
-      "values_compared": 0
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -22010,16 +21798,12 @@
       "values_compared": 86
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2595",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278063",
-      "values_compared": 0
+      "values_compared": 66
     },
     {
       "max_rel_err": 0.0,
@@ -22194,16 +21978,12 @@
       "values_compared": 68
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2615",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278083",
-      "values_compared": 0
+      "values_compared": 54
     },
     {
       "max_rel_err": 0.0,
@@ -22298,16 +22078,12 @@
       "values_compared": 71
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2627",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278095",
-      "values_compared": 0
+      "values_compared": 93
     },
     {
       "max_rel_err": 0.0,
@@ -22490,16 +22266,12 @@
       "values_compared": 125
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2650",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278118",
-      "values_compared": 0
+      "values_compared": 85
     },
     {
       "max_rel_err": 0.0,
@@ -23274,16 +23046,12 @@
       "values_compared": 146
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2741",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278209",
-      "values_compared": 0
+      "values_compared": 91
     },
     {
       "max_rel_err": 0.0,
@@ -23470,16 +23238,12 @@
       "values_compared": 57
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2763",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278231",
-      "values_compared": 0
+      "values_compared": 104
     },
     {
       "deferred": {
@@ -24046,16 +23810,12 @@
       "values_compared": 83
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2832",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278300",
-      "values_compared": 0
+      "values_compared": 51
     },
     {
       "max_rel_err": 0.0,
@@ -24138,16 +23898,12 @@
       "values_compared": 156
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2843",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278311",
-      "values_compared": 0
+      "values_compared": 72
     },
     {
       "max_rel_err": 0.0,
@@ -24202,16 +23958,12 @@
       "values_compared": 122
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2850",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278318",
-      "values_compared": 0
+      "values_compared": 84
     },
     {
       "max_rel_err": 0.0,
@@ -24394,16 +24146,12 @@
       "values_compared": 81
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2873",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278341",
-      "values_compared": 0
+      "values_compared": 58
     },
     {
       "max_rel_err": 0.0,
@@ -24506,16 +24254,12 @@
       "values_compared": 87
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2886",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278354",
-      "values_compared": 0
+      "values_compared": 74
     },
     {
       "max_rel_err": 0.0,
@@ -24654,16 +24398,12 @@
       "values_compared": 33
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2903",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278371",
-      "values_compared": 0
+      "values_compared": 67
     },
     {
       "max_rel_err": 0.0,
@@ -25078,16 +24818,12 @@
       "values_compared": 105
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2952",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278420",
-      "values_compared": 0
+      "values_compared": 77
     },
     {
       "max_rel_err": 0.0,
@@ -25426,16 +25162,12 @@
       "values_compared": 110
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "gen2993",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=11501318468535278461",
-      "values_compared": 0
+      "values_compared": 132
     },
     {
       "deferred": {
@@ -25490,40 +25222,28 @@
       "values_compared": 40
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "edge_proto_p3_split_intersect",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 199
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "edge_proto_p3_split_edge_definition",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 199
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::Point3DClassify",
-        "unit": "query.brep"
-      },
       "max_rel_err": 0.0,
       "name": "edge_proto_p3_split_proto_edge",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "inline",
-      "values_compared": 0
+      "values_compared": 199
     },
     {
       "max_rel_err": 0.0,
@@ -25607,12 +25327,11 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 375,
+  "cases_deferred": 305,
   "cases_failed": 0,
-  "cases_passed": 2638,
+  "cases_passed": 2708,
   "cases_total": 3013,
   "deferred_by_unit": {
-    "query.brep": 70,
     "topology.edge": 95,
     "topology.face_p2": 94,
     "topology.vertex": 116

@@ -7947,12 +7947,17 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
 
 ## query.brep: live contexts, representation limits and pending point-face wiring (PR #101, 2026-10-19)
 
-This records the integration checkpoint after main `b6b6f7dd` and #149 `3770f4b1`
-were merged into #101 (`d63d3499`). **The PR remains draft.** Final validation and
-case figures are pending, and the point-face bridge below remains an integration
-requirement under `AGENTS.md` §4.5.9 and step 4a. Earlier reports in this document
-and in `modules.toml` remain historical evidence; their figures are not the result
-of this checkpoint.
+This records the integration after main `b6b6f7dd` and #149 `3770f4b1` were merged
+into #101, and final local parity on source
+`15a47378bc8ae2256403766fac4342f75fb77eaa`. **The PR remains draft.** The point-face
+bridge below remains an integration requirement under `AGENTS.md` §4.5.9 and
+step 4a. Main advanced to `61670af3` (#153) during validation; a clean merge-tree
+preview was obtained, but that merge is not part of the validated source. The
+latest main snapshot at 12:10:03 UTC, `28cd7d9a`, adds only generated PROGRESS
+output on top of `61670af3`, with no further code or manifest-count change.
+Earlier reports in this document and in `modules.toml` remain historical
+evidence. Full-suite counts below apply to source `15a47378`, not a later merge or
+formatter/comment follow-up.
 
 ### Live ownership, shape marks and cache publication
 
@@ -7977,10 +7982,11 @@ live B-reps, concrete geometry, owner resolution and persistent `Topology` marks
 `Shape::empty` covers the empty constructor; the context-free nonempty constructor
 has been removed. The shell harness's `RayQueryContext` keeps marks across rays
 and registers newly appended topology records without resetting existing marks
-or reimporting the B-rep. Shape trees retain their real geometry handles until the
-native owner-resolution point. Sector classification does not resolve an unused
-retained auxiliary face from a previous classification, while preserving that
-field in the caller's state.
+or reimporting the B-rep. Shape trees refer to the original geometry through their
+edge/face keys; the ray adapter keeps curve/surface handles distinct from
+topology-owner handles until the native owner-resolution point. Sector
+classification does not resolve an unused retained auxiliary face from a previous
+classification, while preserving that field in the caller's state.
 
 ### Co-ported region splitting and circular lists
 
@@ -8003,6 +8009,17 @@ also implements the B-rep-owned Region branch of `SmOwningTopology::PostInsert`
 and `Remove`; it does not replace the general owning-topology implementation.
 The relevant owner entries in `modules.toml` record these co-ports, the nonempty
 Shape constructor and the source-aware cache-factory dispatch.
+
+A probe linked against the pinned C++ reference confirmed normal and rotated
+heads, repeated `PostInsert`, head/interior `Remove`, rejected repeated removal,
+reattachment and empty lists. It checked owners, next/previous links, size, head
+and the infinite-region pointer. For `IsInnerShell(empty)`, an output initialized
+to `FALSE` became 2 (`UNSURE`) with status 1001, and therefore tested truthy. This
+probe executes only C++; it does not execute Rust or certify Shape marks or the
+residual region-split ray paths.
+
+An independent read-only comparison of p6 with native source found no additional
+blockers. This is review evidence, not an executed test of the residual branches.
 
 ### Native input metadata and the scope of deferrals
 
@@ -8062,8 +8079,78 @@ left in its output; Rust representation failures must still propagate. The
 3D face test retains its retry at the enlarged tolerance. No result prediction,
 synthetic owner or default context can replace those calls.
 
-`geom.object`, `geom.a_object` and `topology.brep_cache` are candidates for status
-promotion only after final reports establish their own zero-failure,
-zero-deferral coverage. That would not certify the point-face pipeline or make
-#101 ready while this incoming-backedge requirement remains open. This note
-changes no unit status, report figure, `STATUS` or generated `PROGRESS` output.
+The final `topology.brep_p2` report contains 25 deferrals at
+`intersect.topology_solver_p1`, exposing this ownership/context boundary. A
+separate PR #238 review, checked against native source, identified a dispatch
+context defect in `query.face_p1::Point3DClassify`: native code disables
+`m_bPointTestEnabled` around the solve, and therefore does not reach
+`FacePointClassify` there. The absent `FALSE` setting in Rust accounts for that
+unit's 57 cases labelled `query.face_p2` deferred. Those labels are not evidence
+of an absent face algorithm or a faithful native dependency boundary. No
+behavioral correction to that switch is included in source `15a47378`.
+
+Five direct `query.face_p1` stubs remain: two in
+`boolean.topology_intersector_p1`, one in `intersect.topology_solver_p1` and two
+in `intersect.curve_class_p7`. The former `geom.object` caller is wired. The
+existing partial status of the targets does not exempt these calls from the
+incoming-backedge requirement.
+
+### Final local parity and limits of the evidence
+
+The source `15a47378` full `--green` run covers 213 manifest units and records
+495,296 cases: 477,794 passed (473,652 with values, 4,142 without values), zero
+failed, 17,465 deferred and 37 rejected. All reports are present. Their statuses
+are 116 green and 97 partial; only `geom.object`, `geom.a_object` and
+`topology.brep_cache` change manifest status in this checkpoint, from partial to
+green. The branch now has 116 green, 97 partial and 48 todo units. These counts
+are distinct from newer main `28cd7d9a` (114 green, 97 partial, 50 todo at the
+12:10:03 UTC observation; code through `61670af3`).
+
+`query.brep` compares values in all 1,033 passes out of 1,036 cases; its three
+deferrals name todo `query.face_p3`. The promoted units respectively pass
+624/624, 2,040/2,040 and 663/663, with zero failures, deferrals or rejections.
+All passes in those three units include compared values. All four
+reports have `max_rel_err = 0`, relative tolerance `1e-9` and no absolute floors.
+The 24 integration entries in `modules.toml` record their individual final
+counts and reported deferral labels while preserving older notes.
+
+`topology.brep_p6` remains 498 cases, 450 passed and 48 deferred (29 at
+`topology.brep_p5`, 19 at `topology.face_p3`). All 450 passes include exact
+integer/topology comparisons. The native list probe and independent source
+review remain separate evidence, not extra Rust test cases. An identified
+dispatch-context deferral does not become a passing comparison because the
+total failure count is zero.
+
+**Comparison-count interpretation.** The canonical report JSON's
+`values_compared` field counts floating comparisons and omits exact
+integer/topology comparisons. The full-run console summary uses both kinds.
+Every unit's console totals and status were matched to its JSON before using
+the with-values/without-values split above. Thus p6's zero floating count does
+not mean status-only passes: its log records 450 cases with exact values;
+the shell log records 890 with values and nine without. Cases without values
+can be matching errors or empty outputs. The source log has SHA256
+`e1c1ea4816641c90fb18d4b3f4f464908b402d3d0bac9db723e35c0d8fc3be18`.
+
+The final local gates passed formatting, strict plain/C++ all-target Clippy,
+1,396 core tests, wasm, 93 FFI tests (one ignored child helper) and 155 harness
+tests (24 existing ignored debugging aids). The full debug-profile harness run
+was deliberately interrupted at the expensive generated surface-p7 solve test;
+the same complete battery then passed in the optimized `difftest` profile with
+debug assertions and overflow checks active, without source, case or tolerance
+edits for that rerun. Ten focused runners also finished without a failure.
+Sensitivity detected all 1,033 compared `query.brep` cases, 624 `geom.object`,
+663 `topology.brep_cache` and 28 `harness.selftest`; the three query deferrals
+remained deferred. The separate formatter/comment follow-up also detected all
+2,040 `geom.a_object` cases with zero deferrals. Its `query.face_p1` focal retained
+2,224 cases, 1,535 passes with values, 689 deferred and zero failures.
+
+The full-suite results above are bound to the validated source digest
+`b004efdafddd1d1cdb4115ec8bc60a7d598109854363bbe14261aa8e0a07faa7`.
+Subsequent rustfmt output in two source files and comment changes in two others
+passed separate formatting checks (including explicit include files), strict
+C++ all-target Clippy, the focal above and status checks for the promoted units
+and `query.brep`. Final source hashes matched that reviewed follow-up; canonical
+reports remained unchanged. No descendant full-suite run is claimed. GitHub CI
+run `39244008376` was queued at the last check and is not reported as passing.
+The pending mutable point-face/dispatch bridge and latest-main integration keep
+#101 draft despite the completed local suite. Generated `PROGRESS` is unchanged.

@@ -36,10 +36,10 @@ use solidcore::curve::curve::p2::{BSPLINE_CURVE_TYPE, CRV_ON_SURF_TYPE, LINE_TYP
 use solidcore::curve::curve::Curve;
 use solidcore::curve::hermite_curve::HermiteCurve;
 use solidcore::curve::line::Line;
-use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::assert_array::labels::FACE_TYPE;
-use solidcore::geom::extent3d::Extent3d;
 use solidcore::geom::attribute::ObjectKey;
+use solidcore::geom::extent1d::Extent1d;
+use solidcore::geom::extent3d::Extent3d;
 use solidcore::geom::object::ObjectRef;
 use solidcore::geom::tol::zone_tol3d;
 use solidcore::geom::vector2d::Point2;
@@ -212,7 +212,12 @@ fn model(brep: &Value) -> Result<Model, HarnessError> {
     // leaves them unowned.
     for i in 0..b.faces().len() {
         let f = FaceId::from_index(u32::try_from(i).map_err(|_| harness("face index"))?);
-        if let Some(s) = b.face_mut(f).map_err(|e| harness(e.to_string()))?.surface.as_mut() {
+        if let Some(s) = b
+            .face_mut(f)
+            .map_err(|e| harness(e.to_string()))?
+            .surface
+            .as_mut()
+        {
             s.set_owner(Some(ObjectRef {
                 type_code: FACE_TYPE,
                 key: ObjectKey(i as u64),
@@ -241,20 +246,36 @@ const HARNESS_ANALYTIC_IMPORT: &str = "harness:analytic-geometry-export";
 /// as its B-spline part (see the module docs).
 fn inexact(m: &Model, faces: &[FaceId], edges: &[EdgeId]) -> Option<Output> {
     for f in faces {
-        let st = m.types.face_surface_types.get(f.index() as usize).copied().unwrap_or(-1);
+        let st = m
+            .types
+            .face_surface_types
+            .get(f.index() as usize)
+            .copied()
+            .unwrap_or(-1);
         if st >= 0 && !EXACT_SURFACES.contains(&st) {
             let (unit, symbol) = match st {
                 15012 | 15013 => ("surface.cone_p1", "SmCone (no SurfaceKind)"),
                 15014 => ("surface.sphere", "SmSphere"),
                 15015 => ("surface.torus", "SmTorus (no SurfaceKind)"),
-                15030 => ("surface.surf_of_extrusion_p2", "SurfaceKind::SurfOfExtrusion"),
-                _ => (HARNESS_ANALYTIC_IMPORT, "analytic face surface in the B-rep export"),
+                15030 => (
+                    "surface.surf_of_extrusion_p2",
+                    "SurfaceKind::SurfOfExtrusion",
+                ),
+                _ => (
+                    HARNESS_ANALYTIC_IMPORT,
+                    "analytic face surface in the B-rep export",
+                ),
             };
             return Some(Output::deferred(unit, symbol));
         }
     }
     for e in edges {
-        let ct = m.types.edge_curve_types.get(e.index() as usize).copied().unwrap_or(-1);
+        let ct = m
+            .types
+            .edge_curve_types
+            .get(e.index() as usize)
+            .copied()
+            .unwrap_or(-1);
         if ct >= 0 && ![BSPLINE_CURVE_TYPE, LINE_TYPE, CRV_ON_SURF_TYPE].contains(&ct) {
             return Some(Output::deferred(
                 HARNESS_ANALYTIC_IMPORT,
@@ -267,7 +288,10 @@ fn inexact(m: &Model, faces: &[FaceId], edges: &[EdgeId]) -> Option<Output> {
 
 /// The face and its edges.
 fn face_and_edges(b: &Brep, f: FaceId) -> (Vec<FaceId>, Vec<EdgeId>) {
-    (vec![f], topology_traverser::face_edges(b, f).unwrap_or_default())
+    (
+        vec![f],
+        topology_traverser::face_edges(b, f).unwrap_or_default(),
+    )
 }
 
 /// Every face and edge of the B-rep.
@@ -302,7 +326,9 @@ const SEED_MIN: [f64; 3] = [-17., -19., -23.];
 const SEED_MAX: [f64; 3] = [29., 31., 37.];
 
 fn box_output(status: i64, values: &[f64]) -> Output {
-    Output::new().int("status", status).values("box", values.to_vec())
+    Output::new()
+        .int("status", status)
+        .values("box", values.to_vec())
 }
 
 fn run_box(input: &BoxInput, cpp: bool) -> Result<Output, HarnessError> {
@@ -317,7 +343,9 @@ fn run_box(input: &BoxInput, cpp: bool) -> Result<Output, HarnessError> {
         ];
         let out = ffi::eval(Op::Box, &m.path, &m.block, &args)
             .map_err(|e| harness(format!("c++: {e}")))?;
-        let (status, rest) = out.split_first().ok_or_else(|| harness("empty c++ output"))?;
+        let (status, rest) = out
+            .split_first()
+            .ok_or_else(|| harness("empty c++ output"))?;
         if *status == -2.0 {
             return Ok(none_output());
         }
@@ -348,7 +376,13 @@ fn run_box(input: &BoxInput, cpp: bool) -> Result<Output, HarnessError> {
     );
     let r = match input.target {
         0 => p1::calculate_bounding_box(&k, b, FaceId::from_index(id), tight).map(|x| bx = x),
-        1 => p1::calculate_shell_bounding_box_into(&mut k, b, ShellId::from_index(id), tight, &mut bx),
+        1 => p1::calculate_shell_bounding_box_into(
+            &mut k,
+            b,
+            ShellId::from_index(id),
+            tight,
+            &mut bx,
+        ),
         _ => p1::calculate_region_bounding_box_into(
             &mut k,
             b,
@@ -382,10 +416,15 @@ fn point_args(m: &Model, i: &PointInput) -> Result<Option<PointArgs>, HarnessErr
     let face = FaceId::from_index(f);
     let rec = b.face(face).map_err(|e| harness(e.to_string()))?;
     let dom = rec.uv_domain;
-    let surface = rec.surface.as_ref().ok_or_else(|| harness("face without surface"))?;
+    let surface = rec
+        .surface
+        .as_ref()
+        .ok_or_else(|| harness("face without surface"))?;
     let size = dom.size();
     let uv = Point2::new(dom.min().x + i.u * size.x, dom.min().y + i.v * size.y);
-    let s = surface.evaluate_point(uv).map_err(|e| harness(format!("surface point: {e}")))?;
+    let s = surface
+        .evaluate_point(uv)
+        .map_err(|e| harness(format!("surface point: {e}")))?;
     let point = Vec3::new(s.x + i.offset[0], s.y + i.offset[1], s.z + i.offset[2]);
     let guess = i
         .guess
@@ -419,7 +458,8 @@ fn pc_block(pc: &PointClassification<EntityRef>) -> Vec<f64> {
         f64::from(pc.point_class().code()),
         kind,
         index,
-        pc.gap_3d(&Kernel::default(), &NoGeometry, None).unwrap_or(f64::NAN),
+        pc.gap_3d(&Kernel::default(), &NoGeometry, None)
+            .unwrap_or(f64::NAN),
         pc.src_zone_tol_3d(),
         pc.pre_snap_param(),
         pc.t_param(),
@@ -473,8 +513,12 @@ fn run_point(i: &PointInput, cpp: bool) -> Result<Output, HarnessError> {
         args.extend([flag(i.uv_ok), i.pc_tol]);
         let out = ffi::eval(Op::Point3d, &m.path, &m.block, &args)
             .map_err(|e| harness(format!("c++: {e}")))?;
-        let (status, rest) = out.split_first().ok_or_else(|| harness("empty c++ output"))?;
-        return Ok(Output::new().int("status", *status as i64).values("pc", rest.to_vec()));
+        let (status, rest) = out
+            .split_first()
+            .ok_or_else(|| harness("empty c++ output"))?;
+        return Ok(Output::new()
+            .int("status", *status as i64)
+            .values("pc", rest.to_vec()));
     }
     let (faces, edges) = face_and_edges(&m.brep, a.face);
     if let Some(o) = inexact(&m, &faces, &edges) {
@@ -502,7 +546,9 @@ fn run_point(i: &PointInput, cpp: bool) -> Result<Output, HarnessError> {
     let Some(status) = status_of(&r) else {
         return Ok(r.map_or_else(|e| rust_err(&e), |()| Output::new()));
     };
-    Ok(Output::new().int("status", status).values("pc", pc_block(&pc)))
+    Ok(Output::new()
+        .int("status", status)
+        .values("pc", pc_block(&pc)))
 }
 
 // ---- EdgeCurveOnClassify --------------------------------------------------------------
@@ -528,7 +574,10 @@ fn run_edge_on(i: &EdgeOnInput, cpp: bool) -> Result<Output, HarnessError> {
         .then(|| pick(i.edge as usize, n_edges).map(EdgeId::from_index))
         .flatten();
     if cpp {
-        let mut args = vec![f64::from(face.index()), edge.map_or(-1.0, |e| f64::from(e.index()))];
+        let mut args = vec![
+            f64::from(face.index()),
+            edge.map_or(-1.0, |e| f64::from(e.index())),
+        ];
         args.push(f64::from(i.dim));
         args.extend(i.p);
         args.extend(i.q);
@@ -565,7 +614,10 @@ fn run_edge_on(i: &EdgeOnInput, cpp: bool) -> Result<Output, HarnessError> {
     ) {
         Ok(c) => Curve::from(c),
         Err(SolidError::Upstream { code, .. }) => {
-            return Ok(Output::err(format!("line_segment_status_{}", f64::from(code))))
+            return Ok(Output::err(format!(
+                "line_segment_status_{}",
+                f64::from(code)
+            )))
         }
         Err(e) => return Ok(rust_err(&e)),
     };
@@ -602,11 +654,18 @@ fn curve_output(status: i32, values: [f64; 9]) -> Output {
 
 fn run_curve(input: &CurveInput, cpp: bool) -> Result<Output, HarnessError> {
     if cpp {
-        let (status, values) =
-            ffi::evaluate_curve(input.kind, &input.data, input.parameter.value()?, input.mask)
-                .map_err(|e| harness(e.to_string()))?;
+        let (status, values) = ffi::evaluate_curve(
+            input.kind,
+            &input.data,
+            input.parameter.value()?,
+            input.mask,
+        )
+        .map_err(|e| harness(e.to_string()))?;
         // the shim reports the raw SmStatus: SM_SUCCESS is 1000
-        return Ok(curve_output(if status == 1000 { 0 } else { status }, values));
+        return Ok(curve_output(
+            if status == 1000 { 0 } else { status },
+            values,
+        ));
     }
     let [px, py, pz, dx, dy, dz, qx, qy, qz, ex, ey, ez] = input.data;
     let p = Vec3::new(px, py, pz);
@@ -690,7 +749,8 @@ fn to_value<T: Serialize>(x: &T) -> Option<Value> {
 }
 
 fn gen_tol(rng: &mut Rng) -> f64 {
-    *rng.choose(&[1e-10, 1e-8, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2]).unwrap_or(&1e-6)
+    *rng.choose(&[1e-10, 1e-8, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2])
+        .unwrap_or(&1e-6)
 }
 
 fn gen_frac(rng: &mut Rng) -> f64 {
@@ -705,7 +765,9 @@ fn gen_frac(rng: &mut Rng) -> f64 {
 }
 
 fn gen_offset(rng: &mut Rng) -> [f64; 3] {
-    let scale = *rng.choose(&[0.0, 0.0, 1e-12, 1e-9, 1e-7, 1e-5, 1e-3, 0.1, 10.0]).unwrap_or(&0.0);
+    let scale = *rng
+        .choose(&[0.0, 0.0, 1e-12, 1e-9, 1e-7, 1e-5, 1e-3, 0.1, 10.0])
+        .unwrap_or(&0.0);
     [
         rng.uniform(-1.0, 1.0) * scale,
         rng.uniform(-1.0, 1.0) * scale,
@@ -714,7 +776,11 @@ fn gen_offset(rng: &mut Rng) -> [f64; 3] {
 }
 
 fn gen_box(rng: &mut Rng) -> Option<Value> {
-    let brep = if rng.chance(0.6) { gen_face_brep(rng) } else { gen_brep(rng) };
+    let brep = if rng.chance(0.6) {
+        gen_face_brep(rng)
+    } else {
+        gen_brep(rng)
+    };
     let tight = rng.chance(0.15);
     to_value(&BoxInput {
         brep: to_value(&brep)?,
@@ -747,21 +813,37 @@ fn gen_point(rng: &mut Rng) -> Option<Value> {
         guess,
         tgt_only: rng.chance(0.2),
         has_loops,
-        loops: (0..rng.below(3)).map(|_| rng.below(1 << 20) as usize).collect(),
+        loops: (0..rng.below(3))
+            .map(|_| rng.below(1 << 20) as usize)
+            .collect(),
         uv_ok: rng.chance(0.8),
         pc_tol: gen_tol(rng),
     })
 }
 
 fn gen_edge_on(rng: &mut Rng) -> Option<Value> {
-    let brep = if rng.chance(0.8) { gen_face_brep(rng) } else { gen_brep(rng) };
+    let brep = if rng.chance(0.8) {
+        gen_face_brep(rng)
+    } else {
+        gen_brep(rng)
+    };
     let dim = if rng.chance(0.5) { 2 } else { 3 };
-    let pt = |rng: &mut Rng| [rng.uniform(-2.0, 2.0), rng.uniform(-2.0, 2.0), rng.uniform(-2.0, 2.0)];
+    let pt = |rng: &mut Rng| {
+        [
+            rng.uniform(-2.0, 2.0),
+            rng.uniform(-2.0, 2.0),
+            rng.uniform(-2.0, 2.0),
+        ]
+    };
     let (p, q) = (pt(rng), pt(rng));
     to_value(&EdgeOnInput {
         brep: to_value(&brep)?,
         face: rng.below(1 << 20) as usize,
-        edge: if rng.chance(0.1) { -1 } else { rng.below(1 << 20) as i64 },
+        edge: if rng.chance(0.1) {
+            -1
+        } else {
+            rng.below(1 << 20) as i64
+        },
         dim,
         p,
         q,
