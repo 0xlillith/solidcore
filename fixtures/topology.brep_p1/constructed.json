@@ -16237,6 +16237,562 @@
     "tol": 0.0001,
     "ang": 0.01
    }
+  },
+  {
+   "name": "two_breps_ruled_line_line_dir1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:2810 (static SmBrep::CreateEdgeEdgeBlend, edge uses of two B-reps, ruled)",
+   "inputs": {
+    "brep": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       1,
+       1
+      ]
+     },
+     "t0": 0.0,
+     "t1": 1.0
+    },
+    "op": "edge_edge_blend2",
+    "other": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        1,
+        0.5,
+        -1.7976931348623157e+308
+       ],
+       [
+        2,
+        1.5,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       2,
+       2
+      ]
+     },
+     "t0": 0.25,
+     "t1": 1.75
+    },
+    "eu1": 0,
+    "eu2": 0,
+    "dir": 1
+   }
+  },
+  {
+   "name": "two_breps_ruled_line_line_dir2",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:2810 (static SmBrep::CreateEdgeEdgeBlend, edge uses of two B-reps, ruled)",
+   "inputs": {
+    "brep": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       1,
+       1
+      ]
+     },
+     "t0": 0.0,
+     "t1": 1.0
+    },
+    "op": "edge_edge_blend2",
+    "other": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        1,
+        0.5,
+        -1.7976931348623157e+308
+       ],
+       [
+        2,
+        1.5,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       2,
+       2
+      ]
+     },
+     "t0": 0.25,
+     "t1": 1.75
+    },
+    "eu1": 0,
+    "eu2": 0,
+    "dir": 2
+   }
+  },
+  {
+   "name": "two_breps_ruled_line_line_dir0",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:2810 (static SmBrep::CreateEdgeEdgeBlend, edge uses of two B-reps, ruled)",
+   "inputs": {
+    "brep": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       1,
+       1
+      ]
+     },
+     "t0": 0.0,
+     "t1": 1.0
+    },
+    "op": "edge_edge_blend2",
+    "other": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        1,
+        0.5,
+        -1.7976931348623157e+308
+       ],
+       [
+        2,
+        1.5,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       2,
+       2
+      ]
+     },
+     "t0": 0.25,
+     "t1": 1.75
+    },
+    "eu1": 0,
+    "eu2": 0,
+    "dir": 0
+   }
+  },
+  {
+   "name": "two_breps_ruled_line_line_mate_dir1",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:2810 (static SmBrep::CreateEdgeEdgeBlend, edge uses of two B-reps, ruled)",
+   "inputs": {
+    "brep": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       1,
+       1
+      ]
+     },
+     "t0": 0.0,
+     "t1": 1.0
+    },
+    "op": "edge_edge_blend2",
+    "other": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        1,
+        0.5,
+        -1.7976931348623157e+308
+       ],
+       [
+        2,
+        1.5,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       2,
+       2
+      ]
+     },
+     "t0": 0.25,
+     "t1": 1.75
+    },
+    "eu1": 0,
+    "eu2": 1,
+    "dir": 1
+   }
+  },
+  {
+   "name": "two_breps_ruled_line_cubic_dir0",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:2810 (static SmBrep::CreateEdgeEdgeBlend, edge uses of two B-reps, ruled)",
+   "inputs": {
+    "brep": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        0,
+        0,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 1,
+      "u": [
+       0,
+       0,
+       1,
+       1
+      ]
+     },
+     "t0": 0.0,
+     "t1": 1.0
+    },
+    "op": "edge_edge_blend2",
+    "other": {
+     "kind": "wire",
+     "curve": {
+      "dim": 3,
+      "cpts": [
+       [
+        0,
+        2,
+        0,
+        -1.7976931348623157e+308
+       ],
+       [
+        1,
+        2.5,
+        0.5,
+        -1.7976931348623157e+308
+       ],
+       [
+        2,
+        2.2,
+        -0.3,
+        -1.7976931348623157e+308
+       ],
+       [
+        3,
+        2,
+        0.2,
+        -1.7976931348623157e+308
+       ]
+      ],
+      "p": 3,
+      "u": [
+       0,
+       0,
+       0,
+       0,
+       3,
+       3,
+       3,
+       3
+      ]
+     },
+     "t0": 0.5,
+     "t1": 2.5
+    },
+    "eu1": 0,
+    "eu2": 0,
+    "dir": 0
+   }
+  },
+  {
+   "name": "corner_blend_ang0_one_edgeuse",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend, tangency tolerance 0: HANG-34 only past the early returns)",
+   "inputs": {
+    "brep": {
+     "file": "plane_circ.smb",
+     "kind": "file",
+     "rebuild": true
+    },
+    "op": "corner_blend",
+    "eus": [
+     0
+    ],
+    "tangent": null,
+    "tol": 0.0001,
+    "ang": 0.0
+   }
+  },
+  {
+   "name": "corner_blend_ang0_no_tangency_null_check",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend, tangency tolerance 0: HANG-34 only past the early returns)",
+   "inputs": {
+    "brep": {
+     "kind": "crv_on_surf_face",
+     "surface": {
+      "bspline": {
+       "net": [
+        [
+         [
+          0.0,
+          0.0,
+          -0.4,
+          -1.7976931348623157e+308
+         ],
+         [
+          0.0,
+          1.0,
+          0.4,
+          -1.7976931348623157e+308
+         ],
+         [
+          0.0,
+          2.0,
+          0.0,
+          -1.7976931348623157e+308
+         ],
+         [
+          0.0,
+          3.0,
+          -0.4,
+          -1.7976931348623157e+308
+         ]
+        ],
+        [
+         [
+          1.0,
+          0.0,
+          0.0,
+          -1.7976931348623157e+308
+         ],
+         [
+          1.0,
+          1.0,
+          -0.4,
+          -1.7976931348623157e+308
+         ],
+         [
+          1.0,
+          2.0,
+          0.4,
+          -1.7976931348623157e+308
+         ],
+         [
+          1.0,
+          3.0,
+          0.0,
+          -1.7976931348623157e+308
+         ]
+        ],
+        [
+         [
+          2.0,
+          0.0,
+          0.4,
+          -1.7976931348623157e+308
+         ],
+         [
+          2.0,
+          1.0,
+          0.0,
+          -1.7976931348623157e+308
+         ],
+         [
+          2.0,
+          2.0,
+          -0.4,
+          -1.7976931348623157e+308
+         ],
+         [
+          2.0,
+          3.0,
+          0.4,
+          -1.7976931348623157e+308
+         ]
+        ],
+        [
+         [
+          3.0,
+          0.0,
+          -0.4,
+          -1.7976931348623157e+308
+         ],
+         [
+          3.0,
+          1.0,
+          0.4,
+          -1.7976931348623157e+308
+         ],
+         [
+          3.0,
+          2.0,
+          0.0,
+          -1.7976931348623157e+308
+         ],
+         [
+          3.0,
+          3.0,
+          -0.4,
+          -1.7976931348623157e+308
+         ]
+        ]
+       ],
+       "p": 3,
+       "q": 3,
+       "u": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1
+       ],
+       "v": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1
+       ]
+      }
+     },
+     "dom": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "op": "corner_blend",
+    "eus": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "tangent": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "tol": 0.0001,
+    "ang": 0.0
+   }
+  },
+  {
+   "name": "corner_blend_ang0_reaches_cross_tangents",
+   "upstream_ref": "source/SMLib/src/SmBrep.cpp:2488 (SmBrep::CreateCornerBlend, tangency tolerance 0: HANG-34 only past the early returns)",
+   "inputs": {
+    "brep": {
+     "file": "plane_circ.smb",
+     "kind": "file",
+     "rebuild": true
+    },
+    "op": "corner_blend",
+    "eus": [
+     0,
+     1,
+     2
+    ],
+    "tangent": null,
+    "tol": 0.0001,
+    "ang": 0.0
+   }
   }
  ]
 }

@@ -37,7 +37,8 @@
 //! | `SplitUv`      | `eu_orig eu_new P[3] t scaled_zero orient for_tess` | `status`, both edge uses' states (as `topology.edgeuse_p1`'s `SetUv`), both edge tolerances (`sm_MakeVertexSplitUVTrimCurve`) |
 //! | `BrepIntersect`| `tol ang want_points`                            | `status n_curves n_points` (with itself; `-3` when the B-rep has faces) |
 //! | `CornerBlend`  | `n eu*n has_tan nt tan*nt tol ang`               | `status n_surfaces surface*n` (`-2` before an upstream null dereference) |
-//! | `EdgeEdgeBlend`| `flag eu1 eu2 dir`                               | `status [surface block]` (ruled surfaces; `-3` for a blend) |
+//! | `EdgeEdgeBlend`| `flag eu1 eu2 dir`                               | `status [surface block]` |
+//! | `EdgeEdgeBlend2`| `[second B-rep block] eu1 eu2 dir`              | `status [surface block]` (ruled; `eu2` in the second B-rep) |
 //! | `ParallelProj` | `curve V[3] has_dist dist has_tol tol has_ang ang want_3d want_uv want_faces` | `status [n3d (curve id)*n3d nuv (curve id)*nuv nf face*nf]` |
 //! | `Heal`         | `op make_uv`                                     | `status [healed B-rep]` (`SmBrep::HealBrep` always returns `SM_SUCCESS`; the healed B-rep follows: the `Export` extras, then the shim's `put_healed` fields) |
 //!
@@ -82,6 +83,7 @@ pub enum Op {
     EdgeEdgeBlend = 24,
     ParallelProj = 25,
     Heal = 26,
+    EdgeEdgeBlend2 = 27,
 }
 
 impl Op {
@@ -192,7 +194,9 @@ fn attribute_id(rd: &mut Reader<'_>) -> Result<(), FfiError> {
 fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError> {
     let [n_r, _, _, n_f, _, n_l, n_eu, n_e, n_vu, n_v] = c;
     match op {
-        Op::Export | Op::LockBox => {}
+        // (EdgeEdgeBlend2's second B-rep block is checked in `eval`: it needs that B-rep's
+        // counts)
+        Op::Export | Op::LockBox | Op::EdgeEdgeBlend2 => {}
         Op::Lists => {
             rd.index(9)?;
             attribute_id(rd)?;
@@ -340,12 +344,9 @@ fn brep_args(op: Op, rd: &mut Reader<'_>, c: [usize; 10]) -> Result<(), FfiError
                 return Err(bad("fewer tangency flags than edge uses"));
             }
             rd.finite()?;
-            // HANG-34: a tangency tolerance below what doubles resolve makes the
-            // cross-tangent approximation refine to its limit and the Coons patch's knot
-            // merge take tens of seconds (0, negative and 1e-27 never return within 60 s)
-            if rd.finite()? < MIN_CORNER_BLEND_ANGLE_TOL {
-                return Err(bad("corner blend tangency tolerance below 1e-20 (HANG-34)"));
-            }
+            // (HANG-34: the shim rejects a tangency tolerance below 1e-20 only where
+            // upstream reaches the cross-tangent approximation)
+            rd.finite()?;
         }
         Op::EdgeEdgeBlend => {
             rd.index(3)?;
@@ -435,6 +436,25 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
         return Ok(export);
     };
     brep_args(op, &mut rd, c)?;
+    if op == Op::EdgeEdgeBlend2 {
+        // a ruled CreateEdgeEdgeBlend with eu2 in a second B-rep (not a file block)
+        let at = rd.at;
+        brep_block(&mut rd, "")?;
+        let block2 = input.get(at..rd.at).ok_or_else(|| bad("input too short"))?;
+        if block2
+            .iter()
+            .any(|v| v.abs() > MAX_BLOCK_COORD && v.abs() != f64::MAX)
+        {
+            return Err(bad("second B-rep block value beyond 1e150 (HANG-29)"));
+        }
+        let export2 = raw(Op::Export, "", block2)?;
+        let Some((c2, _)) = counts(&export2) else {
+            return Err(bad("the second B-rep block does not build"));
+        };
+        rd.below(c[6])?;
+        rd.below(c2[6])?;
+        rd.index(2)?;
+    }
     rd.done()?;
     raw(op, path, input)
 }
@@ -442,8 +462,3 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
 /// The largest B-rep block value the shim is given (HANG-29: face surfaces at 1e154 and
 /// beyond recurse without bound while their UV trim curves are built).
 pub const MAX_BLOCK_COORD: f64 = 1e150;
-
-/// The smallest tangency tolerance `CreateCornerBlend` is given (HANG-34): measured on
-/// `plane_circ.smb`, 1e-23 returns in 0.4 s, 1e-24 in 1 s, 1e-25 in 22 s and 1e-27 not
-/// within 60 s; the bound keeps four decades of margin for slower geometry.
-pub const MIN_CORNER_BLEND_ANGLE_TOL: f64 = 1e-20;

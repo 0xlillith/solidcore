@@ -65,6 +65,8 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 
 /// "Upstream would dereference null" in a status slot.
 const NULL_DEREF: f64 = -2.0;
+/// The shim's HANG-34 rejection of a corner blend (C++ not run; see `run_cpp`).
+const HANG34_GUARD: f64 = -34.0;
 
 /// The type codes `IsKindOf` is asked about (as the shim's `KIND_TYPES`).
 const KIND_TYPES: [i64; 9] = [16011, 16050, 12060, 11001, 16012, 16001, 16010, 16999, 0];
@@ -217,6 +219,14 @@ enum OpIn {
     },
     EdgeEdgeBlend {
         flag: u8,
+        eu1: i64,
+        eu2: i64,
+        dir: u8,
+    },
+    /// A ruled `CreateEdgeEdgeBlend` with `eu2` in a second B-rep `other` (not a file
+    /// block): each rail is read from its own arena.
+    EdgeEdgeBlend2 {
+        other: BrepIn,
         eu1: i64,
         eu2: i64,
         dir: u8,
@@ -441,6 +451,23 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
             eu2: sel(eu2, n_eu),
             dir: dir % 3,
         },
+        // (eu2 indexes the second B-rep: the FFI checks it against that B-rep's counts)
+        OpIn::EdgeEdgeBlend2 {
+            other,
+            eu1,
+            eu2,
+            dir,
+        } => {
+            if n_eu == 0 {
+                return None;
+            }
+            OpIn::EdgeEdgeBlend2 {
+                other,
+                eu1: sel(eu1, n_eu),
+                eu2,
+                dir: dir % 3,
+            }
+        }
         other @ (OpIn::Degenerate { .. }
         | OpIn::AddDeleted { .. }
         | OpIn::LockBox
@@ -456,7 +483,8 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
 /// Inputs the FFI refuses, rejected on both sides before anything runs: a non-positive
 /// `ParallelProj` angle tolerance or an approximation tolerance below the smallest normal
 /// double (non-positive: the projector subdivides to it; subnormal: upstream spins,
-/// HANG-32), and a `CornerBlend` tangency tolerance below 1e-20 (HANG-34).
+/// HANG-32). (A `CornerBlend` tangency tolerance below 1e-20 is rejected by the shim,
+/// only where upstream reaches the cross-tangent approximation: HANG-34.)
 fn refused_input(op: &OpIn) -> Option<Output> {
     match op {
         OpIn::ParallelProj { tol, ang, .. }
@@ -464,11 +492,6 @@ fn refused_input(op: &OpIn) -> Option<Output> {
         {
             Some(Output::rejected(
                 "projection tolerance the FFI refuses (non-positive, or subnormal: HANG-32)",
-            ))
-        }
-        OpIn::CornerBlend { ang, .. } if *ang < ffi::MIN_CORNER_BLEND_ANGLE_TOL => {
-            Some(Output::rejected(
-                "corner blend tangency tolerance below 1e-20, which the FFI refuses (HANG-34)",
             ))
         }
         _ => None,
@@ -671,6 +694,16 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             a.extend([f64::from(*f), *eu1 as f64, *eu2 as f64, f64::from(*dir)]);
             Op::EdgeEdgeBlend
         }
+        OpIn::EdgeEdgeBlend2 {
+            other,
+            eu1,
+            eu2,
+            dir,
+        } => {
+            a.extend(brep_block_of(Some(other), false, false)?);
+            a.extend([*eu1 as f64, *eu2 as f64, f64::from(*dir)]);
+            Op::EdgeEdgeBlend2
+        }
         OpIn::ParallelProj {
             curve,
             vec,
@@ -858,6 +891,12 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let path = path_of(i.brep.as_ref())?;
     let out = ffi::eval(code, &path, &input).map_err(|e| harness(format!("c++: {e}")))?;
     let body = out.get(1..).ok_or_else(|| harness("c++: empty output"))?;
+    if matches!(op, OpIn::CornerBlend { .. }) && body.first() == Some(&HANG34_GUARD) {
+        return Ok(Output::rejected(
+            "HANG-34: a tangency tolerance below 1e-20 where upstream reaches the \
+             cross-tangent approximation (tens of seconds or more): nothing runs on either side",
+        ));
+    }
     Ok(guarded_output(body.to_vec()))
 }
 
@@ -1920,6 +1959,38 @@ fn run_rust_op(
                 b,
                 id(*eu1),
                 None,
+                id(*eu2),
+                u64::from(*dir),
+                None,
+            ) {
+                Ok(s) => {
+                    o.push(0.0);
+                    put_surface(&mut o, &s)?;
+                }
+                Err(e) if e.is_unported() => return Err(e.into()),
+                Err(e) => o.push(status_of(&e)),
+            }
+        }
+        OpIn::EdgeEdgeBlend2 {
+            other,
+            eu1,
+            eu2,
+            dir,
+        } => {
+            // the second B-rep in its own arena, imported from its own C++ export
+            let block2 = brep_block_of(Some(other), false, false)?;
+            let ex2 = ffi::eval(Op::Export, "", &block2)
+                .map_err(|e| harness(format!("c++ export of the second B-rep: {e}")))?;
+            let (_, graph_at2) =
+                ffi::counts(&ex2).ok_or_else(|| harness("the second B-rep does not build"))?;
+            let (mut b2, _) = import(&ex2, graph_at2)?;
+            let id = |i: i64| (i >= 0).then(|| EdgeuseId::from_index(i as u32));
+            match bp1::create_edge_edge_blend(
+                k,
+                0,
+                b,
+                id(*eu1),
+                Some(&mut b2),
                 id(*eu2),
                 u64::from(*dir),
                 None,

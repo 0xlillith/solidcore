@@ -1409,7 +1409,7 @@ meantime, whoever merges renumbers the new entry and every reference to it (here
 - **How found:** difftest fuzzing of `topology.brep_p1` (the follow-up to #145); located with gdb on the running C++ reference.
 - **Confirmed:** yes (C++ reference runs, timed).
 - **Severity:** hang (unbounded slowness). A caller argument: no [PSIRT].
-- **Rust port:** unchanged. The `topology.brep_p1` difftest FFI refuses tangency tolerances below `1e-20` (four decades of margin above the measured knee; the runner reports such cases as rejected on both sides).
+- **Rust port:** unchanged. The `topology.brep_p1` shim rejects a tangency tolerance below `1e-20` (four decades of margin above the measured knee) only where its replay of the call reaches the cross-tangent approximation; earlier statuses stay compared.
 
 #### UB-184. `sm_CreateNonRationalCurve` reads the first dropped curve of an empty array [PSIRT]
 - **Location:** `source/SMLib/src/SmBSplineSurfaceNLib.cpp:2938`-`2949` (`sm_CreateNonRationalCurve`, rational curve branch), reached from `SmBSplineSurface::CreateCornerBlend` (`:3100`-`3110`) and so from `SmBrep::CreateCornerBlend`.

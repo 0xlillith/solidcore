@@ -79,6 +79,7 @@ namespace
 {
 // Status of an op the shim refuses because upstream would dereference null (or recurse
 // without bound).
+const double ST_HANG34_GUARD = -34.0; // the runner reports the case as rejected
 const double ST_NULL_DEREF = -2.0;
 const SmStatus SM_ST_NULL_DEREF = (SmStatus)(-2);
 // Deepest sm_MarkLoopsToDelete recursion followed (as topology::brep::p1::MAX_LOOP_NESTING).
@@ -665,6 +666,7 @@ enum Op
     OP_EDGE_EDGE_BLEND = 24,
     OP_PARALLEL_PROJ = 25,
     OP_HEAL = 26,
+    OP_EDGE_EDGE_BLEND2 = 27,
 };
 
 // The type codes IsKindOf is asked about.
@@ -810,10 +812,15 @@ void attach(Rd& rd, Graph& g, int64_t id)
 //   no curve, and `sUVCurves[0]` reads the empty array (the `SM_ASSERT(GetSize() == 1)` is a
 //   release no-op).
 // The replay keeps upstream's ordering, statuses and early returns, so it is TRUE exactly when
-// the real call reaches one of those dereferences.
+// the real call reaches one of those dereferences. `reaches_tangents` reports whether the call
+// gets past the curve conversion into the cross-tangent approximation, the only place the
+// tangency tolerance is used (four sides with a neighbour surface, or more sides; HANG-34). The
+// later MakeCurvesCompatible / EditParameterization statuses are not replayed, so it may report
+// a call that stops there.
 static bool corner_blend_refused(SmBrep* brep, const SmContext& ctx, const SmTArray<SmEdgeuse*>& eus,
-                                 const SmTArray<SmBoolean>* tans, double tol)
+                                 const SmTArray<SmBoolean>* tans, double tol, bool& reaches_tangents)
 {
+    reaches_tangents = false;
     SmCopyBrepMap rev;
     SmBrep* copy = new (ctx) SmBrep(*brep, NULL, &rev, TRUE, FALSE);
     SmObjDelete copy_clean(copy);
@@ -995,6 +1002,10 @@ static bool corner_blend_refused(SmBrep* brep, const SmContext& ctx, const SmTAr
                 return true; // UB-184
         }
     }
+    reaches_tangents = n > 4;
+    for (ULONG ii = 0; ii < n; ii++)
+        if (osrf[ii] != NULL)
+            reaches_tangents = true;
     return false;
 }
 
@@ -1846,12 +1857,21 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
                 if (p == NULL || p->GetEdge() == NULL)
                     null_deref = true;
             }
-            if (!null_deref && corner_blend_refused(brep, ctx, eus, has_tan ? &tans : NULL, tol))
+            bool reaches_tangents = false;
+            if (!null_deref && corner_blend_refused(brep, ctx, eus, has_tan ? &tans : NULL, tol, reaches_tangents))
                 null_deref = true;
             if (null_deref)
             {
                 o.push_back(ST_NULL_DEREF);
                 o.push_back(0.0); // upstream resets the output array first
+                break;
+            }
+            // HANG-34: a tangency tolerance below what doubles resolve makes the cross-tangent
+            // approximation and the Coons knot merge run for tens of seconds or more; the case
+            // is rejected only where upstream reaches that approximation
+            if (reaches_tangents && ang < 1e-20)
+            {
+                o.push_back(ST_HANG34_GUARD);
                 break;
             }
         }
@@ -1895,6 +1915,32 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         }
         SmSurface* out = nullptr;
         SmStatus s = SmBrep::CreateEdgeEdgeBlend(ctx, (ULONG)flag, e1, e2, (ULONG)dir, NULL, out);
+        o.push_back(st(s));
+        if (s == SM_SUCCESS)
+            put_surface(o, out);
+        delete out;
+        break;
+    }
+    case OP_EDGE_EDGE_BLEND2:
+    {
+        // the static SmBrep::CreateEdgeEdgeBlend with the second edge use in another B-rep
+        // (ruled; the FFI checks the second block builds and both indices)
+        SmStatus bst2;
+        Built b2;
+        b2.brep = build(rd, "", bst2);
+        int64_t i1 = rd.idx(), i2 = rd.idx();
+        int64_t dir = rd.idx();
+        if (b2.brep == nullptr)
+        {
+            o.push_back(st(bst2));
+            break;
+        }
+        Graph g2;
+        walk(b2.brep, g2);
+        walk_more(b2.brep, g2);
+        SmSurface* out = nullptr;
+        SmStatus s = SmBrep::CreateEdgeEdgeBlend(ctx, 0, g.edgeuses[(size_t)i1], g2.edgeuses[(size_t)i2],
+                                                 (ULONG)dir, NULL, out);
         o.push_back(st(s));
         if (s == SM_SUCCESS)
             put_surface(o, out);

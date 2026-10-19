@@ -7569,8 +7569,18 @@ rejected: nothing runs on either side.
     `nurbs.b_spline_surface_n_lib_p2`.
   - **`CreateEdgeEdgeBlend` takes each edge use's B-rep** (`b_2: None` when both are in `b_1`).
     `offset_executive_p1`'s stub is wired: `build_side_wall_of_edgeuse` takes the original B-rep and
-    now defers at `SmBrep::CreateFaceFromSurface` (`topology.brep_p8`). No `UNPORTED(topology.brep_p1)`
-    is left anywhere.
+    now defers at `SmBrep::CreateFaceFromSurface` (`topology.brep_p8`). A new op, `edge_edge_blend2`,
+    compares the ruled blend across two B-reps: distinguishable rails, unequal intervals, all
+    three direction flags and the mate edge use, with the second B-rep imported into its own
+    Rust arena (5 cases).
+  - **Known back-edges left** (`UNPORTED(topology.brep_p1)` sites outside this unit):
+    - `offset_executive_p1.rs:827` (`GetInfiniteRegion` ahead of #175's unported
+      `MakeFaceWithCurves` tail): its own follow-up, in COORD.md.
+    - `intersect/curve_class/p2.rs:267` (from #85): `IsLiveTopologyMember` is ported, but the site
+      holds a generic point-class handle and needs a `ClassObject` → `EntityRef` accessor in
+      `intersect.point_class`.
+    - `topology/brep/p7.rs` `GetInfiniteRegion` / `SetInfiniteRegion`: wired by the brep_p7 owner
+      in #246, together with the region-list head removal and the p7 runner's native infinite region.
   - **Shared `SmCrvOnSurf` import:** owner flag 1, as the C++ graph builds it. Compared case by case
     over all 208 green/partial units; it changes no case.
   - **`SmTol::GetZoneTol3d(const SmObject*)` stubs** are tagged `geom.tol` (the owner in
@@ -7587,7 +7597,12 @@ rejected: nothing runs on either side.
       SmBSplineSurfaceNLib.cpp:2949. The shim's corner-blend replay now runs on to that drop, and
       both sides report the guard.
     - HANG-34: tangency tolerances below about 1e-24 over-refine the cross tangents, and the Coons
-      knot merge then runs for tens of seconds. Refused below 1e-20.
+      knot merge then runs for tens of seconds. A tolerance below 1e-20 is rejected only where
+      upstream reaches the cross-tangent approximation: the shim's replay has passed every early
+      return and the curve conversion (four sides with a neighbour surface, or more sides). Calls
+      that stop earlier keep their statuses, which are compared: one edge use gives `SM_ERR`, four
+      non-tangent edge uses give 1006. The later `MakeCurvesCompatible` / `EditParameterization`
+      statuses are not replayed, so a call stopping there can be rejected too.
     - A face block with a 1e300 control point recurses in `GlobalCoincidenceChecker` while its UV
       trim curves are built. That is HANG-29 (#147); the reserved HANG-33 was retired as a
       duplicate. Every block value is bounded at 1e150.
