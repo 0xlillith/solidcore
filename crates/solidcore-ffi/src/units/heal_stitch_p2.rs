@@ -16,7 +16,7 @@
 //! |----------|----------------------------|---------|
 //! | `Export` |                            | the `Export` of unit `topology.brep_p1` (its extras, then the graph) |
 //! | `Do`     | `tol nesting ignore fast squeeze split manifold slivers want_vgap want_egap has_cv n v*n has_ce n e*n` | `status [stitched lamina max_vgap max_egap [min_vgap] [min_egap] digest]` (`DoStitching`; a candidate list is passed only with its `has_` flag) |
-//! | `Solid`  |                            | `status [solid stitched max_vgap max_egap digest]` (`StitchIntoSolid`; `-3` when the tolerance doubling cannot end: a B-rep tolerance of zero or a non-finite box diagonal) |
+//! | `Solid`  |                            | `status [solid stitched max_vgap max_egap digest]` (`StitchIntoSolid`; `-3` when the tolerance doubling cannot end: a tenth of the B-rep tolerance at or below zero and below `1/200` of the box diagonal; a NaN diagonal skips the loop, an infinite one ends it once the tolerance doubles to infinity) |
 //! | `Shell`  | `well_formed max_tol`      | `status [stitched max_vgap max_egap digest]` (`StitchIntoShell`; `-3` when `max_tol / 100` underflows to zero) |
 //! | `VList`  | `tol manifold squeeze n v*n` | `status [max_gap min_gap surviving deleted deleted_edges list [digest]]` (one-list `StitchVertexPairs`; the digest when a vertex was deleted) |
 //! | `Split`  | `tol manifold ignore n v*n n e*n` | `status [max_gap min_gap processed split new verts edges [digest]]` (`SplitEdgesWithVertices`; the digest when it processed a vertex or made an edge) |
