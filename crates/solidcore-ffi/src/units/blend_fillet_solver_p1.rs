@@ -218,8 +218,11 @@ fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
                 }
             }
             let small_j = j.is_some_and(|(rows, cols)| rows < 1 || cols < 2);
-            if load && (!has[0] || nx < 2 || nf < 1 || small_j || (adjusts && (!has[1] || nx < 4))) {
-                return Err(bad("sphere: a loading solver needs its surfaces, crX, rF[0], J[0][0..2]"));
+            if load && (!has[0] || nx < 2 || nf < 1 || small_j || (adjusts && (!has[1] || nx < 4)))
+            {
+                return Err(bad(
+                    "sphere: a loading solver needs its surfaces, crX, rF[0], J[0][0..2]",
+                ));
             }
         }
         Op::RailUv => {
@@ -234,7 +237,9 @@ fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
             }
             if let Some((rows, cols)) = j {
                 if rows < 2 || cols < 3 || nf < rows {
-                    return Err(bad("rail-uv: Jacobian needs rows >= 2, cols >= 3, rows <= nf"));
+                    return Err(bad(
+                        "rail-uv: Jacobian needs rows >= 2, cols >= 3, rows <= nf",
+                    ));
                 }
             }
         }
@@ -460,7 +465,10 @@ fn validate_static_args(
             };
             // the placement's axes: long enough and far from parallel (as unit
             // surface.cone_p1 requires)
-            let (lx, ly) = ((x0 * x0 + x1 * x1 + x2 * x2).sqrt(), (y0 * y0 + y1 * y1 + y2 * y2).sqrt());
+            let (lx, ly) = (
+                (x0 * x0 + x1 * x1 + x2 * x2).sqrt(),
+                (y0 * y0 + y1 * y1 + y2 * y2).sqrt(),
+            );
             let c = [x1 * y2 - x2 * y1, x2 * y0 - x0 * y2, x0 * y1 - x1 * y0];
             let lc = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
             if lx < 1e-6 || ly < 1e-6 || lc < 1e-3 * lx * ly {
