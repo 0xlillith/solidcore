@@ -886,10 +886,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "face_kind4_op14",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/query.api_queries/queries.json#107",
       "values_compared": 0
     },
@@ -906,16 +910,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind4_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#109",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -1118,10 +1118,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "face_kind5_op14",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/query.api_queries/queries.json#130",
       "values_compared": 0
     },
@@ -1138,16 +1142,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind5_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#132",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -1342,10 +1342,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "face_kind6_op14",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/query.api_queries/queries.json#152",
       "values_compared": 0
     },
@@ -1362,16 +1366,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "face_kind6_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#154",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -1994,16 +1994,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "rational_kind8_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#230",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -2222,16 +2218,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "spherical_band_op16",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/query.api_queries/queries.json#257",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -3658,10 +3650,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0006",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337072",
       "values_compared": 0
     },
@@ -3714,10 +3710,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0012",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337078",
       "values_compared": 0
     },
@@ -3750,10 +3750,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0016",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337082",
       "values_compared": 0
     },
@@ -3970,10 +3974,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0038",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337104",
       "values_compared": 0
     },
@@ -4654,10 +4662,14 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0110",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337176",
       "values_compared": 0
     },
@@ -4710,10 +4722,14 @@
       "values_compared": 2
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0116",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337182",
       "values_compared": 0
     },
@@ -4830,10 +4846,14 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0129",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337195",
       "values_compared": 0
     },
@@ -4854,10 +4874,14 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0132",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337198",
       "values_compared": 0
     },
@@ -5122,10 +5146,14 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0160",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337226",
       "values_compared": 0
     },
@@ -5354,16 +5382,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0185",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337251",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -5398,10 +5422,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0189",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337255",
       "values_compared": 0
     },
@@ -5446,10 +5474,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0194",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337260",
       "values_compared": 0
     },
@@ -5462,16 +5494,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0196",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337262",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -6098,16 +6126,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0262",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337328",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -6874,10 +6898,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0337",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337403",
       "values_compared": 0
     },
@@ -6950,16 +6978,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0345",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337411",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -7142,10 +7166,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0365",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337431",
       "values_compared": 0
     },
@@ -7478,10 +7506,14 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0401",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337467",
       "values_compared": 0
     },
@@ -7782,10 +7814,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0432",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337498",
       "values_compared": 0
     },
@@ -7830,10 +7866,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0437",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337503",
       "values_compared": 0
     },
@@ -8178,16 +8218,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0473",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337539",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -8238,16 +8274,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0479",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337545",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -8446,18 +8478,26 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0500",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337566",
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0501",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337567",
       "values_compared": 0
     },
@@ -8518,10 +8558,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0507",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337573",
       "values_compared": 0
     },
@@ -8654,10 +8698,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0521",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337587",
       "values_compared": 0
     },
@@ -8906,10 +8954,14 @@
       "values_compared": 2
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0546",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337612",
       "values_compared": 0
     },
@@ -9002,10 +9054,14 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0556",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337622",
       "values_compared": 0
     },
@@ -9042,10 +9098,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0560",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337626",
       "values_compared": 0
     },
@@ -9306,10 +9366,14 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0588",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337654",
       "values_compared": 0
     },
@@ -9522,10 +9586,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0611",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337677",
       "values_compared": 0
     },
@@ -9798,10 +9866,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0638",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337704",
       "values_compared": 0
     },
@@ -9946,10 +10018,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0652",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337718",
       "values_compared": 0
     },
@@ -9962,10 +10038,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0654",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337720",
       "values_compared": 0
     },
@@ -9990,10 +10070,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0657",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337723",
       "values_compared": 0
     },
@@ -10078,10 +10162,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0667",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337733",
       "values_compared": 0
     },
@@ -10162,10 +10250,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0675",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337741",
       "values_compared": 0
     },
@@ -10222,10 +10314,14 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0681",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337747",
       "values_compared": 0
     },
@@ -10458,10 +10554,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0706",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337772",
       "values_compared": 0
     },
@@ -10674,10 +10774,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0729",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337795",
       "values_compared": 0
     },
@@ -10702,18 +10806,26 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0732",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337798",
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0733",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337799",
       "values_compared": 0
     },
@@ -10886,10 +10998,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0751",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337817",
       "values_compared": 0
     },
@@ -10930,10 +11046,14 @@
       "values_compared": 15
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0756",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337822",
       "values_compared": 0
     },
@@ -10994,16 +11114,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::CalculateBoundingBox",
-        "unit": "query.face_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0763",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=2348217451497337829",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11302,10 +11418,14 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0795",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2348217451497337861",
       "values_compared": 0
     },
@@ -11347,16 +11467,16 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 430,
+  "cases_deferred": 460,
   "cases_failed": 0,
-  "cases_passed": 773,
+  "cases_passed": 743,
   "cases_total": 1203,
   "deferred_by_unit": {
     "curve.curve_p6": 31,
     "intersect.surface_drop_lib_p3": 7,
     "query.brep": 335,
-    "query.face_p1": 12,
-    "query.face_p3": 45
+    "query.face_p3": 45,
+    "topology.brep_p2": 42
   },
   "max_rel_err": 0.0,
   "pass": true,
