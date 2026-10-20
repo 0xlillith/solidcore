@@ -63,6 +63,8 @@
 //! | [`FindCurveDistanceExtrema`]                      | `SmFindCurveDistanceExtremaEFO` (constructor, destructor) |
 //!
 //! Deviations:
+//! - Evaluation views preserve owners and exact NURBS data; owned geometry
+//!   nesting is limited to 64 before recursive copying (no topology is copied).
 //! - **Object model.** `SmCurve` is abstract; its derived classes become the
 //!   [`CurveKind`] variants. The ported kinds are [`BSplineCurve`],
 //!   [`HermiteCurve`], [`Conic`], [`IsoCurve`], [`ProjectedCurve`], [`OffsetCurve`],
@@ -659,6 +661,107 @@ pub struct LineIntersection {
 }
 
 impl Curve {
+    /// Temporary numerical geometry preserving every owner and exact NURBS data.
+    /// This is not a topology/cache copy: mutations and owner resolution must use
+    /// the original model. Owned geometry nesting is bounded to 64 before copying.
+    pub(crate) fn clone_for_evaluation(&self) -> Result<Self> {
+        self.clone_for_evaluation_depth(0)
+    }
+
+    pub(crate) fn clone_for_evaluation_depth(&self, depth: usize) -> Result<Self> {
+        self.check_evaluation_copy_depth(depth)?;
+        let kind = match &self.kind {
+            CurveKind::BSpline(c) => CurveKind::BSpline(c.clone_exact()),
+            CurveKind::Hermite(c) => CurveKind::Hermite(*c),
+            CurveKind::Conic(c) => CurveKind::Conic(*c),
+            CurveKind::Line(c) => {
+                let mut copy = c.clone();
+                *copy.base_mut() = c.base().clone_exact();
+                CurveKind::Line(copy)
+            }
+            CurveKind::Hyperbola(c) => {
+                let mut copy = c.clone();
+                *copy.base_mut() = c.base().clone_exact();
+                CurveKind::Hyperbola(copy)
+            }
+            CurveKind::Ellipse(c) => {
+                let mut copy = c.clone();
+                *copy.base_mut() = c.base().clone_exact();
+                CurveKind::Ellipse(copy)
+            }
+            CurveKind::Parabola(c) => {
+                let mut copy = c.clone();
+                *copy.base_mut() = c.base().clone_exact();
+                CurveKind::Parabola(copy)
+            }
+            CurveKind::Projected(c) => CurveKind::Projected(c.clone_for_evaluation(depth + 1)?),
+            CurveKind::Iso(c) => CurveKind::Iso(c.clone_for_evaluation(depth + 1)?),
+            CurveKind::Offset(c) => CurveKind::Offset(c.clone_for_evaluation(depth + 1)?),
+            CurveKind::CrvInVolume(c) => {
+                CurveKind::CrvInVolume(Box::new(c.clone_for_evaluation(depth + 1)?))
+            }
+            CurveKind::CrvOnSurf(c) => {
+                CurveKind::CrvOnSurf(Box::new(c.clone_for_evaluation(depth + 1)?))
+            }
+            CurveKind::Composite(c) => CurveKind::Composite(c.clone_for_evaluation(depth + 1)?),
+        };
+        Ok(Self {
+            kind,
+            owner: self.owner,
+        })
+    }
+
+    /// Check recursive Clone branches, including volume chains, before allocation.
+    pub(crate) fn check_evaluation_copy_depth(&self, initial_depth: usize) -> Result<()> {
+        let mut pending = vec![(self, initial_depth)];
+        while let Some((curve, depth)) = pending.pop() {
+            if depth >= 64 {
+                return Err(SolidError::invalid_input(
+                    "curve::curve::p2::clone_for_evaluation",
+                    "owned geometry nesting exceeds 64",
+                ));
+            }
+            match curve.kind() {
+                CurveKind::Projected(c) => pending.push((c.curve(), depth + 1)),
+                CurveKind::Offset(c) => {
+                    if let Some(c) = c.base_curve() {
+                        pending.push((c, depth + 1));
+                    }
+                }
+                CurveKind::Iso(c) => c.surface().check_evaluation_copy_depth(depth + 1)?,
+                CurveKind::CrvOnSurf(c) => pending.push((c.uv_curve(), depth + 1)),
+                CurveKind::CrvInVolume(c) => {
+                    pending.push((c.curve(), depth + 1));
+                    let mut volume = Some(c.volume());
+                    let mut volume_depth = depth + 1;
+                    while let Some(v) = volume {
+                        if volume_depth >= 64 {
+                            return Err(SolidError::invalid_input(
+                                "curve::curve::p2::clone_for_evaluation",
+                                "owned geometry nesting exceeds 64",
+                            ));
+                        }
+                        volume = v.next_map();
+                        volume_depth += 1;
+                    }
+                }
+                CurveKind::Composite(c) => {
+                    for segment in c.segments() {
+                        pending.push((&segment.curve, depth + 1));
+                    }
+                }
+                CurveKind::BSpline(_)
+                | CurveKind::Hermite(_)
+                | CurveKind::Hyperbola(_)
+                | CurveKind::Conic(_)
+                | CurveKind::Line(_)
+                | CurveKind::Ellipse(_)
+                | CurveKind::Parabola(_) => {}
+            }
+        }
+        Ok(())
+    }
+
     /// A curve of `kind` without owner (`SmCurve(ULONG)` plus the derived
     /// constructor).
     #[must_use]
@@ -3613,6 +3716,110 @@ impl<'t, O: SolutionObject + 't> GlobalSolve<'t, O> for CciGlobalSolver<'t, O> {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn evaluation_copy_keeps_owner_and_exact_knots_without_copy_fixup() {
+        let mut original = cubic();
+        let owner = ObjectRef {
+            type_code: EDGE_TYPE,
+            key: ObjectKey(987654),
+        };
+        let _ = original.set_owner(Some(owner), None);
+        let CurveKind::BSpline(base) = original.kind_mut() else {
+            panic!("test B-spline");
+        };
+        *base.nurb.as_mut().unwrap().knots_mut().get_mut(4).unwrap() = 1.0 - 1e-13;
+        let copied = original.clone_for_evaluation().unwrap();
+        assert_eq!(copied.owner(), Some(owner));
+        let (CurveKind::BSpline(a), CurveKind::BSpline(b)) = (original.kind(), copied.kind())
+        else {
+            panic!("test B-splines");
+        };
+        let bits = |c: &BSplineCurve| {
+            c.gw_nurb()
+                .unwrap()
+                .knots()
+                .iter()
+                .map(|v| v.to_bits())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(bits(a), bits(b));
+        assert_eq!(
+            copied.evaluate_point(0.25).unwrap(),
+            original.evaluate_point(0.25).unwrap()
+        );
+        assert!(original.clone().owner().is_none());
+    }
+
+    #[test]
+    fn evaluation_copy_preserves_nested_composite_owners() {
+        let mut source = cubic();
+        let inner_owner = ObjectRef {
+            type_code: EDGE_TYPE,
+            key: ObjectKey(42),
+        };
+        let _ = source.set_owner(Some(inner_owner), None);
+        let composite = CompositeCurve::with_curves(3, vec![source], false, None, None).unwrap();
+        let original = Curve::from(composite);
+        let copied = original.clone_for_evaluation().unwrap();
+        let CurveKind::Composite(c) = copied.kind() else {
+            panic!("composite");
+        };
+        assert_eq!(c.segments()[0].curve.owner(), Some(inner_owner));
+    }
+
+    #[test]
+    fn evaluation_copy_keeps_wrapped_curve_owners_and_point_evaluation() {
+        let owner = ObjectRef {
+            type_code: EDGE_TYPE,
+            key: ObjectKey(321),
+        };
+        let mut source = cubic();
+        let _ = source.set_owner(Some(owner), None);
+        let interval = source.natural_interval();
+        let offset = OffsetCurve::new(3, source, interval, Vec3::Z, 0.125, true);
+        let projected = ProjectedCurve::new(
+            Curve::from(offset),
+            Some(Vec3::ZERO),
+            Some(Vec3::Z),
+            None,
+            ProjectionType::Parallel,
+            crate::curve::projected_curve::OwnsCurve::Yes,
+        );
+        let original = Curve::from(projected);
+        let copied = original.clone_for_evaluation().unwrap();
+        let CurveKind::Projected(p) = copied.kind() else {
+            panic!("projected");
+        };
+        let CurveKind::Offset(o) = p.curve().kind() else {
+            panic!("offset");
+        };
+        assert_eq!(o.base_curve().unwrap().owner(), Some(owner));
+        for parameter in [0.125, 0.5, 0.875] {
+            assert_eq!(
+                copied.evaluate_point(parameter).unwrap(),
+                original.evaluate_point(parameter).unwrap()
+            );
+        }
+    }
+
+    #[test]
+    fn evaluation_copy_bounds_nested_geometry_before_recursive_clone() {
+        let mut curve = hermite();
+        for _ in 0..63 {
+            curve = Curve::from(
+                CompositeCurve::with_curves(3, vec![curve], false, None, None).unwrap(),
+            );
+        }
+        assert!(curve.clone_for_evaluation().is_ok());
+        curve =
+            Curve::from(CompositeCurve::with_curves(3, vec![curve], false, None, None).unwrap());
+        assert!(matches!(
+            curve.clone_for_evaluation(),
+            Err(SolidError::InvalidInput { .. })
+        ));
+    }
+
     use super::*;
     use crate::geom::attribute::ObjectKey;
 

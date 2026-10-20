@@ -74,6 +74,7 @@ use crate::intersect::curve_class::p1::{
     get_connected_touches, get_winding_count, CrvDirOnFaceType, CurveClassification, TouchData,
 };
 use crate::intersect::curve_class::p2::ResetOptions;
+use crate::intersect::curve_class::p7::FaceQueryIdentity;
 use crate::intersect::point_class::ClassObject;
 use crate::kernel::Kernel;
 use crate::math::EFF_ZERO;
@@ -1571,11 +1572,12 @@ impl<O: LoopObject> FaceProps<O> {
     pub fn set_props(
         &mut self,
         k: &Kernel,
-        b: &Brep,
+        b: &mut Brep,
         stage: PropStage,
         face: FaceId,
         face_index: u64,
         exe_heal_op: HealerOpType,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         // init rtn
         let mut rtn: Result<()> = Ok(());
@@ -1601,7 +1603,7 @@ impl<O: LoopObject> FaceProps<O> {
         if stage == PropStage::Stage3
             || (stage > PropStage::Stage3 && !self.has_props(PropStage::Stage3, some_face))
         {
-            rtn = self.set_props_stage3(k, b, face, face_index, exe_heal_op);
+            rtn = self.set_props_stage3(k, b, face, face_index, exe_heal_op, identity);
             keep_unported(&rtn)?;
         }
 
@@ -1870,10 +1872,11 @@ impl<O: LoopObject> FaceProps<O> {
     pub fn set_props_stage3(
         &mut self,
         k: &Kernel,
-        b: &Brep,
+        b: &mut Brep,
         face: FaceId,
         face_index: u64,
         exe_heal_op: HealerOpType,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         // no work - already done or being done
         if self.prop_stage >= PropStage::Stage3A {
@@ -1931,6 +1934,7 @@ impl<O: LoopObject> FaceProps<O> {
             &mut classified,
             &mut scratch,
             self,
+            identity,
         ) {
             Err(e @ SolidError::InvalidInput { reason, .. })
                 if reason == crate::query::face::p3::NO_CURVE_HANDLES =>
@@ -2470,14 +2474,18 @@ mod tests {
     #[test]
     fn early_stage_statuses() {
         let k = Kernel::default();
-        let b = Brep::new();
+        let mut b = Brep::new();
         let f = FaceId::from_index(0);
         let mut p: FaceProps<H> = FaceProps::new();
         // before Fix_TolSizes: SM_ERR, nothing is touched
         let e = p.set_props_stage2(&k, &b, f, 0, HealerOpType::None);
         assert!(matches!(e, Err(SolidError::Upstream { code: 1001, .. })));
         assert_eq!(p.prop_stage, PropStage::Stage0);
-        let e = p.set_props_stage3(&k, &b, f, 0, HealerOpType::FixTolsizes);
+        let identity = FaceQueryIdentity {
+            keys: &|_| panic!("native stage guard precedes identity reads"),
+            owner_of: &|_| panic!("native stage guard precedes owner reads"),
+        };
+        let e = p.set_props_stage3(&k, &mut b, f, 0, HealerOpType::FixTolsizes, identity);
         assert!(matches!(e, Err(SolidError::Upstream { code: 1001, .. })));
     }
 

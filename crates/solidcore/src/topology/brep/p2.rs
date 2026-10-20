@@ -2015,8 +2015,7 @@ pub struct MergedCurves {
 #[allow(clippy::too_many_arguments)]
 pub fn merge_curves_on_surface<O: ClassObject + Copy>(
     k: &mut Kernel,
-    b: &Brep,
-    objects: &impl MergeCurvesObjects<O>,
+    objects: &mut impl MergeCurvesObjects<O>,
     face: FaceId,
     tolerance: f64,
     curves: &[O],
@@ -2024,13 +2023,13 @@ pub fn merge_curves_on_surface<O: ClassObject + Copy>(
     options: MergeCurvesOptions<O>,
 ) -> Result<MergedCurves> {
     // check state - m_bEditingEnabled must be on
-    if !b.editing_enabled() {
+    if !objects.classification_brep()?.editing_enabled() {
         return Err(SolidError::sm_err(OP));
     }
 
     let saved = k.context.doing_boolean();
     k.context.set_doing_boolean(true);
-    let res = merge_curves_body(k, b, objects, face, tolerance, curves, uv_curves, options);
+    let res = merge_curves_body(k, objects, face, tolerance, curves, uv_curves, options);
     k.context.set_doing_boolean(saved);
     res
 }
@@ -2038,8 +2037,7 @@ pub fn merge_curves_on_surface<O: ClassObject + Copy>(
 #[allow(clippy::too_many_arguments)]
 fn merge_curves_body<O: ClassObject + Copy>(
     k: &Kernel,
-    b: &Brep,
-    objects: &impl MergeCurvesObjects<O>,
+    objects: &mut impl MergeCurvesObjects<O>,
     face: FaceId,
     tolerance: f64,
     curves: &[O],
@@ -2084,7 +2082,6 @@ fn merge_curves_body<O: ClassObject + Copy>(
             // classify the curve against the surface->Face
             let _modified = curve_on_classify(
                 k,
-                b,
                 f,
                 objects,
                 true,

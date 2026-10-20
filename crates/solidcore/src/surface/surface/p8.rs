@@ -91,6 +91,63 @@ const OP_LOCAL_LINE: &str = "surface::surface::p8::Surface::local_line_intersect
 /// The 6 x 6 grid of `CoincidenceCheck` (`lNumSamples`).
 const NUM_SAMPLES: usize = 6;
 
+/// Actual owner queries for the existing coincidence algorithm.
+pub(crate) trait CoincidenceQueries {
+    /// Native virtual planarity check, including original-owner pseudo-box expansion.
+    fn is_planar(&mut self, k: &Kernel, surface: &Surface, tolerance: f64) -> Result<bool>;
+
+    /// Outer error: adapter failure; inner error: native status, ignored only
+    /// where the original algorithm ignores a `DropPoint` status.
+    fn point_drop(
+        &mut self,
+        k: &Kernel,
+        surface: &Surface,
+        point: Point3,
+        domain: &Extent2d,
+        guess: Option<Point2>,
+        operation: SolverOperation,
+    ) -> Result<Result<(bool, Point2, f64)>>;
+    /// Actual normal box with original-owner tolerance and native error handling.
+    fn bounding_box(
+        &mut self,
+        k: &Kernel,
+        surface: &Surface,
+        domain: &Extent2d,
+    ) -> Result<Extent3d>;
+}
+/// Existing numerical entrypoints for callers without a live owner adapter.
+pub(crate) struct LegacyCoincidenceQueries;
+impl CoincidenceQueries for LegacyCoincidenceQueries {
+    fn is_planar(&mut self, k: &Kernel, surface: &Surface, tolerance: f64) -> Result<bool> {
+        Ok(surface.is_planar(k, tolerance)?.is_planar)
+    }
+    fn point_drop(
+        &mut self,
+        k: &Kernel,
+        surface: &Surface,
+        point: Point3,
+        domain: &Extent2d,
+        guess: Option<Point2>,
+        operation: SolverOperation,
+    ) -> Result<Result<(bool, Point2, f64)>> {
+        Ok(surface_drop_point(
+            k, surface, point, domain, guess, operation,
+        ))
+    }
+    fn bounding_box(
+        &mut self,
+        k: &Kernel,
+        surface: &Surface,
+        domain: &Extent2d,
+    ) -> Result<Extent3d> {
+        Ok(
+            ignored(surface.calculate_bounding_box(k, domain, [true, false, false], true))?
+                .and_then(|b| b.normal_box)
+                .unwrap_or_default(),
+        )
+    }
+}
+
 // ---- calls into other units (the only unported one is DropCurve, below) ---------------------
 
 /// `smsurf_CheckShapeMatch(sPVV0, sPVV1, tol, angTolRad, bSuccess)`: `bSuccess`. The
@@ -364,13 +421,48 @@ impl Surface {
     ///
     /// `SM_ERR` for a surface without domain; [`SolidError::Unported`] from the
     /// callees of the point drops, the evaluations and the shape checks.
-    #[allow(clippy::too_many_lines)]
     pub fn base_coincidence_check(
         &self,
         k: &Kernel,
         other: &Self,
         tol_3d: f64,
         whole_surface: bool,
+    ) -> Result<Coincidence> {
+        self.base_coincidence_check_with_context(
+            k,
+            other,
+            tol_3d,
+            whole_surface,
+            &mut LegacyCoincidenceQueries,
+        )
+    }
+
+    /// Actual virtual coincidence dispatch with a live owner-aware point drop.
+    /// Native branch/sample order is unchanged, including reversed Plane dispatch.
+    pub(crate) fn coincidence_check_with_context(
+        &self,
+        k: &Kernel,
+        other: &Self,
+        tol_3d: f64,
+        whole_surface: bool,
+        queries: &mut dyn CoincidenceQueries,
+    ) -> Result<Coincidence> {
+        match self.kind() {
+            SurfaceKind::Plane(plane) => {
+                plane.coincidence_check_with_context(k, self, other, tol_3d, whole_surface, queries)
+            }
+            _ => self.base_coincidence_check_with_context(k, other, tol_3d, whole_surface, queries),
+        }
+    }
+
+    #[allow(clippy::too_many_lines)] // shared original native routine
+    fn base_coincidence_check_with_context(
+        &self,
+        k: &Kernel,
+        other: &Self,
+        tol_3d: f64,
+        whole_surface: bool,
+        queries: &mut dyn CoincidenceQueries,
     ) -> Result<Coincidence> {
         // init output
         let mut res = Coincidence {
@@ -390,8 +482,15 @@ impl Surface {
         }
 
         // If the other surface is a plane, use its method.
-        if let SurfaceKind::Plane(p) = other.kind() {
-            return p.coincidence_check(k, self, tol_3d, whole_surface);
+        if let SurfaceKind::Plane(plane) = other.kind() {
+            return plane.coincidence_check_with_context(
+                k,
+                other,
+                self,
+                tol_3d,
+                whole_surface,
+                queries,
+            );
         }
 
         // arrive here when both surfaces are not of type SmPlane_TYPE
@@ -406,21 +505,15 @@ impl Surface {
         }
 
         // Check bounding boxes (statuses ignored)
-        let box_of = |s: &Self, d: &Extent2d| -> Result<Extent3d> {
-            Ok(
-                ignored(s.calculate_bounding_box(k, d, [true, false, false], true))?
-                    .and_then(|b| b.normal_box)
-                    .unwrap_or_default(),
-            )
-        };
-        let bbox0 = box_of(self, &domain0)?;
-        let bbox1 = box_of(other, &domain1)?;
+        let bbox0 = queries.bounding_box(k, self, &domain0)?;
+        let bbox1 = queries.bounding_box(k, other, &domain1)?;
         if bbox0.are_disjoint(&bbox1, 0.0) {
             return Ok(res);
         }
 
         if whole_surface {
-            return self.whole_surface_coincidence(k, other, &domain0, &domain1, tol_3d, res);
+            return self
+                .whole_surface_coincidence(k, other, &domain0, &domain1, tol_3d, res, queries);
         }
 
         // Now we're looking for any partial overlap.
@@ -523,14 +616,14 @@ impl Surface {
         let pt1 = point_or_undef(other, uv1)?;
         let in_box = bbox0.contains_point(pt1, 0.0);
         let dropped = if in_box {
-            ignored(surface_drop_point(
+            ignored(queries.point_drop(
                 k,
                 self,
                 pt1,
                 &domain0,
                 None,
                 SolverOperation::Intersect,
-            ))?
+            )?)?
         } else {
             None
         };
@@ -552,14 +645,14 @@ impl Surface {
         let pt0 = point_or_undef(self, uv0)?;
         let in_box = bbox1.contains_point(pt0, 0.0);
         let dropped = if in_box {
-            ignored(surface_drop_point(
+            ignored(queries.point_drop(
                 k,
                 other,
                 pt0,
                 &domain1,
                 None,
                 SolverOperation::Intersect,
-            ))?
+            )?)?
         } else {
             None
         };
@@ -594,6 +687,7 @@ impl Surface {
         domain1: &Extent2d,
         tol_3d: f64,
         mut res: Coincidence,
+        queries: &mut dyn CoincidenceQueries,
     ) -> Result<Coincidence> {
         // First collect the corner points: Eval Surfaces at normalized domain corners
         let mut pts1 = [[Vec3::UNDEF; 2]; 2];
@@ -754,14 +848,14 @@ impl Surface {
                 let normalized_uv2 = super::p2::map_uv(u, v, orient, dir_u, dir_v);
                 let guess_uv2 = domain1.evaluate(normalized_uv2.x, normalized_uv2.y);
 
-                let dropped = ignored(surface_drop_point(
+                let dropped = ignored(queries.point_drop(
                     k,
                     other,
                     pt1,
                     domain1,
                     Some(guess_uv2),
                     SolverOperation::Minimize,
-                ))?;
+                )?)?;
 
                 // Not Coincident - when DropPoint can't find an otherSurface point
                 // within dThisXSectTol3d.

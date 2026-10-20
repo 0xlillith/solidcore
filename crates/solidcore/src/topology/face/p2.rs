@@ -390,7 +390,8 @@ impl ClassObject for UvLineHandle {
 /// The UV line `sm_FaceClassifyUVLine` made last (`sCurveClassification.GetCurve()`),
 /// and the face `f` of `b` whose objects the other handles name.
 struct UvLineObjects<'a> {
-    b: &'a Brep,
+    b: &'a mut Brep,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'a>,
     f: FaceId,
     line: Option<Curve>,
 }
@@ -429,6 +430,64 @@ impl ClassGeometry<UvLineHandle> for UvLineObjects<'_> {
             UvLineHandle::Face => self.b.face(self.f).ok().map(|f| f.tolerance),
             _ => None,
         }
+    }
+}
+
+impl crate::intersect::curve_class::p7::FaceQueryOwner<UvLineHandle> for UvLineObjects<'_> {
+    fn classification_brep(&self) -> Result<&Brep> {
+        Ok(self.b)
+    }
+    fn classification_brep_mut(&mut self) -> Result<&mut Brep> {
+        Ok(self.b)
+    }
+    fn classification_entity(&self, face: UvLineHandle, object: UvLineHandle) -> Result<EntityRef> {
+        let _ = face;
+        match object {
+            UvLineHandle::Face => Ok(EntityRef::Face(self.f)),
+            UvLineHandle::Vertex(v) => Ok(EntityRef::Vertex(v)),
+            UvLineHandle::Edge(e) => Ok(EntityRef::Edge(e)),
+            UvLineHandle::Vertexuse(v) => Ok(EntityRef::Vertexuse(v)),
+            UvLineHandle::Edgeuse(e) => Ok(EntityRef::Edgeuse(e)),
+            _ => Err(null("not a UV-line topology identity")),
+        }
+    }
+    fn classification_handle(&self, face: UvLineHandle, entity: EntityRef) -> Result<UvLineHandle> {
+        let _ = face;
+        match entity {
+            EntityRef::Face(f) if f == self.f => Ok(UvLineHandle::Face),
+            EntityRef::Vertex(v) => Ok(UvLineHandle::Vertex(v)),
+            EntityRef::Edge(e) => Ok(UvLineHandle::Edge(e)),
+            EntityRef::Vertexuse(v) => Ok(UvLineHandle::Vertexuse(v)),
+            EntityRef::Edgeuse(e) => Ok(UvLineHandle::Edgeuse(e)),
+            _ => Err(null("unresolved UV-line topology identity")),
+        }
+    }
+    fn query_on_face<T>(
+        &mut self,
+        kernel: &Kernel,
+        face: UvLineHandle,
+        query: impl FnOnce(
+            &Kernel,
+            &mut Brep,
+            FaceId,
+            &dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
+            &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+            Option<&mut dyn crate::query::face::p2::FacePointCache>,
+        ) -> Result<T>,
+    ) -> Result<T> {
+        let EntityRef::Face(face) = self.classification_entity(face, face)? else {
+            return Err(null("not a face handle"));
+        };
+        // These temporary private-handle owners have no retained cache slot.
+        // Surface query checkouts retain the actual topology through identity.
+        query(
+            kernel,
+            self.b,
+            face,
+            self.identity.keys,
+            self.identity.owner_of,
+            None,
+        )
     }
 }
 
@@ -522,9 +581,57 @@ impl ClassObject for ClassHandle {
 /// The objects behind the [`ClassHandle`]s of one `CurveOnClassify` call.
 struct FaceClassifyObjects<'c> {
     /// The B-rep of the face.
-    brep: &'c Brep,
+    brep: &'c mut Brep,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'c>,
     /// The classified curve.
     curve: &'c Curve,
+}
+
+impl crate::intersect::curve_class::p7::FaceQueryOwner<ClassHandle> for FaceClassifyObjects<'_> {
+    fn classification_brep(&self) -> Result<&Brep> {
+        Ok(self.brep)
+    }
+    fn classification_brep_mut(&mut self) -> Result<&mut Brep> {
+        Ok(self.brep)
+    }
+    fn classification_entity(&self, face: ClassHandle, object: ClassHandle) -> Result<EntityRef> {
+        let _ = face;
+        ClassGeometry::topology_entity(self, object)
+            .map(|(_, entity)| entity)
+            .ok_or_else(|| null("unresolved classification topology"))
+    }
+    fn classification_handle(&self, face: ClassHandle, entity: EntityRef) -> Result<ClassHandle> {
+        let _ = face;
+        ClassGeometry::topology_handle(self, entity)
+            .ok_or_else(|| null("unresolved classification identity"))
+    }
+    fn query_on_face<T>(
+        &mut self,
+        kernel: &Kernel,
+        face: ClassHandle,
+        query: impl FnOnce(
+            &Kernel,
+            &mut Brep,
+            FaceId,
+            &dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
+            &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+            Option<&mut dyn crate::query::face::p2::FacePointCache>,
+        ) -> Result<T>,
+    ) -> Result<T> {
+        let EntityRef::Face(face) = self.classification_entity(face, face)? else {
+            return Err(null("not a face handle"));
+        };
+        // These temporary private-handle owners have no retained cache slot.
+        // Surface query checkouts retain the actual topology through identity.
+        query(
+            kernel,
+            self.brep,
+            face,
+            self.identity.keys,
+            self.identity.owner_of,
+            None,
+        )
+    }
 }
 
 impl CurveOnClassifyObjects<ClassHandle> for FaceClassifyObjects<'_> {
@@ -636,14 +743,19 @@ impl ClassGeometry<ClassHandle> for FaceClassifyObjects<'_> {
 #[allow(clippy::too_many_arguments)] // upstream's constructor arguments
 fn classify_curve_on_face(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     f: FaceId,
     curve: &Curve,
     with_uv_curve: bool,
     tol: f64,
     data_size: usize,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
 ) -> Result<Vec<CurveInterval<ClassHandle>>> {
-    let objects = FaceClassifyObjects { brep: b, curve };
+    let mut objects = FaceClassifyObjects {
+        brep: b,
+        identity,
+        curve,
+    };
     let init = ClassificationInit {
         curve: Some(ClassHandle::Curve),
         interval: curve.natural_interval(),
@@ -662,9 +774,8 @@ fn classify_curve_on_face(
     // bHasBigGaps, bDoCheck3d: FALSE; bUVSpaceOkay: TRUE (the defaults)
     curve_on_classify(
         k,
-        b,
         f,
-        &objects,
+        &mut objects,
         true,
         &mut classification,
         false,
@@ -1048,7 +1159,12 @@ pub fn review_start_and_stop_on_seam_crv_classifies<O: ClassObject>(
 /// [`SolidError::NotFound`] for a dangling id; `SM_ERR` (upstream: output `(0, 0, 0)`)
 /// without surface, for a surface without owner, and when no line meets the face
 /// interior; [`SolidError::Unported`] from the line classification.
-pub fn calculate_an_internal_point(k: &Kernel, b: &Brep, f: FaceId) -> Result<Point3> {
+pub fn calculate_an_internal_point(
+    k: &Kernel,
+    b: &mut Brep,
+    f: FaceId,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+) -> Result<Point3> {
     // locals
     let face = b.face(f)?;
     let uv_dom = face.uv_domain;
@@ -1060,17 +1176,24 @@ pub fn calculate_an_internal_point(k: &Kernel, b: &Brep, f: FaceId) -> Result<Po
     let src_zone_tol_3d = face.tolerance;
 
     // no work - no surface
-    let Some(surf) = face.surface.as_ref() else {
+    let Some(surface) = face.surface.as_ref() else {
         return Err(SolidError::sm_err(OP));
     };
 
     // no work - Bspline surface with no owner
-    if surf.owner().is_none() {
+    if surface.owner().is_none() {
         return Err(SolidError::sm_err(OP));
     }
 
+    let surface_view = surface.clone_for_evaluation()?;
+    let surf = &surface_view;
     let mut classification: CurveClassification<UvLineHandle> = CurveClassification::new(k);
-    let mut uv_objects = UvLineObjects { b, f, line: None };
+    let mut uv_objects = UvLineObjects {
+        b,
+        identity,
+        f,
+        line: None,
+    };
 
     // first for constant U then V isoparameter lines
     for ii in 0..2 {
@@ -1089,7 +1212,6 @@ pub fn calculate_an_internal_point(k: &Kernel, b: &Brep, f: FaceId) -> Result<Po
             // classify the target UVLine (status ignored)
             ignore_status(qf3::face_classify_uv_line(
                 k,
-                b,
                 f,
                 &mut uv_objects,
                 start,
@@ -1157,16 +1279,19 @@ fn rand_dither(k: &mut Kernel) -> f64 {
 /// without surface; [`SolidError::Unported`] for the trimmed branch.
 pub fn points_in_face(
     k: &mut Kernel,
-    b: &Brep,
+    b: &mut Brep,
     f: FaceId,
     point_count: u64,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
 ) -> Result<PointsInFace> {
     // init output
     let mut out = PointsInFace::default();
 
     // check input - return SM_ERR for degenerate surface
-    let face = b.face(f)?;
-    let dom = face.uv_domain;
+    let (dom, face_tolerance, rectangular_trim) = {
+        let face = b.face(f)?;
+        (face.uv_domain, face.tolerance, face.rectangular_trim)
+    };
     let mut u_interval = dom.u_interval();
     let v_interval = dom.v_interval();
     let mut u_inc = u_interval.length();
@@ -1182,13 +1307,14 @@ pub fn points_in_face(
     }
 
     // locals
-    let surf = surface_deref(b, f)?;
+    let surface_view = surface_deref(b, f)?.clone_for_evaluation()?;
+    let surf = &surface_view;
     let count = point_count as usize;
     let mut trim_curve_cnt = (2 * point_count).min(30);
     u_inc /= (trim_curve_cnt + 1) as f64;
     let mut u = u_inc;
 
-    if face.rectangular_trim == 1 {
+    if rectangular_trim == 1 {
         // when faced is rectangularly trimmed
         trim_curve_cnt = point_count.min(30);
         let j_cnt = if (point_count / trim_curve_cnt) * trim_curve_cnt < point_count {
@@ -1268,9 +1394,9 @@ pub fn points_in_face(
             }
 
             // classify the isoParameter UVTrimCurve against the face
-            let tol = face.tolerance;
+            let tol = face_tolerance;
             let crv = Curve::from(uv_curve.clone());
-            let intervals = classify_curve_on_face(k, b, f, &crv, true, tol, 0)?;
+            let intervals = classify_curve_on_face(k, b, f, &crv, true, tol, 0, identity)?;
             if intervals
                 .iter()
                 .any(|ivl| ivl.mid.point_class() == PointClassType::Face)
@@ -1840,13 +1966,14 @@ pub struct TrimmedCurves {
 #[allow(clippy::too_many_arguments)]
 pub fn create_curves_by_trimming(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     f: FaceId,
     curve_tolerance: Option<f64>,
     curves_3d: Option<&[Option<Curve>]>,
     uv_curves: Option<&[Option<Curve>]>,
     want_3d: bool,
     want_uv: bool,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
 ) -> Result<TrimmedCurves> {
     // locals
     let mut new_3d: Vec<Curve> = Vec::new();
@@ -1878,7 +2005,7 @@ pub fn create_curves_by_trimming(
             }
 
             // classify the UVCurve against the face
-            let intervals = classify_curve_on_face(k, b, f, curve, true, tol_uv, 20)?;
+            let intervals = classify_curve_on_face(k, b, f, curve, true, tol_uv, 20, identity)?;
 
             // for every curve classification
             for ivl in &intervals {
@@ -1937,7 +2064,7 @@ pub fn create_curves_by_trimming(
             }
 
             // Classify the curve against the face
-            let intervals = classify_curve_on_face(k, b, f, curve, false, tol_3d, 20)?;
+            let intervals = classify_curve_on_face(k, b, f, curve, false, tol_3d, 20, identity)?;
 
             for ivl in &intervals {
                 if ivl.mid.point_class() == PointClassType::Face
@@ -2759,16 +2886,68 @@ mod tests {
             .unwrap();
         let _ = s;
         let mut k = Kernel::default();
-        let r = points_in_face(&mut k, &b, f, 1).unwrap();
+        let r = points_in_face(
+            &mut k,
+            &mut b,
+            f,
+            1,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
+        )
+        .unwrap();
         assert_eq!(r.uv, vec![Point2::new(1.0 / 3.0, 1.0)]);
         assert_eq!(r.pv.len(), 2);
         assert_eq!(r.pv[1], Vec3::Z);
-        let r = points_in_face(&mut k, &b, f, 7).unwrap();
+        let r = points_in_face(
+            &mut k,
+            &mut b,
+            f,
+            7,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
+        )
+        .unwrap();
         assert_eq!(r.uv.len(), 7);
-        assert!(points_in_face(&mut k, &b, f, MAX_POINTS_IN_FACE + 1).is_err());
-        assert!(points_in_face(&mut k, &b, f, 0).unwrap().uv.is_empty());
+        assert!(points_in_face(
+            &mut k,
+            &mut b,
+            f,
+            MAX_POINTS_IN_FACE + 1,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None
+            }
+        )
+        .is_err());
+        assert!(points_in_face(
+            &mut k,
+            &mut b,
+            f,
+            0,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None
+            }
+        )
+        .unwrap()
+        .uv
+        .is_empty());
         set_uv_domain(&mut b, f, &Extent2d::from_bounds(0.0, 0.0, 0.0, 1.0)).unwrap();
-        assert!(points_in_face(&mut k, &b, f, 1).is_err());
+        assert!(points_in_face(
+            &mut k,
+            &mut b,
+            f,
+            1,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None
+            }
+        )
+        .is_err());
     }
 
     #[test]
@@ -2778,12 +2957,28 @@ mod tests {
         let f = b.add_face(s).unwrap();
         let k = Kernel::default();
         assert!(matches!(
-            calculate_an_internal_point(&k, &b, f),
+            calculate_an_internal_point(
+                &k,
+                &mut b,
+                f,
+                crate::intersect::curve_class::p7::FaceQueryIdentity {
+                    keys: &crate::topology::brep_cache::arena_identity,
+                    owner_of: &|_| None
+                }
+            ),
             Err(SolidError::Upstream { .. })
         ));
         b.face_mut(f).unwrap().surface = Some(plane());
         assert!(matches!(
-            calculate_an_internal_point(&k, &b, f),
+            calculate_an_internal_point(
+                &k,
+                &mut b,
+                f,
+                crate::intersect::curve_class::p7::FaceQueryIdentity {
+                    keys: &crate::topology::brep_cache::arena_identity,
+                    owner_of: &|_| None
+                }
+            ),
             Err(SolidError::Upstream { .. })
         ));
         b.face_mut(f)
@@ -2798,7 +2993,15 @@ mod tests {
         // no loops: no line interval classifies into the face (the line statuses are
         // ignored), so the final SM_ERR
         assert!(matches!(
-            calculate_an_internal_point(&k, &b, f),
+            calculate_an_internal_point(
+                &k,
+                &mut b,
+                f,
+                crate::intersect::curve_class::p7::FaceQueryIdentity {
+                    keys: &crate::topology::brep_cache::arena_identity,
+                    owner_of: &|_| None
+                }
+            ),
             Err(SolidError::Upstream { .. })
         ));
     }
@@ -2825,19 +3028,58 @@ mod tests {
         b.face_mut(f).unwrap().uv_domain = Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0);
         let k = Kernel::default();
         let uv = [None];
-        let r = create_curves_by_trimming(&k, &b, f, None, None, Some(&uv), true, true).unwrap();
+        let r = create_curves_by_trimming(
+            &k,
+            &mut b,
+            f,
+            None,
+            None,
+            Some(&uv),
+            true,
+            true,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
+        )
+        .unwrap();
         assert_eq!(r.curves_3d.map(|v| v.len()), Some(0));
         assert_eq!(r.uv_curves.map(|v| v.len()), Some(0));
         let line = Curve::from(
             BSplineCurve::create_line_segment(2, Vec3::ZERO, Vec3::new(1.0, 1.0, 0.0)).unwrap(),
         );
         let uv = [Some(line)];
-        assert!(
-            create_curves_by_trimming(&k, &b, f, Some(1.0), None, Some(&uv), false, true)
-                .unwrap_err()
-                .is_unported()
-        );
-        assert!(create_curves_by_trimming(&k, &b, f, None, None, None, true, false).is_err());
+        assert!(create_curves_by_trimming(
+            &k,
+            &mut b,
+            f,
+            Some(1.0),
+            None,
+            Some(&uv),
+            false,
+            true,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None
+            }
+        )
+        .unwrap_err()
+        .is_unported());
+        assert!(create_curves_by_trimming(
+            &k,
+            &mut b,
+            f,
+            None,
+            None,
+            None,
+            true,
+            false,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None
+            }
+        )
+        .is_err());
     }
 
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]

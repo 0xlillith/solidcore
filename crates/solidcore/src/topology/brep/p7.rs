@@ -248,8 +248,9 @@ fn test_closure_split_region_edge(
     env: &mut ed::NotifyEnv<'_>,
     e: EdgeId,
     queries: &mut dyn p6::RegionSplitQueries,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
 ) -> Result<()> {
-    p10::test_closure_split_region(k, b, marks, env, true, e, queries).map(|_| ())
+    p10::test_closure_split_region(k, b, marks, env, true, e, queries, identity).map(|_| ())
 }
 
 /// `MakeShellVertex(region, point, rpNewShell, rpNewVertex)`.
@@ -426,7 +427,13 @@ fn edge_remove(b: &mut Brep, e: EdgeId, eu: EdgeuseId) -> Result<()> {
 
 /// Merges `del_shell` into `keep_shell` and drops the empty region (the shell-merging
 /// tails of `GlueEdgesGeneral`).
-fn merge_shells(k: &mut Kernel, b: &mut Brep, mut del: ShellId, mut keep: ShellId) -> Result<()> {
+fn merge_shells(
+    k: &mut Kernel,
+    b: &mut Brep,
+    mut del: ShellId,
+    mut keep: ShellId,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+) -> Result<()> {
     // m_pInfiniteRegion (NULL when unset; pointer equality, NULL == NULL)
     let inf = b.infinite_region();
     let keep_region = eu1::shell_region(b, keep)?;
@@ -436,7 +443,7 @@ fn merge_shells(k: &mut Kernel, b: &mut Brep, mut del: ShellId, mut keep: ShellI
     } else if del_region == inf
         // pKeepShell->IsInnerShell(bIsInner): swap when it succeeds with TRUE (asked
         // only when neither region is the infinite one)
-        || ignored(b.shell(keep)?.is_inner_shell(k, b))? == Some(true)
+        || ignored(crate::topology::Shell::is_inner_shell(k, b, keep, identity))? == Some(true)
     {
         core::mem::swap(&mut del, &mut keep);
     }
@@ -1077,6 +1084,7 @@ pub fn glue_edges_general(
     inside_faceuses: Option<&[FaceuseId]>,
     env: &mut ed::NotifyEnv<'_>,
     queries: &mut dyn p6::RegionSplitQueries,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
 ) -> Result<()> {
     let (Some(surv), Some(del)) = (surviving, to_delete) else {
         return Ok(());
@@ -1356,7 +1364,7 @@ pub fn glue_edges_general(
         let del_shell = eu1::shell(b, eu)?.ok_or_else(|| null("edge use without shell"))?;
         let keep_shell = eu1::shell(b, radial)?.ok_or_else(|| null("edge use without shell"))?;
         if del_shell != keep_shell {
-            merge_shells(k, b, del_shell, keep_shell)?;
+            merge_shells(k, b, del_shell, keep_shell, identity)?;
         }
     }
 
@@ -1365,13 +1373,14 @@ pub fn glue_edges_general(
         let mut new_region = None;
         for fu in test_split {
             // status ignored; each call first resets rpNewRegion to NULL
-            let attempt =
-                p6::test_closure_split_region_attempt(k, b, &mut marks, env, true, fu, queries)?;
+            let attempt = p6::test_closure_split_region_attempt(
+                k, b, &mut marks, env, true, fu, queries, identity,
+            )?;
             new_region = attempt.region;
         }
         if ed::is_spine(b, surv)? && new_region.is_none() {
             ignore_status(test_closure_split_region_edge(
-                k, b, &mut marks, env, surv, queries,
+                k, b, &mut marks, env, surv, queries, identity,
             ))?;
         }
     }
@@ -1511,6 +1520,7 @@ pub fn merge_self_intersection_curves(
     curves: &[SelfIntersectionCurve],
     env: &mut ed::NotifyEnv<'_>,
     queries: &mut dyn p6::RegionSplitQueries,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
 ) -> Result<Vec<EdgeId>> {
     let mut new_edges = Vec::new();
     let mut all_faces: Vec<FaceId> = face.into_iter().collect();
@@ -1571,6 +1581,7 @@ pub fn merge_self_intersection_curves(
                     None,
                     env,
                     queries,
+                    identity,
                 )?;
             }
             new_edges.push(e1);
@@ -1734,7 +1745,7 @@ mod tests {
         };
         let mut queries = |_: &mut Kernel,
                            _: &mut Brep,
-                           _: ShellId,
+                           _: Option<ShellId>,
                            _: crate::topology::shell::ShellRayInput<EntityRef>|
          -> crate::topology::shell::ShellRayAttempt<EntityRef> {
             panic!("a no-op glue must not fire a shell ray")
@@ -1756,6 +1767,10 @@ mod tests {
                 None,
                 &mut env,
                 &mut queries,
+                crate::intersect::curve_class::p7::FaceQueryIdentity {
+                    keys: &crate::topology::brep_cache::arena_identity,
+                    owner_of: &|_| None,
+                },
             )
             .unwrap();
         }
@@ -1772,6 +1787,10 @@ mod tests {
             None,
             &mut env,
             &mut queries,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
         );
         // The malformed edge fixture still stops at its missing primary edge use,
         // after the native notification sequence (SmBrep.cpp:9840-9854) completes.
@@ -1917,6 +1936,15 @@ mod tests {
         ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
             panic!("the fixture rejects distinct vertices before any shell ray")
         }
+
+        fn brep_ray_fire(
+            &mut self,
+            _kernel: &mut Kernel,
+            _brep: &mut Brep,
+            _input: crate::topology::shell::ShellRayInput<EntityRef>,
+        ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
+            panic!("the fixture rejects distinct vertices before any B-rep ray")
+        }
     }
 
     fn run_glue_geometry_check(
@@ -1962,6 +1990,10 @@ mod tests {
             None,
             &mut env,
             &mut queries,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
         );
         let survivor = env.records[&glue_geometry_key(EntityRef::Edge(edges[0])).key];
         (result, queries, survivor)
@@ -2279,7 +2311,7 @@ mod tests {
         };
         let mut queries = |_: &mut Kernel,
                            _: &mut Brep,
-                           _: ShellId,
+                           _: Option<ShellId>,
                            _: crate::topology::shell::ShellRayInput<EntityRef>|
          -> crate::topology::shell::ShellRayAttempt<EntityRef> {
             panic!("a merge without curves must not fire a shell ray")
@@ -2292,6 +2324,10 @@ mod tests {
             &[],
             &mut env,
             &mut queries,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None
+            }
         )
         .unwrap()
         .is_empty());
@@ -2303,6 +2339,10 @@ mod tests {
             &[],
             &mut env,
             &mut queries,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None
+            }
         )
         .unwrap()
         .is_empty());
@@ -2316,7 +2356,7 @@ mod tests {
         let mut records = std::collections::BTreeMap::new();
         let mut queries = |_: &mut Kernel,
                            _: &mut Brep,
-                           _: ShellId,
+                           _: Option<ShellId>,
                            _: crate::topology::shell::ShellRayInput<EntityRef>|
          -> crate::topology::shell::ShellRayAttempt<EntityRef> {
             panic!("an empty input stream must not require geometric queries")
@@ -2328,6 +2368,10 @@ mod tests {
             records: &mut records,
             next_key: 1,
             region_queries: &mut queries,
+            query_identity: crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
         };
         // Native empty input produces an empty B-rep; the real trim-curve
         // checker finds no edge uses requiring a repair.

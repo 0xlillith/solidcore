@@ -60,17 +60,17 @@
 //! - **`SmProtoVertex`** keeps no pointer to its manager; the manager is passed.
 //! - **`CurveOnClassify`** stores handles of the caller's choosing in the curve
 //!   classification; [`CurveOnClassifyObjects`] makes the face and surface handles and
-//!   resolves curve and loop handles, and the caller's [`ClassGeometry`] resolves them
+//!   resolves curve and loop handles, and the caller's [`crate::intersect::point_class::ClassGeometry`] resolves them
 //!   for `ClassifyFaceInterval` (`lFaceIndx` left at its default).
 //!   `SmCurveClassification::ReSet` is [`CurveClassification::reset`]; its callees
 //!   `IntersectTSBound` / `IntersectEdges` (part 9, wired through borrowed boundary
 //!   views) and `SmFace::GetEdges` (`topology.face_p4`) retain their dependency
 //!   boundaries. `pbOptModifiedCurve` is the result. `IntersectVertices` and
 //!   `ClassifyFaceInterval` call their landed implementations through the caller's
-//!   classification handles and [`ClassGeometry`] callbacks.
-//! - Boundary views use required handle mappings and the same [`ClassGeometry`]
-//!   implementation as part 5. Lazy UV and gap calculations run on a private B-rep
-//!   snapshot; numerical results are preserved while cache-only updates are discarded.
+//!   classification handles and [`crate::intersect::point_class::ClassGeometry`] callbacks.
+//! - Boundary views use required handle mappings and the same [`crate::intersect::point_class::ClassGeometry`]
+//!   implementation as part 5. Lazy UV and gap calculations retain their writes
+//!   in the original mutable B-rep through the same owner provider.
 //! - No recursion.
 
 use crate::curve::curve::Curve;
@@ -85,12 +85,13 @@ use crate::intersect::curve_class::p9::{
     IntersectEdgesOptions,
 };
 use crate::intersect::point_class::{
-    ClassGeometry, ClassObject, ClassObjectKind, PointClassType, PointClassification,
+    ClassObject, ClassObjectKind, PointClassType, PointClassification,
 };
 use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO, EFF_ZERO_SQRT};
 use crate::query::r#loop::{contains_uv_point, UvContainment};
 use crate::surface::surface::{Surface, SurfaceKind};
+use crate::surface::surface_cache::p1::SurfaceCacheContext;
 use crate::surface::surface_cache::p1::{FaceContainment, SurfaceCacheOptions};
 use crate::surface::trim_srf_cache::TrimSrfCache;
 use crate::topology::edgeuse::p1 as eu1;
@@ -195,6 +196,272 @@ fn with_out_of_bounds_enabled(surface: &Surface) -> Option<Surface> {
 
 // ---- SmFace::PointClassify --------------------------------------------------------------
 
+/// Decision from the original retained trimmed-surface cache.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FacePointCacheDecision {
+    /// No classified leaf answered the point; continue the normal face query.
+    NoDecision,
+    /// The first classified leaf is outside.
+    Outside,
+    /// The first classified leaf is inside, retaining its exact optional face.
+    Inside(Option<EntityRef>),
+}
+
+/// Narrow mutable access to a caller's retained cache, independent of PC handles.
+/// Cache construction receives the original B-rep only for this call.
+pub trait FacePointCache: std::fmt::Debug {
+    /// Native ready flags, inspected before the surface's owner query.
+    fn ready(&self) -> bool;
+
+    /// Build the actual tree if absent, then inspect its leaves in native order.
+    ///
+    /// # Errors
+    /// Propagates construction, original topology and exact identity-map errors.
+    fn classify_ready(
+        &mut self,
+        k: &Kernel,
+        brep: &mut Brep,
+        face: FaceId,
+        uv: Point2,
+        keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> crate::geom::object::ObjectRef,
+        owner_of: &dyn Fn(crate::geom::object::ObjectRef) -> Option<crate::geom::object::ObjectRef>,
+    ) -> Result<FacePointCacheDecision>;
+}
+
+/// Borrow a retained cache with its own handle type; no tree or dispatch is copied.
+/// Both mappings name the same original operand and preserve complete PC state.
+pub struct MappedFacePointCache<'a, C> {
+    cache: &'a mut TrimSrfCache<C>,
+    to_entity: &'a dyn Fn(C) -> Result<EntityRef>,
+    from_entity: &'a dyn Fn(EntityRef) -> Result<C>,
+}
+
+impl<C> std::fmt::Debug for MappedFacePointCache<'_, C> {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("MappedFacePointCache")
+            .finish_non_exhaustive()
+    }
+}
+
+impl<'a, C> MappedFacePointCache<'a, C> {
+    /// Lend the original cache and exact bidirectional topology identity mappings.
+    pub fn new(
+        cache: &'a mut TrimSrfCache<C>,
+        to_entity: &'a dyn Fn(C) -> Result<EntityRef>,
+        from_entity: &'a dyn Fn(EntityRef) -> Result<C>,
+    ) -> Self {
+        Self {
+            cache,
+            to_entity,
+            from_entity,
+        }
+    }
+}
+
+struct FaceCacheContext<'a, 'b, C> {
+    context: super::p1::FacePointContext<'a>,
+    face: FaceId,
+    to_entity: &'b dyn Fn(C) -> Result<EntityRef>,
+    from_entity: &'b dyn Fn(EntityRef) -> Result<C>,
+}
+
+fn cache_topology_object(entity: EntityRef) -> Result<crate::topology::brep_cache::CacheObject> {
+    use crate::topology::brep_cache::CacheObject;
+    match entity {
+        EntityRef::Face(face) => Ok(CacheObject::Face(face)),
+        EntityRef::Edge(edge) => Ok(CacheObject::Edge(edge)),
+        EntityRef::Vertex(vertex) => Ok(CacheObject::Vertex(vertex)),
+        _ => Err(SolidError::invalid_input(
+            OP_CLASSIFY,
+            "unsupported trim-cache topology handle",
+        )),
+    }
+}
+
+fn cache_topology_entity(object: crate::topology::brep_cache::CacheObject) -> Result<EntityRef> {
+    use crate::topology::brep_cache::CacheObject;
+    match object {
+        CacheObject::Face(face) => Ok(EntityRef::Face(face)),
+        CacheObject::Edge(edge) => Ok(EntityRef::Edge(edge)),
+        CacheObject::Vertex(vertex) => Ok(EntityRef::Vertex(vertex)),
+        _ => Err(SolidError::invalid_input(
+            OP_CLASSIFY,
+            "non-topology trim-cache classification",
+        )),
+    }
+}
+
+impl<C: Copy + PartialEq> SurfaceCacheContext<C> for FaceCacheContext<'_, '_, C> {
+    fn surface_face(&self, surface: &Surface, _: Option<C>) -> Result<Option<C>> {
+        use crate::topology::brep_cache::CacheObject;
+        self.context
+            .surface_face(surface, Some(CacheObject::Surface(self.face)))?
+            .map(|object| (self.from_entity)(cache_topology_entity(object)?))
+            .transpose()
+    }
+    fn surface_has_direct_face_owner(&self, surface: &Surface, _: Option<C>) -> Result<bool> {
+        use crate::topology::brep_cache::CacheObject;
+        self.context
+            .surface_has_direct_face_owner(surface, Some(CacheObject::Surface(self.face)))
+    }
+    fn surface_zone_tol_3d(&self, k: &Kernel, surface: &Surface, _: Option<C>) -> Result<f64> {
+        use crate::topology::brep_cache::CacheObject;
+        self.context
+            .surface_zone_tol_3d(k, surface, Some(CacheObject::Surface(self.face)))
+    }
+    fn surface_owner_zone_tol_3d(
+        &self,
+        k: &Kernel,
+        surface: &Surface,
+        _: Option<C>,
+    ) -> Result<f64> {
+        use crate::topology::brep_cache::CacheObject;
+        self.context
+            .surface_owner_zone_tol_3d(k, surface, Some(CacheObject::Surface(self.face)))
+    }
+    fn object_zone_tol_3d(&self, k: &Kernel, object: Option<C>) -> Result<f64> {
+        let object = object
+            .map(|object| cache_topology_object((self.to_entity)(object)?))
+            .transpose()?;
+        self.context.object_zone_tol_3d(k, object)
+    }
+    fn face_brep_editing_enabled(&self, face: C) -> Result<bool> {
+        self.context
+            .face_brep_editing_enabled(cache_topology_object((self.to_entity)(face)?)?)
+    }
+    fn set_face_brep_editing_enabled(&mut self, face: C, editing: bool) -> Result<()> {
+        self.context
+            .set_face_brep_editing_enabled(cache_topology_object((self.to_entity)(face)?)?, editing)
+    }
+    fn face_create_uv_trim_curves(&mut self, k: &Kernel, face: C) -> Result<()> {
+        self.context
+            .face_create_uv_trim_curves(k, cache_topology_object((self.to_entity)(face)?)?)
+    }
+    fn face_point_classify(
+        &mut self,
+        k: &Kernel,
+        face: C,
+        uv: Point2,
+        tolerance: f64,
+        do_boundaries: bool,
+        use_uv: bool,
+        classification: &mut PointClassification<C>,
+    ) -> Result<()> {
+        let mut local = classification
+            .try_map_objects(|object| cache_topology_object((self.to_entity)(object)?))?;
+        let result = self.context.face_point_classify(
+            k,
+            cache_topology_object((self.to_entity)(face)?)?,
+            uv,
+            tolerance,
+            do_boundaries,
+            use_uv,
+            &mut local,
+        );
+        *classification =
+            local.try_map_objects(|object| (self.from_entity)(cache_topology_entity(object)?))?;
+        result
+    }
+}
+
+fn classify_retained_cache<C: Copy + PartialEq>(
+    cache: &mut TrimSrfCache<C>,
+    k: &Kernel,
+    b: &mut Brep,
+    face: FaceId,
+    uv: Point2,
+    keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> crate::geom::object::ObjectRef,
+    owner_of: &dyn Fn(crate::geom::object::ObjectRef) -> Option<crate::geom::object::ObjectRef>,
+    to_entity: &dyn Fn(C) -> Result<EntityRef>,
+    from_entity: &dyn Fn(EntityRef) -> Result<C>,
+) -> Result<FacePointCacheDecision> {
+    if cache.base().tree().is_none() {
+        let mut context = FaceCacheContext {
+            context: super::p1::FacePointContext::new(b, keys, owner_of),
+            face,
+            to_entity,
+            from_entity,
+        };
+        cache.build_tree_with_context(k, &mut context)?;
+    }
+    let nodes = cache
+        .base()
+        .find_uv_nodes_built(k, &Extent2d::from_point(uv), false)?;
+    let tree = cache
+        .base()
+        .tree()
+        .ok_or_else(|| null(OP_CLASSIFY, "trimmed surface cache without tree"))?;
+    let mut leaf_nodes = Vec::new();
+    for node in nodes {
+        if tree.node(node)?.child1.is_none() {
+            leaf_nodes.push(node);
+        }
+    }
+    for node in leaf_nodes {
+        let NodeData::Surface(aux) = &tree.node(node)?.data else {
+            return Err(null(OP_CLASSIFY, "leaf node without surface data"));
+        };
+        if aux.node_class == NodeClass::Outside {
+            return Ok(FacePointCacheDecision::Outside);
+        }
+        if aux.node_class == NodeClass::Inside {
+            return Ok(FacePointCacheDecision::Inside(
+                aux.face.map(to_entity).transpose()?,
+            ));
+        }
+    }
+    Ok(FacePointCacheDecision::NoDecision)
+}
+
+impl FacePointCache for TrimSrfCache<EntityRef> {
+    fn ready(&self) -> bool {
+        self.base().have_t_surface_cache
+            && self.base().face_containment_done == FaceContainment::Done
+            && !self.base().face_was_modified
+    }
+    fn classify_ready(
+        &mut self,
+        k: &Kernel,
+        b: &mut Brep,
+        face: FaceId,
+        uv: Point2,
+        keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> crate::geom::object::ObjectRef,
+        owner_of: &dyn Fn(crate::geom::object::ObjectRef) -> Option<crate::geom::object::ObjectRef>,
+    ) -> Result<FacePointCacheDecision> {
+        classify_retained_cache(self, k, b, face, uv, keys, owner_of, &Ok, &Ok)
+    }
+}
+
+impl<C: Copy + PartialEq> FacePointCache for MappedFacePointCache<'_, C> {
+    fn ready(&self) -> bool {
+        self.cache.base().have_t_surface_cache
+            && self.cache.base().face_containment_done == FaceContainment::Done
+            && !self.cache.base().face_was_modified
+    }
+    fn classify_ready(
+        &mut self,
+        k: &Kernel,
+        b: &mut Brep,
+        face: FaceId,
+        uv: Point2,
+        keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> crate::geom::object::ObjectRef,
+        owner_of: &dyn Fn(crate::geom::object::ObjectRef) -> Option<crate::geom::object::ObjectRef>,
+    ) -> Result<FacePointCacheDecision> {
+        classify_retained_cache(
+            self.cache,
+            k,
+            b,
+            face,
+            uv,
+            keys,
+            owner_of,
+            self.to_entity,
+            self.from_entity,
+        )
+    }
+}
+
 /// The optional arguments of [`point_classify`]; [`Default`] gives upstream's
 /// defaults for the defaulted ones (`bTgtLoopsOnly = FALSE`, `pOptTgtLoops = NULL`,
 /// `bUVSpaceOkay = TRUE`) and `0` / `false` for the others.
@@ -219,7 +486,7 @@ pub struct PointClassifyOptions<'a> {
     /// The face surface's trimmed surface cache
     /// (`SmCacheMgr::GetObjectCache(SM_OC_TRIMSRF, GetSurface())`), `None` when the
     /// surface has none.
-    pub trim_cache: Option<&'a mut TrimSrfCache<EntityRef>>,
+    pub trim_cache: Option<&'a mut dyn FacePointCache>,
 }
 
 impl Default for PointClassifyOptions<'_> {
@@ -256,6 +523,8 @@ impl Default for PointClassifyOptions<'_> {
 /// without surface; those of the trimmed surface cache search, of [`face_vertices`]
 /// and [`contains_uv_point`]; [`SolidError::InvalidInput`] for an
 /// on-boundary edge without curve.
+/// This plain entry point retains the arena-identity convention. Call
+/// [`point_classify_with_context`] for registered operand namespaces and owners.
 pub fn point_classify(
     k: &Kernel,
     b: &mut Brep,
@@ -263,6 +532,59 @@ pub fn point_classify(
     uv: Point2,
     pc: &mut PointClassification<EntityRef>,
     opts: PointClassifyOptions<'_>,
+) -> Result<()> {
+    let mut owners = std::collections::BTreeMap::new();
+    if opts.trim_cache.is_some() {
+        for (edge, record) in b.edges().iter() {
+            if let Some(owner) = record.curve.as_ref().and_then(Curve::owner) {
+                owners.insert(
+                    crate::topology::brep_cache::arena_identity(
+                        crate::topology::brep_cache::CacheObject::Curve(edge),
+                    ),
+                    owner,
+                );
+            }
+        }
+        for (face, record) in b.faces().iter() {
+            if let Some(owner) = record.surface.as_ref().and_then(Surface::owner) {
+                owners.insert(
+                    crate::topology::brep_cache::arena_identity(
+                        crate::topology::brep_cache::CacheObject::Surface(face),
+                    ),
+                    owner,
+                );
+            }
+        }
+    }
+    point_classify_with_context(
+        k,
+        b,
+        f,
+        uv,
+        pc,
+        opts,
+        &crate::topology::brep_cache::arena_identity,
+        &|object| owners.get(&object).copied(),
+    )
+}
+
+/// [`point_classify`] over the caller's original retained cache, whose stored
+/// handles are translated only for topology queries and cached output fields.
+/// Construction uses the exact caller keys and owner links on the original B-rep.
+/// No cache copy is constructed; lazy tree writes and subdivision dispatch stay
+/// in the same cache on success and on error.
+///
+/// # Errors
+/// Those of [`point_classify`] and the operand-scoped cache handle translator.
+pub fn point_classify_with_context(
+    k: &Kernel,
+    b: &mut Brep,
+    f: FaceId,
+    uv: Point2,
+    pc: &mut PointClassification<EntityRef>,
+    opts: PointClassifyOptions<'_>,
+    keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> crate::geom::object::ObjectRef,
+    owner_of: &dyn Fn(crate::geom::object::ObjectRef) -> Option<crate::geom::object::ObjectRef>,
 ) -> Result<()> {
     let PointClassifyOptions {
         tgt_loops_only,
@@ -285,62 +607,32 @@ pub fn point_classify(
         return Ok(());
     }
 
-    // locals
-    let surface = face.surface.as_ref();
-
-    // when doing all loops
-    if !tgt_loops_only {
-        // 1. try fast point TrimSrfCache classification.
-        // First try to get the cache - will be NULL when object has no cache
-        let tsc = if surface.is_some() { trim_cache } else { None };
-        if let Some(tsc) = tsc {
-            if tsc.base().have_t_surface_cache
-                && tsc.base().face_containment_done == FaceContainment::Done
-                && !tsc.base().face_was_modified
-                && surface.map_or(Ok(false), |s| s.face().map(|o| o.is_some()))?
+    let has_surface = face.surface.is_some();
+    if !tgt_loops_only && has_surface {
+        if let Some(cache) = trim_cache {
+            if cache.ready()
+                && b.face(f)?.surface.as_ref().map_or(Ok(false), |surface| {
+                    super::p1::surface_face_with_context(b, surface, keys, owner_of)
+                        .map(|owner| owner == Some(f))
+                })?
             {
-                // get every TrimSrfCache leaf node intersecting the UVPoint
-                let uv_ext = Extent2d::from_point(uv);
-                if tsc.base().tree().is_none() {
-                    tsc.build_tree(k)?;
-                }
-                let nodes = tsc.base().find_uv_nodes_built(k, &uv_ext, false)?;
-                let tree = tsc
-                    .base()
-                    .tree()
-                    .ok_or_else(|| null(OP_CLASSIFY, "trimmed surface cache without tree"))?;
-                let mut leaf_nodes = Vec::new();
-                for n in nodes {
-                    if tree.node(n)?.child1.is_some() {
-                        continue;
-                    }
-                    leaf_nodes.push(n);
-                } // end selecting intersecting leafNodes
-
-                // search for a INSIDE/OUTSIDE classified intersecting leaf node
-                for n in leaf_nodes {
-                    let NodeData::Surface(aux) = &tree.node(n)?.data else {
-                        return Err(null(OP_CLASSIFY, "leaf node without surface data"));
-                    };
-
-                    // when leaf node is classified OUTSIDE of surface->Face
-                    if aux.node_class == NodeClass::Outside {
+                match cache.classify_ready(k, b, f, uv, keys, owner_of)? {
+                    FacePointCacheDecision::NoDecision => {}
+                    FacePointCacheDecision::Outside => {
                         pc.set_class_object(PointClassType::Unknown, None);
                         return Ok(());
                     }
-
-                    // when leaf node is classified INSIDE of surface->Face
-                    if aux.node_class == NodeClass::Inside {
-                        pc.set_class_object(PointClassType::Face, aux.face);
+                    FacePointCacheDecision::Inside(face) => {
+                        pc.set_class_object(PointClassType::Face, face);
                         pc.set_gap_3d(0.0);
                         pc.set_pre_snap_param(BIG_DOUBLE);
                         pc.set_uv_param(uv);
                         return Ok(());
                     }
-                } // end iter every leaf node containing UVPoint
-            } // end up-to-date TrimSrfCache check
+                }
+            }
         }
-    } // end when doing all loops
+    }
 
     // arrive here when PointClassify by TrimSrfCache failed or when bTgtLoopsOnly
 
@@ -349,7 +641,11 @@ pub fn point_classify(
 
     // We must enable out-of-bounds evaluation, otherwise a point outside the surface
     // domain will be classified on a boundary.
-    let surface = surface.ok_or(SolidError::null_pointer(OP_CLASSIFY))?;
+    let surface = b
+        .face(f)?
+        .surface
+        .as_ref()
+        .ok_or(SolidError::null_pointer(OP_CLASSIFY))?;
     // (an owned surface: the loop classification edits the B-rep while it walks)
     let surface: Surface = if let Some(copy) = with_out_of_bounds_enabled(surface) {
         copy
@@ -518,6 +814,36 @@ pub fn classify_param_on_faces(
     face2: FaceId,
     domain2: &Extent2d,
 ) -> Result<i32> {
+    classify_param_on_faces_with_context(
+        k,
+        b,
+        uv,
+        src_zone_tol_3d,
+        face1,
+        domain1,
+        face2,
+        domain2,
+        &crate::topology::brep_cache::arena_identity,
+        &|_| None,
+    )
+}
+
+/// Classify a shared UV parameter with the caller's cache identity and owner chain.
+///
+/// # Errors
+/// Returns the original face query error when either classification fails.
+pub fn classify_param_on_faces_with_context(
+    k: &Kernel,
+    b: &mut Brep,
+    uv: Point2,
+    src_zone_tol_3d: f64,
+    face1: FaceId,
+    domain1: &Extent2d,
+    face2: FaceId,
+    domain2: &Extent2d,
+    keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> crate::geom::object::ObjectRef,
+    owner_of: &dyn Fn(crate::geom::object::ObjectRef) -> Option<crate::geom::object::ObjectRef>,
+) -> Result<i32> {
     // quick BBox containment check
     let in_face1 = domain1.contains_point(uv, EFF_ZERO);
     let in_face2 = domain2.contains_point(uv, EFF_ZERO);
@@ -547,7 +873,7 @@ pub fn classify_param_on_faces(
             uv_space_okay: true,
             ..PointClassifyOptions::default()
         };
-        match point_classify(k, b, face, uv, &mut pc, opts) {
+        match point_classify_with_context(k, b, face, uv, &mut pc, opts, keys, owner_of) {
             Err(
                 e @ (SolidError::Unported { .. }
                 | SolidError::InvalidInput { .. }
@@ -611,7 +937,9 @@ pub fn proto_vertex_contains_point<O: ClassObject>(
 // ---- SmFace::CurveOnClassify ------------------------------------------------------------
 
 /// What [`curve_on_classify`] needs of the caller's classification handles.
-pub trait CurveOnClassifyObjects<O: ClassObject>: ClassGeometry<O> {
+pub trait CurveOnClassifyObjects<O: ClassObject>:
+    crate::intersect::curve_class::p7::FaceIntervalQueries<O>
+{
     /// The handle of face `f` (`this`).
     fn face(&self, f: FaceId) -> O;
     /// The classification handle of vertex `v`.
@@ -622,10 +950,10 @@ pub trait CurveOnClassifyObjects<O: ClassObject>: ClassGeometry<O> {
     fn vertexuse(&self, vu: VertexuseId) -> O;
     /// The identity of edge use `eu`, also used by trim-cache lists.
     fn edgeuse(&self, eu: EdgeuseId) -> O;
-    /// The handle of edge `e`'s curve, resolvable through [`ClassGeometry::curve`].
+    /// The handle of edge `e`'s curve, resolvable through [`crate::intersect::point_class::ClassGeometry::curve`].
     fn edge_curve(&self, e: EdgeId) -> O;
     /// The handle of the trim curve stored on `eu`, which may be the selected
-    /// edgeuse's mate. Resolvable through [`ClassGeometry::curve`].
+    /// edgeuse's mate. Resolvable through [`crate::intersect::point_class::ClassGeometry::curve`].
     fn trim_curve(&self, eu: EdgeuseId) -> O;
     /// The handle of face `f`'s surface, `None` without one.
     fn face_surface(&self, f: FaceId) -> Option<O>;
@@ -638,24 +966,28 @@ pub trait CurveOnClassifyObjects<O: ClassObject>: ClassGeometry<O> {
 }
 
 /// Resolve stored edge data and its optional gap on this face. The snapshot
-/// retains lazy gap-cache updates without mutating the caller's borrowed B-rep.
+/// retains lazy gap-cache updates in the caller's original mutable B-rep.
 fn boundary_edge<O: ClassObject>(
     k: &Kernel,
-    b: &mut Brep,
-    objects: &impl CurveOnClassifyObjects<O>,
+    objects: &mut impl CurveOnClassifyObjects<O>,
     face: FaceId,
     edge: EdgeId,
     has_big_gaps: bool,
 ) -> Result<BoundaryEdge<O>> {
     let face_gap = if has_big_gaps {
-        match crate::topology::edge::edgeuse_of_face(b, edge, Some(face))? {
-            Some(eu) => eu1::max_edge_face_gap(k, b, eu, false)?.map(|g| g.gap_3d),
+        match crate::topology::edge::edgeuse_of_face(
+            objects.classification_brep()?,
+            edge,
+            Some(face),
+        )? {
+            Some(eu) => eu1::max_edge_face_gap(k, objects.classification_brep_mut()?, eu, false)?
+                .map(|g| g.gap_3d),
             None => None,
         }
     } else {
         None
     };
-    let record = b.edge(edge)?;
+    let record = objects.classification_brep()?.edge(edge)?;
     if record.curve.is_none() {
         return Err(SolidError::null_pointer(OP_CURVE));
     }
@@ -669,15 +1001,14 @@ fn boundary_edge<O: ClassObject>(
 }
 
 /// Build real ordered topology views; only handle identity is caller-specific.
-/// UV computation uses the existing vertexuse port on one private arena snapshot.
+/// UV computation uses the existing vertexuse port on the original mutable arena.
 fn boundary_loops<O: ClassObject>(
     k: &Kernel,
-    b: &Brep,
-    objects: &impl CurveOnClassifyObjects<O>,
+    objects: &mut impl CurveOnClassifyObjects<O>,
     face: FaceId,
 ) -> Result<Vec<BoundaryLoop<O>>> {
-    let fu = fp2::upward_faceuse(b, face)?.ok_or(SolidError::null_pointer(OP_CURVE))?;
-    let mut snapshot = b.clone();
+    let fu = fp2::upward_faceuse(objects.classification_brep()?, face)?
+        .ok_or(SolidError::null_pointer(OP_CURVE))?;
     let cached = objects.trim_cache(face).is_some_and(|cache| {
         let base = cache.base();
         !base.face_was_modified
@@ -685,15 +1016,18 @@ fn boundary_loops<O: ClassObject>(
             && base.face_containment_done != FaceContainment::NotDone
     });
     let mut loops = Vec::new();
-    for &lu in &b.faceuse(fu)?.loopuses {
+    let loopuses = objects.classification_brep()?.faceuse(fu)?.loopuses.clone();
+    for lu in loopuses {
         let mut vertices = Vec::new();
-        for vu in loopuse::vertexuses(b, lu, None)? {
+        for vu in loopuse::vertexuses(objects.classification_brep()?, lu, None)? {
             let vu = vu.ok_or(SolidError::null_pointer(OP_CURVE))?;
-            let vertex = b
+            let vertex = objects
+                .classification_brep()?
                 .vertexuse(vu)?
                 .vertex
                 .ok_or(SolidError::null_pointer(OP_CURVE))?;
-            let record = b.vertex(vertex)?;
+            let record = objects.classification_brep()?.vertex(vertex)?;
+            let (point, zone_tol_3d) = (record.point, record.tolerance);
             vertices.push(BoundaryVertex {
                 vertexuse: objects.vertexuse(vu),
                 vertex: objects.vertex(vertex),
@@ -703,23 +1037,24 @@ fn boundary_loops<O: ClassObject>(
                 } else {
                     ignored(crate::topology::vertexuse::compute_uv_point(
                         k,
-                        &mut snapshot,
+                        objects.classification_brep_mut()?,
                         vu,
                         true,
                     ))?
                     .unwrap_or(Point2::UNDEF)
                 },
-                point: record.point,
-                zone_tol_3d: record.tolerance,
+                point,
+                zone_tol_3d,
             });
         }
         let mut edges = Vec::new();
-        for eu in loopuse::edgeuses(b, lu, None, None)? {
-            let edge = b
+        for eu in loopuse::edgeuses(objects.classification_brep()?, lu, None, None)? {
+            let edge = objects
+                .classification_brep()?
                 .edgeuse(eu)?
                 .edge
                 .ok_or(SolidError::null_pointer(OP_CURVE))?;
-            let (trim, owner) = eu1::uv_trim_curve(b, eu)?;
+            let (trim, owner) = eu1::uv_trim_curve(objects.classification_brep()?, eu)?;
             let trim_curve = if trim.is_some() {
                 owner.map(|owner| objects.trim_curve(owner))
             } else {
@@ -727,7 +1062,7 @@ fn boundary_loops<O: ClassObject>(
             };
             edges.push(BoundaryEdgeuse {
                 edgeuse: objects.edgeuse(eu),
-                edge: boundary_edge(k, &mut snapshot, objects, face, edge, false)?,
+                edge: boundary_edge(k, objects, face, edge, false)?,
                 trim_curve,
             });
         }
@@ -752,9 +1087,8 @@ fn boundary_loops<O: ClassObject>(
 #[allow(clippy::fn_params_excessive_bools)] // upstream's SmBoolean arguments
 pub fn curve_on_classify<O: ClassObject>(
     k: &Kernel,
-    b: &Brep,
     f: FaceId,
-    objects: &impl CurveOnClassifyObjects<O>,
+    objects: &mut impl CurveOnClassifyObjects<O>,
     do_point_classify: bool,
     cc: &mut CurveClassification<O>,
     has_big_gaps: bool,
@@ -782,7 +1116,7 @@ pub fn curve_on_classify<O: ClassObject>(
         if curve.dim() == 2 {
             // 2D Curve branch - work in surface's uv space directly on the Face's UVcurves
             cc.set_surface1(objects.face_surface(f));
-            match intersect_ts_bound(k, b, objects, cc, f, do_check_3d) {
+            match intersect_ts_bound(k, objects, cc, f, do_check_3d) {
                 Ok(()) => {}
                 Err(e) if e.is_unported() => return Err(e),
                 Err(_) => return Err(SolidError::sm_err(OP_CURVE)),
@@ -799,8 +1133,14 @@ pub fn curve_on_classify<O: ClassObject>(
                         .ok_or_else(|| null(OP_CURVE, "unresolvable target loop"))
                 })
                 .collect::<Result<Vec<_>>>()?;
-            let vertices = face_vertices(b, f, cc.tgt_loops_only(), Some(&tgt_loops))?;
-            let surface = b
+            let vertices = face_vertices(
+                objects.classification_brep()?,
+                f,
+                cc.tgt_loops_only(),
+                Some(&tgt_loops),
+            )?;
+            let surface = objects
+                .classification_brep()?
                 .face(f)?
                 .surface
                 .as_ref()
@@ -812,8 +1152,13 @@ pub fn curve_on_classify<O: ClassObject>(
             cc.intersect_vertices(k, objects, &vertices, surface, has_big_gaps, true)?;
 
             // 2nd intersect face edges with the curve
-            let edges = face_edges(b, f, cc.tgt_loops_only(), Some(&tgt_loops))?;
-            intersect_edges(k, b, objects, cc, &edges, f, has_big_gaps)?;
+            let edges = face_edges(
+                objects.classification_brep()?,
+                f,
+                cc.tgt_loops_only(),
+                Some(&tgt_loops),
+            )?;
+            intersect_edges(k, objects, cc, &edges, f, has_big_gaps)?;
         }
     }
 
@@ -879,18 +1224,19 @@ fn reset_classification<O: ClassObject>(k: &Kernel, cc: &mut CurveClassification
 /// `SmCurveClassification::IntersectTSBound(this, bDoCheck3d)`.
 fn intersect_ts_bound<O: ClassObject>(
     k: &Kernel,
-    b: &Brep,
-    objects: &impl CurveOnClassifyObjects<O>,
+    objects: &mut impl CurveOnClassifyObjects<O>,
     cc: &mut CurveClassification<O>,
     face: FaceId,
     do_check_3d: bool,
 ) -> Result<()> {
-    let surface = b
+    let surface = objects
+        .classification_brep()?
         .face(face)?
         .surface
         .as_ref()
-        .ok_or(SolidError::null_pointer(OP_CURVE))?;
-    let loops = boundary_loops(k, b, objects, face)?;
+        .ok_or(SolidError::null_pointer(OP_CURVE))?
+        .clone_for_evaluation()?;
+    let loops = boundary_loops(k, objects, face)?;
     let fresh;
     let cache = if let Some(cache) = objects.trim_cache(face) {
         cache
@@ -902,7 +1248,7 @@ fn intersect_ts_bound<O: ClassObject>(
         k,
         objects,
         &BoundaryFace {
-            surface,
+            surface: &surface,
             loops: &loops,
             cache,
         },
@@ -924,28 +1270,28 @@ fn face_edges(
 /// `SmCurveClassification::IntersectEdges(edges, *this, bHasBigGaps)`.
 fn intersect_edges<O: ClassObject>(
     k: &Kernel,
-    b: &Brep,
-    objects: &impl CurveOnClassifyObjects<O>,
+    objects: &mut impl CurveOnClassifyObjects<O>,
     cc: &mut CurveClassification<O>,
     edges: &[EdgeId],
     face: FaceId,
     has_big_gaps: bool,
 ) -> Result<()> {
-    let surface = b
+    let surface = objects
+        .classification_brep()?
         .face(face)?
         .surface
         .as_ref()
-        .ok_or(SolidError::null_pointer(OP_CURVE))?;
-    let mut snapshot = b.clone();
-    let views = edges
-        .iter()
-        .map(|&edge| boundary_edge(k, &mut snapshot, objects, face, edge, has_big_gaps))
-        .collect::<Result<Vec<_>>>()?;
+        .ok_or(SolidError::null_pointer(OP_CURVE))?
+        .clone_for_evaluation()?;
+    let mut views = Vec::new();
+    for &edge in edges {
+        views.push(boundary_edge(k, objects, face, edge, has_big_gaps)?);
+    }
     cc.intersect_edges(
         k,
         objects,
         &views,
-        surface,
+        &surface,
         IntersectEdgesOptions {
             has_big_gaps,
             ..IntersectEdgesOptions::default()
@@ -960,6 +1306,7 @@ mod tests {
     use crate::curve::line::{BoundedLineOptions, Line};
     use crate::geom::extent1d::Extent1d;
     use crate::geom::vector2d::Vec2;
+    use crate::intersect::point_class::ClassGeometry;
     use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
     use crate::surface::plane::Plane;
     use crate::topology::{
@@ -1211,7 +1558,7 @@ mod tests {
         }
     }
     struct Handles<'a> {
-        b: &'a Brep,
+        b: &'a mut Brep,
         source: Curve,
         cache: Option<TrimSrfCache<Handle>>,
     }
@@ -1247,6 +1594,67 @@ mod tests {
             }
         }
     }
+    impl crate::intersect::curve_class::p7::FaceQueryOwner<Handle> for Handles<'_> {
+        fn classification_brep(&self) -> Result<&Brep> {
+            Ok(self.b)
+        }
+        fn classification_brep_mut(&mut self) -> Result<&mut Brep> {
+            Ok(self.b)
+        }
+        fn classification_entity(&self, _: Handle, object: Handle) -> Result<EntityRef> {
+            match object {
+                Handle::Topology(entity) => Ok(entity),
+                _ => Err(null(OP_CURVE, "not a fixture topology handle")),
+            }
+        }
+        fn classification_handle(&self, _: Handle, entity: EntityRef) -> Result<Handle> {
+            Ok(Handle::Topology(entity))
+        }
+        fn query_on_face<T>(
+            &mut self,
+            kernel: &Kernel,
+            face: Handle,
+            query: impl FnOnce(
+                &Kernel,
+                &mut Brep,
+                FaceId,
+                &dyn Fn(crate::topology::brep_cache::CacheObject) -> crate::geom::object::ObjectRef,
+                &dyn Fn(crate::geom::object::ObjectRef) -> Option<crate::geom::object::ObjectRef>,
+                Option<&mut dyn FacePointCache>,
+            ) -> Result<T>,
+        ) -> Result<T> {
+            let Handle::Topology(EntityRef::Face(face)) = face else {
+                return Err(null(OP_CURVE, "not a fixture face"));
+            };
+            let decode = |handle| match handle {
+                Handle::Topology(entity) => Ok(entity),
+                _ => Err(null(OP_CURVE, "not a fixture cache topology handle")),
+            };
+            let encode = |entity| Ok(Handle::Topology(entity));
+            let owner_of = |_| None;
+            if let Some(cache) = self.cache.as_mut() {
+                let mut view = MappedFacePointCache::new(cache, &decode, &encode);
+                query(
+                    kernel,
+                    self.b,
+                    face,
+                    &crate::topology::brep_cache::arena_identity,
+                    &owner_of,
+                    Some(&mut view),
+                )
+            } else {
+                query(
+                    kernel,
+                    self.b,
+                    face,
+                    &crate::topology::brep_cache::arena_identity,
+                    &owner_of,
+                    None,
+                )
+            }
+        }
+    }
+
     impl CurveOnClassifyObjects<Handle> for Handles<'_> {
         fn face(&self, f: FaceId) -> Handle {
             Handle::Topology(EntityRef::Face(f))
@@ -1290,8 +1698,8 @@ mod tests {
             VertexuseOwner::Loopuse(Some(LoopuseId::from_index(0)));
         b.loopuse_mut(LoopuseId::from_index(0)).unwrap().start =
             LoopuseStart::Vertexuse(Some(VertexuseId::from_index(0)));
-        let objects = Handles {
-            b: &b,
+        let mut objects = Handles {
+            b: &mut b,
             cache: None,
             source: Curve::from(Line::from_points(
                 Point3::new(0.2, 1.5, 0.),
@@ -1299,7 +1707,7 @@ mod tests {
                 2,
             )),
         };
-        let loops = boundary_loops(&k, &b, &objects, f).unwrap();
+        let loops = boundary_loops(&k, &mut objects, f).unwrap();
         assert_eq!(loops.len(), 1);
         assert_eq!(loops[0].vertices.len(), 1);
         assert!(loops[0].edges.is_empty());
@@ -1313,10 +1721,10 @@ mod tests {
             Extent1d::from_min_max(0., 1.),
             1e-6,
         );
-        intersect_ts_bound(&k, &b, &objects, &mut cc, f, false).unwrap();
+        intersect_ts_bound(&k, &mut objects, &mut cc, f, false).unwrap();
         assert_eq!(cc.size(), 1);
-        let objects = Handles {
-            b: &b,
+        let mut objects = Handles {
+            b: &mut b,
             cache: None,
             source: Curve::from(Line::from_points(
                 Point3::new(0.2, 0.5, 2.),
@@ -1326,8 +1734,7 @@ mod tests {
         };
         intersect_edges(
             &k,
-            &b,
-            &objects,
+            &mut objects,
             &mut cc,
             &[EdgeId::from_index(0)],
             f,
@@ -1348,17 +1755,311 @@ mod tests {
         cache.base_mut().have_t_surface_cache = true;
         cache.base_mut().face_was_modified = false;
         cache.base_mut().face_containment_done = FaceContainment::Done;
-        let objects = Handles {
-            b: &b,
+        let mut objects = Handles {
+            b: &mut b,
             cache: Some(cache),
             source: Curve::from(Line::from_points(Vec3::ZERO, Vec3::X, 2)),
         };
-        let loops = boundary_loops(&k, &b, &objects, f).unwrap();
+        let loops = boundary_loops(&k, &mut objects, f).unwrap();
         assert_eq!(loops[0].vertices.len(), 4);
         assert_eq!(loops[0].edges.len(), 4);
         for eu in &loops[0].edges {
             assert_eq!(objects.curve(eu.edge.curve).unwrap().dim(), 3);
             assert_eq!(objects.curve(eu.trim_curve.unwrap()).unwrap().dim(), 2);
+        }
+    }
+}
+
+#[cfg(test)]
+mod retained_point_cache_tests {
+    use super::*;
+    use crate::geom::attribute::ObjectKey;
+    use crate::geom::object::ObjectRef;
+    use crate::geom::tree::NodeId;
+    use crate::surface::plane::Plane;
+    use crate::surface::surface_cache::p1::SurfaceCacheOptions;
+    use crate::topology::brep_cache::{arena_identity, CacheObject};
+
+    #[derive(Debug, Clone, Copy, PartialEq)]
+    enum CacheHandle {
+        Surface,
+        Topology(EntityRef),
+    }
+
+    fn caller_key(object: CacheObject) -> ObjectRef {
+        let mut key = arena_identity(object);
+        key.key = ObjectKey(key.key.0 + 123_456);
+        key
+    }
+
+    fn to_entity(handle: CacheHandle) -> Result<EntityRef> {
+        match handle {
+            CacheHandle::Topology(entity) => Ok(entity),
+            CacheHandle::Surface => Err(SolidError::invalid_input(
+                OP_CLASSIFY,
+                "a surface handle is not a topology entity",
+            )),
+        }
+    }
+
+    fn ready_without_tree() -> (Brep, FaceId, TrimSrfCache<CacheHandle>) {
+        let mut b = Brep::new();
+        let shell = b.add_shell().unwrap();
+        let face = b.add_face(shell).unwrap();
+        let domain = Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0);
+        let mut surface = Surface::from(Plane::new(
+            Point3::ZERO,
+            Vec3::X,
+            Vec3::Y,
+            crate::math::Vec2::new(1.0, 1.0),
+            &domain,
+        ));
+        surface.set_owner(Some(caller_key(CacheObject::Face(face))));
+        let cache_surface = surface.clone_for_evaluation().unwrap();
+        b.face_mut(face).unwrap().surface = Some(surface);
+        b.face_mut(face).unwrap().uv_domain = domain;
+        let mut cache = TrimSrfCache::new(cache_surface, SurfaceCacheOptions::default());
+        cache
+            .base_mut()
+            .set_surface_handle(Some(CacheHandle::Surface));
+        cache.base_mut().have_t_surface_cache = true;
+        cache.base_mut().face_containment_done = FaceContainment::Done;
+        (b, face, cache)
+    }
+
+    #[test]
+    fn ready_missing_tree_builds_in_place_and_restores_native_error_scopes() {
+        let (mut b, face, mut cache) = ready_without_tree();
+        let kernel = Kernel::default();
+        let mut pc = PointClassification::new(0.125);
+        pc.set_gap_3d(17.0);
+        let encode = |entity| Ok(CacheHandle::Topology(entity));
+        let mut mapped = MappedFacePointCache::new(&mut cache, &to_entity, &encode);
+        let result = point_classify_with_context(
+            &kernel,
+            &mut b,
+            face,
+            Point2::new(0.0, 0.0),
+            &mut pc,
+            PointClassifyOptions {
+                trim_cache: Some(&mut mapped),
+                ..PointClassifyOptions::default()
+            },
+            &caller_key,
+            &|_| None,
+        );
+        assert!(matches!(
+            result,
+            Err(SolidError::Unported {
+                unit: "topology.face_p4",
+                ..
+            })
+        ));
+        assert!(cache.base().tree().is_some());
+        assert_eq!(cache.base().face_containment_done, FaceContainment::Done);
+        assert!(cache.base().point_test_enabled);
+        assert!(!b.editing_enabled());
+        assert_eq!(
+            b.face(face).unwrap().surface.as_ref().unwrap().owner(),
+            Some(caller_key(CacheObject::Face(face)))
+        );
+        assert_eq!(pc.point_class(), PointClassType::Unknown);
+        let mut expected = PointClassification::new(0.125);
+        expected.set_gap_3d(17.0);
+        assert_eq!(pc, expected);
+        assert_eq!(cache.base().surface_handle(), Some(CacheHandle::Surface));
+    }
+
+    #[test]
+    fn external_surface_owner_chain_enters_the_real_ready_cache_gate() {
+        let (mut b, face, _) = ready_without_tree();
+        let intermediate = ObjectRef {
+            type_code: b.face(face).unwrap().surface.as_ref().unwrap().type_code(),
+            key: ObjectKey(987_654),
+        };
+        let surface = b.face_mut(face).unwrap().surface.as_mut().unwrap();
+        surface.set_owner(Some(intermediate));
+        assert_eq!(surface.face().unwrap(), None);
+        let mut cache = TrimSrfCache::new(
+            surface.clone_for_evaluation().unwrap(),
+            SurfaceCacheOptions::default(),
+        );
+        cache
+            .base_mut()
+            .set_surface_handle(Some(CacheHandle::Surface));
+        cache.base_mut().have_t_surface_cache = true;
+        cache.base_mut().face_containment_done = FaceContainment::Done;
+        let owner_of =
+            |owner| (owner == intermediate).then_some(caller_key(CacheObject::Face(face)));
+        let encode = |entity| Ok(CacheHandle::Topology(entity));
+        let mut mapped = MappedFacePointCache::new(&mut cache, &to_entity, &encode);
+        let mut pc = PointClassification::new(0.125);
+        let result = point_classify_with_context(
+            &Kernel::default(),
+            &mut b,
+            face,
+            Point2::new(0.0, 0.0),
+            &mut pc,
+            PointClassifyOptions {
+                trim_cache: Some(&mut mapped),
+                ..PointClassifyOptions::default()
+            },
+            &caller_key,
+            &owner_of,
+        );
+        // A skipped gate would leave the actual cache tree absent. The real
+        // build retains its tree before the genuine topology.face_p4 dependency.
+        assert!(matches!(
+            result,
+            Err(SolidError::Unported {
+                unit: "topology.face_p4",
+                ..
+            })
+        ));
+        assert!(cache.base().tree().is_some());
+        assert_eq!(cache.base().face_containment_done, FaceContainment::Done);
+        assert!(!b.editing_enabled());
+    }
+
+    #[test]
+    fn existing_cache_maps_only_leaf_faces_and_preserves_inside_null_face() {
+        let (mut b, face, mut cache) = ready_without_tree();
+        b.set_editing_enabled(true);
+        let kernel = Kernel::default();
+        let encode = |entity| Ok(CacheHandle::Topology(entity));
+        {
+            let mut mapped = MappedFacePointCache::new(&mut cache, &to_entity, &encode);
+            assert_eq!(
+                mapped
+                    .classify_ready(
+                        &kernel,
+                        &mut b,
+                        face,
+                        Point2::new(0.0, 0.0),
+                        &caller_key,
+                        &|_| None
+                    )
+                    .unwrap(),
+                FacePointCacheDecision::NoDecision
+            );
+        }
+        assert!(cache.base().tree().is_some());
+        let node_count = cache.base().tree().unwrap().nodes().len();
+        for stored_face in [Some(CacheHandle::Topology(EntityRef::Face(face))), None] {
+            let tree = cache.base_mut().tree_mut().unwrap();
+            for index in 0..tree.nodes().len() {
+                let NodeData::Surface(aux) = &mut tree.node_mut(NodeId(index)).unwrap().data else {
+                    panic!("surface tree")
+                };
+                aux.node_class = NodeClass::Inside;
+                aux.face = stored_face;
+            }
+            cache.base_mut().have_t_surface_cache = true;
+            cache.base_mut().face_containment_done = FaceContainment::Done;
+            cache.base_mut().face_was_modified = false;
+            let mut mapped = MappedFacePointCache::new(&mut cache, &to_entity, &encode);
+            let mut pc = PointClassification::new(0.125);
+            point_classify_with_context(
+                &kernel,
+                &mut b,
+                face,
+                Point2::new(0.0, 0.0),
+                &mut pc,
+                PointClassifyOptions {
+                    trim_cache: Some(&mut mapped),
+                    ..PointClassifyOptions::default()
+                },
+                &caller_key,
+                &|_| None,
+            )
+            .unwrap();
+            assert_eq!(pc.point_class(), PointClassType::Face);
+            assert_eq!(
+                pc.object(),
+                stored_face.map(|handle| to_entity(handle).unwrap())
+            );
+            assert_eq!(cache.base().tree().unwrap().nodes().len(), node_count);
+            assert_eq!(cache.base().surface_handle(), Some(CacheHandle::Surface));
+        }
+        assert!(b.editing_enabled());
+    }
+
+    #[test]
+    fn ready_cache_of_a_different_surface_owner_is_not_consumed() {
+        for external_chain in [false, true] {
+            let (mut b, face, mut cache) = ready_without_tree();
+            let kernel = Kernel::default();
+            let encode = |entity| Ok(CacheHandle::Topology(entity));
+            b.set_editing_enabled(true);
+            {
+                let mut view = MappedFacePointCache::new(&mut cache, &to_entity, &encode);
+                assert_eq!(
+                    view.classify_ready(
+                        &kernel,
+                        &mut b,
+                        face,
+                        Point2::new(0.0, 0.0),
+                        &caller_key,
+                        &|_| None
+                    )
+                    .unwrap(),
+                    FacePointCacheDecision::NoDecision
+                );
+            }
+            // A real ready tree would immediately classify the target as inside
+            // if the erroneous any-face-owner gate consumed this cache.
+            let tree = cache.base_mut().tree_mut().unwrap();
+            for index in 0..tree.nodes().len() {
+                let NodeData::Surface(aux) = &mut tree.node_mut(NodeId(index)).unwrap().data else {
+                    panic!("surface tree")
+                };
+                aux.node_class = NodeClass::Inside;
+                aux.face = Some(CacheHandle::Topology(EntityRef::Face(face)));
+            }
+            let node_count = cache.base().tree().unwrap().nodes().len();
+            cache.base_mut().have_t_surface_cache = true;
+            cache.base_mut().face_containment_done = FaceContainment::Done;
+            cache.base_mut().face_was_modified = false;
+            let shell = b.add_shell().unwrap();
+            let other = b.add_face(shell).unwrap();
+            let intermediate = ObjectRef {
+                type_code: b.face(face).unwrap().surface.as_ref().unwrap().type_code(),
+                key: ObjectKey(777_123),
+            };
+            let real_owner = caller_key(CacheObject::Face(other));
+            b.face_mut(face)
+                .unwrap()
+                .surface
+                .as_mut()
+                .unwrap()
+                .set_owner(Some(if external_chain {
+                    intermediate
+                } else {
+                    real_owner
+                }));
+            let owner_of = |owner| (external_chain && owner == intermediate).then_some(real_owner);
+            let mut view = MappedFacePointCache::new(&mut cache, &to_entity, &encode);
+            let mut pc = PointClassification::new(0.125);
+            point_classify_with_context(
+                &kernel,
+                &mut b,
+                face,
+                Point2::new(0.0, 0.0),
+                &mut pc,
+                PointClassifyOptions {
+                    trim_cache: Some(&mut view),
+                    ..PointClassifyOptions::default()
+                },
+                &caller_key,
+                &owner_of,
+            )
+            .unwrap();
+            assert_eq!(pc.point_class(), PointClassType::Unknown);
+            assert_eq!(pc.object(), None);
+            assert_eq!(cache.base().tree().unwrap().nodes().len(), node_count);
+            assert!(cache.base().tree().unwrap().nodes().iter().all(|node| {
+                !matches!(&node.data, NodeData::Surface(aux) if aux.node_class != NodeClass::Inside)
+            }));
         }
     }
 }

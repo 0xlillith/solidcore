@@ -9,8 +9,8 @@
 //! tolerance, infinite region, region list head, editing flag and each vertex's vertex
 //! use order, from the shim's `Extras`), runs the port and writes the same output
 //! layout (`out`).
-//! `RayFire` also restores native query metadata (lists, concrete geometry types
-//! and owners) from `Extras` before reading geometry. Its spatial trees are built
+//! `RayFire` and `Merge` also restore native query metadata (lists, concrete geometry types
+//! and owners) from `Extras` before reading geometry. RayFire spatial trees are built
 //! from this B-rep at the native solve call, after its bounding sphere and ray
 //! direction, with the same object keys used by the imported owners.
 //!
@@ -484,9 +484,10 @@ fn rust_brep(
     if *declared_len != metadata.len() as f64 {
         return Err(harness("query metadata length differs from its envelope"));
     }
-    // Only RayFire consumes this new query context. Other operations retain their
-    // existing import contract, including Notify's separate identity sentinel.
-    let report = if op == Op::RayFire {
+    // Merge now consumes real face queries too. Restore native ownership during
+    // input setup; its representation guard is lazy, after native early exits.
+    // Notify retains its separate identity sentinel.
+    let report = if matches!(op, Op::RayFire | Op::Merge) {
         apply_query_metadata(&mut b, metadata, &query_key)?
     } else {
         QueryMetadata::default()
@@ -959,13 +960,15 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let (mut b, metadata) = rust_brep(&path, &h, &c, op)?;
     // RayFire's first step reads the full B-rep box. Gate only genuine limitations
     // of that input representation, before any stand-in geometry can be queried.
-    if let Some(output) = metadata.deferred_output() {
-        return Ok(output);
+    if op == Op::RayFire {
+        if let Some(output) = metadata.deferred_output() {
+            return Ok(output);
+        }
     }
     let mut k = Kernel::default();
     if let OpIn::Merge { curves, tol, .. } = &i.op {
         let face = FaceId::from_index(args.first().copied().unwrap_or(0.0) as u32);
-        return merge_rust(&mut k, &mut b, face, curves, *tol);
+        return merge_rust(&mut k, &mut b, face, curves, *tol, &metadata);
     }
     match run_rust_op(&mut k, &mut b, op, &args) {
         Ok(out) => Ok(Output::new().values("out", out)),
@@ -975,31 +978,41 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
 }
 
 /// `MergeCurvesOnSurface` with editing enabled: every curve shorter than `tol` is
-/// skipped (no new faces or edges); a longer one reaches the unported curve
-/// classification constructor.
+/// skipped (no new faces or edges); longer curves use the original mutable
+/// operand and its real topology/geometry handles for classification.
 fn merge_rust(
     k: &mut Kernel,
     b: &mut Brep,
     face: FaceId,
     curves: &[CrvIn],
     tol: f64,
+    metadata: &QueryMetadata,
 ) -> Result<Output, HarnessError> {
     let crvs: Vec<SmCurve> = curves
         .iter()
         .map(|c| rust_curve(c).map(SmCurve::from))
         .collect::<Result<_, _>>()?;
-    let objects = MergeObjects { curves: &crvs };
-    let handles: Vec<H> = (0..crvs.len()).map(H).collect();
+    let mut objects = MergeObjects {
+        brep: b,
+        curves: &crvs,
+        metadata,
+        blocked_geometry: false,
+    };
+    let handles: Vec<H> = (0..crvs.len()).map(H::Source).collect();
     let r = bp2::merge_curves_on_surface(
         k,
-        b,
-        &objects,
+        &mut objects,
         face,
         tol,
         &handles,
         None,
         bp2::MergeCurvesOptions::default(),
     );
+    if objects.blocked_geometry {
+        return metadata
+            .deferred_output()
+            .ok_or_else(|| harness("missing Merge representation limitation"));
+    }
     match r {
         Ok(m) => Ok(Output::new().values(
             "out",
@@ -1017,72 +1030,228 @@ fn merge_rust(
     }
 }
 
-/// Classification handles of a `Merge` case: curve `i` is handle `i`.
-struct MergeObjects<'a> {
-    curves: &'a [SmCurve],
-}
-
-/// A classification handle: curve `i` of the case (`usize::MAX` the face).
+/// The handles of a Rust curve classification (`CurveOnClassify`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct H(usize);
+enum H {
+    Face(FaceId),
+    Vertex(VertexId),
+    Edge(EdgeId),
+    Vertexuse(VertexuseId),
+    Edgeuse(EdgeuseId),
+    EdgeCurve(EdgeId),
+    Trim(EdgeuseId),
+    Surface(FaceId),
+    Source(usize),
+}
 
 impl solidcore::intersect::point_class::ClassObject for H {
     fn class_kind(&self) -> solidcore::intersect::point_class::ClassObjectKind {
-        solidcore::intersect::point_class::ClassObjectKind::Curve
+        match self {
+            Self::Face(_) => solidcore::intersect::point_class::ClassObjectKind::Face,
+            Self::Vertex(_) => solidcore::intersect::point_class::ClassObjectKind::Vertex,
+            Self::Edge(_) => solidcore::intersect::point_class::ClassObjectKind::Edge,
+            Self::Vertexuse(_) => solidcore::intersect::point_class::ClassObjectKind::Vertexuse,
+            Self::Edgeuse(_) => solidcore::intersect::point_class::ClassObjectKind::Edgeuse,
+            Self::EdgeCurve(_) | Self::Trim(_) | Self::Source(_) => {
+                solidcore::intersect::point_class::ClassObjectKind::Curve
+            }
+            Self::Surface(_) => solidcore::intersect::point_class::ClassObjectKind::Surface,
+        }
     }
 }
 
+struct MergeObjects<'a> {
+    brep: &'a mut Brep,
+    curves: &'a [SmCurve],
+    metadata: &'a QueryMetadata,
+    blocked_geometry: bool,
+}
+
 impl solidcore::query::face::p2::CurveOnClassifyObjects<H> for MergeObjects<'_> {
-    fn face(&self, _f: FaceId) -> H {
-        H(usize::MAX)
+    fn vertex(&self, v: VertexId) -> H {
+        H::Vertex(v)
     }
-    fn vertex(&self, _v: VertexId) -> H {
-        H(usize::MAX)
+    fn face(&self, f: FaceId) -> H {
+        H::Face(f)
     }
-    fn edge(&self, _e: EdgeId) -> H {
-        H(usize::MAX)
+    fn face_surface(&self, f: FaceId) -> Option<H> {
+        self.brep
+            .face(f)
+            .ok()
+            .and_then(|r| r.surface.as_ref())
+            .map(|_| H::Surface(f))
     }
-    fn vertexuse(&self, _vu: VertexuseId) -> H {
-        H(usize::MAX)
+    fn edge(&self, e: EdgeId) -> H {
+        H::Edge(e)
     }
-    fn edgeuse(&self, _eu: EdgeuseId) -> H {
-        H(usize::MAX)
+    fn vertexuse(&self, vu: VertexuseId) -> H {
+        H::Vertexuse(vu)
     }
-    fn edge_curve(&self, _e: EdgeId) -> H {
-        H(usize::MAX)
+    fn edgeuse(&self, eu: EdgeuseId) -> H {
+        H::Edgeuse(eu)
     }
-    fn trim_curve(&self, _eu: EdgeuseId) -> H {
-        H(usize::MAX)
+    fn edge_curve(&self, e: EdgeId) -> H {
+        H::EdgeCurve(e)
     }
-    fn face_surface(&self, _f: FaceId) -> Option<H> {
-        None
+    fn trim_curve(&self, eu: EdgeuseId) -> H {
+        H::Trim(eu)
     }
     fn loop_id(&self, _tgt_loop: H) -> Option<LoopId> {
+        // the classification has no target loops
         None
     }
 }
 
 impl solidcore::intersect::point_class::ClassGeometry<H> for MergeObjects<'_> {
-    fn curve(&self, o: H) -> Option<&SmCurve> {
-        self.curves.get(o.0)
+    fn classification_vertex_point(&self, o: H) -> Option<solidcore::geom::vector3d::Vec3> {
+        match o {
+            H::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.point),
+            _ => None,
+        }
     }
-    fn surface(&self, _o: H) -> Option<&Surface> {
-        None
+    fn topology_zone_tol_3d(&self, o: H) -> Option<f64> {
+        match o {
+            H::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.tolerance),
+            H::Face(f) => self.brep.face(f).ok().map(|f| f.tolerance),
+            H::Edge(e) => self.brep.edge(e).ok().map(|e| e.tolerance),
+            _ => None,
+        }
+    }
+    fn curve(&self, o: H) -> Option<&SmCurve> {
+        match o {
+            H::Source(index) => self.curves.get(index),
+            H::EdgeCurve(e) => self.brep.edge(e).ok()?.curve.as_ref(),
+            H::Trim(eu) => {
+                solidcore::topology::edgeuse::p1::uv_trim_curve(self.brep, eu)
+                    .ok()?
+                    .0
+            }
+            _ => None,
+        }
+    }
+    fn surface(&self, o: H) -> Option<&solidcore::surface::surface::Surface> {
+        match o {
+            H::Surface(f) => self.brep.face(f).ok().and_then(|r| r.surface.as_ref()),
+            _ => None,
+        }
     }
     fn volume(&self, _o: H) -> Option<&solidcore::surface::volume::Volume> {
         None
     }
-    fn point(&self, _o: H) -> Option<solidcore::geom::vector3d::Point3> {
+    fn point(&self, _o: H) -> Option<solidcore::math::Point3> {
         None
     }
 }
 
-impl bp2::MergeCurvesObjects<H> for MergeObjects<'_> {
-    fn edge_of(&self, _object: H) -> Option<EdgeId> {
-        None
+impl solidcore::intersect::curve_class::p7::FaceQueryOwner<H> for MergeObjects<'_> {
+    fn classification_brep(&self) -> solidcore::Result<&Brep> {
+        Ok(self.brep)
     }
-    fn face_of(&self, _object: H) -> Option<FaceId> {
-        None
+    fn classification_brep_mut(&mut self) -> solidcore::Result<&mut Brep> {
+        Ok(self.brep)
+    }
+    fn classification_entity(&self, face: H, object: H) -> solidcore::Result<EntityRef> {
+        let H::Face(face) = face else {
+            return Err(SolidError::invalid_input(
+                "runner face query",
+                "not a face handle",
+            ));
+        };
+        self.brep.face(face)?;
+        Ok(match object {
+            H::Face(id) => {
+                self.brep.face(id)?;
+                EntityRef::Face(id)
+            }
+            H::Vertex(id) => {
+                self.brep.vertex(id)?;
+                EntityRef::Vertex(id)
+            }
+            H::Edge(id) => {
+                self.brep.edge(id)?;
+                EntityRef::Edge(id)
+            }
+            H::Vertexuse(id) => {
+                self.brep.vertexuse(id)?;
+                EntityRef::Vertexuse(id)
+            }
+            H::Edgeuse(id) => {
+                self.brep.edgeuse(id)?;
+                EntityRef::Edgeuse(id)
+            }
+            _ => {
+                return Err(SolidError::invalid_input(
+                    "runner face query",
+                    "not a topology handle",
+                ))
+            }
+        })
+    }
+    fn classification_handle(&self, face: H, entity: EntityRef) -> solidcore::Result<H> {
+        let handle = match entity {
+            EntityRef::Face(id) => H::Face(id),
+            EntityRef::Vertex(id) => H::Vertex(id),
+            EntityRef::Edge(id) => H::Edge(id),
+            EntityRef::Vertexuse(id) => H::Vertexuse(id),
+            EntityRef::Edgeuse(id) => H::Edgeuse(id),
+            _ => {
+                return Err(SolidError::invalid_input(
+                    "runner face query",
+                    "unsupported topology identity",
+                ))
+            }
+        };
+        self.classification_entity(face, handle)?;
+        Ok(handle)
+    }
+    fn query_on_face<T>(
+        &mut self,
+        kernel: &Kernel,
+        face: H,
+        query: impl FnOnce(
+            &Kernel,
+            &mut Brep,
+            FaceId,
+            &dyn Fn(
+                solidcore::topology::brep_cache::CacheObject,
+            ) -> solidcore::geom::object::ObjectRef,
+            &dyn Fn(
+                solidcore::geom::object::ObjectRef,
+            ) -> Option<solidcore::geom::object::ObjectRef>,
+            Option<&mut dyn solidcore::query::face::p2::FacePointCache>,
+        ) -> solidcore::Result<T>,
+    ) -> solidcore::Result<T> {
+        let H::Face(face) = face else {
+            return Err(SolidError::invalid_input(
+                "runner face query",
+                "not a face handle",
+            ));
+        };
+        self.brep.face(face)?;
+        if let Err(error) = self.metadata.require_geometry() {
+            self.blocked_geometry = true;
+            return Err(error);
+        }
+        // The paired Merge fixture explicitly removes and verifies absence of
+        // native trimmed-surface caches before dispatch. This covers cold input only.
+        query(kernel, self.brep, face, &query_key, &|_| None, None)
+    }
+}
+
+impl bp2::MergeCurvesObjects<H> for MergeObjects<'_> {
+    fn edge_of(&self, object: H) -> Option<EdgeId> {
+        if let H::Edge(edge) = object {
+            Some(edge)
+        } else {
+            None
+        }
+    }
+    fn face_of(&self, object: H) -> Option<FaceId> {
+        if let H::Face(face) = object {
+            Some(face)
+        } else {
+            None
+        }
     }
 }
 

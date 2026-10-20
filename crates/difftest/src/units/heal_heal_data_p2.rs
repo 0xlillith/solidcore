@@ -1239,6 +1239,30 @@ fn put_face_snapshot(o: &mut Vec<f64>, p: &FaceProps<H>) {
     o.push(p.loop_props.len() as f64);
 }
 
+fn query_owner_links(
+    brep: &Brep,
+    keys: &dyn Fn(
+        solidcore::topology::brep_cache::CacheObject,
+    ) -> solidcore::geom::object::ObjectRef,
+) -> std::collections::BTreeMap<
+    solidcore::geom::object::ObjectRef,
+    solidcore::geom::object::ObjectRef,
+> {
+    use solidcore::topology::brep_cache::CacheObject;
+    let mut owners = std::collections::BTreeMap::new();
+    for (edge, record) in brep.edges().iter() {
+        if let Some(owner) = record.curve.as_ref().and_then(|curve| curve.owner()) {
+            owners.insert(keys(CacheObject::Curve(edge)), owner);
+        }
+    }
+    for (face, record) in brep.faces().iter() {
+        if let Some(owner) = record.surface.as_ref().and_then(|surface| surface.owner()) {
+            owners.insert(keys(CacheObject::Surface(face)), owner);
+        }
+    }
+    owners
+}
+
 #[allow(clippy::too_many_lines)]
 fn rust_heal(
     brep: &BIn,
@@ -1358,11 +1382,17 @@ fn rust_heal(
                 _ => false,
             };
         o.push(f64::from(code));
+        let owners = query_owner_links(b, &arena_identity);
+        let owner_of = |object| owners.get(&object).copied();
+        let identity = solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+            keys: &arena_identity,
+            owner_of: &owner_of,
+        };
         let r: Result<bool, SolidError> = match s {
             Step::CacheEdgeProps => h.cache_edge_props(&k, b, HealerOpType::CacheEdgeprops),
             Step::CacheVertexProps => h.cache_vertex_props(&k, b, HealerOpType::CacheVertexprops),
             Step::CacheFacePropsGaps => {
-                h.cache_face_props_gaps(&k, b, HealerOpType::CacheFacepropsGaps)
+                h.cache_face_props_gaps(&k, b, HealerOpType::CacheFacepropsGaps, identity)
             }
             Step::FixTolSizes => h
                 .fix_tol_sizes(&mut k, b, HealerOpType::FixTolsizes)
@@ -1513,10 +1543,10 @@ fn rust_heal(
                 }
             }
             Step::CacheFacePropsStage2 => {
-                h.cache_face_props_stage2(&k, b, HealerOpType::CacheFaceprops2)
+                h.cache_face_props_stage2(&k, b, HealerOpType::CacheFaceprops2, identity)
             }
             Step::CacheFacePropsStage3 => {
-                h.cache_face_props_stage3(&k, b, HealerOpType::CacheFaceprops3)
+                h.cache_face_props_stage3(&k, b, HealerOpType::CacheFaceprops3, identity)
             }
             Step::FixBadSheets => {
                 let mut lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, ALL_MARKS)
@@ -1532,6 +1562,7 @@ fn rust_heal(
                     &lock,
                     HealerOpType::FixBadsheets,
                     &mut queries,
+                    identity,
                 );
                 lock.release(std::slice::from_mut(&mut k.context))
                     .map_err(|e| harness(format!("mark lock: {e}")))?;
@@ -1563,11 +1594,18 @@ fn rust_heal(
                         faces: Some(f),
                     });
                 let brep = if *mode == 0 { None } else { Some(&mut *b) };
-                h.heal_brep(&mut k, brep, op, t, *make, &mut queries)
+                h.heal_brep(&mut k, brep, op, t, *make, &mut queries, identity)
                     .map(|()| false)
             }
             Step::HealTargets { op, make } => {
-                let r = h.heal_targets(&mut k, b, op_of(i64::from(*op)), *make, &mut queries);
+                let r = h.heal_targets(
+                    &mut k,
+                    b,
+                    op_of(i64::from(*op)),
+                    *make,
+                    &mut queries,
+                    identity,
+                );
                 o.extend([
                     h.stop_heal_op.code() as f64,
                     h.done_heal_op.code() as f64,
@@ -1640,8 +1678,16 @@ fn rust_heal(
                         "target/props drift or incremental catch-up before voxel initialization",
                     ))
                 } else {
-                    h.update_target_lists(&mut k, b, &rm, &add, op_of(i64::from(*op)), &mut queries)
-                        .map(|()| false)
+                    h.update_target_lists(
+                        &mut k,
+                        b,
+                        &rm,
+                        &add,
+                        op_of(i64::from(*op)),
+                        &mut queries,
+                        identity,
+                    )
+                    .map(|()| false)
                 }
             }
             Step::SeedFaceProblems { null_face } => {
@@ -1687,13 +1733,31 @@ fn rust_heal(
                 Ok(false)
             }
             Step::FixCoinVertices => h
-                .fix_coin_vertices(&mut k, b, HealerOpType::FixCoinVertices, &mut queries)
+                .fix_coin_vertices(
+                    &mut k,
+                    b,
+                    HealerOpType::FixCoinVertices,
+                    &mut queries,
+                    identity,
+                )
                 .map(|()| false),
             Step::FixDegenFaces => h
-                .fix_degen_faces(&mut k, b, HealerOpType::FixDegenFaces, &mut queries)
+                .fix_degen_faces(
+                    &mut k,
+                    b,
+                    HealerOpType::FixDegenFaces,
+                    &mut queries,
+                    identity,
+                )
                 .map(|()| false),
             Step::FixDegenEdges => h
-                .fix_degen_edges(&mut k, b, HealerOpType::FixDegenEdges, &mut queries)
+                .fix_degen_edges(
+                    &mut k,
+                    b,
+                    HealerOpType::FixDegenEdges,
+                    &mut queries,
+                    identity,
+                )
                 .map(|()| false),
             Step::FixMoveSeam | Step::FixSplitEdgesAtSeam => {
                 let mut lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, ALL_MARKS)
@@ -1706,6 +1770,7 @@ fn rust_heal(
                         &lock,
                         HealerOpType::FixMoveseam,
                         &mut queries,
+                        identity,
                     )
                 } else {
                     h.fix_split_edges_at_seam(
@@ -1715,6 +1780,7 @@ fn rust_heal(
                         &lock,
                         HealerOpType::FixSplitedgeAtseam,
                         &mut queries,
+                        identity,
                     )
                 };
                 lock.release(std::slice::from_mut(&mut k.context))
@@ -1722,7 +1788,13 @@ fn rust_heal(
                 r.map(|()| false)
             }
             Step::FixSplitFaceAtSeams => h
-                .fix_split_face_at_seams(&mut k, b, HealerOpType::FixSplitfaceAtseams, &mut queries)
+                .fix_split_face_at_seams(
+                    &mut k,
+                    b,
+                    HealerOpType::FixSplitfaceAtseams,
+                    &mut queries,
+                    identity,
+                )
                 .map(|()| false),
             Step::UpdateTracked { active, op } => {
                 use solidcore::topology::topology::TrackTopologyChanges;
@@ -1735,6 +1807,7 @@ fn rust_heal(
                     |_| None,
                     op_of(i64::from(*op)),
                     &mut queries,
+                    identity,
                 );
                 tracker.stop_tracking(Some(&mut k.context));
                 r.map(|()| false)

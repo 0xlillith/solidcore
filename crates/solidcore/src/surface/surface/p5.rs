@@ -1011,15 +1011,47 @@ impl Surface {
     ///
     /// # Errors
     ///
-    /// Those of the global solve; [`SolidError::Unported`]: `GetFace` and
-    /// `SmFace::GetTolerance` for an owned surface, `LocalPointSolve_1`.
-    #[allow(clippy::too_many_lines)] // one upstream routine
+    /// Those of the global solve. A surface with a face owner requires
+    /// [`Self::drop_point_with_context`]; without it, [`SolidError::InvalidInput`]
+    /// reports the missing live query context rather than an unported face method.
     pub fn drop_point<O: SolutionObject>(
         &self,
         k: &Kernel,
         pt_to_drop: Point3,
         domain: &Extent2d,
         opts: &DropPointOptions,
+    ) -> Result<DropPoint<O>> {
+        self.drop_point_context_impl(k, None, pt_to_drop, domain, opts, None)
+    }
+
+    /// [`Self::drop_point`] with the real surface owner and mutable cache context.
+    /// Native output initialization, fast/local/global order and best-solution
+    /// selection are shared with the ordinary entry. Partial topology/cache writes
+    /// remain in the caller's objects on every exit.
+    ///
+    /// # Errors
+    /// Those of [`Self::drop_point`] and the caller's exact ownership/context lookup.
+    pub fn drop_point_with_context<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface_handle: Option<O>,
+        pt_to_drop: Point3,
+        domain: &Extent2d,
+        opts: &DropPointOptions,
+        context: &mut dyn crate::surface::surface_cache::p1::SurfaceCacheContext<O>,
+    ) -> Result<DropPoint<O>> {
+        self.drop_point_context_impl(k, surface_handle, pt_to_drop, domain, opts, Some(context))
+    }
+
+    #[allow(clippy::too_many_lines)] // one upstream routine, shared by both entries
+    fn drop_point_context_impl<O: SolutionObject>(
+        &self,
+        k: &Kernel,
+        surface_handle: Option<O>,
+        pt_to_drop: Point3,
+        domain: &Extent2d,
+        opts: &DropPointOptions,
+        mut context: Option<&mut dyn crate::surface::surface_cache::p1::SurfaceCacheContext<O>>,
     ) -> Result<DropPoint<O>> {
         let op = opts.operation;
         let guess = opts.guess_uv;
@@ -1036,11 +1068,15 @@ impl Surface {
         let mut answer_in_array = false;
 
         // We need a tolerance value.
-        let dist_tol = if self.face()?.is_some() {
-            // UNPORTED(topology.face_p2): SmFace::GetTolerance
-            return Err(SolidError::unported(
-                "SmFace::GetTolerance",
-                "topology.face_p2",
+        let dist_tol = if let Some(context) = context.as_deref_mut() {
+            match context.surface_face(self, surface_handle)? {
+                Some(face) => context.object_zone_tol_3d(k, Some(face))?,
+                None => XSECT_TOL_3D,
+            }
+        } else if self.face()?.is_some() {
+            return Err(SolidError::invalid_input(
+                OP_DROP,
+                "face-owned surface requires a live query context",
             ));
         } else {
             XSECT_TOL_3D
@@ -1071,7 +1107,26 @@ impl Surface {
         // Try LocalPointSolve if a guess was supplied.
         if !success {
             if let Some(g) = guess {
-                match ignored(self.local_point_solve::<O>(k, domain, op, pt_to_drop, g))? {
+                let local = if let Some(context) = context.as_deref_mut() {
+                    self.local_point_solve_with_tolerance_context::<O>(
+                        k,
+                        domain,
+                        op,
+                        pt_to_drop,
+                        g,
+                        &mut |surface| {
+                            context.surface_owner_zone_tol_3d(k, surface, surface_handle)
+                        },
+                        &mut |surface| {
+                            context
+                                .surface_zone_tol_3d(k, surface, surface_handle)
+                                .map(Some)
+                        },
+                    )
+                } else {
+                    self.local_point_solve::<O>(k, domain, op, pt_to_drop, g)
+                };
+                match ignored(local)? {
                     Some(r) => {
                         success = r.found;
                         sol = r.solution;
@@ -1092,16 +1147,30 @@ impl Surface {
 
         if !success {
             // Haven't found it yet. Call GlobalPointSolve.
-            solutions = self.global_point_solve::<O>(
-                k,
-                None,
-                domain,
-                op,
-                pt_to_drop,
-                dist_tol,
-                None,
-                SolutionRequested::All,
-            )?;
+            solutions = if let Some(context) = context {
+                self.global_point_solve_with_context(
+                    k,
+                    surface_handle,
+                    domain,
+                    op,
+                    pt_to_drop,
+                    dist_tol,
+                    None,
+                    SolutionRequested::All,
+                    context,
+                )?
+            } else {
+                self.global_point_solve::<O>(
+                    k,
+                    None,
+                    domain,
+                    op,
+                    pt_to_drop,
+                    dist_tol,
+                    None,
+                    SolutionRequested::All,
+                )?
+            };
             if !solutions.is_empty() {
                 success = true;
                 answer_in_array = true;
@@ -2232,6 +2301,63 @@ mod tests {
         assert!(r.success);
         assert!((r.gap - 1.5).abs() < 1e-9);
         assert!((r.result_uv.x - c.x).abs() < 1e-9 && (r.result_uv.y - c.y).abs() < 1e-9);
+    }
+
+    #[test]
+    fn face_owned_drop_requires_real_context_and_contextual_fast_drop_succeeds() {
+        use crate::geom::object::ObjectRef;
+        use crate::topology::brep_cache::{arena_identity, CacheObject};
+        let keys = |object| {
+            let mut key: ObjectRef = arena_identity(object);
+            key.key.0 += 50_001;
+            key
+        };
+        let mut b = crate::topology::Brep::new();
+        let shell = b.add_shell().unwrap();
+        let face = b.add_face(shell).unwrap();
+        let mut surface = xy_plane();
+        surface.set_owner(Some(keys(CacheObject::Face(face))));
+        let domain = surface.natural_uv_domain();
+        let uv = domain.evaluate(0.5, 0.5);
+        let point = surface.evaluate_point(uv).unwrap() + Vec3::new(0.0, 0.0, 1.5);
+        b.face_mut(face).unwrap().uv_domain = domain;
+        b.face_mut(face).unwrap().tolerance = 0.25;
+        b.face_mut(face).unwrap().surface = Some(surface);
+        let options = DropPointOptions {
+            operation: SolverOperation::Normalize,
+            ..DropPointOptions::default()
+        };
+        let view = b
+            .face(face)
+            .unwrap()
+            .surface
+            .as_ref()
+            .unwrap()
+            .clone_for_evaluation()
+            .unwrap();
+        assert!(matches!(
+            view.drop_point::<Obj>(&Kernel::default(), point, &domain, &options),
+            Err(SolidError::InvalidInput {
+                operation: OP_DROP,
+                reason: "face-owned surface requires a live query context",
+                ..
+            })
+        ));
+        let owner_of = |_| None;
+        let mut context = crate::query::face::p1::FacePointContext::new(&mut b, &keys, &owner_of);
+        let result = view
+            .drop_point_with_context(
+                &Kernel::default(),
+                Some(CacheObject::Surface(face)),
+                point,
+                &domain,
+                &options,
+                &mut context,
+            )
+            .unwrap();
+        assert!(result.success);
+        assert!((result.gap - 1.5).abs() < 1e-9);
+        assert_eq!(result.result_uv, uv);
     }
 
     #[test]

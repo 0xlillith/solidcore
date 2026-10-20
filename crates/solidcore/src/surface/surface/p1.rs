@@ -1608,12 +1608,38 @@ impl Surface {
         want: [bool; 3],
         expand_pos_boxes_by_zone_tol_3d: bool,
     ) -> Result<SurfaceBoxes> {
+        self.calculate_bounding_box_impl(k, uv_domain, want, expand_pos_boxes_by_zone_tol_3d, None)
+    }
+
+    /// Original-owner expansion after geometry, in native normal/pseudo order.
+    pub(crate) fn calculate_bounding_box_with_owner_tolerance(
+        &self,
+        k: &Kernel,
+        uv_domain: &Extent2d,
+        want: [bool; 3],
+        expand: bool,
+        owner_tolerance: &mut dyn FnMut() -> Result<f64>,
+    ) -> Result<SurfaceBoxes> {
+        self.calculate_bounding_box_impl(k, uv_domain, want, expand, Some(owner_tolerance))
+    }
+
+    fn calculate_bounding_box_impl(
+        &self,
+        k: &Kernel,
+        uv_domain: &Extent2d,
+        want: [bool; 3],
+        expand_pos_boxes_by_zone_tol_3d: bool,
+        mut owner_tolerance: Option<&mut dyn FnMut() -> Result<f64>>,
+    ) -> Result<SurfaceBoxes> {
         match self.kind() {
             // (SmSurfOfRevolution inherits the B-spline override)
             SurfaceKind::BSpline(_) | SurfaceKind::Plane(_) | SurfaceKind::SurfOfRevolution(_) => {
                 // the B-spline override expands by its face's tolerance (GetFace()):
                 // the owner is held here, not by the B-spline
-                if expand_pos_boxes_by_zone_tol_3d && (want[0] || want[1]) && self.face()?.is_some()
+                if owner_tolerance.is_none()
+                    && expand_pos_boxes_by_zone_tol_3d
+                    && (want[0] || want[1])
+                    && self.face()?.is_some()
                 {
                     // UNPORTED(topology.face_p2): SmFace::GetTolerance
                     return Err(SolidError::unported(
@@ -1627,9 +1653,10 @@ impl Surface {
                     polar: want[2],
                     pseudo_guess: None,
                     polar_guess: None,
-                    expand_by_zone_tol: expand_pos_boxes_by_zone_tol_3d,
+                    expand_by_zone_tol: expand_pos_boxes_by_zone_tol_3d
+                        && owner_tolerance.is_none(),
                 };
-                let r = match self.kind() {
+                let mut r = match self.kind() {
                     SurfaceKind::BSpline(s) => s.calculate_bounding_box(uv_domain, &req)?,
                     SurfaceKind::SurfOfRevolution(s) => {
                         s.base().calculate_bounding_box(uv_domain, &req)?
@@ -1637,6 +1664,16 @@ impl Surface {
                     SurfaceKind::Plane(p) => plane_bounding_box(p, uv_domain, &req)?,
                     _ => unreachable_kind()?,
                 };
+                if expand_pos_boxes_by_zone_tol_3d {
+                    if let Some(resolve) = owner_tolerance.as_mut() {
+                        if let Some(normal) = r.normal.as_mut() {
+                            normal.expand_absolute(resolve()?);
+                        }
+                        if let Some(pseudo) = r.pseudo.as_mut() {
+                            pseudo.expand_absolute(resolve()?);
+                        }
+                    }
+                }
                 Ok(SurfaceBoxes {
                     normal_box: r.normal,
                     pseudo_box: r.pseudo,

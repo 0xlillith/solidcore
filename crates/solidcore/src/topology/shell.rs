@@ -289,9 +289,14 @@ impl Shell {
     /// Invalid member classes and the errors of
     /// [`crate::topology::topology_traverser::is_inner_shell`] (its `SM_ERR` for an
     /// empty or inconclusive set, `Unported` from its ray intersections).
-    pub fn is_inner_shell(&self, kernel: &mut Kernel, brep: &Brep) -> Result<bool> {
-        let faceuses = self.get_faceuses()?;
-        crate::topology::topology_traverser::is_inner_shell(kernel, brep, &faceuses)
+    pub fn is_inner_shell(
+        kernel: &mut Kernel,
+        brep: &mut Brep,
+        shell: ShellId,
+        identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+    ) -> Result<bool> {
+        let faceuses = brep.shell(shell)?.get_faceuses()?;
+        crate::topology::topology_traverser::is_inner_shell(kernel, brep, &faceuses, identity)
     }
 }
 
@@ -395,7 +400,12 @@ impl Region {
 ///
 /// # Errors
 /// Invalid arena references or an unported inner-shell classification.
-pub fn order_region_shells(kernel: &mut Kernel, brep: &mut Brep, id: RegionId) -> Result<()> {
+pub fn order_region_shells(
+    kernel: &mut Kernel,
+    brep: &mut Brep,
+    id: RegionId,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+) -> Result<()> {
     let shells = brep.region(id)?.shells.clone();
     if shells.len() < 2 {
         return Ok(());
@@ -414,7 +424,7 @@ pub fn order_region_shells(kernel: &mut Kernel, brep: &mut Brep, id: RegionId) -
     if faceuse_shells.len() > 1 {
         for &shell in &faceuse_shells {
             if brep.shell(shell)?.is_closed(brep, shell)? {
-                match brep.shell(shell)?.is_inner_shell(kernel, brep) {
+                match Shell::is_inner_shell(kernel, brep, shell, identity) {
                     Ok(true) => {
                         chosen = Some(shell);
                         break;
@@ -1328,7 +1338,16 @@ mod tests {
                 ..Region::default()
             })
             .unwrap();
-        order_region_shells(&mut Kernel::default(), &mut brep, region).unwrap();
+        order_region_shells(
+            &mut Kernel::default(),
+            &mut brep,
+            region,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
+        )
+        .unwrap();
         assert_eq!(
             brep.region(region).unwrap().shells,
             vec![ids[2], ids[3], ids[0], ids[1]]

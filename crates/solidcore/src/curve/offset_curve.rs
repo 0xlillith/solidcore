@@ -110,6 +110,23 @@ pub struct OffsetCurve {
 }
 
 impl OffsetCurve {
+    /// Exact numerical view; original topology and cache state stay with the caller.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        Ok(Self {
+            dim: self.dim,
+            base: self
+                .base
+                .as_ref()
+                .map(|c| c.clone_for_evaluation_depth(depth).map(Box::new))
+                .transpose()?,
+            normal: self.normal,
+            distance: self.distance,
+            interval: self.interval,
+            reversed: self.reversed,
+            owns_curve: self.owns_curve,
+        })
+    }
+
     /// `SmOffsetCurve_TYPE` (`CURV_BASE_TYPE + 36`).
     pub const TYPE: i64 = OFFSET_CURVE_TYPE;
 

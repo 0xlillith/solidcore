@@ -1740,6 +1740,36 @@ fn curve_drop(
     .unwrap_or_default())
 }
 
+/// A live caller's surface drop used by the single gap-sampling implementation.
+/// The callback preserves the native ignored-status policy and original owner context.
+pub type SurfaceDropCallback<'a> = dyn FnMut(&Kernel, &Surface, Point3, &Extent2d, Option<Point2>) -> Result<(bool, Point2, f64)>
+    + 'a;
+
+/// Surface drop against a live B-rep context, retaining native failure defaults.
+pub(crate) fn surface_drop_with_context(
+    k: &Kernel,
+    surface: &Surface,
+    point: Point3,
+    domain: &Extent2d,
+    guess: Option<Point2>,
+    handle: crate::topology::brep_cache::CacheObject,
+    context: &mut dyn crate::surface::surface_cache::p1::SurfaceCacheContext<
+        crate::topology::brep_cache::CacheObject,
+    >,
+) -> Result<(bool, Point2, f64)> {
+    let opts = crate::surface::surface::p5::DropPointOptions {
+        guess_uv: guess,
+        ..Default::default()
+    };
+    match surface.drop_point_with_context(k, Some(handle), point, domain, &opts, context) {
+        Ok(d) => Ok((d.success, d.result_uv, d.gap)),
+        Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => {
+            Ok((false, guess.unwrap_or(Point2::UNDEF), BIG_DOUBLE))
+        }
+        Err(error) => Err(error),
+    }
+}
+
 /// `pSurface->DropPoint(pt, domain, pOptGuess, bSuccess, uv, dist, bIsMulti)`: success,
 /// the drop parameters and distance; the status is ignored as upstream does.
 fn surface_drop(
@@ -2134,7 +2164,20 @@ impl<'a> GapFunction<'a> {
     ///
     /// Those of [`GapFunction::build_sample_set`].
     pub fn max_index_sample(&mut self, k: &Kernel, stop_after_big_gap: bool) -> Result<usize> {
-        self.build_sample_set(k, stop_after_big_gap)?;
+        self.max_index_sample_with_surface_drop(k, stop_after_big_gap, &mut surface_drop)
+    }
+
+    /// Contextual `GetMaxIndexSample`, using the caller's original surface owner.
+    ///
+    /// # Errors
+    /// Those of [`Self::build_sample_set_with_surface_drop`].
+    pub fn max_index_sample_with_surface_drop(
+        &mut self,
+        k: &Kernel,
+        stop_after_big_gap: bool,
+        drop: &mut SurfaceDropCallback<'_>,
+    ) -> Result<usize> {
+        self.build_sample_set_with_surface_drop(k, stop_after_big_gap, drop)?;
         Ok(self.max_sample_index)
     }
 
@@ -2144,7 +2187,20 @@ impl<'a> GapFunction<'a> {
     ///
     /// Those of [`GapFunction::build_sample_set`].
     pub fn max_gap_sample(&mut self, k: &Kernel, stop_after_big_gap: bool) -> Result<&GapSample> {
-        let i = self.max_index_sample(k, stop_after_big_gap)?;
+        self.max_gap_sample_with_surface_drop(k, stop_after_big_gap, &mut surface_drop)
+    }
+
+    /// Contextual `GetMaxGapSample`, preserving the same lazy sample set.
+    ///
+    /// # Errors
+    /// Those of [`Self::build_sample_set_with_surface_drop`].
+    pub fn max_gap_sample_with_surface_drop(
+        &mut self,
+        k: &Kernel,
+        stop_after_big_gap: bool,
+        drop: &mut SurfaceDropCallback<'_>,
+    ) -> Result<&GapSample> {
+        let i = self.max_index_sample_with_surface_drop(k, stop_after_big_gap, drop)?;
         self.samples
             .get(i)
             .ok_or_else(|| SolidError::invalid_input(OP_GF, "no gap samples"))
@@ -2314,6 +2370,19 @@ impl<'a> GapFunction<'a> {
     /// B-spline geometry spans no knot interval; [`SolidError::Unported`] from
     /// [`GapFunction::evaluate`].
     pub fn build_sample_set(&mut self, k: &Kernel, stop_after_big_gap: bool) -> Result<()> {
+        self.build_sample_set_with_surface_drop(k, stop_after_big_gap, &mut surface_drop)
+    }
+
+    /// Build the native sample grid with the caller's live surface-drop callback.
+    ///
+    /// # Errors
+    /// Those of [`Self::build_sample_set`] and the callback.
+    pub fn build_sample_set_with_surface_drop(
+        &mut self,
+        k: &Kernel,
+        stop_after_big_gap: bool,
+        drop: &mut SurfaceDropCallback<'_>,
+    ) -> Result<()> {
         // no work - samples already set or already have a gap bigger than tol
         if self.samples_set != SamplesState::NotSet {
             return Ok(());
@@ -2328,7 +2397,7 @@ impl<'a> GapFunction<'a> {
         samples.truncate(n);
         samples.resize(n, GapSample::ZERO);
 
-        let r = self.evaluate_samples(k, &vals, &mut samples, stop_after_big_gap);
+        let r = self.evaluate_samples(k, &vals, &mut samples, stop_after_big_gap, drop);
         self.samples = samples;
         r
     }
@@ -2340,6 +2409,7 @@ impl<'a> GapFunction<'a> {
         vals: &[f64],
         samples: &mut [GapSample],
         stop_after_big_gap: bool,
+        drop: &mut SurfaceDropCallback<'_>,
     ) -> Result<()> {
         let (cu, cv) = (self.sample_cnt_u, self.sample_cnt_v);
         let use_v = matches!(
@@ -2390,7 +2460,7 @@ impl<'a> GapFunction<'a> {
                 let slot = samples
                     .get_mut(idx)
                     .ok_or_else(|| SolidError::invalid_input(OP_GF, "bad sample"))?;
-                self.evaluate(k, this_u, this_v, slot, guess_u, guess_v)?;
+                self.evaluate_with_surface_drop(k, this_u, this_v, slot, guess_u, guess_v, drop)?;
                 let s = *slot;
 
                 // note when a NonNormal Gap was found
@@ -2450,6 +2520,32 @@ impl<'a> GapFunction<'a> {
         guess_u: Option<f64>,
         guess_v: Option<f64>,
     ) -> Result<()> {
+        self.evaluate_with_surface_drop(
+            k,
+            this_u,
+            this_v,
+            sample,
+            guess_u,
+            guess_v,
+            &mut surface_drop,
+        )
+    }
+
+    /// Evaluate the same gap using a live surface-drop callback.
+    ///
+    /// # Errors
+    /// Those of [`Self::evaluate`] and the callback.
+    #[allow(clippy::too_many_arguments)]
+    pub fn evaluate_with_surface_drop(
+        &self,
+        k: &Kernel,
+        this_u: f64,
+        this_v: f64,
+        sample: &mut GapSample,
+        guess_u: Option<f64>,
+        guess_v: Option<f64>,
+        drop: &mut SurfaceDropCallback<'_>,
+    ) -> Result<()> {
         let tol = self.xsect_tol_3d;
         match self.geometry {
             GapGeometry::CrvPt { curve, point } => {
@@ -2489,13 +2585,13 @@ impl<'a> GapFunction<'a> {
             GapGeometry::CrvSrf { curve, other } => {
                 let this_pos = point_or_undef(curve.evaluate_point(this_u))?;
                 self.evaluate_to_surface(
-                    k, this_pos, this_u, 0.0, other, sample, guess_u, guess_v,
+                    k, this_pos, this_u, 0.0, other, sample, guess_u, guess_v, drop,
                 )?;
             }
             GapGeometry::SrfSrf { surface, other } => {
                 let this_pos = point_or_undef(surface.evaluate_point(Point2::new(this_u, this_v)))?;
                 self.evaluate_to_surface(
-                    k, this_pos, this_u, this_v, other, sample, guess_u, guess_v,
+                    k, this_pos, this_u, this_v, other, sample, guess_u, guess_v, drop,
                 )?;
             }
         }
@@ -2583,6 +2679,7 @@ impl<'a> GapFunction<'a> {
         sample: &mut GapSample,
         guess_u: Option<f64>,
         guess_v: Option<f64>,
+        drop: &mut SurfaceDropCallback<'_>,
     ) -> Result<()> {
         let tol = self.xsect_tol_3d;
         // Drop point to ToGeometry
@@ -2591,7 +2688,7 @@ impl<'a> GapFunction<'a> {
             _ => None,
         };
         let domain = other.natural_uv_domain();
-        let (mut success, mut uv, mut dist) = surface_drop(k, other, this_pos, &domain, guess)?;
+        let (mut success, mut uv, mut dist) = drop(k, other, this_pos, &domain, guess)?;
 
         // If we don't like the result of the drop with a guess, try without a guess
         let try_global = guess.is_some()
@@ -2599,7 +2696,7 @@ impl<'a> GapFunction<'a> {
                 || dist > tol * 100.0
                 || (dist > tol && domain.is_point_on_boundary(uv, EFF_ZERO).0));
         if try_global {
-            (success, uv, dist) = surface_drop(k, other, this_pos, &domain, None)?;
+            (success, uv, dist) = drop(k, other, this_pos, &domain, None)?;
         }
         let _ = dist;
 

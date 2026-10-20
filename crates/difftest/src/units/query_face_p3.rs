@@ -669,7 +669,15 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     Ok(match resolved {
         Resolved::Face(f) => match &i.op {
             OpIn::Internal => {
-                match solidcore::topology::face::p2::calculate_an_internal_point(&k, &b, f) {
+                match solidcore::topology::face::p2::calculate_an_internal_point(
+                    &k,
+                    &mut b,
+                    f,
+                    solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                        keys: &super::topology_face_p2::face_query_key,
+                        owner_of: &|_| None,
+                    },
+                ) {
                     Ok(p) => Output::new().values("point", p.to_array()),
                     Err(e) => rust_err(&e),
                 }
@@ -679,7 +687,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                 Err(e) => rust_err(&e),
             },
         },
-        Resolved::Bisector(c) => rust_bisector(&k, &b, &c)?,
+        Resolved::Bisector(c) => rust_bisector(&k, &mut b, &c)?,
         Resolved::Sector(c) => {
             let curve = Curve::from(Line::from_points(c.start, c.end, c.dim));
             let input = qf3::SectorClassifyInput {
@@ -718,7 +726,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     })
 }
 
-fn rust_bisector(k: &Kernel, b: &Brep, c: &BisectorCase) -> Result<Output, HarnessError> {
+fn rust_bisector(k: &Kernel, b: &mut Brep, c: &BisectorCase) -> Result<Output, HarnessError> {
     let mut props: FaceProps<H> = FaceProps::for_face(c.face, 0);
     props.closed_u = c.closed_u;
     props.closed_v = c.closed_v;
@@ -736,12 +744,19 @@ fn rust_bisector(k: &Kernel, b: &Brep, c: &BisectorCase) -> Result<Output, Harne
             io.containment = containment;
         }
     }
-    let mut objects: qf3::LoopObjectCurves<H> =
-        qf3::LoopObjectCurves::new(b, c.face).map_err(|e| harness(e.to_string()))?;
+    let mut objects: qf3::LoopObjectCurves<H> = qf3::LoopObjectCurves::new(
+        b,
+        c.face,
+        solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+            keys: &super::topology_face_p2::face_query_key,
+            owner_of: &|_| None,
+        },
+        None,
+    )
+    .map_err(|e| harness(e.to_string()))?;
     let mut cc: CurveClassification<H> = CurveClassification::new(k);
     let r = qf3::find_and_classify_loop_bisector(
         k,
-        b,
         c.face,
         c.target,
         &c.loops,

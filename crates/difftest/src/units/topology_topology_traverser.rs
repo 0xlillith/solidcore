@@ -232,14 +232,22 @@ impl UnitDiff for Runner {
                     &mut k, &mut b, &mut marks, start_fu, target, &mut fus, &lock,
                 ),
                 6 => tr::remove_shell(&mut k, &mut b, ShellId::from_index(r.start as u32), target),
-                _ => tr::is_inner_shell(
-                    &mut k,
-                    &b,
-                    &b.faceuses()
+                _ => {
+                    let faceuses = b
+                        .faceuses()
                         .iter()
                         .filter_map(|(id, fu)| (fu.shell == Some(target)).then_some(id))
-                        .collect::<Vec<_>>(),
-                )
+                        .collect::<Vec<_>>();
+                    tr::is_inner_shell(
+                        &mut k,
+                        &mut b,
+                        &faceuses,
+                        solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                            keys: &super::topology_face_p2::face_query_key,
+                            owner_of: &|_| None,
+                        },
+                    )
+                }
                 .map(|v| closed = i64::from(v)),
             };
             if let Err(e) = result {

@@ -12,8 +12,8 @@
 //! Deviations: pointers become arena ids; optional outputs become return values.
 //! Edits preserve the upstream mutations preceding an error. Missing callees stop
 //! at their first call: face construction at `SetTolerance` (`face_p3`),
-//! and infinite-region reassignment
-//! at `FindAndSetInfiniteRegion` (`brep_p5`). Closed-shell splits calculate their
+//! Infinite-region reassignment uses the caller's shell and B-rep ray provider.
+//! Closed-shell splits calculate their
 //! real rough box after two `SmBrep::Notify` calls
 //! ([`crate::topology::brep::p2::notify`] with the caller's [`NotifyEnv`], statuses
 //! ignored; the new region gets its default `SmTopology` record when it is made, as
@@ -253,7 +253,10 @@ pub fn make_face_topology(
     ))
 }
 
-/// Caller-owned geometric queries used while distributing a split region.
+/// Caller-owned shell and B-rep queries used while splitting a region.
+///
+/// The closure implementation receives `Some(shell)` for a shell ray and `None`
+/// for a complete B-rep ray; callers must implement both selections.
 ///
 /// The provider operates on the actual, mutating B-rep and preserves the ray's
 /// partial output state even when its native status is an error. A harness may
@@ -293,6 +296,16 @@ pub trait RegionSplitQueries {
         shell: ShellId,
         input: shell::ShellRayInput<EntityRef>,
     ) -> shell::ShellRayAttempt<EntityRef>;
+
+    /// Fire against the complete B-rep using its actual identity and live cache.
+    /// Preserve native status and all partial output fields. A supplied shell
+    /// can fall back to this operation while finding the infinite region.
+    fn brep_ray_fire(
+        &mut self,
+        k: &mut Kernel,
+        brep: &mut Brep,
+        input: shell::ShellRayInput<EntityRef>,
+    ) -> shell::ShellRayAttempt<EntityRef>;
 }
 
 impl<F> RegionSplitQueries for F
@@ -300,7 +313,7 @@ where
     F: FnMut(
         &mut Kernel,
         &mut Brep,
-        ShellId,
+        Option<ShellId>,
         shell::ShellRayInput<EntityRef>,
     ) -> shell::ShellRayAttempt<EntityRef>,
 {
@@ -311,7 +324,16 @@ where
         shell: ShellId,
         input: shell::ShellRayInput<EntityRef>,
     ) -> shell::ShellRayAttempt<EntityRef> {
-        self(k, brep, shell, input)
+        self(k, brep, Some(shell), input)
+    }
+
+    fn brep_ray_fire(
+        &mut self,
+        k: &mut Kernel,
+        brep: &mut Brep,
+        input: shell::ShellRayInput<EntityRef>,
+    ) -> shell::ShellRayAttempt<EntityRef> {
+        self(k, brep, None, input)
     }
 }
 
@@ -330,6 +352,7 @@ pub fn test_closure_split_region(
     do_infinite_region_testing: bool,
     start: FaceuseId,
     queries: &mut dyn RegionSplitQueries,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
 ) -> Result<(Option<ShellId>, Option<RegionId>)> {
     let attempt = test_closure_split_region_attempt(
         k,
@@ -339,6 +362,7 @@ pub fn test_closure_split_region(
         do_infinite_region_testing,
         start,
         queries,
+        identity,
     )?;
     attempt.status?;
     Ok((attempt.shell, attempt.region))
@@ -385,6 +409,7 @@ pub fn test_closure_split_region_attempt(
     do_infinite_region_testing: bool,
     start: FaceuseId,
     queries: &mut dyn RegionSplitQueries,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
 ) -> Result<RegionSplitAttempt> {
     let mut attempt = RegionSplitAttempt {
         status: Ok(()),
@@ -401,12 +426,14 @@ pub fn test_closure_split_region_attempt(
             attempt: &mut attempt,
             queries,
             do_infinite_region_testing,
+            identity,
         },
     );
     finish_split_attempt(attempt, status)
 }
 
 struct SplitRun<'a> {
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'a>,
     attempt: &'a mut RegionSplitAttempt,
     queries: &'a mut dyn RegionSplitQueries,
     do_infinite_region_testing: bool,
@@ -512,7 +539,7 @@ fn split_closed(
         run.queries
             .check_geometry(brep, !(vertices.len() > 500 && edges.len() > 100), false)?;
     }
-    let brep_bbox = crate::query::brep::calculate_bounding_box(
+    let mut brep_bbox = crate::query::brep::calculate_bounding_box(
         k,
         brep,
         crate::query::brep::BoundingBoxOptions {
@@ -522,14 +549,15 @@ fn split_closed(
         },
     )?;
     let radius = brep_bbox.sphere_bound().radius;
-    if run.do_infinite_region_testing && brep.infinite_region() == Some(old_region) {
-        // FindAndSetInfiniteRegion(pNewShell, SM_VS_INFINITEREGION_SWAP, &sBrepBBox).
-        // UNPORTED(topology.brep_p5): SmBrep::FindAndSetInfiniteRegion
-        return Err(SolidError::unported(
-            "SmBrep::FindAndSetInfiniteRegion",
-            "topology.brep_p5",
-        ));
-    }
+    reassign_split_infinite_region(
+        k,
+        brep,
+        old_region,
+        new_shell,
+        &mut brep_bbox,
+        run.do_infinite_region_testing,
+        run.queries,
+    )?;
 
     let faceuses_remain = faceuses.len() != all_replaced.len();
     if faceuses_remain || !wires.is_empty() || shells.len() > 1 {
@@ -538,13 +566,15 @@ fn split_closed(
         // boolean branch still selects the new shell. Surface sampling may also
         // read boundary curves; its harness guard does not replace the operation.
         run.queries.check_geometry(brep, true, true)?;
-        let new_is_inner = ignored_native(tr::is_inner_shell(k, brep, &replaced))?.unwrap_or(true);
+        let new_is_inner =
+            ignored_native(tr::is_inner_shell(k, brep, &replaced, run.identity))?.unwrap_or(true);
         let (inner_shell, other_shell) = if new_is_inner {
             (new_shell, old_shell)
         } else {
             (old_shell, new_shell)
         };
         let mut distribution = Distribution {
+            identity: run.identity,
             old_shell,
             new_shell,
             old_region,
@@ -570,6 +600,7 @@ fn split_closed(
 }
 
 struct Distribution<'a> {
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'a>,
     old_shell: ShellId,
     new_shell: ShellId,
     old_region: RegionId,
@@ -871,10 +902,39 @@ impl Distribution<'_> {
             })?;
         }
         if moved {
-            ignore_status(shell::order_region_shells(k, brep, self.old_region))?;
+            ignore_status(shell::order_region_shells(
+                k,
+                brep,
+                self.old_region,
+                self.identity,
+            ))?;
         }
         Ok(())
     }
+}
+
+// Keep the native infinite-region test between the rough bounding box and
+// residual distribution. The same live provider can select shell or B-rep rays.
+fn reassign_split_infinite_region(
+    k: &mut Kernel,
+    brep: &mut Brep,
+    old_region: RegionId,
+    new_shell: ShellId,
+    bbox: &mut crate::geom::extent3d::Extent3d,
+    enabled: bool,
+    queries: &mut dyn RegionSplitQueries,
+) -> Result<()> {
+    if enabled && brep.infinite_region() == Some(old_region) {
+        super::p5::find_and_set_infinite_region_with_queries(
+            k,
+            brep,
+            Some(new_shell),
+            2, // SM_VS_INFINITEREGION_SWAP
+            Some(bbox),
+            queries,
+        )?;
+    }
+    Ok(())
 }
 
 fn remove_shell_ignored(brep: &mut Brep, region: RegionId, shell: ShellId) -> Result<()> {
@@ -933,7 +993,7 @@ mod tests {
     fn no_ray(
         _: &mut Kernel,
         _: &mut Brep,
-        _: ShellId,
+        _: Option<ShellId>,
         _: shell::ShellRayInput<EntityRef>,
     ) -> shell::ShellRayAttempt<EntityRef> {
         panic!("this topology-only split must not cast a ray")
@@ -981,7 +1041,7 @@ mod tests {
     }
 
     #[test]
-    fn split_releases_its_lock_and_preserves_the_callers_lock_on_dependency_error() {
+    fn split_releases_its_lock_and_preserves_partial_outputs_on_native_infinite_error() {
         let mut k = Kernel::default();
         let (mut b, region, shell, first, second) = closed_pair();
         let mut outer = MarkLock::new(
@@ -999,14 +1059,18 @@ mod tests {
             true,
             first,
             &mut no_ray,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
         );
-        assert!(matches!(
-            result,
-            Err(SolidError::Unported {
-                upstream: "SmBrep::FindAndSetInfiniteRegion",
-                unit: "topology.brep_p5",
-            })
-        ));
+        let attempt = result.unwrap();
+        assert_eq!(
+            attempt.status,
+            Err(SolidError::sm_err("topology::brep::p9"))
+        );
+        assert_eq!(attempt.shell, Some(ShellId::from_index(1)));
+        assert_eq!(attempt.region, Some(RegionId::from_index(1)));
         // the new region got its (default) SmTopology record
         assert_eq!(state.records.len(), 2);
         assert!(k.context.is_mark_locked(MarkType::Mark));
@@ -1036,6 +1100,10 @@ mod tests {
             false,
             first,
             &mut no_ray,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
         )
         .unwrap();
         attempt.status.unwrap();
@@ -1051,6 +1119,96 @@ mod tests {
         assert_eq!(b.infinite_region(), Some(region));
         assert!(b.editing_enabled());
         assert!(!k.context.is_mark_locked(MarkType::Mark));
+    }
+
+    #[test]
+    fn infinite_reassignment_uses_live_brep_rays_and_native_swap_or_error_state() {
+        use crate::curve::curve::Curve;
+        use crate::curve::line::Line;
+        use crate::geom::extent1d::Extent1d;
+        use crate::geom::extent3d::Extent3d;
+        use crate::topology::shell::{ShellRayAttempt, ShellRayInput};
+
+        for fail in [false, true] {
+            let mut k = Kernel::default();
+            let mut b = Brep::new_with_infinite_region().unwrap();
+            let old = b.infinite_region().unwrap();
+            let new = b
+                .add_region_record(Region {
+                    in_brep: true,
+                    is_void: 0,
+                    ..Region::default()
+                })
+                .unwrap();
+            let shell = b
+                .add_shell_record(Shell {
+                    region: Some(new),
+                    shell_type: ShellType::Wire,
+                    ..Shell::default()
+                })
+                .unwrap();
+            b.region_mut(new).unwrap().shells.push(shell);
+            let start = b.add_vertex(Point3::ZERO).unwrap();
+            let end = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
+            let edge = b.add_edge(start, end).unwrap();
+            let record = b.edge_mut(edge).unwrap();
+            record.curve = Some(Curve::from(Line::from_points(
+                Point3::ZERO,
+                Point3::new(1.0, 0.0, 0.0),
+                3,
+            )));
+            record.interval = Extent1d::from_min_max(0.0, 1.0);
+            let mut bbox =
+                Extent3d::from_points(Point3::new(-2.0, -3.0, -4.0), Point3::new(2.0, 3.0, 4.0));
+            let expected_first_start = bbox.max() + (bbox.max() - bbox.min()) * 0.5;
+            let mut seen = Vec::new();
+            let mut queries = |_: &mut Kernel,
+                               brep: &mut Brep,
+                               selected: Option<ShellId>,
+                               mut input: ShellRayInput<EntityRef>| {
+                // Wire-shell selection must use the complete B-rep branch.
+                assert_eq!(selected, None);
+                assert_eq!(brep.regions().len(), 2);
+                assert_eq!(input.sphere_bound, None);
+                seen.push(input.start);
+                brep.set_editing_enabled(false);
+                input.state.region = Some(new);
+                ShellRayAttempt {
+                    status: if fail {
+                        Err(SolidError::sm_err("test::native_ray"))
+                    } else {
+                        Ok(())
+                    },
+                    state: input.state,
+                }
+            };
+            b.set_editing_enabled(true);
+            let result = reassign_split_infinite_region(
+                &mut k,
+                &mut b,
+                old,
+                shell,
+                &mut bbox,
+                true,
+                &mut queries,
+            );
+            assert_eq!(seen.first(), Some(&expected_first_start));
+            assert!(!b.editing_enabled());
+            if fail {
+                assert_eq!(seen.len(), 3);
+                assert_eq!(result, Err(SolidError::sm_err("topology::brep::p9")));
+                assert_eq!(b.infinite_region(), Some(old));
+                assert_eq!(b.region(old).unwrap().is_void(), 1);
+                assert_eq!(b.region(new).unwrap().is_void(), 0);
+            } else {
+                result.unwrap();
+                assert_eq!(seen.len(), 1);
+                assert_eq!(b.infinite_region(), Some(new));
+                assert_eq!(super::super::p1::regions(&b, None).unwrap(), [new, old]);
+                assert_eq!(b.region(old).unwrap().is_void(), 0);
+                assert_eq!(b.region(new).unwrap().is_void(), 1);
+            }
+        }
     }
 
     #[test]
@@ -1131,6 +1289,10 @@ mod tests {
             true,
             seed,
             &mut no_ray,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
         );
         assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
         assert_eq!(b.shells().len(), 0);

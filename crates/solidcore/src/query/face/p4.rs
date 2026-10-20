@@ -226,7 +226,6 @@ enum ClassifyCrv {
 #[allow(clippy::too_many_arguments)]
 fn find_and_classify_loop_bisector<O: LoopObject>(
     k: &Kernel,
-    b: &Brep,
     face: FaceId,
     target: usize,
     loops: &[LoopId],
@@ -246,7 +245,6 @@ fn find_and_classify_loop_bisector<O: LoopObject>(
     };
     let r = qf3::find_and_classify_loop_bisector_into(
         k,
-        b,
         face,
         target,
         loops,
@@ -319,12 +317,13 @@ fn touch_orient<O: Copy>(done: &[TouchData<O>], j1: usize) -> Result<OrientType>
 #[allow(clippy::too_many_lines)]
 pub fn classify_loops<O: LoopObject>(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     face: FaceId,
     loops: &mut Vec<LoopId>,
     out: &mut ClassifyLoopsOut,
     scratch: &mut CurveClassification<O>,
     props: &mut FaceProps<O>,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
 ) -> Result<()> {
     // Fill Tgt Loops when input LoopList is empty
     if loops.is_empty() {
@@ -443,10 +442,9 @@ pub fn classify_loops<O: LoopObject>(
             // loop does not cross an existing seam ClassifyCrv (the status is not
             // checked upstream; a handle type that cannot name the bisector's curves is
             // an error of the caller, not a status)
-            let mut bisector_curves = qf3::LoopObjectCurves::new(b, face)?;
+            let mut bisector_curves = qf3::LoopObjectCurves::new(b, face, identity, None)?;
             ignored(find_and_classify_loop_bisector(
                 k,
-                b,
                 face,
                 ii,
                 loops,
@@ -876,7 +874,7 @@ mod tests {
     }
 
     fn run(
-        b: &Brep,
+        b: &mut Brep,
         f: FaceId,
         props: &mut FaceProps<EntityRef>,
         loops: &mut Vec<LoopId>,
@@ -884,7 +882,19 @@ mod tests {
         let k = Kernel::default();
         let mut out = ClassifyLoopsOut::default();
         let mut scratch = CurveClassification::new(&k);
-        let r = classify_loops(&k, b, f, loops, &mut out, &mut scratch, props);
+        let r = classify_loops(
+            &k,
+            b,
+            f,
+            loops,
+            &mut out,
+            &mut scratch,
+            props,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
+        );
         (r, out)
     }
 
@@ -903,7 +913,7 @@ mod tests {
         ];
         let mut props = seam_props(&k, 2, done);
         let mut loops = Vec::new();
-        let (r, out) = run(&b, f, &mut props, &mut loops);
+        let (r, out) = run(&mut b, f, &mut props, &mut loops);
         r.unwrap();
         assert_eq!(loops.len(), 2);
         assert_eq!(out.classifiable, HealNotYetFaceType::NoProbs);
@@ -941,7 +951,7 @@ mod tests {
         ];
         let mut props = seam_props(&k, 2, done);
         let mut loops = Vec::new();
-        let (r, out) = run(&b, f, &mut props, &mut loops);
+        let (r, out) = run(&mut b, f, &mut props, &mut loops);
         r.unwrap();
         assert_eq!(out.classifiable, HealNotYetFaceType::NoClassifyZeroCrosscnt);
         assert_eq!(
@@ -959,13 +969,13 @@ mod tests {
         let f = face_with_loops(&mut b, &[false], false);
         let mut props = seam_props(&k, 1, Vec::new());
         let mut loops = Vec::new();
-        let (r, _) = run(&b, f, &mut props, &mut loops);
+        let (r, _) = run(&mut b, f, &mut props, &mut loops);
         assert_eq!(r, Err(invalid(NO_SURFACE)));
 
         let mut b = Brep::new();
         let f = face_with_loops(&mut b, &[false], true);
         let mut loops = vec![LoopId::from_index(0)];
-        let (r, _) = run(&b, FaceId::from_index(7), &mut props, &mut loops);
+        let (r, _) = run(&mut b, FaceId::from_index(7), &mut props, &mut loops);
         assert!(r.is_err());
         let _ = f;
     }
@@ -982,7 +992,19 @@ mod tests {
             ..ClassifyLoopsOut::default()
         };
         let mut scratch = CurveClassification::new(&k);
-        let r = classify_loops(&k, &b, f, &mut loops, &mut out, &mut scratch, &mut props);
+        let r = classify_loops(
+            &k,
+            &mut b,
+            f,
+            &mut loops,
+            &mut out,
+            &mut scratch,
+            &mut props,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
+        );
         assert_eq!(r, Err(SolidError::sm_err(OP)));
         // the out-params keep the caller's values
         assert_eq!(out.ordered_no_area_indices, vec![9]);
@@ -997,7 +1019,7 @@ mod tests {
         let mut props = seam_props(&k, 1, Vec::new());
         props.loop_props[0].seam_crossing_cnt_u = 0;
         let mut loops = Vec::new();
-        let (r, _) = run(&b, f, &mut props, &mut loops);
+        let (r, _) = run(&mut b, f, &mut props, &mut loops);
         assert!(matches!(
             r,
             Err(SolidError::InvalidInput { reason, .. }) if reason == qf3::NO_CURVE_HANDLES
@@ -1017,7 +1039,7 @@ mod tests {
         let mut props = seam_props(&k, 1, done);
         props.poles = SS_VMIN | SS_VMAX;
         let mut loops = Vec::new();
-        let (r, out) = run(&b, f, &mut props, &mut loops);
+        let (r, out) = run(&mut b, f, &mut props, &mut loops);
         r.unwrap();
         // the C++ gives start and stop SM_CD_POLE_NO_VERTEX, TopLoop, Same
         assert_eq!(out.start_type, CrvDirOnFaceType::PoleNoVertex);

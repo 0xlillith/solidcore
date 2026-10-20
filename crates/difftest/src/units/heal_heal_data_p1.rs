@@ -87,6 +87,30 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     }
 }
 
+fn query_owner_links(
+    brep: &Brep,
+    keys: &dyn Fn(
+        solidcore::topology::brep_cache::CacheObject,
+    ) -> solidcore::geom::object::ObjectRef,
+) -> std::collections::BTreeMap<
+    solidcore::geom::object::ObjectRef,
+    solidcore::geom::object::ObjectRef,
+> {
+    use solidcore::topology::brep_cache::CacheObject;
+    let mut owners = std::collections::BTreeMap::new();
+    for (edge, record) in brep.edges().iter() {
+        if let Some(owner) = record.curve.as_ref().and_then(|curve| curve.owner()) {
+            owners.insert(keys(CacheObject::Curve(edge)), owner);
+        }
+    }
+    for (face, record) in brep.faces().iter() {
+        if let Some(owner) = record.surface.as_ref().and_then(|surface| surface.owner()) {
+            owners.insert(keys(CacheObject::Surface(face)), owner);
+        }
+    }
+    owners
+}
+
 fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     match i {
         Inputs::Script(s) => p2_rust(s),
@@ -109,7 +133,17 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
                         .ok_or_else(|| harness("missing query environment"))?;
                     let mut queries =
                         RayQueryContext::new(brep, id, QueryMetadata::default(), arena_identity);
-                    api_heal_brep(&mut k, None, &mut queries)
+                    let owners = query_owner_links(brep, &arena_identity);
+                    let owner_of = |object| owners.get(&object).copied();
+                    api_heal_brep(
+                        &mut k,
+                        None,
+                        &mut queries,
+                        solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                            keys: &arena_identity,
+                            owner_of: &owner_of,
+                        },
+                    )
                 }
                 Some(_) => {
                     return Ok(Output::deferred(

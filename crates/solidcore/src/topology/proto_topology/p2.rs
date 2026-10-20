@@ -172,7 +172,7 @@ pub trait ProtoBrep<O>: ProtoGeometry<O> + ProtoTopology<O> {
     ///
     /// Those of `curve_on_classify`.
     fn face_curve_on_classify(
-        &self,
+        &mut self,
         k: &Kernel,
         face: O,
         do_point_classify: bool,
@@ -2198,7 +2198,7 @@ mod tests {
             Ok(Vec::new())
         }
         fn face_curve_on_classify(
-            &self,
+            &mut self,
             _k: &Kernel,
             _face: H,
             _do_point_classify: bool,

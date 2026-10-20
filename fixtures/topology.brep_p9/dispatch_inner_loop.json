@@ -1,0 +1,36 @@
+{
+  "cases": [
+    {
+      "name": "dispatch_inner_loop_outer_diagonal_supplied_uv",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp MakeEdgeInFaceWithVU inner-loop redistribution",
+      "inputs": {
+        "op": 5,
+        "variant": 6,
+        "editing": true,
+        "brep": {
+          "kind": "face",
+          "surface": {
+            "plane": {
+              "o": [
+                0,
+                0,
+                0
+              ],
+              "n": [
+                0,
+                0,
+                1
+              ]
+            }
+          },
+          "dom": [
+            -2,
+            -1,
+            3,
+            4
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -503,7 +503,12 @@ fn line_parameters(
 /// Classify a closed shell by parity of forward and backward ray intersections.
 /// Errors propagate from face sampling; intersections await `topology.face_p4`.
 /// An empty or inconclusive set returns the upstream `SM_ERR`.
-pub fn is_inner_shell(k: &mut Kernel, b: &Brep, faceuses: &[FaceuseId]) -> Result<bool> {
+pub fn is_inner_shell(
+    k: &mut Kernel,
+    b: &mut Brep,
+    faceuses: &[FaceuseId],
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+) -> Result<bool> {
     if faceuses.is_empty() {
         return Err(SolidError::sm_err(OP));
     }
@@ -518,9 +523,9 @@ pub fn is_inner_shell(k: &mut Kernel, b: &Brep, faceuses: &[FaceuseId]) -> Resul
     let mut backward = 0_u64;
     for &source in faceuses {
         let source = b.faceuse(source)?;
-        let f = required(source.face)?;
-        let mut points = face::points_in_face(k, b, f, samples)?.pv;
-        if source.orientation == OrientType::Opposite {
+        let (f, orientation) = (required(source.face)?, source.orientation);
+        let mut points = face::points_in_face(k, b, f, samples, identity)?.pv;
+        if orientation == OrientType::Opposite {
             for pair in points.chunks_exact_mut(2) {
                 if let Some(normal) = pair.get_mut(1) {
                     *normal *= -1.0;

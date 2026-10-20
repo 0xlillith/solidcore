@@ -218,35 +218,166 @@ fn curve_classification<O: ClassObject>(
 
 /// `GetSurface()->CoincidenceCheck(other, tol, rbAreCoincident, rdDist, FALSE, ..)`:
 /// whether the surfaces coincide and their largest distance.
+struct FaceCoincidenceQueries<'a> {
+    brep: &'a mut Brep,
+    surfaces: [(&'a Surface, FaceId); 2],
+    keys: &'a dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
+    owner_of: &'a dyn Fn(ObjectRef) -> Option<ObjectRef>,
+}
+impl crate::surface::surface::p8::CoincidenceQueries for FaceCoincidenceQueries<'_> {
+    fn is_planar(&mut self, k: &Kernel, surface: &Surface, tolerance: f64) -> Result<bool> {
+        if matches!(
+            surface.kind(),
+            crate::surface::surface::SurfaceKind::Plane(_)
+        ) {
+            // Preserve SmPlane's virtual IsPlanar override, which needs no box.
+            return Ok(surface.is_planar(k, tolerance)?.is_planar);
+        }
+        // SmSurface::IsPlanar ignores native box failures, then inspects its
+        // pseudo box. Adapter identity errors are not native numerical failures.
+        let boxes = surface.calculate_bounding_box_with_owner_tolerance(
+            k,
+            &surface.natural_uv_domain(),
+            [false, true, false],
+            true,
+            &mut || surface_box_tolerance(self.brep, surface, self.keys, self.owner_of),
+        );
+        let pseudo = match boxes {
+            Ok(boxes) => boxes.pseudo_box.unwrap_or_default(),
+            Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => {
+                crate::geom::pseudo_box::PseudoBox::new()
+            }
+            Err(error) => return Err(error),
+        };
+        Ok(pseudo.is_planar(tolerance).is_planar)
+    }
+    fn point_drop(
+        &mut self,
+        k: &Kernel,
+        surface: &Surface,
+        point: Point3,
+        domain: &Extent2d,
+        guess_uv: Option<Point2>,
+        operation: SolverOperation,
+    ) -> Result<Result<(bool, Point2, f64)>> {
+        let slot = self
+            .surfaces
+            .iter()
+            .find(|(candidate, _)| core::ptr::eq(*candidate, surface))
+            .map(|(_, face)| *face)
+            .ok_or_else(|| SolidError::invalid_input(OP, "foreign coincidence surface"))?;
+        let mut context =
+            crate::query::face::p1::FacePointContext::new(self.brep, self.keys, self.owner_of);
+        match surface.drop_point_with_context(
+            k,
+            Some(crate::topology::brep_cache::CacheObject::Surface(slot)),
+            point,
+            domain,
+            &DropPointOptions {
+                guess_uv,
+                operation,
+                ..DropPointOptions::default()
+            },
+            &mut context,
+        ) {
+            Ok(drop) => Ok(Ok((drop.success, drop.result_uv, drop.gap))),
+            Err(error @ (SolidError::Upstream { .. } | SolidError::Nlib { .. })) => Ok(Err(error)),
+            Err(error) => Err(error),
+        }
+    }
+    fn bounding_box(
+        &mut self,
+        k: &Kernel,
+        surface: &Surface,
+        domain: &Extent2d,
+    ) -> Result<crate::geom::extent3d::Extent3d> {
+        let result = surface.calculate_bounding_box_with_owner_tolerance(
+            k,
+            domain,
+            [true, false, false],
+            true,
+            &mut || surface_box_tolerance(self.brep, surface, self.keys, self.owner_of),
+        );
+        match result {
+            Ok(boxes) => Ok(boxes.normal_box.unwrap_or_default()),
+            Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => {
+                Ok(crate::geom::extent3d::Extent3d::new())
+            }
+            Err(error) => Err(error),
+        }
+    }
+}
+
 fn coincidence_check(
     k: &Kernel,
-    surface: &Surface,
-    other: &Surface,
+    b: &mut Brep,
+    face: FaceId,
+    other_face: FaceId,
     tol: f64,
+    keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
 ) -> Result<(bool, f64)> {
-    let c = surface.coincidence_check(k, other, tol, false)?;
+    let surface = surface_of(b, face)?.clone_for_evaluation()?;
+    let other_view = if face == other_face {
+        None
+    } else {
+        Some(surface_of(b, other_face)?.clone_for_evaluation()?)
+    };
+    let other = other_view.as_ref().unwrap_or(&surface);
+    let mut queries = FaceCoincidenceQueries {
+        brep: b,
+        surfaces: [(&surface, face), (other, other_face)],
+        keys,
+        owner_of,
+    };
+    let c = surface.coincidence_check_with_context(k, other, tol, false, &mut queries)?;
     Ok((c.are_coincident, c.max_distance))
 }
 
 /// `pFace->Point3DClassify(sPoint, tol, TRUE, sPC)`: classifies the point into `pc`.
 fn point_3d_classify(
-    _k: &Kernel,
-    _b: &Brep,
-    _f: FaceId,
-    _point: Point3,
-    _tol: f64,
-    _pc: &mut PointClassification<IntersectObject>,
+    k: &Kernel,
+    b: &mut Brep,
+    face: FaceId,
+    point: Point3,
+    tolerance: f64,
+    pc: &mut PointClassification<IntersectObject>,
+    keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
 ) -> Result<()> {
-    // DISPATCH GAP: SmFace::Point3DClassify is ported
-    // (`query::face::p1::point_3d_classify`, query.face_p1 partial; no UNPORTED marker),
-    // but it takes `&mut Brep` (for `query::face::p2::point_classify`) and this caller's
-    // chain holds `&Brep` and an `IntersectObject` classification (`try_map_objects` converts
-    // it); wire it when the B-rep can be lent mutably here. Until then every such case
-    // would still defer inside it (topology.face_p2 / query.face_p2).
-    Err(SolidError::unported(
-        "SmFace::Point3DClassify",
-        "query.face_p1",
-    ))
+    let mut local = pc.try_map_objects(|object| match object {
+        IntersectObject::Topology(entity) => Ok(entity),
+        _ => Err(null("point classification contains a non-topology handle")),
+    })?;
+    let result = crate::query::face::p1::point_3d_classify_with_context(
+        k,
+        b,
+        face,
+        point,
+        tolerance,
+        true,
+        &mut local,
+        crate::query::face::p1::Point3dClassifyOptions::default(),
+        keys,
+        owner_of,
+    );
+    // Native failure still publishes every classification field already written.
+    *pc = local.try_map_objects(|entity| Ok(IntersectObject::Topology(entity)))?;
+    result
+}
+
+/// Ignore only a defined native classification status, retaining Rust identity
+/// and representation failures that have no native counterpart.
+fn ignored_point_classification(result: Result<()>) -> Result<()> {
+    match result {
+        Err(
+            error @ (SolidError::Unported { .. }
+            | SolidError::InvalidInput { .. }
+            | SolidError::NotFound { .. }
+            | SolidError::Unsupported { .. }),
+        ) => Err(error),
+        _ => Ok(()),
+    }
 }
 
 // ---- small accessors ----------------------------------------------------------------------
@@ -1387,10 +1518,71 @@ pub struct FaceIntersection {
 
 /// The classification objects of [`face_intersect`].
 struct IntersectObjects<'a> {
-    b: &'a Brep,
+    b: &'a mut Brep,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'a>,
     curves_3d: &'a [Curve],
     uv1: &'a [Option<Curve>],
     uv2: &'a [Option<Curve>],
+}
+
+impl crate::intersect::curve_class::p7::FaceQueryOwner<IntersectObject> for IntersectObjects<'_> {
+    fn classification_brep(&self) -> Result<&Brep> {
+        Ok(self.b)
+    }
+    fn classification_brep_mut(&mut self) -> Result<&mut Brep> {
+        Ok(self.b)
+    }
+    fn classification_entity(
+        &self,
+        face: IntersectObject,
+        object: IntersectObject,
+    ) -> Result<EntityRef> {
+        if !matches!(face, IntersectObject::Topology(EntityRef::Face(_))) {
+            return Err(SolidError::invalid_input(OP, "not an intersection face"));
+        }
+        match object {
+            IntersectObject::Topology(entity) => Ok(entity),
+            _ => Err(SolidError::invalid_input(
+                OP,
+                "not an intersection topology identity",
+            )),
+        }
+    }
+    fn classification_handle(
+        &self,
+        face: IntersectObject,
+        entity: EntityRef,
+    ) -> Result<IntersectObject> {
+        if !matches!(face, IntersectObject::Topology(EntityRef::Face(_))) {
+            return Err(SolidError::invalid_input(OP, "not an intersection face"));
+        }
+        Ok(IntersectObject::Topology(entity))
+    }
+    fn query_on_face<T>(
+        &mut self,
+        kernel: &Kernel,
+        face: IntersectObject,
+        query: impl FnOnce(
+            &Kernel,
+            &mut Brep,
+            FaceId,
+            &dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
+            &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+            Option<&mut dyn qf2::FacePointCache>,
+        ) -> Result<T>,
+    ) -> Result<T> {
+        let IntersectObject::Topology(EntityRef::Face(face)) = face else {
+            return Err(SolidError::invalid_input(OP, "not an intersection face"));
+        };
+        query(
+            kernel,
+            self.b,
+            face,
+            self.identity.keys,
+            self.identity.owner_of,
+            None,
+        )
+    }
 }
 
 impl qf2::CurveOnClassifyObjects<IntersectObject> for IntersectObjects<'_> {
@@ -1470,6 +1662,21 @@ impl ClassGeometry<IntersectObject> for IntersectObjects<'_> {
     }
 }
 
+// SmBSplineSurface::CalculateBoundingBox first asks GetFace()->GetTolerance.
+// SmSurface::GetBrep itself delegates to GetFace (SmSurface.cpp12018-12025),
+// so without a resolved face its remaining fallback is SM_ZONE_TOL_3D.
+fn surface_box_tolerance(
+    b: &Brep,
+    surface: &Surface,
+    keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+) -> Result<f64> {
+    match crate::query::face::p1::surface_face_with_context(b, surface, keys, owner_of)? {
+        Some(face) => face2::tolerance(b, face),
+        None => Ok(crate::geom::tol::ZONE_TOL_3D),
+    }
+}
+
 /// `FaceIntersect`: the curves (and, when asked, points) where face `f` meets
 /// `other`. Coincident surfaces (by `options.coincidence`, else
 /// `SmSurface::CoincidenceCheck` within `approx_tol_3d`) give copies of both faces'
@@ -1482,17 +1689,64 @@ impl ClassGeometry<IntersectObject> for IntersectObjects<'_> {
 ///
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for a face
 /// without surface; those of the intersection, copies and classifications;
-/// [`SolidError::Unported`] (`Point3DClassify`, the curve classification
-/// constructor).
+/// Genuine dependency errors from the curve classification or point-query pipeline.
+/// Point classification retains lazy UV writes and partial output on failure.
 #[allow(clippy::too_many_lines)] // one upstream routine
 pub fn face_intersect(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     f: FaceId,
     other: FaceId,
     approx_tol_3d: f64,
     crv_ang_tol_deg: f64,
     options: &FaceIntersectOptions,
+) -> Result<FaceIntersection> {
+    let keys = crate::topology::brep_cache::arena_identity;
+    let mut owners = std::collections::BTreeMap::new();
+    for (id, record) in b.edges().iter() {
+        if let Some(owner) = record.curve.as_ref().and_then(Curve::owner) {
+            owners.insert(
+                keys(crate::topology::brep_cache::CacheObject::Curve(id)),
+                owner,
+            );
+        }
+    }
+    for (id, record) in b.faces().iter() {
+        if let Some(owner) = record.surface.as_ref().and_then(Surface::owner) {
+            owners.insert(
+                keys(crate::topology::brep_cache::CacheObject::Surface(id)),
+                owner,
+            );
+        }
+    }
+    face_intersect_with_context(
+        k,
+        b,
+        f,
+        other,
+        approx_tol_3d,
+        crv_ang_tol_deg,
+        options,
+        &keys,
+        &|object| owners.get(&object).copied(),
+    )
+}
+
+/// Intersect faces of the same mutable B-rep with the caller's actual identities.
+/// Lazy UV writes and partial point classifications remain on that B-rep.
+///
+/// # Errors
+/// Those of [`face_intersect`], including unresolved caller owner identities.
+pub fn face_intersect_with_context(
+    k: &Kernel,
+    b: &mut Brep,
+    f: FaceId,
+    other: FaceId,
+    approx_tol_3d: f64,
+    crv_ang_tol_deg: f64,
+    options: &FaceIntersectOptions,
+    keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
 ) -> Result<FaceIntersection> {
     let mut out = FaceIntersection {
         this_uv_curves: options.want_this_uv_curves.then(Vec::new),
@@ -1518,7 +1772,7 @@ pub fn face_intersect(
         (c, 0.0)
     } else {
         // run the Coincidence checker
-        coincidence_check(k, surface_of(b, f)?, surface_of(b, other)?, approx_tol_3d)?
+        coincidence_check(k, b, f, other, approx_tol_3d, keys, owner_of)?
     };
 
     let mut have_curves = false;
@@ -1550,7 +1804,7 @@ pub fn face_intersect(
     }
 
     if !have_curves {
-        let r = surface_of(b, f)?.global_surface_intersect(
+        let r = surface_of(b, f)?.global_surface_intersect_with_box_tolerance(
             k,
             &face2::uv_domain(b, f)?,
             surface_of(b, other)?,
@@ -1558,6 +1812,7 @@ pub fn face_intersect(
             use_surface_edges,
             Some(approx_tol_3d),
             Some(ang_tol_rad),
+            &mut |surface| surface_box_tolerance(b, surface, keys, owner_of),
         )?;
         curves_3d = r.curves_3d;
         uv_curves1 = r.surface1_uv_curves;
@@ -1579,14 +1834,25 @@ pub fn face_intersect(
             let mut pc1 = PointClassification::<IntersectObject>::new(this_zone_tol);
             let mut pc2 = PointClassification::<IntersectObject>::new(other_zone_tol);
             // statuses ignored upstream
-            ignore_status(point_3d_classify(k, b, f, point, this_zone_tol, &mut pc1))?;
-            ignore_status(point_3d_classify(
+            ignored_point_classification(point_3d_classify(
+                k,
+                b,
+                f,
+                point,
+                this_zone_tol,
+                &mut pc1,
+                keys,
+                owner_of,
+            ))?;
+            ignored_point_classification(point_3d_classify(
                 k,
                 b,
                 other,
                 point,
                 other_zone_tol,
                 &mut pc2,
+                keys,
+                owner_of,
             ))?;
             let (pct1, pct2) = (pc1.point_class(), pc2.point_class());
             let on = |t: PointClassType| {
@@ -1613,14 +1879,15 @@ pub fn face_intersect(
         let mut cc1 = curve_classification(k, IntersectObject::Curve(ii), &ivl, uv1, zone_tol)?;
         let mut cc2 = curve_classification(k, IntersectObject::Curve(ii), &ivl, uv2, zone_tol)?;
 
-        let objects = IntersectObjects {
+        let mut objects = IntersectObjects {
             b,
+            identity: crate::intersect::curve_class::p7::FaceQueryIdentity { keys, owner_of },
             curves_3d: &curves_3d,
             uv1: &uv_curves1,
             uv2: &uv_curves2,
         };
-        qf2::curve_on_classify(k, b, f, &objects, true, &mut cc1, false, false, true)?;
-        qf2::curve_on_classify(k, b, other, &objects, true, &mut cc2, false, false, true)?;
+        qf2::curve_on_classify(k, f, &mut objects, true, &mut cc1, false, false, true)?;
+        qf2::curve_on_classify(k, other, &mut objects, true, &mut cc2, false, false, true)?;
 
         let ex = cc1.extract_geometry(
             k,
@@ -1662,4 +1929,251 @@ pub fn face_intersect(
         out.cc_other_uv_curves = Some(uv_curves2);
     }
     Ok(out)
+}
+
+#[cfg(test)]
+mod live_point_dispatch_tests {
+    use super::*;
+
+    #[test]
+    fn point_dispatch_maps_every_partial_field_back_before_returning_error() {
+        let kernel = Kernel::default();
+        let mut brep = Brep::new();
+        let shell = brep.add_shell().unwrap();
+        let face = brep.add_face(shell).unwrap();
+        let mut pc = PointClassification::new(0.25);
+        pc.set_gap_3d(17.0);
+        let result = point_3d_classify(
+            &kernel,
+            &mut brep,
+            face,
+            Point3::ZERO,
+            0.125,
+            &mut pc,
+            &crate::topology::brep_cache::arena_identity,
+            &|_| None,
+        );
+        assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
+        assert_eq!(
+            pc.face(),
+            Some(IntersectObject::Topology(EntityRef::Face(face)))
+        );
+        assert_eq!(pc.point_class(), PointClassType::Unknown);
+        assert_eq!(
+            pc.gap_3d(
+                &kernel,
+                &IntersectObjects {
+                    b: &mut brep,
+                    identity: crate::intersect::curve_class::p7::FaceQueryIdentity {
+                        keys: &crate::topology::brep_cache::arena_identity,
+                        owner_of: &|_| None
+                    },
+                    curves_3d: &[],
+                    uv1: &[],
+                    uv2: &[]
+                },
+                None
+            )
+            .unwrap(),
+            17.0
+        );
+    }
+
+    #[test]
+    fn plane_box_context_uses_actual_namespaced_face_owner() {
+        use crate::geom::attribute::ObjectKey;
+        use crate::surface::plane::Plane;
+        use crate::topology::brep_cache::{arena_identity, CacheObject};
+        let mut brep = Brep::new();
+        let shell = brep.add_shell().unwrap();
+        let first = brep.add_face(shell).unwrap();
+        let second = brep.add_face(shell).unwrap();
+        brep.face_mut(first).unwrap().tolerance = 0.125;
+        brep.face_mut(second).unwrap().tolerance = 0.375;
+        let keys = |object| {
+            let mut key = arena_identity(object);
+            key.key = ObjectKey(key.key.0 + 0x120000);
+            key
+        };
+        let mut surface = Surface::from(Plane::from_normal(Point3::ZERO, Vec3::Z));
+        surface.set_owner(Some(keys(CacheObject::Face(first))));
+        assert_eq!(
+            surface_box_tolerance(&brep, &surface, &keys, &|_| None).unwrap(),
+            0.125
+        );
+        // The original surface owner, rather than the face slot being intersected,
+        // determines the tolerance. A real intermediate surface owner is followed.
+        let parent = ObjectRef {
+            key: ObjectKey(0xabcdef),
+            type_code: surface.type_code(),
+        };
+        surface.set_owner(Some(parent));
+        let links = |owner| (owner == parent).then(|| keys(CacheObject::Face(second)));
+        assert_eq!(
+            surface_box_tolerance(&brep, &surface, &keys, &links).unwrap(),
+            0.375
+        );
+        assert_eq!(surface.owner(), Some(parent));
+        let unknown = ObjectRef {
+            key: ObjectKey(0xbad),
+            type_code: face2::TYPE,
+        };
+        surface.set_owner(Some(unknown));
+        assert!(matches!(
+            surface_box_tolerance(&brep, &surface, &keys, &|_| None),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        surface.set_owner(None);
+        assert_eq!(
+            surface_box_tolerance(&brep, &surface, &keys, &|_| None).unwrap(),
+            crate::geom::tol::ZONE_TOL_3D
+        );
+    }
+
+    fn planar_bspline(min: f64, max: f64) -> Surface {
+        Surface::from(
+            crate::nurbs::b_spline_surface::BSplineSurface::create_bilinear_surface(
+                Vec3::new(min, min, 0.0),
+                Vec3::new(max, min, 0.0),
+                Vec3::new(min, max, 0.0),
+                Vec3::new(max, max, 0.0),
+            )
+            .unwrap(),
+        )
+    }
+
+    #[test]
+    fn coincidence_none_retains_plane_owner_through_the_real_drop() {
+        use crate::geom::attribute::ObjectKey;
+        use crate::surface::plane::Plane;
+        use crate::topology::brep_cache::{arena_identity, CacheObject};
+        use std::cell::Cell;
+        let kernel = Kernel::default();
+        let mut b = Brep::new();
+        let shell = b.add_shell().unwrap();
+        let first = b.add_face(shell).unwrap();
+        let second = b.add_face(shell).unwrap();
+        let domain = Extent2d::from_bounds(-2.0, -2.0, 2.0, 2.0);
+        let mut plane = Plane::new(Point3::ZERO, Vec3::X, Vec3::Y, Vec2::new(1.0, 1.0), &domain);
+        plane.make_nurb().unwrap();
+        let mut surface = Surface::from(plane);
+        let parent = ObjectRef {
+            key: ObjectKey(0xc01),
+            type_code: surface.type_code(),
+        };
+        surface.set_owner(Some(parent));
+        b.face_mut(first).unwrap().surface = Some(surface);
+        b.face_mut(first).unwrap().uv_domain = domain;
+        b.face_mut(first).unwrap().tolerance = 0.0001;
+        let mut other = planar_bspline(-0.5, 0.5);
+        other.set_owner(Some(arena_identity(CacheObject::Face(second))));
+        b.face_mut(second).unwrap().uv_domain = other.natural_uv_domain();
+        b.face_mut(second).unwrap().surface = Some(other);
+        b.face_mut(second).unwrap().tolerance = 0.0002;
+        let drops = Cell::new(0usize);
+        let owner_of = |owner| {
+            if owner == parent {
+                drops.set(drops.get() + 1);
+                Some(arena_identity(CacheObject::Face(first)))
+            } else {
+                None
+            }
+        };
+        // Native IsPlanar expands the pseudo box by face tolerance. Keep the
+        // actual two distinct owner tolerances below the unchanged 0.001 test.
+        let options = FaceIntersectOptions {
+            coincidence: None,
+            ..FaceIntersectOptions::default()
+        };
+        let result = face_intersect_with_context(
+            &kernel,
+            &mut b,
+            first,
+            second,
+            0.001,
+            0.5,
+            &options,
+            &arena_identity,
+            &owner_of,
+        )
+        .unwrap();
+        assert!(
+            drops.get() > 0,
+            "contained non-Plane surface must reach the Plane point drop context"
+        );
+        assert!(result.curves_3d.is_empty());
+        assert_eq!(
+            b.face(first).unwrap().surface.as_ref().unwrap().owner(),
+            Some(parent)
+        );
+    }
+
+    #[test]
+    fn owned_whole_surface_coincidence_uses_boxes_and_all_real_grid_drops() {
+        use crate::geom::attribute::ObjectKey;
+        use crate::topology::brep_cache::{arena_identity, CacheObject};
+        let kernel = Kernel::default();
+        let mut b = Brep::new();
+        let shell = b.add_shell().unwrap();
+        let first = b.add_face(shell).unwrap();
+        let second = b.add_face(shell).unwrap();
+        let keys = |object| {
+            let mut key = arena_identity(object);
+            key.key.0 += 0x20000;
+            key
+        };
+        for face in [first, second] {
+            let mut surface = planar_bspline(-1.0, 1.0);
+            surface.set_owner(Some(keys(CacheObject::Face(face))));
+            b.face_mut(face).unwrap().uv_domain = surface.natural_uv_domain();
+            b.face_mut(face).unwrap().surface = Some(surface);
+            b.face_mut(face).unwrap().tolerance = 0.125;
+        }
+        b.set_editing_enabled(true);
+        let a = surface_of(&b, first)
+            .unwrap()
+            .clone_for_evaluation()
+            .unwrap();
+        let other = surface_of(&b, second)
+            .unwrap()
+            .clone_for_evaluation()
+            .unwrap();
+        let mut queries = FaceCoincidenceQueries {
+            brep: &mut b,
+            surfaces: [(&a, first), (&other, second)],
+            keys: &keys,
+            owner_of: &|_| None,
+        };
+        let coincidence_tolerance = 0.001;
+        let result = a
+            .coincidence_check_with_context(
+                &kernel,
+                &other,
+                coincidence_tolerance,
+                true,
+                &mut queries,
+            )
+            .unwrap();
+        assert!(result.are_coincident);
+        // Native reports the largest actual floating-point drop residual, not
+        // mathematical zero; a successful whole check bounds it by its input.
+        assert!((0.0..=coincidence_tolerance).contains(&result.max_distance));
+        // An unknown owner is a contract error, never a numerical no-drop result.
+        let mut unknown = a.clone_for_evaluation().unwrap();
+        unknown.set_owner(Some(ObjectRef {
+            key: ObjectKey(0xbad),
+            type_code: face2::TYPE,
+        }));
+        let mut queries = FaceCoincidenceQueries {
+            brep: &mut b,
+            surfaces: [(&unknown, first), (&other, second)],
+            keys: &keys,
+            owner_of: &|_| None,
+        };
+        assert!(matches!(
+            unknown.coincidence_check_with_context(&kernel, &other, 0.001, true, &mut queries),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        assert!(b.editing_enabled());
+    }
 }

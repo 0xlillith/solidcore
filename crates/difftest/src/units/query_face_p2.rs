@@ -585,8 +585,19 @@ impl ClassObject for H {
     }
 }
 
+/// Match the legacy importer's persisted `1 + index` owner identities.
+fn query_key(
+    object: solidcore::topology::brep_cache::CacheObject,
+) -> solidcore::geom::object::ObjectRef {
+    let identity = solidcore::topology::brep_cache::arena_identity(object);
+    solidcore::geom::object::ObjectRef {
+        key: solidcore::geom::attribute::ObjectKey(identity.key.0 + 1),
+        ..identity
+    }
+}
+
 struct Objects<'a> {
-    brep: &'a Brep,
+    brep: &'a mut Brep,
     curve: Curve,
 }
 
@@ -662,6 +673,97 @@ impl solidcore::intersect::point_class::ClassGeometry<H> for Objects<'_> {
     }
 }
 
+impl solidcore::intersect::curve_class::p7::FaceQueryOwner<H> for Objects<'_> {
+    fn classification_brep(&self) -> solidcore::Result<&Brep> {
+        Ok(self.brep)
+    }
+    fn classification_brep_mut(&mut self) -> solidcore::Result<&mut Brep> {
+        Ok(self.brep)
+    }
+    fn classification_entity(&self, face: H, object: H) -> solidcore::Result<EntityRef> {
+        let H::Face(face) = face else {
+            return Err(SolidError::invalid_input(
+                "runner face query",
+                "not a face handle",
+            ));
+        };
+        self.brep.face(face)?;
+        Ok(match object {
+            H::Face(id) => {
+                self.brep.face(id)?;
+                EntityRef::Face(id)
+            }
+            H::Vertex(id) => {
+                self.brep.vertex(id)?;
+                EntityRef::Vertex(id)
+            }
+            H::Edge(id) => {
+                self.brep.edge(id)?;
+                EntityRef::Edge(id)
+            }
+            H::Vertexuse(id) => {
+                self.brep.vertexuse(id)?;
+                EntityRef::Vertexuse(id)
+            }
+            H::Edgeuse(id) => {
+                self.brep.edgeuse(id)?;
+                EntityRef::Edgeuse(id)
+            }
+            _ => {
+                return Err(SolidError::invalid_input(
+                    "runner face query",
+                    "not a topology handle",
+                ))
+            }
+        })
+    }
+    fn classification_handle(&self, face: H, entity: EntityRef) -> solidcore::Result<H> {
+        let handle = match entity {
+            EntityRef::Face(id) => H::Face(id),
+            EntityRef::Vertex(id) => H::Vertex(id),
+            EntityRef::Edge(id) => H::Edge(id),
+            EntityRef::Vertexuse(id) => H::Vertexuse(id),
+            EntityRef::Edgeuse(id) => H::Edgeuse(id),
+            _ => {
+                return Err(SolidError::invalid_input(
+                    "runner face query",
+                    "unsupported topology identity",
+                ))
+            }
+        };
+        self.classification_entity(face, handle)?;
+        Ok(handle)
+    }
+    fn query_on_face<T>(
+        &mut self,
+        kernel: &Kernel,
+        face: H,
+        query: impl FnOnce(
+            &Kernel,
+            &mut Brep,
+            FaceId,
+            &dyn Fn(
+                solidcore::topology::brep_cache::CacheObject,
+            ) -> solidcore::geom::object::ObjectRef,
+            &dyn Fn(
+                solidcore::geom::object::ObjectRef,
+            ) -> Option<solidcore::geom::object::ObjectRef>,
+            Option<&mut dyn qf::FacePointCache>,
+        ) -> solidcore::Result<T>,
+    ) -> solidcore::Result<T> {
+        let H::Face(face) = face else {
+            return Err(SolidError::invalid_input(
+                "runner face query",
+                "not a face handle",
+            ));
+        };
+        self.brep.face(face)?;
+        // This fixture exports only direct geometry owners and deletes native
+        // trimmed-surface caches before classification (see the module contract).
+        query(kernel, self.brep, face, &query_key, &|_| None, None)
+    }
+}
+
 /// A Rust error as the case outcome: deferred for [`SolidError::Unported`], else an
 /// error no C++ output has (a visible failure).
 fn rust_err(e: &SolidError) -> Output {
@@ -712,7 +814,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         ];
         return Ok(Output::new().values("proto", out));
     }
-    let m = match model(i)? {
+    let mut m = match model(i)? {
         Ok(m) => m,
         Err(o) => return Ok(o),
     };
@@ -722,7 +824,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             return Ok(Output::err("inexact_geometry"));
         }
     }
-    let b = &m.brep;
+    let b = &mut m.brep;
     match (&i.op, op) {
         (
             OpIn::PointClassify {
@@ -759,7 +861,16 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                 uv_space_okay: *uv_ok,
                 trim_cache: None,
             };
-            let status = match qf::point_classify(&k, &mut b.clone(), f, uv, &mut pc, opts) {
+            let status = match qf::point_classify_with_context(
+                &k,
+                b,
+                f,
+                uv,
+                &mut pc,
+                opts,
+                &query_key,
+                &|_| None,
+            ) {
                 Ok(()) => 0.0,
                 Err(SolidError::Upstream { code, .. }) => f64::from(code),
                 Err(e) => return Ok(rust_err(&e)),
@@ -781,15 +892,17 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let uv = Point2::new(a(0), a(1));
             let d1 = Extent2d::from_points(Point2::new(a(4), a(5)), Point2::new(a(6), a(7)));
             let d2 = Extent2d::from_points(Point2::new(a(9), a(10)), Point2::new(a(11), a(12)));
-            match qf::classify_param_on_faces(
+            match qf::classify_param_on_faces_with_context(
                 &k,
-                &mut b.clone(),
+                b,
                 uv,
                 zone_tol3d(&k, *tol),
                 f1,
                 &d1,
                 f2,
                 &d2,
+                &query_key,
+                &|_| None,
             ) {
                 Ok(w) => Ok(Output::new().values("which", vec![f64::from(w)])),
                 Err(e) => Ok(rust_err(&e)),
@@ -822,7 +935,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             };
             let curve = Curve::from(line);
             let interval = curve.natural_interval();
-            let objects = Objects { brep: b, curve };
+            let mut objects = Objects { brep: b, curve };
             let mut cc: CurveClassification<H> = CurveClassification::with_curve_interval(
                 &k,
                 H::Curve,
@@ -830,7 +943,14 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                 zone_tol3d(&k, *tol),
             );
             let (status, modified) = match qf::curve_on_classify(
-                &k, b, f, &objects, *do_pc, &mut cc, *big_gaps, *check3d, true,
+                &k,
+                f,
+                &mut objects,
+                *do_pc,
+                &mut cc,
+                *big_gaps,
+                *check3d,
+                true,
             ) {
                 Ok(modified) => (0.0, modified),
                 Err(SolidError::Upstream { code, .. }) => (f64::from(code), false),

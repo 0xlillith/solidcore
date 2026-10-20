@@ -1302,7 +1302,7 @@ impl ProtoGeometry<H> for Two {
 
 /// The face-side objects of `curve_on_classify` for one B-rep.
 struct Objs<'a> {
-    two: &'a Two,
+    two: &'a mut Two,
     b: i8,
 }
 
@@ -1318,6 +1318,69 @@ impl ClassGeometry<H> for Objs<'_> {
     }
     fn point(&self, o: H) -> Option<Point3> {
         ClassGeometry::point(self.two, o)
+    }
+    fn classification_vertex_point(&self, o: H) -> Option<Point3> {
+        ClassGeometry::classification_vertex_point(self.two, o)
+    }
+    fn topology_zone_tol_3d(&self, o: H) -> Option<f64> {
+        ClassGeometry::topology_zone_tol_3d(self.two, o)
+    }
+}
+
+impl solidcore::intersect::curve_class::p7::FaceQueryOwner<H> for Objs<'_> {
+    fn classification_brep(&self) -> solidcore::Result<&Brep> {
+        self.two.brep_r(hd(self.b, K_BREP, u32::from(self.b == 1)))
+    }
+    fn classification_brep_mut(&mut self) -> solidcore::Result<&mut Brep> {
+        let slot = usize::try_from(self.b).map_err(|_| invalid("bad operand"))?;
+        // Only lazy query state is edited. Keep published spatial trees alive.
+        self.two
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))
+    }
+    fn classification_entity(&self, face: H, object: H) -> solidcore::Result<EntityRef> {
+        if face.b != self.b || face.kind != K_FACE {
+            return Err(invalid("not a face of this operand"));
+        }
+        self.two.classification_entity(self.b, object)
+    }
+    fn classification_handle(&self, face: H, entity: EntityRef) -> solidcore::Result<H> {
+        if face.b != self.b || face.kind != K_FACE {
+            return Err(invalid("not a face of this operand"));
+        }
+        Two::entity_h(self.b, entity).ok_or_else(|| invalid("unresolved classification identity"))
+    }
+    fn query_on_face<T>(
+        &mut self,
+        kernel: &Kernel,
+        face: H,
+        query: impl FnOnce(
+            &Kernel,
+            &mut Brep,
+            FaceId,
+            &dyn Fn(solidcore::topology::brep_cache::CacheObject) -> ObjectRef,
+            &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+            Option<&mut dyn solidcore::query::face::p2::FacePointCache>,
+        ) -> solidcore::Result<T>,
+    ) -> solidcore::Result<T> {
+        if face.b != self.b || face.kind != K_FACE {
+            return Err(invalid("not a face of this operand"));
+        }
+        let slot = usize::try_from(self.b).map_err(|_| invalid("bad operand"))?;
+        self.two.require_query_geometry(slot)?;
+        let keys = |object| query_key(slot, object);
+        // The shared fixture has direct/pre-resolved native owner metadata;
+        // it supplies no external intermediate-owner table.
+        let owner_of = |_| None;
+        let brep = self
+            .two
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        query(kernel, brep, fid(face), &keys, &owner_of, None)
     }
 }
 
@@ -1457,22 +1520,20 @@ impl ProtoBrep<H> for Two {
             .collect())
     }
     fn face_curve_on_classify(
-        &self,
+        &mut self,
         k: &Kernel,
         face: H,
         do_point_classify: bool,
         cc: &mut CurveClassification<H>,
     ) -> solidcore::Result<bool> {
-        let b = self.brep_r(face)?;
-        let objs = Objs {
+        let mut objs = Objs {
             two: self,
             b: face.b,
         };
         curve_on_classify(
             k,
-            b,
             fid(face),
-            &objs,
+            &mut objs,
             do_point_classify,
             cc,
             false,
@@ -2021,14 +2082,30 @@ impl IntersectorBrep<H> for Two {
             coincidence: opt_coincidence_flag,
             ..FaceIntersectOptions::default()
         };
-        let out = fp3::face_intersect(
+        let slot = usize::try_from(face1.b).map_err(|_| invalid("invalid face operand"))?;
+        let keys = |object| query_key(slot, object);
+        let mut owners = BTreeMap::new();
+        let brep = self.brep_r(face1)?;
+        for (id, edge) in brep.edges().iter() {
+            if let Some(owner) = edge.curve.as_ref().and_then(|curve| curve.owner()) {
+                owners.insert(keys(CacheObject::Curve(id)), owner);
+            }
+        }
+        for (id, face) in brep.faces().iter() {
+            if let Some(owner) = face.surface.as_ref().and_then(|surface| surface.owner()) {
+                owners.insert(keys(CacheObject::Surface(id)), owner);
+            }
+        }
+        let out = fp3::face_intersect_with_context(
             k,
-            self.brep_r(face1)?,
+            self.brep_m(face1)?,
             fid(face1),
             fid(face2),
             approx_tol_3d,
             ang_tol_deg,
             &options,
+            &keys,
+            &|object| owners.get(&object).copied(),
         )?;
         let bi = face1.b;
 
@@ -2175,6 +2252,10 @@ impl IntersectorBrep<H> for Two {
             inside,
             &mut notify,
             queries,
+            solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &|object| query_key(slot, object),
+                owner_of: &|_| None,
+            },
         );
         if matches!(&result, Err(SolidError::Unported { unit, .. }) if *unit == "harness:analytic-geometry-export")
         {

@@ -22,6 +22,7 @@
 #include <SmCacheMgr.h>
 #include <SmPointClass.h>
 #include <SmSurfaceCache.h>
+#include <stdexcept>
 
 namespace
 {
@@ -374,6 +375,16 @@ void run(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
             own.push_back(read_curve(rd, ctx));
             curves.Add(own.back());
         }
+        // This paired fixture explicitly covers a cold trimmed-surface cache,
+        // just like query.face_p2. Reading/validating a file may create caches;
+        // delete them before the operation, never inside production code.
+        for (SmFace* face : g.faces)
+            if (face->GetSurface() != nullptr)
+                SmCacheMgr::DeleteObjectsCache(SM_OC_TRIMSRF, face->GetSurface());
+        for (SmFace* face : g.faces)
+            if (face->GetSurface() != nullptr &&
+                SmCacheMgr::GetObjectCache(SM_OC_TRIMSRF, face->GetSurface()) != nullptr)
+                throw std::runtime_error("Merge fixture retained a trimmed-surface cache");
         SmTArray<SmFace*> nf;
         SmTArray<SmEdge*> ne;
         SmStatus s = brep->MergeCurvesOnSurface(*f->GetSurface(), tol, curves, NULL, nf, ne);

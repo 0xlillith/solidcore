@@ -81,6 +81,16 @@ pub struct IsoCurve {
 }
 
 impl IsoCurve {
+    /// Exact numerical view; original topology and cache state stay with the caller.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        Ok(Self {
+            surface: Box::new(self.surface.clone_for_evaluation_depth(depth)?),
+            surf_param: self.surf_param,
+            iso_parameter: self.iso_parameter,
+            from_left: self.from_left,
+        })
+    }
+
     /// `SmIsoCurve_TYPE` (`CURV_BASE_TYPE + 45`).
     pub const TYPE: i64 = ISO_CURVE_TYPE;
 

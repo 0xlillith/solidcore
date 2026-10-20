@@ -124,6 +124,7 @@ use crate::geom::tol;
 use crate::heal::face_props::{HealerOpType, LoopObject};
 use crate::heal::heal_data::p1::HealBrepTargets;
 use crate::heal::heal_data::p2::HealData;
+use crate::intersect::curve_class::p7::FaceQueryIdentity;
 use crate::intersect::point_class::{ClassObject, ClassObjectKind};
 use crate::kernel::Kernel;
 use crate::math::{max2, Point2, Point3, Vec3, EFF_ZERO, EFF_ZERO_RAD, EFF_ZERO_SQRT};
@@ -2930,10 +2931,11 @@ pub struct ParallelProjectionCurves {
 /// far on failure; here they are dropped with the error).
 pub fn create_parallel_projection_curves(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     curve: &BSplineCurve,
     projection_vector: Vec3,
     opts: &ParallelProjectionOptions<'_>,
+    identity: FaceQueryIdentity<'_>,
 ) -> Result<ParallelProjectionCurves> {
     let mut out = ParallelProjectionCurves {
         curves_3d: opts.want_3d.then(Vec::new),
@@ -2969,6 +2971,7 @@ pub fn create_parallel_projection_curves(
             Some(&uv_curves),
             true,
             true,
+            identity,
         )?;
         let trim_3d = trimmed.curves_3d.unwrap_or_default();
         let trim_uv = trimmed.uv_curves.unwrap_or_default();
@@ -3108,6 +3111,7 @@ pub fn heal_brep(
     opt_faces: Option<&[FaceId]>,
     make_uv_trim_curves: bool,
     queries: &mut dyn crate::topology::brep::p6::RegionSplitQueries,
+    identity: FaceQueryIdentity<'_>,
 ) -> Result<()> {
     let mut heal_data = HealData::<HealLoopHandle>::default();
     // Ignore native statuses only; a missing or invalid Rust query context is
@@ -3123,6 +3127,7 @@ pub fn heal_brep(
         },
         make_uv_trim_curves,
         queries,
+        identity,
     ) {
         Ok(()) | Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => Ok(()),
         Err(error) => Err(error),
@@ -3309,7 +3314,7 @@ mod tests {
         fn no_shell_ray(
             _: &mut Kernel,
             _: &mut Brep,
-            _: ShellId,
+            _: Option<ShellId>,
             _: crate::topology::shell::ShellRayInput<EntityRef>,
         ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
             panic!("invalid targets must fail before shell queries")
@@ -3329,6 +3334,10 @@ mod tests {
             None,
             false,
             &mut no_shell_ray,
+            FaceQueryIdentity {
+                keys: &arena_identity,
+                owner_of: &|_| None,
+            },
         );
         assert!(matches!(
             result,

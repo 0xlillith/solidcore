@@ -15,7 +15,7 @@ use solidcore::geom::attribute::AttributeStore;
 use solidcore::geom::context::{ContextMetadata, MarkLock};
 use solidcore::geom::object::ObjectRef;
 use solidcore::kernel::Kernel;
-use solidcore::topology::brep::{p2 as brep2, p6::RegionSplitQueries, p9::InfiniteRegionQueries};
+use solidcore::topology::brep::{p2 as brep2, p6::RegionSplitQueries};
 use solidcore::topology::brep_cache::{self, BrepCache, CacheObject, CacheSource};
 use solidcore::topology::shell::{ShellRayAttempt, ShellRayInput, ShellRayState};
 use solidcore::topology::topology::Topology;
@@ -190,12 +190,20 @@ fn import_notifications(
 fn owner_links(brep: &Brep, keys: fn(CacheObject) -> ObjectRef) -> BTreeMap<ObjectRef, ObjectRef> {
     let mut links = BTreeMap::new();
     for (id, edge) in brep.edges().iter() {
-        if let Some(owner) = edge.curve.as_ref().and_then(solidcore::curve::curve::Curve::owner) {
+        if let Some(owner) = edge
+            .curve
+            .as_ref()
+            .and_then(solidcore::curve::curve::Curve::owner)
+        {
             links.insert(keys(CacheObject::Curve(id)), owner);
         }
     }
     for (id, face) in brep.faces().iter() {
-        if let Some(owner) = face.surface.as_ref().and_then(solidcore::surface::surface::Surface::owner) {
+        if let Some(owner) = face
+            .surface
+            .as_ref()
+            .and_then(solidcore::surface::surface::Surface::owner)
+        {
             links.insert(keys(CacheObject::Surface(id)), owner);
         }
     }
@@ -348,8 +356,7 @@ impl RegionSplitQueries for PrimaryQueries {
             },
         }
     }
-}
-impl InfiniteRegionQueries for PrimaryQueries {
+
     fn brep_ray_fire(
         &mut self,
         kernel: &mut Kernel,
@@ -728,7 +735,8 @@ mod tests {
         .unwrap();
         let [primary_fixture, _] = pair.operands;
         let [primary_context, other_context] = pair.contexts;
-        k.context.restore_metadata(context_metadata(&primary_context));
+        k.context
+            .restore_metadata(context_metadata(&primary_context));
         other_k
             .context
             .restore_metadata(context_metadata(&other_context));

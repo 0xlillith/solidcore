@@ -181,6 +181,21 @@ impl crate::topology::brep::p6::RegionSplitQueries for RegionQuerySlot {
             },
         }
     }
+
+    fn brep_ray_fire(
+        &mut self,
+        kernel: &mut Kernel,
+        brep: &mut Brep,
+        input: crate::topology::shell::ShellRayInput<EntityRef>,
+    ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
+        match self.provider.as_deref_mut() {
+            Some(provider) => provider.brep_ray_fire(kernel, brep, input),
+            None => crate::topology::shell::ShellRayAttempt {
+                status: Err(missing_region_queries()),
+                state: input.state,
+            },
+        }
+    }
 }
 
 /// The kernel adapter for the ported merge and topology-intersector stages.
@@ -250,7 +265,7 @@ impl KernelManifoldIntersector {
         })
     }
 
-    /// Register the actual shell/region query provider for one operand.
+    /// Register the actual shell/B-rep query provider for one operand.
     /// The provider owns that operand's identity, metadata and persistent marks.
     /// It must keep its live query state coherent with edits before a consumed
     /// geometry check or ray. Distinct operands require distinct registrations.

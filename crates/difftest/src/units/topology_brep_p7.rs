@@ -1095,6 +1095,10 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             let mut queries = RayQueryContext::new(b, id, QueryMetadata::default(), read_query_key);
             let mut records = BTreeMap::new();
             let mut attrs = AttributeStore::default();
+            // BrepData installs direct owners in the actual B-rep; it does not
+            // register external intermediate object pointers in this loader.
+            let external_owners = BTreeMap::new();
+            let owner_of = |object| external_owners.get(&object).copied();
             let mut env = p10::TopologyEnv {
                 all_attributes: &[],
                 attributes: &mut attrs,
@@ -1102,6 +1106,10 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 records: &mut records,
                 next_key: 1u64 << 50,
                 region_queries: &mut queries,
+                query_identity: solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                    keys: &read_query_key,
+                    owner_of: &owner_of,
+                },
             };
             let r = p7::read_from_file(k, b, bytes, FileType::Ascii, *rebuild, &mut env);
             let mut o = vec![status(&r)?];
@@ -1315,6 +1323,10 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 None,
                 &mut env,
                 &mut queries,
+                solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                    keys: &glue_query_key,
+                    owner_of: &|_| None,
+                },
             );
             let s = query_status(&r, &queries)?;
             // the B-rep's counts and tolerances after the op (the shim walks the C++ B-rep
@@ -1381,6 +1393,10 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 &[],
                 &mut env,
                 &mut queries,
+                solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                    keys: &query_key,
+                    owner_of: &|_| None,
+                },
             );
             let s = query_status(&r, &queries)?;
             let n = r.map_or(0, |v| v.len());

@@ -719,7 +719,9 @@ fn run_rust_case(i: &Inputs) -> Result<Output, HarnessError> {
                 coincidence: (a[4] >= 0.0).then_some(a[4] > 0.5),
                 ..p3::FaceIntersectOptions::default()
             };
-            match status!(p3::face_intersect(&k, &b, f, other, a[2], a[3], &options)) {
+            match status!(p3::face_intersect(
+                &k, &mut b, f, other, a[2], a[3], &options
+            )) {
                 Ok(r) => {
                     out.push(0.0);
                     out.push(r.curves_3d.len() as f64);
@@ -805,16 +807,150 @@ fn gen_op(rng: &mut Rng) -> OpIn {
     }
 }
 
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct TouchingProbe {
+    dispatch_probe: String,
+    want_points: bool,
+}
+
+fn probe_count(value: f64, remaining: usize) -> Result<usize, HarnessError> {
+    if !value.is_finite() || value < 0.0 || value.fract() != 0.0 || value > remaining as f64 {
+        return Err(harness("malformed directed probe length/index"));
+    }
+    Ok(value as usize)
+}
+
+fn touching_output(
+    brep: &Brep,
+    record: Vec<f64>,
+    want_points: bool,
+) -> Result<Output, HarnessError> {
+    let curves = probe_count(
+        *record
+            .get(1)
+            .ok_or_else(|| harness("missing curve count"))?,
+        record.len(),
+    )?;
+    let at = curves
+        .checked_mul(14)
+        .and_then(|n| n.checked_add(2))
+        .ok_or_else(|| harness("probe overflow"))?;
+    let points = probe_count(
+        *record
+            .get(at)
+            .ok_or_else(|| harness("missing point count"))?,
+        record.len(),
+    )?;
+    if record.first() != Some(&0.0) || (want_points && points != 1) || (!want_points && points != 0)
+    {
+        return Err(harness(
+            "directed Touching fixture did not satisfy its observable branch premise",
+        ));
+    }
+    // A returned point in this noncoincident pair is produced only after both
+    // Touching per-face classifications. Compare the actual point and full graph.
+    super::boolean_merge_p1::graph(brep, record)
+}
+
+fn touching_case(probe: &TouchingProbe, rust: bool) -> Result<Output, HarnessError> {
+    if probe.dispatch_probe != "face_intersect_touching" {
+        return Err(harness("unknown dispatch probe"));
+    }
+    if !rust {
+        let raw =
+            ffi::touching_probe(false, probe.want_points).map_err(|e| harness(e.to_string()))?;
+        let count = probe_count(
+            *raw.first()
+                .ok_or_else(|| harness("missing directed record"))?,
+            raw.len(),
+        )?;
+        let end = count
+            .checked_add(1)
+            .ok_or_else(|| harness("probe overflow"))?;
+        let record = raw
+            .get(1..end)
+            .ok_or_else(|| harness("short directed record"))?
+            .to_vec();
+        let (brep, _) = shared::import(
+            raw.get(end..)
+                .ok_or_else(|| harness("missing directed graph"))?,
+        )?;
+        return touching_output(&brep, record, probe.want_points);
+    }
+    let raw = ffi::touching_probe(true, probe.want_points).map_err(|e| harness(e.to_string()))?;
+    let first = probe_count(
+        *raw.first().ok_or_else(|| harness("missing first face"))?,
+        raw.len(),
+    )?;
+    let second = probe_count(
+        *raw.get(1).ok_or_else(|| harness("missing second face"))?,
+        raw.len(),
+    )?;
+    let count = probe_count(
+        *raw.get(2).ok_or_else(|| harness("missing graph size"))?,
+        raw.len(),
+    )?;
+    let end = count
+        .checked_add(3)
+        .ok_or_else(|| harness("probe overflow"))?;
+    let (mut brep, _) = shared::import(
+        raw.get(3..end)
+            .ok_or_else(|| harness("short directed graph"))?,
+    )?;
+    let first = FaceId::from_index(u32::try_from(first).map_err(|e| harness(e.to_string()))?);
+    let second = FaceId::from_index(u32::try_from(second).map_err(|e| harness(e.to_string()))?);
+    brep.face(first).map_err(|e| harness(e.to_string()))?;
+    brep.face(second).map_err(|e| harness(e.to_string()))?;
+    let _metadata = shared::apply_query_metadata(
+        &mut brep,
+        raw.get(end..)
+            .ok_or_else(|| harness("missing query metadata"))?,
+        &solidcore::topology::brep_cache::arena_identity,
+    )?;
+    let kernel = Kernel::default();
+    let options = p3::FaceIntersectOptions {
+        want_points: probe.want_points,
+        coincidence: Some(false),
+        ..p3::FaceIntersectOptions::default()
+    };
+    let result = match p3::face_intersect(&kernel, &mut brep, first, second, 0.01, 0.3, &options) {
+        Ok(result) => result,
+        Err(error) => {
+            if let Some(output) = Output::unported(&error) {
+                return Ok(output);
+            }
+            return Err(harness(error.to_string()));
+        }
+    };
+    let mut record = vec![0.0, result.curves_3d.len() as f64];
+    for curve in &result.curves_3d {
+        put_samples(curve, &mut record).map_err(|e| harness(e.to_string()))?;
+    }
+    let points = result.points_3d.unwrap_or_default();
+    record.push(points.len() as f64);
+    for point in points {
+        record.extend([point.x, point.y, point.z]);
+    }
+    touching_output(&brep, record, probe.want_points)
+}
+
 impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "topology.face_p3"
     }
 
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("dispatch_probe").is_some() {
+            return touching_case(&case.parse()?, false);
+        }
         run_cpp_case(&case.parse()?)
     }
 
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("dispatch_probe").is_some() {
+            return touching_case(&case.parse()?, true);
+        }
         run_rust_case(&case.parse()?)
     }
 

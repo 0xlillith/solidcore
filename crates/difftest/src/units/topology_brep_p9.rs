@@ -200,9 +200,7 @@ impl RegionSplitQueries for InfiniteQueries {
     ) -> ShellRayAttempt<EntityRef> {
         self.shell.ray_fire(kernel, brep, shell, input)
     }
-}
 
-impl port::InfiniteRegionQueries for InfiniteQueries {
     fn brep_ray_fire(
         &mut self,
         kernel: &mut Kernel,
@@ -303,17 +301,112 @@ fn rust_infinite_region(i: &Inputs, fixture: &ffi::QueryFixture) -> Result<Outpu
     }
 }
 
-fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
+// Match p9's classification registry to the mutation notification identities.
+fn mutation_query_key(object: CacheObject) -> ObjectRef {
+    match object {
+        CacheObject::Face(id) | CacheObject::Surface(id) => object_ref(EntityRef::Face(id)),
+        CacheObject::Edge(id) | CacheObject::Curve(id) => object_ref(EntityRef::Edge(id)),
+        CacheObject::Vertex(id) => object_ref(EntityRef::Vertex(id)),
+        CacheObject::Other(owner) => owner,
+        CacheObject::Brep
+        | CacheObject::PolyVertex(_)
+        | CacheObject::PolyEdge(_)
+        | CacheObject::PolyFace(_) => object_ref(EntityRef::Brep(BrepId::from_index(0))),
+    }
+}
+
+fn rust(
+    i: &Inputs,
+    initial: &[f64],
+    metadata: Option<&ffi::QueryFixture>,
+) -> Result<Output, HarnessError> {
     let (mut b, _) = import(
         initial
-            .get(2..)
+            .get(
+                if i.op == 5 && i.variant == 6 && i.editing {
+                    3
+                } else {
+                    2
+                }..,
+            )
             .ok_or_else(|| error("missing initial export"))?,
     )?;
+    if let Some(raw) = metadata {
+        let report = apply_query_metadata(&mut b, &raw.metadata, &mutation_query_key)?;
+        if let Some(output) = report.deferred_output() {
+            return Ok(output);
+        }
+    }
     // As the shim, after setup and export: `b->m_bEditingEnabled = editing`.
     b.set_editing_enabled(i.editing);
     let mut k = Kernel::default();
     let mut record = Vec::new();
     let mut records = std::collections::BTreeMap::new();
+    if let Some(fixture) = metadata {
+        // Register actual imported arena entities under NotifyEnv's own keys.
+        // Geometry and its direct owners were installed above, never synthesized.
+        let mut entities = Vec::new();
+        let mut register = |entity| entities.push(entity);
+        register(EntityRef::Brep(BrepId::from_index(0)));
+        for id in b.regions().ids() {
+            register(EntityRef::Region(id));
+        }
+        for id in b.shells().ids() {
+            register(EntityRef::Shell(id));
+        }
+        for id in b.faces().ids() {
+            register(EntityRef::Face(id));
+        }
+        for id in b.faceuses().ids() {
+            register(EntityRef::Faceuse(id));
+        }
+        for id in b.loops().ids() {
+            register(EntityRef::Loop(id));
+        }
+        for id in b.loopuses().ids() {
+            register(EntityRef::Loopuse(id));
+        }
+        for id in b.edges().ids() {
+            register(EntityRef::Edge(id));
+        }
+        for id in b.edgeuses().ids() {
+            register(EntityRef::Edgeuse(id));
+        }
+        for id in b.vertices().ids() {
+            register(EntityRef::Vertex(id));
+        }
+        for id in b.vertexuses().ids() {
+            register(EntityRef::Vertexuse(id));
+        }
+        let (rows, remainder) = fixture.notification_records.as_chunks::<18>();
+        if !remainder.is_empty() || rows.len() != entities.len() {
+            return Err(error("variant-6 notification record count"));
+        }
+        for (entity, row) in entities.into_iter().zip(rows) {
+            let mut values = Vec::new();
+            for pair in row.as_chunks::<2>().0 {
+                let [low, high] = *pair;
+                if [low, high].into_iter().any(|v| {
+                    !v.is_finite() || v.fract() != 0.0 || v < 0.0 || v > f64::from(u32::MAX)
+                }) {
+                    return Err(error("variant-6 notification word"));
+                }
+                values.push((low as u64) | ((high as u64) << 32));
+            }
+            let [flags, m1, m2, m3, mio, ma, u1, u2, ptr] = values.as_slice() else {
+                return Err(error("variant-6 notification row"));
+            };
+            let mut record = solidcore::topology::topology::Topology::new();
+            record.set_all_flags(*flags);
+            record.restore_marks([*m1, *m2, *m3, *mio, *ma]);
+            record.set_user_index1(*u1);
+            record.set_user_index2(*u2);
+            record.set_user_ptr1(*ptr);
+            if records.insert(object_ref(entity).key, record).is_some() {
+                return Err(error("variant-6 notification key collision"));
+            }
+        }
+    }
     let mut attributes = solidcore::geom::attribute::AttributeStore::default();
     let mut env = solidcore::topology::edge::NotifyEnv {
         records: &mut records,
@@ -407,7 +500,24 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                 };
                 let p = point(start, Vec3::new(0.0, 0.0, 0.0))?;
                 let q = point(end, Vec3::new(1.0, 1.0, 0.0))?;
-                let curve = (i.variant != 2).then(|| Curve::from(Line::from_points(p, q, 3)));
+                let mut line = Line::from_points(p, q, 3);
+                let directed = i.variant == 6 && i.editing;
+                let uv_trim = if directed {
+                    line.edit_parameterization(&Extent1d::from_min_max(0.0, 1.0))?;
+                    let domain = b
+                        .face(face.ok_or_else(|| SolidError::null_pointer("directed face"))?)?
+                        .uv_domain;
+                    Some(
+                        solidcore::nurbs::b_spline_curve::BSplineCurve::create_line_segment(
+                            2,
+                            Vec3::new(domain.min().x, domain.min().y, 0.0),
+                            Vec3::new(domain.max().x, domain.max().y, 0.0),
+                        )?,
+                    )
+                } else {
+                    None
+                };
+                let curve = (i.variant != 2).then(|| Curve::from(line));
                 let output = port::make_edge_in_face_with_vu(
                     &k,
                     &mut b,
@@ -418,7 +528,7 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                             if i.variant == 4 { None } else { end },
                         ],
                         curve,
-                        uv_trim: None,
+                        uv_trim,
                         drop_fail: None,
                         interval: Extent1d::from_min_max(0.0, 1.0),
                         orientation: OrientType::Same,
@@ -427,8 +537,51 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
                     &mut env,
                     &curve_ref,
                 );
-                record.extend([-1.0, -1.0, -1.0]);
-                ordinary(output)
+                if directed {
+                    let output = output?;
+                    let inner = initial.get(2).copied().ok_or_else(|| {
+                        SolidError::invalid_input("directed inner loop", "missing id")
+                    })?;
+                    if !inner.is_finite()
+                        || inner < 0.0
+                        || inner.fract() != 0.0
+                        || inner > f64::from(u32::MAX)
+                    {
+                        return Err(SolidError::invalid_input(
+                            "directed inner loop",
+                            "invalid id",
+                        ));
+                    }
+                    let inner = solidcore::topology::LoopId::from_index(inner as u32);
+                    let lu = b
+                        .loop_(inner)?
+                        .loopuse
+                        .ok_or_else(|| SolidError::null_pointer("inner loop use"))?;
+                    let fu = b
+                        .loopuse(lu)?
+                        .faceuse
+                        .ok_or_else(|| SolidError::null_pointer("inner face use"))?;
+                    let inner_face = b
+                        .faceuse(fu)?
+                        .face
+                        .ok_or_else(|| SolidError::null_pointer("inner face"))?;
+                    if output.loop_.is_none() || output.face.is_none() {
+                        return Err(SolidError::invalid_input(
+                            "directed inner loop",
+                            "split branch not reached",
+                        ));
+                    }
+                    record.extend([
+                        id(Some(output.edge)),
+                        id(output.loop_),
+                        id(output.face),
+                        id(Some(inner_face)),
+                    ]);
+                    Ok(0)
+                } else {
+                    record.extend([-1.0, -1.0, -1.0]);
+                    ordinary(output)
+                }
             }
             6 | 7 => {
                 use solidcore::intersect::point_class::{
@@ -588,6 +741,7 @@ impl solidcore::intersect::point_class::ClassObject for Handle {
 /// `fresh.find` of a walk after the op.
 fn canon_record(b: &Brep, op: u8, record: &mut [f64]) -> Result<(), HarnessError> {
     let c = Canon::of(b).map_err(|e| error(&e))?;
+    let record_len = record.len();
     let mut map = |at: usize, f: &dyn Fn(f64) -> f64| {
         if let Some(x) = record.get_mut(at) {
             *x = f(*x);
@@ -607,6 +761,12 @@ fn canon_record(b: &Brep, op: u8, record: &mut [f64]) -> Result<(), HarnessError
             map(1, &|x| c.edges.of_slot(x));
             map(2, &|x| c.edges.of_slot(x));
             map(3, &|x| c.vertices.of_slot(x));
+        }
+        5 if record_len == 5 => {
+            map(1, &|x| c.edges.of_slot(x));
+            map(2, &|x| c.loops.of_slot(x));
+            map(3, &|x| c.faces.of_slot(x));
+            map(4, &|x| c.faces.of_slot(x));
         }
         6 | 7 => map(2, &|x| c.vertices.of_slot(x)),
         _ => {}
@@ -655,8 +815,12 @@ impl UnitDiff for Runner {
             let fixture = ffi::query_fixture(request(&i, &path, &block)).map_err(|e| error(&e))?;
             return rust_infinite_region(&i, &fixture);
         }
+        if i.op == 5 && i.variant == 6 {
+            let fixture = ffi::query_fixture(request(&i, &path, &block)).map_err(|e| error(&e))?;
+            return rust(&i, &fixture.initial, Some(&fixture));
+        }
         let initial = ffi::eval(request(&i, &path, &block), true).map_err(|e| error(&e))?;
-        rust(&i, &initial)
+        rust(&i, &initial, None)
     }
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
         let scale = *[1e-6, 1.0, 1e6].get(rng.below(3) as usize)?;

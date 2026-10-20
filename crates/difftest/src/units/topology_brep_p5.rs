@@ -26,7 +26,7 @@ use super::boolean_merge_p1::graph;
 use super::topology_shell::RayQueryContext;
 use super::topology_vertexuse::{import, QueryMetadata};
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
-use solidcore::topology::brep::{p2 as brep2, p6::RegionSplitQueries, p9};
+use solidcore::topology::brep::{p2 as brep2, p6::RegionSplitQueries};
 use solidcore::topology::brep_cache::{self, BrepCache, CacheSource};
 use solidcore::topology::shell::{ShellRayAttempt, ShellRayInput, ShellRayState};
 use solidcore::topology::{BrepId, ShellId};
@@ -91,9 +91,7 @@ impl RegionSplitQueries for InfiniteQueries {
         }
         self.shell.ray_fire(kernel, brep, shell, input)
     }
-}
 
-impl p9::InfiniteRegionQueries for InfiniteQueries {
     fn brep_ray_fire(
         &mut self,
         kernel: &mut Kernel,

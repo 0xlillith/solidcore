@@ -40,7 +40,9 @@ pub struct Request<'a> {
     pub op: u8,
     /// Entity selector, resolved modulo the actual count.
     pub selector: u8,
-    /// Insertion refusal/default-region selector (0..=5).
+    /// Insertion refusal/default-region selector (0..=5). Variant 6 with editing
+    /// prepares an outer-loop diagonal, supplied UV and a separate inner vertex loop.
+    /// Its initial export adds that inner LoopId before the graph status word.
     pub variant: u8,
     /// Caller editing state.
     pub editing: bool,
@@ -71,13 +73,15 @@ pub fn eval(request: Request<'_>, export_only: bool) -> Result<Vec<f64>, FfiErro
 /// Initial graph and query metadata of the same prepared native B-rep.
 #[derive(Debug)]
 pub struct QueryFixture {
-    /// The historical export-only result, including its two prepared VU ids.
+    /// Export-only result: two prepared VU ids, plus the inner loop for variant 6.
     pub initial: Vec<f64>,
     /// Native lists, tolerances, concrete types and direct geometry owners.
     pub metadata: Vec<f64>,
+    /// Exact PRE-operation flags, marks and user values for variant 6 only.
+    pub notification_records: Vec<f64>,
 }
 
-/// Export the real input needed by the infinite-region query adapter.
+/// Export the real input needed by query and variant-6 mutation adapters.
 /// The shim reads the graph and its metadata from one B-rep, before the query.
 pub fn query_fixture(request: Request<'_>) -> Result<QueryFixture, FfiError> {
     let mut initial = eval_mode(request, 2)?;
@@ -90,14 +94,33 @@ pub fn query_fixture(request: Request<'_>) -> Result<QueryFixture, FfiError> {
     {
         return Err(bad());
     }
-    let metadata = initial.split_off(1 + length as usize);
+    let mut metadata = initial.split_off(1 + length as usize);
     initial.remove(0);
-    Ok(QueryFixture { initial, metadata })
+    let notification_records = if request.op == 5 && request.variant == 6 {
+        let count = *metadata.first().ok_or_else(bad)?;
+        if !count.is_finite()
+            || count.fract() != 0.0
+            || count < 0.0
+            || count >= metadata.len().saturating_sub(1) as f64
+        {
+            return Err(bad());
+        }
+        let records = metadata.split_off(1 + count as usize);
+        metadata.remove(0);
+        records
+    } else {
+        Vec::new()
+    };
+    Ok(QueryFixture {
+        initial,
+        metadata,
+        notification_records,
+    })
 }
 
 fn eval_mode(request: Request<'_>, export_only: i32) -> Result<Vec<f64>, FfiError> {
     let bad = || FfiError::InvalidArgument("brep_p9 request or fixture".into());
-    if request.op > 8 || request.variant > 5 {
+    if request.op > 8 || (request.variant > 5 && !(request.op == 5 && request.variant == 6)) {
         return Err(bad());
     }
     if request.block.first() == Some(&0.0) {
@@ -117,7 +140,7 @@ fn eval_mode(request: Request<'_>, export_only: i32) -> Result<Vec<f64>, FfiErro
         2 => counts[0] > 0,
         3 | 8 => counts[3] > 0,
         4 | 6 | 7 => counts[7] > 0,
-        5 if request.variant == 0 && request.editing => counts[3] > 0,
+        5 if matches!(request.variant, 0 | 6) && request.editing => counts[3] > 0,
         _ => true,
     };
     if !required {

@@ -37,13 +37,14 @@ use crate::error::{ignore_status, Result, SolidError, SM_ERR};
 use crate::geom::axis2_placement::Axis2Placement;
 use crate::geom::extent1d::Extent1d;
 use crate::geom::object::NotifyOperation;
+use crate::geom::object::ObjectRef;
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, EFF_ZERO_PARAM};
 use crate::nurbs::b_spline_surface::p1::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::topology::edge;
-use crate::topology::shell::{ShellRayAttempt, ShellRayInput, ShellRayState};
+use crate::topology::shell::{ShellRayInput, ShellRayState};
 use crate::topology::vertex;
 use crate::topology::vertexuse;
 use crate::topology::{
@@ -83,17 +84,7 @@ impl SplitEdgeOutput {
 /// retries. Each query borrows that same B-rep only for the duration of the call.
 /// A B-rep ray must acquire its cache at `BrepPointSolve`, after the bounding box
 /// and ray direction, and retain the classification and region even on failure.
-pub trait InfiniteRegionQueries: crate::topology::brep::p6::RegionSplitQueries {
-    /// Fire the B-rep ray through the caller's real geometry/cache context.
-    /// `sphere_bound` is unused for this B-rep call; `FindInfiniteRegion` supplies
-    /// it only to its first shell ray.
-    fn brep_ray_fire(
-        &mut self,
-        kernel: &mut Kernel,
-        brep: &mut Brep,
-        input: ShellRayInput<EntityRef>,
-    ) -> ShellRayAttempt<EntityRef>;
-}
+pub use crate::topology::brep::p6::RegionSplitQueries as InfiniteRegionQueries;
 
 /// `FindInfiniteRegion`, including its optional shell and bounding box arguments.
 ///
@@ -710,7 +701,7 @@ fn brep_notify(
     operation: NotifyOperation,
     object: EntityRef,
     other: Option<EntityRef>,
-    geometry: Option<crate::geom::object::ObjectRef>,
+    geometry: Option<ObjectRef>,
 ) -> Result<()> {
     let object = (env.key_of)(object);
     let other = other.map(env.key_of);
@@ -732,7 +723,7 @@ fn brep_notify_call(
     b: &mut Brep,
     env: &mut edge::NotifyEnv<'_>,
     operation: NotifyOperation,
-    data: [Option<crate::geom::object::ObjectRef>; 3],
+    data: [Option<ObjectRef>; 3],
 ) -> Result<()> {
     // no B-rep cache is held by the caller (`brep::p2::notify` with no cache slot)
     let data = data.map(|d| d.map(crate::topology::brep::p2::NotifyArg::Object));
@@ -758,7 +749,7 @@ fn face_notify_call(
     face: FaceId,
     env: &mut edge::NotifyEnv<'_>,
     operation: NotifyOperation,
-    data: [Option<crate::geom::object::ObjectRef>; 3],
+    data: [Option<ObjectRef>; 3],
 ) -> Result<()> {
     // These topology-edit callers hold no attached trimmed-surface cache. Keep the
     // caller's registered identities, attributes and context for the notification.
@@ -769,8 +760,8 @@ fn required<T>(v: Option<T>, reason: &'static str) -> Result<T> {
     v.ok_or_else(|| SolidError::invalid_input(OP, reason))
 }
 
-fn brep_ref(b: &Brep) -> crate::geom::object::ObjectRef {
-    crate::geom::object::ObjectRef {
+fn brep_ref(b: &Brep) -> ObjectRef {
+    ObjectRef {
         key: b.key(),
         type_code: 16011,
     }
@@ -780,7 +771,7 @@ fn set_curve_owner(
     b: &mut Brep,
     edge_id: EdgeId,
     env: &mut edge::NotifyEnv<'_>,
-    curve_ref: crate::geom::object::ObjectRef,
+    curve_ref: ObjectRef,
 ) -> Result<()> {
     let owner = (env.key_of)(EntityRef::Edge(edge_id));
     let curve = required(b.edge_mut(edge_id)?.curve.as_mut(), "edge without curve")?;
@@ -852,7 +843,7 @@ pub fn make_vertex_split_edge(
     edge_id: EdgeId,
     parameter: f64,
     env: &mut edge::NotifyEnv<'_>,
-    curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
+    curve_ref: &dyn Fn(EdgeId, i64) -> ObjectRef,
 ) -> Result<SplitEdgeOutput> {
     make_vertex_split_edge_with_notification_check(
         k,
@@ -879,7 +870,7 @@ pub fn make_vertex_split_edge_with_notification_check(
     edge_id: EdgeId,
     parameter: f64,
     env: &mut edge::NotifyEnv<'_>,
-    curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
+    curve_ref: &dyn Fn(EdgeId, i64) -> ObjectRef,
     check: &dyn Fn() -> Result<()>,
 ) -> Result<SplitEdgeOutput> {
     let out = SplitEdgeOutput::default();
@@ -1246,7 +1237,7 @@ pub fn make_edge_in_face_with_vu(
     b: &mut Brep,
     input: EdgeInFaceInput,
     env: &mut edge::NotifyEnv<'_>,
-    curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
+    curve_ref: &dyn Fn(EdgeId, i64) -> ObjectRef,
 ) -> Result<EdgeInFaceOutput> {
     use crate::topology::{
         face::{p1 as fp1, p2 as fp2},
@@ -1871,6 +1862,27 @@ fn sync_face_cache(b: &mut Brep, face: FaceId) -> Result<()> {
     Ok(())
 }
 
+// Notification environments expose topology identities, not a separate geometry
+// registry. Retain the exact-cache alias convention for geometry handles while
+// preserving the caller's namespace for their topology owners.
+fn classification_query_key(
+    object: crate::topology::brep_cache::CacheObject,
+    key_of: &dyn Fn(EntityRef) -> ObjectRef,
+    brep_ref: ObjectRef,
+) -> ObjectRef {
+    use crate::topology::brep_cache::CacheObject;
+    match object {
+        CacheObject::Face(id) | CacheObject::Surface(id) => key_of(EntityRef::Face(id)),
+        CacheObject::Edge(id) | CacheObject::Curve(id) => key_of(EntityRef::Edge(id)),
+        CacheObject::Vertex(id) => key_of(EntityRef::Vertex(id)),
+        CacheObject::Other(owner) => owner,
+        CacheObject::Brep
+        | CacheObject::PolyVertex(_)
+        | CacheObject::PolyEdge(_)
+        | CacheObject::PolyFace(_) => brep_ref,
+    }
+}
+
 fn redistribute_inner_loops(
     k: &Kernel,
     b: &mut Brep,
@@ -1885,6 +1897,9 @@ fn redistribute_inner_loops(
         face::{p1 as fp1, p2 as fp2},
         loopuse as lu,
     };
+    let key_of = env.key_of;
+    let brep_ref = crate::topology::brep::p2::brep_ref(b);
+    let keys = |object| classification_query_key(object, key_of, brep_ref);
     let outer = |b: &Brep, face| -> Result<crate::topology::LoopuseId> {
         let fu = required(
             fp2::upward_faceuse(b, face)?,
@@ -1948,6 +1963,7 @@ fn redistribute_inner_loops(
                     outer_only: true,
                 },
                 classify_to_original,
+                &keys,
                 &mut pc,
             )?;
             if classify_to_original && pc.point_class() == PointClassType::Unknown {
@@ -1973,6 +1989,7 @@ fn redistribute_inner_loops(
                             outer_only: true,
                         },
                         classify_to_original,
+                        &keys,
                         &mut pc,
                     )?;
                     if pc.point_class() == PointClassType::Unknown {
@@ -1993,6 +2010,7 @@ fn redistribute_inner_loops(
                                 outer_only: true,
                             },
                             classify_to_original,
+                            &keys,
                             &mut pc,
                         )?;
                         pc.point_class() != PointClassType::Unknown
@@ -2072,14 +2090,15 @@ struct FacePointInput {
 
 fn classify_with_retries(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     mut input: FacePointInput,
     classify_to_original: bool,
+    keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
     pc: &mut crate::intersect::point_class::PointClassification<EntityRef>,
 ) -> Result<()> {
-    if !ray_success(&point_3d_classify(k, b, &input, pc))? {
+    if !ray_success(&point_3d_classify(k, b, &input, keys, pc))? {
         input.tolerance *= 100.0;
-        if !ray_success(&point_3d_classify(k, b, &input, pc))? {
+        if !ray_success(&point_3d_classify(k, b, &input, keys, pc))? {
             pc.set_class_object(
                 if classify_to_original {
                     crate::intersect::point_class::PointClassType::Unknown
@@ -2095,38 +2114,40 @@ fn classify_with_retries(
 
 fn point_3d_classify(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     input: &FacePointInput,
+    keys: &dyn Fn(crate::topology::brep_cache::CacheObject) -> ObjectRef,
     pc: &mut crate::intersect::point_class::PointClassification<EntityRef>,
 ) -> Result<()> {
-    let FacePointInput {
-        face,
-        point,
-        tolerance,
-        intersect_boundaries,
-        guess,
-        outer_only,
-    } = input;
-    let _ = (
+    use crate::topology::brep_cache::CacheObject;
+    let mut owners = std::collections::BTreeMap::new();
+    for (id, record) in b.edges().iter() {
+        if let Some(owner) = record.curve.as_ref().and_then(Curve::owner) {
+            owners.insert(keys(CacheObject::Curve(id)), owner);
+        }
+    }
+    for (id, record) in b.faces().iter() {
+        if let Some(owner) = record.surface.as_ref().and_then(Surface::owner) {
+            owners.insert(keys(CacheObject::Surface(id)), owner);
+        }
+    }
+    crate::query::face::p1::point_3d_classify_with_context(
         k,
         b,
-        face,
-        point,
-        tolerance,
-        intersect_boundaries,
-        guess,
-        outer_only,
+        input.face,
+        input.point,
+        input.tolerance,
+        input.intersect_boundaries,
         pc,
-    );
-    // DISPATCH GAP: SmFace::Point3DClassify is ported
-    // (`query::face::p1::point_3d_classify`, query.face_p1 partial; no UNPORTED marker),
-    // but it takes `&mut Brep` (for `query::face::p2::point_classify`) and this caller's
-    // chain holds `&Brep`; wire it when the B-rep can be lent mutably here. Until
-    // then every such case would still defer inside it (topology.face_p2 / query.face_p2).
-    Err(SolidError::unported(
-        "SmFace::Point3DClassify",
-        "query.face_p1",
-    ))
+        crate::query::face::p1::Point3dClassifyOptions {
+            guess_uv: input.guess,
+            tgt_loops_only: input.outer_only,
+            tgt_loops: None,
+            uv_space_okay: true,
+        },
+        keys,
+        &|object| owners.get(&object).copied(),
+    )
 }
 
 /// Geometry-only projection sequence used by `MakeEdgeInFaceWithVU`.
@@ -2214,6 +2235,37 @@ mod tests {
     use super::*;
 
     #[test]
+    fn point_context_geometry_aliases_keep_the_notification_namespace() {
+        use crate::geom::attribute::ObjectKey;
+        use crate::topology::brep_cache::CacheObject;
+        let face = FaceId::from_index(3);
+        let edge = EdgeId::from_index(5);
+        let vertex = VertexId::from_index(7);
+        let key_of = |entity| {
+            let mut value = crate::topology::loopuse::notify_ref(entity);
+            value.key.0 += 0x1234_0000;
+            value
+        };
+        let brep = ObjectRef {
+            type_code: crate::geom::a_object::BREP_TYPE,
+            key: ObjectKey(0x5678_0000),
+        };
+        for (object, expected) in [
+            (CacheObject::Face(face), key_of(EntityRef::Face(face))),
+            (CacheObject::Surface(face), key_of(EntityRef::Face(face))),
+            (CacheObject::Edge(edge), key_of(EntityRef::Edge(edge))),
+            (CacheObject::Curve(edge), key_of(EntityRef::Edge(edge))),
+            (
+                CacheObject::Vertex(vertex),
+                key_of(EntityRef::Vertex(vertex)),
+            ),
+            (CacheObject::Brep, brep),
+        ] {
+            assert_eq!(classification_query_key(object, &key_of, brep), expected);
+        }
+    }
+
+    #[test]
     fn split_checks_notification_context_only_after_native_endpoint_outcomes() {
         use std::cell::Cell;
 
@@ -2256,7 +2308,7 @@ mod tests {
                 "representation:notification-handler",
             ))
         };
-        let curve_ref = |edge: EdgeId, kind| crate::geom::object::ObjectRef {
+        let curve_ref = |edge: EdgeId, kind| ObjectRef {
             key: crate::geom::attribute::ObjectKey(999 + u64::from(edge.index())),
             type_code: kind,
         };
@@ -2373,7 +2425,7 @@ mod tests {
             records: &mut records,
             attributes: &mut attributes,
             context: None,
-            key_of: &|_| crate::geom::object::ObjectRef {
+            key_of: &|_| ObjectRef {
                 key: crate::geom::attribute::ObjectKey(1),
                 type_code: 16016,
             },
@@ -2384,25 +2436,23 @@ mod tests {
             (f64::NEG_INFINITY, Some(v0)),
         ] {
             b.set_editing_enabled(true);
-            let result = make_vertex_split_edge(&mut k, &mut b, e, p, &mut env, &|_, kind| {
-                crate::geom::object::ObjectRef {
+            let result =
+                make_vertex_split_edge(&mut k, &mut b, e, p, &mut env, &|_, kind| ObjectRef {
                     key: crate::geom::attribute::ObjectKey(999),
                     type_code: kind,
-                }
-            })
-            .unwrap();
+                })
+                .unwrap();
             assert_eq!(
                 (result.status(), result.edges, result.vertex),
                 (SM_ERR, None, vertex)
             );
             b.set_editing_enabled(false);
-            let disabled = make_vertex_split_edge(&mut k, &mut b, e, p, &mut env, &|_, kind| {
-                crate::geom::object::ObjectRef {
+            let disabled =
+                make_vertex_split_edge(&mut k, &mut b, e, p, &mut env, &|_, kind| ObjectRef {
                     key: crate::geom::attribute::ObjectKey(999),
                     type_code: kind,
-                }
-            })
-            .unwrap();
+                })
+                .unwrap();
             assert_eq!(disabled.status(), SM_ERR);
             assert_eq!((disabled.edges, disabled.vertex), (None, None));
         }
@@ -2410,13 +2460,12 @@ mod tests {
         k.context.set_doing_boolean(true);
         for p in [f64::MAX, -f64::MAX] {
             b.set_editing_enabled(true);
-            let outside = make_vertex_split_edge(&mut k, &mut b, e, p, &mut env, &|_, kind| {
-                crate::geom::object::ObjectRef {
+            let outside =
+                make_vertex_split_edge(&mut k, &mut b, e, p, &mut env, &|_, kind| ObjectRef {
                     key: crate::geom::attribute::ObjectKey(999),
                     type_code: kind,
-                }
-            })
-            .unwrap();
+                })
+                .unwrap();
             assert_eq!(
                 (outside.status(), outside.edges, outside.vertex),
                 (SM_ERR, None, None)
@@ -2430,12 +2479,11 @@ mod tests {
             3,
         )));
         b.set_editing_enabled(true);
-        let result = make_vertex_split_edge(&mut k, &mut b, e, 0.5, &mut env, &|edge, kind| {
-            crate::geom::object::ObjectRef {
+        let result =
+            make_vertex_split_edge(&mut k, &mut b, e, 0.5, &mut env, &|edge, kind| ObjectRef {
                 key: crate::geom::attribute::ObjectKey(999 + u64::from(edge.index())),
                 type_code: kind,
-            }
-        });
+            });
         // With parts 1 and 2 wired, a wire split completes, its final B-rep ADD
         // notification included.
         let out = result.unwrap();
@@ -2446,5 +2494,40 @@ mod tests {
         assert_eq!(b.edge_list().len(), 2);
         assert_eq!(b.vertex_list().len(), 3);
         assert!(!k.context.doing_boolean());
+    }
+}
+
+#[cfg(test)]
+mod live_face_point_dispatch_tests {
+    use super::*;
+    use crate::intersect::point_class::{PointClassType, PointClassification};
+
+    #[test]
+    fn caller_brep_and_partial_state_reach_real_query_before_representation_error() {
+        let kernel = Kernel::default();
+        let mut brep = Brep::new();
+        let shell = brep.add_shell().unwrap();
+        let face = brep.add_face(shell).unwrap();
+        let mut pc = PointClassification::new(0.25);
+        let result = classify_with_retries(
+            &kernel,
+            &mut brep,
+            FacePointInput {
+                face,
+                point: Point3::ZERO,
+                tolerance: 0.125,
+                intersect_boundaries: false,
+                guess: None,
+                outer_only: true,
+            },
+            false,
+            &crate::topology::brep_cache::arena_identity,
+            &mut pc,
+        );
+        assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
+        assert_eq!(pc.face(), Some(EntityRef::Face(face)));
+        assert_eq!(pc.point_class(), PointClassType::Unknown);
+        // A Rust representation error is not a native retry/fallback status.
+        assert_eq!(pc.src_zone_tol_3d(), 0.125);
     }
 }

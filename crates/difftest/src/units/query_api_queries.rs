@@ -579,6 +579,27 @@ impl api::BrepRelationshipObjects<Object> for Objects<'_> {
         self.b(handle)
     }
 
+    fn face_internal_point(&mut self, k: &Kernel, operand: Object, face: FaceId) -> Result<Point3> {
+        if operand.1 != CacheObject::Brep {
+            return Err(SolidError::sm_err("query api B-rep handle"));
+        }
+        let brep = self
+            .breps
+            .get_mut(operand.0)
+            .ok_or(SolidError::sm_err("query api scene handle"))?;
+        // imported() installs direct owners in this exact arena namespace;
+        // no external owner hops or cache invalidation are required.
+        api::face_internal_point(
+            k,
+            brep,
+            face,
+            solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &arena_identity,
+                owner_of: &|_| None,
+            },
+        )
+    }
+
     fn classify_point(
         &mut self,
         k: &Kernel,
@@ -1030,10 +1051,18 @@ fn topology(k: &mut Kernel, i: &Inputs, b: &mut Brep, second: &mut Brep) -> Resu
             vec(&mut o, bx.min());
             vec(&mut o, bx.max());
         }
-        17 => vec(
-            &mut o,
-            api::face_internal_point(k, b, f.ok_or_else(missing)?)?,
-        ),
+        17 => {
+            let mut objects = Objects::new([b, second])?;
+            vec(
+                &mut o,
+                api::BrepRelationshipObjects::face_internal_point(
+                    &mut objects,
+                    k,
+                    Object(0, CacheObject::Brep),
+                    f.ok_or_else(missing)?,
+                )?,
+            );
+        }
         18 => o.push(f64::from(
             api::face_classify_uv(
                 k,

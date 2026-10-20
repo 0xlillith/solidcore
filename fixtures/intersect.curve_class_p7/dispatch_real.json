@@ -1,0 +1,25 @@
+{
+  "cases": [
+    {
+      "name": "dispatch_real_edge_endpoint",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:18748",
+      "inputs": {
+        "dispatch_probe": 0
+      }
+    },
+    {
+      "name": "dispatch_real_point3d_midpoint",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:19096",
+      "inputs": {
+        "dispatch_probe": 1
+      }
+    },
+    {
+      "name": "dispatch_real_uv_midpoint",
+      "upstream_ref": "source/SMLib/src/SmCurveClass.cpp:19082",
+      "inputs": {
+        "dispatch_probe": 2
+      }
+    }
+  ]
+}

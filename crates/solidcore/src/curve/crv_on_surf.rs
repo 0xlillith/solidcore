@@ -326,6 +326,21 @@ pub struct CrvOnSurf {
 }
 
 impl CrvOnSurf {
+    /// Exact numerical view; original topology and cache state stay with the caller.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        Ok(Self {
+            uv_curve: Box::new(self.uv_curve.clone_for_evaluation_depth(depth)?),
+            surface: Box::new(self.surface.clone_exact()),
+            uv_domain: self.uv_domain,
+            need_breaks: self.need_breaks,
+            breaks: self.breaks.clone(),
+            owner_flag: self.owner_flag,
+            bs_approx: self.bs_approx.as_ref().map(|c| Box::new(c.clone_exact())),
+            max_gap_3d: self.max_gap_3d,
+            parametrization_matches: self.parametrization_matches,
+        })
+    }
+
     /// `SmCrvOnSurf_TYPE` (`CURV_BASE_TYPE + 48`).
     pub const TYPE: i64 = CRV_ON_SURF_TYPE;
 
@@ -1726,6 +1741,54 @@ impl CurveEvaluate for CrvOnSurf {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn evaluation_copy_keeps_uv_owner_and_cached_approximation_knots() {
+        let mut uv =
+            Curve::from(BSplineCurve::create_line_segment(2, Vec3::ZERO, Vec3::X).unwrap());
+        let owner = crate::geom::object::ObjectRef {
+            type_code: 16006,
+            key: crate::geom::attribute::ObjectKey(98765),
+        };
+        let _ = uv.set_owner(Some(owner), None);
+        let mut source = CrvOnSurf::bare(uv, BSplineSurface::new(), 3);
+        let mut approx = BSplineCurve::create_line_segment(3, Vec3::ZERO, Vec3::X).unwrap();
+        *approx
+            .nurb
+            .as_mut()
+            .unwrap()
+            .knots_mut()
+            .get_mut(2)
+            .unwrap() = 1.0 - 1e-13;
+        source.bs_approx = Some(Box::new(approx));
+        source.need_breaks = false;
+        source.breaks = vec![0.0, 0.5, 1.0];
+        source.max_gap_3d = 0.125;
+        source.parametrization_matches = true;
+        let copied = source.clone_for_evaluation(1).unwrap();
+        assert_eq!(copied.uv_curve.owner(), Some(owner));
+        assert_eq!(copied.need_breaks, source.need_breaks);
+        assert_eq!(copied.breaks, source.breaks);
+        assert_eq!(copied.owner_flag, source.owner_flag);
+        assert_eq!(copied.max_gap_3d, source.max_gap_3d);
+        assert_eq!(
+            copied.parametrization_matches,
+            source.parametrization_matches
+        );
+        let bits = |c: &BSplineCurve| {
+            c.gw_nurb()
+                .unwrap()
+                .knots()
+                .iter()
+                .map(|v| v.to_bits())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(
+            bits(copied.bs_approx.as_ref().unwrap()),
+            bits(source.bs_approx.as_ref().unwrap())
+        );
+    }
+
     use super::*;
     use crate::nurbs::nurbs_crv::allocate_nurb_curve;
 

@@ -15,7 +15,9 @@
 //! | [`edge_curve_on_classify`], [`EdgeCurveOnOptions`], [`CurveOnClassification`] | `SmFace::EdgeCurveOnClassify` |
 //! | [`ClassifyProblem`]                   | `SmClassifyProblem` (also re-exported by `query.face_p3`) |
 //!
-//! Deviations: a nullable curve is `Option<&Curve>`; `SmApiEvaluateCurve`'s three
+//! Deviations: external tolerance-owner walks are iterative and bounded to 64 links
+//! (as `Curve::edge`), refusing cycles instead of unbounded native traversal.
+//! A nullable curve is `Option<&Curve>`; `SmApiEvaluateCurve`'s three
 //! optional output pointers become one returned `[position, d1, d2]` (all three are
 //! evaluated upstream too). The face box's in/out form retains the boundary box
 //! published before fallible surface work in the tight path; the loose path writes
@@ -53,6 +55,7 @@ use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
+use crate::geom::object::ObjectRef;
 use crate::geom::solution_array::SolutionObject;
 use crate::geom::tol::xsect_tol_3d_from_zones;
 use crate::geom::vector2d::Point2;
@@ -68,6 +71,7 @@ use crate::surface::surface::p4::{FacePointTest, NoObject};
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::surface_cache::p1::{OpaqueSurfaceCacheContext, SurfaceCacheContext};
 use crate::surface::volume::Volume;
+use crate::topology::brep_cache::{object_zone_tol_3d, CacheObject};
 use crate::topology::face::p2 as fp2;
 use crate::topology::shell::{self, ShellType};
 use crate::topology::{
@@ -508,6 +512,495 @@ pub fn point_3d_classify(
     )
 }
 
+const POINT_CONTEXT: &str = "query::face::point_3d_classify_with_context";
+
+/// Live caller topology, borrowed only for this face query. A surface
+/// handle is distinct from its face owner; no B-rep cache is built in advance.
+pub(crate) struct FacePointContext<'a> {
+    brep: &'a mut Brep,
+    keys: &'a dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &'a dyn Fn(ObjectRef) -> Option<ObjectRef>,
+}
+
+/// Resolve native `GetFace` through the original B-rep and caller owner registry.
+/// This read-only helper is shared by surface-cache contexts and their entry gate.
+/// Surface-owner walks are iterative and bounded to 64 inspected links.
+///
+/// # Errors
+/// Refuses unknown face/surface identities and cyclic or overlong owner chains.
+pub(crate) fn surface_face_with_context(
+    brep: &Brep,
+    surface: &Surface,
+    keys: &dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+) -> Result<Option<FaceId>> {
+    use crate::surface::surface::p1::is_surface_type;
+    let mut owner = surface.owner();
+    let mut inherited_face = surface.face()?;
+    // Native GetFace walks only Surface owners and stops at Curve owners.
+    // Keep the actual caller links authoritative; an inline owned base can
+    // instead carry its enclosing surface's maintained owner_chain_face.
+    for _ in 0..64 {
+        let Some(current) = owner else {
+            return Ok(None);
+        };
+        if current.type_code == fp2::TYPE {
+            return brep
+                .faces()
+                .ids()
+                .find(|&face| keys(CacheObject::Face(face)) == current)
+                .map(Some)
+                .ok_or_else(|| {
+                    SolidError::invalid_input(
+                        POINT_CONTEXT,
+                        "face owner is outside the caller B-rep",
+                    )
+                });
+        }
+        if !is_surface_type(current.type_code) {
+            return Ok(None);
+        }
+        if let Some(next) = owner_of(current) {
+            owner = Some(next);
+            inherited_face = None;
+        } else if let Some(face) = brep.faces().ids().find(|&face| {
+            keys(CacheObject::Surface(face)) == current
+                && brep.face(face).is_ok_and(|record| record.surface.is_some())
+        }) {
+            let parent =
+                fp2::surface(brep, face)?.ok_or(SolidError::null_pointer(POINT_CONTEXT))?;
+            owner = parent.owner();
+            inherited_face = parent.face()?;
+        } else if let Some(face) = inherited_face {
+            return brep
+                .faces()
+                .ids()
+                .find(|&candidate| keys(CacheObject::Face(candidate)) == face)
+                .map(Some)
+                .ok_or_else(|| {
+                    SolidError::invalid_input(
+                        POINT_CONTEXT,
+                        "face owner is outside the caller B-rep",
+                    )
+                });
+        } else {
+            return Err(SolidError::invalid_input(
+                POINT_CONTEXT,
+                "unregistered surface owner chain",
+            ));
+        }
+    }
+    Err(SolidError::invalid_input(
+        POINT_CONTEXT,
+        "cyclic surface owner chain",
+    ))
+}
+
+impl<'a> FacePointContext<'a> {
+    /// Borrow the original B-rep and its caller-owned identity/owner registry.
+    /// Contextual consumers share this provider instead of opaque cache defaults.
+    pub(crate) fn new(
+        brep: &'a mut Brep,
+        keys: &'a dyn Fn(CacheObject) -> ObjectRef,
+        owner_of: &'a dyn Fn(ObjectRef) -> Option<ObjectRef>,
+    ) -> Self {
+        Self {
+            brep,
+            keys,
+            owner_of,
+        }
+    }
+
+    fn face(&self, object: CacheObject) -> Result<FaceId> {
+        let CacheObject::Face(face) = object else {
+            return Err(SolidError::invalid_input(
+                POINT_CONTEXT,
+                "expected face handle",
+            ));
+        };
+        self.brep.face(face)?;
+        Ok(face)
+    }
+
+    fn surface(&self, handle: Option<CacheObject>) -> Result<&Surface> {
+        let Some(CacheObject::Surface(face)) = handle else {
+            return Err(SolidError::invalid_input(
+                POINT_CONTEXT,
+                "expected surface handle",
+            ));
+        };
+        fp2::surface(self.brep, face)?.ok_or(SolidError::null_pointer(POINT_CONTEXT))
+    }
+
+    fn resolved_surface_face(&self, surface: &Surface) -> Result<Option<CacheObject>> {
+        surface_face_with_context(self.brep, surface, self.keys, self.owner_of)
+            .map(|face| face.map(CacheObject::Face))
+    }
+
+    fn registered_object(&self, owner: ObjectRef) -> Option<CacheObject> {
+        // Resolve complete identities, never derive an arena id from a key.
+        let mut objects = self
+            .brep
+            .faces()
+            .ids()
+            .map(CacheObject::Face)
+            .chain(self.brep.edges().ids().map(CacheObject::Edge))
+            .chain(self.brep.vertices().ids().map(CacheObject::Vertex))
+            .chain(std::iter::once(CacheObject::Brep))
+            .chain(
+                self.brep
+                    .faces()
+                    .ids()
+                    .filter(|&face| {
+                        self.brep
+                            .face(face)
+                            .is_ok_and(|record| record.surface.is_some())
+                    })
+                    .map(CacheObject::Surface),
+            )
+            .chain(
+                self.brep
+                    .edges()
+                    .ids()
+                    .filter(|&edge| {
+                        self.brep
+                            .edge(edge)
+                            .is_ok_and(|record| record.curve.is_some())
+                    })
+                    .map(CacheObject::Curve),
+            );
+        objects.find(|&object| (self.keys)(object) == owner)
+    }
+
+    fn registered_zone_tolerance(&self, k: &Kernel, object: CacheObject) -> Result<f64> {
+        if let CacheObject::Curve(edge) = object {
+            let curve = self
+                .brep
+                .edge(edge)?
+                .curve
+                .as_ref()
+                .ok_or(SolidError::null_pointer(POINT_CONTEXT))?;
+            let mut unresolved = false;
+            let owner = curve.edge(|intermediate| {
+                let owner = (self.owner_of)(intermediate);
+                unresolved |= owner.is_none();
+                owner
+            })?;
+            if unresolved {
+                return Err(SolidError::invalid_input(
+                    POINT_CONTEXT,
+                    "unregistered curve tolerance owner",
+                ));
+            }
+            let edge = owner
+                .map(|owner| {
+                    self.registered_object(owner).ok_or_else(|| {
+                        SolidError::invalid_input(
+                            POINT_CONTEXT,
+                            "curve owner leaves the caller B-rep",
+                        )
+                    })
+                })
+                .transpose()?;
+            return self.object_zone_tol_3d(k, edge);
+        }
+        if let CacheObject::Surface(face) = object {
+            let surface = self.surface(Some(CacheObject::Surface(face)))?;
+            return self.object_zone_tol_3d(k, self.resolved_surface_face(surface)?);
+        }
+        self.object_zone_tol_3d(k, Some(object))
+    }
+
+    fn owner_zone_tolerance(&self, k: &Kernel, owner: Option<ObjectRef>) -> Result<f64> {
+        use crate::curve::curve::p2::is_curve_class;
+        use crate::surface::surface::p1::is_surface_type;
+        let Some(mut current) = owner else {
+            return self.object_zone_tol_3d(k, None);
+        };
+        if let Some(object) = self.registered_object(current) {
+            return self.registered_zone_tolerance(k, object);
+        }
+        // An intermediate geometry object need not be a top-level arena slot.
+        // Its caller-owned links still have to resolve exactly; an unknown owner
+        // is not an ownerless object and must never become a system tolerance.
+        let surface_chain = is_surface_type(current.type_code);
+        let curve_chain = is_curve_class(current.type_code)
+            || current.type_code == crate::topology::edgeuse::p1::TYPE;
+        if !surface_chain && !curve_chain {
+            return Err(SolidError::invalid_input(
+                POINT_CONTEXT,
+                "unregistered tolerance owner",
+            ));
+        }
+        for _ in 0..64 {
+            let next = (self.owner_of)(current).ok_or_else(|| {
+                SolidError::invalid_input(
+                    POINT_CONTEXT,
+                    "unregistered intermediate tolerance owner",
+                )
+            })?;
+            if (surface_chain && next.type_code == fp2::TYPE)
+                || (curve_chain && next.type_code == edge::TYPE)
+            {
+                let object = self.registered_object(next).ok_or_else(|| {
+                    SolidError::invalid_input(POINT_CONTEXT, "owner chain leaves the caller B-rep")
+                })?;
+                return self.registered_zone_tolerance(k, object);
+            }
+            let continues = if surface_chain {
+                is_surface_type(next.type_code)
+            } else {
+                is_curve_class(next.type_code)
+                    || next.type_code == crate::topology::edgeuse::p1::TYPE
+            };
+            if !continues {
+                // GetFace stops at curve owners; GetEdge stops at non-curve and
+                // non-edgeuse owners. Validate that terminal identity first.
+                self.registered_object(next).ok_or_else(|| {
+                    SolidError::invalid_input(
+                        POINT_CONTEXT,
+                        "unregistered terminal tolerance owner",
+                    )
+                })?;
+                return self.object_zone_tol_3d(k, None);
+            }
+            // A represented geometry has its own exact GetFace/GetEdge state.
+            if let Some(object) = self.registered_object(next) {
+                return self.registered_zone_tolerance(k, object);
+            }
+            current = next;
+        }
+        Err(SolidError::invalid_input(
+            POINT_CONTEXT,
+            "cyclic tolerance owner chain",
+        ))
+    }
+
+    fn entity(&self, object: CacheObject) -> Result<EntityRef> {
+        match object {
+            CacheObject::Face(face) => {
+                self.brep.face(face)?;
+                Ok(EntityRef::Face(face))
+            }
+            CacheObject::Edge(edge) => {
+                self.brep.edge(edge)?;
+                Ok(EntityRef::Edge(edge))
+            }
+            CacheObject::Vertex(vertex) => {
+                self.brep.vertex(vertex)?;
+                Ok(EntityRef::Vertex(vertex))
+            }
+            _ => Err(SolidError::invalid_input(
+                POINT_CONTEXT,
+                "expected classified topology",
+            )),
+        }
+    }
+
+    fn classification_object(&self, entity: EntityRef) -> Result<CacheObject> {
+        let object = match entity {
+            EntityRef::Face(face) => CacheObject::Face(face),
+            EntityRef::Edge(edge) => CacheObject::Edge(edge),
+            EntityRef::Vertex(vertex) => CacheObject::Vertex(vertex),
+            _ => {
+                return Err(SolidError::invalid_input(
+                    POINT_CONTEXT,
+                    "unexpected classification entity",
+                ));
+            }
+        };
+        self.entity(object)?;
+        Ok(object)
+    }
+}
+
+impl SurfaceCacheContext<CacheObject> for FacePointContext<'_> {
+    fn surface_face(
+        &self,
+        surface: &Surface,
+        handle: Option<CacheObject>,
+    ) -> Result<Option<CacheObject>> {
+        self.surface(handle)?;
+        self.resolved_surface_face(surface)
+    }
+
+    fn surface_has_direct_face_owner(
+        &self,
+        surface: &Surface,
+        handle: Option<CacheObject>,
+    ) -> Result<bool> {
+        self.surface(handle)?;
+        Ok(surface
+            .owner()
+            .is_some_and(|owner| owner.type_code == crate::topology::face::p2::TYPE))
+    }
+
+    fn surface_zone_tol_3d(
+        &self,
+        k: &Kernel,
+        surface: &Surface,
+        handle: Option<CacheObject>,
+    ) -> Result<f64> {
+        self.surface(handle)?;
+        // The evaluated surface may be an owned base, not the top-level handle.
+        let face = self.resolved_surface_face(surface)?;
+        self.object_zone_tol_3d(k, face)
+    }
+
+    fn surface_owner_zone_tol_3d(
+        &self,
+        k: &Kernel,
+        surface: &Surface,
+        handle: Option<CacheObject>,
+    ) -> Result<f64> {
+        self.surface(handle)?;
+        self.owner_zone_tolerance(k, surface.owner())
+    }
+
+    fn object_zone_tol_3d(&self, k: &Kernel, object: Option<CacheObject>) -> Result<f64> {
+        object_zone_tol_3d(k, self.brep, object, self.keys, self.owner_of)
+    }
+
+    fn face_brep_editing_enabled(&self, face: CacheObject) -> Result<bool> {
+        self.face(face)?;
+        Ok(self.brep.editing_enabled())
+    }
+
+    fn set_face_brep_editing_enabled(&mut self, face: CacheObject, editing: bool) -> Result<()> {
+        self.face(face)?;
+        self.brep.set_editing_enabled(editing);
+        Ok(())
+    }
+
+    fn face_create_uv_trim_curves(&mut self, k: &Kernel, face: CacheObject) -> Result<()> {
+        let face = self.face(face)?;
+        crate::topology::face::p3::create_uv_trim_curves(k, self.brep, face, true, None).map(|_| ())
+    }
+
+    fn face_point_classify(
+        &mut self,
+        k: &Kernel,
+        face: CacheObject,
+        uv: Point2,
+        tolerance: f64,
+        do_boundaries: bool,
+        use_uv: bool,
+        classification: &mut PointClassification<CacheObject>,
+    ) -> Result<()> {
+        let face = self.face(face)?;
+        let mut local = classification.try_map_objects(|object| self.entity(object))?;
+        let result = crate::query::face::p2::point_classify_with_context(
+            k,
+            self.brep,
+            face,
+            uv,
+            &mut local,
+            crate::query::face::p2::PointClassifyOptions {
+                src_zone_tol_3d: tolerance,
+                do_boundary_intersections: do_boundaries,
+                use_uv_classification: use_uv,
+                ..crate::query::face::p2::PointClassifyOptions::default()
+            },
+            self.keys,
+            self.owner_of,
+        );
+        // The native status does not discard writes to any classification field.
+        *classification = local.try_map_objects(|entity| self.classification_object(entity))?;
+        result
+    }
+}
+
+/// Classify on the caller's live mutable B-rep with its actual identity registry.
+/// Cache acquisition and lazy UV writes operate on `b`; only the bounded numerical
+/// surface view is copied for evaluation. The same `pc` retains all partial writes.
+/// `keys` and `owner_of` must resolve the actual owners of this B-rep, including
+/// intermediate owner chains; an unresolved owner is not treated as absent.
+///
+/// # Errors
+/// Face/geometry/owner lookup, cache construction, point solve and classification
+/// errors propagate without discarding earlier B-rep or classification changes.
+pub fn point_3d_classify_with_context(
+    k: &Kernel,
+    b: &mut Brep,
+    face: FaceId,
+    point: Point3,
+    source_tolerance: f64,
+    do_boundaries: bool,
+    pc: &mut PointClassification<EntityRef>,
+    opts: Point3dClassifyOptions<'_>,
+    keys: &dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+) -> Result<()> {
+    point_3d_classify_with_cache_context(
+        k,
+        b,
+        face,
+        point,
+        source_tolerance,
+        do_boundaries,
+        pc,
+        opts,
+        keys,
+        owner_of,
+        None,
+    )
+}
+
+/// Classify on the original B-rep with its actual retained trimmed-surface cache.
+/// The cache is borrowed through the final UV classification; it is never copied
+/// or substituted for the surface-drop cache. All partial writes survive errors.
+///
+/// # Errors
+/// Those of [`point_3d_classify_with_context`] and the retained cache's real queries.
+pub fn point_3d_classify_with_cache_context<'cache>(
+    k: &Kernel,
+    b: &mut Brep,
+    face: FaceId,
+    point: Point3,
+    source_tolerance: f64,
+    do_boundaries: bool,
+    pc: &mut PointClassification<EntityRef>,
+    opts: Point3dClassifyOptions<'cache>,
+    keys: &dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+    trim_cache: Option<&'cache mut dyn super::p2::FacePointCache>,
+) -> Result<()> {
+    let domain = fp2::uv_domain(b, face)?;
+    point_3d_classify_initialize(face, source_tolerance, pc);
+    let uv = with_face_surface_evaluation(b, face, |surface, brep| {
+        let mut context = FacePointContext::new(brep, keys, owner_of);
+        point_3d_classify_uv_with_context(
+            k,
+            surface,
+            Some(CacheObject::Surface(face)),
+            &domain,
+            point,
+            source_tolerance,
+            opts.guess_uv,
+            &mut context,
+        )
+    })?;
+    let Some(uv) = uv else {
+        return Ok(());
+    };
+    point_3d_classify_finish_impl(
+        k,
+        b,
+        face,
+        uv,
+        point,
+        source_tolerance,
+        do_boundaries,
+        pc,
+        opts,
+        Some(PointFinishContext {
+            keys,
+            owner_of,
+            trim_cache,
+        }),
+    )
+}
+
 /// Initialise the fields written by `SmFace::Point3DClassify`, retaining all
 /// other fields of the caller's classification. Call this after reading the
 /// face's UV domain and before resolving its surface, as the native method does.
@@ -647,23 +1140,57 @@ pub fn point_3d_classify_finish(
     pc: &mut PointClassification<EntityRef>,
     opts: Point3dClassifyOptions<'_>,
 ) -> Result<()> {
-    // else pass the call along to PointClassify to classify the UVPoint
-    super::p2::point_classify(
+    point_3d_classify_finish_impl(
         k,
         b,
         f,
         uv,
+        point,
+        src_zone_tol_3d,
+        do_boundary_intersections,
         pc,
-        super::p2::PointClassifyOptions {
-            src_zone_tol_3d,
-            do_boundary_intersections,
-            use_uv_classification: false,
-            tgt_loops_only: opts.tgt_loops_only,
-            tgt_loops: opts.tgt_loops,
-            uv_space_okay: opts.uv_space_okay,
-            trim_cache: None,
-        },
-    )?;
+        opts,
+        None,
+    )
+}
+
+struct PointFinishContext<'identity, 'cache> {
+    keys: &'identity dyn Fn(CacheObject) -> ObjectRef,
+    owner_of: &'identity dyn Fn(ObjectRef) -> Option<ObjectRef>,
+    trim_cache: Option<&'cache mut dyn super::p2::FacePointCache>,
+}
+
+fn point_3d_classify_finish_impl<'cache>(
+    k: &Kernel,
+    b: &mut Brep,
+    f: FaceId,
+    uv: Point2,
+    point: Point3,
+    src_zone_tol_3d: f64,
+    do_boundary_intersections: bool,
+    pc: &mut PointClassification<EntityRef>,
+    opts: Point3dClassifyOptions<'cache>,
+    context: Option<PointFinishContext<'_, 'cache>>,
+) -> Result<()> {
+    // Preserve the actual retained cache through the native final PointClassify.
+    let (identity, trim_cache) = match context {
+        Some(context) => (Some((context.keys, context.owner_of)), context.trim_cache),
+        None => (None, None),
+    };
+    let options = super::p2::PointClassifyOptions {
+        src_zone_tol_3d,
+        do_boundary_intersections,
+        use_uv_classification: false,
+        tgt_loops_only: opts.tgt_loops_only,
+        tgt_loops: opts.tgt_loops,
+        uv_space_okay: opts.uv_space_okay,
+        trim_cache,
+    };
+    if let Some((keys, owner_of)) = identity {
+        super::p2::point_classify_with_context(k, b, f, uv, pc, options, keys, owner_of)?;
+    } else {
+        super::p2::point_classify(k, b, f, uv, pc, options)?;
+    }
 
     // PointClassify set the gap to that of the surface point; use the distance between
     // the 3D point and its surface point instead.
@@ -935,5 +1462,460 @@ mod tests {
         );
         let e = edge_curve_on_classify(&k, &mut b, FaceId::from_index(0), None, &c, &opts);
         assert!(e.is_err());
+    }
+}
+
+#[cfg(test)]
+mod live_context_tests {
+    use super::*;
+    use crate::geom::attribute::ObjectKey;
+    use crate::surface::plane::Plane;
+
+    #[test]
+    fn context_resolves_actual_owner_keys_and_mutates_the_original_editing_flag() {
+        let mut brep = Brep::new();
+        let shell = brep.add_shell().unwrap();
+        let face = brep.add_face(shell).unwrap();
+        let key = ObjectRef {
+            type_code: fp2::TYPE,
+            key: ObjectKey(0x1234_5678),
+        };
+        let mut surface = Surface::from(Plane::from_normal(Point3::ZERO, Vec3::new(0.0, 0.0, 1.0)));
+        surface.set_owner(Some(key));
+        brep.face_mut(face).unwrap().surface = Some(surface);
+        let keys = |object| match object {
+            CacheObject::Face(id) if id == face => key,
+            _ => panic!("only the real face owner is queried"),
+        };
+        {
+            let mut context = FacePointContext {
+                brep: &mut brep,
+                keys: &keys,
+                owner_of: &|_| None,
+            };
+            let handle = Some(CacheObject::Surface(face));
+            assert_eq!(
+                context
+                    .surface_face(context.surface(handle).unwrap(), handle)
+                    .unwrap(),
+                Some(CacheObject::Face(face))
+            );
+            let unknown = ObjectRef {
+                key: ObjectKey(key.key.0 + 1),
+                ..key
+            };
+            let mut evaluated =
+                Surface::from(Plane::from_normal(Point3::ZERO, Vec3::new(0.0, 0.0, 1.0)));
+            evaluated.set_owner(Some(unknown));
+            assert!(context.surface_face(&evaluated, handle).is_err());
+            context
+                .set_face_brep_editing_enabled(CacheObject::Face(face), true)
+                .unwrap();
+        }
+        assert!(brep.editing_enabled());
+    }
+
+    #[test]
+    #[allow(clippy::too_many_lines)]
+    fn context_uses_the_evaluated_surface_and_resolves_non_face_owner_tolerances() {
+        use crate::curve::curve::Curve;
+        use crate::curve::line::Line;
+        let kernel = Kernel::default();
+        let mut brep = Brep::new();
+        let shell = brep.add_shell().unwrap();
+        let face = brep.add_face(shell).unwrap();
+        let start = brep.add_vertex(Point3::ZERO).unwrap();
+        let end = brep.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
+        let edge = brep.add_edge(start, end).unwrap();
+        let face_ref = ObjectRef {
+            type_code: fp2::TYPE,
+            key: ObjectKey(1000),
+        };
+        let edge_ref = ObjectRef {
+            type_code: edge::TYPE,
+            key: ObjectKey(2000),
+        };
+        let vertex_ref = ObjectRef {
+            type_code: vertex::TYPE,
+            key: ObjectKey(3000),
+        };
+        let brep_ref = ObjectRef {
+            type_code: crate::geom::a_object::BREP_TYPE,
+            key: ObjectKey(4000),
+        };
+        let mut curve = Curve::from(Line::from_points(
+            Point3::ZERO,
+            Point3::new(1.0, 0.0, 0.0),
+            3,
+        ));
+        let curve_ref = ObjectRef {
+            type_code: curve.type_code(),
+            key: ObjectKey(5000),
+        };
+        let _ = curve.set_owner(Some(edge_ref), Some(brep_ref));
+        brep.edge_mut(edge).unwrap().curve = Some(curve);
+        brep.edge_mut(edge).unwrap().tolerance = 0.125;
+        brep.vertex_mut(start).unwrap().tolerance = 0.25;
+        let mut surface = Surface::from(Plane::from_normal(Point3::ZERO, Vec3::new(0.0, 0.0, 1.0)));
+        let surface_ref = ObjectRef {
+            type_code: surface.type_code(),
+            key: ObjectKey(6000),
+        };
+        surface.set_owner(Some(face_ref));
+        brep.face_mut(face).unwrap().surface = Some(surface);
+        brep.face_mut(face).unwrap().tolerance = 0.5;
+        let keys = |object| match object {
+            CacheObject::Face(id) if id == face => face_ref,
+            CacheObject::Edge(id) if id == edge => edge_ref,
+            CacheObject::Vertex(id) if id == start => vertex_ref,
+            CacheObject::Brep => brep_ref,
+            CacheObject::Curve(id) if id == edge => curve_ref,
+            CacheObject::Surface(id) if id == face => surface_ref,
+            CacheObject::Other(owner) => owner,
+            _ => panic!("unexpected registration lookup"),
+        };
+        // Register all vertices because resolution scans the complete identity set.
+        let keys = |object| match object {
+            CacheObject::Vertex(id) if id == end => ObjectRef {
+                type_code: vertex::TYPE,
+                key: ObjectKey(3001),
+            },
+            object => keys(object),
+        };
+        let intermediate = ObjectRef {
+            type_code: surface_ref.type_code,
+            key: ObjectKey(7000),
+        };
+        let intermediate_curve = ObjectRef {
+            type_code: curve_ref.type_code,
+            key: ObjectKey(7001),
+        };
+        let cycle = ObjectRef {
+            type_code: surface_ref.type_code,
+            key: ObjectKey(7002),
+        };
+        let owner_of = |owner| {
+            if owner == intermediate {
+                Some(face_ref)
+            } else if owner == intermediate_curve {
+                Some(edge_ref)
+            } else if owner == cycle {
+                Some(cycle)
+            } else {
+                None
+            }
+        };
+        let context = FacePointContext {
+            brep: &mut brep,
+            keys: &keys,
+            owner_of: &owner_of,
+        };
+        let mut evaluated =
+            Surface::from(Plane::from_normal(Point3::ZERO, Vec3::new(0.0, 0.0, 1.0)));
+        let handle = Some(CacheObject::Surface(face));
+        for (owner, expected) in [
+            (edge_ref, 0.125),
+            (vertex_ref, 0.25),
+            (curve_ref, 0.125),
+            (surface_ref, 0.5),
+            (brep_ref, context.brep.tolerance()),
+            (intermediate, 0.5),
+            (intermediate_curve, 0.125),
+        ] {
+            evaluated.set_owner(Some(owner));
+            assert_eq!(
+                context
+                    .surface_owner_zone_tol_3d(&kernel, &evaluated, handle)
+                    .unwrap(),
+                expected
+            );
+        }
+        evaluated.set_surface_owner(intermediate, Some(face_ref));
+        assert_eq!(
+            context.surface_face(&evaluated, handle).unwrap(),
+            Some(CacheObject::Face(face))
+        );
+        assert!(!context
+            .surface_has_direct_face_owner(&evaluated, handle)
+            .unwrap());
+        evaluated.set_owner(Some(edge_ref));
+        assert!(!context
+            .surface_has_direct_face_owner(&evaluated, handle)
+            .unwrap());
+        assert_eq!(context.surface_face(&evaluated, handle).unwrap(), None);
+        assert_eq!(
+            context
+                .surface_zone_tol_3d(&kernel, &evaluated, handle)
+                .unwrap(),
+            object_zone_tol_3d(&kernel, context.brep, None, &keys, &owner_of).unwrap()
+        );
+        evaluated.set_owner(Some(cycle));
+        assert!(matches!(
+            context.surface_owner_zone_tol_3d(&kernel, &evaluated, handle),
+            Err(SolidError::InvalidInput { .. })
+        ));
+        for type_code in [
+            edge_ref.type_code,
+            curve_ref.type_code,
+            surface_ref.type_code,
+        ] {
+            evaluated.set_owner(Some(ObjectRef {
+                type_code,
+                key: ObjectKey(9999),
+            }));
+            assert!(matches!(
+                context.surface_owner_zone_tol_3d(&kernel, &evaluated, handle),
+                Err(SolidError::InvalidInput { .. })
+            ));
+        }
+    }
+
+    #[test]
+    fn evaluated_surface_resolves_live_surface_chains_without_inherited_face_metadata() {
+        let kernel = Kernel::default();
+        let mut brep = Brep::new();
+        let shell = brep.add_shell().unwrap();
+        let face = brep.add_face(shell).unwrap();
+        let face_ref = ObjectRef {
+            type_code: fp2::TYPE,
+            key: ObjectKey(42_001),
+        };
+        let mut evaluated =
+            Surface::from(Plane::from_normal(Point3::ZERO, Vec3::new(0.0, 0.0, 1.0)));
+        let first = ObjectRef {
+            type_code: evaluated.type_code(),
+            key: ObjectKey(42_002),
+        };
+        let second = ObjectRef {
+            type_code: evaluated.type_code(),
+            key: ObjectKey(42_003),
+        };
+        let cycle = ObjectRef {
+            type_code: evaluated.type_code(),
+            key: ObjectKey(42_004),
+        };
+        let stop = ObjectRef {
+            type_code: evaluated.type_code(),
+            key: ObjectKey(42_005),
+        };
+        let curve = ObjectRef {
+            type_code: crate::curve::curve::p2::TYPE,
+            key: ObjectKey(42_006),
+        };
+        let unknown = ObjectRef {
+            type_code: evaluated.type_code(),
+            key: ObjectKey(42_007),
+        };
+        let mut stored = Surface::from(Plane::from_normal(Point3::ZERO, Vec3::new(0.0, 0.0, 1.0)));
+        stored.set_owner(Some(face_ref));
+        brep.face_mut(face).unwrap().surface = Some(stored);
+        brep.face_mut(face).unwrap().tolerance = 0.125;
+        let keys = |object| match object {
+            CacheObject::Face(id) if id == face => face_ref,
+            _ => crate::topology::brep_cache::arena_identity(object),
+        };
+        let owner_of = |owner| {
+            if owner == first {
+                Some(second)
+            } else if owner == second {
+                Some(face_ref)
+            } else if owner == cycle {
+                Some(cycle)
+            } else if owner == stop {
+                Some(curve)
+            } else {
+                None
+            }
+        };
+        let context = FacePointContext::new(&mut brep, &keys, &owner_of);
+        let handle = Some(CacheObject::Surface(face));
+        let system = context.object_zone_tol_3d(&kernel, None).unwrap();
+        assert_ne!(system, 0.125);
+        evaluated.set_owner(Some(first));
+        assert_eq!(evaluated.face().unwrap(), None);
+        assert_eq!(
+            context.surface_face(&evaluated, handle).unwrap(),
+            Some(CacheObject::Face(face))
+        );
+        assert_eq!(
+            context
+                .surface_zone_tol_3d(&kernel, &evaluated, handle)
+                .unwrap(),
+            0.125
+        );
+        assert!(!context
+            .surface_has_direct_face_owner(&evaluated, handle)
+            .unwrap());
+        for owner in [unknown, cycle] {
+            evaluated.set_owner(Some(owner));
+            assert!(matches!(
+                context.surface_face(&evaluated, handle),
+                Err(SolidError::InvalidInput { .. })
+            ));
+            assert!(matches!(
+                context.surface_zone_tol_3d(&kernel, &evaluated, handle),
+                Err(SolidError::InvalidInput { .. })
+            ));
+        }
+        // A Curve owner stops GetFace, even when that curve could have an Edge.
+        evaluated.set_owner(Some(stop));
+        assert_eq!(context.surface_face(&evaluated, handle).unwrap(), None);
+        assert_eq!(
+            context
+                .surface_zone_tol_3d(&kernel, &evaluated, handle)
+                .unwrap(),
+            system
+        );
+    }
+
+    #[test]
+    fn missing_surface_keeps_native_partial_classification_on_error() {
+        let kernel = Kernel::default();
+        let mut brep = Brep::new();
+        let shell = brep.add_shell().unwrap();
+        let face = brep.add_face(shell).unwrap();
+        let mut pc = PointClassification::new(0.25);
+        pc.set_gap_3d(17.0);
+        let result = point_3d_classify_with_context(
+            &kernel,
+            &mut brep,
+            face,
+            Point3::ZERO,
+            0.125,
+            true,
+            &mut pc,
+            Point3dClassifyOptions::default(),
+            &crate::topology::brep_cache::arena_identity,
+            &|_| None,
+        );
+        assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
+        assert_eq!(pc.face(), Some(EntityRef::Face(face)));
+        assert_eq!(pc.point_class(), PointClassType::Unknown);
+        assert_eq!(
+            pc.gap_3d(&kernel, &BrepGeometry { b: &brep }, None)
+                .unwrap(),
+            17.0
+        );
+    }
+}
+
+#[cfg(test)]
+mod retained_point3d_cache_tests {
+    use super::*;
+    use crate::geom::tree::{NodeClass, NodeData, NodeId};
+    use crate::query::face::p2::{FacePointCache, FacePointCacheDecision, MappedFacePointCache};
+    use crate::surface::plane::Plane;
+    use crate::surface::surface_cache::p1::{FaceContainment, SurfaceCacheOptions};
+    use crate::surface::trim_srf_cache::TrimSrfCache;
+
+    #[derive(Clone, Copy, Debug, PartialEq)]
+    enum Stored {
+        Surface,
+        Topology(EntityRef),
+    }
+    fn decode(handle: Stored) -> Result<EntityRef> {
+        match handle {
+            Stored::Topology(entity) => Ok(entity),
+            Stored::Surface => Err(SolidError::invalid_input(
+                OP_POINT,
+                "surface is not topology",
+            )),
+        }
+    }
+
+    #[test]
+    fn point3d_finish_consumes_the_original_warm_tree_instead_of_loop_fallback() {
+        let kernel = Kernel::default();
+        let mut b = Brep::new();
+        let shell = b.add_shell().unwrap();
+        let face = b.add_face(shell).unwrap();
+        let domain = Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0);
+        let mut surface = Surface::from(Plane::new(
+            Point3::ZERO,
+            Vec3::X,
+            Vec3::Y,
+            crate::math::Vec2::new(1.0, 1.0),
+            &domain,
+        ));
+        let keys = |object| {
+            let mut key = crate::topology::brep_cache::arena_identity(object);
+            key.key.0 += 0x70000;
+            key
+        };
+        surface.set_owner(Some(keys(CacheObject::Face(face))));
+        let cache_surface = surface.clone_for_evaluation().unwrap();
+        b.face_mut(face).unwrap().surface = Some(surface);
+        b.face_mut(face).unwrap().uv_domain = domain;
+        b.face_mut(face).unwrap().tolerance = 0.125;
+        b.set_editing_enabled(true);
+        let mut cache = TrimSrfCache::new(cache_surface, SurfaceCacheOptions::default());
+        cache.base_mut().set_surface_handle(Some(Stored::Surface));
+        cache.base_mut().have_t_surface_cache = true;
+        cache.base_mut().face_containment_done = FaceContainment::Done;
+        let encode = |entity| Ok(Stored::Topology(entity));
+        {
+            let mut view = MappedFacePointCache::new(&mut cache, &decode, &encode);
+            assert_eq!(
+                view.classify_ready(&kernel, &mut b, face, Point2::ZERO, &keys, &|_| None)
+                    .unwrap(),
+                FacePointCacheDecision::NoDecision
+            );
+        }
+        // Real built cache storage, preloaded with a retained inside classification.
+        // The fallback has no loops and therefore cannot independently return Face.
+        let tree = cache.base_mut().tree_mut().unwrap();
+        for index in 0..tree.nodes().len() {
+            let NodeData::Surface(aux) = &mut tree.node_mut(NodeId(index)).unwrap().data else {
+                panic!("surface cache node");
+            };
+            aux.node_class = NodeClass::Inside;
+            aux.face = Some(Stored::Topology(EntityRef::Face(face)));
+        }
+        let node_count = cache.base().tree().unwrap().nodes().len();
+        cache.base_mut().have_t_surface_cache = true;
+        cache.base_mut().face_containment_done = FaceContainment::Done;
+        cache.base_mut().face_was_modified = false;
+        let mut cached = PointClassification::new(0.125);
+        cached.set_face(Some(EntityRef::Face(face)));
+        let mut view = MappedFacePointCache::new(&mut cache, &decode, &encode);
+        point_3d_classify_finish_impl(
+            &kernel,
+            &mut b,
+            face,
+            Point2::ZERO,
+            Point3::ZERO,
+            0.125,
+            false,
+            &mut cached,
+            Point3dClassifyOptions::default(),
+            Some(PointFinishContext {
+                keys: &keys,
+                owner_of: &|_| None,
+                trim_cache: Some(&mut view),
+            }),
+        )
+        .unwrap();
+        assert_eq!(cached.point_class(), PointClassType::Face);
+        assert_eq!(cached.object(), Some(EntityRef::Face(face)));
+        assert_eq!(cached.face(), Some(EntityRef::Face(face)));
+        assert_eq!(cached.uv_param(), Point2::ZERO);
+        assert_eq!(cache.base().tree().unwrap().nodes().len(), node_count);
+        assert_eq!(cache.base().surface_handle(), Some(Stored::Surface));
+        assert!(!cache.base().face_was_modified);
+        let mut no_cache = PointClassification::new(0.125);
+        point_3d_classify_finish(
+            &kernel,
+            &mut b,
+            face,
+            Point2::ZERO,
+            Point3::ZERO,
+            0.125,
+            false,
+            &mut no_cache,
+            Point3dClassifyOptions::default(),
+        )
+        .unwrap();
+        assert_eq!(no_cache.point_class(), PointClassType::Unknown);
+        assert!(b.editing_enabled());
     }
 }

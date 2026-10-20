@@ -97,6 +97,7 @@ use crate::geom::tol::{
 use crate::heal::face_props::{
     FaceProps, HealerOpType, LoopObject, MixedLinkType, PropStage, Tri, TriedLinkType,
 };
+use crate::intersect::curve_class::p7::FaceQueryIdentity;
 use crate::kernel::Kernel;
 use crate::math::{max3, max4, BIG_DOUBLE, EFF_ZERO, UNDEF_DOUBLE};
 use crate::topology::edgeuse::p1 as eu1;
@@ -432,9 +433,61 @@ impl EdgeProps {
         b: &mut Brep,
         edge_id: EdgeId,
         edge_index: u64,
+        loop_gap_histogram: Option<&mut Vec<u64>>,
+        edge_face_gap_histogram: Option<&mut Vec<u64>>,
+        label: u64,
+    ) -> Result<()> {
+        self.set_props_impl(
+            k,
+            b,
+            edge_id,
+            edge_index,
+            loop_gap_histogram,
+            edge_face_gap_histogram,
+            label,
+            None,
+        )
+    }
+
+    /// Use the original mutable B-rep and caller owner identities.
+    ///
+    /// # Errors
+    /// Those of [`Self::set_props`] and live surface queries.
+    #[allow(clippy::too_many_arguments)]
+    pub fn set_props_with_context(
+        &mut self,
+        k: &Kernel,
+        b: &mut Brep,
+        edge_id: EdgeId,
+        edge_index: u64,
+        loop_gap_histogram: Option<&mut Vec<u64>>,
+        edge_face_gap_histogram: Option<&mut Vec<u64>>,
+        label: u64,
+        identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+    ) -> Result<()> {
+        self.set_props_impl(
+            k,
+            b,
+            edge_id,
+            edge_index,
+            loop_gap_histogram,
+            edge_face_gap_histogram,
+            label,
+            Some(identity),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn set_props_impl(
+        &mut self,
+        k: &Kernel,
+        b: &mut Brep,
+        edge_id: EdgeId,
+        edge_index: u64,
         mut loop_gap_histogram: Option<&mut Vec<u64>>,
         mut edge_face_gap_histogram: Option<&mut Vec<u64>>,
         label: u64,
+        identity: Option<crate::intersect::curve_class::p7::FaceQueryIdentity<'_>>,
     ) -> Result<()> {
         let _ = edge_index;
 
@@ -452,7 +505,10 @@ impl EdgeProps {
         // for every Edge->Edgeuse - Save MaxGap3d seen
         for eu in edgeuses {
             let edge_ccw_edge_gap = eu1::edge_ccw_edge_gap(k, b, eu, false)?;
-            let edge_face_gap = eu1::max_edge_face_gap(k, b, eu, false)?;
+            let edge_face_gap = match identity {
+                Some(identity) => eu1::max_edge_face_gap_with_context(k, b, eu, false, identity)?,
+                None => eu1::max_edge_face_gap(k, b, eu, false)?,
+            };
 
             // save Max EdgeEndPt/CCWEdgeStartPt Gap
             if let Some(g) = edge_ccw_edge_gap {
@@ -2755,6 +2811,30 @@ impl<O: LoopObject> HealData<O> {
         b: &mut Brep,
         this_healer_op: HealerOpType,
     ) -> Result<bool> {
+        self.cache_edge_props_impl(k, b, this_healer_op, None)
+    }
+
+    /// Use the original mutable B-rep and caller owner identities.
+    ///
+    /// # Errors
+    /// Those of [`Self::cache_edge_props`] and live surface queries.
+    pub fn cache_edge_props_with_context(
+        &mut self,
+        k: &Kernel,
+        b: &mut Brep,
+        this_healer_op: HealerOpType,
+        identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+    ) -> Result<bool> {
+        self.cache_edge_props_impl(k, b, this_healer_op, Some(identity))
+    }
+
+    fn cache_edge_props_impl(
+        &mut self,
+        k: &Kernel,
+        b: &mut Brep,
+        this_healer_op: HealerOpType,
+        identity: Option<crate::intersect::curve_class::p7::FaceQueryIdentity<'_>>,
+    ) -> Result<bool> {
         let _ = this_healer_op;
         let mut new_probs = false;
 
@@ -2789,7 +2869,7 @@ impl<O: LoopObject> HealData<O> {
             if !self.edge_props.props(id)?.is_set_gaps() {
                 let edge_id = tgt(&self.tgt_edges, ii)?;
                 let mut p = self.edge_props.props(id)?.clone();
-                let r = p.set_props(
+                let r = p.set_props_impl(
                     k,
                     b,
                     edge_id,
@@ -2797,6 +2877,7 @@ impl<O: LoopObject> HealData<O> {
                     Some(&mut self.loop_gap_3d_histogram),
                     Some(&mut self.edge_face_gap_3d_histogram),
                     ii as u64,
+                    identity,
                 );
                 *self.edge_props.props_mut(id)? = p;
                 ignore_status(r)?;
@@ -2950,6 +3031,7 @@ impl<O: LoopObject> HealData<O> {
         k: &Kernel,
         b: &mut Brep,
         this_healer_op: HealerOpType,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<bool> {
         let _ = this_healer_op;
         let mut new_probs = false;
@@ -2970,10 +3052,15 @@ impl<O: LoopObject> HealData<O> {
                 let face = tgt(&self.tgt_faces, ii)?;
                 let done = self.done_heal_op;
                 let e = self.face_props.props_mut(id)?;
-                ignore_status(
-                    e.props
-                        .set_props(k, b, PropStage::Gaps, face, ii as u64, done),
-                )?;
+                ignore_status(e.props.set_props(
+                    k,
+                    b,
+                    PropStage::Gaps,
+                    face,
+                    ii as u64,
+                    done,
+                    identity,
+                ))?;
             }
             let p = &self.face_props.props(id)?.props;
             let (small, large) = (p.bad_small_zone_tol_3d, p.bad_large_zone_tol_3d);

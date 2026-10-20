@@ -59,8 +59,7 @@
 //!   members (`SmEdge`, `SmVertex`: `GetCurve`, `GetInterval`, `IsConnectedTo`,
 //!   `GetPoint`, `SetPoint`, `SetCurve`, `GetTolerance` through `SmTol`), the face
 //!   classifiers `SmFace::FindVertexSector` (`topology.face_p4`),
-//!   `EdgeCurveOnClassify` / `Point3DClassify` (`query.face_p1`) and `PointClassify`
-//!   (`query.face_p2`), and the topology zone tolerances of point classifications
+//!   and the topology zone tolerances of point classifications
 //!   (through `intersect.point_class`).
 //! - **Recursion.** None.
 
@@ -154,6 +153,240 @@ struct NoObject;
 impl SolutionObject for NoObject {
     fn kind(&self) -> ObjectKind {
         ObjectKind::Curve
+    }
+}
+
+/// Mutable classification queries with short geometry borrows from one owner.
+pub trait FaceIntervalQueries<O: ClassObject>: ClassGeometry<O> {
+    /// Original operand, borrowed only for the current topology read.
+    fn classification_brep(&self) -> Result<&crate::topology::Brep>;
+    /// Original operand for lazy UV/gap writes; no retained immutable borrow.
+    fn classification_brep_mut(&mut self) -> Result<&mut crate::topology::Brep>;
+
+    /// Exact bounded numerical curve view retaining owner identity and NURBS data.
+    fn classification_curve_view(&self, handle: O) -> Result<Curve> {
+        self.curve(handle)
+            .ok_or_else(|| SolidError::invalid_input(OP_FACE, "unresolved curve handle"))?
+            .clone_for_evaluation()
+    }
+
+    /// Actual face/edge query. The numerical curve view borrows no mutable arena.
+    fn edge_curve_on_classify(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        edge: O,
+        curve: &Curve,
+        options: &crate::query::face::p1::EdgeCurveOnOptions,
+    ) -> Result<crate::query::face::p1::CurveOnClassification>;
+
+    /// Actual 3D point query. Keep complete partial classification even on error.
+    fn point_3d_classify(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        point: Point3,
+        source_tolerance: f64,
+        do_boundaries: bool,
+        classification: &mut PointClassification<O>,
+    ) -> Result<()>;
+
+    /// Actual UV point query, with the caller's boundary/UV options unchanged.
+    fn point_classify(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        uv: Point2,
+        source_tolerance: f64,
+        do_boundaries: bool,
+        use_uv: bool,
+        classification: &mut PointClassification<O>,
+    ) -> Result<()>;
+
+    /// Drop a point on the exact numerical surface view using its original owner.
+    fn surface_drop_point(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        surface: &Surface,
+        point: Point3,
+        domain: &crate::geom::extent2d::Extent2d,
+        options: &crate::surface::surface::p5::DropPointOptions,
+    ) -> Result<crate::surface::surface::p5::DropPoint<crate::topology::brep_cache::CacheObject>>;
+}
+
+/// Split access to the original face and its actual cache identity context.
+///
+/// The callback cannot return borrowed arena data. Entity translations are scoped
+/// to `face`'s operand; reject foreign identities even when arena indices match.
+pub trait FaceQueryOwner<O: ClassObject>: ClassGeometry<O> {
+    /// Original operand for short topology reads.
+    fn classification_brep(&self) -> Result<&crate::topology::Brep>;
+    /// Original mutable operand for lazy query state.
+    fn classification_brep_mut(&mut self) -> Result<&mut crate::topology::Brep>;
+
+    /// Translate a classification entity into this exact operand's arena.
+    fn classification_entity(&self, face: O, object: O) -> Result<crate::error::EntityRef>;
+
+    /// Translate an arena entity into its exact caller identity in this operand.
+    fn classification_handle(&self, face: O, entity: crate::error::EntityRef) -> Result<O>;
+
+    /// Borrow the original mutable arena and real cache-key/owner context once.
+    fn query_on_face<T>(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        query: impl FnOnce(
+            &Kernel,
+            &mut crate::topology::Brep,
+            crate::topology::FaceId,
+            &dyn Fn(crate::topology::brep_cache::CacheObject) -> crate::geom::object::ObjectRef,
+            &dyn Fn(crate::geom::object::ObjectRef) -> Option<crate::geom::object::ObjectRef>,
+            Option<&mut dyn crate::query::face::p2::FacePointCache>,
+        ) -> Result<T>,
+    ) -> Result<T>;
+}
+
+impl<O: ClassObject, T: FaceQueryOwner<O>> FaceIntervalQueries<O> for T {
+    fn surface_drop_point(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        surface: &Surface,
+        point: Point3,
+        domain: &crate::geom::extent2d::Extent2d,
+        options: &crate::surface::surface::p5::DropPointOptions,
+    ) -> Result<crate::surface::surface::p5::DropPoint<crate::topology::brep_cache::CacheObject>>
+    {
+        self.query_on_face(kernel, face, |kernel, brep, face, keys, owner_of, _| {
+            let mut context = crate::query::face::p1::FacePointContext::new(brep, keys, owner_of);
+            surface.drop_point_with_context(
+                kernel,
+                Some(crate::topology::brep_cache::CacheObject::Surface(face)),
+                point,
+                domain,
+                options,
+                &mut context,
+            )
+        })
+    }
+    fn classification_brep(&self) -> Result<&crate::topology::Brep> {
+        FaceQueryOwner::classification_brep(self)
+    }
+    fn classification_brep_mut(&mut self) -> Result<&mut crate::topology::Brep> {
+        FaceQueryOwner::classification_brep_mut(self)
+    }
+
+    fn edge_curve_on_classify(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        edge: O,
+        curve: &Curve,
+        options: &crate::query::face::p1::EdgeCurveOnOptions,
+    ) -> Result<crate::query::face::p1::CurveOnClassification> {
+        let crate::error::EntityRef::Edge(edge) = self.classification_entity(face, edge)? else {
+            return Err(SolidError::invalid_input(OP_FACE, "not an edge handle"));
+        };
+        self.query_on_face(kernel, face, |kernel, brep, face, _, _, _| {
+            crate::query::face::p1::edge_curve_on_classify(
+                kernel,
+                brep,
+                face,
+                Some(edge),
+                curve,
+                options,
+            )
+        })
+    }
+
+    fn point_3d_classify(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        point: Point3,
+        source_tolerance: f64,
+        do_boundaries: bool,
+        classification: &mut PointClassification<O>,
+    ) -> Result<()> {
+        let mut local = classification.try_map_objects(|h| self.classification_entity(face, h))?;
+        let result = self.query_on_face(
+            kernel,
+            face,
+            |kernel, brep, face, keys, owner_of, trim_cache| {
+                crate::query::face::p1::point_3d_classify_with_cache_context(
+                    kernel,
+                    brep,
+                    face,
+                    point,
+                    source_tolerance,
+                    do_boundaries,
+                    &mut local,
+                    crate::query::face::p1::Point3dClassifyOptions::default(),
+                    keys,
+                    owner_of,
+                    trim_cache,
+                )
+            },
+        );
+        *classification = local.try_map_objects(|e| self.classification_handle(face, e))?;
+        result
+    }
+
+    fn point_classify(
+        &mut self,
+        kernel: &Kernel,
+        face: O,
+        uv: Point2,
+        source_tolerance: f64,
+        do_boundaries: bool,
+        use_uv: bool,
+        classification: &mut PointClassification<O>,
+    ) -> Result<()> {
+        let mut local = classification.try_map_objects(|h| self.classification_entity(face, h))?;
+        let result = self.query_on_face(
+            kernel,
+            face,
+            |kernel, brep, face, keys, owner_of, trim_cache| {
+                crate::query::face::p2::point_classify_with_context(
+                    kernel,
+                    brep,
+                    face,
+                    uv,
+                    &mut local,
+                    crate::query::face::p2::PointClassifyOptions {
+                        src_zone_tol_3d: source_tolerance,
+                        do_boundary_intersections: do_boundaries,
+                        use_uv_classification: use_uv,
+                        tgt_loops_only: false,
+                        tgt_loops: None,
+                        uv_space_okay: true,
+                        trim_cache,
+                    },
+                    keys,
+                    owner_of,
+                )
+            },
+        );
+        *classification = local.try_map_objects(|e| self.classification_handle(face, e))?;
+        result
+    }
+}
+
+/// Actual cache keys and geometry-owner links of a classification operand.
+#[derive(Clone, Copy)]
+pub struct FaceQueryIdentity<'a> {
+    /// Caller key mapping; preserve its namespace and geometry/topology distinction.
+    pub keys:
+        &'a dyn Fn(crate::topology::brep_cache::CacheObject) -> crate::geom::object::ObjectRef,
+    /// Caller ownership traversal for intermediate geometry owners.
+    pub owner_of:
+        &'a dyn Fn(crate::geom::object::ObjectRef) -> Option<crate::geom::object::ObjectRef>,
+}
+
+impl std::fmt::Debug for FaceQueryIdentity<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("FaceQueryIdentity").finish_non_exhaustive()
     }
 }
 
@@ -848,7 +1081,7 @@ impl<O: ClassObject> CurveClassification<O> {
     pub fn classify_face_interval(
         &mut self,
         k: &Kernel,
-        geometry: &impl ClassGeometry<O>,
+        geometry: &mut impl FaceIntervalQueries<O>,
         index: usize,
         do_point_classify: bool,
         face: O,
@@ -869,7 +1102,7 @@ impl<O: ClassObject> CurveClassification<O> {
             uv_space_okay,
             face_index,
         };
-        let r = classify_face_interval_on(geometry, &ctx, &mut ivl);
+        let r = classify_face_interval_on(k, geometry, &ctx, &mut ivl);
         *self.at_mut(index)? = ivl;
         r
     }
@@ -1239,7 +1472,8 @@ struct EndInside {
 /// The body of [`CurveClassification::classify_face_interval`] on a copy of the
 /// interval.
 fn classify_face_interval_on<O: ClassObject>(
-    geometry: &impl ClassGeometry<O>,
+    kernel: &Kernel,
+    geometry: &mut impl FaceIntervalQueries<O>,
     ctx: &FaceIntervalContext<O>,
     ivl: &mut CurveInterval<O>,
 ) -> Result<()> {
@@ -1259,26 +1493,6 @@ fn classify_face_interval_on<O: ClassObject>(
         return Ok(());
     }
 
-    let curve = || -> Result<&Curve> {
-        let c = ctx.curve.ok_or(SolidError::invalid_input(
-            OP_FACE,
-            "no classification curve",
-        ))?;
-        geometry.curve(c).ok_or(SolidError::invalid_input(
-            OP_FACE,
-            "unresolved curve handle",
-        ))
-    };
-    let uv_curve1 = || -> Result<Option<&Curve>> {
-        match ctx.uv_curve1 {
-            Some(c) => geometry.curve(c).map(Some).ok_or(SolidError::invalid_input(
-                OP_FACE,
-                "unresolved UV curve handle",
-            )),
-            None => Ok(None),
-        }
-    };
-
     let face = ctx.face;
     let mut did_min = false;
     let mut did_mid = false;
@@ -1297,8 +1511,13 @@ fn classify_face_interval_on<O: ClassObject>(
             min = face_find_vertex_sector(
                 face,
                 v,
-                curve()?,
-                uv_curve1()?,
+                &geometry.classification_curve_view(ctx.curve.ok_or_else(|| {
+                    SolidError::invalid_input(OP_FACE, "no classification curve")
+                })?)?,
+                ctx.uv_curve1
+                    .map(|h| geometry.classification_curve_view(h))
+                    .transpose()?
+                    .as_ref(),
                 ivl.interval.min(),
                 ivl.interval.max(),
                 OrientType::Same,
@@ -1312,11 +1531,17 @@ fn classify_face_interval_on<O: ClassObject>(
                 .start
                 .object()
                 .ok_or(SolidError::null_pointer(OP_FACE))?;
+            let curve_view = geometry
+                .classification_curve_view(ctx.curve.ok_or_else(|| {
+                    SolidError::invalid_input(OP_FACE, "no classification curve")
+                })?)?;
             min = face_edge_curve_on_classify(
+                kernel,
+                geometry,
                 face,
                 e,
                 ivl.start.t_param(),
-                curve()?,
+                &curve_view,
                 &ivl.interval,
                 OrientType::Same,
                 ctx.src_zone_tol_3d,
@@ -1335,8 +1560,13 @@ fn classify_face_interval_on<O: ClassObject>(
             max = face_find_vertex_sector(
                 face,
                 v,
-                curve()?,
-                uv_curve1()?,
+                &geometry.classification_curve_view(ctx.curve.ok_or_else(|| {
+                    SolidError::invalid_input(OP_FACE, "no classification curve")
+                })?)?,
+                ctx.uv_curve1
+                    .map(|h| geometry.classification_curve_view(h))
+                    .transpose()?
+                    .as_ref(),
                 ivl.interval.max(),
                 ivl.interval.min(),
                 OrientType::Opposite,
@@ -1347,11 +1577,17 @@ fn classify_face_interval_on<O: ClassObject>(
         PointClassType::Edge => {
             did_max = true;
             let e = ivl.end.object().ok_or(SolidError::null_pointer(OP_FACE))?;
+            let curve_view = geometry
+                .classification_curve_view(ctx.curve.ok_or_else(|| {
+                    SolidError::invalid_input(OP_FACE, "no classification curve")
+                })?)?;
             max = face_edge_curve_on_classify(
+                kernel,
+                geometry,
                 face,
                 e,
                 ivl.end.t_param(),
-                curve()?,
+                &curve_view,
                 &ivl.interval,
                 OrientType::Opposite,
                 ctx.src_zone_tol_3d,
@@ -1370,26 +1606,44 @@ fn classify_face_interval_on<O: ClassObject>(
         // pick a near interval mid-point curve parameter
         let param = ivl.interval.evaluate(0.4567);
 
-        let uv1 = uv_curve1()?;
-        match uv1 {
+        let uv1 = ctx
+            .uv_curve1
+            .map(|h| geometry.classification_curve_view(h))
+            .transpose()?;
+        match uv1.as_ref() {
             Some(uv_curve) if ctx.uv_space_okay => {
                 let pnt = uv_curve.evaluate_point(param)?;
                 let uv = Point2::new(pnt.x, pnt.y);
 
                 // Don't put this face's classification directly into m_vMid [B97]
                 let mut temp = PointClassification::new(ctx.src_zone_tol_3d);
-                face_point_classify(face, uv, ctx.src_zone_tol_3d, false, true, &mut temp)?;
+                face_point_classify(
+                    kernel,
+                    geometry,
+                    face,
+                    uv,
+                    ctx.src_zone_tol_3d,
+                    false,
+                    true,
+                    &mut temp,
+                )?;
                 if temp.point_class() != PointClassType::Unknown {
                     ivl.mid = temp;
                 }
             }
             _ => {
-                let pnt = curve()?.evaluate_point(param)?;
+                let pnt = geometry
+                    .classification_curve_view(ctx.curve.ok_or_else(|| {
+                        SolidError::invalid_input(OP_FACE, "no classification curve")
+                    })?)?
+                    .evaluate_point(param)?;
 
                 // Don't put this face's classification directly into m_vMid [B97]
                 let mut temp = PointClassification::new(ctx.src_zone_tol_3d);
                 // status ignored (assume the point was not on the surface)
                 ignored(face_point_3d_classify(
+                    kernel,
+                    geometry,
                     face,
                     pnt,
                     ctx.src_zone_tol_3d,
@@ -1723,6 +1977,8 @@ fn face_find_vertex_sector<O: ClassObject>(
 
 /// `SmFace::EdgeCurveOnClassify`.
 fn face_edge_curve_on_classify<O: ClassObject>(
+    kernel: &Kernel,
+    geometry: &mut impl FaceIntervalQueries<O>,
     face: O,
     edge: O,
     edge_param: f64,
@@ -1733,28 +1989,30 @@ fn face_edge_curve_on_classify<O: ClassObject>(
     uv_space_okay: bool,
     face_index: Option<u64>,
 ) -> Result<EndInside> {
-    let _ = (
+    let result = geometry.edge_curve_on_classify(
+        kernel,
         face,
         edge,
-        edge_param,
         curve,
-        interval,
-        direction,
-        src_zone_tol_3d,
-        uv_space_okay,
-        face_index,
-    );
-    // DISPATCH GAP: SmFace::EdgeCurveOnClassify is ported (`query::face::p1::edge_curve_on_classify`, query.face_p1
-    // partial; no UNPORTED marker), but it takes the face's `Brep` and `FaceId`, which this
-    // caller's opaque face handle does not carry.
-    Err(SolidError::unported(
-        "SmFace::EdgeCurveOnClassify",
-        "query.face_p1",
-    ))
+        &crate::query::face::p1::EdgeCurveOnOptions {
+            edge_param,
+            curve_interval: *interval,
+            curve_orientation: direction,
+            curve_tolerance: src_zone_tol_3d,
+            uv_space_okay,
+            face_index,
+        },
+    )?;
+    Ok(EndInside {
+        inside: result.inside,
+        possible_problem: result.possible_problem,
+    })
 }
 
 /// `SmFace::PointClassify(uv, tol, bDoXSects, bUseUV, pc)`.
 fn face_point_classify<O: ClassObject>(
+    kernel: &Kernel,
+    geometry: &mut impl FaceIntervalQueries<O>,
     face: O,
     uv: Point2,
     src_zone_tol_3d: f64,
@@ -1762,30 +2020,28 @@ fn face_point_classify<O: ClassObject>(
     use_uv: bool,
     point_class: &mut PointClassification<O>,
 ) -> Result<()> {
-    let _ = (face, uv, src_zone_tol_3d, do_xsects, use_uv, point_class);
-    // UNPORTED(query.face_p2): SmFace::PointClassify
-    Err(SolidError::unported(
-        "SmFace::PointClassify",
-        "query.face_p2",
-    ))
+    geometry.point_classify(
+        kernel,
+        face,
+        uv,
+        src_zone_tol_3d,
+        do_xsects,
+        use_uv,
+        point_class,
+    )
 }
 
 /// `SmFace::Point3DClassify(point, tol, bDoXSects, pc)`.
 fn face_point_3d_classify<O: ClassObject>(
+    kernel: &Kernel,
+    geometry: &mut impl FaceIntervalQueries<O>,
     face: O,
     point: Point3,
     src_zone_tol_3d: f64,
     do_xsects: bool,
     point_class: &mut PointClassification<O>,
 ) -> Result<()> {
-    let _ = (face, point, src_zone_tol_3d, do_xsects, point_class);
-    // DISPATCH GAP: SmFace::Point3DClassify is ported (`query::face::p1::point_3d_classify`, query.face_p1
-    // partial; no UNPORTED marker), but it takes the face's `Brep` and `FaceId`, which this
-    // caller's opaque face handle does not carry.
-    Err(SolidError::unported(
-        "SmFace::Point3DClassify",
-        "query.face_p1",
-    ))
+    geometry.point_3d_classify(kernel, face, point, src_zone_tol_3d, do_xsects, point_class)
 }
 
 #[cfg(test)]

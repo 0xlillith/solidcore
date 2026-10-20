@@ -4,12 +4,30 @@
 #include "sc_brep_query_metadata.h"
 #include <SmPointClass.h>
 
+// Variant-6 PRE-operation notification records, not default Rust placeholders.
+static bool p9_put_record(SmTopology* object, std::vector<double>& out) {
+    if (object->HasAttributes()) return false;
+    const uint64_t values[] = {
+        (uint64_t)object->GetAllFlags(),
+        (uint64_t)object->GetMark(SM_MT_MARK), (uint64_t)object->GetMark(SM_MT_MARK2),
+        (uint64_t)object->GetMark(SM_MT_MARK3), (uint64_t)object->GetMark(SM_MT_MARKIO),
+        (uint64_t)object->GetMark(SM_MT_MARKASSERT),
+        (uint64_t)object->GetUserIndex1(), (uint64_t)object->GetUserIndex2(),
+        (uint64_t)(uintptr_t)object->GetUserPtr1()
+    };
+    for (uint64_t value : values) {
+        out.push_back((double)(value & UINT64_C(0xffffffff)));
+        out.push_back((double)(value >> 32));
+    }
+    return true;
+}
+
 SC_EXPORT int32_t sc_topology_brep_p9_eval(int32_t op, int32_t export_only,
     int32_t selector, int32_t variant, int32_t editing, int32_t same,
     const char* path, const double* in, int64_t n,
     double parameter, const double* point, double start_tol, double end_tol,
     double* out, int64_t cap, int64_t* len) {
-    if (!path || !in || !point || !len || n < 1 || op < 0 || op > 8 || export_only < 0 || export_only > 2 || selector < 0 || variant < 0 || variant > 5)
+    if (!path || !in || !point || !len || n < 1 || op < 0 || op > 8 || export_only < 0 || export_only > 2 || selector < 0 || variant < 0 || (variant > 5 && !(op == 5 && variant == 6)))
         return SC_ERR_ARG;
     SC_TRY
     Rd rd{in,0}; Built built; SmStatus status;
@@ -19,6 +37,28 @@ SC_EXPORT int32_t sc_topology_brep_p9_eval(int32_t op, int32_t export_only,
     Graph g; walk(b,g,true);
     SmVertexuse* start_vu = nullptr;
     SmVertexuse* end_vu = nullptr;
+    SmLoop* probe_inner = nullptr;
+    SmPoint2d probe_uv0, probe_uv1;
+    if (op == 5 && variant == 6 && editing) {
+        if (g.faces.empty()) return SC_ERR_ARG;
+        SmFace* face=g.faces[selector % g.faces.size()];
+        if (!face->GetSurface() || !face->GetSurface()->IsKindOf(SmPlane_TYPE)) return SC_ERR_ARG;
+        const SmExtent2d domain=face->GetUVDomain();
+        probe_uv0=domain.GetMin(); probe_uv1=domain.GetMax();
+        SmPoint3d p,q,inner;
+        if (face->GetSurface()->EvaluatePoint(probe_uv0,p)!=SM_SUCCESS ||
+            face->GetSurface()->EvaluatePoint(probe_uv1,q)!=SM_SUCCESS ||
+            face->GetSurface()->EvaluatePoint(domain.Evaluate(0.25,0.75),inner)!=SM_SUCCESS) return SC_ERR_ARG;
+        for (auto* use : g.vertexuses) {
+            if (use->GetFaceuse()!=face->GetUpwardFaceuse()) continue;
+            if (use->GetVertex()->GetPoint().DistanceBetween(p)<1e-12) start_vu=use;
+            if (use->GetVertex()->GetPoint().DistanceBetween(q)<1e-12) end_vu=use;
+        }
+        if (!start_vu || !end_vu || start_vu==end_vu || start_vu->GetLoopuse()!=end_vu->GetLoopuse()) return SC_ERR_ARG;
+        SmVertex* inner_vertex=nullptr;
+        if (b->MakeVertexLoop(face,inner,probe_inner,inner_vertex)!=SM_SUCCESS) return SC_ERR_ARG;
+        g=Graph(); walk(b,g,true);
+    }
     if (op == 5 && variant == 0 && editing) {
         if (g.faces.empty()) return SC_ERR_ARG;
         SmFace* face = g.faces[selector % g.faces.size()];
@@ -55,12 +95,31 @@ SC_EXPORT int32_t sc_topology_brep_p9_eval(int32_t op, int32_t export_only,
     }
     if (export_only) {
         std::vector<double> result={(double)g.find(8,start_vu),(double)g.find(8,end_vu),0.0};
+        if (op==5 && variant==6 && editing) result.insert(result.begin()+2,(double)g.find(5,probe_inner));
         export_graph(b,g,result);
         if (export_only == 2) {
             // Export graph and query facts from this same prepared B-rep. The
             // historical export-only and operation protocols stay unchanged.
             result.insert(result.begin(),(double)result.size());
-            append_query_metadata(b,g,result);
+            if (op==5 && variant==6) {
+                std::vector<double> metadata;
+                append_query_metadata(b,g,metadata);
+                result.push_back((double)metadata.size());
+                result.insert(result.end(),metadata.begin(),metadata.end());
+                SmContext* context=const_cast<SmContext*>(b->GetContext());
+                if (context && (context->GetUserNotifyCallback() || context->GetSysNotifyCallback())) return SC_ERR_ARG;
+                if (!p9_put_record(b,result)) return SC_ERR_ARG;
+                for (auto* x:g.regions) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+                for (auto* x:g.shells) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+                for (auto* x:g.faces) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+                for (auto* x:g.faceuses) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+                for (auto* x:g.loops) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+                for (auto* x:g.loopuses) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+                for (auto* x:g.edges) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+                for (auto* x:g.edgeuses) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+                for (auto* x:g.vertices) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+                for (auto* x:g.vertexuses) if (!p9_put_record(x,result)) return SC_ERR_ARG;
+            } else append_query_metadata(b,g,result);
         }
         return sc_copy_out(result.data(),result.size(),out,cap,len);
     }
@@ -151,15 +210,28 @@ SC_EXPORT int32_t sc_topology_brep_p9_eval(int32_t op, int32_t export_only,
             if (start_vu && end_vu) { p=start_vu->GetVertex()->GetPoint(); q=end_vu->GetVertex()->GetPoint(); }
             curve = new (the_context()) SmLine(p,q,3,&the_context());
         }
+        SmBSplineCurve* supplied_uv=nullptr;
+        if (variant==6 && editing) {
+            if (!curve || curve->EditParameterization(SmExtent1d(0,1),FALSE)!=SM_SUCCESS) { delete curve; return SC_ERR_ARG; }
+            if (SmBSplineCurve::CreateLineSegment(the_context(),2,SmPoint3d(probe_uv0.x,probe_uv0.y,0),
+                SmPoint3d(probe_uv1.x,probe_uv1.y,0),supplied_uv)!=SM_SUCCESS) { delete curve; return SC_ERR_ARG; }
+        }
         SmEdge* edge=nullptr; SmLoop* loop=nullptr; SmFace* new_face=nullptr;
         status=b->MakeEdgeInFaceWithVU(face, variant == 3 ? nullptr : start_vu,
-            variant == 4 ? nullptr : end_vu, curve, nullptr, SmExtent1d(0,1),
+            variant == 4 ? nullptr : end_vu, curve, supplied_uv, SmExtent1d(0,1),
             SM_OT_SAME, SmZoneTol3d(1e-7),edge,loop,new_face,nullptr);
         // The curve is consumed only on success; errors in this controlled fixture
         // happen before ownership changes. The successful edge owns it thereafter.
-        if (status != SM_SUCCESS && curve && curve->GetOwner()==nullptr) delete curve;
+        // Variant 6 passes both curves to the consuming native operation.
+        // Neither pointer may be inspected afterwards, including on late failure.
+        // Retain the historical early-refusal cleanup only for variants 0..5.
+        if (variant != 6 && status != SM_SUCCESS && curve && curve->GetOwner()==nullptr) delete curve;
         Graph fresh; walk(b,fresh,true);
         record={(double)fresh.find(7,edge),(double)fresh.find(5,loop),(double)fresh.find(3,new_face)};
+        if (variant==6 && editing) {
+            if (status!=SM_SUCCESS || !edge || !loop || !new_face || !probe_inner) return SC_ERR_ARG;
+            record.push_back((double)fresh.find(3,probe_inner->GetLoopuse()->GetFaceuse()->GetFace()));
+        }
     }
     Graph fresh; walk(b,fresh,true);
     std::vector<double> result={st(status),(double)record.size()};

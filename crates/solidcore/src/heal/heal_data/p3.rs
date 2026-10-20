@@ -41,6 +41,7 @@ use crate::error::{ignored as ignore_soft, EntityRef, Result, SolidError, SM_ERR
 use crate::geom::attribute::ObjectKey;
 use crate::geom::context::{MarkLock, ALL_MARKS};
 use crate::heal::face_props::{HealerOpType, LoopObject};
+use crate::intersect::curve_class::p7::FaceQueryIdentity;
 use crate::kernel::Kernel;
 use crate::topology::brep::p1 as bp1;
 use crate::topology::brep::p6::RegionSplitQueries;
@@ -122,6 +123,7 @@ impl<O: LoopObject> HealData<O> {
         resolve: impl Fn(ObjectKey) -> Option<EntityRef>,
         through: HealerOpType,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         if tracker.is_tracking(Some(&k.context)) {
             return Err(SolidError::Upstream {
@@ -139,7 +141,7 @@ impl<O: LoopObject> HealData<O> {
             .filter_map(|&x| resolve(x))
             .collect();
         let added: Vec<_> = tracker.add_list().iter().map(|&x| resolve(x)).collect();
-        self.update_target_lists(k, b, &removed, &added, through, queries)
+        self.update_target_lists(k, b, &removed, &added, through, queries, identity)
     }
 
     /// Removes stale targets and their props from every problem list, adds live
@@ -154,6 +156,7 @@ impl<O: LoopObject> HealData<O> {
         added: &[Option<EntityRef>],
         through: HealerOpType,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         // Resolve every stale props identity before removing any of them.
         let faces = self.face_props_for_tgts(removed, true);
@@ -213,7 +216,7 @@ impl<O: LoopObject> HealData<O> {
         self.stop_heal_op = through;
         self.done_heal_op = HealerOpType::None;
         self.recursion_count += 1;
-        let result = ignore_status(self.heal_targets(k, b, through, false, queries));
+        let result = ignore_status(self.heal_targets(k, b, through, false, queries, identity));
         if self.recursion_count > 0 {
             self.recursion_count -= 1;
         }
@@ -233,6 +236,7 @@ impl<O: LoopObject> HealData<O> {
         healer_op: HealerOpType,
         make_uv_trim_curves: bool,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         self.stop_heal_op = healer_op;
         self.done_heal_op = HealerOpType::None;
@@ -246,6 +250,7 @@ impl<O: LoopObject> HealData<O> {
             healer_op,
             make_uv_trim_curves,
             queries,
+            identity,
         );
         lock.release(std::slice::from_mut(&mut k.context))?;
         result
@@ -261,6 +266,7 @@ impl<O: LoopObject> HealData<O> {
         through: HealerOpType,
         make: bool,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         // The condition is Done < requested, not Step <= requested. Preserve the
         // gaps in the sequence (Fix_BackPointers and disabled Fix_BadLoops).
@@ -274,7 +280,7 @@ impl<O: LoopObject> HealData<O> {
         }
         step!(
             CacheEdgeprops,
-            self.cache_edge_props(k, b, HealerOpType::CacheEdgeprops)
+            self.cache_edge_props_with_context(k, b, HealerOpType::CacheEdgeprops, identity)
         );
         step!(
             CacheVertexprops,
@@ -282,7 +288,7 @@ impl<O: LoopObject> HealData<O> {
         );
         step!(
             CacheFacepropsGaps,
-            self.cache_face_props_gaps(k, b, HealerOpType::CacheFacepropsGaps)
+            self.cache_face_props_gaps(k, b, HealerOpType::CacheFacepropsGaps, identity)
         );
         step!(
             FixTolsizes,
@@ -294,7 +300,7 @@ impl<O: LoopObject> HealData<O> {
         );
         step!(
             FixCoinVertices,
-            self.fix_coin_vertices(k, b, HealerOpType::FixCoinVertices, queries)
+            self.fix_coin_vertices(k, b, HealerOpType::FixCoinVertices, queries, identity)
         );
         step!(
             CacheDegenFaces,
@@ -302,11 +308,11 @@ impl<O: LoopObject> HealData<O> {
         );
         step!(
             FixDegenFaces,
-            self.fix_degen_faces(k, b, HealerOpType::FixDegenFaces, queries)
+            self.fix_degen_faces(k, b, HealerOpType::FixDegenFaces, queries, identity)
         );
         step!(
             FixDegenEdges,
-            self.fix_degen_edges(k, b, HealerOpType::FixDegenEdges, queries)
+            self.fix_degen_edges(k, b, HealerOpType::FixDegenEdges, queries, identity)
         );
         step!(
             CacheCoinEdges,
@@ -334,11 +340,19 @@ impl<O: LoopObject> HealData<O> {
         });
         step!(
             CacheFaceprops2,
-            self.cache_face_props_stage2(k, b, HealerOpType::CacheFaceprops2)
+            self.cache_face_props_stage2(k, b, HealerOpType::CacheFaceprops2, identity)
         );
         step!(
             FixMoveseam,
-            self.fix_move_seam(k, b, marks, lock, HealerOpType::FixMoveseam, queries)
+            self.fix_move_seam(
+                k,
+                b,
+                marks,
+                lock,
+                HealerOpType::FixMoveseam,
+                queries,
+                identity
+            )
         );
         step!(
             FixSplitedgeAtseam,
@@ -348,7 +362,8 @@ impl<O: LoopObject> HealData<O> {
                 marks,
                 lock,
                 HealerOpType::FixSplitedgeAtseam,
-                queries
+                queries,
+                identity
             )
         );
         step!(FixBadsheets, {
@@ -367,15 +382,22 @@ impl<O: LoopObject> HealData<O> {
                 lock,
                 HealerOpType::FixBadsheets,
                 queries,
+                identity,
             )
         });
         step!(
             CacheFaceprops3,
-            self.cache_face_props_stage3(k, b, HealerOpType::CacheFaceprops3)
+            self.cache_face_props_stage3(k, b, HealerOpType::CacheFaceprops3, identity)
         );
         step!(
             FixSplitfaceAtseams,
-            self.fix_split_face_at_seams(k, b, HealerOpType::FixSplitfaceAtseams, queries)
+            self.fix_split_face_at_seams(
+                k,
+                b,
+                HealerOpType::FixSplitfaceAtseams,
+                queries,
+                identity
+            )
         );
         // Fix_BadLoops is disabled in pinned upstream.
         step!(
@@ -397,6 +419,7 @@ impl<O: LoopObject> HealData<O> {
         b: &mut Brep,
         _op: HealerOpType,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         let mut pairs = self.bad_vertex_props_coin_vertices.base.prob_array.clone();
         let n = pairs.len() / 2; // upstream intentionally ignores an odd tail
@@ -428,6 +451,7 @@ impl<O: LoopObject> HealData<O> {
                 &changes.added,
                 HealerOpType::FixCoinVertices,
                 queries,
+                identity,
             )?;
             for id in pairs.iter_mut().take(2 * n).skip(2 * (i + 1)) {
                 if *id == deleted {
@@ -446,6 +470,7 @@ impl<O: LoopObject> HealData<O> {
         b: &mut Brep,
         _op: HealerOpType,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         let queue = self.bad_edge_props_degen_edges.prob_array.clone();
         if queue.is_empty() {
@@ -477,6 +502,7 @@ impl<O: LoopObject> HealData<O> {
             &changes.added,
             HealerOpType::FixDegenEdges,
             queries,
+            identity,
         )
     }
 }
@@ -566,6 +592,7 @@ impl<O: LoopObject> HealData<O> {
         b: &mut Brep,
         _op: HealerOpType,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         let queue = self.bad_face_props_degen_faces.prob_array.clone();
         if queue.is_empty() {
@@ -700,6 +727,7 @@ impl<O: LoopObject> HealData<O> {
             &changes.added,
             HealerOpType::FixDegenFaces,
             queries,
+            identity,
         )
     }
 
@@ -713,6 +741,7 @@ impl<O: LoopObject> HealData<O> {
         lock: &MarkLock,
         _op: HealerOpType,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         let mut queue = Vec::new();
         if self.old_face_cnt != 0 {
@@ -758,6 +787,7 @@ impl<O: LoopObject> HealData<O> {
             &changes.added,
             HealerOpType::FixMoveseam,
             queries,
+            identity,
         )?;
         for &id in &self.tgt_face_props {
             let p = &self.face_props.props(id)?.props;
@@ -785,6 +815,7 @@ impl<O: LoopObject> HealData<O> {
         lock: &MarkLock,
         _op: HealerOpType,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         let queue = self.bad_face_props_crossed_seam.prob_array.clone();
         if queue.is_empty() {
@@ -811,7 +842,7 @@ impl<O: LoopObject> HealData<O> {
             if classification_has_dead_topology(b, p.crv_class_u.as_ref())?
                 || classification_has_dead_topology(b, p.crv_class_v.as_ref())?
             {
-                refresh_stage2(k, b, p, self.done_heal_op)?;
+                refresh_stage2(k, b, p, self.done_heal_op, identity)?;
                 if p.bad_crossed_seam.is_false() {
                     continue;
                 }
@@ -830,7 +861,7 @@ impl<O: LoopObject> HealData<O> {
                 marks.mark(k, Entity::Edge(e), lock.mark_type());
             }
             if rebuild {
-                refresh_stage2(k, b, p, self.done_heal_op)?;
+                refresh_stage2(k, b, p, self.done_heal_op, identity)?;
             }
             let dirs = [
                 (has_u(p.bad_crossed_seam_dir), true),
@@ -907,6 +938,7 @@ impl<O: LoopObject> HealData<O> {
             &changes.added,
             HealerOpType::FixSplitedgeAtseam,
             queries,
+            identity,
         )
     }
 
@@ -919,6 +951,7 @@ impl<O: LoopObject> HealData<O> {
         b: &mut Brep,
         _op: HealerOpType,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         let queue = self.bad_face_props_missing_seam.prob_array.clone();
         if queue.is_empty() {
@@ -941,7 +974,7 @@ impl<O: LoopObject> HealData<O> {
             if classification_has_dead_topology(b, p.crv_class_u.as_ref())?
                 || classification_has_dead_topology(b, p.crv_class_v.as_ref())?
             {
-                refresh_stage2(k, b, p, self.done_heal_op)?;
+                refresh_stage2(k, b, p, self.done_heal_op, identity)?;
                 if p.bad_missing_seam.is_false() {
                     continue;
                 }
@@ -976,6 +1009,7 @@ impl<O: LoopObject> HealData<O> {
             &changes.added,
             HealerOpType::FixSplitedgeAtseam,
             queries,
+            identity,
         )
     }
 }
@@ -1004,9 +1038,10 @@ fn has_v(d: SurfParamType) -> bool {
 }
 fn refresh_stage2<O: LoopObject>(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     p: &mut FaceProps<O>,
     done: HealerOpType,
+    identity: FaceQueryIdentity<'_>,
 ) -> Result<()> {
     p.reset(PropStage::Stage2);
     crate::error::ignore_status(p.set_props(
@@ -1016,6 +1051,7 @@ fn refresh_stage2<O: LoopObject>(
         p.face.ok_or_else(|| invalid("props without face"))?,
         p.face_index,
         done,
+        identity,
     ))
 }
 fn face_edges(_b: &Brep, _f: FaceId) -> Result<Vec<EdgeId>> {
@@ -1249,6 +1285,13 @@ fn split_face_at_seam<O: LoopObject>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn test_identity() -> FaceQueryIdentity<'static> {
+        FaceQueryIdentity {
+            keys: &arena_identity,
+            owner_of: &|_| None,
+        }
+    }
+
     use crate::heal::face_props::Tri;
     use crate::intersect::point_class::{ClassObject, ClassObjectKind};
     use crate::topology::shell::{ShellRayAttempt, ShellRayInput};
@@ -1257,7 +1300,7 @@ mod tests {
     fn no_shell_ray(
         _: &mut Kernel,
         _: &mut Brep,
-        _: crate::topology::ShellId,
+        _: Option<crate::topology::ShellId>,
         _: ShellRayInput<EntityRef>,
     ) -> ShellRayAttempt<EntityRef> {
         panic!("this early target-update path must not fire a shell ray")
@@ -1305,6 +1348,7 @@ mod tests {
             &[None],
             HealerOpType::All,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
         assert_eq!((b.tolerance(), b.face(f).unwrap().tolerance), (1e-5, 1e-5));
@@ -1328,6 +1372,7 @@ mod tests {
                 &[None],
                 HealerOpType::All,
                 &mut no_shell_ray,
+                test_identity(),
             )
             .unwrap_err();
         assert!(matches!(e, SolidError::InvalidInput { .. }));
@@ -1358,6 +1403,7 @@ mod tests {
                 &[None],
                 HealerOpType::None,
                 &mut no_shell_ray,
+                test_identity(),
             );
             assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
             assert_eq!(h.recursion_count, depth);
@@ -1384,6 +1430,7 @@ mod tests {
             ],
             HealerOpType::All,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
         assert_eq!(h.tgt_vertices, vec![v]);
@@ -1414,6 +1461,7 @@ mod tests {
             &[],
             HealerOpType::All,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
         assert!(h.tgt_vertices.is_empty());
@@ -1434,6 +1482,7 @@ mod tests {
             &mut Brep::default(),
             HealerOpType::FixCoinVertices,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
     }
@@ -1455,6 +1504,7 @@ mod tests {
             &mut b,
             HealerOpType::FixDegenEdges,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
     }
@@ -1486,6 +1536,7 @@ mod tests {
             &mut b,
             HealerOpType::FixDegenFaces,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
         let mut lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, ALL_MARKS).unwrap();
@@ -1496,6 +1547,7 @@ mod tests {
             &lock,
             HealerOpType::FixSplitedgeAtseam,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
         lock.release(std::slice::from_mut(&mut k.context)).unwrap();
@@ -1504,6 +1556,7 @@ mod tests {
             &mut b,
             HealerOpType::FixSplitfaceAtseams,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
         assert_eq!(
@@ -1539,6 +1592,7 @@ mod tests {
             &lock,
             HealerOpType::FixSplitedgeAtseam,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
         lock.release(std::slice::from_mut(&mut k.context)).unwrap();
@@ -1560,6 +1614,7 @@ mod tests {
                 &mut Brep::default(),
                 HealerOpType::FixDegenEdges,
                 &mut no_shell_ray,
+                test_identity(),
             ),
             Err(SolidError::Upstream { code: SM_ERR, .. })
         ));

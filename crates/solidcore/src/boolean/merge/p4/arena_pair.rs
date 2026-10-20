@@ -423,7 +423,7 @@ impl ProtoGeometry<H> for ArenaPair<'_> {
 
 /// The face-side objects of `curve_on_classify` for one B-rep.
 struct Objs<'a, 'b> {
-    two: &'a ArenaPair<'b>,
+    two: &'a mut ArenaPair<'b>,
     b: i8,
 }
 
@@ -439,6 +439,69 @@ impl ClassGeometry<H> for Objs<'_, '_> {
     }
     fn point(&self, o: H) -> Option<Point3> {
         ClassGeometry::point(self.two, o)
+    }
+}
+
+impl crate::intersect::curve_class::p7::FaceQueryOwner<H> for Objs<'_, '_> {
+    fn classification_brep(&self) -> crate::Result<&Brep> {
+        self.two.brep_r(hd(self.b, K_BREP, u32::from(self.b == 1)))
+    }
+    fn classification_brep_mut(&mut self) -> crate::Result<&mut Brep> {
+        let slot = usize::try_from(self.b).map_err(|_| invalid("bad operand"))?;
+        // Only lazy query state is edited. Keep published spatial trees alive.
+        self.two
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_deref_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))
+    }
+    fn classification_entity(&self, face: H, object: H) -> crate::Result<EntityRef> {
+        if face.b != self.b || face.kind != K_FACE {
+            return Err(invalid("not a face of this operand"));
+        }
+        self.two.classification_entity(self.b, object)
+    }
+    fn classification_handle(&self, face: H, entity: EntityRef) -> crate::Result<H> {
+        if face.b != self.b || face.kind != K_FACE {
+            return Err(invalid("not a face of this operand"));
+        }
+        ArenaPair::entity_h(self.b, entity)
+            .ok_or_else(|| invalid("unresolved classification identity"))
+    }
+    fn query_on_face<T>(
+        &mut self,
+        kernel: &Kernel,
+        face: H,
+        query: impl FnOnce(
+            &Kernel,
+            &mut Brep,
+            FaceId,
+            &dyn Fn(CacheObject) -> ObjectRef,
+            &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+            Option<&mut dyn crate::query::face::p2::FacePointCache>,
+        ) -> crate::Result<T>,
+    ) -> crate::Result<T> {
+        if face.b != self.b || face.kind != K_FACE {
+            return Err(invalid("not a face of this operand"));
+        }
+        let slot = usize::try_from(self.b).map_err(|_| invalid("bad operand"))?;
+        self.two.require_query_geometry(slot)?;
+        let namespace = self.two.namespace;
+        let keys = |object| super::kernel_adapter::query_key(namespace, slot == 1, object);
+        let links = self.two.owner_links;
+        let owner_of = |owner| links.get(&owner).copied();
+        let kernel = if slot == 1 {
+            self.two.other_kernel.unwrap_or(kernel)
+        } else {
+            kernel
+        };
+        let brep = self
+            .two
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_deref_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        query(kernel, brep, fid(face), &keys, &owner_of, None)
     }
 }
 
@@ -584,22 +647,20 @@ impl ProtoBrep<H> for ArenaPair<'_> {
             .collect())
     }
     fn face_curve_on_classify(
-        &self,
+        &mut self,
         k: &Kernel,
         face: H,
         do_point_classify: bool,
         cc: &mut CurveClassification<H>,
     ) -> crate::Result<bool> {
-        let b = self.brep_r(face)?;
-        let objs = Objs {
-            two: self,
+        let mut objs = Objs {
             b: face.b,
+            two: self,
         };
         curve_on_classify(
             k,
-            b,
             fid(face),
-            &objs,
+            &mut objs,
             do_point_classify,
             cc,
             false,
@@ -1164,14 +1225,28 @@ impl IntersectorBrep<H> for ArenaPair<'_> {
             coincidence: opt_coincidence_flag,
             ..FaceIntersectOptions::default()
         };
-        let out = fp3::face_intersect(
+        let namespace = self.namespace;
+        let other_operand = face1.b == 1;
+        let owner_links = self.owner_links;
+        let keys = |object| super::kernel_adapter::query_key(namespace, other_operand, object);
+        let slot = usize::try_from(face1.b).map_err(|_| invalid("bad B-rep"))?;
+        // FaceIntersect may create lazy UV trims; spatial topology/3D geometry
+        // is unchanged. Keep both published spatial caches on errors as well.
+        let brep = self
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_deref_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        let out = fp3::face_intersect_with_context(
             k,
-            self.brep_r(face1)?,
+            brep,
             fid(face1),
             fid(face2),
             approx_tol_3d,
             ang_tol_deg,
             &options,
+            &keys,
+            &|object| owner_links.get(&object).copied(),
         )?;
         let bi = face1.b;
 
@@ -1291,6 +1366,10 @@ impl IntersectorBrep<H> for ArenaPair<'_> {
             let _ = cache.take();
         }
         *self.point_caches = [None, None];
+        let namespace = self.namespace;
+        let keys = |object| super::kernel_adapter::query_key(namespace, slot == 1, object);
+        let links = self.owner_links;
+        let owner_of = |owner| links.get(&owner).copied();
         let breps = &mut self.breps;
         let b = breps
             .get_mut(slot)
@@ -1324,6 +1403,10 @@ impl IntersectorBrep<H> for ArenaPair<'_> {
             inside,
             &mut notify,
             queries,
+            crate::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &keys,
+                owner_of: &owner_of,
+            },
         )
     }
 }
@@ -1764,5 +1847,73 @@ pub(super) fn deleted_edge(h: H) -> crate::Result<EdgeId> {
         Ok(eid(h))
     } else {
         Err(invalid("deleted edge is not a primary edge"))
+    }
+}
+
+#[cfg(test)]
+mod face_intersection_cache_tests {
+    use super::*;
+
+    #[test]
+    fn early_face_intersection_error_retains_both_published_spatial_caches() {
+        let mut primary = Brep::new();
+        let shell = primary.add_shell().unwrap();
+        let face = primary.add_face(shell).unwrap();
+        let mut other = Brep::new();
+        let mut curves = Vec::new();
+        let mut extra = Vec::new();
+        let mut records = BTreeMap::new();
+        let mut attributes = AttributeStore::default();
+        let owners = BTreeMap::new();
+        let geometry = [None, None];
+        let notifications = [None, None];
+        let mut points = [
+            Some(BrepCache::new(BREP_TYPE).unwrap()),
+            Some(BrepCache::new(BREP_TYPE).unwrap()),
+        ];
+        let mut region_queries = [
+            super::super::kernel_adapter::RegionQuerySlot::default(),
+            super::super::kernel_adapter::RegionQuerySlot::default(),
+        ];
+        let mut context = Context::default();
+        let mut pair = ArenaPair::new(
+            &mut primary,
+            Some(&mut other),
+            &mut curves,
+            &mut extra,
+            &mut records,
+            &mut attributes,
+            &owners,
+            &geometry,
+            &notifications,
+            None,
+            &mut points,
+            &mut region_queries,
+            &mut context,
+            None,
+            42,
+        );
+        let caches = [
+            std::sync::Arc::new(BrepCache::<H>::new(BREP_TYPE).unwrap()),
+            std::sync::Arc::new(BrepCache::<H>::new(BREP_TYPE).unwrap()),
+        ];
+        for (slot, cache) in pair.caches.iter().zip(&caches) {
+            slot.set(std::sync::Arc::clone(cache)).unwrap();
+        }
+        let handle = hd(0, K_FACE, face.index());
+        assert!(IntersectorBrep::face_intersect(
+            &mut pair,
+            &Kernel::default(),
+            handle,
+            handle,
+            1e-5,
+            5.0,
+            None,
+        )
+        .is_err());
+        for (slot, cache) in pair.caches.iter().zip(&caches) {
+            assert!(std::sync::Arc::ptr_eq(slot.get().unwrap(), cache));
+        }
+        assert!(pair.point_caches.iter().all(Option::is_some));
     }
 }

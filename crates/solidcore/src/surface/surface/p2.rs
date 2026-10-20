@@ -401,9 +401,15 @@ impl Surface {
         let kind = match &self.kind {
             SurfaceKind::BSpline(s) => SurfaceKind::BSpline(s.clone_exact()),
             SurfaceKind::Plane(s) => SurfaceKind::Plane(s.clone_exact()),
-            SurfaceKind::SurfOfRevolution(s) => {
-                SurfaceKind::SurfOfRevolution(Box::new(s.clone_exact()))
-            }
+            SurfaceKind::SurfOfRevolution(s) => SurfaceKind::SurfOfRevolution(Box::new({
+                let mut copy = s.clone_exact();
+                copy.gen_curve = s
+                    .gen_curve
+                    .as_ref()
+                    .map(|c| c.clone_for_evaluation_depth(depth + 1))
+                    .transpose()?;
+                copy
+            })),
             SurfaceKind::Step(s) => SurfaceKind::Step(s.clone_for_evaluation(depth + 1)?),
             SurfaceKind::CurveBounded(s) => {
                 SurfaceKind::CurveBounded(s.clone_for_evaluation(depth + 1)?)
@@ -1518,6 +1524,46 @@ impl Surface {
                 approx_tol_3d,
                 ang_tol_rad,
             ),
+        }
+    }
+
+    /// Global intersection with lazy owner-aware expansion of analytic plane boxes.
+    /// The callback is invoked at each native box expansion, never on an early exit
+    /// which does not calculate that box. Other surface dispatches are unchanged.
+    pub(crate) fn global_surface_intersect_with_box_tolerance(
+        &self,
+        k: &Kernel,
+        uv_domain: &Extent2d,
+        other: &Self,
+        other_uv_domain: &Extent2d,
+        use_surface_edges: [bool; 2],
+        approx_tol_3d: Option<f64>,
+        ang_tol_rad: Option<f64>,
+        box_tolerance: &mut dyn FnMut(&Surface) -> Result<f64>,
+    ) -> Result<SurfaceIntersection> {
+        if let SurfaceKind::Plane(plane) = &self.kind {
+            crate::surface::plane::p2::global_surface_intersect_with_box_tolerance(
+                k,
+                self,
+                plane,
+                uv_domain,
+                other,
+                other_uv_domain,
+                use_surface_edges,
+                approx_tol_3d,
+                ang_tol_rad,
+                box_tolerance,
+            )
+        } else {
+            self.global_surface_intersect(
+                k,
+                uv_domain,
+                other,
+                other_uv_domain,
+                use_surface_edges,
+                approx_tol_3d,
+                ang_tol_rad,
+            )
         }
     }
 

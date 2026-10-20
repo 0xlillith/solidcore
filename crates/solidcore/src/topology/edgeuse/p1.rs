@@ -890,12 +890,40 @@ pub fn max_edge_face_gap(
     eu: EdgeuseId,
     force_calc: bool,
 ) -> Result<Option<EdgeFaceGap>> {
+    max_edge_face_gap_impl(k, b, eu, force_calc, None)
+}
+
+/// Use the original mutable B-rep and caller owner identities.
+///
+/// # Errors
+/// Those of [`max_edge_face_gap`] and live surface queries.
+pub fn max_edge_face_gap_with_context(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    force_calc: bool,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+) -> Result<Option<EdgeFaceGap>> {
+    max_edge_face_gap_impl(k, b, eu, force_calc, Some(identity))
+}
+
+fn max_edge_face_gap_impl(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    force_calc: bool,
+    identity: Option<crate::intersect::curve_class::p7::FaceQueryIdentity<'_>>,
+) -> Result<Option<EdgeFaceGap>> {
     // no work - no Gap
     if !has_edge_face_gap(b, eu)? {
         return Ok(None);
     }
     if force_calc || !b.edgeuse(eu)?.max_edge_face_gap.is_init() {
-        ignore_status(calc_max_edge_face_gap(k, b, eu, true))?;
+        let result = match identity {
+            Some(identity) => calc_max_edge_face_gap_with_context(k, b, eu, true, identity),
+            None => calc_max_edge_face_gap(k, b, eu, true),
+        };
+        ignore_status(result)?;
     }
     Ok(Some(b.edgeuse(eu)?.max_edge_face_gap))
 }
@@ -942,6 +970,30 @@ pub fn calc_max_edge_face_gap(
     eu: EdgeuseId,
     cache: bool,
 ) -> Result<EdgeFaceGap> {
+    calc_max_edge_face_gap_impl(k, b, eu, cache, None)
+}
+
+/// Use the original mutable B-rep and caller owner identities.
+///
+/// # Errors
+/// Those of [`calc_max_edge_face_gap`] and live surface queries.
+pub fn calc_max_edge_face_gap_with_context(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    cache: bool,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+) -> Result<EdgeFaceGap> {
+    calc_max_edge_face_gap_impl(k, b, eu, cache, Some(identity))
+}
+
+fn calc_max_edge_face_gap_impl(
+    k: &Kernel,
+    b: &mut Brep,
+    eu: EdgeuseId,
+    cache: bool,
+    identity: Option<crate::intersect::curve_class::p7::FaceQueryIdentity<'_>>,
+) -> Result<EdgeFaceGap> {
     // init output
     let out = EdgeFaceGap::new();
 
@@ -974,7 +1026,41 @@ pub fn calc_max_edge_face_gap(
     if interval.min() == interval.max() {
         return Err(SolidError::sm_err(OP));
     }
-    let sample = {
+    let sample = if let Some(identity) = identity {
+        // Bounded numerical views release arena borrows while the same original
+        // B-rep receives lazy trim/gap writes through the caller's real context.
+        let curve = b
+            .edge(e)?
+            .curve
+            .as_ref()
+            .ok_or_else(|| null("CalcMaxEdgeFaceGap: edge without curve"))?
+            .clone_for_evaluation()?;
+        let surface = b
+            .face(f)?
+            .surface
+            .as_ref()
+            .ok_or_else(|| null("CalcMaxEdgeFaceGap: face without surface"))?
+            .clone_for_evaluation()?;
+        let mut gf = GapFunction::crv_srf(xsect_tol, &curve, &interval, &surface, 20);
+        let mut context =
+            crate::query::face::p1::FacePointContext::new(b, identity.keys, identity.owner_of);
+        let mut drop = |kernel: &Kernel,
+                        surface: &crate::surface::surface::Surface,
+                        point,
+                        domain: &crate::geom::extent2d::Extent2d,
+                        guess| {
+            crate::heal::gap::surface_drop_with_context(
+                kernel,
+                surface,
+                point,
+                domain,
+                guess,
+                crate::topology::brep_cache::CacheObject::Surface(f),
+                &mut context,
+            )
+        };
+        *gf.max_gap_sample_with_surface_drop(k, false, &mut drop)?
+    } else {
         let curve = b
             .edge(e)?
             .curve

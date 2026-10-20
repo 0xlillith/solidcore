@@ -1,0 +1,20 @@
+{
+  "cases": [
+    {
+      "name": "dispatch_touching_bounded_planes_points",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:11308; SmPlane.cpp IntersectWithPlane",
+      "inputs": {
+        "dispatch_probe": "face_intersect_touching",
+        "want_points": true
+      }
+    },
+    {
+      "name": "dispatch_touching_bounded_planes_without_points",
+      "upstream_ref": "source/SMLib/src/SmFace.cpp:11308",
+      "inputs": {
+        "dispatch_probe": "face_intersect_touching",
+        "want_points": false
+      }
+    }
+  ]
+}

@@ -1283,6 +1283,30 @@ fn put_healed(k: &Kernel, b: &Brep, types: &ImportTypes, o: &mut Vec<f64>) -> Re
     Ok(())
 }
 
+fn query_owner_links(
+    brep: &Brep,
+    keys: &dyn Fn(
+        solidcore::topology::brep_cache::CacheObject,
+    ) -> solidcore::geom::object::ObjectRef,
+) -> std::collections::BTreeMap<
+    solidcore::geom::object::ObjectRef,
+    solidcore::geom::object::ObjectRef,
+> {
+    use solidcore::topology::brep_cache::CacheObject;
+    let mut owners = std::collections::BTreeMap::new();
+    for (edge, record) in brep.edges().iter() {
+        if let Some(owner) = record.curve.as_ref().and_then(|curve| curve.owner()) {
+            owners.insert(keys(CacheObject::Curve(edge)), owner);
+        }
+    }
+    for (face, record) in brep.faces().iter() {
+        if let Some(owner) = record.surface.as_ref().and_then(|surface| surface.owner()) {
+            owners.insert(keys(CacheObject::Surface(face)), owner);
+        }
+    }
+    owners
+}
+
 fn run_rust_op(
     k: &mut Kernel,
     b: &mut Brep,
@@ -1933,7 +1957,17 @@ fn run_rust_op(
                 want_uv: *want_uv,
                 want_faces: *want_faces,
             };
-            match bp1::create_parallel_projection_curves(k, b, &c, Vec3::from_array(*vec), &opts) {
+            match bp1::create_parallel_projection_curves(
+                k,
+                b,
+                &c,
+                Vec3::from_array(*vec),
+                &opts,
+                solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                    keys: &arena_identity,
+                    owner_of: &|_| None,
+                },
+            ) {
                 Ok(r) => {
                     o.push(0.0);
                     match r.curves_3d {
@@ -1974,7 +2008,22 @@ fn run_rust_op(
             })?;
             let queries =
                 queries.ok_or_else(|| harness("Heal requires its registered query context"))?;
-            bp1::heal_brep(k, b, healer_op, None, None, None, *make_uv, queries)?;
+            let owners = query_owner_links(b, &arena_identity);
+            let owner_of = |object| owners.get(&object).copied();
+            bp1::heal_brep(
+                k,
+                b,
+                healer_op,
+                None,
+                None,
+                None,
+                *make_uv,
+                queries,
+                solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                    keys: &arena_identity,
+                    owner_of: &owner_of,
+                },
+            )?;
             // the healer evaluates the geometry: compared only where the import is exact
             if let Some(d) = queries.metadata().deferred_output() {
                 return Ok(Err(d));

@@ -10,6 +10,7 @@
 // `topology.vertexuse` export of the same block); the other ops output `-1 status` when
 // the B-rep could not be built, else `0` and the op's results.
 #include "sc_topology_fixture.h"
+#include "sc_brep_query_metadata.h"
 
 #include <SmCompositeCurve.h>
 
@@ -317,5 +318,57 @@ SC_EXPORT int32_t sc_topology_face_p3_eval(int32_t op, const char* path, const d
             run(op, g, args, o);
     }
     return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);
+    SC_CATCH
+}
+
+
+// Directed real FaceIntersect input: a short intersection of two bounded planes.
+// Export mode constructs exactly the same PRE-operation graph as operation mode.
+SC_EXPORT int32_t sc_topology_face_p3_touching(int32_t export_only, int32_t want_points,
+    double* out, int64_t cap, int64_t* len) {
+    if (!len || (export_only != 0 && export_only != 1) || (want_points != 0 && want_points != 1)) return SC_ERR_ARG;
+    SC_TRY
+    SmContext context;
+    Built built;
+    built.brep = new (context) SmBrep(SM_USE_DEFAULT,SM_USE_DEFAULT,&context);
+    SmBrep* b=built.brep;
+    SmFace* faces[2]={nullptr,nullptr};
+    const SmExtent2d domains[2]={
+        SmExtent2d(SmPoint2d(-1,-1),SmPoint2d(1,1)),
+        SmExtent2d(SmPoint2d(-0.0005,-1),SmPoint2d(0.0005,1))};
+    for (int i=0;i<2;++i) {
+        SmPlane* surface=new (context) SmPlane(SmPoint3d(0,0,0),
+            i==0 ? SmVector3d(1,0,0) : SmVector3d(0,1,0),
+            i==0 ? SmVector3d(0,1,0) : SmVector3d(0,0,1),
+            SmVector2d(1,1),domains[i],&context);
+        SmStatus setup=b->CreateFaceFromSurface(surface,domains[i],faces[i]);
+        if (setup!=SM_SUCCESS || !faces[i]) {
+            if (!surface->GetOwner()) delete surface;
+            return SC_ERR_ARG;
+        }
+    }
+    Graph initial; walk(b,initial,true);
+    if (export_only) {
+        std::vector<double> graph{0.0}; export_graph(b,initial,graph);
+        std::vector<double> result{(double)initial.find(3,faces[0]),(double)initial.find(3,faces[1]),(double)graph.size()};
+        result.insert(result.end(),graph.begin(),graph.end());
+        append_query_metadata(b,initial,result);
+        return sc_copy_out(result.data(),(int64_t)result.size(),out,cap,len);
+    }
+    SmTArray<SmCurve*> curves;
+    SmObjsDelete<SmCurve*> cleanup(&curves);
+    SmTArray<SmPoint3d> points;
+    SmBoolean coincident=FALSE;
+    SmStatus status=faces[0]->FaceIntersect(context,faces[1],0.01,0.3,curves,nullptr,nullptr,
+        want_points ? &points : nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,&coincident);
+    std::vector<double> record{st(status),(double)curves.GetSize()};
+    for (ULONG i=0;i<curves.GetSize();++i) put_curve_samples(record,curves[i]);
+    record.push_back((double)points.GetSize());
+    for (ULONG i=0;i<points.GetSize();++i) put_vec(record,points[i]);
+    Graph fresh; walk(b,fresh,true);
+    std::vector<double> result{(double)record.size()};
+    result.insert(result.end(),record.begin(),record.end());
+    result.push_back(0.0); export_graph(b,fresh,result);
+    return sc_copy_out(result.data(),(int64_t)result.size(),out,cap,len);
     SC_CATCH
 }

@@ -796,18 +796,59 @@ pub(crate) fn seed<O: LoopObject>(
     }
 }
 
+// The constructor above registers its only face as key 1. Geometry handles use
+// the same exact-cache owner alias convention; no unrelated arena namespace.
+fn props_owner_links(brep: &Brep) -> std::collections::BTreeMap<ObjectRef, ObjectRef> {
+    use solidcore::topology::brep_cache::CacheObject;
+    let mut owners = std::collections::BTreeMap::new();
+    for (edge, record) in brep.edges().iter() {
+        if let Some(owner) = record.curve.as_ref().and_then(Curve::owner) {
+            owners.insert(props_query_key(CacheObject::Curve(edge)), owner);
+        }
+    }
+    for (face, record) in brep.faces().iter() {
+        if let Some(owner) = record.surface.as_ref().and_then(Surface::owner) {
+            owners.insert(props_query_key(CacheObject::Surface(face)), owner);
+        }
+    }
+    owners
+}
+
+fn props_query_key(object: solidcore::topology::brep_cache::CacheObject) -> ObjectRef {
+    use solidcore::topology::brep_cache::CacheObject;
+    let mut key = solidcore::topology::brep_cache::arena_identity(object);
+    match object {
+        CacheObject::Face(face) | CacheObject::Surface(face) => {
+            key.key = ObjectKey(u64::from(face.index()) + 1)
+        }
+        CacheObject::Edge(edge) | CacheObject::Curve(edge) => {
+            key.key = ObjectKey(u64::from(edge.index()) + 1)
+        }
+        CacheObject::Vertex(vertex) => key.key = ObjectKey(u64::from(vertex.index()) + 1),
+        CacheObject::Other(owner) => return owner,
+        _ => {}
+    }
+    key
+}
+
 fn rust_props(f: &FaceIn, ops: &[[f64; 5]]) -> Result<Output, HarnessError> {
     ffi::validate(&ffi_face(f), &ffi_ops(ops)).map_err(|e| harness(e.to_string()))?;
     let k = Kernel::default();
-    let (b, face) = rust_brep(&k, f)?;
+    let (mut b, face) = rust_brep(&k, f)?;
     let mut p: FaceProps<H> = FaceProps::new();
+    let owner_links = props_owner_links(&b);
+    let owner_of = |object| owner_links.get(&object).copied();
+    let identity = solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+        keys: &props_query_key,
+        owner_of: &owner_of,
+    };
     let mut out: Vec<f64> = Vec::new();
     for o in ops {
         let op = o[0] as i64;
         let heal = HealerOpType::from_code(o[2] as i64).unwrap_or_default();
         let stage = PropStage::from_code(o[1] as i64).unwrap_or_default();
         let res: Result<f64, solidcore::SolidError> = match op {
-            0 => status(p.set_props(&k, &b, stage, face, o[3] as u64, heal)),
+            0 => status(p.set_props(&k, &mut b, stage, face, o[3] as u64, heal, identity)),
             1 => {
                 p.reset(stage);
                 Ok(0.0)
@@ -826,7 +867,7 @@ fn rust_props(f: &FaceIn, ops: &[[f64; 5]]) -> Result<Output, HarnessError> {
             6 => match o[1] as i64 {
                 1 => status(p.set_props_gaps(&k, &b, face, o[3] as u64, heal)),
                 2 => status(p.set_props_stage2(&k, &b, face, o[3] as u64, heal)),
-                _ => status(p.set_props_stage3(&k, &b, face, o[3] as u64, heal)),
+                _ => status(p.set_props_stage3(&k, &mut b, face, o[3] as u64, heal, identity)),
             },
             7 => Ok(f64::from(u8::from(p.is_periodic_u()))
                 + 2.0 * f64::from(u8::from(p.is_periodic_v()))),

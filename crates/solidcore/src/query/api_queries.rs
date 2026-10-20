@@ -345,6 +345,10 @@ pub fn brep_closest_point_all<O: SolutionObject>(
 /// solve, sample extraction and containment tests. Classification may update its
 /// caches or create UV trim curves, so the adapter is borrowed mutably.
 pub trait BrepRelationshipObjects<O>: TopologyObjects<O> {
+    /// Classify an interior sample using the original mutable sample operand.
+    /// Retain its actual keys, owner context and every lazy topology write.
+    fn face_internal_point(&mut self, kernel: &Kernel, operand: O, face: FaceId) -> Result<Point3>;
+
     /// The exact B-rep identified by this adapter handle.
     fn brep(&self, handle: O) -> Result<&Brep>;
 
@@ -431,19 +435,19 @@ fn count_contained_samples<O: SolutionObject>(
     // Upstream gathers all vertices and then one interior point per face before
     // classifying any sample. The owned points also release the shared topology
     // borrow before a target query mutates its caches or trim curves.
-    let points = {
-        let sample = objects.brep(sample)?;
+    let (mut points, faces) = {
+        let source = objects.brep(sample)?;
         let mut points = Vec::new();
-        for vertex in brep_vertices(sample)? {
-            points.push(sample.vertex(vertex)?.point);
+        for vertex in brep_vertices(source)? {
+            points.push(source.vertex(vertex)?.point);
         }
-        for face in brep_faces(sample)? {
-            if let Some(point) = ignored(face_internal_point(k, sample, face))? {
-                points.push(point);
-            }
-        }
-        points
+        (points, brep_faces(source)?)
     };
+    for face in faces {
+        if let Some(point) = ignored(objects.face_internal_point(k, sample, face))? {
+            points.push(point);
+        }
+    }
     let (mut inside, mut outside) = (0, 0);
     for point in points {
         if let Some((class, material)) =
@@ -659,8 +663,13 @@ pub fn face_bounding_box(
 
 /// Interior face point (`SmApiFaceInternalPoint`). Errors from the face query
 /// propagate, including explicit deferrals of its unfinished dependencies.
-pub fn face_internal_point(k: &Kernel, brep: &Brep, face: FaceId) -> Result<Point3> {
-    face::calculate_an_internal_point(k, brep, face)
+pub fn face_internal_point(
+    k: &Kernel,
+    brep: &mut Brep,
+    face: FaceId,
+    identity: crate::intersect::curve_class::p7::FaceQueryIdentity<'_>,
+) -> Result<Point3> {
+    face::calculate_an_internal_point(k, brep, face, identity)
 }
 
 /// Trim-aware UV classification (`SmApiFaceClassifyUV`), preserving the face

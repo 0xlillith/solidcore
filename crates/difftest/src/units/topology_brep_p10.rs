@@ -448,6 +448,10 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
     let mut queries = RayQueryContext::new(b, brep_id, QueryMetadata::default(), query_key);
     let mut store = AttributeStore::new();
     let mut records: BTreeMap<ObjectKey, Topology> = BTreeMap::new();
+    // BrepData installs direct owners in the actual B-rep; it does not
+    // register external intermediate object pointers in this loader.
+    let external_owners = BTreeMap::new();
+    let owner_of = |object| external_owners.get(&object).copied();
     let mut env = TopologyEnv {
         all_attributes: &[],
         attributes: &mut store,
@@ -455,6 +459,10 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
         records: &mut records,
         next_key: 1u64 << 50,
         region_queries: &mut queries,
+        query_identity: solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+            keys: &query_key,
+            owner_of: &owner_of,
+        },
     };
     let [make_uv_trim_curves, add_analytics, force_same_tol, check_uv_trim_curves, always_heal, healer_enabled] =
         i.options;
@@ -501,6 +509,10 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
                     do_infinite,
                     e,
                     &mut queries,
+                    solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                        keys: &query_key,
+                        owner_of: &owner_of,
+                    },
                 ) {
                     Ok(r) => {
                         out.push(Item::Int(0));

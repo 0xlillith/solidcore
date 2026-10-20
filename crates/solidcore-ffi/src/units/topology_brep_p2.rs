@@ -20,7 +20,7 @@
 //! | `Rebuild`  |            | `status`, per edge use whether it has a UV trim curve, every edge tolerance |
 //! | `Make`     | `which region v1 v2` (`0` `MakeShellVertexTopology`, `1` `MakeEdgeVertexTopology`, `2` `MakeEdgeTopology`; region `-1` null) | `status`, then the topology read back through fresh list queries: `n_regions`, per region `n_shells` and per shell `kind ref` (`1` vertex shell and its vertex, `2` wire shell and its first wire edge, `3` face-use shell, `0` unknown; ref `-1`), `n_vertices` and per vertex its vertex-use count, `n_edges` and per edge `start end shell shell` (the vertices and shells of the primary edge use and its mate; shells by position in the region-major shell list) |
 //! | `Sector`   | `curve t0 t1 orient class type index t u v` | `status region` (`LocalCurveSector`) |
-//! | `Merge`    | `face tol n curve*` | `status new_faces edges` (`MergeCurvesOnSurface`) |
+//! | `Merge`    | `face tol n curve*` | `status new_faces edges` (`MergeCurvesOnSurface`; native trimmed-surface caches explicitly removed and absence checked before dispatch, cold input only) |
 //! | `Mate`     | `edge surface ext_factor uv_factor` | `status` (`MateLaminaEdgeToSurface`) |
 //! | `Notify`   | `operation ref ref ref` | `0` |
 //! | `Stale`    | `create modified` (face `i` gets an `SM_OC_TRIMSRF` cache when bit `i % 8` of `create` is set, `m_bFaceWasModified` from that bit of `modified`) | `status`, per face whether its cache survived (`DeleteStaleCaches`) |

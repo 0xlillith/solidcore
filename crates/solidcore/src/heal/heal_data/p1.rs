@@ -61,6 +61,7 @@ use crate::geom::context::{MarkLock, ALL_MARKS};
 use crate::heal::face_props::{
     HealerOpType, LoopObject, MixedLinkType, PropStage, SM_ERR_NOTYET_HEAL_FACE, SS_NONE,
 };
+use crate::intersect::curve_class::p7::FaceQueryIdentity;
 use crate::kernel::Kernel;
 use crate::math::BIG_DOUBLE;
 use crate::topology::brep::p6::RegionSplitQueries;
@@ -153,8 +154,11 @@ fn brep_heal_brep(
     b: &mut Brep,
     healer_op: HealerOpType,
     queries: &mut dyn RegionSplitQueries,
+    identity: FaceQueryIdentity<'_>,
 ) -> Result<()> {
-    crate::topology::brep::p1::heal_brep(k, b, healer_op, None, None, None, false, queries)
+    crate::topology::brep::p1::heal_brep(
+        k, b, healer_op, None, None, None, false, queries, identity,
+    )
 }
 
 /// The optional target lists of [`HealData::heal_brep`] (`pOptVertices`,
@@ -181,6 +185,7 @@ pub fn api_heal_brep(
     k: &mut Kernel,
     b: Option<&mut Brep>,
     queries: &mut dyn RegionSplitQueries,
+    identity: FaceQueryIdentity<'_>,
 ) -> Result<()> {
     let Some(b) = b else {
         return Err(SolidError::invalid_input(
@@ -188,7 +193,7 @@ pub fn api_heal_brep(
             "no B-rep",
         ));
     };
-    brep_heal_brep(k, b, HealerOpType::All, queries)
+    brep_heal_brep(k, b, HealerOpType::All, queries, identity)
 }
 
 impl<O: LoopObject> HealData<O> {
@@ -303,6 +308,7 @@ impl<O: LoopObject> HealData<O> {
         targets: HealBrepTargets<'_>,
         make_uv_trim_curves: bool,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         // no work - no Brep
         let Some(b) = b else {
@@ -334,7 +340,7 @@ impl<O: LoopObject> HealData<O> {
         self.load_targets(&tgt_vertices, &tgt_edges, &tgt_faces);
 
         // Heal the tgts in m_sTgtObjs and m_sTgtObjProps
-        self.heal_targets(k, b, healer_op, make_uv_trim_curves, queries)
+        self.heal_targets(k, b, healer_op, make_uv_trim_curves, queries, identity)
     }
 
     /// `Cache_FaceProps_Stage2`: sets the stage 2 props (surface, sheet, closure,
@@ -350,8 +356,9 @@ impl<O: LoopObject> HealData<O> {
     pub fn cache_face_props_stage2(
         &mut self,
         k: &Kernel,
-        b: &Brep,
+        b: &mut Brep,
         _this_healer_op: HealerOpType,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<bool> {
         // init output
         let mut new_probs = false;
@@ -374,7 +381,15 @@ impl<O: LoopObject> HealData<O> {
                 let Some(face) = p.face else {
                     return Err(no_face());
                 };
-                ignore_status(p.set_props(k, b, PropStage::Stage2, face, ii as u64, done_heal_op))?;
+                ignore_status(p.set_props(
+                    k,
+                    b,
+                    PropStage::Stage2,
+                    face,
+                    ii as u64,
+                    done_heal_op,
+                    identity,
+                ))?;
             }
 
             // count the kinds of faces that force healing checks later on
@@ -457,13 +472,23 @@ impl<O: LoopObject> HealData<O> {
         mark_lock: &MarkLock,
         _this_healer_op: HealerOpType,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         // Heal_2: Find and Split Shells with SheetFaces that link two closed Shells
         // together by mistake
         if !self.face_props_sheets.base.is_empty() {
             // locals
             let mut sheet_lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, ALL_MARKS)?;
-            let r = self.fix_bad_sheets_with(k, b, marks, env, mark_lock, &sheet_lock, queries);
+            let r = self.fix_bad_sheets_with(
+                k,
+                b,
+                marks,
+                env,
+                mark_lock,
+                &sheet_lock,
+                queries,
+                identity,
+            );
             sheet_lock.release(std::slice::from_mut(&mut k.context))?;
             r?;
         }
@@ -484,6 +509,7 @@ impl<O: LoopObject> HealData<O> {
         mark_lock: &MarkLock,
         sheet_lock: &MarkLock,
         queries: &mut dyn RegionSplitQueries,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<()> {
         let sheet_mark_type = sheet_lock.mark_type();
         let mut up_faceuses: Vec<FaceuseId> = Vec::new();
@@ -545,7 +571,7 @@ impl<O: LoopObject> HealData<O> {
                 // fix - Split the Region on either side of the BadSheet into two
                 // different regions - increments mark again
                 let split = crate::topology::brep::p6::test_closure_split_region_attempt(
-                    k, b, marks, env, true, up_faceuse, queries,
+                    k, b, marks, env, true, up_faceuse, queries, identity,
                 )?;
                 // Bare call in SmHealData.cpp:4832: ignore the native SmStatus
                 // and retain its partial outputs. The outer Result still
@@ -594,8 +620,9 @@ impl<O: LoopObject> HealData<O> {
     pub fn cache_face_props_stage3(
         &mut self,
         k: &Kernel,
-        b: &Brep,
+        b: &mut Brep,
         _this_healer_op: HealerOpType,
+        identity: FaceQueryIdentity<'_>,
     ) -> Result<bool> {
         // init output
         let new_probs = false;
@@ -622,7 +649,15 @@ impl<O: LoopObject> HealData<O> {
                     return Err(no_face());
                 };
                 let face_index = p.face_index;
-                let rtn = p.set_props(k, b, PropStage::Stage3, face, face_index, done_heal_op);
+                let rtn = p.set_props(
+                    k,
+                    b,
+                    PropStage::Stage3,
+                    face,
+                    face_index,
+                    done_heal_op,
+                    identity,
+                );
 
                 match rtn {
                     // When Face has NotYet supported problems
@@ -852,6 +887,13 @@ fn no_face() -> SolidError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn test_identity() -> FaceQueryIdentity<'static> {
+        FaceQueryIdentity {
+            keys: &crate::topology::brep_cache::arena_identity,
+            owner_of: &|_| None,
+        }
+    }
+
     use crate::intersect::point_class::{ClassObject, ClassObjectKind};
     use crate::topology::shell::{ShellRayAttempt, ShellRayInput};
     use crate::topology::{Face, LoopId, ShellId};
@@ -860,7 +902,7 @@ mod tests {
     fn no_shell_ray(
         _: &mut Kernel,
         _: &mut Brep,
-        _: ShellId,
+        _: Option<ShellId>,
         _: ShellRayInput<EntityRef>,
     ) -> ShellRayAttempt<EntityRef> {
         panic!("this early healer path must not fire a shell ray")
@@ -944,14 +986,14 @@ mod tests {
     fn stage_steps_without_new_faces_do_nothing() {
         let (v, e, f) = ids();
         let k = Kernel::default();
-        let b = Brep::default();
+        let mut b = Brep::default();
         let mut h: HealData<H> = HealData::with_targets(&v, &e, &f);
         h.old_face_cnt = 4;
         assert!(!h
-            .cache_face_props_stage2(&k, &b, HealerOpType::CacheFaceprops2)
+            .cache_face_props_stage2(&k, &mut b, HealerOpType::CacheFaceprops2, test_identity())
             .unwrap());
         assert!(!h
-            .cache_face_props_stage3(&k, &b, HealerOpType::CacheFaceprops3)
+            .cache_face_props_stage3(&k, &mut b, HealerOpType::CacheFaceprops3, test_identity())
             .unwrap());
         let mut b = Brep::default();
         h.make_uv_trim_curves(&k, &mut b, true, HealerOpType::MakeUvtrimcurves)
@@ -962,11 +1004,13 @@ mod tests {
     fn stage2_needs_the_face_set_by_the_gap_step() {
         let (v, e, f) = ids();
         let k = Kernel::default();
-        let b = Brep::default();
+        let mut b = Brep::default();
         let mut h: HealData<H> = HealData::with_targets(&v, &e, &f);
-        let r = h.cache_face_props_stage2(&k, &b, HealerOpType::CacheFaceprops2);
+        let r =
+            h.cache_face_props_stage2(&k, &mut b, HealerOpType::CacheFaceprops2, test_identity());
         assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
-        let r = h.cache_face_props_stage3(&k, &b, HealerOpType::CacheFaceprops3);
+        let r =
+            h.cache_face_props_stage3(&k, &mut b, HealerOpType::CacheFaceprops3, test_identity());
         assert!(matches!(r, Err(SolidError::InvalidInput { .. })));
     }
 
@@ -998,10 +1042,11 @@ mod tests {
             HealBrepTargets::default(),
             false,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
         assert!(matches!(
-            api_heal_brep(&mut k, None, &mut no_shell_ray),
+            api_heal_brep(&mut k, None, &mut no_shell_ray, test_identity()),
             Err(SolidError::InvalidInput { .. })
         ));
         // Both entry points gather this face and run the heal sequence. With no
@@ -1012,7 +1057,7 @@ mod tests {
         let face = b
             .add_face_record(Face::new(ShellId::from_index(0)))
             .unwrap();
-        let api_result = api_heal_brep(&mut k, Some(&mut b), &mut no_shell_ray);
+        let api_result = api_heal_brep(&mut k, Some(&mut b), &mut no_shell_ray, test_identity());
         assert!(
             matches!(
                 api_result,
@@ -1032,6 +1077,7 @@ mod tests {
             HealBrepTargets::default(),
             false,
             &mut no_shell_ray,
+            test_identity(),
         );
         assert!(
             matches!(
@@ -1060,6 +1106,7 @@ mod tests {
             t,
             false,
             &mut no_shell_ray,
+            test_identity(),
         );
         // The sequence now runs: these synthetic target ids do not exist in b.
         assert!(matches!(r, Err(SolidError::NotFound { .. })));
@@ -1085,6 +1132,7 @@ mod tests {
             &lock,
             HealerOpType::FixBadsheets,
             &mut no_shell_ray,
+            test_identity(),
         )
         .unwrap();
         lock.release(std::slice::from_mut(&mut k.context)).unwrap();

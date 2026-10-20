@@ -216,6 +216,10 @@ impl UnitDiff for Runner {
                     i.flags & 1 != 0,
                     FaceuseId::from_index(request.seed as u32),
                     &mut queries,
+                    solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                        keys: &p6_query_key,
+                        owner_of: &|_| None,
+                    },
                 )
                 .and_then(|attempt| {
                     body = vec![
@@ -363,5 +367,36 @@ impl UnitDiff for Runner {
             flags: rng.below(32) as i32,
         };
         serde_json::to_value(i).ok()
+    }
+}
+
+#[cfg(all(test, feature = "cpp"))]
+mod infinite_region_native_dispatch_tests {
+    use super::*;
+
+    #[test]
+    fn closed_edgeless_split_reaches_native_infinite_error_with_partial_state() {
+        let context = crate::CaseContext {
+            root: crate::case::repo_root(),
+            seeds: 0,
+        };
+        let cases = context.fixture_cases(Runner.id()).unwrap();
+        for mask in [0, 1, 16] {
+            let name = format!("plane_edgeless_1e-09_{mask}");
+            let case = cases.iter().find(|case| case.name == name).unwrap();
+            let cpp = Runner.run_cpp(case).unwrap();
+            let rust = Runner.run_rust(case).unwrap();
+            assert!(cpp.rejected.is_none(), "{cpp:?}");
+            assert!(rust.deferred.is_none(), "{rust:?}");
+            assert!(cpp.error.is_none() && rust.error.is_none());
+            let state = cpp.ints.get("state").unwrap();
+            // The closed edgeless face reaches FindInfiniteRegion's no-edge
+            // SM_ERR after publishing new shell/region pointers. This is an
+            // error-state comparison, not successful geometric ray coverage.
+            assert!(state.first().is_some_and(|status| *status > 0));
+            assert_eq!(state.get(1..3), Some([-3, -3].as_slice()));
+            let comparison = crate::compare::compare(&cpp, &rust, &[]);
+            assert!(comparison.pass(), "{name}: {comparison:?}");
+        }
     }
 }

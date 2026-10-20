@@ -288,6 +288,9 @@ fn merge_curves_on_surface(
     let out = crate::topology::brep::p10::merge_scene_curves_on_surface(
         k,
         brep,
+        // HCR's owned scene selects face owners by this same arena identity
+        // convention in brep_surfaces; do not substitute it for namespaced callers.
+        &crate::topology::brep_cache::arena_identity,
         owner_of,
         face,
         approx_tol_3d,

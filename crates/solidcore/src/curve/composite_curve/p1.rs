@@ -408,6 +408,26 @@ impl CurveEvaluate for CompositeCurve {
 }
 
 impl CompositeCurve {
+    /// Exact numerical view; original topology and cache state stay with the caller.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        let mut segments = Vec::new();
+        for segment in &self.segments {
+            segments.push(CompositeCurveSegment {
+                transition: segment.transition,
+                same_sense: segment.same_sense,
+                curve: segment.curve.clone_for_evaluation_depth(depth)?,
+                gap_start: segment.gap_start,
+                gap_end: segment.gap_end,
+                owns_curve: segment.owns_curve,
+            });
+        }
+        Ok(Self {
+            dim: self.dim,
+            segments,
+            closed: self.closed,
+        })
+    }
+
     /// `SmCompositeCurve(ULONG lDim)`: a composite of dimension `dim` without
     /// segments (see the module docs).
     #[must_use]

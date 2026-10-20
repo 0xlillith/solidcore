@@ -65,6 +65,13 @@ pub const NOTIFY_OPS: usize = 5;
 
 mod sys {
     extern "C" {
+        pub fn sc_topology_face_p3_touching(
+            export_only: i32,
+            want_points: i32,
+            out: *mut f64,
+            cap: i64,
+            len: *mut i64,
+        ) -> i32;
         pub fn sc_topology_face_p3_eval(
             op: i32,
             path: *const std::ffi::c_char,
@@ -269,4 +276,24 @@ mod tests {
         ));
         Ok(())
     }
+}
+
+/// Directed bounded-plane FaceIntersect probe, using a fresh native B-rep.
+/// Export: face ids, graph length, raw graph, query metadata. Operation:
+/// record length, status/curve samples/points, complete post-operation graph.
+/// The fixed geometry has no input-declared allocations or file-reader inputs.
+pub fn touching_probe(export_only: bool, want_points: bool) -> Result<Vec<f64>, FfiError> {
+    call_with_buffer(32768, |out, len| {
+        // SAFETY: Boolean selectors and live output buffers; all native geometry
+        // belongs to this invocation and sc_copy_out checks the capacity.
+        unsafe {
+            sys::sc_topology_face_p3_touching(
+                i32::from(export_only),
+                i32::from(want_points),
+                out.as_mut_ptr(),
+                out.len() as i64,
+                &raw mut *len,
+            )
+        }
+    })
 }

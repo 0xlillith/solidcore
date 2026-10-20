@@ -1611,6 +1611,46 @@ impl Plane {
         tol_3d: f64,
         whole_surface: bool,
     ) -> Result<Coincidence> {
+        self.coincidence_check_impl(
+            k,
+            other,
+            tol_3d,
+            whole_surface,
+            None,
+            &mut crate::surface::surface::p8::LegacyCoincidenceQueries,
+        )
+    }
+
+    /// Plane override retaining the original owning Surface through point drops.
+    pub(crate) fn coincidence_check_with_context(
+        &self,
+        k: &Kernel,
+        original_surface: &Surface,
+        other: &Surface,
+        tol_3d: f64,
+        whole_surface: bool,
+        queries: &mut dyn crate::surface::surface::p8::CoincidenceQueries,
+    ) -> Result<Coincidence> {
+        self.coincidence_check_impl(
+            k,
+            other,
+            tol_3d,
+            whole_surface,
+            Some(original_surface),
+            queries,
+        )
+    }
+
+    #[allow(clippy::too_many_lines)] // shared original native routine
+    fn coincidence_check_impl(
+        &self,
+        k: &Kernel,
+        other: &Surface,
+        tol_3d: f64,
+        whole_surface: bool,
+        original_surface: Option<&Surface>,
+        queries: &mut dyn crate::surface::surface::p8::CoincidenceQueries,
+    ) -> Result<Coincidence> {
         // init output
         let mut res = Coincidence {
             are_coincident: false,
@@ -1627,7 +1667,7 @@ impl Plane {
         }
 
         // Quick check: other surface would have to be planar.
-        if !surface_is_planar(k, other, tol_3d)? {
+        if !queries.is_planar(k, other, tol_3d)? {
             return Ok(res);
         }
 
@@ -1748,7 +1788,17 @@ impl Plane {
         }
 
         // Checking partial overlap, and the other surface is not an SmPlane.
-        self.surface_overlap(k, other, &domain0, &domain1, tol_3d, ang_tol_deg, res)
+        self.surface_overlap(
+            k,
+            other,
+            &domain0,
+            &domain1,
+            tol_3d,
+            ang_tol_deg,
+            res,
+            original_surface,
+            queries,
+        )
     }
 
     /// The plane/plane overlap test of [`Plane::coincidence_check`] (two coplanar
@@ -1869,9 +1919,18 @@ impl Plane {
         tol_3d: f64,
         ang_tol_deg: f64,
         mut res: Coincidence,
+        original_surface: Option<&Surface>,
+        queries: &mut dyn crate::surface::surface::p8::CoincidenceQueries,
     ) -> Result<Coincidence> {
+        let legacy_view;
+        let this_surface = if let Some(surface) = original_surface {
+            surface
+        } else {
+            legacy_view = Surface::from(self.clone());
+            &legacy_view
+        };
         // Create two sets of boundary curves.
-        let bdrys_3d0 = create_natural_uv_trim_curves(k, &Surface::from(self.clone()), domain0)?;
+        let bdrys_3d0 = create_natural_uv_trim_curves(k, this_surface, domain0)?;
         let bdrys_3d1 = create_natural_uv_trim_curves(k, other, domain1)?;
 
         // We'll be checking normals, and this plane's normal never changes.
@@ -1986,8 +2045,14 @@ impl Plane {
         // Drop to this first because planes are easy.
         let uv1 = domain1.mid();
         let pt1 = other.evaluate_point(uv1)?;
-        let (success, _uv0, dist) =
-            surface_drop_point(k, &Surface::from(self.clone()), pt1, domain0)?;
+        let (success, _uv0, dist) = queries.point_drop(
+            k,
+            this_surface,
+            pt1,
+            domain0,
+            None,
+            SolverOperation::Normalize,
+        )??;
 
         // Also set output argument:
         if dist > res.max_distance {
@@ -2005,7 +2070,8 @@ impl Plane {
         // Repeat the other way around.
         let uv0 = domain0.mid();
         let pt0 = self.evaluate_point(uv0);
-        let (success, uv1, dist) = surface_drop_point(k, other, pt0, domain1)?;
+        let (success, uv1, dist) =
+            queries.point_drop(k, other, pt0, domain1, None, SolverOperation::Normalize)??;
 
         // Also set output argument:
         if dist > res.max_distance {
@@ -2141,11 +2207,6 @@ fn transpose<T: Copy>(a: &mut [T], num_rows: usize) {
 
 // ---- unported callees ---------------------------------------------------------------------
 
-/// `crOther.IsPlanar(tol)`: a plane is planar; other kinds run `SmSurface::IsPlanar`.
-fn surface_is_planar(k: &Kernel, s: &Surface, tol: f64) -> Result<bool> {
-    Ok(s.is_planar(k, tol)?.is_planar)
-}
-
 /// `crOther.EvaluateNormal(uv, TRUE, TRUE, ..)`: the plane override; other kinds run
 /// `SmSurface::EvaluateNormal`.
 fn surface_evaluate_normal(s: &Surface, uv: Point2) -> Result<Vec3> {
@@ -2165,20 +2226,6 @@ fn create_natural_uv_trim_curves(
 
 /// `SmSurface::DropPoint(pt, domain, NULL, bSuccess, uv, dist, bIsMulti,
 /// SM_SO_NORMALIZE)`: success, uv and distance.
-fn surface_drop_point(
-    k: &Kernel,
-    s: &Surface,
-    pt: Point3,
-    domain: &Extent2d,
-) -> Result<(bool, Point2, f64)> {
-    let opts = crate::surface::surface::p5::DropPointOptions {
-        operation: SolverOperation::Normalize,
-        ..Default::default()
-    };
-    let r = s.drop_point::<crate::surface::surface::p4::NoObject>(k, pt, domain, &opts)?;
-    Ok((r.success, r.result_uv, r.gap))
-}
-
 /// The general `SmSurface::DropCurve`.
 fn surface_drop_curve() -> Result<PlaneDropCurve> {
     // UNPORTED(intersect.surface_drop_lib_p3): SmSurface::DropCurve

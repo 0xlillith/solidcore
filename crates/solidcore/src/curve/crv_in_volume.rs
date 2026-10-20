@@ -199,6 +199,19 @@ pub struct CrvInVolume {
 }
 
 impl CrvInVolume {
+    /// Exact numerical view; original topology and cache state stay with the caller.
+    pub(crate) fn clone_for_evaluation(&self, depth: usize) -> Result<Self> {
+        Ok(Self {
+            curve: self.curve.clone_for_evaluation_depth(depth)?,
+            in_param_space: self.in_param_space,
+            volume: self.volume.clone(),
+            need_breaks: self.need_breaks,
+            breaks: self.breaks.clone(),
+            conts: self.conts.clone(),
+            owner_flag: self.owner_flag,
+        })
+    }
+
     /// `SmCrvInVolume_TYPE`.
     pub const TYPE: i64 = CRV_IN_VOLUME_TYPE;
 

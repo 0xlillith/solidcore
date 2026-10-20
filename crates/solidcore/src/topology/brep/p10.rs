@@ -84,6 +84,7 @@ use crate::geom::object::{
 };
 use crate::geom::solution_array::{ObjectKind, Solution, SolutionArray, SolutionObject};
 use crate::heal::face_props::HealerOpType;
+use crate::intersect::curve_class::p7::FaceQueryIdentity;
 use crate::intersect::point_class::{
     ClassGeometry, ClassObject, ClassObjectKind, PointClassification,
 };
@@ -174,6 +175,8 @@ pub struct TopologyEnv<'a> {
     pub next_key: u64,
     /// Queries over this live B-rep, reused by any healing and region splitting.
     pub region_queries: &'a mut dyn p6::RegionSplitQueries,
+    /// Exact caller geometry keys and owner links used by healing and face queries.
+    pub query_identity: FaceQueryIdentity<'a>,
 }
 
 impl TopologyEnv<'_> {
@@ -496,6 +499,7 @@ fn make_topology(
             None,
             options.make_uv_trim_curves,
             env.region_queries,
+            env.query_identity,
         )?;
     }
     let _ = options.check_uv_trim_curves; // SM_REF1: not used
@@ -1702,12 +1706,13 @@ struct ProjectionCurves {
 
 fn create_parallel_projection_curves(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     curve: &BSplineCurve,
     direction: Vec3,
     tol: f64,
     angle_tol: Option<f64>,
     subset: Option<&[FaceId]>,
+    identity: FaceQueryIdentity<'_>,
 ) -> Result<ProjectionCurves> {
     // CreateParallelProjectionCurves(ctx, curve, dir, NULL, &dTol, cpdOptAngleTolRadians,
     // &s3D, &sUV, &sFacesOfCurves, pOptSubsetFaces)
@@ -1725,6 +1730,7 @@ fn create_parallel_projection_curves(
             want_uv: true,
             want_faces: true,
         },
+        identity,
     )?;
     Ok(ProjectionCurves {
         curves_3d: out.curves_3d.unwrap_or_default(),
@@ -1781,7 +1787,8 @@ enum ProjectionCurveSources<'a> {
 /// The same B-rep and source curves remain live throughout classification;
 /// downstream graph-edit dependencies still report their own missing operations.
 struct ProjectionObjects<'a> {
-    brep: &'a Brep,
+    brep: &'a mut Brep,
+    keys: &'a dyn Fn(CacheObject) -> ObjectRef,
     curves: ProjectionCurveSources<'a>,
     owner_of: &'a dyn Fn(ObjectRef) -> Option<ObjectRef>,
 }
@@ -1854,6 +1861,73 @@ impl ClassGeometry<ProjectionObject> for ProjectionObjects<'_> {
     }
 }
 
+impl crate::intersect::curve_class::p7::FaceQueryOwner<ProjectionObject> for ProjectionObjects<'_> {
+    fn classification_brep(&self) -> Result<&Brep> {
+        Ok(self.brep)
+    }
+    fn classification_brep_mut(&mut self) -> Result<&mut Brep> {
+        Ok(self.brep)
+    }
+
+    fn classification_entity(
+        &self,
+        face: ProjectionObject,
+        object: ProjectionObject,
+    ) -> Result<EntityRef> {
+        if !matches!(face, ProjectionObject::Topology(EntityRef::Face(_))) {
+            return Err(SolidError::invalid_input(
+                OP_PROJECT,
+                "not a projection face",
+            ));
+        }
+        match object {
+            ProjectionObject::Topology(entity) => Ok(entity),
+            _ => Err(SolidError::invalid_input(
+                OP_PROJECT,
+                "not a topology identity",
+            )),
+        }
+    }
+
+    fn classification_handle(
+        &self,
+        face: ProjectionObject,
+        entity: EntityRef,
+    ) -> Result<ProjectionObject> {
+        if !matches!(face, ProjectionObject::Topology(EntityRef::Face(_))) {
+            return Err(SolidError::invalid_input(
+                OP_PROJECT,
+                "not a projection face",
+            ));
+        }
+        Ok(ProjectionObject::Topology(entity))
+    }
+
+    fn query_on_face<T>(
+        &mut self,
+        kernel: &Kernel,
+        face: ProjectionObject,
+        query: impl FnOnce(
+            &Kernel,
+            &mut Brep,
+            FaceId,
+            &dyn Fn(CacheObject) -> ObjectRef,
+            &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+            Option<&mut dyn crate::query::face::p2::FacePointCache>,
+        ) -> Result<T>,
+    ) -> Result<T> {
+        let ProjectionObject::Topology(EntityRef::Face(face)) = face else {
+            return Err(SolidError::invalid_input(
+                OP_PROJECT,
+                "not a projection face",
+            ));
+        };
+        // This provider has no retained trim-cache slot. Numerical surface
+        // checkouts use its real owner context; no replacement cache is stored.
+        query(kernel, self.brep, face, self.keys, self.owner_of, None)
+    }
+}
+
 impl crate::query::face::p2::CurveOnClassifyObjects<ProjectionObject> for ProjectionObjects<'_> {
     fn face(&self, face: FaceId) -> ProjectionObject {
         ProjectionObject::Topology(EntityRef::Face(face))
@@ -1905,7 +1979,7 @@ impl p2::MergeCurvesObjects<ProjectionObject> for ProjectionObjects<'_> {
 
 fn merge_curves_on_surface(
     k: &mut Kernel,
-    b: &Brep,
+    b: &mut Brep,
     env: &ProjectEnv<'_>,
     projected: &ProjectionCurves,
     index: usize,
@@ -1920,8 +1994,9 @@ fn merge_curves_on_surface(
         .uv_curves
         .get(index)
         .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "missing projected UV curve slot"))?;
-    let objects = ProjectionObjects {
+    let mut objects = ProjectionObjects {
         brep: b,
+        keys: env.keys,
         curves: ProjectionCurveSources::Projected(projected),
         owner_of: env.owner_of,
     };
@@ -1932,8 +2007,7 @@ fn merge_curves_on_surface(
     let uv_curves = uv_curve.as_ref().map(|_| uv_curves.as_slice());
     p2::merge_curves_on_surface(
         k,
-        b,
-        &objects,
+        &mut objects,
         face,
         tolerance,
         &curves,
@@ -1950,15 +2024,17 @@ fn merge_curves_on_surface(
 #[allow(clippy::too_many_arguments)] // native arrays plus their live owner context
 pub(crate) fn merge_scene_curves_on_surface(
     k: &mut Kernel,
-    b: &Brep,
+    b: &mut Brep,
+    keys: &dyn Fn(CacheObject) -> ObjectRef,
     owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
     face: FaceId,
     tolerance: f64,
     curves_3d: &[Curve],
     uv_curves: &[Curve],
 ) -> Result<p2::MergedCurves> {
-    let objects = ProjectionObjects {
+    let mut objects = ProjectionObjects {
         brep: b,
+        keys,
         curves: ProjectionCurveSources::Scene {
             curves_3d,
             uv_curves,
@@ -1973,8 +2049,7 @@ pub(crate) fn merge_scene_curves_on_surface(
         .collect();
     p2::merge_curves_on_surface(
         k,
-        b,
-        &objects,
+        &mut objects,
         face,
         tolerance,
         &curves,
@@ -2502,6 +2577,10 @@ pub fn project_and_trim(
         tol,
         options.angle_tol_radians,
         options.subset_faces,
+        FaceQueryIdentity {
+            keys: env.keys,
+            owner_of: env.owner_of,
+        },
     )?;
 
     b.set_editing_enabled(true);
@@ -2787,23 +2866,37 @@ fn test_closure_split_region_at_faceuse(
     do_infinite_region_testing: bool,
     faceuse: Option<FaceuseId>,
     queries: &mut dyn p6::RegionSplitQueries,
+    identity: FaceQueryIdentity<'_>,
 ) -> Result<Option<(Option<ShellId>, Option<RegionId>)>> {
     // pFUStart->GetMate() dereferences a NULL face use upstream
     let fu = faceuse.ok_or(SolidError::invalid_input(
         OP_CLOSURE,
         "edge use without face use",
     ))?;
-    match p6::test_closure_split_region(k, b, marks, env, do_infinite_region_testing, fu, queries) {
+    match p6::test_closure_split_region(
+        k,
+        b,
+        marks,
+        env,
+        do_infinite_region_testing,
+        fu,
+        queries,
+        identity,
+    ) {
         Ok(v) => Ok(Some(v)),
         Err(SolidError::Upstream { .. }) => Ok(None),
         Err(e) => Err(e),
     }
 }
 
-fn find_and_set_infinite_region(_k: &mut Kernel, b: &mut Brep) -> Result<()> {
+fn find_and_set_infinite_region(
+    k: &mut Kernel,
+    b: &mut Brep,
+    queries: &mut dyn p6::RegionSplitQueries,
+) -> Result<()> {
     // SmBrep::FindAndSetInfiniteRegion() with its defaults (topology.brep_p5): no shell
     // to test, SM_VS_INFINITEREGION_SWAP, no box
-    super::p5::find_and_set_infinite_region(b, None, 2, None)
+    super::p5::find_and_set_infinite_region_with_queries(k, b, None, 2, None, queries)
 }
 
 /// `GetMate()->GetRadial()`: the next edge use pair around the edge in the same
@@ -2840,6 +2933,7 @@ pub fn test_closure_split_region(
     do_infinite_region_testing: bool,
     test_edge: EdgeId,
     queries: &mut dyn p6::RegionSplitQueries,
+    identity: FaceQueryIdentity<'_>,
 ) -> Result<ClosureSplit> {
     // init outputs
     let mut out = ClosureSplit::default();
@@ -2921,9 +3015,9 @@ pub fn test_closure_split_region(
         for eu in [eu_a, eu_b] {
             let fu = eu1::faceuse(b, eu)?;
             // Note: don't SER here; no region nesting in these calls.
-            if let Some((shell, Some(region))) =
-                test_closure_split_region_at_faceuse(k, b, marks, env, false, fu, queries)?
-            {
+            if let Some((shell, Some(region))) = test_closure_split_region_at_faceuse(
+                k, b, marks, env, false, fu, queries, identity,
+            )? {
                 out.new_shells.push(shell);
                 out.new_regions.push(region);
             }
@@ -2931,7 +3025,7 @@ pub fn test_closure_split_region(
     }
 
     if do_infinite_region_testing {
-        find_and_set_infinite_region(k, b)?;
+        find_and_set_infinite_region(k, b, queries)?;
     }
     Ok(out)
 }
@@ -2947,7 +3041,7 @@ mod tests {
     fn unexpected_ray(
         _kernel: &mut Kernel,
         _brep: &mut Brep,
-        _shell: ShellId,
+        _shell: Option<ShellId>,
         _input: crate::topology::shell::ShellRayInput<EntityRef>,
     ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
         panic!("this topology-only fixture must not fire a geometric ray")
@@ -3089,6 +3183,24 @@ mod tests {
             records: &mut records,
             next_key: 1,
             region_queries: &mut queries,
+            query_identity: FaceQueryIdentity {
+                keys: &|object| {
+                    use crate::topology::brep_cache::CacheObject;
+                    match object {
+                        CacheObject::Face(face) | CacheObject::Surface(face) => {
+                            key_of(EntityRef::Face(face))
+                        }
+                        CacheObject::Edge(edge) | CacheObject::Curve(edge) => {
+                            key_of(EntityRef::Edge(edge))
+                        }
+                        CacheObject::Vertex(vertex) => key_of(EntityRef::Vertex(vertex)),
+                        CacheObject::Brep => key_of(EntityRef::Brep(BrepId::from_index(0))),
+                        CacheObject::Other(owner) => owner,
+                        other => crate::topology::brep_cache::arena_identity(other),
+                    }
+                },
+                owner_of: &|_| None,
+            },
         };
         make_topology_from_data(&mut k, &mut b, d, &mut env, opts)?;
         assert!(!k.context.doing_boolean());
@@ -3258,9 +3370,11 @@ mod tests {
     #[test]
     fn projection_topology_handles_retain_the_live_brep() {
         let mut data = square(1);
-        let b = build(&mut data, MakeTopologyOptions::default()).unwrap();
+        let mut b = build(&mut data, MakeTopologyOptions::default()).unwrap();
+        let original_brep = std::ptr::from_ref(&b);
         let objects = ProjectionObjects {
-            brep: &b,
+            brep: &mut b,
+            keys: &crate::topology::brep_cache::arena_identity,
             curves: ProjectionCurveSources::Scene {
                 curves_3d: &[],
                 uv_curves: &[],
@@ -3275,7 +3389,7 @@ mod tests {
         ] {
             let handle = objects.topology_handle(entity).unwrap();
             let (resolved_brep, resolved_entity) = objects.topology_entity(handle).unwrap();
-            assert!(std::ptr::eq(resolved_brep, std::ptr::from_ref(&b)));
+            assert!(std::ptr::eq(resolved_brep, original_brep));
             assert_eq!(resolved_entity, entity);
         }
         assert!(objects
@@ -3303,7 +3417,8 @@ mod tests {
         let uv = [line(0.01)];
         let result = merge_scene_curves_on_surface(
             &mut k,
-            &b,
+            &mut b,
+            &crate::topology::brep_cache::arena_identity,
             &|_| panic!("no owner is queried before the missing UV entry"),
             FaceId::from_index(0),
             0.1,
@@ -3398,6 +3513,24 @@ mod tests {
             records: &mut records,
             next_key: 1,
             region_queries: &mut queries,
+            query_identity: FaceQueryIdentity {
+                keys: &|object| {
+                    use crate::topology::brep_cache::CacheObject;
+                    match object {
+                        CacheObject::Face(face) | CacheObject::Surface(face) => {
+                            key_of(EntityRef::Face(face))
+                        }
+                        CacheObject::Edge(edge) | CacheObject::Curve(edge) => {
+                            key_of(EntityRef::Edge(edge))
+                        }
+                        CacheObject::Vertex(vertex) => key_of(EntityRef::Vertex(vertex)),
+                        CacheObject::Brep => key_of(EntityRef::Brep(BrepId::from_index(0))),
+                        CacheObject::Other(owner) => owner,
+                        other => crate::topology::brep_cache::arena_identity(other),
+                    }
+                },
+                owner_of: &|_| None,
+            },
         };
         assert!(make_topology_from_data(
             &mut k,
@@ -3537,6 +3670,10 @@ mod tests {
                 true,
                 e,
                 &mut queries,
+                FaceQueryIdentity {
+                    keys: &crate::topology::brep_cache::arena_identity,
+                    owner_of: &|_| None,
+                },
             )
             .unwrap();
             assert_eq!(r, ClosureSplit::default());
@@ -3562,6 +3699,10 @@ mod tests {
             false,
             spine,
             &mut queries,
+            FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
         )
         .unwrap();
         let new_shell = ShellId::from_index(1);
@@ -3629,6 +3770,10 @@ mod tests {
             true,
             EdgeId::from_index(0),
             &mut queries,
+            FaceQueryIdentity {
+                keys: &crate::topology::brep_cache::arena_identity,
+                owner_of: &|_| None,
+            },
         )
         .unwrap();
         assert_eq!(r, ClosureSplit::default());

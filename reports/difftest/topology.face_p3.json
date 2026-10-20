@@ -18601,6 +18601,30 @@
         "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
+      "name": "dispatch_touching_bounded_planes_points",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/dispatch_touching.json#0 (upstream source/SMLib/src/SmFace.cpp:11308; SmPlane.cpp IntersectWithPlane)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "dispatch_touching_bounded_planes_without_points",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.face_p3/dispatch_touching.json#1 (upstream source/SMLib/src/SmFace.cpp:11308)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
+      },
+      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "deferred",
       "pass": false,
@@ -18762,17 +18786,17 @@
     }
   ],
   "cases_both_errored": 3,
-  "cases_deferred": 1127,
+  "cases_deferred": 1129,
   "cases_failed": 0,
   "cases_passed": 654,
-  "cases_total": 1781,
+  "cases_total": 1783,
   "deferred_by_unit": {
     "intersect.curve_class_p2": 210,
     "intersect.surface_drop_lib_p3": 115,
     "surface.surf_of_extrusion_p2": 112,
     "surface.surface_cache_p2": 46,
     "surface.surface_p2": 228,
-    "topology.face_p2": 148,
+    "topology.face_p2": 150,
     "topology.face_p4": 268
   },
   "max_rel_err": 0.0,

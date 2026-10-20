@@ -37,6 +37,9 @@
 //!   port's read-only queries (e.g. `natural_uv_domain`) never cache the NURB, a plane
 //!   upstream would already hold one can reach this test without it (see the
 //!   `surface::plane::p1` deviations).
+//! - **Contextual plane/plane boxes** obtain each expansion tolerance lazily from
+//!   the original surface owner. This preserves native early exits and the normal,
+//!   pseudo, this-plane, other-plane evaluation order without clearing any owner.
 //! - **Statuses.** Where upstream ignores a status and would go on with stale or
 //!   uninitialised values (curve evaluations and copies in `TrimCurveToPlaneDomain`,
 //!   the test-point evaluation of `IsNurbSurfacePlane`), the port propagates the error.
@@ -471,6 +474,14 @@ impl Plane {
         uv_domain: &Extent2d,
         owned: bool,
     ) -> Result<(Extent3d, PseudoBox)> {
+        self.bounding_boxes_with_context(uv_domain, &mut || zone_tolerance(owned))
+    }
+
+    pub(crate) fn bounding_boxes_with_context(
+        &self,
+        uv_domain: &Extent2d,
+        tolerance: &mut dyn FnMut() -> Result<f64>,
+    ) -> Result<(Extent3d, PseudoBox)> {
         let req = BoundingBoxRequest {
             normal: true,
             pseudo: true,
@@ -483,8 +494,8 @@ impl Plane {
         let mut bbox = b.normal.ok_or(SolidError::null_pointer(OP_PP))?;
         let mut pbox = b.pseudo.ok_or(SolidError::null_pointer(OP_PP))?;
         // When asked, expand the normal and pseudo boxes by the zone tolerance
-        bbox.expand_absolute(zone_tolerance(owned)?);
-        pbox.expand_absolute(zone_tolerance(owned)?);
+        bbox.expand_absolute(tolerance()?);
+        pbox.expand_absolute(tolerance()?);
         Ok((bbox, pbox))
     }
 
@@ -521,7 +532,6 @@ impl Plane {
 
     /// [`Plane::intersect_with_plane`] with the planes' ownership (for the zone
     /// tolerance).
-    #[allow(clippy::too_many_lines)] // one upstream function
     pub(crate) fn intersect_with_plane_owned(
         &self,
         uv_domain: &Extent2d,
@@ -529,6 +539,26 @@ impl Plane {
         other_uv_domain: &Extent2d,
         approx_tol_3d: Option<f64>,
         owned: [bool; 2],
+    ) -> Result<(bool, SurfaceIntersection)> {
+        self.intersect_with_plane_context(
+            uv_domain,
+            other,
+            other_uv_domain,
+            approx_tol_3d,
+            &mut |other| zone_tolerance(if other { owned[1] } else { owned[0] }),
+        )
+    }
+
+    /// Plane/plane algorithm with lazy original-owner box tolerance lookup.
+    /// Called only where native `CalculateBoundingBox` expands each actual box.
+    #[allow(clippy::too_many_lines)] // one upstream function
+    fn intersect_with_plane_context(
+        &self,
+        uv_domain: &Extent2d,
+        other: &Self,
+        other_uv_domain: &Extent2d,
+        approx_tol_3d: Option<f64>,
+        box_tolerance: &mut dyn FnMut(bool) -> Result<f64>,
     ) -> Result<(bool, SurfaceIntersection)> {
         // init output
         let mut out = SurfaceIntersection::default();
@@ -568,8 +598,10 @@ impl Plane {
             }
 
             // get plane1 and plane2 bounding and pseudo boxes
-            let (bbox1, pbox1) = self.bounding_boxes(uv_domain, owned[0])?;
-            let (bbox2, pbox2) = other.bounding_boxes(other_uv_domain, owned[1])?;
+            let (bbox1, pbox1) =
+                self.bounding_boxes_with_context(uv_domain, &mut || box_tolerance(false))?;
+            let (bbox2, pbox2) =
+                other.bounding_boxes_with_context(other_uv_domain, &mut || box_tolerance(true))?;
 
             // no work - when bounding or pseudo boxes are disjoint
             if bbox1.are_disjoint(&bbox2, 0.0) || pbox1.are_disjoint(&pbox2, None) {
@@ -653,7 +685,8 @@ impl Plane {
 
         // get size of bounded ThisPlane
         if this_bounded {
-            (bbox1, pbox1) = self.bounding_boxes(uv_domain, owned[0])?;
+            (bbox1, pbox1) =
+                self.bounding_boxes_with_context(uv_domain, &mut || box_tolerance(false))?;
             let radius1 = bbox1.sphere_bound().radius;
             bbox1.expand_absolute(tol / 2.0);
             pbox1.expand_absolute(tol / 2.0);
@@ -662,7 +695,8 @@ impl Plane {
 
         // get size of bounded OtherPlane
         if other_bounded {
-            (bbox2, pbox2) = other.bounding_boxes(other_uv_domain, owned[1])?;
+            (bbox2, pbox2) =
+                other.bounding_boxes_with_context(other_uv_domain, &mut || box_tolerance(true))?;
             let radius2 = bbox2.sphere_bound().radius;
             bbox2.expand_absolute(tol / 2.0);
             pbox2.expand_absolute(tol / 2.0);
@@ -1409,6 +1443,56 @@ pub(crate) fn global_surface_intersect(
     Ok(out)
 }
 
+/// Original-owner tolerance dispatch for the plane/plane analytic branch.
+/// Other virtual branches retain their existing dependency/error contracts.
+pub(crate) fn global_surface_intersect_with_box_tolerance(
+    k: &Kernel,
+    this: &Surface,
+    plane: &Plane,
+    uv_domain: &Extent2d,
+    other: &Surface,
+    other_uv_domain: &Extent2d,
+    use_surface_edges: [bool; 2],
+    approx_tol_3d: Option<f64>,
+    ang_tol_rad: Option<f64>,
+    box_tolerance: &mut dyn FnMut(&Surface) -> Result<f64>,
+) -> Result<SurfaceIntersection> {
+    let SurfaceKind::Plane(other_plane) = other.kind() else {
+        return global_surface_intersect(
+            k,
+            this,
+            plane,
+            uv_domain,
+            other,
+            other_uv_domain,
+            use_surface_edges,
+            approx_tol_3d,
+            ang_tol_rad,
+        );
+    };
+    let (need_nurb_intersection, out) = plane.intersect_with_plane_context(
+        uv_domain,
+        other_plane,
+        other_uv_domain,
+        approx_tol_3d,
+        &mut |is_other| box_tolerance(if is_other { other } else { this }),
+    )?;
+    if need_nurb_intersection {
+        base_global_surface_intersect(
+            k,
+            this,
+            uv_domain,
+            other,
+            other_uv_domain,
+            use_surface_edges,
+            approx_tol_3d,
+            ang_tol_rad,
+        )
+    } else {
+        Ok(out)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1629,5 +1713,62 @@ mod tests {
         let mut db = DatabaseReader::new();
         db.open_for_read(bytes[..100].to_vec(), FileType::Binary);
         assert!(Plane::read_from_db(&mut db, 30).is_err());
+    }
+
+    #[test]
+    fn owner_box_tolerance_lookup_is_lazy_and_keeps_native_order() {
+        let domain = Extent2d::from_bounds(-1.0, -1.0, 1.0, 1.0);
+        let a = Plane::from_normal(Vec3::ZERO, Vec3::Z);
+        let b = Plane::from_normal(Vec3::ZERO, Vec3::X);
+        let (need, out) = a
+            .intersect_with_plane_context(&domain, &b, &domain, None, &mut |_| {
+                panic!("unbounded crossing must not ask for box tolerance")
+            })
+            .unwrap();
+        assert!(!need);
+        assert_eq!(out.curves_3d.len(), 1);
+
+        let a = rect();
+        let mut b = Plane::new(Vec3::ZERO, Vec3::Y, Vec3::Z, Vec2::new(1.0, 1.0), &dom());
+        b.make_nurb().unwrap();
+        let mut calls = Vec::new();
+        let (_, out) = a
+            .intersect_with_plane_context(&dom(), &b, &dom(), Some(0.01), &mut |other| {
+                calls.push(other);
+                Ok(if other { 0.25 } else { 0.125 })
+            })
+            .unwrap();
+        assert_eq!(calls, vec![false, false, true, true]);
+        assert_eq!(out.curves_3d.len(), 1);
+
+        // Self-intersection is rejected before any owner query.
+        let (need, out) = a
+            .intersect_with_plane_context(&dom(), &a, &dom(), None, &mut |_| {
+                panic!("self intersection must return before owner lookup")
+            })
+            .unwrap();
+        assert!(!need && out.curves_3d.is_empty());
+    }
+
+    #[test]
+    fn owner_box_tolerance_error_keeps_first_lookup_and_both_expansions() {
+        let plane = rect();
+        let mut calls = 0;
+        let (bbox, _) = plane
+            .bounding_boxes_with_context(&dom(), &mut || {
+                calls += 1;
+                Ok(0.125)
+            })
+            .unwrap();
+        assert_eq!(calls, 2);
+        assert_eq!(bbox.min(), Vec3::new(-5.125, -3.125, -0.125));
+        let mut calls = Vec::new();
+        let result =
+            plane.intersect_with_plane_context(&dom(), &rect(), &dom(), None, &mut |other| {
+                calls.push(other);
+                Err(SolidError::invalid_input(OP_PP, "unknown owner"))
+            });
+        assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
+        assert_eq!(calls, vec![false]);
     }
 }

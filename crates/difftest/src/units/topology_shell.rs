@@ -443,6 +443,72 @@ impl solidcore::topology::brep::p6::RegionSplitQueries for RayQueryContext {
     ) -> solidcore::topology::shell::ShellRayAttempt<EntityRef> {
         Self::ray_fire(self, kernel, brep, shell, input)
     }
+
+    fn brep_ray_fire(
+        &mut self,
+        kernel: &mut Kernel,
+        brep: &mut Brep,
+        input: solidcore::topology::shell::ShellRayInput<EntityRef>,
+    ) -> solidcore::topology::shell::ShellRayAttempt<EntityRef> {
+        use solidcore::topology::brep::p2::{ray_fire_with_cache_into, RayFireResult};
+        use solidcore::topology::brep_cache::{make_brep_cache, CacheSource};
+        use solidcore::topology::shell::{ShellRayAttempt, ShellRayState};
+
+        let mut output = RayFireResult {
+            region: input.state.region,
+            intersection: input.state.classification,
+        };
+        let status = (|| {
+            self.metadata.require_geometry()?;
+            // Derive links from the current geometry, never its arena index or
+            // a cloned B-rep. The provider's keys are the importer's actual keys.
+            let mut owners = BTreeMap::new();
+            for (edge, record) in brep.edges().iter() {
+                if let Some(owner) = record.curve.as_ref().and_then(Curve::owner) {
+                    owners.insert((self.keys)(CacheObject::Curve(edge)), owner);
+                }
+            }
+            for (face, record) in brep.faces().iter() {
+                if let Some(owner) = record.surface.as_ref().and_then(Surface::owner) {
+                    owners.insert((self.keys)(CacheObject::Surface(face)), owner);
+                }
+            }
+            // Cache ownership outlives the query closure. Build only at the
+            // native BrepPointSolve stage; never reuse it across intervening edits.
+            let mut cache = None;
+            ray_fire_with_cache_into(
+                kernel,
+                brep,
+                self.id,
+                |brep| {
+                    if cache.is_none() {
+                        cache = Some(make_brep_cache(
+                            kernel,
+                            CacheSource::Brep(brep),
+                            &self.keys,
+                        )?);
+                    }
+                    cache
+                        .as_ref()
+                        .ok_or_else(|| ray_context_error("missing built B-rep cache"))
+                },
+                &self.keys,
+                &|object| owners.get(&object).copied(),
+                input.start,
+                input.direction,
+                input.zone_tolerance,
+                None,
+                &mut output,
+            )
+        })();
+        ShellRayAttempt {
+            status,
+            state: ShellRayState {
+                region: output.region,
+                classification: output.intersection,
+            },
+        }
+    }
 }
 
 struct RayWorld<'a> {
@@ -2016,8 +2082,15 @@ fn rust_region_order(
         }
         head.extend(original);
         brep.region_mut(region).map_err(failure)?.shells = head;
-        match solidcore::topology::shell::order_region_shells(&mut Kernel::default(), brep, region)
-        {
+        match solidcore::topology::shell::order_region_shells(
+            &mut Kernel::default(),
+            brep,
+            region,
+            solidcore::intersect::curve_class::p7::FaceQueryIdentity {
+                keys: &ray_key,
+                owner_of: &|_| None,
+            },
+        ) {
             Ok(()) => out.push(0),
             Err(error) => return Output::unported(&error).ok_or_else(|| failure(error)),
         }
