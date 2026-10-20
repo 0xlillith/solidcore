@@ -9097,7 +9097,7 @@ rejected: nothing runs on either side.
       `DropCurve` succeeds with no curve. Located with gdb on a `-g` build at
       SmBSplineSurfaceNLib.cpp:2949. The shim's corner-blend replay now runs on to that drop, and
       both sides report the guard.
-    - HANG-34: tangency tolerances below about 1e-24 over-refine the cross tangents, and the Coons
+    - HANG-39: tangency tolerances below about 1e-24 over-refine the cross tangents, and the Coons
       knot merge then runs for tens of seconds. A tolerance below 1e-20 is rejected only where
       upstream reaches the cross-tangent approximation: the shim's replay has passed every early
       return and the curve conversion (four sides with a neighbour surface, or more sides). Calls
