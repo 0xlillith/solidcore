@@ -2701,6 +2701,37 @@ Upstream behaviour worth knowing:
     `LocalSolve`, and `SmCurvePropertyGS::LocalSolve`'s angle special case copies it into
     `m_apNodes[1]` of a one-object solution. The `curve.curve_p7` harness reports the second
     node only for two-object solutions.
+- **Cost of rebuilding the curve cache per call (fuzz00504, PR #149, 2026-10-20).** The
+  Caches deviation above (`make_curve_cache` builds a fresh cache for every caller, where
+  upstream's `CacheMakeOrValidate` keeps it on the curve until the curve changes) is a
+  Rust-only slowdown once a caller intersects the same curves repeatedly.
+  `offset.offset_geometry_creation --fuzz 2000` (at #149's `ed40f92c`; the same at
+  `da779c51`) reports 1 timeout, `fuzz00504`. Its inputs: base `gen0054`, mutations
+  `/pairs/0/1/2 = 4294967296` and `/ops/0/curve/cpts/2/0 = 1e+300`; `disk.smb` and
+  `sphere.smb`, `dist 100`, `approx 1e-5`, analytics on. The slow op is the fifth,
+  `trim_extended_edge` (base `[0,9,12]`, offset `[1,9,25]`).
+  - Time for the script up to that op: C++ about 2 s, Rust 18-24 s (the fuzz budget is
+    20 s a side). The case completes with no difference; it is slow, not hung.
+  - All 5 gdb samples of the Rust side are in one stack: `trim_extended_edge` ->
+    `global_curve_intersect` -> `curve::curve::p5::make_curve_cache` ->
+    `CurveCache::tessellate` -> `compute_constants` -> `solve_it` -> `evaluate` ->
+    `nurbs_crv::crv_derivs` / `basis_derivs_into`.
+  - Not related to the exact `SmSurfOfRevolution` import (`ed40f92c`): the op takes 18.8 s
+    with it and 22.0 s with it disabled. #149's wiring of the `UNPORTED(topology.brep_p2)`
+    stubs made this `TrimExtendedEdge` path reachable for the case; before, the unit's
+    `--fuzz 2000` was `FUZZ-PASS`.
+  - Not a defect of `offset.offset_geometry_creation` or `topology.brep_p2`, and no guard
+    was added (overseer ruling). The fix is a cache kept per curve across calls, as
+    `Curve::global_point_solve_cached` does for `GlobalCoincidenceChecker`; it belongs to
+    this unit's owners.
+  - See also: the "curve.curve_p8 (`SmCurve::GlobalCurveIntersect`): Rust runs for minutes
+    where C++ returns at once on a 1e300 control point" section (fuzz01278) and the
+    fuzz00405 note in the `offset.offset_geometry_creation` section (`approx = -1` with a
+    `-1e300` point, Rust 21 s in this cache's tessellation under `global_curve_intersect`,
+    the closest match), both on sc-topo_isect_p1's #156 follow-up branch
+    `fix/offset_geometry_creation-review` (bluecmd/solidcore, head `14f66bf4`, not yet a
+    PR); and `surface.surface_p8`'s "Cache cost at tiny scale" (HANG-15). fuzz00504 also
+    carries a `1e+300` control point (in its first op's curve).
 
 ## surface.surface_p9
 
