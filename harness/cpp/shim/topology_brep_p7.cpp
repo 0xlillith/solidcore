@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstdint>
 #include <cstdlib>
 #include <unistd.h>
 
@@ -32,6 +33,7 @@ enum : int32_t
     OP_COPY = 5,
     OP_MERGE_SELF = 6,
     OP_QUERY_METADATA = 7,
+    OP_GLUE_METADATA = 8,
 };
 
 const double P7_NULL_DEREF = -2.0;
@@ -324,10 +326,83 @@ void p7_merge_self(SmBrep* b, Graph& g, Rd& rd, std::vector<double>& o)
     o.push_back((double)es.GetSize());
 }
 
+// Notification data is input to the Rust operation, never its expected output.
+// Two 32-bit limbs preserve ULONG/user values exactly through the double ABI.
+void p7_put_notification_u64(std::vector<double>& out, uint64_t value)
+{
+    out.push_back((double)(value & UINT64_C(0xffffffff)));
+    out.push_back((double)(value >> 32));
+}
+
+void p7_put_notification_topology(std::vector<double>& out, int kind, size_t index, SmTopology* object)
+{
+    out.push_back((double)kind);
+    out.push_back((double)index);
+    p7_put_notification_u64(out, (uint64_t)object->GetAllFlags());
+    p7_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARK));
+    p7_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARK2));
+    p7_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARK3));
+    p7_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARKIO));
+    p7_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARKASSERT));
+    p7_put_notification_u64(out, (uint64_t)object->GetUserIndex1());
+    p7_put_notification_u64(out, (uint64_t)object->GetUserIndex2());
+    p7_put_notification_u64(out, (uint64_t)(uintptr_t)object->GetUserPtr1());
+    out.push_back(object->HasAttributes() ? 1.0 : 0.0);
+}
+
+template <class T>
+void p7_put_notification_list(std::vector<double>& out, int kind, const std::vector<T*>& objects)
+{
+    for (size_t i = 0; i < objects.size(); ++i)
+        p7_put_notification_topology(out, kind, i, objects[i]);
+}
+
+void p7_put_notification_geometry(std::vector<double>& out, int kind, size_t index, const SmAObject* object)
+{
+    out.push_back((double)kind);
+    out.push_back((double)index);
+    out.push_back(object != NULL ? 1.0 : 0.0);
+    out.push_back(object != NULL && object->HasAttributes() ? 1.0 : 0.0);
+}
+
+void p7_put_notification_state(SmBrep* brep, const Graph& graph, std::vector<double>& out)
+{
+    // SmApiCreateBox can select its own context. Inspect the actual B-rep's
+    // callbacks instead of silently replacing either callback with a Rust None.
+    // GetSysNotifyCallback is not const, although its inline body only reads.
+    SmContext* context = const_cast<SmContext*>(brep->GetContext());
+    out.push_back(context != NULL &&
+                          (context->GetUserNotifyCallback() != NULL || context->GetSysNotifyCallback() != NULL)
+                      ? 1.0
+                      : 0.0);
+    out.push_back((double)(1 + graph.regions.size() + graph.shells.size() + graph.faceuses.size() +
+                           graph.faces.size() + graph.loopuses.size() + graph.loops.size() +
+                           graph.edgeuses.size() + graph.edges.size() + graph.vertexuses.size() +
+                           graph.vertices.size()));
+    p7_put_notification_topology(out, 10, 0, brep);
+    p7_put_notification_list(out, 0, graph.regions);
+    p7_put_notification_list(out, 1, graph.shells);
+    p7_put_notification_list(out, 2, graph.faceuses);
+    p7_put_notification_list(out, 3, graph.faces);
+    p7_put_notification_list(out, 4, graph.loopuses);
+    p7_put_notification_list(out, 5, graph.loops);
+    p7_put_notification_list(out, 6, graph.edgeuses);
+    p7_put_notification_list(out, 7, graph.edges);
+    p7_put_notification_list(out, 8, graph.vertexuses);
+    p7_put_notification_list(out, 9, graph.vertices);
+    out.push_back((double)(graph.edges.size() + graph.faces.size() + graph.edgeuses.size()));
+    for (size_t i = 0; i < graph.edges.size(); ++i)
+        p7_put_notification_geometry(out, 0, i, graph.edges[i]->GetCurve());
+    for (size_t i = 0; i < graph.faces.size(); ++i)
+        p7_put_notification_geometry(out, 1, i, graph.faces[i]->GetSurface());
+    for (size_t i = 0; i < graph.edgeuses.size(); ++i)
+        p7_put_notification_geometry(out, 2, i, graph.edgeuses[i]->GetUVTrimCurvePointer());
+}
+
 void p7_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
 {
     // the op's arguments come first, then the B-rep block
-    int64_t n_args = op == OP_QUERY_METADATA ? 0 : op == OP_GLUE ? 5 : 2;
+    int64_t n_args = (op == OP_QUERY_METADATA || op == OP_GLUE_METADATA) ? 0 : op == OP_GLUE ? 5 : 2;
     std::vector<double> args;
     for (int64_t i = 0; i < n_args; i++)
         args.push_back(rd.num());
@@ -343,6 +418,21 @@ void p7_brep_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
     }
     Graph g;
     walk(built.brep, g);
+    if (op == OP_GLUE_METADATA)
+    {
+        // Snapshot notification fields at the same point as p7_glue, immediately
+        // after walk. Query getters may use traversal marks, so run them only
+        // after the input mark values have been retained.
+        std::vector<double> notifications;
+        p7_put_notification_state(built.brep, g, notifications);
+        std::vector<double> query;
+        append_query_metadata(built.brep, g, query);
+        o.push_back(1.0);
+        o.push_back((double)query.size());
+        o.insert(o.end(), query.begin(), query.end());
+        o.insert(o.end(), notifications.begin(), notifications.end());
+        return;
+    }
     if (op == OP_QUERY_METADATA)
     {
         // Same build and traversal registry as the input graph and operation.

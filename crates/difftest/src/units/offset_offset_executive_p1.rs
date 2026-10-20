@@ -2048,7 +2048,7 @@ mod tests {
         for (branch, dependency, status) in [
             (Probe::ReplaceEmpty, Some("topology.brep_p4"), 1000),
             (Probe::RemoveNoMerge, None, 1000),
-            (Probe::RemoveEmpty, Some("topology.brep_p5"), 1000),
+            (Probe::RemoveEmpty, None, 1000),
             (Probe::SideWallNull, None, 1000),
             (Probe::SideWallUnmapped, None, 1000),
             (Probe::FillEmpty, None, 1000),

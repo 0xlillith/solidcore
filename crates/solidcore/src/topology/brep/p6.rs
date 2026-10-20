@@ -231,6 +231,18 @@ pub trait RegionSplitQueries {
         Ok(())
     }
 
+    /// Verify the representation of one edge curve immediately before reading it.
+    ///
+    /// The default retains the provider's existing curve check. Providers with
+    /// metadata for individual edges can avoid rejecting unvisited geometry.
+    /// Topological early returns do not call this check.
+    ///
+    /// # Errors
+    /// An explicit representation limitation from [`Self::check_geometry`].
+    fn check_edge_curve_geometry(&mut self, brep: &Brep, _edge: EdgeId) -> Result<()> {
+        self.check_geometry(brep, true, false)
+    }
+
     /// Fire against the selected shell using the caller's real query context.
     fn ray_fire(
         &mut self,

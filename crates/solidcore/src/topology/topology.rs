@@ -22,6 +22,7 @@
 //! | [`Topology::tolerance`]                      | `SmTopology::GetTolerance` (`SM_USE_OLDTOL`)     |
 //! | [`Topology::mark`]                           | `SmTopology::Mark`                               |
 //! | [`Topology::get_mark`]                       | `SmTopology::GetMark`                            |
+//! | [`Topology::restore_marks`]                  | import of the five stored `SmTopology` mark members |
 //! | [`Topology::is_marked`]                      | `SmTopology::IsMarked`                           |
 //! | [`destroy_topology`](crate::topology::proto_topology::p1::destroy_topology) | `SmTopology::~SmTopology` (unit `topology.proto_topology_p1`) |
 //! | [`TopologyRecords`]                          | the `SmTopology*` casts of `Notify`'s arguments  |
@@ -50,6 +51,9 @@
 //!   (upstream would cast a non-topology object, undefined behaviour) is
 //!   [`SolidError::InvalidInput`]. The context the object reaches through
 //!   `GetContext` is passed explicitly.
+//! - [`Topology::restore_marks`] restores the five stored mark values when importing
+//!   topology state. This Rust data-model helper leaves context counters, list links,
+//!   flags and user fields unchanged; [`Topology::mark`] keeps its native behavior.
 //! - `ULONG` marks and flags are `u64` (LP64). `SetUserPtr1` stores an opaque
 //!   `void*`; here it is an opaque `u64` (`0` for null).
 //! - `IsMarked` with a null context crashes upstream; [`Topology::is_marked`] takes
@@ -275,6 +279,16 @@ impl Topology {
                 *m = mark;
             }
         }
+    }
+
+    /// Restores the five stored values from imported topology state, in order:
+    /// [`MarkType::Mark`], [`MarkType::Mark2`], [`MarkType::Mark3`],
+    /// [`MarkType::MarkIo`] and [`MarkType::MarkAssert`].
+    ///
+    /// Context counters, list links, flags and user fields are unchanged.
+    /// Use [`Self::mark`] to mark an object with a context's current value.
+    pub fn restore_marks(&mut self, marks: [u64; 5]) {
+        self.marks = marks;
     }
 
     /// The object's value of `mark_type` (`GetMark`); [`MarkType::NoMark`] and
@@ -967,6 +981,49 @@ mod tests {
         t.mark(None, MarkType::Mark);
         t.mark(Some(&ctx), MarkType::NoMark);
         assert_eq!(t, before);
+    }
+
+    #[test]
+    fn restore_marks_preserves_other_state_and_context() {
+        let context = Context::default();
+        let kinds = [
+            MarkType::Mark,
+            MarkType::Mark2,
+            MarkType::Mark3,
+            MarkType::MarkIo,
+            MarkType::MarkAssert,
+        ];
+        let context_before = kinds.map(|kind| context.current_mark(kind));
+        let mut records = pool(2);
+        let first = records.get_mut(&ObjectKey(0)).unwrap();
+        first.set_list_links(
+            Some(ObjectKey(10)),
+            Some(ObjectKey(11)),
+            Some(ObjectKey(12)),
+        );
+        first.set_all_flags(0x8000_0000_0000_0005);
+        first.set_user_index1(0x1234_5678_9abc_def0);
+        first.set_user_index2(u64::MAX);
+        first.set_user_ptr1(0x1020_3040_5060_7080);
+        first.small = true;
+        let first_before = *first;
+        let untouched = records[&ObjectKey(1)];
+        let values = [0, 1, u64::MAX, 0x1234_5678_9abc_def0, 1 << 63];
+        records
+            .get_mut(&ObjectKey(0))
+            .unwrap()
+            .restore_marks(values);
+        let actual = records[&ObjectKey(0)];
+        for (kind, value) in kinds.into_iter().zip(values) {
+            assert_eq!(actual.get_mark(kind), value);
+        }
+        assert_eq!(actual.get_mark(MarkType::NoMark), values[3]);
+        assert_eq!(actual.get_mark(MarkType::AllMarks), values[3]);
+        let mut expected = first_before;
+        expected.marks = values;
+        assert_eq!(actual, expected);
+        assert_eq!(records[&ObjectKey(1)], untouched);
+        assert_eq!(kinds.map(|kind| context.current_mark(kind)), context_before);
     }
 
     #[test]

@@ -407,6 +407,10 @@ impl solidcore::topology::brep::p6::RegionSplitQueries for RayQueryContext {
         }
     }
 
+    fn check_edge_curve_geometry(&mut self, _brep: &Brep, edge: EdgeId) -> solidcore::Result<()> {
+        self.metadata.require_curve_geometry(edge)
+    }
+
     fn ray_fire(
         &mut self,
         kernel: &mut Kernel,
@@ -2046,6 +2050,101 @@ mod ray_query_tests {
     use solidcore::math::{Point2, Point3, Vec3};
     use solidcore::topology::shell::{ShellRayInput, ShellRayState};
     use solidcore::topology::{Arena, Face};
+
+    #[test]
+    fn edge_curve_check_uses_metadata_identity_and_ignores_unvisited_geometry() {
+        use solidcore::curve::curve::p2::ELLIPSE_TYPE;
+        use solidcore::nurbs::b_spline_curve::BSplineCurve;
+        use solidcore::surface::plane::Plane;
+        use solidcore::surface::surface::Surface;
+        use solidcore::topology::brep::p6::RegionSplitQueries;
+
+        let mut brep = Brep::new();
+        let vertex = brep.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
+        let first = brep.add_edge(vertex, vertex).unwrap();
+        let second = brep.add_edge(vertex, vertex).unwrap();
+        let unvisited = brep.add_edge(vertex, vertex).unwrap();
+        for edge in [first, second, unvisited] {
+            brep.edge_mut(edge).unwrap().curve = Some(Curve::from(
+                BSplineCurve::create_line_segment(
+                    3,
+                    Point3::new(0.0, 0.0, 0.0),
+                    Point3::new(1.0, 0.0, 0.0),
+                )
+                .unwrap(),
+            ));
+        }
+        let shell = brep.add_shell().unwrap();
+        let face = brep.add_face(shell).unwrap();
+        let surface = Surface::from(Plane::from_normal(Point3::ZERO, Vec3::Z));
+        let surface_type = surface.type_code();
+        brep.face_mut(face).unwrap().surface = Some(surface);
+        let curve_type = brep
+            .edge(first)
+            .unwrap()
+            .curve
+            .as_ref()
+            .unwrap()
+            .type_code();
+        let mut raw = vec![
+            1.0,
+            0.125,
+            -1.0,
+            0.0,
+            0.0, // version, tolerance, infinite, regions
+            1.0,
+            f64::from(face.index()), // native face list
+            3.0,
+            f64::from(unvisited.index()),
+            f64::from(first.index()),
+            f64::from(second.index()),
+            1.0,
+            f64::from(vertex.index()), // native vertex list
+            3.0, // curve metadata stays in registry order, not edge-list order
+        ];
+        for edge in [first, second] {
+            raw.extend([
+                curve_type as f64,
+                solidcore::topology::edge::TYPE as f64,
+                f64::from(edge.index()),
+            ]);
+        }
+        // Synthetic metadata describes the exact representation limitation the
+        // importer reports for an analytic subclass represented by its NURBS base.
+        // This decoder/provider test makes no claim about a native fixture result.
+        raw.extend([
+            ELLIPSE_TYPE as f64,
+            solidcore::topology::edge::TYPE as f64,
+            f64::from(unvisited.index()),
+        ]);
+        raw.extend([
+            1.0,
+            surface_type as f64,
+            solidcore::geom::a_object::BREP_TYPE as f64,
+            -3.0,
+        ]);
+        raw.extend([1.0, -1.0, 0.0]); // primary faceuse and rectangular trim
+        let metadata = super::apply_query_metadata(&mut brep, &raw, &arena_identity).unwrap();
+        assert_eq!(brep.edge_list(), &[unvisited, first, second]);
+        assert!(metadata.deferred_output_for(false, false).is_none());
+        assert!(metadata.deferred_output().is_some());
+        let mut breps = Arena::<BrepId, Brep>::default();
+        let id = breps.insert(brep).unwrap();
+        let brep = breps.get_mut(id).unwrap();
+        let mut context = RayQueryContext::new(brep, id, metadata, arena_identity);
+
+        context.check_edge_curve_geometry(brep, first).unwrap();
+        context.check_edge_curve_geometry(brep, second).unwrap();
+        assert!(matches!(
+            context.check_edge_curve_geometry(brep, unvisited),
+            Err(SolidError::Unported {
+                unit: "harness:analytic-geometry-export",
+                ..
+            })
+        ));
+        // A failed check does not turn the next exact curve into a fixture-wide failure.
+        context.check_edge_curve_geometry(brep, first).unwrap();
+    }
 
     #[test]
     fn curve_tolerance_uses_the_callers_live_owner_registration() {

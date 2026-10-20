@@ -1072,6 +1072,8 @@ pub fn make_face_with_curves(
 /// a region split reaches the infinite-region test.
 /// The caller invalidates any externally owned B-rep caches before this edit;
 /// notifications use the supplied live attribute and topology records in `env`.
+/// Before the same-orientation distance test reads either edge curve, `queries`
+/// checks that curve's representation; unvisited geometry does not trigger it.
 ///
 /// # Errors
 ///
@@ -1155,6 +1157,11 @@ pub fn glue_edges_general(
                 (None, None) => same_geometry = true,
                 // test the geometry
                 (Some(sc), Some(dc)) => {
+                    // Only these two curves are consumed here. Keep the checks
+                    // after notifications and the null/wire/orientation/interval
+                    // branches, before any natural-interval or numerical query.
+                    queries.check_edge_curve_geometry(b, surv)?;
+                    queries.check_edge_curve_geometry(b, del)?;
                     let surv_tol = b.edge(surv)?.tolerance;
                     let tol = surv_tol / 100.0;
                     let dn = dc.natural_interval();
@@ -1790,6 +1797,298 @@ mod tests {
             survivor_record.get_mark(MarkType::MarkIo)
         );
         assert_eq!(env.records[&this.key], before_records[&this.key]);
+    }
+
+    /// Synthetic non-wire edges with distinct endpoint identities. Loop-typed edge uses
+    /// have no face, a case `GetFaces` explicitly skips. The complete endpoint and
+    /// mate records make the later shared-vertex rejection well-defined. This is
+    /// a control-flow regression, not an assertion of native fixture parity.
+    fn glue_geometry_fixture() -> (Brep, [EdgeId; 3]) {
+        use crate::topology::{Edgeuse, EdgeuseOwner, Vertexuse, VertexuseOwner};
+
+        let mut brep = Brep::new();
+        let mut edges = Vec::new();
+        for _ in 0..3 {
+            // Coincident geometry avoids a numerical dependency unrelated to the
+            // guard, while fresh vertex ids still require the later rejection.
+            let start = Point3::new(0.0, 0.0, 0.0);
+            let end = Point3::new(1.0, 0.0, 0.0);
+            let v0 = brep.add_vertex(start).unwrap();
+            let v1 = brep.add_vertex(end).unwrap();
+            let edge = brep.add_edge(v0, v1).unwrap();
+            let mut uses = Vec::new();
+            for (vertex, orientation) in [(v0, OrientType::Same), (v1, OrientType::Opposite)] {
+                let eu = brep
+                    .add_edgeuse_record(Edgeuse {
+                        edge: Some(edge),
+                        owner: EdgeuseOwner::Loopuse(None),
+                        orientation,
+                        ..Edgeuse::default()
+                    })
+                    .unwrap();
+                let vu = brep
+                    .add_vertexuse_record(Vertexuse {
+                        vertex: Some(vertex),
+                        owner: VertexuseOwner::Edgeuse(Some(eu)),
+                        ..Vertexuse::default()
+                    })
+                    .unwrap();
+                brep.edgeuse_mut(eu).unwrap().vertexuse = Some(vu);
+                brep.vertex_mut(vertex).unwrap().vertexuses.push(vu);
+                uses.push(eu);
+            }
+            let record = brep.edge_mut(edge).unwrap();
+            record.edgeuses = uses;
+            record.interval = Extent1d::from_raw(0.0, 1.0);
+            record.curve = Some(Curve::from(
+                BSplineCurve::create_line_segment(3, start, end).unwrap(),
+            ));
+            assert!(!ed::is_wire(&brep, edge).unwrap());
+            edges.push(edge);
+        }
+        (brep, edges.try_into().unwrap())
+    }
+
+    fn glue_geometry_key(entity: EntityRef) -> ObjectRef {
+        match entity {
+            EntityRef::Edge(edge) => ObjectRef {
+                type_code: ed::TYPE,
+                key: ObjectKey(1 + u64::from(edge.index())),
+            },
+            _ => panic!("the geometry-check fixture notifies only edges and its B-rep"),
+        }
+    }
+
+    #[derive(Debug)]
+    struct GlueCurveChecks {
+        rejected: Option<EdgeId>,
+        checked: Vec<EdgeId>,
+        notification_counts: Vec<usize>,
+        notifications: GlueNotifyLog,
+    }
+
+    impl p6::RegionSplitQueries for GlueCurveChecks {
+        fn check_edge_curve_geometry(&mut self, _brep: &Brep, edge: EdgeId) -> Result<()> {
+            self.checked.push(edge);
+            self.notification_counts
+                .push(self.notifications.0.lock().unwrap().len());
+            if self.rejected == Some(edge) {
+                Err(SolidError::unported(
+                    "test edge curve representation",
+                    "harness:analytic-geometry-export",
+                ))
+            } else {
+                Ok(())
+            }
+        }
+
+        fn ray_fire(
+            &mut self,
+            _kernel: &mut Kernel,
+            _brep: &mut Brep,
+            _shell: ShellId,
+            _input: crate::topology::shell::ShellRayInput<EntityRef>,
+        ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
+            panic!("the fixture rejects distinct vertices before any shell ray")
+        }
+    }
+
+    fn run_glue_geometry_check(
+        brep: &mut Brep,
+        edges: [EdgeId; 3],
+        surviving: Option<EdgeId>,
+        deleted: Option<EdgeId>,
+        orientation: OrientType,
+        rejected: Option<EdgeId>,
+    ) -> (Result<()>, GlueCurveChecks, Topology) {
+        let mut kernel = Kernel::default();
+        let notifications = GlueNotifyLog::default();
+        let mut context = Context::default();
+        context.set_sys_notify_callback(Some(Box::new(notifications.clone())));
+        let mut records =
+            std::collections::BTreeMap::from([(p2::brep_ref(brep).key, Topology::default())]);
+        for edge in edges {
+            let mut record = Topology::default();
+            record.set_user_index1(10 + u64::from(edge.index()));
+            records.insert(glue_geometry_key(EntityRef::Edge(edge)).key, record);
+        }
+        let mut attributes = AttributeStore::default();
+        let mut env = ed::NotifyEnv {
+            records: &mut records,
+            attributes: &mut attributes,
+            context: Some(&mut context),
+            key_of: &glue_geometry_key,
+        };
+        let mut queries = GlueCurveChecks {
+            rejected,
+            checked: Vec::new(),
+            notification_counts: Vec::new(),
+            notifications,
+        };
+        let result = glue_edges_general(
+            &mut kernel,
+            brep,
+            surviving,
+            orientation,
+            0.0,
+            false,
+            deleted,
+            None,
+            &mut env,
+            &mut queries,
+        );
+        let survivor = env.records[&glue_geometry_key(EntityRef::Edge(edges[0])).key];
+        (result, queries, survivor)
+    }
+
+    #[test]
+    fn glue_curve_checks_follow_notifications_and_stop_before_evaluation() {
+        for reject_second in [false, true] {
+            let (mut brep, edges) = glue_geometry_fixture();
+            let [first, second, _] = edges;
+            // Neither curve can be evaluated. Moving a check past the first
+            // geometric read must fail with that error instead of this guard.
+            for edge in [first, second] {
+                brep.edge_mut(edge).unwrap().curve = Some(Curve::from(BSplineCurve::new(3)));
+            }
+            let rejected = if reject_second { second } else { first };
+            let (result, queries, survivor) = run_glue_geometry_check(
+                &mut brep,
+                edges,
+                Some(first),
+                Some(second),
+                OrientType::Same,
+                Some(rejected),
+            );
+            assert!(matches!(
+                result,
+                Err(SolidError::Unported {
+                    unit: "harness:analytic-geometry-export",
+                    ..
+                })
+            ));
+            let expected = if reject_second {
+                vec![first, second]
+            } else {
+                vec![first]
+            };
+            assert_eq!(queries.checked, expected);
+            // The actual B-rep PreEdit, survivor PreEdit and MergeInBrep all ran
+            // before the first representation check. Merge copied the user value.
+            assert_eq!(queries.notification_counts, vec![3; expected.len()]);
+            assert_eq!(survivor.user_index1(), 10 + u64::from(second.index()));
+            assert_eq!(brep.edges().len(), 3);
+        }
+    }
+
+    #[test]
+    fn glue_curve_checks_skip_unvisited_curves_and_non_geometric_branches() {
+        for (orientation, equal_intervals) in [
+            (OrientType::Same, true),
+            (OrientType::Opposite, true),
+            (OrientType::Same, false),
+        ] {
+            let (mut brep, edges) = glue_geometry_fixture();
+            let [first, second, unused] = edges;
+            if !equal_intervals {
+                brep.edge_mut(second).unwrap().interval = Extent1d::from_raw(0.0, 2.0);
+            }
+            let (result, queries, _) = run_glue_geometry_check(
+                &mut brep,
+                edges,
+                Some(first),
+                Some(second),
+                orientation,
+                Some(unused),
+            );
+            assert_eq!(result, Err(SolidError::sm_err(OP)));
+            let expected = if orientation == OrientType::Same && equal_intervals {
+                vec![first, second]
+            } else {
+                Vec::new()
+            };
+            assert_eq!(queries.checked, expected);
+        }
+        for (null_survivor, null_deleted, same_edge) in [
+            (true, false, false),
+            (false, true, false),
+            (true, true, false),
+            (false, false, true),
+        ] {
+            let (mut brep, edges) = glue_geometry_fixture();
+            let [first, second, _] = edges;
+            let surviving = (!null_survivor).then_some(first);
+            let deleted = (!null_deleted).then_some(if same_edge { first } else { second });
+            let (result, queries, _) = run_glue_geometry_check(
+                &mut brep,
+                edges,
+                surviving,
+                deleted,
+                OrientType::Same,
+                Some(first),
+            );
+            assert_eq!(result, Ok(()));
+            assert!(queries.checked.is_empty());
+            assert!(queries.notifications.0.lock().unwrap().is_empty());
+        }
+    }
+
+    #[test]
+    fn glue_curve_checks_follow_wire_deletion_and_null_curve_branches() {
+        use crate::topology::EdgeuseOwner;
+
+        let (mut brep, edges) = glue_geometry_fixture();
+        let [first, second, _] = edges;
+        for eu in brep.edge(second).unwrap().edgeuses.clone() {
+            brep.edgeuse_mut(eu).unwrap().owner = EdgeuseOwner::Shell(None);
+        }
+        assert!(ed::is_wire(&brep, second).unwrap());
+        let (result, queries, _) = run_glue_geometry_check(
+            &mut brep,
+            edges,
+            Some(first),
+            Some(second),
+            OrientType::Same,
+            Some(first),
+        );
+        assert!(matches!(
+            result,
+            Err(SolidError::Unported {
+                unit: "topology.brep_p4",
+                ..
+            })
+        ));
+        assert!(queries.checked.is_empty());
+        assert_eq!(queries.notifications.0.lock().unwrap().len(), 1);
+
+        for both_null in [false, true] {
+            let (mut brep, edges) = glue_geometry_fixture();
+            let [first, second, _] = edges;
+            brep.edge_mut(first).unwrap().curve = None;
+            if both_null {
+                brep.edge_mut(second).unwrap().curve = None;
+            }
+            let (result, queries, _) = run_glue_geometry_check(
+                &mut brep,
+                edges,
+                Some(first),
+                Some(second),
+                OrientType::Same,
+                Some(second),
+            );
+            if both_null {
+                assert_eq!(result, Err(SolidError::sm_err(OP)));
+            } else {
+                assert!(matches!(
+                    result,
+                    Err(SolidError::InvalidInput {
+                        reason: "edge without curve",
+                        ..
+                    })
+                ));
+            }
+            assert!(queries.checked.is_empty());
+        }
     }
 
     #[test]

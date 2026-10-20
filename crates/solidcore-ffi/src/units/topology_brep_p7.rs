@@ -18,6 +18,16 @@
 //! | `Copy`              | `n use_merge`, B-rep block | `0 status nfaces counts` |
 //! | `MergeSelf`         | `face tol`, B-rep block | `0 (-2 \| status nedges)` |
 //! | `QueryMetadata`     | B-rep block | native lists, concrete types and direct owners (`sc_brep_query_metadata.h`) |
+//! | `GlueMetadata`      | B-rep block | `1 query_len query* callbacks_present topology_count topology* geometry_count geometry*` |
+//!
+//! `GlueMetadata` captures input notification state from the same native graph as
+//! the glue operation, before additional query traversals. Each topology row is
+//! `kind index flags(u64) marks(u64)*5 user_index1(u64) user_index2(u64)
+//! user_ptr1(u64) has_attributes`; every u64 is two exact low/high u32 limbs.
+//! Marks are in `MARK`, `MARK2`, `MARK3`, `MARKIO`, `MARKASSERT` order.
+//! Each geometry row is `kind index present has_attributes` for edge curves,
+//! face surfaces and edge-use UV curves. Attributes/callbacks are presence
+//! indicators, not serialized handlers. These are inputs, never expected results.
 //!
 //! `counts` are the region, shell, face, loop, edge and vertex counts of the B-rep made.
 //!
@@ -64,6 +74,7 @@ pub enum Op {
     Copy = 5,
     MergeSelf = 6,
     QueryMetadata = 7,
+    GlueMetadata = 8,
 }
 
 mod sys {
@@ -352,7 +363,7 @@ pub fn eval(op: Op, path: &str, input: &[f64]) -> Result<Vec<f64>, FfiError> {
             }
             ar.done()?;
         }
-        Op::QueryMetadata => {
+        Op::QueryMetadata | Op::GlueMetadata => {
             // Validate the same native fixture block before the metadata shim
             // builds it. A failed build retains the normal export status.
             let export = fixture::eval(fixture::Op::Export, path, input)?;

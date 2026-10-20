@@ -418,6 +418,8 @@ impl OffsetExecutive {
     /// Result edges are visited in upstream edge list order (`SmBrep::GetEdges`).
     /// Removal uses the result's editing flag and the caller's mutable kernel;
     /// an enabled empty removal advances and releases the native traversal mark.
+    /// Its ordinary status is ignored, as upstream; unavailable dependencies and
+    /// representation failures still propagate.
     pub fn remove_excess_faces(
         &self,
         kernel: &mut Kernel,
@@ -452,9 +454,24 @@ impl OffsetExecutive {
             )?;
         }
         // All candidate faces have been gathered in first-seen order, without duplicates.
-        // Even an empty deletion list reaches RemoveFaces upstream (mark increment).
+        // Even an empty deletion list reaches RemoveFaces upstream. Its ordinary
+        // status is ignored (SmOffsetExecutive.cpp:2100), including editing refusal.
         let editing_enabled = result.editing_enabled();
-        crate::topology::brep::p5::remove_faces(kernel, result, editing_enabled, &delete_faces)
+        match crate::topology::brep::p5::remove_faces(
+            kernel,
+            result,
+            editing_enabled,
+            &delete_faces,
+        ) {
+            Ok(())
+            | Err(
+                SolidError::Upstream { .. }
+                | SolidError::Nlib { .. }
+                | SolidError::Degenerate { .. }
+                | SolidError::NotConverged { .. },
+            ) => Ok(()),
+            Err(error) => Err(error),
+        }
     }
 
     /// Builds a closing ruled side wall, or succeeds without work for null/ambiguous mappings.
@@ -1868,14 +1885,28 @@ mod tests {
             .remove_excess_faces(&mut kernel, &mut original, &mut result)
             .unwrap();
         executive.set_shell_faces(&[]);
-        assert_eq!(
-            executive.remove_excess_faces(&mut kernel, &mut original, &mut result),
-            Err(SolidError::sm_err("topology::brep::p5")),
-        );
+        let marks = [
+            MarkType::Mark,
+            MarkType::Mark2,
+            MarkType::Mark3,
+            MarkType::MarkIo,
+            MarkType::MarkAssert,
+        ];
+        let before = marks.map(|mark| kernel.context.current_mark(mark));
+        // RemoveFaces refuses a disabled B-rep, but RemoveExcessFaces ignores that
+        // ordinary status and returns SM_SUCCESS (SmOffsetExecutive.cpp:2100-2102).
+        executive
+            .remove_excess_faces(&mut kernel, &mut original, &mut result)
+            .unwrap();
+        assert!(!result.editing_enabled());
+        assert!(!original.editing_enabled());
+        assert_eq!(marks.map(|mark| kernel.context.current_mark(mark)), before);
         result.set_editing_enabled(true);
         executive
             .remove_excess_faces(&mut kernel, &mut original, &mut result)
             .unwrap();
+        // The successful empty call still reaches RemoveFaces and advances a mark.
+        assert_ne!(marks.map(|mark| kernel.context.current_mark(mark)), before);
         add_use(&mut result, 0.0, 1.0, 1.0);
         add_use(&mut result, 0.0, 1.0, 2.0);
         // Multiple arena entries do not establish linked-list order parity: this
