@@ -14,7 +14,7 @@
 //! | [`face_classify_uv_line`]                     | `sm_FaceClassifyUVLine` (file static)       |
 //! | [`find_and_classify_loop_bisector`], [`LoopBisector`] | `sms_FindAndClassifyLoopBisector`   |
 //! | [`sector_classify_curve_on`], [`SectorEdgeuse`], [`SectorClassifyInput`], [`SectorClass`] | `SmFace::SectorClassifyCurveOn` |
-//! | [`ClassifyProblem`]                           | `SmClassifyProblem` (CO-PORTED, `SmCurveClass.h`) |
+//! | [`ClassifyProblem`] (re-export of [`crate::query::face::p1::ClassifyProblem`]) | `SmClassifyProblem` (`SmCurveClass.h`) |
 //! | [`ClassifyCurveObjects`], [`LoopObjectCurves`] | the curves `ReSet` stores in an `SmCurveClassification` |
 //! | `surface_is_planar`, `surface_bounding_box` (private) | `SmSurface::IsPlanar`, `SmSurface::CalculateBoundingBox` of the face's surface |
 //! | `find_element_in_masked_array` (private)      | `SmTArray::FindElementInMaskedArray`        |
@@ -1236,28 +1236,7 @@ pub fn find_and_classify_loop_bisector_into<O: LoopObject + PartialEq>(
 
 // ---- SmFace::SectorClassifyCurveOn ----------------------------------------------------------
 
-/// Why a sector classification may be wrong (`SmClassifyProblem`, CO-PORTED from
-/// `SmCurveClass.h`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum ClassifyProblem {
-    /// `SM_CP_NONE`: the classification can be trusted.
-    #[default]
-    None = 0,
-    /// `SM_CP_VERTEX_ON_SINGULARITY`.
-    VertexOnSingularity = 1,
-    /// `SM_CP_TOGGLED_CLASSIFICATION`: growing step-offs changed it once.
-    ToggledClassification = 2,
-    /// `SM_CP_SHORT_SECTOR_EDGEUSE1`: the first edge use is shorter than the step-off.
-    ShortSectorEdgeuse1 = 3,
-    /// `SM_CP_SHORT_SECTOR_EDGEUSE2`: the second edge use is shorter than the step-off.
-    ShortSectorEdgeuse2 = 4,
-    /// `SM_CP_SHORT_INTERVAL`: the curve interval is shorter than the step-off.
-    ShortInterval = 5,
-    /// `SM_CP_SEESAW_CLASSIFICATION`: growing step-offs changed it more than once.
-    SeesawClassification = 6,
-    /// `SM_CP_UNRESOLVED_CLASSIFICATION`: the iteration limit was reached.
-    UnresolvedClassification = 7,
-}
+pub use crate::query::face::p1::ClassifyProblem;
 
 /// One edge use bounding the sector of [`sector_classify_curve_on`].
 #[derive(Debug, Clone, Copy, PartialEq)]
