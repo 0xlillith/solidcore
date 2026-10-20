@@ -210,8 +210,8 @@ fn notification_inputs(raw: &[f64], vertices: usize) -> Result<(bool, bool, Vec<
         1.0 => Ok(true),
         _ => Err(invalid()),
     };
-    let callback = flag(raw[1])?;
-    let attributes = flag(raw[2])?;
+    let callback = flag(*raw.get(1).ok_or_else(invalid)?)?;
+    let attributes = flag(*raw.get(2).ok_or_else(invalid)?)?;
     let word = |value: f64| {
         if value.is_finite() && value.fract() == 0.0 && (0.0..=f64::from(u32::MAX)).contains(&value) {
             Ok(value as u64)
@@ -220,7 +220,7 @@ fn notification_inputs(raw: &[f64], vertices: usize) -> Result<(bool, bool, Vec<
         }
     };
     let mut records = Vec::new();
-    for (index, row) in raw[4..].as_chunks::<19>().0.enumerate() {
+    for (index, row) in raw.get(4..).ok_or_else(invalid)?.as_chunks::<19>().0.iter().enumerate() {
         if row[0] != index as f64 { return Err(invalid()); }
         let mut record = [0; 9];
         for (entry, limbs) in record.iter_mut().zip(row[1..].as_chunks::<2>().0) {

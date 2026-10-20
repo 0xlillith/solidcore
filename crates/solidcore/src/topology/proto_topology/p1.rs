@@ -734,12 +734,27 @@ mod tests {
             ),
             Err(SolidError::InvalidInput { .. })
         ));
-        assert!(api_transform::api_translate(
+        // The B-rep path now reaches the owning-list implementation. Native
+        // SmApiTranslate delegates to Transform; an empty B-rep succeeds.
+        let mut empty = Brep::new();
+        let tolerance = empty.tolerance();
+        let context = k.context.metadata();
+        api_transform::api_translate(
             &mut k,
-            Some(TransformObject::Brep(&mut Brep::new())),
-            Vec3::new(1.0, 0.0, 0.0)
+            Some(TransformObject::Brep(&mut empty)),
+            Vec3::new(1.0, 0.0, 0.0),
         )
-        .is_err_and(|e| e.is_unported()));
+        .unwrap();
+        assert_eq!(empty.tolerance(), tolerance);
+        assert_eq!(k.context.metadata(), context);
+        assert_eq!(
+            (
+                empty.vertices().len(),
+                empty.edges().len(),
+                empty.faces().len()
+            ),
+            (0, 0, 0)
+        );
     }
 
     /// The B-rep walks on a wire edge from (0,0,0) to (1,0,0) of one B-rep.

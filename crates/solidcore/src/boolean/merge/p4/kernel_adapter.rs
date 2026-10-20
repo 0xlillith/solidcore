@@ -1366,7 +1366,7 @@ mod tests {
     }
 
     #[test]
-    fn newly_partial_intersector_stages_restore_the_live_mates_on_error() {
+    fn intersector_null_surface_guard_preserves_live_mates_and_arenas() {
         let mut adapter = KernelManifoldIntersector::new(3).unwrap();
         adapter.set_intersection_tolerances(1e-9, 0.3);
         let mut a = Brep::default();
@@ -1385,7 +1385,24 @@ mod tests {
         assert_eq!(adapter.face_mate(f), None);
         assert_eq!(adapter.merge.intersector.faces.primary(of), None);
         assert_eq!(adapter.merge.intersector.vertices.primary(ov), Some(v));
+        let before_a = (
+            a.faces().len(),
+            a.edges().len(),
+            a.vertices().len(),
+            a.shells().len(),
+            a.editing_enabled(),
+        );
+        let before_b = (
+            b.faces().len(),
+            b.edges().len(),
+            b.vertices().len(),
+            b.shells().len(),
+            b.editing_enabled(),
+        );
+        let events = Arc::new(Mutex::new(Vec::new()));
         let mut k = Kernel::default();
+        k.context
+            .set_user_notify_callback(Some(Box::new(Notices(events.clone()))));
         let mut attrs = AttributeStore::default();
         let mut kernels = BooleanKernels {
             primary: &mut k,
@@ -1401,13 +1418,34 @@ mod tests {
         let err = adapter
             .intersect_insert_relate(&mut kernels, &mut a, &mut b, &mut attrs)
             .unwrap_err();
-        assert!(matches!(
+        // These test faces intentionally have no surface. Native dereferences
+        // that surface for CoincidenceCheck; Rust rejects the malformed fixture.
+        assert_eq!(
             err,
-            SolidError::Unported {
-                unit: "topology.brep_p1",
-                upstream: "SmBrep::GetFaces"
-            }
-        ));
+            SolidError::invalid_input("boolean::topology_intersector::p1", "face without surface")
+        );
+        assert_eq!(
+            (
+                a.faces().len(),
+                a.edges().len(),
+                a.vertices().len(),
+                a.shells().len(),
+                a.editing_enabled()
+            ),
+            before_a
+        );
+        assert_eq!(
+            (
+                b.faces().len(),
+                b.edges().len(),
+                b.vertices().len(),
+                b.shells().len(),
+                b.editing_enabled()
+            ),
+            before_b
+        );
+        assert!(kernels.primary.context.user_notify_callback().is_some());
+        assert!(events.lock().unwrap().is_empty());
         assert!(adapter.intersector.proto_topology_manager().is_some());
         assert_eq!(adapter.merge.intersector.vertices.other(v), Some(ov));
         assert_eq!(adapter.merge.intersector.vertices.primary(ov), Some(v));
@@ -1507,10 +1545,92 @@ mod tests {
     }
 
     #[test]
-    fn transform_delegates_identity_and_reports_the_actual_notify_boundary() {
+    fn translation_transforms_geometry_owned_under_the_actual_namespace_keys() {
+        let mut adapter = KernelManifoldIntersector::new(6).unwrap();
+        let mut b = Brep::new();
+        let first = b.add_vertex(Vec3::new(2.0, 3.0, 4.0)).unwrap();
+        let last = b.add_vertex(Vec3::new(5.0, 3.0, 4.0)).unwrap();
+        let edge = b.add_edge(first, last).unwrap();
+        let mut curve = crate::curve::curve::Curve::from(crate::curve::line::Line::from_points(
+            b.vertex(first).unwrap().point,
+            b.vertex(last).unwrap().point,
+            3,
+        ));
+        let owner = query_key(6, false, CacheObject::Edge(edge));
+        let _ = curve.set_owner(Some(owner), None);
+        b.edge_mut(edge).unwrap().curve = Some(curve);
+        let brep_ref = adapter.notification_object(false, EntityRef::Brep(BrepId::from_index(0)));
+        b.set_key(brep_ref.key);
+        for entity in [
+            EntityRef::Brep(BrepId::from_index(0)),
+            EntityRef::Vertex(first),
+            EntityRef::Vertex(last),
+            EntityRef::Edge(edge),
+        ] {
+            adapter.records.insert(
+                adapter.notification_object(false, entity).key,
+                Topology::new(),
+            );
+        }
+        let tolerance = b.tolerance();
+        let vertex_tolerance = b.vertex(first).unwrap().tolerance;
+        let mut k = Kernel::default();
+        let events = Arc::new(Mutex::new(Vec::new()));
+        k.context
+            .set_user_notify_callback(Some(Box::new(Notices(events.clone()))));
+        let context = k.context.metadata();
+        let mut placement = Axis2Placement::IDENTITY;
+        placement.translate(Vec3::X);
+        adapter
+            .transform_brep(
+                &mut BooleanKernels {
+                    primary: &mut k,
+                    other: None,
+                },
+                &mut b,
+                false,
+                &mut AttributeStore::default(),
+                &placement,
+                None,
+                true,
+            )
+            .unwrap();
+        assert_eq!(b.vertex(first).unwrap().point, Vec3::new(3.0, 3.0, 4.0));
+        assert_eq!(b.vertex(last).unwrap().point, Vec3::new(6.0, 3.0, 4.0));
+        let geometry = b.edge(edge).unwrap().curve.as_ref().unwrap();
+        assert_eq!(
+            geometry.evaluate_point(0.5).unwrap(),
+            Vec3::new(4.5, 3.0, 4.0)
+        );
+        assert_eq!(geometry.owner(), Some(owner));
+        assert_eq!(b.tolerance(), tolerance);
+        assert_eq!(b.vertex(first).unwrap().tolerance, vertex_tolerance);
+        assert_eq!(k.context.metadata(), context);
+        assert_eq!(
+            events.lock().unwrap().first().unwrap(),
+            &(
+                NotifyOperation::PreEdit,
+                brep_ref,
+                [Some(brep_ref), None, None]
+            )
+        );
+        assert!(k.context.user_notify_callback().is_some());
+    }
+
+    #[test]
+    fn transform_identity_skips_notify_and_empty_translation_notifies_once() {
         let mut adapter = KernelManifoldIntersector::new(5).unwrap();
         let mut k = Kernel::default();
+        let events = Arc::new(Mutex::new(Vec::new()));
+        k.context
+            .set_user_notify_callback(Some(Box::new(Notices(events.clone()))));
         let mut b = Brep::default();
+        let brep_ref = adapter.notification_object(false, EntityRef::Brep(BrepId::from_index(0)));
+        b.set_key(brep_ref.key);
+        adapter.records.insert(brep_ref.key, Topology::new());
+        let record_before = *adapter.records.get(&brep_ref.key).unwrap();
+        let context_before = k.context.metadata();
+        let tolerance_before = b.tolerance();
         let mut attrs = AttributeStore::default();
         let mut kernels = BooleanKernels {
             primary: &mut k,
@@ -1522,14 +1642,15 @@ mod tests {
                 &mut b,
                 false,
                 &mut attrs,
-                &Axis2Placement::default(),
+                &Axis2Placement::IDENTITY,
                 None,
                 true,
             )
             .unwrap();
-        let mut placement = Axis2Placement::default();
+        assert!(events.lock().unwrap().is_empty());
+        let mut placement = Axis2Placement::IDENTITY;
         placement.translate(Vec3::X);
-        let err = adapter
+        adapter
             .transform_brep(
                 &mut kernels,
                 &mut b,
@@ -1539,14 +1660,23 @@ mod tests {
                 None,
                 true,
             )
-            .unwrap_err();
-        assert!(matches!(
-            err,
-            SolidError::Unported {
-                unit: "topology.brep_p2",
-                upstream: "SmBrep::Notify"
-            }
-        ));
+            .unwrap();
+        assert_eq!(
+            *events.lock().unwrap(),
+            vec![(
+                NotifyOperation::PreEdit,
+                brep_ref,
+                [Some(brep_ref), None, None]
+            )]
+        );
+        assert_eq!(
+            (b.vertices().len(), b.edges().len(), b.faces().len()),
+            (0, 0, 0)
+        );
+        assert_eq!(b.tolerance(), tolerance_before);
+        assert_eq!(kernels.primary.context.metadata(), context_before);
+        assert!(kernels.primary.context.user_notify_callback().is_some());
+        assert_eq!(*adapter.records.get(&brep_ref.key).unwrap(), record_before);
         let id = 17;
         let entities = [
             EntityRef::Region(RegionId::from_index(id)),

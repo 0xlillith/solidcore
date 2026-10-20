@@ -174,17 +174,17 @@ fn context_input(raw: &[f64]) -> Result<ContextState, FfiError> {
         Ok(value as u32)
     };
     let mut current_marks = [0; 5];
-    for (mark, pair) in current_marks.iter_mut().zip(raw[1..11].as_chunks::<2>().0) {
+    for (mark, pair) in current_marks.iter_mut().zip(raw.get(1..11).ok_or_else(invalid)?.as_chunks::<2>().0) {
         *mark = u64::from(word(pair[0])?) | (u64::from(word(pair[1])?) << 32);
     }
     let mut mark_locks = [false; 5];
-    for (locked, value) in mark_locks.iter_mut().zip(&raw[11..16]) {
+    for (locked, value) in mark_locks.iter_mut().zip(raw.get(11..16).ok_or_else(invalid)?) {
         if !matches!(*value, 0.0 | 1.0) { return Err(invalid()); }
         *locked = *value == 1.0;
     }
-    if !matches!(raw[16], 0.0 | 1.0) || raw[17..].iter().any(|v| !v.is_finite()) { return Err(invalid()); }
-    Ok(ContextState { current_marks, mark_locks, doing_boolean: raw[16] == 1.0,
-        model_size_estimate: raw[17], large_small_size_ratio: raw[18], zone_tol_3d: raw[19] })
+    if !matches!(*raw.get(16).ok_or_else(invalid)?, 0.0 | 1.0) || raw.get(17..).ok_or_else(invalid)?.iter().any(|v| !v.is_finite()) { return Err(invalid()); }
+    Ok(ContextState { current_marks, mark_locks, doing_boolean: *raw.get(16).ok_or_else(invalid)? == 1.0,
+        model_size_estimate: *raw.get(17).ok_or_else(invalid)?, large_small_size_ratio: *raw.get(18).ok_or_else(invalid)?, zone_tol_3d: *raw.get(19).ok_or_else(invalid)? })
 }
 
 /// Native input metadata keyed by the same graph traversal used for topology.
@@ -232,7 +232,7 @@ fn surface_cache_inputs(raw: &[f64]) -> Result<Vec<SurfaceCacheState>, FfiError>
     if *version != 1.0 || !count.is_finite() || *count < 0.0 || count.fract() != 0.0 || *count > raw.len() as f64 { return Err(invalid()); }
     let expected = (*count as usize).checked_mul(2).and_then(|n| n.checked_add(2)).ok_or_else(invalid)?;
     if raw.len() != expected { return Err(invalid()); }
-    raw[2..].as_chunks::<2>().0.iter().map(|[present,modified]| {
+    raw.get(2..).ok_or_else(invalid)?.as_chunks::<2>().0.iter().map(|[present,modified]| {
         if !matches!(*present,0.0 | 1.0) || !matches!(*modified,0.0 | 1.0) || (*present == 0.0 && *modified != 0.0) { return Err(invalid()); }
         Ok(SurfaceCacheState { present:*present == 1.0, face_was_modified:*modified == 1.0 })
     }).collect()

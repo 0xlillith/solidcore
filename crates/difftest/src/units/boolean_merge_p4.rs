@@ -21,7 +21,7 @@ use solidcore::topology::shell::{ShellRayAttempt, ShellRayInput, ShellRayState};
 use solidcore::topology::topology::Topology;
 use solidcore::topology::topology_traverser::{Entity, Marks};
 use solidcore::topology::Brep;
-use solidcore::topology::{ArenaId, BrepId, ShellId};
+use solidcore::topology::{BrepId, ShellId};
 use solidcore::EntityRef;
 use solidcore::SolidError;
 use solidcore_ffi::units::boolean_merge_p4::{self as ffi, Operand};
@@ -62,7 +62,7 @@ fn request(i: &Inputs) -> ffi::Request {
         caller_lock: i.caller_lock,
     }
 }
-fn context_metadata(native: ffi::ContextState) -> ContextMetadata {
+fn context_metadata(native: &ffi::ContextState) -> ContextMetadata {
     ContextMetadata {
         current_marks: native.current_marks,
         mark_locks: native.mark_locks,
@@ -190,12 +190,12 @@ fn import_notifications(
 fn owner_links(brep: &Brep, keys: fn(CacheObject) -> ObjectRef) -> BTreeMap<ObjectRef, ObjectRef> {
     let mut links = BTreeMap::new();
     for (id, edge) in brep.edges().iter() {
-        if let Some(owner) = edge.curve.as_ref().and_then(|curve| curve.owner()) {
+        if let Some(owner) = edge.curve.as_ref().and_then(solidcore::curve::curve::Curve::owner) {
             links.insert(keys(CacheObject::Curve(id)), owner);
         }
     }
     for (id, face) in brep.faces().iter() {
-        if let Some(owner) = face.surface.as_ref().and_then(|surface| surface.owner()) {
+        if let Some(owner) = face.surface.as_ref().and_then(solidcore::surface::surface::Surface::owner) {
             links.insert(keys(CacheObject::Surface(id)), owner);
         }
     }
@@ -570,10 +570,10 @@ impl UnitDiff for Runner {
         let mut k = Kernel::default();
         let mut other_k = Kernel::default();
         k.context
-            .restore_metadata(context_metadata(primary_context));
+            .restore_metadata(context_metadata(&primary_context));
         other_k
             .context
-            .restore_metadata(context_metadata(other_context));
+            .restore_metadata(context_metadata(&other_context));
         let mut kernels = BooleanKernels {
             primary: &mut k,
             other: if i.distinct_contexts {
@@ -720,7 +720,21 @@ mod tests {
     fn error_post_state_detects_mutations() {
         let mut k = Kernel::default();
         let mut other_k = Kernel::default();
-        let mut primary = import(&[1.0, 2.0, 3.0, 4.0, 1.0, 1.0, 1.0]).unwrap();
+        let pair = ffi::export_fixtures(
+            &[1.0, 2.0, 3.0, 4.0, 1.0, 1.0, 1.0],
+            &[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            true,
+        )
+        .unwrap();
+        let [primary_fixture, _] = pair.operands;
+        let [primary_context, other_context] = pair.contexts;
+        k.context.restore_metadata(context_metadata(&primary_context));
+        other_k
+            .context
+            .restore_metadata(context_metadata(&other_context));
+        let mut primary = import_fixture(primary_fixture, primary_key)
+            .unwrap()
+            .map(|input| input.brep);
         let other: Option<Brep> = None;
         let mut state = ManifoldState::default();
         let mut snapshot = |k: &mut Kernel, primary: Option<&Brep>, state: &ManifoldState| {

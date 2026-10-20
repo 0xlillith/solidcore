@@ -21,7 +21,7 @@
 //! | [`is_live_topology_member`]                       | `SmBrep::IsLiveTopologyMember`                |
 //! | [`regions`], [`faces`], [`edges`], [`vertices`]   | `SmBrep::GetRegions`, `GetFaces`, `GetEdges`, `GetVertices` |
 //! | [`shells`]                                        | `SmBrep::GetShells`                           |
-//! | [`surfaces`], [`curves`]                          | `SmBrep::GetSurfaces`, `GetCurves`            |
+//! | [`surfaces`], [`curves`], [`surface_owners`], [`curve_owners`] | `SmBrep::GetSurfaces`, `GetCurves`            |
 //! | [`wire_edges`], [`topological_edges`], [`topological_vertices`] | `SmBrep::GetWireEdges`, `GetTopologicalEdges`, `GetTopologicalVertices` |
 //! | [`is_degenerate`]                                 | `SmBrep::IsDegenerate`                        |
 //! | [`reset_infinite_region`], [`SetRegionVoidType`]  | `SmBrep::ResetInfiniteRegion`, `SmSetRegionVoidType` |
@@ -390,6 +390,23 @@ impl Brep {
         Ok(())
     }
 
+    /// Remove this vertex from its actual owning list without renumbering or
+    /// retiring its arena record. The caller separately performs destruction.
+    ///
+    /// # Errors
+    /// An unknown vertex or a vertex absent from the owning list.
+    pub fn remove_vertex_from_list(&mut self, vertex: VertexId) -> Result<()> {
+        const OP_REMOVE: &str = "topology::Brep::remove_vertex_from_list";
+        self.vertex(vertex)?;
+        let position = self
+            .vertex_list
+            .iter()
+            .position(|&id| id == vertex)
+            .ok_or_else(|| SolidError::sm_err(OP_REMOVE))?;
+        self.vertex_list.remove(position);
+        Ok(())
+    }
+
     /// `AddDeletedSurface`: keeps a surface removed from the B-rep until the operation
     /// ends (the list is created on first use upstream).
     pub fn add_deleted_surface(&mut self, surface: Surface) {
@@ -640,6 +657,32 @@ pub fn surfaces<'b>(
     b: &'b Brep,
     attribute: Option<&GeometryAttributeFilter<'_>>,
 ) -> Result<Vec<&'b Surface>> {
+    Ok(
+        surface_objects(b, attribute, &|id| arena_identity(CacheObject::Face(id)))?
+            .into_iter()
+            .map(|(_, geometry)| geometry)
+            .collect(),
+    )
+}
+
+/// The actual topology owners selected by `SmBrep::GetSurfaces`, in native
+/// owning-list order. `key_of` names each real face in the caller's store;
+/// indirect or other owners are omitted. No geometry is cloned or re-owned.
+///
+/// # Errors
+/// Those of [`surfaces`], including a missing geometry value.
+pub fn surface_owners(b: &Brep, key_of: &dyn Fn(FaceId) -> ObjectRef) -> Result<Vec<FaceId>> {
+    Ok(surface_objects(b, None, key_of)?
+        .into_iter()
+        .map(|(id, _)| id)
+        .collect())
+}
+
+fn surface_objects<'b>(
+    b: &'b Brep,
+    attribute: Option<&GeometryAttributeFilter<'_>>,
+    key_of: &dyn Fn(FaceId) -> ObjectRef,
+) -> Result<Vec<(FaceId, &'b Surface)>> {
     let mut out = Vec::new();
     // for every face
     for f in faces(b, None)? {
@@ -649,7 +692,7 @@ pub fn surfaces<'b>(
             .as_ref()
             .ok_or_else(|| null("GetSurfaces: face without surface"))?;
         // add all standalone face->Surfaces to the list
-        if surface.owner() == Some(arena_identity(CacheObject::Face(f)))
+        if surface.owner() == Some(key_of(f))
             && attribute.is_none_or(|filter| {
                 filter
                     .attributes
@@ -657,7 +700,7 @@ pub fn surfaces<'b>(
                     .is_some()
             })
         {
-            out.push(surface);
+            out.push((f, surface));
         }
     }
     Ok(out)
@@ -674,6 +717,32 @@ pub fn curves<'b>(
     b: &'b Brep,
     attribute: Option<&GeometryAttributeFilter<'_>>,
 ) -> Result<Vec<&'b Curve>> {
+    Ok(
+        curve_objects(b, attribute, &|id| arena_identity(CacheObject::Edge(id)))?
+            .into_iter()
+            .map(|(_, geometry)| geometry)
+            .collect(),
+    )
+}
+
+/// The actual topology owners selected by `SmBrep::GetCurves`, in native
+/// owning-list order. `key_of` names each real edge in the caller's store;
+/// indirect or other owners are omitted. No geometry is cloned or re-owned.
+///
+/// # Errors
+/// Those of [`curves`], including a missing geometry value.
+pub fn curve_owners(b: &Brep, key_of: &dyn Fn(EdgeId) -> ObjectRef) -> Result<Vec<EdgeId>> {
+    Ok(curve_objects(b, None, key_of)?
+        .into_iter()
+        .map(|(id, _)| id)
+        .collect())
+}
+
+fn curve_objects<'b>(
+    b: &'b Brep,
+    attribute: Option<&GeometryAttributeFilter<'_>>,
+    key_of: &dyn Fn(EdgeId) -> ObjectRef,
+) -> Result<Vec<(EdgeId, &'b Curve)>> {
     let mut out = Vec::new();
     for e in edges(b, None)? {
         let curve = b
@@ -681,7 +750,7 @@ pub fn curves<'b>(
             .curve
             .as_ref()
             .ok_or_else(|| null("GetCurves: edge without curve"))?;
-        if curve.owner() == Some(arena_identity(CacheObject::Edge(e)))
+        if curve.owner() == Some(key_of(e))
             && attribute.is_none_or(|filter| {
                 filter
                     .attributes
@@ -689,7 +758,7 @@ pub fn curves<'b>(
                     .is_some()
             })
         {
-            out.push(curve);
+            out.push((e, curve));
         }
     }
     Ok(out)
@@ -1028,9 +1097,10 @@ pub fn reverse_reflection_edgeuses(b: &mut Brep, e: EdgeId) -> Result<()> {
 /// exchanges the shells they belong to.
 ///
 /// Upstream removes each face use from its shell's list and appends it to the other's
-/// (`Remove` / `PostInsert`): the membership is each face use's `shell`, swapped here.
-/// The order of a shell's face use list is `SmShell`'s (unit `topology.shell`) and is
-/// not modelled yet. `Face::shell` and `Shell::faces` have no upstream counterpart
+/// in the exact order Remove(first), Remove(second), PostInsert(second),
+/// PostInsert(first). The real shell member lists, heads, owner backpointers and
+/// literal sibling links are updated at each step. `Face::shell` and `Shell::faces`
+/// have no upstream counterpart
 /// (`SmFace` holds no shell; the arena builders fill them, the import leaves
 /// `Shell::faces` empty): they follow the first face use, so the face moves to the
 /// other shell's list.
@@ -1049,8 +1119,10 @@ pub fn swap_reflection_shells(b: &mut Brep, f: FaceId) -> Result<()> {
     let bb = eu1::faceuse_shell(b, second)?
         .ok_or_else(|| null("sm_SwapReflectionShells: mate without shell"))?;
     if a != bb {
-        b.faceuse_mut(first)?.shell = Some(bb);
-        b.faceuse_mut(second)?.shell = Some(a);
+        crate::topology::shell::remove_faceuse(b, a, first)?;
+        crate::topology::shell::remove_faceuse(b, bb, second)?;
+        crate::topology::shell::post_insert_faceuse(b, a, second)?;
+        crate::topology::shell::post_insert_faceuse(b, bb, first)?;
         // the face record follows its first face use: move it to the end of the other
         // shell's face list (PostInsert appends)
         b.shell_mut(a)?.faces.retain(|&x| x != f);
@@ -3062,6 +3134,175 @@ mod tests {
     use super::*;
     use crate::geom::a_object;
     use crate::topology::Region;
+
+    fn install_reflection_cycle(
+        b: &mut Brep,
+        owner: ShellId,
+        members: &[crate::topology::FaceuseId],
+    ) {
+        use crate::topology::shell::{ShellMembers, ShellType};
+        b.shell_mut(owner).unwrap().shell_type = ShellType::Faceuse;
+        b.shell_mut(owner).unwrap().members = ShellMembers::Faceuses(members.to_vec());
+        for (i, &id) in members.iter().enumerate() {
+            let record = b.faceuse_mut(id).unwrap();
+            record.shell = Some(owner);
+            record.sibling_links = Some((
+                Some(members[(i + 1) % members.len()]),
+                Some(members[(i + members.len() - 1) % members.len()]),
+            ));
+        }
+    }
+
+    fn assert_reflection_cycle(b: &Brep, owner: ShellId, expected: &[crate::topology::FaceuseId]) {
+        use crate::topology::shell::{faceuse_sibling_links, ShellMembers, ShellType};
+        let shell = b.shell(owner).unwrap();
+        assert_eq!(shell.shell_type, ShellType::Faceuse);
+        assert_eq!(shell.members, ShellMembers::Faceuses(expected.to_vec()));
+        assert_eq!(shell.first_faceuse().unwrap(), expected.first().copied());
+        for (i, &id) in expected.iter().enumerate() {
+            let links = (
+                Some(expected[(i + 1) % expected.len()]),
+                Some(expected[(i + expected.len() - 1) % expected.len()]),
+            );
+            let record = b.faceuse(id).unwrap();
+            assert_eq!(record.shell, Some(owner));
+            assert_eq!(record.sibling_links, Some(links));
+            assert_eq!(faceuse_sibling_links(b, id).unwrap(), links);
+        }
+    }
+
+    #[test]
+    fn reflection_swap_updates_actual_shell_heads_neighbours_and_tail_order() {
+        use crate::topology::Faceuse;
+        let mut cases = vec![(1usize, 0usize, 0usize)];
+        for first in 0..3 {
+            for second in 0..3 {
+                cases.push((3, first, second));
+            }
+        }
+        for (count, first_position, second_position) in cases {
+            let mut b = Brep::new();
+            let a = b.add_shell().unwrap();
+            let other = b.add_shell().unwrap();
+            let face = b.add_face(a).unwrap();
+            let left: Vec<_> = (0..count)
+                .map(|_| b.add_faceuse_record(Faceuse::default()).unwrap())
+                .collect();
+            let right: Vec<_> = (0..count)
+                .map(|_| b.add_faceuse_record(Faceuse::default()).unwrap())
+                .collect();
+            install_reflection_cycle(&mut b, a, &left);
+            install_reflection_cycle(&mut b, other, &right);
+            let first = left[first_position];
+            let second = right[second_position];
+            b.faceuse_mut(first).unwrap().face = Some(face);
+            b.faceuse_mut(first).unwrap().mate = Some(second);
+            b.faceuse_mut(second).unwrap().face = Some(face);
+            b.faceuse_mut(second).unwrap().mate = Some(first);
+            b.face_mut(face).unwrap().faceuse = Some(first);
+            let mut expected_left: Vec<_> = left.into_iter().filter(|&id| id != first).collect();
+            let mut expected_right: Vec<_> = right.into_iter().filter(|&id| id != second).collect();
+            expected_left.push(second);
+            expected_right.push(first);
+            swap_reflection_shells(&mut b, face).unwrap();
+            assert_reflection_cycle(&b, a, &expected_left);
+            assert_reflection_cycle(&b, other, &expected_right);
+            assert_eq!(b.faceuse(first).unwrap().mate, Some(second));
+            assert_eq!(b.faceuse(second).unwrap().mate, Some(first));
+            assert_eq!(b.face(face).unwrap().faceuse, Some(first));
+            assert_eq!(b.face(face).unwrap().shell, other);
+            assert!(b.shell(a).unwrap().faces.is_empty());
+            assert_eq!(b.shell(other).unwrap().faces, [face]);
+            assert_eq!((b.faces().len(), b.faceuses().len()), (1, count * 2));
+        }
+    }
+
+    #[test]
+    fn reflection_swap_in_one_shell_preserves_every_list_link() {
+        use crate::topology::Faceuse;
+        let mut b = Brep::new();
+        let shell = b.add_shell().unwrap();
+        let face = b.add_face(shell).unwrap();
+        let members: Vec<_> = (0..4)
+            .map(|_| b.add_faceuse_record(Faceuse::default()).unwrap())
+            .collect();
+        install_reflection_cycle(&mut b, shell, &members);
+        b.face_mut(face).unwrap().faceuse = Some(members[1]);
+        b.faceuse_mut(members[1]).unwrap().mate = Some(members[3]);
+        b.faceuse_mut(members[3]).unwrap().mate = Some(members[1]);
+        swap_reflection_shells(&mut b, face).unwrap();
+        assert_reflection_cycle(&b, shell, &members);
+        assert_eq!(b.shell(shell).unwrap().faces, [face]);
+        assert_eq!(b.face(face).unwrap().shell, shell);
+    }
+
+    #[test]
+    fn geometry_owner_lists_use_real_keys_and_preserve_native_list_order() {
+        let mut b = Brep::new();
+        let v0 = b.add_vertex(Vec3::ZERO).unwrap();
+        let v1 = b.add_vertex(Vec3::X).unwrap();
+        let edges: Vec<_> = (0..3).map(|_| b.add_edge(v0, v1).unwrap()).collect();
+        let shell = b.add_shell().unwrap();
+        let faces: Vec<_> = (0..3).map(|_| b.add_face(shell).unwrap()).collect();
+        let edge_key = |id: EdgeId| {
+            let mut object = arena_identity(CacheObject::Edge(id));
+            object.key = ObjectKey(9000 + u64::from(id.index()));
+            object
+        };
+        let face_key = |id: FaceId| {
+            let mut object = arena_identity(CacheObject::Face(id));
+            object.key = ObjectKey(19000 + u64::from(id.index()));
+            object
+        };
+        for &id in &edges {
+            let mut curve = Curve::from(crate::curve::line::Line::from_points(
+                Vec3::ZERO,
+                Vec3::X,
+                3,
+            ));
+            let owner = if id == edges[1] {
+                ObjectRef {
+                    key: ObjectKey(99999),
+                    ..edge_key(id)
+                }
+            } else {
+                edge_key(id)
+            };
+            let _ = curve.set_owner(Some(owner), None);
+            b.edge_mut(id).unwrap().curve = Some(curve);
+        }
+        for &id in &faces {
+            // No surface evaluation is needed to test GetSurfaces ownership.
+            let mut surface = Surface::from(BSplineSurface::new());
+            let owner = if id == faces[1] {
+                ObjectRef {
+                    key: ObjectKey(99998),
+                    ..face_key(id)
+                }
+            } else {
+                face_key(id)
+            };
+            surface.set_owner(Some(owner));
+            b.face_mut(id).unwrap().surface = Some(surface);
+        }
+        b.set_edge_list(vec![edges[2], edges[0], edges[1]]).unwrap();
+        b.set_face_list(vec![faces[2], faces[0], faces[1]]).unwrap();
+        assert_eq!(curve_owners(&b, &edge_key).unwrap(), [edges[2], edges[0]]);
+        assert_eq!(surface_owners(&b, &face_key).unwrap(), [faces[2], faces[0]]);
+        // The legacy APIs retain their documented arena-identity convention.
+        assert!(curves(&b, None).unwrap().is_empty());
+        assert!(surfaces(&b, None).unwrap().is_empty());
+        b.edge_mut(edges[1]).unwrap().curve = None;
+        assert_eq!(
+            curve_owners(&b, &edge_key).unwrap_err(),
+            SolidError::invalid_input("topology::brep::p1", "GetCurves: edge without curve")
+        );
+        b.face_mut(faces[1]).unwrap().surface = None;
+        assert_eq!(
+            surface_owners(&b, &face_key).unwrap_err(),
+            SolidError::invalid_input("topology::brep::p1", "GetSurfaces: face without surface")
+        );
+    }
 
     #[test]
     fn heal_brep_preserves_missing_target_error() {

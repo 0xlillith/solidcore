@@ -4,6 +4,7 @@
 //! `source/SMLib/inc/SmRegion.h`, `source/SMLib/src/SmRegion.cpp`.
 //! The `SmEdge`/`SmVertex` callees of wire-edge traversal are called through their
 //! owners' ports (`topology::edge`, `topology::vertex`), not re-ported here;
+//! `source/SMLib/inc/SmOwningTopology.h` supplies the list mutation semantics;
 //! `source/SMLib/inc/SmTopology.h` supplies literal sibling links and
 //! `source/SMLib/inc/SmObject.h` defines the checked `SM_CAST_PTR` semantics.
 //!
@@ -20,6 +21,7 @@
 //! | [`wire_edges`] | `SmShell::GetWireEdges` |
 //! | [`ray_fire`] | `SmShell::RayFire` (partial output state retained) |
 //! | [`transfer_children`] | `SmShell::TransferChildrenTo` |
+//! | `remove_faceuse`, `post_insert_faceuse` (crate-local) | independent `SmOwningTopology::Remove`, `PostInsert` of a face use |
 //! | [`move_faceuse`] | `SmOwningTopology::Remove` + `PostInsert` of a face use (typed list) |
 //! | [`shell_is_degenerate`], [`region_is_degenerate`] | `IsDegenerate` (native default tolerance) |
 //! | `shell_bounds_for_degeneracy`, `region_bounds_for_degeneracy` | default-tight `CalculateBoundingBox` (`query::face::p1`), status kept beside the partial box |
@@ -43,7 +45,7 @@
 //! notification/logging side effects are not represented by these arena records.
 //! Face-use sibling links survive a cleared owner head, as in native self-transfer.
 //! `SmOwningTopology::Remove` / `PostInsert` of a face use are CO-PORTED on the
-//! typed face-use list (`move_faceuse`; unit `topology.proto_topology_p1` works on
+//! typed face-use list (`move_faceuse` and the independent crate-local primitives; unit `topology.proto_topology_p1` works on
 //! object-key records). `SmBrep::GetEdges` (unit `topology.brep_p1`) is its owner's
 //! port `topology::brep::p1::edges` (the `m_pEdgeListHead` list order), which replaced
 //! the earlier co-port.
@@ -622,6 +624,15 @@ fn remove_and_post_insert(
     source: ShellId,
     recipient: ShellId,
 ) -> Result<()> {
+    remove_faceuse_member(brep, faceuse, source)?;
+    post_insert_faceuse_member(brep, faceuse, recipient)?;
+    brep.faceuse_mut(faceuse)?.shell = Some(recipient);
+    Ok(())
+}
+
+// Membership-only primitives shared with the existing transfer path. That
+// path deliberately retains its original deferred sibling-link refresh.
+fn remove_faceuse_member(brep: &mut Brep, faceuse: FaceuseId, source: ShellId) -> Result<()> {
     let members = &mut brep.shell_mut(source)?.members;
     match members {
         ShellMembers::Faceuses(list) => {
@@ -636,14 +647,59 @@ fn remove_and_post_insert(
         }
         _ => return Err(invalid_members()),
     }
+    Ok(())
+}
+
+fn post_insert_faceuse_member(
+    brep: &mut Brep,
+    faceuse: FaceuseId,
+    recipient: ShellId,
+) -> Result<()> {
     let target = &mut brep.shell_mut(recipient)?.members;
     match target {
         ShellMembers::Empty => *target = ShellMembers::Faceuses(vec![faceuse]),
         ShellMembers::Faceuses(list) => list.push(faceuse),
         _ => return Err(invalid_members()),
     }
-    brep.faceuse_mut(faceuse)?.shell = Some(recipient);
     Ok(())
+}
+
+/// `SmOwningTopology::Remove` for a shell's face-use list. Keep the shell's
+/// type while updating its head/neighbours; clear the removed use's owner and
+/// literal next/last links before a subsequent independent insertion.
+pub(crate) fn remove_faceuse(brep: &mut Brep, owner: ShellId, faceuse: FaceuseId) -> Result<()> {
+    if brep.faceuse(faceuse)?.shell != Some(owner) {
+        return Err(invalid_members());
+    }
+    remove_faceuse_member(brep, faceuse, owner)?;
+    let removed = brep.faceuse_mut(faceuse)?;
+    removed.shell = None;
+    removed.sibling_links = Some((None, None));
+    refresh_faceuse_member_links(brep, owner)
+}
+
+/// `SmOwningTopology::PostInsert` for a detached face use. Append to the actual
+/// list tail and update its owner and circular links, without changing type.
+pub(crate) fn post_insert_faceuse(
+    brep: &mut Brep,
+    owner: ShellId,
+    faceuse: FaceuseId,
+) -> Result<()> {
+    if brep.faceuse(faceuse)?.shell.is_some() {
+        return Err(invalid_members());
+    }
+    post_insert_faceuse_member(brep, faceuse, owner)?;
+    brep.faceuse_mut(faceuse)?.shell = Some(owner);
+    refresh_faceuse_member_links(brep, owner)
+}
+
+fn refresh_faceuse_member_links(brep: &mut Brep, owner: ShellId) -> Result<()> {
+    let members = match &brep.shell(owner)?.members {
+        ShellMembers::Empty => Vec::new(),
+        ShellMembers::Faceuses(members) => members.clone(),
+        _ => return Err(invalid_members()),
+    };
+    set_faceuse_sibling_links(brep, &members)
 }
 
 /// Move one face use from its shell to the tail of `recipient`
@@ -716,6 +772,10 @@ pub fn faceuse_sibling_links(brep: &Brep, id: FaceuseId) -> Result<FaceuseSiblin
 
 fn refresh_faceuse_sibling_links(brep: &mut Brep, owner: ShellId) -> Result<()> {
     let members = brep.shell(owner)?.get_faceuses()?;
+    set_faceuse_sibling_links(brep, &members)
+}
+
+fn set_faceuse_sibling_links(brep: &mut Brep, members: &[FaceuseId]) -> Result<()> {
     let mut previous = members.last().copied();
     for (&member, &next) in members.iter().zip(members.iter().cycle().skip(1)) {
         brep.faceuse_mut(member)?.sibling_links = Some((Some(next), previous));
@@ -1164,6 +1224,85 @@ pub trait RegionLookup {
 mod tests {
     use super::*;
     use crate::topology::Faceuse;
+
+    #[test]
+    fn independent_faceuse_removals_clear_both_heads_before_tail_insertions() {
+        let mut b = Brep::new();
+        let a = b
+            .add_shell_record(Shell {
+                shell_type: ShellType::Faceuse,
+                ..Shell::default()
+            })
+            .unwrap();
+        let other = b
+            .add_shell_record(Shell {
+                shell_type: ShellType::Faceuse,
+                ..Shell::default()
+            })
+            .unwrap();
+        let first = b
+            .add_faceuse_record(Faceuse {
+                shell: Some(a),
+                sibling_links: Some((
+                    Some(FaceuseId::from_index(0)),
+                    Some(FaceuseId::from_index(0)),
+                )),
+                ..Faceuse::default()
+            })
+            .unwrap();
+        let second = b
+            .add_faceuse_record(Faceuse {
+                shell: Some(other),
+                sibling_links: Some((
+                    Some(FaceuseId::from_index(1)),
+                    Some(FaceuseId::from_index(1)),
+                )),
+                ..Faceuse::default()
+            })
+            .unwrap();
+        b.shell_mut(a).unwrap().members = ShellMembers::Faceuses(vec![first]);
+        b.shell_mut(other).unwrap().members = ShellMembers::Faceuses(vec![second]);
+        remove_faceuse(&mut b, a, first).unwrap();
+        assert!(matches!(b.shell(a).unwrap().members, ShellMembers::Empty));
+        assert_eq!(
+            b.shell(other).unwrap().first_faceuse().unwrap(),
+            Some(second)
+        );
+        assert_eq!(b.faceuse(first).unwrap().shell, None);
+        assert_eq!(b.faceuse(first).unwrap().sibling_links, Some((None, None)));
+        remove_faceuse(&mut b, other, second).unwrap();
+        for owner in [a, other] {
+            assert!(matches!(
+                b.shell(owner).unwrap().members,
+                ShellMembers::Empty
+            ));
+            assert_eq!(b.shell(owner).unwrap().first_faceuse().unwrap(), None);
+            assert_eq!(b.shell(owner).unwrap().shell_type, ShellType::Faceuse);
+        }
+        for id in [first, second] {
+            assert_eq!(b.faceuse(id).unwrap().shell, None);
+            assert_eq!(b.faceuse(id).unwrap().sibling_links, Some((None, None)));
+        }
+        post_insert_faceuse(&mut b, a, second).unwrap();
+        assert!(matches!(
+            b.shell(other).unwrap().members,
+            ShellMembers::Empty
+        ));
+        post_insert_faceuse(&mut b, other, first).unwrap();
+        for (owner, id) in [(a, second), (other, first)] {
+            assert_eq!(
+                b.shell(owner).unwrap().members,
+                ShellMembers::Faceuses(vec![id])
+            );
+            assert_eq!(b.shell(owner).unwrap().first_faceuse().unwrap(), Some(id));
+            assert_eq!(b.faceuse(id).unwrap().shell, Some(owner));
+            assert_eq!(faceuse_sibling_links(&b, id).unwrap(), (Some(id), Some(id)));
+            assert_eq!(
+                b.faceuse(id).unwrap().sibling_links,
+                Some((Some(id), Some(id)))
+            );
+        }
+    }
 
     #[test]
     fn region_order_rotates_the_circular_head_without_moving_other_links() {
