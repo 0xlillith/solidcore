@@ -1205,12 +1205,6 @@ mod tests {
         fn from_loop(id: LoopId) -> Self {
             Self(id)
         }
-        fn as_loop(&self) -> Option<LoopId> {
-            Some(self.0)
-        }
-        fn as_vertex(&self) -> Option<VertexId> {
-            None
-        }
     }
 
     #[test]

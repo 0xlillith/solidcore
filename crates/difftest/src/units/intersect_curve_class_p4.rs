@@ -55,7 +55,7 @@ use solidcore::intersect::point_class::{
 };
 use solidcore::heal::face_props::{FaceProps, LoopObject};
 use solidcore::kernel::Kernel;
-use solidcore::topology::{Brep, EdgeId, FaceId, LoopId, VertexId};
+use solidcore::topology::{Brep, EdgeId, FaceId, LoopId};
 use solidcore::EntityRef;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
@@ -593,20 +593,6 @@ impl ClassObject for H {
 impl LoopObject for H {
     fn from_loop(l: LoopId) -> Self {
         H::Topo(EntityRef::Loop(l))
-    }
-
-    fn as_loop(&self) -> Option<LoopId> {
-        match self {
-            H::Topo(e) => e.as_loop(),
-            H::Obj(..) => None,
-        }
-    }
-
-    fn as_vertex(&self) -> Option<VertexId> {
-        match self {
-            H::Topo(e) => e.as_vertex(),
-            H::Obj(..) => None,
-        }
     }
 }
 

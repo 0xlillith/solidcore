@@ -1958,12 +1958,6 @@ mod tests {
         fn from_loop(l: LoopId) -> Self {
             Self(l)
         }
-        fn as_loop(&self) -> Option<LoopId> {
-            Some(self.0)
-        }
-        fn as_vertex(&self) -> Option<VertexId> {
-            None
-        }
     }
 
     /// Classification geometry for the null handles here: resolves nothing.

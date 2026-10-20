@@ -43,14 +43,16 @@ use serde_json::Value;
 
 use solidcore::error::{EntityRef, SolidError, SM_ERR};
 use solidcore::heal::face_props::{
-    ClassifyLoopsOut, FaceProps, HealNotYetFaceType, LoopProps, Looptree, PropStage, Tri,
+    ClassifyLoopsOut, FaceProps, HealNotYetFaceType, LoopObject, LoopProps, Looptree, PropStage,
+    Tri,
 };
+use solidcore::intersect::point_class::{ClassObject, ClassObjectKind};
 use solidcore::intersect::curve_class::p1::{CrvDirOnFaceType, CurveClassification, TouchData};
 use solidcore::intersect::point_class::PointClassType;
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::query::face::p4 as qf4;
-use solidcore::topology::{FaceId, LoopId, VertexId};
+use solidcore::topology::{EdgeId, EdgeuseId, FaceId, LoopId, VertexId};
 use solidcore_ffi::units::query_face_p4::{self as ffi, Op};
 
 use super::topology_edgeuse_p1::{domain, flag, gen_surface, push_surface, SrfIn, FILES};
@@ -68,6 +70,92 @@ const SM_ERR_INVALID_INPUT: f64 = 1007.0;
 /// The difftest runner.
 pub struct Runner;
 
+/// The classification handles: B-rep topology, and the face's surface and the two
+/// curves of the loop bisector (which `EntityRef` cannot name).
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum H {
+    Topo(EntityRef),
+    Surface(FaceId),
+    Curve(bool),
+    EdgeCurve(EdgeId),
+    Trim(EdgeuseId),
+}
+
+impl ClassObject for H {
+    fn class_kind(&self) -> ClassObjectKind {
+        match self {
+            Self::Topo(e) => e.class_kind(),
+            Self::Surface(_) => ClassObjectKind::Surface,
+            Self::Curve(_) | Self::EdgeCurve(_) | Self::Trim(_) => ClassObjectKind::Curve,
+        }
+    }
+}
+
+impl LoopObject for H {
+    fn from_loop(l: LoopId) -> Self {
+        Self::Topo(EntityRef::Loop(l))
+    }
+
+    fn as_loop(&self) -> Option<LoopId> {
+        match self {
+            Self::Topo(e) => e.as_loop(),
+            _ => None,
+        }
+    }
+
+    fn as_vertex(&self) -> Option<VertexId> {
+        match self {
+            Self::Topo(e) => e.as_vertex(),
+            _ => None,
+        }
+    }
+
+    fn from_face(f: FaceId) -> Option<Self> {
+        Some(Self::Topo(EntityRef::Face(f)))
+    }
+
+    fn from_face_surface(f: FaceId) -> Option<Self> {
+        Some(Self::Surface(f))
+    }
+
+    fn from_classify_curve(uv: bool) -> Option<Self> {
+        Some(Self::Curve(uv))
+    }
+
+    fn from_topology(t: EntityRef) -> Option<Self> {
+        Some(Self::Topo(t))
+    }
+
+    fn as_topology(&self) -> Option<EntityRef> {
+        match self {
+            Self::Topo(t) => Some(*t),
+            _ => None,
+        }
+    }
+
+    fn from_edge_curve(e: EdgeId) -> Option<Self> {
+        Some(Self::EdgeCurve(e))
+    }
+
+    fn as_edge_curve(&self) -> Option<EdgeId> {
+        match self {
+            Self::EdgeCurve(e) => Some(*e),
+            _ => None,
+        }
+    }
+
+    fn from_trim_curve(eu: EdgeuseId) -> Option<Self> {
+        Some(Self::Trim(eu))
+    }
+
+    fn as_trim_curve(&self) -> Option<EdgeuseId> {
+        match self {
+            Self::Trim(eu) => Some(*eu),
+            _ => None,
+        }
+    }
+}
+
 fn harness(msg: impl Into<String>) -> HarnessError {
     HarnessError::new(msg)
 }
@@ -77,7 +165,7 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 /// A surface of the curve-built and natural faces.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
-enum AnySrf {
+pub(super) enum AnySrf {
     /// A B-spline surface (its natural domain).
     Bspline { surface: SrfIn },
     /// `SmCylinder` of radius `scale*a`, axis clamped to `[0, scale*c]`.
@@ -94,7 +182,7 @@ enum AnySrf {
 /// A UV trim curve in fractions of the face domain.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "t", rename_all = "snake_case")]
-enum CurveIn {
+pub(super) enum CurveIn {
     /// A line from `(a, b)` to `(c, d)`; `rev`: `SM_OT_OPPOSITE` in its loop.
     Line { a: f64, b: f64, c: f64, d: f64, #[serde(default)] rev: bool },
     /// A counter-clockwise circle centred at `(a, b)`, radius `r` times the smaller
@@ -104,7 +192,7 @@ enum CurveIn {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
-enum BrepIn {
+pub(super) enum BrepIn {
     /// An upstream test file, relative to `upstream/TestFiles/pt_TestFiles`.
     File {
         file: String,
@@ -126,7 +214,7 @@ enum BrepIn {
     Natural { surface: AnySrf },
 }
 
-const fn one() -> u8 {
+pub(super) const fn one() -> u8 {
     1
 }
 
@@ -160,9 +248,15 @@ fn push_any(v: &mut Vec<f64>, s: &AnySrf) -> Result<(), HarnessError> {
     Ok(())
 }
 
-fn input_of(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
+/// The B-rep block of `brep` (shared with unit `query.face_p3`, whose shim builds
+/// B-reps with this unit's builders).
+pub(super) fn brep_input(
+    brep: &BrepIn,
+    validate_only: bool,
+    init_gaps: bool,
+) -> Result<Vec<f64>, HarnessError> {
     let mut v = Vec::new();
-    match &i.brep {
+    match brep {
         BrepIn::File { rebuild, .. } => v.extend([0.0, flag(*rebuild)]),
         BrepIn::Face { surface, dom } => {
             v.push(2.0);
@@ -198,18 +292,23 @@ fn input_of(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
             push_any(&mut v, surface)?;
         }
     }
-    v.extend([
-        flag(i.validate_only),
-        flag(i.init_gaps),
-        f64::from(i.face),
-        f64::from(i.props),
-        f64::from(i.loops),
-    ]);
+    v.extend([flag(validate_only), flag(init_gaps)]);
+    Ok(v)
+}
+
+fn input_of(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
+    let mut v = brep_input(&i.brep, i.validate_only, i.init_gaps)?;
+    v.extend([f64::from(i.face), f64::from(i.props), f64::from(i.loops)]);
     Ok(v)
 }
 
 fn path_of(i: &Inputs) -> Result<String, HarnessError> {
-    match &i.brep {
+    brep_path(&i.brep)
+}
+
+/// The `.smb` path of a B-rep input ("" when it is not a file).
+pub(super) fn brep_path(brep: &BrepIn) -> Result<String, HarnessError> {
+    match brep {
         BrepIn::File { file, .. } => {
             let p = crate::fixtures::upstream_test_file(&crate::case::repo_root(), file)?;
             Ok(p.to_string_lossy().into_owned())
@@ -416,7 +515,7 @@ fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
 fn classification(
     k: &Kernel,
     rd: &mut Rd<'_>,
-) -> Result<Option<CurveClassification<EntityRef>>, HarnessError> {
+) -> Result<Option<CurveClassification<H>>, HarnessError> {
     if rd.int()? == 0 {
         return Ok(None);
     }
@@ -434,7 +533,7 @@ fn classification(
                 .ok_or_else(|| harness("bad point class"))?;
             let object = u32::try_from(vertex)
                 .ok()
-                .map(|v| EntityRef::Vertex(VertexId::from_index(v)));
+                .map(|v| H::Topo(EntityRef::Vertex(VertexId::from_index(v))));
             let pc = if end == 0 { &mut iv.start } else { &mut iv.end };
             pc.set_class_object(class, object);
         }
@@ -442,7 +541,7 @@ fn classification(
     Ok(Some(cc))
 }
 
-fn touches(rd: &mut Rd<'_>) -> Result<Vec<TouchData<EntityRef>>, HarnessError> {
+fn touches(rd: &mut Rd<'_>) -> Result<Vec<TouchData<H>>, HarnessError> {
     let n = rd.count()?;
     let mut v = Vec::new();
     for _ in 0..n {
@@ -451,7 +550,7 @@ fn touches(rd: &mut Rd<'_>) -> Result<Vec<TouchData<EntityRef>>, HarnessError> {
         let loop_index = rd.int()?;
         let connected_to = match conn {
             -1 => None,
-            c if c >= 0 => Some(EntityRef::Loop(loop_id(c)?)),
+            c if c >= 0 => Some(H::Topo(EntityRef::Loop(loop_id(c)?))),
             _ => return Err(harness("touch connected to a non-loop (guard missed it)")),
         };
         v.push(TouchData {
@@ -524,7 +623,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
         .map(loop_id)
         .collect::<Result<Vec<_>, _>>()?;
 
-    let mut props: FaceProps<EntityRef> = FaceProps::for_face(face, props_face_index as u64);
+    let mut props: FaceProps<H> = FaceProps::for_face(face, props_face_index as u64);
     if i.props == 1 {
         props.prop_stage = PropStage::from_code(stage).ok_or_else(|| harness("bad stage"))?;
         props.closed_u = closed_u;
@@ -540,7 +639,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     }
 
     let mut out = initial_out();
-    let mut scratch: CurveClassification<EntityRef> = CurveClassification::new(&k);
+    let mut scratch: CurveClassification<H> = CurveClassification::new(&k);
     let r = qf4::classify_loops(&k, &b, face, &mut loops, &mut out, &mut scratch, &mut props);
     let status = match r {
         Ok(()) => 0.0,
@@ -572,7 +671,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
 
 // ---- generated cases ----------------------------------------------------------------------
 
-fn gen_scale(rng: &mut Rng) -> f64 {
+pub(super) fn gen_scale(rng: &mut Rng) -> f64 {
     *rng.choose(&[1e-3, 1.0, 1.0, 1.0, 1.0, 1e3]).unwrap_or(&1.0)
 }
 
@@ -624,7 +723,7 @@ fn span(level: f64, u_dir: bool, backward: bool, rev: bool) -> Vec<CurveIn> {
     }
 }
 
-fn rect(rng: &mut Rng) -> Vec<CurveIn> {
+pub(super) fn rect(rng: &mut Rng) -> Vec<CurveIn> {
     let u0 = rng.uniform(0.1, 0.4);
     let v0 = rng.uniform(0.1, 0.4);
     let u1 = u0 + rng.uniform(0.1, 0.4);
@@ -682,7 +781,7 @@ fn straddle(u0: f64, u1: f64, v0: f64, v1: f64, u_dir: bool, cw: bool) -> Vec<Cu
     l
 }
 
-fn gen_seam_face(rng: &mut Rng) -> BrepIn {
+pub(super) fn gen_seam_face(rng: &mut Rng) -> BrepIn {
     let scale = gen_scale(rng);
     let swap = rng.chance(0.3);
     let kind = rng.below(5);

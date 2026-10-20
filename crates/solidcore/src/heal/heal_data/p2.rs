@@ -3486,14 +3486,6 @@ mod tests {
         fn from_loop(_l: LoopId) -> Self {
             H
         }
-
-        fn as_loop(&self) -> Option<LoopId> {
-            None
-        }
-
-        fn as_vertex(&self) -> Option<VertexId> {
-            None
-        }
     }
 
     #[test]

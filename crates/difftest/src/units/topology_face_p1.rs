@@ -65,7 +65,7 @@ use solidcore::surface::volume::Volume;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::face::p1 as fp1;
 use solidcore::topology::face::p2 as fp2;
-use solidcore::topology::{Brep, EdgeId, FaceId, LoopId, VertexId};
+use solidcore::topology::{Brep, EdgeId, FaceId, LoopId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_face_p1::{self as ffi, Op};
 use solidcore_ffi::units::topology_vertexuse as fixture;
@@ -400,14 +400,6 @@ impl ClassObject for H {
 impl LoopObject for H {
     fn from_loop(l: LoopId) -> Self {
         Self(l)
-    }
-
-    fn as_loop(&self) -> Option<LoopId> {
-        Some(self.0)
-    }
-
-    fn as_vertex(&self) -> Option<VertexId> {
-        None
     }
 }
 

@@ -433,6 +433,19 @@ fn brep_block(rd: &mut Reader<'_>, path: &str) -> Result<(), FfiError> {
     Ok(())
 }
 
+/// Checks the B-rep block at the start of `input` as [`eval`] does (shared with unit
+/// `query.face_p3`, whose shim builds B-reps with this unit's builders); returns the
+/// block's length.
+///
+/// # Errors
+///
+/// [`FfiError::InvalidArgument`] for a block the shim would not handle safely.
+pub fn check_brep_block(input: &[f64], path: &str) -> Result<usize, FfiError> {
+    let mut rd = Reader { input, at: 0 };
+    brep_block(&mut rd, path)?;
+    Ok(rd.at)
+}
+
 /// Runs `op` on `input` (a B-rep block and the case block); `path` is the `.smb` file of
 /// a kind `0` block (ignored otherwise).
 ///

@@ -67,7 +67,7 @@
 //!   `SmFace::ClassifyLoops` ([`crate::query::face::p4::classify_loops`], whose status
 //!   `SetProps_Stage3` ignores as upstream) are wired.
 
-use crate::error::{ignored, Result, SolidError};
+use crate::error::{ignored, EntityRef, Result, SolidError};
 use crate::geom::tol::{calc_face_zone_tol_3d, xsect_tol_3d_from_zones};
 use crate::geom::vector3d::{Point3, Vec3};
 use crate::intersect::curve_class::p1::{
@@ -524,12 +524,76 @@ pub trait LoopObject: ClassObject {
     fn from_loop(l: LoopId) -> Self;
 
     /// The loop this handle names, if it is a loop (`SmFace::ClassifyLoops` casts a
-    /// touch's `m_pConnectedTo` to `SmLoop*`).
-    fn as_loop(&self) -> Option<LoopId>;
+    /// touch's `m_pConnectedTo` to `SmLoop*`); `None` (the default) for a handle type
+    /// that names no loops.
+    fn as_loop(&self) -> Option<LoopId> {
+        None
+    }
 
     /// The vertex this handle names, if it is a vertex (`GetVertexObject` of a vertex
-    /// point classification).
-    fn as_vertex(&self) -> Option<VertexId>;
+    /// point classification); `None` (the default) for a handle type that names no
+    /// vertices.
+    fn as_vertex(&self) -> Option<VertexId> {
+        None
+    }
+
+    /// The handle of face `f` (the face a curve classification classifies against),
+    /// `None` (the default) when this handle type cannot name faces. Used by
+    /// [`crate::query::face::p3::LoopObjectCurves`].
+    fn from_face(_f: FaceId) -> Option<Self> {
+        None
+    }
+
+    /// The handle of face `f`'s surface (a classification's surface 1), `None` (the
+    /// default) when this handle type cannot name it.
+    fn from_face_surface(_f: FaceId) -> Option<Self> {
+        None
+    }
+
+    /// The handle of a curve a classification makes and classifies: its 3D curve
+    /// (`uv` false) or its UV curve (`uv` true); `None` (the default) when this handle
+    /// type cannot name them.
+    fn from_classify_curve(_uv: bool) -> Option<Self> {
+        None
+    }
+
+    /// The handle of B-rep entity `t` (a vertex, edge, vertex use or edge use the
+    /// boundary intersections of a classification name), `None` (the default) when
+    /// this handle type cannot name it. A handle type names every entity of a kind or
+    /// none.
+    fn from_topology(_t: EntityRef) -> Option<Self> {
+        None
+    }
+
+    /// The B-rep entity this handle names (the inverse of [`Self::from_topology`]),
+    /// `None` (the default) for any other handle.
+    fn as_topology(&self) -> Option<EntityRef> {
+        None
+    }
+
+    /// The handle of edge `e`'s curve, `None` (the default) when this handle type
+    /// cannot name it.
+    fn from_edge_curve(_e: EdgeId) -> Option<Self> {
+        None
+    }
+
+    /// The edge whose curve this handle names (the inverse of
+    /// [`Self::from_edge_curve`]).
+    fn as_edge_curve(&self) -> Option<EdgeId> {
+        None
+    }
+
+    /// The handle of the UV trim curve of edge use `eu`, `None` (the default) when
+    /// this handle type cannot name it.
+    fn from_trim_curve(_eu: EdgeuseId) -> Option<Self> {
+        None
+    }
+
+    /// The edge use whose UV trim curve this handle names (the inverse of
+    /// [`Self::from_trim_curve`]).
+    fn as_trim_curve(&self) -> Option<EdgeuseId> {
+        None
+    }
 }
 
 // ---- SmClassifyLoopIO -----------------------------------------------------------------
@@ -1857,8 +1921,9 @@ impl<O: LoopObject> FaceProps<O> {
             ..ClassifyLoopsOut::default()
         };
         let mut target_loops = closed_loops;
-        // (the status is only reported upstream)
-        let classify_status = ignored(crate::query::face::p4::classify_loops(
+        // (the status is only reported upstream; a handle type that cannot name the
+        // loop bisector's objects is a limitation of the caller, not a status)
+        let classify_status = match crate::query::face::p4::classify_loops(
             k,
             b,
             m_face,
@@ -1866,7 +1931,14 @@ impl<O: LoopObject> FaceProps<O> {
             &mut classified,
             &mut scratch,
             self,
-        ))?;
+        ) {
+            Err(e @ SolidError::InvalidInput { reason, .. })
+                if reason == crate::query::face::p3::NO_CURVE_HANDLES =>
+            {
+                return Err(e);
+            }
+            r => ignored(r)?,
+        };
         let ClassifyLoopsOut {
             classifiable,
             classify_loop_ios,
