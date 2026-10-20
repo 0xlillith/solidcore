@@ -117,6 +117,9 @@ jobs:
         run: |
           echo "SCCACHE_GHA_ENABLED=true" >> "$GITHUB_ENV"
           echo "RUSTC_WRAPPER=sccache" >> "$GITHUB_ENV"
+          # The difftest run is idle for sccache for ~20 min; without this the server
+          # exits after 10 idle minutes and the stats printed at the end read zero.
+          echo "SCCACHE_IDLE_TIMEOUT=0" >> "$GITHUB_ENV"
 
       # The C++ reference (bin/cpp/lib) comes prebuilt from the GitHub Release that
       # .github/workflows/cpp-reference.yml publishes for scripts/cpp-ref-key.sh's key.
