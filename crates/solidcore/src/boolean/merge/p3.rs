@@ -692,37 +692,34 @@ pub fn boolean_lists_with_notifications(
                         };
                         // Defaults: pOptNewFaces=NULL, bUseMerge=TRUE,
                         // pOptMergeObject=NULL. Returned outputs are not inspected.
-                        match notifications.as_deref_mut() {
-                            Some(notify) => {
-                                bp7::copy_faces(
-                                    k,
-                                    &mut result,
-                                    &connected,
-                                    &mut component,
-                                    true,
-                                    &face_ref,
-                                    notify,
-                                )?;
-                            }
-                            None => {
-                                // the arena entry carries no attribute records: an
-                                // empty notification store over both B-reps' regions
-                                let mut state =
-                                    crate::topology::brep::p2::RegionNotifyState::new(&result);
-                                state.records.extend(
-                                    crate::topology::brep::p2::RegionNotifyState::new(&component)
-                                        .records,
-                                );
-                                bp7::copy_faces(
-                                    k,
-                                    &mut result,
-                                    &connected,
-                                    &mut component,
-                                    true,
-                                    &face_ref,
-                                    &mut state.env(),
-                                )?;
-                            }
+                        if let Some(notify) = notifications.as_deref_mut() {
+                            bp7::copy_faces(
+                                k,
+                                &mut result,
+                                &connected,
+                                &mut component,
+                                true,
+                                &face_ref,
+                                notify,
+                            )?;
+                        } else {
+                            // the arena entry carries no attribute records: an
+                            // empty notification store over both B-reps' regions
+                            let mut state =
+                                crate::topology::brep::p2::RegionNotifyState::new(&result);
+                            state.records.extend(
+                                crate::topology::brep::p2::RegionNotifyState::new(&component)
+                                    .records,
+                            );
+                            bp7::copy_faces(
+                                k,
+                                &mut result,
+                                &connected,
+                                &mut component,
+                                true,
+                                &face_ref,
+                                &mut state.env(),
+                            )?;
                         }
                         ignored(stitch_and_orient(
                             k,
