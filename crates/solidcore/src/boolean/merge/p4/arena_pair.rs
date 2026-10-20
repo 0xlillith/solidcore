@@ -972,6 +972,12 @@ impl IntersectorBrep<H> for ArenaPair<'_> {
     fn topology_objects(&self) -> &dyn TopologyObjects<H> {
         self
     }
+    fn brep_arena(&self, brep: H) -> crate::Result<&Brep> {
+        if brep.kind != K_BREP {
+            return Err(invalid("not a B-rep handle"));
+        }
+        self.brep_r(brep)
+    }
     fn brep_glue_edges_general(
         &mut self,
         k: &mut Kernel,
@@ -1193,6 +1199,81 @@ impl IntersectorBrepP2<H> for ArenaPair<'_> {
             .into_iter()
             .map(|f| hd(vertex.b, K_FACE, f.index()))
             .collect())
+    }
+}
+
+impl crate::topology::proto_topology::p3::BrepGlue<H> for ArenaPair<'_> {
+    /// `SmBrep::GlueVertices` of `brep` (`topology::brep::p5::glue_with_notifications`),
+    /// notifying through the adapter's records and attributes as
+    /// [`IntersectorBrep::brep_glue_edges_general`].
+    fn glue_vertices(
+        &mut self,
+        k: &mut Kernel,
+        brep: H,
+        v1: H,
+        v2: H,
+        opt_wire_edges_in_brep: Option<&[H]>,
+    ) -> crate::Result<()> {
+        if brep.kind != K_BREP
+            || v1.kind != K_VERTEX
+            || v2.kind != K_VERTEX
+            || v1.b != brep.b
+            || v2.b != brep.b
+        {
+            return Err(invalid("glue vertex owner mismatch"));
+        }
+        let wires = opt_wire_edges_in_brep
+            .map(|edges| {
+                edges
+                    .iter()
+                    .map(|&e| {
+                        if e.kind == K_EDGE && e.b == brep.b {
+                            Ok(eid(e))
+                        } else {
+                            Err(invalid("glue wire edge owner mismatch"))
+                        }
+                    })
+                    .collect::<crate::Result<Vec<_>>>()
+            })
+            .transpose()?;
+        let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
+        let b = self
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_deref_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        // The real glue may partially edit before returning an error. This
+        // direct arena borrow bypasses brep_mut, so invalidate both live caches.
+        *self
+            .queries
+            .get_mut(slot)
+            .ok_or_else(|| invalid("bad B-rep"))?
+            .cache = None;
+        let _ = self
+            .caches
+            .get_mut(slot)
+            .ok_or_else(|| invalid("bad B-rep"))?
+            .take();
+        let mut notify = ed::NotifyEnv {
+            records: self.records,
+            attributes: self.attributes,
+            context: Some(if brep.b == 1 {
+                self.other_context
+                    .as_deref_mut()
+                    .unwrap_or(self.primary_context)
+            } else {
+                self.primary_context
+            }),
+            key_of: &|e| super::kernel_adapter::notification_key(self.namespace, brep.b == 1, e),
+        };
+        crate::topology::brep::p5::glue_with_notifications(
+            k,
+            b,
+            Some(vid(v1)),
+            Some(vid(v2)),
+            wires.as_deref(),
+            Some(&mut notify),
+        )
     }
 }
 

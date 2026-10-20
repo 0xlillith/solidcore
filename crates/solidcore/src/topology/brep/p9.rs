@@ -292,8 +292,9 @@ where
                 }
             }
             direction = ray_direction(direction)?;
-            if !brep_ray_fire(
-                world.brep(brep_id)?,
+            if !world.brep_ray_fire(
+                k,
+                brep_id,
                 ray_start,
                 direction,
                 tolerance,
@@ -304,17 +305,21 @@ where
                 let record = world.brep(brep_id)?.edge(edge_id)?;
                 let curve = required(record.curve.as_ref(), "ray target edge without curve")?;
                 let point = curve.evaluate_point(record.interval.evaluate(0.789))?;
-                if !brep_ray_fire(
-                    world.brep(brep_id)?,
+                if !world.brep_ray_fire(
+                    k,
+                    brep_id,
                     ray_start,
                     point - ray_start,
                     tolerance,
                     &mut state,
                 )? {
+                    let record = world.brep(brep_id)?.edge(edge_id)?;
+                    let curve = required(record.curve.as_ref(), "ray target edge without curve")?;
                     let point = curve.evaluate_point(record.interval.evaluate(0.189))?;
                     let start = bounds.min() - (bounds.max() - bounds.min()) * 0.5;
-                    if !brep_ray_fire(
-                        world.brep(brep_id)?,
+                    if !world.brep_ray_fire(
+                        k,
+                        brep_id,
                         start,
                         point - start,
                         tolerance,
@@ -339,18 +344,6 @@ fn brep_regions(b: &Brep) -> Result<Vec<RegionId>> {
 
 fn brep_edges(b: &Brep) -> Result<Vec<EdgeId>> {
     crate::topology::brep::p1::edges(b, None)
-}
-
-fn brep_ray_fire<O>(
-    b: &Brep,
-    start: Point3,
-    direction: Vec3,
-    tolerance: f64,
-    state: &mut crate::topology::shell::ShellRayState<O>,
-) -> Result<bool> {
-    let _ = (b, start, direction, tolerance, state);
-    // UNPORTED(topology.brep_p2): SmBrep::RayFire
-    Err(SolidError::unported("SmBrep::RayFire", "topology.brep_p2"))
 }
 
 fn ray_direction(direction: Vec3) -> Result<Vec3> {
@@ -384,9 +377,9 @@ fn is_intersector_approx(curve: &Curve) -> Result<bool> {
 /// `OrientSheetSurfaces`. `same=true` is upstream's default orientation policy.
 ///
 /// # Errors
-/// `SM_ERR` for a face not in the B-rep or a B-rep that is not a sheet; the part-2
-/// sheet/oriented-sheet predicates and `SwapUV` (`Unported`). The UV swaps' own
-/// statuses are ignored, as upstream.
+/// `SM_ERR` for a face not in the B-rep or a B-rep that is not a sheet; those of the
+/// part-2 sheet/oriented-sheet predicates and of `SwapUV`. The UV swaps' own statuses
+/// are ignored, as upstream.
 pub fn orient_sheet_surfaces(
     k: &mut Kernel,
     b: &mut Brep,
@@ -397,10 +390,10 @@ pub fn orient_sheet_surfaces(
     let Some(face) = face.filter(|face| faces.contains(face)) else {
         return Err(SolidError::sm_err(OP));
     };
-    if !is_sheet(b)? {
+    if !is_sheet(k, b)? {
         return Err(SolidError::sm_err(OP));
     }
-    if is_oriented_sheet(b)? {
+    if is_oriented_sheet(k, b)? {
         if !same {
             // Status ignored upstream (SmBrep.cpp:11644).
             ignore_status(swap_brep_uv(k, b))?;
@@ -449,25 +442,20 @@ fn brep_faces(b: &Brep) -> Result<Vec<FaceId>> {
     crate::topology::brep::p1::faces(b, None)
 }
 
-fn is_sheet(b: &Brep) -> Result<bool> {
-    let _ = b;
-    // UNPORTED(topology.brep_p2): SmBrep::IsSheet
-    Err(SolidError::unported("SmBrep::IsSheet", "topology.brep_p2"))
+/// `IsSheet()` ([`crate::topology::brep::p2::is_sheet`]).
+fn is_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
+    crate::topology::brep::p2::is_sheet(k, b)
 }
 
-fn is_oriented_sheet(b: &Brep) -> Result<bool> {
-    let _ = b;
-    // UNPORTED(topology.brep_p2): SmBrep::IsOrientedSheet
-    Err(SolidError::unported(
-        "SmBrep::IsOrientedSheet",
-        "topology.brep_p2",
-    ))
+/// `IsOrientedSheet()` ([`crate::topology::brep::p2::is_oriented_sheet`]).
+fn is_oriented_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
+    crate::topology::brep::p2::is_oriented_sheet(k, b)
 }
 
+/// `SwapUV()` ([`crate::topology::brep::p2::swap_uv`], which claims its own mark).
 fn swap_brep_uv(k: &mut Kernel, b: &mut Brep) -> Result<()> {
-    let _ = (k, b);
-    // UNPORTED(topology.brep_p2): SmBrep::SwapUV
-    Err(SolidError::unported("SmBrep::SwapUV", "topology.brep_p2"))
+    let mut marks = crate::topology::topology_traverser::Marks::default();
+    crate::topology::brep::p2::swap_uv(k, b, &mut marks)
 }
 
 /// `sm_SwapFaceUV(pFace, SM_MT_NOMARK)`: swap without marking the face.
@@ -489,8 +477,8 @@ fn swap_face_uv(
 /// `MakeShellVertex`: `region=None` selects the infinite region.
 ///
 /// # Errors
-/// Allocation and linking first call part 2's `MakeShellVertexTopology`. No isolated
-/// vertex or shell is fabricated while that dependency is unavailable.
+/// Those of part 2's `MakeShellVertexTopology` (allocation and linking), the vertex
+/// point and tolerance setters and the two `ADD_TO_BREP` notifications.
 pub fn make_shell_vertex(
     b: &mut Brep,
     region: Option<RegionId>,
@@ -536,12 +524,9 @@ fn make_shell_vertex_topology(
     region: Option<RegionId>,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<(ShellId, VertexId)> {
-    let _ = (b, region, env);
-    // UNPORTED(topology.brep_p2): SmBrep::MakeShellVertexTopology
-    Err(SolidError::unported(
-        "SmBrep::MakeShellVertexTopology",
-        "topology.brep_p2",
-    ))
+    // MakeShellVertexTopology sends no notification; the caller registers the records
+    let _ = env;
+    crate::topology::brep::p2::make_shell_vertex_topology(b, region)
 }
 
 /// `MakeVertexLoop`: creates a vertex loop with the supplied orientation
@@ -702,9 +687,9 @@ fn brep_notify_call(
     operation: NotifyOperation,
     data: [Option<crate::geom::object::ObjectRef>; 3],
 ) -> Result<()> {
-    let _ = (b, env, operation, data);
-    // UNPORTED(topology.brep_p2): SmBrep::Notify
-    Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
+    // no B-rep cache is held by the caller (`brep::p2::notify` with no cache slot)
+    let data = data.map(|d| d.map(crate::topology::brep::p2::NotifyArg::Object));
+    crate::topology::brep::p2::notify(b, env, None, operation, data)
 }
 
 fn face_notify(
@@ -2257,14 +2242,13 @@ mod tests {
                 type_code: kind,
             }
         });
-        // With part 1 wired, a wire split runs to its final B-rep ADD notification.
-        assert!(matches!(
-            result,
-            Err(SolidError::Unported {
-                unit: "topology.brep_p2",
-                upstream: "SmBrep::Notify",
-            })
-        ));
+        // With parts 1 and 2 wired, a wire split completes, its final B-rep ADD
+        // notification included.
+        let out = result.unwrap();
+        assert_eq!(out.status(), 0);
+        let edges = out.edges.unwrap();
+        assert!(edges.contains(&e));
+        assert!(out.vertex.is_some());
         assert_eq!(b.edge_list().len(), 2);
         assert_eq!(b.vertex_list().len(), 3);
         assert!(!k.context.doing_boolean());
