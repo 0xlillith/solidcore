@@ -56,6 +56,12 @@ pub struct Fixture {
     /// Native query metadata: list order, concrete geometry types and owners.
     /// The shared differential-harness decoder validates its complete schema.
     pub query_metadata: Vec<f64>,
+    /// Actual pre-operation vertex flags, stored marks and user fields, in graph order.
+    pub vertex_notifications: Vec<[u64; 9]>,
+    /// Native context contains a user or system notification callback.
+    pub callback_present: bool,
+    /// Native operand topology or owned geometry contains attributes.
+    pub attributes_present: bool,
 }
 
 /// Operation and established intersection state. Mark flags list all edges, then
@@ -181,14 +187,48 @@ pub fn export(o: Operand<'_>) -> Result<Fixture, FfiError> {
     at = at.checked_add(1).ok_or_else(invalid)?;
     let end = at.checked_add(count as usize).ok_or_else(invalid)?;
     let query_metadata = raw.get(at..end).ok_or_else(invalid)?.to_vec();
-    if end != raw.len() {
-        return Err(invalid());
-    }
+    let (callback_present, attributes_present, vertex_notifications) =
+        notification_inputs(raw.get(end..).ok_or_else(invalid)?, counts[9])?;
     Ok(Fixture {
         graph,
         vertexuses,
         query_metadata,
+        vertex_notifications,
+        callback_present,
+        attributes_present,
     })
+}
+
+// Nine wide values: flags, all five stored marks, user indices 1/2 and user pointer.
+fn notification_inputs(raw: &[f64], vertices: usize) -> Result<(bool, bool, Vec<[u64; 9]>), FfiError> {
+    let expected = vertices.checked_mul(19).and_then(|n| n.checked_add(4)).ok_or_else(invalid)?;
+    if raw.len() != expected || raw.first() != Some(&1.0) || raw.get(3) != Some(&(vertices as f64)) {
+        return Err(invalid());
+    }
+    let flag = |value: f64| match value {
+        0.0 => Ok(false),
+        1.0 => Ok(true),
+        _ => Err(invalid()),
+    };
+    let callback = flag(raw[1])?;
+    let attributes = flag(raw[2])?;
+    let word = |value: f64| {
+        if value.is_finite() && value.fract() == 0.0 && (0.0..=f64::from(u32::MAX)).contains(&value) {
+            Ok(value as u64)
+        } else {
+            Err(invalid())
+        }
+    };
+    let mut records = Vec::new();
+    for (index, row) in raw[4..].as_chunks::<19>().0.enumerate() {
+        if row[0] != index as f64 { return Err(invalid()); }
+        let mut record = [0; 9];
+        for (entry, limbs) in record.iter_mut().zip(row[1..].as_chunks::<2>().0) {
+            *entry = word(limbs[0])? | (word(limbs[1])? << 32);
+        }
+        records.push(record);
+    }
+    Ok((callback, attributes, records))
 }
 
 /// Validate the one-to-one edge relation established by fixture `Relate` calls.
@@ -380,5 +420,24 @@ mod tests {
             }),
             Err(FfiError::InvalidArgument(_))
         ));
+    }
+}
+
+#[cfg(test)]
+mod notification_tests {
+    use super::*;
+
+    #[test]
+    fn wide_records_are_exact_and_malformed_inputs_fail_closed() {
+        let mut raw = vec![1.0, 0.0, 0.0, 1.0, 0.0];
+        for _ in 0..9 { raw.extend([f64::from(u32::MAX), f64::from(u32::MAX)]); }
+        assert_eq!(notification_inputs(&raw, 1).unwrap().2, vec![[u64::MAX; 9]]);
+        for end in 0..raw.len() { assert!(notification_inputs(&raw[..end], 1).is_err()); }
+        let mut extra = raw.clone(); extra.push(0.0);
+        assert!(notification_inputs(&extra, 1).is_err());
+        for index in [0, 1, 2, 3, 4, 5] {
+            let mut malformed = raw.clone(); malformed[index] = f64::NAN;
+            assert!(notification_inputs(&malformed, 1).is_err());
+        }
     }
 }

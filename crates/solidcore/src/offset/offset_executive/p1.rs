@@ -40,6 +40,9 @@
 //! face construction remains in unported part 8. `MapEdgeuses` retains both
 //! mutable arenas for lazy UV curves and requires the caller's real notification
 //! state and distinct offset keys, with native relation-before-notification order.
+//! `BuildOffsetOfVertex` borrows the actual geometry creator and original/offset arenas.
+//! Its narrow geometry bridge preserves owner metadata and lazy seam UV mutations,
+//! then moves newly allocated cap/trim geometry to the caller. No B-rep is cloned.
 //! No new input-driven recursion; existing topology walks are cycle-bounded.
 
 use std::collections::BTreeMap;
@@ -75,6 +78,10 @@ use crate::topology::topology_traverser::face_edges;
 use crate::topology::{loopuse, vertex, Brep, EdgeId, EdgeuseId, FaceId, FaceuseId, VertexId};
 
 const OP: &str = "offset::offset_executive::p1";
+
+fn invalid(reason: &'static str) -> SolidError {
+    SolidError::invalid_input(OP, reason)
+}
 
 /// Where an offset's results are placed (`SmOffsetOperationType`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -114,6 +121,183 @@ pub struct VertexOffset {
     pub trim_curves: Vec<Curve>,
     /// Orientations of the trimming curves.
     pub curve_orientations: Vec<OrientType>,
+}
+
+// Original and offset topology are deliberately distinct even when arena ids match.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum VertexOffsetObject {
+    OriginalVertex(VertexId),
+    OffsetEdge(EdgeId),
+    OffsetFace(FaceId),
+    OffsetCurve(EdgeId),
+    Curve(u32),
+    Surface(u32),
+}
+
+impl crate::intersect::point_class::ClassObject for VertexOffsetObject {
+    fn class_kind(&self) -> crate::intersect::point_class::ClassObjectKind {
+        use crate::intersect::point_class::ClassObjectKind as Kind;
+        match self {
+            Self::OriginalVertex(_) => Kind::Vertex,
+            Self::OffsetEdge(_) => Kind::Edge,
+            Self::OffsetFace(_) => Kind::Face,
+            Self::OffsetCurve(_) | Self::Curve(_) => Kind::Curve,
+            Self::Surface(_) => Kind::Surface,
+        }
+    }
+}
+impl crate::geom::solution_array::SolutionObject for VertexOffsetObject {
+    fn kind(&self) -> crate::geom::solution_array::ObjectKind {
+        use crate::geom::solution_array::ObjectKind as Kind;
+        match self {
+            Self::OriginalVertex(_) => Kind::Vertex,
+            Self::OffsetEdge(_) => Kind::Edge,
+            Self::OffsetFace(_) => Kind::Face,
+            Self::OffsetCurve(_) | Self::Curve(_) => Kind::Curve,
+            Self::Surface(_) => Kind::Surface,
+        }
+    }
+}
+
+// Owns only newly generated geometry. Existing curves/surfaces remain borrowed
+// from the live arenas, including their actual owner metadata and lazy UV edits.
+struct VertexOffsetBridge<'a> {
+    original: &'a Brep,
+    offset: &'a mut Brep,
+    curves: Vec<Option<Curve>>,
+    surfaces: Vec<Option<Surface>>,
+}
+impl crate::intersect::point_class::ClassGeometry<VertexOffsetObject> for VertexOffsetBridge<'_> {
+    fn curve(&self, object: VertexOffsetObject) -> Option<&Curve> {
+        match object {
+            VertexOffsetObject::OffsetCurve(edge) => self.offset.edge(edge).ok()?.curve.as_ref(),
+            VertexOffsetObject::Curve(index) => self.curves.get(index as usize)?.as_ref(),
+            _ => None,
+        }
+    }
+    fn surface(&self, object: VertexOffsetObject) -> Option<&Surface> {
+        match object {
+            VertexOffsetObject::Surface(index) => self.surfaces.get(index as usize)?.as_ref(),
+            _ => None,
+        }
+    }
+    fn volume(&self, _object: VertexOffsetObject) -> Option<&crate::surface::volume::Volume> {
+        None
+    }
+    fn point(&self, _object: VertexOffsetObject) -> Option<Vec3> {
+        None
+    }
+}
+impl crate::offset::offset_geometry_creation::VertexOffsetBrep<VertexOffsetObject>
+    for VertexOffsetBridge<'_>
+{
+    fn insert_curve(&mut self, curve: Curve) -> Option<VertexOffsetObject> {
+        let index = u32::try_from(self.curves.len()).ok()?;
+        self.curves.push(Some(curve));
+        Some(VertexOffsetObject::Curve(index))
+    }
+    fn insert_surface(&mut self, surface: Surface) -> Option<VertexOffsetObject> {
+        let index = u32::try_from(self.surfaces.len()).ok()?;
+        self.surfaces.push(Some(surface));
+        Some(VertexOffsetObject::Surface(index))
+    }
+    fn brep_tolerance(&self, object: VertexOffsetObject) -> Result<f64> {
+        let VertexOffsetObject::OriginalVertex(vertex) = object else {
+            return Err(invalid("vertex offset tolerance of a non-original vertex"));
+        };
+        // Native VertexOffset dereferences pOriginalVertex->GetBrep(), not the
+        // offset B-rep and not a kernel system tolerance.
+        let owner = vertex::brep(self.original, vertex)?
+            .ok_or_else(|| invalid("vertex offset vertex without an owning B-rep"))?;
+        Ok(owner.tolerance())
+    }
+    fn edge_curve(&self, object: VertexOffsetObject) -> Result<Option<VertexOffsetObject>> {
+        let VertexOffsetObject::OffsetEdge(edge) = object else {
+            return Err(invalid("vertex offset curve of a non-offset edge"));
+        };
+        Ok(self
+            .offset
+            .edge(edge)?
+            .curve
+            .as_ref()
+            .map(|_| VertexOffsetObject::OffsetCurve(edge)))
+    }
+    fn edge_interval(&self, object: VertexOffsetObject) -> Result<Extent1d> {
+        let VertexOffsetObject::OffsetEdge(edge) = object else {
+            return Err(invalid("vertex offset interval of a non-offset edge"));
+        };
+        edge::interval(self.offset, edge)
+    }
+    fn edge_faces(&self, object: VertexOffsetObject) -> Result<Vec<VertexOffsetObject>> {
+        let VertexOffsetObject::OffsetEdge(edge) = object else {
+            return Err(invalid("vertex offset faces of a non-offset edge"));
+        };
+        Ok(edge::faces(self.offset, edge, None)?
+            .into_iter()
+            .map(VertexOffsetObject::OffsetFace)
+            .collect())
+    }
+    fn edge_is_seam_of_face_surface(
+        &mut self,
+        kernel: &Kernel,
+        object: VertexOffsetObject,
+        face: VertexOffsetObject,
+    ) -> Result<bool> {
+        let (VertexOffsetObject::OffsetEdge(edge), VertexOffsetObject::OffsetFace(face)) =
+            (object, face)
+        else {
+            return Err(invalid("vertex offset seam requires offset edge and face"));
+        };
+        edge::is_seam_of_surface(kernel, self.offset, edge, face)
+    }
+    fn vertex_point(&self, object: VertexOffsetObject) -> Result<Vec3> {
+        let VertexOffsetObject::OriginalVertex(vertex) = object else {
+            return Err(invalid("vertex offset point of a non-original vertex"));
+        };
+        vertex::point(self.original, vertex)
+    }
+    fn vertex_is_lamina(&self, object: VertexOffsetObject) -> Result<bool> {
+        let VertexOffsetObject::OriginalVertex(vertex) = object else {
+            return Err(invalid(
+                "vertex offset lamina test of a non-original vertex",
+            ));
+        };
+        vertex::is_lamina_vertex(self.original, vertex)
+    }
+}
+impl VertexOffsetBridge<'_> {
+    fn take_result(
+        mut self,
+        output: crate::offset::offset_geometry_creation::VertexOffsetGeometry<VertexOffsetObject>,
+    ) -> Result<VertexOffset> {
+        let surface = match output.surface {
+            None => None,
+            Some(VertexOffsetObject::Surface(index)) => Some(
+                self.surfaces
+                    .get_mut(index as usize)
+                    .and_then(Option::take)
+                    .ok_or_else(|| invalid("missing owned vertex offset surface"))?,
+            ),
+            Some(_) => return Err(invalid("vertex offset output is not an owned surface")),
+        };
+        let mut trim_curves = Vec::new();
+        for object in output.trimming_curves {
+            let VertexOffsetObject::Curve(index) = object else {
+                return Err(invalid("vertex offset output is not an owned curve"));
+            };
+            trim_curves.push(
+                self.curves
+                    .get_mut(index as usize)
+                    .and_then(Option::take)
+                    .ok_or_else(|| invalid("missing owned vertex offset trim curve"))?,
+            );
+        }
+        Ok(VertexOffset {
+            surface,
+            trim_curves,
+            curve_orientations: output.orients,
+        })
+    }
 }
 
 /// Actual shared notification records and the offset arena's distinct identity map.
@@ -706,18 +890,21 @@ impl OffsetExecutive {
     }
 
     /// Collects circular/short-line cap edges for a vertex (`BuildOffsetOfVertex`).
-    /// All topology selection and geometry predicates precede the actual missing `VertexOffset` call.
+    /// Calls the actual geometry creator after native topology/curve selection.
+    /// `creator` must be the real creator supplying this executive's settings;
+    /// its result geometry is moved out of the bridge, never cloned from an arena.
     pub fn build_offset_of_vertex(
         &mut self,
-        _kernel: &Kernel,
+        kernel: &Kernel,
         original: &Brep,
         vertex: Option<VertexId>,
+        creator: &crate::offset::offset_geometry_creation::OffsetGeometryCreation,
     ) -> Result<VertexOffset> {
         let vertex = required(vertex)?;
         let point = original.vertex(vertex)?.point;
         let result = self.required_offset_brep()?;
         let tol = result.tolerance();
-        let radius = self.offset_distance;
+        let radius = creator.offset_distance();
         let mut edges = vertex::edges(original, vertex, None)?;
         let mut edges_to_blend = Vec::new();
 
@@ -742,8 +929,8 @@ impl OffsetExecutive {
                     for &edge in &edges {
                         let curve = bspline_edge_curve(result, edge)?;
                         if let Some((frame, arc_radius, _, _)) = curve.is_arc(10, tol)? {
-                            if arc_radius < self.offset_distance
-                                && frame.origin().distance(point) < self.offset_distance + tol
+                            if arc_radius < creator.offset_distance()
+                                && frame.origin().distance(point) < creator.offset_distance() + tol
                             {
                                 edges_to_blend.push(edge);
                             }
@@ -753,11 +940,13 @@ impl OffsetExecutive {
                 if edges_to_blend.len() != 1 {
                     return Ok(VertexOffset::default());
                 }
-                // UNPORTED(offset.offset_geometry_creation): SmOffsetGeometryCreation::VertexOffset
-                return Err(SolidError::unported(
-                    "SmOffsetGeometryCreation::VertexOffset",
-                    "offset.offset_geometry_creation",
-                ));
+                return self.create_vertex_offset_geometry(
+                    kernel,
+                    original,
+                    vertex,
+                    &edges_to_blend,
+                    creator,
+                );
             }
         }
 
@@ -790,12 +979,36 @@ impl OffsetExecutive {
                 }
             }
         }
-        // This call is unconditional, even when the vertex has no incident edges.
-        // UNPORTED(offset.offset_geometry_creation): SmOffsetGeometryCreation::VertexOffset
-        Err(SolidError::unported(
-            "SmOffsetGeometryCreation::VertexOffset",
-            "offset.offset_geometry_creation",
-        ))
+        // Native call remains unconditional, including an isolated vertex.
+        self.create_vertex_offset_geometry(kernel, original, vertex, &edges_to_blend, creator)
+    }
+
+    fn create_vertex_offset_geometry(
+        &mut self,
+        kernel: &Kernel,
+        original: &Brep,
+        vertex: VertexId,
+        bounding_edges: &[EdgeId],
+        creator: &crate::offset::offset_geometry_creation::OffsetGeometryCreation,
+    ) -> Result<VertexOffset> {
+        let mut bridge = VertexOffsetBridge {
+            original,
+            offset: required(self.offset_brep.as_mut())?,
+            curves: Vec::new(),
+            surfaces: Vec::new(),
+        };
+        let edges: Vec<_> = bounding_edges
+            .iter()
+            .copied()
+            .map(VertexOffsetObject::OffsetEdge)
+            .collect();
+        let output = creator.vertex_offset(
+            kernel,
+            &mut bridge,
+            Some(VertexOffsetObject::OriginalVertex(vertex)),
+            &edges,
+        )?;
+        bridge.take_result(output)
     }
 }
 
@@ -1489,6 +1702,10 @@ mod tests {
     use crate::nurbs::b_spline_surface::BSplineSurface;
     use crate::surface::plane::Plane;
     use crate::topology::{Edge, Edgeuse, Face, Faceuse, ShellId, Vertex, Vertexuse};
+
+    fn vertex_creator() -> crate::offset::offset_geometry_creation::OffsetGeometryCreation {
+        crate::offset::offset_geometry_creation::OffsetGeometryCreation::new(0.125, 1.0e-6)
+    }
 
     fn executive() -> OffsetExecutive {
         OffsetExecutive::new(OffsetOperation::SolidOffset, 0.125, 1.0e-6)
@@ -2705,7 +2922,7 @@ mod tests {
     }
 
     fn strut_vertex_fixture() -> (Brep, VertexId, FaceuseId) {
-        let mut original = Brep::new();
+        let mut original = Brep::new_with_infinite_region().unwrap();
         let vertex = original.add_vertex_record(Vertex::default()).unwrap();
         let (_, faceuse) = add_face(&mut original, plane(0.0));
         let edgeuse = add_use(&mut original, 0.0, 1.0, 1.0);
@@ -2739,6 +2956,18 @@ mod tests {
         record.ccw = Some(edgeuse);
         record.cw = Some(edgeuse);
         record.orientation = OrientType::Same;
+        let region = original.infinite_region().unwrap();
+        let shell = original
+            .add_shell_record(crate::topology::Shell {
+                region: Some(region),
+                shell_type: crate::topology::shell::ShellType::Faceuse,
+                members: crate::topology::shell::ShellMembers::Faceuses(vec![faceuse]),
+                ..crate::topology::Shell::default()
+            })
+            .unwrap();
+        original.region_mut(region).unwrap().shells.push(shell);
+        original.faceuse_mut(faceuse).unwrap().shell = Some(shell);
+        assert!(vertex::brep(&original, vertex).unwrap().is_some());
         assert!(eu::is_strut(&original, edgeuse).unwrap());
         (original, vertex, faceuse)
     }
@@ -2753,7 +2982,7 @@ mod tests {
         for mate in [None, Some(mate)] {
             original.faceuse_mut(faceuse).unwrap().mate = mate;
             let offset = executive
-                .build_offset_of_vertex(&kernel, &original, Some(vertex))
+                .build_offset_of_vertex(&kernel, &original, Some(vertex), &vertex_creator())
                 .unwrap();
             assert!(offset.surface.is_none());
             assert!(offset.trim_curves.is_empty());
@@ -2762,7 +2991,7 @@ mod tests {
     }
 
     #[test]
-    fn vertex_strut_mate_mapping_preserves_vertex_offset_dependency_and_primary_precedence() {
+    fn vertex_strut_mate_mapping_calls_real_creator_and_keeps_primary_precedence() {
         let kernel = Kernel::default();
         let mut executive = executive();
         let (mut original, vertex, faceuse) = strut_vertex_fixture();
@@ -2786,14 +3015,15 @@ mod tests {
         let (empty_face, _) = add_face(&mut result, plane(0.0));
         executive.set_offset_brep(result);
         executive.relate_faceuse(mate, cap_face);
-        assert_dependency(
-            executive.build_offset_of_vertex(&kernel, &original, Some(vertex)),
-            "SmOffsetGeometryCreation::VertexOffset",
-            "offset.offset_geometry_creation",
-        );
+        let cap = executive
+            .build_offset_of_vertex(&kernel, &original, Some(vertex), &vertex_creator())
+            .unwrap();
+        assert!(cap.surface.is_some());
+        assert!(cap.trim_curves.is_empty());
+        assert!(cap.curve_orientations.is_empty());
         executive.relate_faceuse(faceuse, empty_face);
         let offset = executive
-            .build_offset_of_vertex(&kernel, &original, Some(vertex))
+            .build_offset_of_vertex(&kernel, &original, Some(vertex), &vertex_creator())
             .unwrap();
         assert!(offset.surface.is_none());
         assert!(offset.trim_curves.is_empty());
@@ -2801,23 +3031,54 @@ mod tests {
     }
 
     #[test]
-    fn vertex_null_and_isolated_vertex_reach_the_right_dependency() {
+    fn vertex_null_and_owned_isolated_vertex_use_actual_geometry() {
+        let kernel = Kernel::default();
+        let creator = vertex_creator();
+        let mut executive = executive();
+        let mut original = Brep::new_with_infinite_region().unwrap();
+        let mut state = crate::topology::brep::p2::ArenaNotifyState::new(&original);
+        let (_, vertex) = crate::topology::brep::p9::make_shell_vertex(
+            &mut original,
+            None,
+            Vec3::new(1.0, 2.0, 3.0),
+            &mut state.env(None),
+        )
+        .unwrap();
+        executive.set_offset_brep(Brep::new_with_infinite_region().unwrap());
+        assert!(executive
+            .build_offset_of_vertex(&kernel, &original, None, &creator)
+            .is_err());
+        let cap = executive
+            .build_offset_of_vertex(&kernel, &original, Some(vertex), &creator)
+            .unwrap();
+        assert!(cap.trim_curves.is_empty() && cap.curve_orientations.is_empty());
+        let surface = cap.surface.unwrap();
+        let domain = surface.natural_uv_domain();
+        let point = surface.evaluate_point(domain.evaluate(0.5, 0.5)).unwrap();
+        assert!(
+            (point.distance(original.vertex(vertex).unwrap().point) - creator.offset_distance())
+                .abs()
+                < 1.0e-12
+        );
+        executive
+            .fill_gap_edgeuses(&kernel, EdgeId::from_index(u32::MAX), &[], &[])
+            .unwrap();
+    }
+
+    #[test]
+    fn vertex_offset_does_not_guess_an_unowned_vertexs_brep() {
         let kernel = Kernel::default();
         let mut executive = executive();
         let mut original = Brep::new();
         let vertex = original.add_vertex_record(Vertex::default()).unwrap();
         executive.set_offset_brep(Brep::new());
-        assert!(executive
-            .build_offset_of_vertex(&kernel, &original, None)
-            .is_err());
-        assert_dependency(
-            executive.build_offset_of_vertex(&kernel, &original, Some(vertex)),
-            "SmOffsetGeometryCreation::VertexOffset",
-            "offset.offset_geometry_creation",
-        );
-        executive
-            .fill_gap_edgeuses(&kernel, EdgeId::from_index(u32::MAX), &[], &[])
-            .unwrap();
+        assert!(matches!(
+            executive.build_offset_of_vertex(&kernel, &original, Some(vertex), &vertex_creator()),
+            Err(SolidError::InvalidInput {
+                reason: "vertex offset vertex without an owning B-rep",
+                ..
+            })
+        ));
     }
 
     #[test]

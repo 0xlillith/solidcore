@@ -14,6 +14,7 @@ use solidcore::geom::object::ObjectRef;
 use solidcore::kernel::Kernel;
 use solidcore::query::brep::BrepQueryContext;
 use solidcore::topology::brep_cache::arena_identity;
+use solidcore::topology::topology::Topology;
 use solidcore::topology::topology_traverser::{Entity, Marks};
 use solidcore::topology::{
     edge, vertex, vertexuse, ArenaId, Brep, BrepId, EdgeId, VertexId, VertexuseId,
@@ -130,6 +131,40 @@ fn import(f: &ffi::Fixture) -> Result<(Brep, shared::QueryMetadata), HarnessErro
     let metadata = shared::apply_query_metadata(&mut b, &f.query_metadata, &arena_identity)?;
     Ok((b, metadata))
 }
+// Type-qualified keys leave the high bit for the other operand. New primary
+// topology uses this same scheme through MakeShellVertex's real notification env.
+fn notification_key(entity: solidcore::EntityRef, other: bool) -> ObjectRef {
+    if matches!(entity, solidcore::EntityRef::Brep(_)) {
+        return ObjectRef { type_code: solidcore::geom::a_object::BREP_TYPE,
+            key: ObjectKey(if other { 1_u64 << 63 } else { 0 }) };
+    }
+    let mut object = super::boolean_topology_intersector_p1::p9_entity_ref(entity);
+    object.key = ObjectKey(object.key.0 | if other { 1_u64 << 63 } else { 0 });
+    object
+}
+
+fn import_vertex_notifications(
+    fixture: &ffi::Fixture,
+    brep: &Brep,
+    other: bool,
+    records: &mut BTreeMap<ObjectKey, Topology>,
+) -> Result<(), HarnessError> {
+    if fixture.vertex_notifications.len() != brep.vertices().len() {
+        return Err(err("notification vertex count differs from graph"));
+    }
+    for ((vertex, _), values) in brep.vertices().iter().zip(&fixture.vertex_notifications) {
+        let mut record = Topology::new();
+        record.set_all_flags(values[0]);
+        record.restore_marks([values[1], values[2], values[3], values[4], values[5]]);
+        record.set_user_index1(values[6]);
+        record.set_user_index2(values[7]);
+        record.set_user_ptr1(values[8]);
+        let key = notification_key(solidcore::EntityRef::Vertex(vertex), other).key;
+        if records.insert(key, record).is_some() { return Err(err("duplicate notification key")); }
+    }
+    Ok(())
+}
+
 fn seed(
     k: &Kernel,
     b: &Brep,
@@ -374,29 +409,37 @@ impl UnitDiff for Runner {
             }
             relations.edges.record(e, oe).map_err(|e| err(&e))?;
         }
+        // Attribute payloads and native callbacks cannot be represented by this
+        // adapter. Preserve their actual presence as an explicit conservative
+        // operand-wide deferral, never an empty-store claim or fixture rejection.
+        if aa.callback_present || bb.callback_present || aa.attributes_present || bb.attributes_present {
+            return Ok(Output::deferred(
+                "harness:merge-p5-notification-inputs",
+                "native notification attributes or callbacks are not represented",
+            ));
+        }
         let mut records = BTreeMap::new();
+        import_vertex_notifications(&aa, &a, false, &mut records)?;
+        import_vertex_notifications(&bb, &b, true, &mut records)?;
+        // Native fixture Mark calls occur after export. Reflect those deliberate
+        // input marks in the notification records too (queries retain Marks).
+        for (brep, other, mark, marked) in [
+            (&a, false, ma, flags(ac, i.primary_pre, &i.primary_unmark)),
+            (&b, true, mb, flags(bc, i.other_pre, &i.other_unmark)),
+        ] {
+            for (index, vertex) in brep.vertices().ids().enumerate() {
+                if marked.get(brep.edges().len() + index) == Some(&1) {
+                    let key = notification_key(solidcore::EntityRef::Vertex(vertex), other).key;
+                    records.get_mut(&key).ok_or_else(|| err("missing marked vertex record"))?.mark(Some(&k.context), mark);
+                }
+            }
+        }
         let mut attributes = AttributeStore::new();
         let mut copy = VertexCopy {
             records: &mut records,
             attributes: &mut attributes,
-            source_key: &|v| ObjectRef {
-                key: ObjectKey(1_000_000 + u64::from(v.index())),
-                type_code: 16021,
-            },
-            destination_key: &|e| match e {
-                solidcore::EntityRef::Vertex(v) => ObjectRef {
-                    key: ObjectKey(u64::from(v.index())),
-                    type_code: 16021,
-                },
-                solidcore::EntityRef::Vertexuse(v) => ObjectRef {
-                    key: ObjectKey(2_000_000 + u64::from(v.index())),
-                    type_code: 16006,
-                },
-                _ => ObjectRef {
-                    key: ObjectKey(3_000_000),
-                    type_code: 16001,
-                },
-            },
+            source_key: &|v| notification_key(solidcore::EntityRef::Vertex(v), true),
+            destination_key: &|entity| notification_key(entity, false),
         };
         let operation =
             BooleanOperation::from_code(i.operation).ok_or_else(|| err("boolean operation"))?;
@@ -488,6 +531,18 @@ impl UnitDiff for Runner {
         let mut values = Vec::new();
         snapshot(&k, &a, &am, ma, &mut ids, &mut values)?;
         snapshot(&k, &b, &bm, mb, &mut ids, &mut values)?;
+        // The native snapshot observes these same primary vertices in owning
+        // list order, including genuinely created destinations after Copy.
+        let primary_vertices = solidcore::topology::brep::p1::vertices(&a, None)
+            .map_err(|e| err(&e))?;
+        ids.push(primary_vertices.len() as i64);
+        for vertex in primary_vertices {
+            let key = notification_key(solidcore::EntityRef::Vertex(vertex), false).key;
+            let record = copy.records.get(&key).ok_or_else(|| err("missing final primary vertex notification record"))?;
+            for value in [record.all_flags(), record.user_index1(), record.user_index2(), record.user_ptr1()] {
+                ids.extend([i64::from(value as u32), i64::from((value >> 32) as u32)]);
+            }
+        }
         Ok(Output::new()
             .ints("topology", ids)
             .values("geometry", values))
@@ -580,5 +635,26 @@ mod tests {
         };
         assert!(Runner.run_cpp(&case).is_err());
         assert!(Runner.run_rust(&case).is_err());
+    }
+}
+
+#[cfg(test)]
+mod notification_tests {
+    use super::*;
+
+    #[test]
+    fn copied_shell_vertex_has_real_source_metadata_and_distinct_keys() {
+        assert_ne!(notification_key(solidcore::EntityRef::Vertex(VertexId::from_index(0)), false).key,
+            notification_key(solidcore::EntityRef::Vertex(VertexId::from_index(0)), true).key);
+        for operation in [1, 4, 5, 6] {
+            let case = Case { unit: Runner.id().into(), name: format!("copied_shell_vertex_{operation}"),
+                source: crate::CaseSource::Inline,
+                inputs: json!({"primary":{"kind":"empty"},"other":{"kind":"vertex","point":[0,0,0]},"operation":operation}) };
+            let cpp = Runner.run_cpp(&case).unwrap();
+            let rust = Runner.run_rust(&case).unwrap();
+            assert!(rust.error.is_none() && rust.deferred.is_none() && rust.rejected.is_none());
+            assert_eq!(cpp.ints, rust.ints);
+            assert_eq!(cpp.values, rust.values);
+        }
     }
 }

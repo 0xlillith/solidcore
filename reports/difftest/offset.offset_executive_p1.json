@@ -406,14 +406,10 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmOffsetGeometryCreation::VertexOffset",
-        "unit": "offset.offset_geometry_creation"
-      },
       "max_rel_err": 0.0,
       "name": "probe_vertex_isolated",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#7",
       "values_compared": 0
     },
@@ -434,26 +430,18 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmStitch::StitchIntoSolid",
-        "unit": "heal.stitch_p2"
-      },
       "max_rel_err": 0.0,
       "name": "probe_piecewise_empty",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#10",
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmEdgeuse::NormalizedEvaluate",
-        "unit": "topology.edgeuse_p3"
-      },
       "max_rel_err": 0.0,
       "name": "probe_map_plane",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#11",
       "values_compared": 0
     },
@@ -464,6 +452,78 @@
       "pass": true,
       "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#12",
       "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "fill_wire_nonempty",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#13",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "fill_one_candidate",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#14",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "fill_two_gaps_first_early_return",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#15",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "map_distinct_breps_direct",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#16",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "map_distinct_breps_unmatched",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#17",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "map_distinct_breps_scale_ten",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#18",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "map_distinct_breps_drop_point",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#19",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "map_distinct_breps_empty",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#20",
+      "values_compared": 0
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "map_distinct_breps_drop_point_opposite_mate_uv",
+      "outcome": "pass",
+      "pass": true,
+      "source": "fixture:fixtures/offset.offset_executive_p1/probe.json#21",
+      "values_compared": 17
     },
     {
       "max_rel_err": 0.0,
@@ -5578,19 +5638,24 @@
       "pass": true,
       "source": "generated:seed=13762035380551340207",
       "values_compared": 260
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "remove_wire_point_editing",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 0
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 4,
+  "cases_deferred": 1,
   "cases_failed": 0,
-  "cases_passed": 688,
+  "cases_passed": 701,
   "cases_rejected": 1,
-  "cases_total": 693,
+  "cases_total": 703,
   "deferred_by_unit": {
-    "heal.stitch_p2": 1,
-    "offset.offset_geometry_creation": 1,
-    "topology.brep_p4": 1,
-    "topology.edgeuse_p3": 1
+    "topology.brep_p4": 1
   },
   "max_rel_err": 2.9158035700250084e-14,
   "pass": true,

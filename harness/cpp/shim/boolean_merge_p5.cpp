@@ -36,6 +36,38 @@ void native_graph(SmBrep* b, Graph& g) {
     walk(b,g,true);
 }
 
+// Actual input notification state, exported before any merge result exists.
+void notification_word(std::vector<double>& out, uint64_t value) {
+    out.push_back((double)(value & UINT64_C(0xffffffff)));
+    out.push_back((double)(value >> 32));
+}
+template<class T> bool any_attributes(const std::vector<T*>& objects) {
+    for (auto* object : objects) if (object->HasAttributes()) return true;
+    return false;
+}
+void notification_inputs(SmBrep* b, const Graph& g, std::vector<double>& out) {
+    SmContext* context = const_cast<SmContext*>(b->GetContext());
+    bool attributed = b->HasAttributes() || any_attributes(g.regions) || any_attributes(g.shells)
+        || any_attributes(g.faceuses) || any_attributes(g.faces) || any_attributes(g.loopuses)
+        || any_attributes(g.loops) || any_attributes(g.edgeuses) || any_attributes(g.edges)
+        || any_attributes(g.vertexuses) || any_attributes(g.vertices);
+    for (auto* edge : g.edges) if (edge->GetCurve() && edge->GetCurve()->HasAttributes()) attributed = true;
+    for (auto* face : g.faces) if (face->GetSurface() && face->GetSurface()->HasAttributes()) attributed = true;
+    for (auto* use : g.edgeuses) if (use->GetUVTrimCurvePointer() && use->GetUVTrimCurvePointer()->HasAttributes()) attributed = true;
+    out.insert(out.end(), {1.0, context && (context->GetUserNotifyCallback() || context->GetSysNotifyCallback()) ? 1.0 : 0.0,
+        attributed ? 1.0 : 0.0, (double)g.vertices.size()});
+    for (size_t i = 0; i < g.vertices.size(); ++i) {
+        auto* vertex = g.vertices[i];
+        out.push_back((double)i);
+        notification_word(out, (uint64_t)vertex->GetAllFlags());
+        for (auto mark : {SM_MT_MARK, SM_MT_MARK2, SM_MT_MARK3, SM_MT_MARKIO, SM_MT_MARKASSERT})
+            notification_word(out, (uint64_t)vertex->GetMark(mark));
+        notification_word(out, (uint64_t)vertex->GetUserIndex1());
+        notification_word(out, (uint64_t)vertex->GetUserIndex2());
+        notification_word(out, (uint64_t)(uintptr_t)vertex->GetUserPtr1());
+    }
+}
+
 void snapshot(SmBrep* b, SmMarkType mt, std::vector<int64_t>& ids, std::vector<double>& values) {
     Graph g; native_graph(b,g);
     for (auto n : {g.regions.size(),g.shells.size(),g.faceuses.size(),g.faces.size(),g.loopuses.size(),
@@ -131,6 +163,7 @@ SC_EXPORT int32_t sc_boolean_merge_p5_eval(
         append_query_metadata(aa.brep,ga,metadata);
         result.push_back((double)metadata.size());
         result.insert(result.end(),metadata.begin(),metadata.end());
+        notification_inputs(aa.brep, ga, result);
         return sc_copy_out(result.data(),(int64_t)result.size(),out,cap,out_len);
     }
     if (mode != 0 || !b || !path_b || nb < 1)
@@ -175,6 +208,19 @@ SC_EXPORT int32_t sc_boolean_merge_p5_eval(
     }
     std::vector<double> values;
     snapshot(aa.brep,ma,ids,values); snapshot(bb.brep,mb,ids,values);
+    // Observe Copy's flags/user metadata on surviving primary vertices. The
+    // existing traversal-mark snapshot does not certify notification-record
+    // marks; those are deliberately outside this added observation.
+    SmTArray<SmVertex*> copied_vertices; aa.brep->GetVertices(copied_vertices);
+    ids.push_back((int64_t)copied_vertices.GetSize());
+    for (ULONG i = 0; i < copied_vertices.GetSize(); ++i) {
+        auto* vertex = copied_vertices[i];
+        for (uint64_t value : {(uint64_t)vertex->GetAllFlags(), (uint64_t)vertex->GetUserIndex1(),
+                              (uint64_t)vertex->GetUserIndex2(), (uint64_t)(uintptr_t)vertex->GetUserPtr1()}) {
+            ids.push_back((int64_t)(value & UINT64_C(0xffffffff)));
+            ids.push_back((int64_t)(value >> 32));
+        }
+    }
     std::vector<double> result{(double)ids.size()};
     for(auto id : ids) result.push_back((double)id);
     result.insert(result.end(),values.begin(),values.end());

@@ -92,7 +92,7 @@ use solidcore::offset::offset_executive::p1::{
 };
 use solidcore::offset::offset_geometry_creation::{
     LocalOperationGeometryCreation, OffsetBrep, OffsetExecutive, OffsetGeometryCreation, SsiData,
-    UNDEFINED_UPSTREAM,
+    VertexOffsetBrep, UNDEFINED_UPSTREAM,
 };
 use solidcore::query::edge::ClosestPoint;
 use solidcore::surface::plane::Plane;
@@ -1003,7 +1003,7 @@ impl ProtoGeometry<H> for Two {
     }
 }
 
-impl OffsetBrep<H> for Two {
+impl VertexOffsetBrep<H> for Two {
     fn insert_curve(&mut self, curve: SmCurve) -> Option<H> {
         let i = u32::try_from(self.extra.len()).ok()?;
         let hh = curve_h(2, K_EXTRA, i, &curve);
@@ -1015,6 +1015,50 @@ impl OffsetBrep<H> for Two {
         self.extra_s.push(surface);
         Some(hd(2, K_EXTRA_S, i))
     }
+    fn brep_tolerance(&self, topo: H) -> solidcore::Result<f64> {
+        Ok(self.brep_r(topo)?.tolerance())
+    }
+    fn edge_curve(&self, edge: H) -> solidcore::Result<Option<H>> {
+        self.edge_curve_h(edge)
+    }
+    fn edge_interval(&self, edge: H) -> solidcore::Result<Extent1d> {
+        ed::interval(self.brep_r(edge)?, eid(edge))
+    }
+    fn edge_faces(&self, edge: H) -> solidcore::Result<Vec<H>> {
+        let b = self.brep_r(edge)?;
+        Ok(ed::faces(b, eid(edge), None)?
+            .into_iter()
+            .map(|f| hd(edge.b, K_FACE, f.index()))
+            .collect())
+    }
+    fn edge_is_seam_of_face_surface(
+        &mut self,
+        k: &Kernel,
+        edge: H,
+        face: H,
+    ) -> solidcore::Result<bool> {
+        if face.b != edge.b || face.kind != K_FACE {
+            return Err(invalid("face of another B-rep"));
+        }
+        if self.face_is_sphere(face) {
+            // SmEdge::IsSeam calls the surface's virtual IsClosed, which only SmSphere
+            // (of the subclasses imported as their B-spline part) overrides
+            return Err(SolidError::Unported {
+                upstream: "SmSphere::IsClosed (face surface imported as its B-spline part)",
+                unit: ANALYTIC_EXPORT,
+            });
+        }
+        ed::is_seam_of_surface(k, self.brep_m(edge)?, eid(edge), fid(face))
+    }
+    fn vertex_point(&self, vertex: H) -> solidcore::Result<Point3> {
+        vx::point(self.brep_r(vertex)?, vid(vertex))
+    }
+    fn vertex_is_lamina(&self, vertex: H) -> solidcore::Result<bool> {
+        vx::is_lamina_vertex(self.brep_r(vertex)?, vid(vertex))
+    }
+}
+
+impl OffsetBrep<H> for Two {
     fn surface_mut(&mut self, o: H) -> Option<&mut Surface> {
         match o.kind {
             K_FACE_SURFACE => self.brep_mut(o)?.face_mut(fid(o)).ok()?.surface.as_mut(),
@@ -1023,9 +1067,7 @@ impl OffsetBrep<H> for Two {
             _ => None,
         }
     }
-    fn brep_tolerance(&self, topo: H) -> solidcore::Result<f64> {
-        Ok(self.brep_r(topo)?.tolerance())
-    }
+
     fn faceuse_face(&self, fu: H) -> solidcore::Result<Option<H>> {
         Ok(eu1::faceuse_face(self.brep_r(fu)?, fuid(fu))?.map(|f| hd(fu.b, K_FACE, f.index())))
     }
@@ -1056,12 +1098,7 @@ impl OffsetBrep<H> for Two {
                 .domain,
         )
     }
-    fn edge_curve(&self, edge: H) -> solidcore::Result<Option<H>> {
-        self.edge_curve_h(edge)
-    }
-    fn edge_interval(&self, edge: H) -> solidcore::Result<Extent1d> {
-        ed::interval(self.brep_r(edge)?, eid(edge))
-    }
+
     fn set_edge_interval(&mut self, edge: H, interval: Extent1d) -> solidcore::Result<()> {
         ed::set_interval(self.brep_m(edge)?, eid(edge), &interval)
     }
@@ -1147,13 +1184,7 @@ impl OffsetBrep<H> for Two {
         )
         .map(|_| ())
     }
-    fn edge_faces(&self, edge: H) -> solidcore::Result<Vec<H>> {
-        let b = self.brep_r(edge)?;
-        Ok(ed::faces(b, eid(edge), None)?
-            .into_iter()
-            .map(|f| hd(edge.b, K_FACE, f.index()))
-            .collect())
-    }
+
     fn edge_edgeuses(&self, edge: H) -> solidcore::Result<Vec<H>> {
         let b = self.brep_r(edge)?;
         Ok(ed::edgeuses(b, eid(edge), None, None)?
@@ -1164,25 +1195,7 @@ impl OffsetBrep<H> for Two {
     fn edge_is_lamina(&self, edge: H) -> solidcore::Result<bool> {
         ed::is_lamina(self.brep_r(edge)?, eid(edge))
     }
-    fn edge_is_seam_of_face_surface(
-        &mut self,
-        k: &Kernel,
-        edge: H,
-        face: H,
-    ) -> solidcore::Result<bool> {
-        if face.b != edge.b || face.kind != K_FACE {
-            return Err(invalid("face of another B-rep"));
-        }
-        if self.face_is_sphere(face) {
-            // SmEdge::IsSeam calls the surface's virtual IsClosed, which only SmSphere
-            // (of the subclasses imported as their B-spline part) overrides
-            return Err(SolidError::Unported {
-                upstream: "SmSphere::IsClosed (face surface imported as its B-spline part)",
-                unit: ANALYTIC_EXPORT,
-            });
-        }
-        ed::is_seam_of_surface(k, self.brep_m(edge)?, eid(edge), fid(face))
-    }
+
     fn edge_vertex(&self, edge: H) -> solidcore::Result<Option<H>> {
         Ok(ed::vertex(self.brep_r(edge)?, eid(edge))?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
@@ -1213,9 +1226,7 @@ impl OffsetBrep<H> for Two {
             None => None,
         })
     }
-    fn vertex_point(&self, vertex: H) -> solidcore::Result<Point3> {
-        vx::point(self.brep_r(vertex)?, vid(vertex))
-    }
+
     fn set_vertex_point(&mut self, _k: &Kernel, vertex: H, point: Point3) -> solidcore::Result<()> {
         let slot = usize::try_from(vertex.b).map_err(|_| invalid("bad B-rep"))?;
         let (breps, env) = (&mut self.breps, &mut self.env);
@@ -1235,9 +1246,7 @@ impl OffsetBrep<H> for Two {
             &vertexuse_ref,
         )
     }
-    fn vertex_is_lamina(&self, vertex: H) -> solidcore::Result<bool> {
-        vx::is_lamina_vertex(self.brep_r(vertex)?, vid(vertex))
-    }
+
     fn vertex_are_edges_tangent(
         &self,
         vertex: H,

@@ -297,20 +297,39 @@ pub trait OffsetExecutive<O> {
     ) -> Result<(O, Extent2d)>;
 }
 
+/// Topology and owned geometry used by [`OffsetGeometryCreation::vertex_offset`].
+/// Original vertex and offset edge handles must name their actual distinct arenas.
+/// This is the subset of [`OffsetBrep`] needed by the existing vertex algorithm.
+pub trait VertexOffsetBrep<O>: ClassGeometry<O> {
+    /// Stores a new curve and returns its handle; `None` when the store is full.
+    fn insert_curve(&mut self, curve: Curve) -> Option<O>;
+    /// Stores a new surface and returns its handle; `None` when the store is full.
+    fn insert_surface(&mut self, surface: Surface) -> Option<O>;
+    /// `GetBrep()->GetTolerance()` of a topology object (`Brep::tolerance`).
+    fn brep_tolerance(&self, topo: O) -> Result<f64>;
+    /// `SmEdge::GetCurve` (`topology::edge::curve`).
+    fn edge_curve(&self, edge: O) -> Result<Option<O>>;
+    /// `SmEdge::GetInterval` (`topology::edge::interval`).
+    fn edge_interval(&self, edge: O) -> Result<Extent1d>;
+    /// `SmEdge::GetFaces` (`topology::edge::faces`).
+    fn edge_faces(&self, edge: O) -> Result<Vec<O>>;
+    /// `SmEdge::IsSeam(*face->GetSurface())` (`topology::edge::is_seam_of_surface`).
+    fn edge_is_seam_of_face_surface(&mut self, k: &Kernel, edge: O, face: O) -> Result<bool>;
+    /// `SmVertex::GetPoint` (`topology::vertex::point`).
+    fn vertex_point(&self, vertex: O) -> Result<Point3>;
+    /// `SmVertex::IsLaminaVertex` (`topology::vertex::is_lamina_vertex`).
+    fn vertex_is_lamina(&self, vertex: O) -> Result<bool>;
+}
+
 /// What the unit reads from and writes to the original and offset B-reps,
 /// implemented by their owner on top of [`ClassGeometry`] / [`ProtoGeometry`] with
 /// the ported topology functions each method names. A method returns `Ok(None)` or
 /// [`SolidError::InvalidInput`] where upstream would dereference null.
 #[allow(clippy::too_many_arguments)]
-pub trait OffsetBrep<O>: ProtoGeometry<O> {
-    /// Stores a new curve and returns its handle; `None` when the store is full.
-    fn insert_curve(&mut self, curve: Curve) -> Option<O>;
-    /// Stores a new surface and returns its handle; `None` when the store is full.
-    fn insert_surface(&mut self, surface: Surface) -> Option<O>;
+pub trait OffsetBrep<O>: ProtoGeometry<O> + VertexOffsetBrep<O> {
     /// Mutable access to the surface behind a handle.
     fn surface_mut(&mut self, o: O) -> Option<&mut Surface>;
-    /// `GetBrep()->GetTolerance()` of a topology object (`Brep::tolerance`).
-    fn brep_tolerance(&self, topo: O) -> Result<f64>;
+
     /// `SmFaceuse::GetFace` (`topology::edgeuse::p1::faceuse_face`).
     fn faceuse_face(&self, fu: O) -> Result<Option<O>>;
     /// `SmFaceuse::GetOrientation` (`topology::edgeuse::p1::faceuse_orientation`).
@@ -326,10 +345,7 @@ pub trait OffsetBrep<O>: ProtoGeometry<O> {
     /// `topology::face::p1::calculate_uv_domain_from_uv_trim_curves`). It makes the face's
     /// UV trim curves.
     fn face_uv_domain_from_uv_trim_curves(&mut self, k: &Kernel, face: O) -> Result<Extent2d>;
-    /// `SmEdge::GetCurve` (`topology::edge::curve`).
-    fn edge_curve(&self, edge: O) -> Result<Option<O>>;
-    /// `SmEdge::GetInterval` (`topology::edge::interval`).
-    fn edge_interval(&self, edge: O) -> Result<Extent1d>;
+
     /// `SmEdge::SetInterval` (`topology::edge::set_interval`).
     fn set_edge_interval(&mut self, edge: O, interval: Extent1d) -> Result<()>;
     /// `SmEdge::GetTolerance` (`topology::edge::tolerance`).
@@ -362,14 +378,12 @@ pub trait OffsetBrep<O>: ProtoGeometry<O> {
         add_to_deleted_list: bool,
         create_uv_trim_curves: bool,
     ) -> Result<()>;
-    /// `SmEdge::GetFaces` (`topology::edge::faces`).
-    fn edge_faces(&self, edge: O) -> Result<Vec<O>>;
+
     /// `SmEdge::GetEdgeuses` (`topology::edge::edgeuses`).
     fn edge_edgeuses(&self, edge: O) -> Result<Vec<O>>;
     /// `SmEdge::IsLamina` (`topology::edge::is_lamina`).
     fn edge_is_lamina(&self, edge: O) -> Result<bool>;
-    /// `SmEdge::IsSeam(*face->GetSurface())` (`topology::edge::is_seam_of_surface`).
-    fn edge_is_seam_of_face_surface(&mut self, k: &Kernel, edge: O, face: O) -> Result<bool>;
+
     /// `SmEdge::GetVertex` (`topology::edge::vertex`).
     fn edge_vertex(&self, edge: O) -> Result<Option<O>>;
     /// `SmEdge::GetOtherVertex` (`topology::edge::other_vertex`).
@@ -385,12 +399,10 @@ pub trait OffsetBrep<O>: ProtoGeometry<O> {
     /// `SmEdge::CreateTrimmedNURBSCurve` (`topology::edge::create_trimmed_nurbs_curve`):
     /// the handle of the new curve, `None` when the edge's curve is not a B-spline.
     fn edge_create_trimmed_nurbs_curve(&mut self, k: &Kernel, edge: O) -> Result<Option<O>>;
-    /// `SmVertex::GetPoint` (`topology::vertex::point`).
-    fn vertex_point(&self, vertex: O) -> Result<Point3>;
+
     /// `SmVertex::SetPoint` (`topology::vertex::set_point`).
     fn set_vertex_point(&mut self, k: &Kernel, vertex: O, point: Point3) -> Result<()>;
-    /// `SmVertex::IsLaminaVertex` (`topology::vertex::is_lamina_vertex`).
-    fn vertex_is_lamina(&self, vertex: O) -> Result<bool>;
+
     /// `SmVertex::AreEdgesTangent(e1, e2, angTolDeg)` (`topology::vertex::are_edges_tangent`).
     fn vertex_are_edges_tangent(&self, vertex: O, e1: O, e2: O, ang_tol_deg: f64) -> Result<bool>;
     /// `SmEdgeuse::GetEdge` (`topology::edgeuse::p1::edge`).
@@ -738,13 +750,16 @@ fn surface_of<O: ClassObject>(geometry: &impl ClassGeometry<O>, h: O) -> Result<
 }
 
 /// Stores `curve` and returns its handle.
-fn store_curve<O: ClassObject>(brep: &mut impl OffsetBrep<O>, curve: Curve) -> Result<O> {
+fn store_curve<O: ClassObject>(brep: &mut impl VertexOffsetBrep<O>, curve: Curve) -> Result<O> {
     brep.insert_curve(curve)
         .ok_or(dangling("curve store is full"))
 }
 
 /// Stores `surface` and returns its handle.
-fn store_surface<O: ClassObject>(brep: &mut impl OffsetBrep<O>, surface: Surface) -> Result<O> {
+fn store_surface<O: ClassObject>(
+    brep: &mut impl VertexOffsetBrep<O>,
+    surface: Surface,
+) -> Result<O> {
     brep.insert_surface(surface)
         .ok_or(dangling("surface store is full"))
 }
@@ -971,7 +986,7 @@ impl OffsetGeometryCreation {
     pub fn vertex_offset<O: ClassObject + SolutionObject>(
         &self,
         k: &Kernel,
-        brep: &mut impl OffsetBrep<O>,
+        brep: &mut impl VertexOffsetBrep<O>,
         original_vertex: Option<O>,
         bounding_edges: &[O],
     ) -> Result<VertexOffsetGeometry<O>> {

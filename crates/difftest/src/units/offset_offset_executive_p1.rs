@@ -1328,7 +1328,15 @@ fn continuation_rectangle(
     empty: bool,
 ) -> HResult<(FaceId, FaceuseId)> {
     let [u0, v0, u1, v1] = domain;
-    let points = [[u0, v0, 0.0], [u1, v0, 0.0], [u1, v1, 0.0], [u0, v1, 0.0]];
+    // SmBrep::CreateFaceInRegionFromSurface requests SM_SP_U: left, bottom,
+    // right, top. MakeFaceWithCurves creates vertices in oriented loop order.
+    let points = [[u0, v1, 0.0], [u0, v0, 0.0], [u1, v0, 0.0], [u1, v1, 0.0]];
+    let orientations = [
+        OrientType::Opposite,
+        OrientType::Same,
+        OrientType::Same,
+        OrientType::Opposite,
+    ];
     let surface = Surface::from(Plane::new(
         Vec3::ZERO,
         Vec3::X,
@@ -1348,37 +1356,91 @@ fn continuation_rectangle(
                 .map_err(setup)
             })
             .collect::<HResult<Vec<_>>>()?;
-        for i in 0..4 {
-            let a = *at(&points, i)?;
-            let b = *at(&points, (i + 1) % 4)?;
-            let controls = vec![[a[0], a[1], 0.0, 1.0], [b[0], b[1], 0.0, 1.0]];
-            let curve = CurveIn::Bspline {
-                degree: 1,
-                control_points: controls,
-                knots: vec![0.0, 0.0, 1.0, 1.0],
+        for (i, &orientation) in orientations.iter().enumerate() {
+            let start = *at(&points, i)?;
+            let end = *at(&points, (i + 1) % 4)?;
+            // Native plane 3D isocurves are actual SmLine instances, increasing
+            // in v (vertical) or u (horizontal). Their natural intervals are the
+            // corresponding face-domain coordinates (SmPlane.cpp:836-906).
+            let (a, b) = if orientation == OrientType::Same {
+                (start, end)
+            } else {
+                (end, start)
+            };
+            let interval = if i % 2 == 0 { [v0, v1] } else { [u0, u1] };
+            let curve = CurveIn::Line {
+                start: a,
+                end: b,
+                domain: interval,
             }
             .rust()?;
             let edge = add_wire_with_vertices(
                 brep,
-                curve.clone(),
-                ivl([0.0, 1.0]),
+                curve,
+                ivl(interval),
                 Some([*at(&vertices, i)?, *at(&vertices, (i + 1) % 4)?]),
             )?;
-            // Native SetUVTrimCurve attaches a degree-one, two-dimensional spline
-            // to the primary/mate pair. The primary owns the same curve here.
-            let mut uv = curve;
-            match uv.kind_mut() {
-                solidcore::curve::curve::CurveKind::BSpline(c) => {
-                    c.convert_to_2d().map_err(setup)?;
-                }
-                _ => return Err(bad("continuation UV fixture is not a spline")),
+            let pair = brep.edge(edge).map_err(setup)?.edgeuses.clone();
+            let primary = *at(&pair, 0)?;
+            let mate = *at(&pair, 1)?;
+            brep.edgeuse_mut(primary).map_err(setup)?.orientation = orientation;
+            brep.edgeuse_mut(mate).map_err(setup)?.orientation = if orientation == OrientType::Same
+            {
+                OrientType::Opposite
+            } else {
+                OrientType::Same
+            };
+            // The shim fills absent UVs with CreateLineSegment on SmBSplineCurve,
+            // not SmLine: retain its degree-one [0,1] parameterization. The factory's
+            // temporary analytic UV inputs are cleaned up by MakeFaceWithCurves.
+            let mut uv = CurveIn::Bspline {
+                degree: 1,
+                control_points: vec![[a[0], a[1], 0.0, 1.0], [b[0], b[1], 0.0, 1.0]],
+                knots: vec![0.0, 0.0, 1.0, 1.0],
             }
-            let use_id = primary(brep, edge)?;
-            brep.edgeuse_mut(use_id).map_err(setup)?.uv_trim_curve = Some(uv);
+            .rust()?;
+            match uv.kind_mut() {
+                solidcore::curve::curve::CurveKind::BSpline(curve) => {
+                    curve.convert_to_2d().map_err(setup)?;
+                }
+                _ => return Err(bad("continuation UV fallback is not a spline")),
+            }
+            // SetUVTrimCurve stores the UV on the SAME member, not necessarily
+            // the primary/upward member. The opposite slot stays empty.
+            let owner = if orientation == OrientType::Same {
+                primary
+            } else {
+                mate
+            };
+            brep.edgeuse_mut(owner).map_err(setup)?.uv_trim_curve = Some(uv);
             edges.push(edge);
         }
     }
-    face_with_edges(brep, surface, &edges)
+    let (face, upward) = face_with_edges(brep, surface, &edges)?;
+    if !empty {
+        // MakeFaceTopology retains the first input edgeuse and its mate as the
+        // starts of BOTH loopuses (SmBrep.cpp:14610-14624). CW/CCW are opposite.
+        let downward = brep
+            .faceuse(upward)
+            .map_err(setup)?
+            .mate
+            .ok_or_else(|| bad("missing downward continuation faceuse"))?;
+        let loopuse = *at(&brep.faceuse(downward).map_err(setup)?.loopuses, 0)?;
+        let first = *at(&edges, 0)?;
+        let first_mate = *at(&brep.edge(first).map_err(setup)?.edgeuses, 1)?;
+        brep.loopuse_mut(loopuse).map_err(setup)?.start = LoopuseStart::Edgeuse(Some(first_mate));
+        let loop_id = *at(&brep.face(face).map_err(setup)?.loops, 0)?;
+        for (entry, orientation) in brep
+            .loop_mut(loop_id)
+            .map_err(setup)?
+            .edges
+            .iter_mut()
+            .zip(orientations)
+        {
+            entry.forward = orientation == OrientType::Same;
+        }
+    }
+    Ok((face, upward))
 }
 fn continuation_key(entity: solidcore::error::EntityRef, side: u64) -> ObjectRef {
     match entity {
@@ -1769,35 +1831,33 @@ fn rust_probe(branch: Probe, tolerance: f64) -> RResult<Output> {
             executive.fill_gap_edgeuses(&kernel, EdgeId::from_index(u32::MAX), &[], &[])
         }
         Probe::VertexNull | Probe::VertexIsolated => {
+            // SmBrep's constructor creates its real infinite region. Preserve
+            // the B-rep's default tolerance independently of the creator's.
+            original = Brep::new_with_infinite_region().map_err(setup)?;
+            executive.set_offset_brep(Brep::new_with_infinite_region().map_err(setup)?);
+            // This is the same real geometry-creator constructor used by the
+            // native ProbeExecutive. It is passed through, not reconstructed in
+            // the executive or replaced by a synthetic callback/provider.
+            let creator = solidcore::offset::offset_geometry_creation::OffsetGeometryCreation::new(
+                0.25, tolerance,
+            );
             let vertex = if matches!(branch, Probe::VertexIsolated) {
-                let shell = original
-                    .add_shell_record(Shell {
-                        faces: Vec::new(),
-                        region: None,
-                        ..Shell::default()
-                    })
-                    .map_err(setup)?;
-                let vertex = original
-                    .add_vertex_record(Vertex::default())
-                    .map_err(setup)?;
-                let vu = original
-                    .add_vertexuse_record(Vertexuse {
-                        vertex: Some(vertex),
-                        owner: VertexuseOwner::Shell(Some(shell)),
-                        ..Vertexuse::default()
-                    })
-                    .map_err(setup)?;
-                original
-                    .vertex_mut(vertex)
-                    .map_err(setup)?
-                    .vertexuses
-                    .push(vu);
+                let mut state = solidcore::topology::brep::p2::ArenaNotifyState::new(&original);
+                // This fresh fixture has the constructor's actual default
+                // records and no attributes or notification callbacks.
+                let (_, vertex) = solidcore::topology::brep::p9::make_shell_vertex(
+                    &mut original,
+                    None,
+                    Vec3::ZERO,
+                    &mut state.env(None),
+                )
+                .map_err(setup)?;
                 Some(vertex)
             } else {
                 None
             };
             executive
-                .build_offset_of_vertex(&kernel, &original, vertex)
+                .build_offset_of_vertex(&kernel, &original, vertex, &creator)
                 .map(|result| {
                     counts = [
                         result.trim_curves.len() as i64,
@@ -2549,7 +2609,7 @@ mod tests {
     }
 
     #[test]
-    fn opposite_drop_mapping_resolves_only_mate_owned_uv_and_notifies() {
+    fn opposite_drop_mapping_resolves_mate_owned_uv_and_notifies() {
         let input = Inputs::Probe {
             branch: Probe::MapDropOpposite,
             approx_tol: 1e-6,
@@ -2560,11 +2620,34 @@ mod tests {
             output.ints["probe"],
             [i64::from(ffi::NATIVE_SUCCESS), 0, 0, 0, 0, 1]
         );
-        assert_eq!(output.ints["mapping_selection"], [1, 0, 0, 4, 4, 0, 4, 4]);
+        assert_eq!(output.ints["mapping_selection"], [1, 0, 0, 4, 4, 2, 4, 2]);
         assert_eq!(
             output.ints["lookups"].iter().filter(|&&id| id >= 0).count(),
             2
         );
+        // The downward bottom edge (edge 1, use 3) resolves its UV from its
+        // upward SAME mate and actually participates in a matched relation.
+        let mut original = Brep::new();
+        let (_, upward) =
+            continuation_rectangle(&mut original, [0.0, 0.0, 1.0, 1.0], false).unwrap();
+        let downward = original.faceuse(upward).unwrap().mate.unwrap();
+        let selected =
+            solidcore::topology::edgeuse::p1::faceuse_edgeuses(&original, downward, false, None)
+                .unwrap();
+        let bottom = EdgeuseId::from_index(3);
+        assert!(selected.contains(&bottom));
+        assert!(
+            solidcore::topology::edgeuse::p1::uv_trim_curve_pointer(&original, bottom)
+                .unwrap()
+                .is_none()
+        );
+        assert!(
+            solidcore::topology::edgeuse::p1::uv_trim_curve(&original, bottom)
+                .unwrap()
+                .0
+                .is_some()
+        );
+        assert_eq!(output.ints["lookups"][3], 3);
         assert_ne!(
             output.ints["notification_before"],
             output.ints["notification_after"]
@@ -2590,15 +2673,11 @@ mod tests {
             (Probe::SideWallUnmapped, None, 1000),
             (Probe::FillEmpty, None, 1000),
             (Probe::VertexNull, None, 1006),
-            (
-                Probe::VertexIsolated,
-                Some("offset.offset_geometry_creation"),
-                1000,
-            ),
+            (Probe::VertexIsolated, None, 1000),
             (Probe::FaceuseNull, None, 1006),
             (Probe::FaceuseNoSurface, None, 1000),
-            (Probe::PiecewiseEmpty, Some("query.brep"), 1000),
-            (Probe::MapPlane, Some("topology.edgeuse_p3"), 1000),
+            (Probe::PiecewiseEmpty, None, 1000),
+            (Probe::MapPlane, None, 1000),
             (Probe::EdgeusesUnmapped, None, 1000),
         ] {
             let input = Inputs::Probe {
@@ -2609,7 +2688,32 @@ mod tests {
             if let Some(unit) = dependency {
                 assert_eq!(output.deferred.unwrap().unit, unit);
             } else {
-                assert_eq!(output.ints["probe"], [status, 0, 0, 0, 0, 1]);
+                assert!(
+                    output.deferred.is_none()
+                        && output.error.is_none()
+                        && output.rejected.is_none(),
+                    "{branch:?}"
+                );
+                // Native PiecewiseMerge transfers m_pOffsetBrep to its result
+                // before stitching. Other probes retain the installed B-rep.
+                let expected = if matches!(branch, Probe::PiecewiseEmpty) {
+                    [status, 0, 0, 0, 1, 0]
+                } else if matches!(branch, Probe::VertexIsolated) {
+                    // The real creator returns an owned spherical cap with no
+                    // bounding curves; the offset B-rep stays installed.
+                    [status, 0, 0, 1, 0, 1]
+                } else {
+                    [status, 0, 0, 0, 0, 1]
+                };
+                assert_eq!(output.ints["probe"], expected, "{branch:?}");
+                if matches!(branch, Probe::MapPlane) {
+                    // The two distinct unit rectangles have four actual matches;
+                    // an empty successful output is not sufficient coverage.
+                    assert_eq!(
+                        output.ints["lookups"].iter().filter(|&&id| id >= 0).count(),
+                        4
+                    );
+                }
             }
         }
     }
