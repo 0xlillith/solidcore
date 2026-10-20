@@ -172,9 +172,10 @@ fn main() {
     for l in cfg.syslibs.as_deref().unwrap_or(&[]) {
         println!("cargo:rustc-link-lib=dylib={l}");
     }
-    // Apple and FreeBSD toolchains ship libc++, not libstdc++.
+    // Apple, FreeBSD and OpenBSD (clang platforms) ship libc++, not libstdc++. NetBSD
+    // still defaults to GCC and libstdc++.
     let os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
-    let cxx = if matches!(os.as_str(), "macos" | "ios" | "freebsd") {
+    let cxx = if matches!(os.as_str(), "macos" | "ios" | "freebsd" | "openbsd") {
         "c++"
     } else {
         "stdc++"
