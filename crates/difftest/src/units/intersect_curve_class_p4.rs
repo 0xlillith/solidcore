@@ -2805,8 +2805,31 @@ mod tests {
             let valid = ffi::validate(ffi_face(&s).as_ref(), &cpp_input(&s)).is_ok();
             if guard {
                 assert!(!valid, "{name}");
-                // Rust reports the null dereference instead of carrying on
-                assert!(matches!(rust_run(&s), Err(Fail::Harness(_))), "{name}");
+                // InvalidInput is serialized as status 1007 by st().
+                let mut prefix_script = s.clone();
+                assert!(
+                    matches!(prefix_script.ops.pop(), Some(OpIn::LoopCrossings { .. })),
+                    "{name}: unexpected guarded operation"
+                );
+                let prefix = rust_run(&prefix_script)
+                    .unwrap_or_else(|_| panic!("{name}: valid prefix failed"));
+                let output =
+                    rust_run(&s).unwrap_or_else(|_| panic!("{name}: missing Rust error record"));
+                let preceding = output
+                    .get(..prefix.len())
+                    .unwrap_or_else(|| panic!("{name}: truncated prefix"));
+                assert!(
+                    preceding
+                        .iter()
+                        .map(|value| value.to_bits())
+                        .eq(prefix.iter().map(|value| value.to_bits())),
+                    "{name}: preceding records changed"
+                );
+                assert_eq!(
+                    output.get(prefix.len()..prefix.len() + 2),
+                    Some([op::LOOP_CROSSINGS as f64, 1007.0].as_slice()),
+                    "{name}: wrong error record"
+                );
                 continue;
             }
             assert!(valid, "{name}");
