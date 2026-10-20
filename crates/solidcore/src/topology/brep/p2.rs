@@ -2668,8 +2668,12 @@ mod tests {
         let other = region_only_key(EntityRef::Face(FaceId::from_index(1)));
         assert_eq!(entity_of_notify_key(other.key), None);
         let mut b = Brep::new();
-        let r0 = b.add_region_record(crate::topology::Region::default()).unwrap();
-        let r1 = b.add_region_record(crate::topology::Region::default()).unwrap();
+        let r0 = b
+            .add_region_record(crate::topology::Region::default())
+            .unwrap();
+        let r1 = b
+            .add_region_record(crate::topology::Region::default())
+            .unwrap();
         let state = RegionNotifyState::new(&b);
         for r in [r0, r1] {
             let key = region_only_key(EntityRef::Region(r)).key;
