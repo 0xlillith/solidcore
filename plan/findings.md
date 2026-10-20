@@ -9842,6 +9842,36 @@ Difftest (`fixtures/heal.stitch_p1/constructed.json`: the SM_API_test box tests,
   the null original face with 3) and 18 were misclassified as deferred. `dump_curve`
   (`blend_fillet_geom_p1` runner) now exports the `SmBSplineCurve` part of the analytic kinds,
   matching the shim's `IsKindOf(SmBSplineCurve_TYPE)`.
+- **Review fixes, round 3 (2026-10-20).** (7) The `SmEllipse::JoinWith` arm of the 3x2
+  dispatch was never compared: the corner model built only B-spline and `SmLine` pseudo-edge
+  curves. The reviewer disabled that arm (ellipses fell through to the B-spline join) and 15 of
+  81 circle cases then failed against the C++ while every existing case still passed.
+  `CornerIn::arc_edges` (`[edge, cx, cy, cz, r, d0, d1]`) now replaces a pseudo-edge curve with
+  a real circle on both sides (`Ellipse::new_circle` / `SmCircle(center, X, Y,
+  SmExtent1d(d0, d1), r, 3, &ctx)` + `GetOrCreateGwNurbPointer` + `SetCurve`). The FFI guard
+  refuses exactly what the constructors assert on: `r <= SM_EFF_ZERO`, an end outside
+  `[-360, 360]`, or a domain length not in `(SM_EFF_ZERO, 360 + SM_EFF_ZERO]`.
+  `review_arc_join.json` (81 cases: circle on-extended edge against B-spline, bent, line,
+  same-circle, radius/origin off by 5e-4/2e-3/1e-2 and cusp on-edges; line or B-spline
+  on-extended edge against a circle on-edge; a negative domain; calc_geom; with and without an
+  original face; scales 1e-3/1/1e3) and `review_line_join_tol.json` (108 cases: straight
+  degree-1/3 B-spline on-extended edge joined to an `SmLine` on-edge, i.e. the B-spline
+  `JoinWith` `IsLine` path; gaps straddling the length-based tolerance along and across the
+  line, kinks 1e-4/3e-3/5e-3, L = 0.01 / 100, a folded collinear line; scales 1e-3/1/1e3) all
+  agree with the C++. The 40 of them refused are successful joins without an original face
+  (upstream then deletes harness objects; see below).
+- **Join notes for later porters.** (a) When `this` is a B-spline and `other` an
+  `SmLine`/`SmEllipse`, Rust runs the B-spline join on `other`'s `SmBSplineCurve` base, while
+  C++ calls `other`'s virtual `EvaluatePoint` / `ApproximateLength` / `IsLine` overrides. The
+  results differ at most at rounding level, and the review fixtures agree at 1e-9;
+  `topology::brep::p5::join_copied_curves` does the same. Revisit if a later unit compares
+  joined geometry tightly. (b) No successful 3x2 join result is compared: with an original
+  face the case defers at `SmSurface::DropCurve`, without one the shim refuses. The shim could
+  export the joined copy from its pre-check to compare the joined curve; not done yet. (c) On a
+  failed join the Rust side discards its cloned curves, while C++ `CreateByJoining` may
+  degree-elevate or convert the real edge curves in place before failing. Not observable with
+  the current fixtures (the corner fails right after), but the porter of whatever continues
+  after a failed join must mirror those in-place edits.
 - **Known gaps.** No `CreateCornerPatch` implementation compares surface output (default
   patch stops at `MakeAnalyticCornerSurface`, Nx1 at `CreateEndPatch`, 3x2 at `DropCurve`).
   `create_rust` defers a whole `Create` case when a face around the filleted edges is neither

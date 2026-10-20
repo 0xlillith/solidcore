@@ -934,7 +934,16 @@ impl FilletCorner {
                 .edge(e)?
                 .curve
                 .as_ref()
-                .filter(|c| bspline_part(c).is_some())
+                .filter(|c| {
+                    matches!(
+                        c.kind(),
+                        CurveKind::BSpline(_)
+                            | CurveKind::Line(_)
+                            | CurveKind::Ellipse(_)
+                            | CurveKind::Hyperbola(_)
+                            | CurveKind::Parabola(_)
+                    )
+                })
                 .cloned()
                 .ok_or_else(|| SolidError::null_pointer(OP_3X2))
         };

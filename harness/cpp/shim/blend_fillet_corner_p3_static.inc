@@ -446,6 +446,22 @@ int32_t p3_run(int32_t op, Rd& rd, std::vector<double>& o)
         l->GetOrCreateGwNurbPointer();
         e->SetCurve(l, TRUE);
     }
+    // pseudo edges whose curve becomes a real SmCircle (SmEllipse::JoinWith in 3x2)
+    int64_t na = rd.idx();
+    for (int64_t i = 0; i < na && !rd.bad && ok; ++i)
+    {
+        SmFilletEdge* e = M.edge(rd.idx());
+        double cx = rd.num(), cy = rd.num(), cz = rd.num(), r = rd.num(), d0 = rd.num(), d1 = rd.num();
+        if (e == NULL)
+        {
+            ok = false;
+            break;
+        }
+        SmCircle* c = new (M.ctx) SmCircle(SmPoint3d(cx, cy, cz), SmVector3d(1, 0, 0), SmVector3d(0, 1, 0),
+                                           SmExtent1d(d0, d1), r, 3, &M.ctx);
+        c->GetOrCreateGwNurbPointer();
+        e->SetCurve(c, TRUE);
+    }
     SmVertex* vertex = NULL;
     if (vEdge >= 0)
     {

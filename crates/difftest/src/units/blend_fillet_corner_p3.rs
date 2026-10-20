@@ -152,6 +152,10 @@ struct CornerIn {
     /// Pseudo edges whose curve becomes a real `SmLine` through its end points.
     #[serde(default)]
     line_edges: Vec<usize>,
+    /// Pseudo edges whose curve becomes a real `SmCircle` in a plane parallel to XY:
+    /// `[edge, cx, cy, cz, radius, d0, d1]` (domain in degrees).
+    #[serde(default)]
+    arc_edges: Vec<[f64; 7]>,
 }
 
 fn yes() -> bool {
@@ -512,6 +516,10 @@ fn corner_input(model: &Model, c: &CornerIn) -> Result<Vec<f64>, HarnessError> {
     }
     o.push(c.line_edges.len() as f64);
     o.extend(c.line_edges.iter().map(|&e| e as f64));
+    o.push(c.arc_edges.len() as f64);
+    for a in &c.arc_edges {
+        o.extend(a);
+    }
     Ok(o)
 }
 
@@ -662,6 +670,21 @@ fn corner_rust(op: CornerOp, model: &Model, ci: &CornerIn) -> Result<Output, Har
         let mut l = solidcore::curve::line::Line::from_points(ends.start, ends.end, 3);
         let _ = l.make_nurb();
         rm.fb.brep_mut().edge_mut(eid).map_err(h)?.curve = Some(solidcore::curve::curve::Curve::from(l));
+    }
+    for &[e, cx, cy, cz, r, d0, d1] in &ci.arc_edges {
+        let eid = rm.edge(e as usize)?;
+        let v = solidcore::math::Vec3::new;
+        let circle = solidcore::curve::ellipse::Ellipse::new_circle(
+            &rm.k,
+            v(cx, cy, cz),
+            v(1.0, 0.0, 0.0),
+            v(0.0, 1.0, 0.0),
+            solidcore::geom::extent1d::Extent1d::from_raw(d0, d1),
+            r,
+            &solidcore::curve::ellipse::EllipseOptions::default(),
+        )
+        .map_err(h)?;
+        rm.fb.brep_mut().edge_mut(eid).map_err(h)?.curve = Some(solidcore::curve::curve::Curve::from(circle));
     }
     let r = {
         let mut env = CornerEnv {
@@ -1108,6 +1131,7 @@ fn gen_corner(rng: &mut Rng) -> Inputs {
                     tsects,
                     orig_faces: Vec::new(),
                     line_edges: Vec::new(),
+                    arc_edges: Vec::new(),
                 },
             }
         }
@@ -1150,6 +1174,7 @@ fn gen_corner(rng: &mut Rng) -> Inputs {
                     tsects: Vec::new(),
                     orig_faces: if rng.chance(0.85) { vec![[3, 0]] } else { Vec::new() },
                     line_edges: Vec::new(),
+                    arc_edges: Vec::new(),
                 },
             }
         }
@@ -1199,6 +1224,7 @@ fn gen_corner(rng: &mut Rng) -> Inputs {
                     tsects: Vec::new(),
                     orig_faces: Vec::new(),
                     line_edges: Vec::new(),
+                    arc_edges: Vec::new(),
                 },
                 model,
             }
