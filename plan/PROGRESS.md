@@ -20,7 +20,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🔨 `intersect.surface_drop_lib_p3` (2062 lines) — in progress: #136 @froglemonade2 (ready for review)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
 - [ ] 🔨 `topology.face_p4` (1812 lines) — in progress: #239 @denelson1-dot (ready for review)
-- [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (draft)
+- [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (ready for review)
 - [ ] 🔨 `topology.brep_p2` (2443 lines) — in progress: #149 @bluecmd (ready for review)
 - [ ] 🔨 `query.brep` (517 lines) — in progress: #101 @0xlillith (draft)
 - [ ] 🔨 `topology.brep_p3` (2503 lines) — in progress: #204 @bluecmd (draft)
@@ -228,7 +228,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `topology.brep_p1` (2454 lines) — partial, 2589 cases
 - [ ] 🟡 `topology.brep_p6` (1479 lines) — partial, 498 cases
 - [ ] 🟡 `topology.brep_cache` (389 lines) — partial, 663 cases
-- [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (draft)
+- [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (ready for review)
 - [ ] 🟡 `topology.brep_p9` (2443 lines) — partial, 684 cases
 - [ ] 🔨 `topology.brep_p2` (2443 lines) — in progress: #149 @bluecmd (ready for review)
 - [ ] 🟡 `topology.brep_p5` (2193 lines) — partial, 797 cases
