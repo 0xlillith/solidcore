@@ -1141,6 +1141,55 @@ pub(crate) fn p9_entity_ref(entity: EntityRef) -> ObjectRef {
     }
 }
 
+impl solidcore::topology::proto_topology::p3::BrepGlue<H> for Two {
+    fn glue_vertices(
+        &mut self,
+        k: &mut Kernel,
+        brep: H,
+        v1: H,
+        v2: H,
+        opt_wire_edges_in_brep: Option<&[H]>,
+    ) -> solidcore::Result<()> {
+        if brep.kind != K_BREP
+            || v1.kind != K_VERTEX
+            || v2.kind != K_VERTEX
+            || v1.b != brep.b
+            || v2.b != brep.b
+        {
+            return Err(invalid("glue vertex owner mismatch"));
+        }
+        let wires = opt_wire_edges_in_brep
+            .map(|edges| {
+                edges
+                    .iter()
+                    .map(|&e| {
+                        if e.kind == K_EDGE && e.b == brep.b {
+                            Ok(eid(e))
+                        } else {
+                            Err(invalid("glue wire edge owner mismatch"))
+                        }
+                    })
+                    .collect::<solidcore::Result<Vec<_>>>()
+            })
+            .transpose()?;
+        let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
+        let b = self
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("absent B-rep"))?;
+        // The shim's B-reps carry no attributes, so the glue notifies through part 5's
+        // arena-only state (every object's default record), as a plain caller does.
+        solidcore::topology::brep::p5::glue_vertices(
+            k,
+            b,
+            Some(vid(v1)),
+            Some(vid(v2)),
+            wires.as_deref(),
+        )
+    }
+}
+
 impl IntersectorBrep<H> for Two {
     fn make_vertex_loop(&mut self, brep: H, face: H, point: Point3) -> solidcore::Result<(H, H)> {
         if brep.kind != K_BREP || face.kind != K_FACE || brep.b != face.b {
@@ -3133,7 +3182,8 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<(Vec<f64>, Vec<usize>), Fa
                     continue;
                 }
                 let mut vs: Vec<Option<H>> = verts.iter().map(|&h| triple_to_h(h)).collect();
-                let r = ti.vertex_face_intersect(&k, &mut two, &mut vs, &faces, *manifold, *ignore);
+                let r =
+                    ti.vertex_face_intersect(&mut k, &mut two, &mut vs, &faces, *manifold, *ignore);
                 let Some(r) = status(r, &mut o)? else {
                     continue;
                 };

@@ -86,9 +86,13 @@
 //!   [`IntersectorBrep::brep_glue_edges_general`], which the B-rep owner implements with
 //!   `topology::brep::p7::glue_edges_general` (so `face_face_intersect` takes the
 //!   kernel mutably).
+//! - **`SmBrep::GlueVertices`** (`topology.brep_p5`) goes through
+//!   its supertrait `BrepGlue` (`topology::proto_topology::p3`), which the B-rep owner
+//!   implements with `topology::brep::p5` (so `vertex_face_intersect` and the
+//!   interval-end imprint take the kernel mutably).
 //! - **Callees not ported yet** are private stubs returning [`SolidError::Unported`],
 //!   each tagged `UNPORTED(<unit>)`: `SmBrep::MakeVertexLoop` / `MakeVertexSplitEdge`
-//!   (`topology.brep_p9`), `GlueVertices` / `MakeEdgeInFace` (`topology.brep_p5`),
+//!   (`topology.brep_p9`), `MakeEdgeInFace` (`topology.brep_p5`),
 //!   `DeleteFace` (`topology.brep_p3`),
 //!   `SmFace::GetVertices` / `GetEdges` / `GetBrep` (`topology.face_p4`),
 //!   `SmFace::FaceIntersect` with UV curve and point outputs (`topology.face_p3`; part
@@ -226,7 +230,9 @@ pub(super) fn find_common_elements<O: Copy + PartialEq>(this: &[O], other: &[O])
 /// upstream function and
 /// the ported function that implements it. A method returns `Ok(None)` /
 /// `Err(InvalidInput)` where upstream would dereference null.
-pub trait IntersectorBrep<O>: ProtoBrep<O> {
+pub trait IntersectorBrep<O>:
+    ProtoBrep<O> + crate::topology::proto_topology::p3::BrepGlue<O>
+{
     /// `SmBrep::MakeVertexLoop` with its default opposite orientation, using the
     /// caller's mutable arenas and notification state (`topology::brep::p9`).
     fn make_vertex_loop(&mut self, brep: O, face: O, point: Point3) -> Result<(O, O)>;
@@ -427,18 +433,6 @@ pub trait IntersectorBrep<O>: ProtoBrep<O> {
 }
 
 // ---- unported callees -----------------------------------------------------------------------
-
-/// `SmBrep::GlueVertices(pV1, pV2, pOptWireEdgesInBrep)`; `opt_wire_edges_in_brep` is
-/// `pOptWireEdgesInBrep` (`NULL` by default: every shell edge is checked).
-fn brep_glue_vertices<O: Copy + PartialEq>(
-    _k: &Kernel,
-    _brep: O,
-    v1: O,
-    v2: O,
-    _opt_wire_edges_in_brep: Option<&[O]>,
-) -> Result<()> {
-    crate::topology::brep::p5::opaque_glue_preflight(v1 == v2)
-}
 
 /// `SmBrep::MakeEdgeInFace(pFace, pV1, pV2, pCurve, pOptUVCurve, ivl, eOrient, tol,
 /// rpNewEdge, rpNewLoop, rpNewFace)`: the new edge, loop and (when the face was
@@ -1726,7 +1720,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// changes.
     fn imprint_body(
         &mut self,
-        k: &Kernel,
+        k: &mut Kernel,
         brep: &mut impl IntersectorBrep<O>,
         ret: &mut Result<()>,
         deleted: &mut Vec<O>,
@@ -1826,7 +1820,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     /// dereferences.
     pub fn vertex_face_intersect(
         &mut self,
-        k: &Kernel,
+        k: &mut Kernel,
         brep: &mut impl IntersectorBrep<O>,
         verts: &mut [Option<O>],
         faces: &[Option<O>],
@@ -1913,7 +1907,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     let mid = 0.5 * (v_point + new_point);
                     brep.set_vertex_point(k, v, mid)?;
 
-                    ignore_soft(brep_glue_vertices(k, v_brep, v, new_vertex, None))?;
+                    ignore_soft(brep.glue_vertices(k, v_brep, v, new_vertex, None))?;
                     add_unique(&mut out.processed_verts, v);
                     if let Some(slot) = verts.get_mut(ii) {
                         *slot = None;
@@ -2375,7 +2369,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                 let mid = 0.5 * (ev_pt + fv_pt);
                 brep.set_vertex_point(k, ev, mid)?;
 
-                ignore_soft(brep_glue_vertices(k, f_brep, ev, fv, None))?;
+                ignore_soft(brep.glue_vertices(k, f_brep, ev, fv, None))?;
 
                 // Set max distance.
                 out.max_vertex_gap = max2(out.max_vertex_gap, this_deviation);
@@ -2749,7 +2743,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
     #[allow(clippy::too_many_arguments)]
     fn imprint_interval_end(
         &self,
-        k: &Kernel,
+        k: &mut Kernel,
         brep: &mut impl IntersectorBrep<O>,
         this_brep: O,
         pc1: &mut PointClassification<O>,
@@ -2845,7 +2839,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
             // null vertex is dereferenced by GlueVertices)
             match (v1, v2) {
                 (Some(v1), Some(v2)) => {
-                    ignore_soft(brep_glue_vertices(k, this_brep, v1, v2, None))?;
+                    ignore_soft(brep.glue_vertices(k, this_brep, v1, v2, None))?;
                 }
                 (None, None) => {}
                 _ => return Err(dangling("GlueVertices of one null vertex")),
@@ -3890,7 +3884,7 @@ pub fn test_and_split_two_edges<O: ClassObject + SolutionObject + Ord>(
         let mid = 0.5 * (p1 + p2);
         geometry.set_vertex_point(k, new_v1, mid)?;
 
-        ignore_soft(brep_glue_vertices(k, brep, new_v1, new_v2, None))?;
+        ignore_soft(geometry.glue_vertices(k, brep, new_v1, new_v2, None))?;
 
         out.new_verts.push(new_v1); // This one will survive.
     }

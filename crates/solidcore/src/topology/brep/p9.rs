@@ -2240,14 +2240,13 @@ mod tests {
                 type_code: kind,
             }
         });
-        // With part 1 wired, a wire split runs to its final B-rep ADD notification.
-        assert!(matches!(
-            result,
-            Err(SolidError::Unported {
-                unit: "topology.brep_p2",
-                upstream: "SmBrep::Notify",
-            })
-        ));
+        // With parts 1 and 2 wired, a wire split completes, its final B-rep ADD
+        // notification included.
+        let out = result.unwrap();
+        assert_eq!(out.status(), 0);
+        let edges = out.edges.unwrap();
+        assert!(edges.contains(&e));
+        assert!(out.vertex.is_some());
         assert_eq!(b.edge_list().len(), 2);
         assert_eq!(b.vertex_list().len(), 3);
         assert!(!k.context.doing_boolean());

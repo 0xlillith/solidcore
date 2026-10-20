@@ -1228,6 +1228,25 @@ pub(super) struct Pool {
     pub(super) alive: Vec<bool>,
 }
 
+/// The pool holds proto-topology objects, not a B-rep arena: it cannot glue. The glue
+/// op skips every script whose vertices would be glued (the `p::GLUE` op), so this
+/// refusal is never reached by a compared case.
+impl solidcore::topology::proto_topology::p3::BrepGlue<H> for Pool {
+    fn glue_vertices(
+        &mut self,
+        _k: &mut Kernel,
+        _brep: H,
+        _v1: H,
+        _v2: H,
+        _opt_wire_edges_in_brep: Option<&[H]>,
+    ) -> solidcore::Result<()> {
+        Err(SolidError::invalid_input(
+            "difftest::topology_proto_topology_p1::Pool",
+            "the pool has no B-rep arena to glue in",
+        ))
+    }
+}
+
 impl ClassGeometry<H> for Pool {
     fn curve(&self, o: H) -> Option<&Curve> {
         if !self.alive.get(o.0).copied().unwrap_or(false) {
@@ -3956,7 +3975,11 @@ fn run_proto(
                     }
                     if !skip {
                         // (the shim's intersector relates nothing: GetOtherMate is always null)
-                        match st3(r.mgr.glue_coincident_brep_vertices(k, &r.pool, &mut solidcore::topology::proto_topology::p3::NoMates))? {
+                        match st3(r.mgr.glue_coincident_brep_vertices(
+                            &mut r.k,
+                            &mut r.pool,
+                            &mut solidcore::topology::proto_topology::p3::NoMates,
+                        ))? {
                             Ok(deleted) => {
                                 let ids = r.kill_curves(deleted);
                                 out.push(ids.len() as f64);

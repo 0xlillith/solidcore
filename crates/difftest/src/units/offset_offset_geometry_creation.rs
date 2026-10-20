@@ -723,6 +723,24 @@ impl Two {
             == Some(SPHERE_TYPE)
     }
 
+    /// Refuses (as [`ANALYTIC_EXPORT`]) an edit of a B-rep with a face whose surface was
+    /// imported as its B-spline part: `MateLaminaEdgeToSurface` and `ReplaceSurface`
+    /// branch on the surface kinds, which the Rust side would not see.
+    fn require_exact_faces(&self, h: H) -> solidcore::Result<()> {
+        let all = usize::try_from(h.b)
+            .ok()
+            .and_then(|b| self.exact.get(b))
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        if all.iter().all(|&e| e) {
+            Ok(())
+        } else {
+            Err(SolidError::Unported {
+                upstream: "SmBrep::MateLaminaEdgeToSurface / ReplaceSurface (face surface imported as its B-spline part)",
+                unit: ANALYTIC_EXPORT,
+            })
+        }
+    }
+
     fn brep_mut(&mut self, h: H) -> Option<&mut Brep> {
         self.breps.get_mut(usize::try_from(h.b).ok()?)?.as_mut()
     }
@@ -1008,6 +1026,71 @@ impl OffsetBrep<H> for Two {
             .ok_or_else(|| invalid("curve handle cannot be resolved"))?
             .clone();
         self.set_edge_curve_from(edge, c)
+    }
+    fn brep_mate_lamina_edge_to_surface(
+        &mut self,
+        k: &Kernel,
+        edge: H,
+        surface: H,
+        surface_extension_factor: f64,
+        uv_curve_extension_factor: f64,
+    ) -> solidcore::Result<()> {
+        if edge.kind != K_EDGE {
+            return Err(invalid("mate of a non-edge handle"));
+        }
+        self.require_exact_faces(edge)?;
+        // a const reference upstream: the mating surface is only read
+        let mating = ClassGeometry::surface(self, surface)
+            .ok_or_else(|| invalid("surface handle cannot be resolved"))?
+            .clone();
+        let b = self.brep_m(edge)?;
+        let mut state = solidcore::topology::brep::p2::ArenaNotifyState::new(b);
+        solidcore::topology::brep::p2::mate_lamina_edge_to_surface(
+            k,
+            b,
+            &mut state.env(None),
+            eid(edge),
+            &mating,
+            surface_extension_factor,
+            uv_curve_extension_factor,
+        )
+    }
+    fn brep_replace_surface(
+        &mut self,
+        k: &Kernel,
+        face: H,
+        surface: H,
+        add_to_deleted_list: bool,
+        create_uv_trim_curves: bool,
+    ) -> solidcore::Result<()> {
+        if face.kind != K_FACE {
+            return Err(invalid("surface replacement of a non-face handle"));
+        }
+        self.require_exact_faces(face)?;
+        // the face takes the surface; its store entry is left unreferenced
+        let new_surface = ClassGeometry::surface(self, surface)
+            .ok_or_else(|| invalid("surface handle cannot be resolved"))?
+            .clone();
+        let b = self.brep_m(face)?;
+        let mut state = solidcore::topology::brep::p2::ArenaNotifyState::new(b);
+        let old = if add_to_deleted_list {
+            solidcore::topology::brep::p2::OldSurface::AddToDeletedList
+        } else {
+            solidcore::topology::brep::p2::OldSurface::Delete
+        };
+        let mut env = state.env(None);
+        let face_ref = (env.key_of)(EntityRef::Face(fid(face)));
+        solidcore::topology::brep::p2::replace_surface(
+            k,
+            b,
+            &mut env,
+            fid(face),
+            new_surface,
+            face_ref,
+            old,
+            create_uv_trim_curves,
+        )
+        .map(|_| ())
     }
     fn edge_faces(&self, edge: H) -> solidcore::Result<Vec<H>> {
         let b = self.brep_r(edge)?;

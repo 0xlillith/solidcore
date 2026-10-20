@@ -17,6 +17,7 @@
 //! | [`swap_uv`]                  | `SmBrep::SwapUV`                          |
 //! | [`notify`], [`NotifyArg`], [`brep_ref`] | `SmBrep::Notify`               |
 //! | [`RegionNotifyState`], [`region_only_key`] | (port helper) the notify state of a caller without attribute state |
+//! | [`ArenaNotifyState`] | (port helper) the notify state of an arena-only caller (every object's record) |
 //! | `add_to_spatial_tree` (private) | `sm_AddToSpatialTree`                  |
 //! | `rm_from_spatial_tree` (private) | `sm_RmFromSpatialTree`                |
 //! | [`delete_stale_caches`]      | `SmBrep::DeleteStaleCaches`               |
@@ -81,8 +82,8 @@ use crate::geom::solution_array::Solution;
 use crate::geom::tol::{zone_tol3d, ZONE_TOL_3D};
 use crate::geom::tree::NodeGeomType;
 use crate::intersect::curve_class::p1::{CurveClassification, IntervalPosition};
-use crate::intersect::curve_class::ClassificationInit;
 use crate::intersect::curve_class::p7::CoincidentMaybe;
+use crate::intersect::curve_class::ClassificationInit;
 use crate::intersect::point_class::{
     ClassGeometry, ClassObject, PointClassType, PointClassification,
 };
@@ -690,6 +691,68 @@ impl RegionNotifyState {
             attributes: &mut self.attributes,
             context: None,
             key_of: &region_only_key,
+        }
+    }
+}
+
+/// The notification state of an arena-only caller: a plain entry point that keeps no
+/// `SmTopology` records or attribute store of its own (the `topology.brep_p5` entry points
+/// without a notification environment, the heal path, `CopyEdges`). Upstream every object
+/// carries its `SmTopology` part and attributes; such a caller models neither, so the
+/// notification runs on a default record for every object of the B-rep, keyed by its
+/// arena identity ([`loopuse::notify_ref`](crate::topology::loopuse::notify_ref)), and an
+/// empty attribute store. The records are never read back: they exist so that
+/// `SmTopology::Notify`'s flag propagation finds both objects, as upstream it always does.
+/// The identities are unique within one B-rep only.
+#[derive(Debug, Default)]
+pub struct ArenaNotifyState {
+    /// Each object's default `SmTopology` record.
+    pub records: BTreeMap<ObjectKey, Topology>,
+    /// The (empty) attribute store.
+    pub attributes: AttributeStore,
+}
+
+impl ArenaNotifyState {
+    /// A default record for every object of `b` (and the B-rep itself).
+    #[must_use]
+    pub fn new(b: &Brep) -> Self {
+        let mut state = Self::default();
+        state.seed(b);
+        state
+    }
+
+    /// Adds a default record for every object of `b` that has none yet (a second B-rep
+    /// of the same edit, or objects the edit created).
+    pub fn seed(&mut self, b: &Brep) {
+        use crate::topology::loopuse::notify_ref;
+        let mut all = vec![EntityRef::Brep(BrepId::from_index(0))];
+        all.extend(b.regions().iter().map(|(x, _)| EntityRef::Region(x)));
+        all.extend(b.shells().iter().map(|(x, _)| EntityRef::Shell(x)));
+        all.extend(b.faceuses().iter().map(|(x, _)| EntityRef::Faceuse(x)));
+        all.extend(b.faces().iter().map(|(x, _)| EntityRef::Face(x)));
+        all.extend(b.loopuses().iter().map(|(x, _)| EntityRef::Loopuse(x)));
+        all.extend(b.loops().iter().map(|(x, _)| EntityRef::Loop(x)));
+        all.extend(b.edgeuses().iter().map(|(x, _)| EntityRef::Edgeuse(x)));
+        all.extend(b.edges().iter().map(|(x, _)| EntityRef::Edge(x)));
+        all.extend(b.vertexuses().iter().map(|(x, _)| EntityRef::Vertexuse(x)));
+        all.extend(b.vertices().iter().map(|(x, _)| EntityRef::Vertex(x)));
+        for e in all {
+            self.records.entry(notify_ref(e).key).or_default();
+        }
+    }
+
+    /// The [`NotifyEnv`] over this state, notifying through `context` (the kernel's,
+    /// when the caller holds it mutably: its notify callbacks see the events, as upstream
+    /// the B-rep's context's do).
+    pub fn env<'a>(
+        &'a mut self,
+        context: Option<&'a mut crate::geom::context::Context>,
+    ) -> NotifyEnv<'a> {
+        NotifyEnv {
+            records: &mut self.records,
+            attributes: &mut self.attributes,
+            context,
+            key_of: &crate::topology::loopuse::notify_ref,
         }
     }
 }
