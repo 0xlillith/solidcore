@@ -13,7 +13,7 @@
 //!
 //! | [`Op`]   | after the blocks | outputs |
 //! |----------|------------------|---------|
-//! | `Export` |                  | per B-rep `len export` (`len 0` for an absent one), then per B-rep `len query_metadata`; each export a `0`-prefixed graph as [`super::topology_vertexuse`] exports it |
+//! | `Export` |                  | per B-rep `len export` (`len 0` for an absent one), then per B-rep `len query_metadata` and `len notification_snapshot`; each export a `0`-prefixed graph as [`super::topology_vertexuse`] exports it |
 //! | `Run`    | `ctor approx ang n_ops ops*` | per op its code then its outputs (below) |
 //!
 //! `ctor` 0 makes the intersector with both B-reps and the tolerances, 1 with the
@@ -509,38 +509,10 @@ pub fn counts(export: &[f64]) -> Option<[usize; 10]> {
     Some(c)
 }
 
-/// Splits an `Export` output into the two B-reps' export blocks (`None` for an absent
-/// second B-rep); `None` when the output is a build failure.
-#[must_use]
-pub fn split_exports(out: &[f64]) -> Option<(Vec<f64>, Option<Vec<f64>>)> {
-    if out.first() != Some(&0.0) {
-        return None;
-    }
-    let mut at = 1usize;
-    let mut blocks: Vec<Option<Vec<f64>>> = Vec::new();
-    for _ in 0..2 {
-        let len = *out.get(at)? as usize;
-        at += 1;
-        if len == 0 {
-            blocks.push(None);
-            continue;
-        }
-        let block = out.get(at..at + len)?.to_vec();
-        at += len;
-        blocks.push(Some(block));
-    }
-    let a = blocks.first().cloned().flatten()?;
-    let b = blocks.get(1).cloned().flatten();
-    Some((a, b))
-}
-
-/// The native query metadata appended after the two graph exports.
-///
-/// The payload is decoded against the corresponding imported graph by the
-/// difftest adapter. Here only the four length-prefixed blocks are validated;
-/// graph and metadata absence must agree, and trailing bytes are rejected.
-#[must_use]
-pub fn split_query_metadata(out: &[f64]) -> Option<[&[f64]; 2]> {
+/// Decode the six length-prefixed blocks of one native `Export`: both graphs,
+/// both query metadata blocks, and both notification snapshots. All blocks come
+/// from the same two fixtures. No legacy or truncated envelope is accepted.
+fn export_blocks(out: &[f64]) -> Option<[&[f64]; 6]> {
     if out.first() != Some(&0.0) {
         return None;
     }
@@ -559,18 +531,44 @@ pub fn split_query_metadata(out: &[f64]) -> Option<[&[f64]; 2]> {
         at = end;
         Some(result)
     };
-    let a = block()?;
-    let b = block()?;
-    let a_metadata = block()?;
-    let b_metadata = block()?;
+    let blocks = [block()?, block()?, block()?, block()?, block()?, block()?];
     if at != out.len()
-        || a.is_empty()
-        || a_metadata.is_empty()
-        || b.is_empty() != b_metadata.is_empty()
+        || blocks[0].is_empty()
+        || blocks[2].is_empty()
+        || blocks[4].is_empty()
+        || blocks[1].is_empty() != blocks[3].is_empty()
+        || blocks[1].is_empty() != blocks[5].is_empty()
     {
         return None;
     }
-    Some([a_metadata, b_metadata])
+    Some(blocks)
+}
+
+/// Splits an `Export` output into the two B-reps' export blocks (`None` for an
+/// absent second B-rep). Malformed envelopes and build failures return `None`.
+#[must_use]
+pub fn split_exports(out: &[f64]) -> Option<(Vec<f64>, Option<Vec<f64>>)> {
+    let blocks = export_blocks(out)?;
+    Some((
+        blocks[0].to_vec(),
+        (!blocks[1].is_empty()).then(|| blocks[1].to_vec()),
+    ))
+}
+
+/// The native query metadata of the same two graphs in an `Export` envelope.
+#[must_use]
+pub fn split_query_metadata(out: &[f64]) -> Option<[&[f64]; 2]> {
+    let blocks = export_blocks(out)?;
+    Some([blocks[2], blocks[3]])
+}
+
+/// Native notification inputs: exact topology flags, five stored marks and user
+/// fields, plus attribute/callback presence. Payloads are validated against each
+/// imported graph by the difftest adapter before any operation consumes them.
+#[must_use]
+pub fn split_notification_metadata(out: &[f64]) -> Option<[&[f64]; 2]> {
+    let blocks = export_blocks(out)?;
+    Some([blocks[4], blocks[5]])
 }
 
 /// The counts the script validation checks handles against.
@@ -1006,6 +1004,9 @@ pub(crate) fn eval_with(
     brep_blocks(&mut rd, paths)?;
     let block = input.get(..rd.at).ok_or_else(|| bad("input too short"))?;
     let export = raw(entry, Op::Export, &joined, block)?;
+    if export.first() == Some(&0.0) && export_blocks(&export).is_none() {
+        return Err(bad("malformed native export envelope"));
+    }
     if op == Op::Export {
         rd.done()?;
         return Ok(export);
@@ -1031,4 +1032,57 @@ pub(crate) fn eval_with(
     script(&mut rd, c, extra, block_max_abs)?;
     rd.done()?;
     raw(entry, op, &joined, input)
+}
+
+#[cfg(test)]
+mod notification_envelope_tests {
+    use super::*;
+
+    fn envelope(second: bool) -> Vec<f64> {
+        let mut out = vec![0.0];
+        for block in [
+            vec![0.0],
+            if second { vec![0.0] } else { vec![] },
+            vec![1.0],
+            if second { vec![1.0] } else { vec![] },
+            vec![1.0],
+            if second { vec![1.0] } else { vec![] },
+        ] {
+            out.push(block.len() as f64);
+            out.extend(block);
+        }
+        out
+    }
+
+    #[test]
+    fn six_blocks_bind_presence_and_reject_truncation_and_trailing_data() {
+        for second in [false, true] {
+            let out = envelope(second);
+            assert!(split_exports(&out).is_some());
+            assert!(split_query_metadata(&out).is_some());
+            let notifications = split_notification_metadata(&out).unwrap();
+            assert_eq!(notifications[0], [1.0]);
+            assert_eq!(notifications[1].is_empty(), !second);
+            for end in 0..out.len() {
+                assert!(split_notification_metadata(&out[..end]).is_none());
+            }
+            let mut extra = out.clone();
+            extra.push(0.0);
+            assert!(split_query_metadata(&extra).is_none());
+        }
+    }
+
+    #[test]
+    fn invalid_lengths_and_mismatched_second_presence_are_rejected() {
+        for length in [f64::NAN, f64::INFINITY, -1.0, 0.5, f64::MAX] {
+            let mut out = envelope(false);
+            out[1] = length;
+            assert!(split_notification_metadata(&out).is_none());
+        }
+        let mut out = envelope(false);
+        // An absent second graph must not acquire a notification payload.
+        *out.last_mut().unwrap() = 1.0;
+        out.push(1.0);
+        assert!(split_exports(&out).is_none());
+    }
 }

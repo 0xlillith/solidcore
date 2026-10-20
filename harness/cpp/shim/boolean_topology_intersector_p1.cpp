@@ -1728,6 +1728,80 @@ void run_script(Rd& rd, Two& t, std::vector<double>& o)
     }
 }
 
+// Notification inputs of these same Two fixtures; see topology_brep_p7.cpp.
+// Two 32-bit limbs preserve ULONG/user values exactly through the double ABI.
+void ti_put_notification_u64(std::vector<double>& out, uint64_t value)
+{
+    out.push_back((double)(value & UINT64_C(0xffffffff)));
+    out.push_back((double)(value >> 32));
+}
+
+void ti_put_notification_topology(std::vector<double>& out, int kind, size_t index, SmTopology* object)
+{
+    out.push_back((double)kind);
+    out.push_back((double)index);
+    ti_put_notification_u64(out, (uint64_t)object->GetAllFlags());
+    ti_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARK));
+    ti_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARK2));
+    ti_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARK3));
+    ti_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARKIO));
+    ti_put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARKASSERT));
+    ti_put_notification_u64(out, (uint64_t)object->GetUserIndex1());
+    ti_put_notification_u64(out, (uint64_t)object->GetUserIndex2());
+    ti_put_notification_u64(out, (uint64_t)(uintptr_t)object->GetUserPtr1());
+    out.push_back(object->HasAttributes() ? 1.0 : 0.0);
+}
+
+template <class T>
+void ti_put_notification_list(std::vector<double>& out, int kind, const std::vector<T*>& objects)
+{
+    for (size_t i = 0; i < objects.size(); ++i)
+        ti_put_notification_topology(out, kind, i, objects[i]);
+}
+
+void ti_put_notification_geometry(std::vector<double>& out, int kind, size_t index, const SmAObject* object)
+{
+    out.push_back((double)kind);
+    out.push_back((double)index);
+    out.push_back(object != NULL ? 1.0 : 0.0);
+    out.push_back(object != NULL && object->HasAttributes() ? 1.0 : 0.0);
+}
+
+void ti_put_notification_state(SmBrep* brep, const Graph& graph, std::vector<double>& out)
+{
+    // SmApiCreateBox can select its own context. Inspect the actual B-rep's
+    // callbacks instead of silently replacing either callback with a Rust None.
+    // GetSysNotifyCallback is not const, although its inline body only reads.
+    SmContext* context = const_cast<SmContext*>(brep->GetContext());
+    out.push_back(context != NULL &&
+                          (context->GetUserNotifyCallback() != NULL || context->GetSysNotifyCallback() != NULL)
+                      ? 1.0
+                      : 0.0);
+    out.push_back((double)(1 + graph.regions.size() + graph.shells.size() + graph.faceuses.size() +
+                           graph.faces.size() + graph.loopuses.size() + graph.loops.size() +
+                           graph.edgeuses.size() + graph.edges.size() + graph.vertexuses.size() +
+                           graph.vertices.size()));
+    ti_put_notification_topology(out, 10, 0, brep);
+    ti_put_notification_list(out, 0, graph.regions);
+    ti_put_notification_list(out, 1, graph.shells);
+    ti_put_notification_list(out, 2, graph.faceuses);
+    ti_put_notification_list(out, 3, graph.faces);
+    ti_put_notification_list(out, 4, graph.loopuses);
+    ti_put_notification_list(out, 5, graph.loops);
+    ti_put_notification_list(out, 6, graph.edgeuses);
+    ti_put_notification_list(out, 7, graph.edges);
+    ti_put_notification_list(out, 8, graph.vertexuses);
+    ti_put_notification_list(out, 9, graph.vertices);
+    out.push_back((double)(graph.edges.size() + graph.faces.size() + graph.edgeuses.size()));
+    for (size_t i = 0; i < graph.edges.size(); ++i)
+        ti_put_notification_geometry(out, 0, i, graph.edges[i]->GetCurve());
+    for (size_t i = 0; i < graph.faces.size(); ++i)
+        ti_put_notification_geometry(out, 1, i, graph.faces[i]->GetSurface());
+    for (size_t i = 0; i < graph.edgeuses.size(); ++i)
+        ti_put_notification_geometry(out, 2, i, graph.edgeuses[i]->GetUVTrimCurvePointer());
+}
+
+
 void run_ti(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
 {
     Two t;
@@ -1767,6 +1841,17 @@ void run_ti(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
                 append_query_metadata(t.brep[b], t.g[b], metadata);
             o.push_back((double)metadata.size());
             o.insert(o.end(), metadata.begin(), metadata.end());
+        }
+        for (int b = 0; b < 2; b++)
+        {
+            std::vector<double> notifications;
+            if (t.brep[b] != nullptr)
+            {
+                notifications.push_back(1.0); // notification snapshot version
+                ti_put_notification_state(t.brep[b], t.g[b], notifications);
+            }
+            o.push_back((double)notifications.size());
+            o.insert(o.end(), notifications.begin(), notifications.end());
         }
         return;
     }

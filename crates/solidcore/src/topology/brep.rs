@@ -6,6 +6,7 @@
 //! | Rust      | Upstream                                                        |
 //! |-----------|-----------------------------------------------------------------|
 //! | [`p1`]    | see the module                                                  |
+//! | [`p2`]    | see the module                                                  |
 //! | [`p5`]    | B-rep editing and transformation operations, part 5             |
 //! | [`p6`]    | see the module                                                  |
 //! | [`p7`]    | see the module                                                  |

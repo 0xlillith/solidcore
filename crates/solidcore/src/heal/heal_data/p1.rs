@@ -1007,8 +1007,7 @@ mod tests {
         // Both entry points gather this face and run the heal sequence. With no
         // edges, Fix_TolSizes keeps the B-rep's default 1e-5 tolerance and raises
         // the face's tolerance from zero to that value through SmFace::SetTolerance.
-        // The face has no edges and is classified degenerate; Fix_DegenFaces then
-        // reaches its still-unported SmFace::GetEdges adapter.
+        // Cache_DegenFaces then reaches its still-unported SmFace::GetEdges adapter.
         let mut b = Brep::default();
         let face = b
             .add_face_record(Face::new(ShellId::from_index(0)))

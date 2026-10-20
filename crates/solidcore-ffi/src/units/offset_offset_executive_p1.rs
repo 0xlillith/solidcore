@@ -94,6 +94,19 @@
 //! * `probe`: `0, status, curve_count, orientation_count, has_surface,
 //!   has_result_brep, has_offset_brep, counted_original_to_offset_EU_lookups`.
 //!
+//! Probe 13 appends eight integers after its lookup list: original/result editing
+//! before, original/result editing after, original vertices, result edges/edgeuses/faces.
+//! Probes 14..21 append three counted integer lists: actual original/result
+//! edge counts, result vertex/face counts; then notification before and after.
+//! Each metadata list contains, per B-rep, actual callback presence followed by
+//! actual attribute presence and flags for every edge then vertex. These fixtures
+//! seed flags explicitly; they do not qualify arbitrary attributes, user data or marks.
+//! Probe 22 appends `mapping_selection[8]` integers and `mapping_geometry[17]`
+//! scalars: normal dot, then (offset UV x/y, nearest original midpoint distance,
+//! base UV tolerance) per selected offset use. These are observed geometry, not a
+//! fabricated execution trace. Selection is normals-same, original-side-same,
+//! offset-side-same, original/offset use counts, and own/resolved/mate UV counts.
+//!
 //! **Relation ordering:** this checkout uses pointer-hashed `unordered_set`
 //! values in `SmRelation`. We preserve actual `GetSeconds` order; equal-minimum
 //! sort ties and summation order can therefore be upstream-nondeterministic.
@@ -295,11 +308,32 @@ pub enum Probe {
     FaceuseNoSurface = 9,
     /// `PiecewiseMerge` on an empty offset B-rep, merge disabled.
     PiecewiseEmpty = 10,
-    /// `MapEdgeuses` from a real planar face's upward use to the same face.
+    /// `MapEdgeuses` between two separately owned, identical planar faces.
     MapPlane = 11,
     /// `BuildOffsetOfEdgeuses` on a real planar face edge and its radial mate,
     /// with no mapped offsets (no geometry-creator branch is entered).
     EdgeusesUnmapped = 12,
+    /// Nonempty `RemoveExcessFaces`: one original shell vertex, two result wires;
+    /// records editing before/after plus actual geometry counts.
+    RemoveWirePoint = 13,
+    /// Nonempty 3D gap with no candidate faces.
+    FillWire = 14,
+    /// Nonempty gap with one coincident candidate-face vertex.
+    FillOneCandidate = 15,
+    /// Two input gaps; the first insufficient-candidate return is observed.
+    FillTwoGaps = 16,
+    /// Two distinct, identical planar faces with explicit UV curves.
+    MapDirect = 17,
+    /// Offset rectangle shifted outside every mapping tolerance.
+    MapUnmatched = 18,
+    /// Offset rectangle shifted beyond scale 1 but within scale 10.
+    MapScaleTen = 19,
+    /// Offset subrectangle whose horizontal uses require `DropPoint`.
+    MapDrop = 20,
+    /// Two real faces with no loops; exercises normal/side selection.
+    MapEmpty = 21,
+    /// Opposite original faceuse, mate-owned UV curve and `DropPoint` matching.
+    MapDropOpposite = 22,
 }
 
 mod sys {

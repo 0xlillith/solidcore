@@ -678,10 +678,8 @@ impl Graph {
             vertexuses: Reg::new(),
             vertices: Reg::new(),
         };
-        for (id, r) in b.regions().iter() {
-            if r.in_brep {
-                g.regions.add(Some(id), RegionId::index);
-            }
+        for id in solidcore::topology::brep::p1::regions(b, None)? {
+            g.regions.add(Some(id), RegionId::index);
         }
         let (mut r, mut s, mut fu, mut lu, mut eu, mut vu, mut l, mut e, mut v) =
             (0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -1192,6 +1190,25 @@ fn generate(rng: &mut Rng) -> Inputs {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn graph_walk_uses_native_region_list_and_propagates_bad_head() {
+        let mut b = Brep::new();
+        let first = b
+            .add_region_record(solidcore::topology::Region::default())
+            .unwrap();
+        let second = b
+            .add_region_record(solidcore::topology::Region::default())
+            .unwrap();
+        b.set_region_list(vec![second, first]).unwrap();
+        let graph = Graph::walk(&b).unwrap();
+        assert_eq!(graph.regions.items, [second, first]);
+        b.set_region_list_head(Some(first));
+        let graph = Graph::walk(&b).unwrap();
+        assert_eq!(graph.regions.items, [first, second]);
+        b.set_region_list_head(Some(RegionId::from_index(99)));
+        assert!(Graph::walk(&b).is_err());
+    }
 
     #[test]
     fn keys_are_distinct_per_kind() {

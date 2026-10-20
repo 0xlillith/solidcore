@@ -47,7 +47,11 @@
 //! intersector's trees store H while the typed classifier's trees store `CacheObject`.
 //! These cases do not measure cache-build performance. Unrepresented analytic
 //! geometry or owner chains defer at reached geometry work with an explicit
-//! harness reason. Other missing kernel callees retain their own unit errors.
+//! harness reason. Notification snapshots of these same native fixtures preserve
+//! flags, all five stored marks and user values. One kind-qualified identity is
+//! shared by imported records, queries and edits; B-rep keys retain operand identity.
+//! Attribute/callback presence is retained and defers notifying mutations when the
+//! handlers are not represented. Other missing kernel callees retain their unit errors.
 
 use std::cell::Cell;
 use std::collections::BTreeMap;
@@ -740,39 +744,66 @@ fn triple_to_h(t: Hin) -> Option<H> {
 
 // ---- the two B-reps behind the handles --------------------------------------------------
 
-/// The topology records, identities and attribute store a vertex notification runs
-/// with (the `topology.vertex` runner's environment).
+/// Persistent notification inputs imported from this exact native B-rep.
+/// Unsupported native handlers are retained as presence, never treated as absent.
 struct NotifyEnv {
     records: BTreeMap<ObjectKey, Topology>,
     attributes: AttributeStore,
-    this: ObjectRef,
+    brep_ref: ObjectRef,
+    callback_present: bool,
+    attributed_objects: usize,
 }
 
 impl NotifyEnv {
-    fn new(b: Option<&Brep>) -> Self {
-        let mut records = BTreeMap::new();
-        records.insert(ObjectKey(1), Topology::new());
-        if let Some(b) = b {
-            for id in b.vertexuses().ids() {
-                records.insert(ObjectKey(100 + u64::from(id.index())), Topology::new());
-            }
-        }
+    fn absent() -> Self {
         Self {
-            records,
+            records: BTreeMap::new(),
             attributes: AttributeStore::default(),
-            this: ObjectRef {
-                type_code: vx::TYPE,
-                key: ObjectKey(1),
+            brep_ref: ObjectRef {
+                type_code: BREP_TYPE,
+                key: ObjectKey(0),
             },
+            callback_present: false,
+            attributed_objects: 0,
         }
+    }
+
+    // Source-only synthetic tests construct their own attribute-free arenas.
+    // The native prepare path always uses import_notification_metadata instead.
+    #[cfg(test)]
+    fn new(b: Option<&Brep>) -> Self {
+        let Some(b) = b else { return Self::absent() };
+        let mut env = Self::absent();
+        env.brep_ref = ObjectRef {
+            type_code: BREP_TYPE,
+            key: b.key(),
+        };
+        for (_, _, object) in notification_rows(b) {
+            env.records.insert(object.key, Topology::new());
+        }
+        env
+    }
+
+    fn require_notifications(&self) -> solidcore::Result<()> {
+        if self.callback_present || self.attributed_objects != 0 {
+            return Err(SolidError::unported(
+                "native notification attributes or callbacks are not represented",
+                "harness:topology-notification-export",
+            ));
+        }
+        Ok(())
+    }
+}
+
+fn notification_ref(brep_ref: ObjectRef, entity: EntityRef) -> ObjectRef {
+    match entity {
+        EntityRef::Brep(_) => brep_ref,
+        _ => p9_entity_ref(entity),
     }
 }
 
 fn vertexuse_ref(vu: VertexuseId) -> ObjectRef {
-    ObjectRef {
-        type_code: solidcore::topology::vertexuse::TYPE,
-        key: ObjectKey(100 + u64::from(vu.index())),
-    }
+    p9_entity_ref(EntityRef::Vertexuse(vu))
 }
 
 /// The two B-reps, the registered curves (kind 5) and the port's curve copies (kind
@@ -803,6 +834,181 @@ fn invalid(reason: &'static str) -> SolidError {
     SolidError::invalid_input("difftest::boolean_topology_intersector_p1::Two", reason)
 }
 
+struct NotificationReader<'a> {
+    raw: &'a [f64],
+    at: usize,
+}
+
+impl NotificationReader<'_> {
+    fn word(&mut self) -> Result<u32, HarnessError> {
+        let value = *self
+            .raw
+            .get(self.at)
+            .ok_or_else(|| harness("notification metadata: truncated integer"))?;
+        self.at += 1;
+        if !value.is_finite()
+            || value.fract() != 0.0
+            || !(0.0..=f64::from(u32::MAX)).contains(&value)
+        {
+            return Err(harness("notification metadata: invalid integer"));
+        }
+        Ok(value as u32)
+    }
+
+    fn count(&mut self) -> Result<usize, HarnessError> {
+        usize::try_from(self.word()?).map_err(|_| harness("notification metadata: count overflow"))
+    }
+
+    fn wide(&mut self) -> Result<u64, HarnessError> {
+        let lo = u64::from(self.word()?);
+        let hi = u64::from(self.word()?);
+        Ok(lo | (hi << 32))
+    }
+
+    fn flag(&mut self) -> Result<bool, HarnessError> {
+        match self.word()? {
+            0 => Ok(false),
+            1 => Ok(true),
+            _ => Err(harness("notification metadata: invalid flag")),
+        }
+    }
+}
+
+fn notification_rows(brep: &Brep) -> Vec<(u32, u32, ObjectRef)> {
+    let mut rows = vec![(
+        10,
+        0,
+        ObjectRef {
+            type_code: BREP_TYPE,
+            key: brep.key(),
+        },
+    )];
+    let mut push = |kind, index, entity| rows.push((kind, index, p9_entity_ref(entity)));
+    for id in brep.regions().ids() {
+        push(0, id.index(), EntityRef::Region(id));
+    }
+    for id in brep.shells().ids() {
+        push(1, id.index(), EntityRef::Shell(id));
+    }
+    for id in brep.faceuses().ids() {
+        push(2, id.index(), EntityRef::Faceuse(id));
+    }
+    for id in brep.faces().ids() {
+        push(3, id.index(), EntityRef::Face(id));
+    }
+    for id in brep.loopuses().ids() {
+        push(4, id.index(), EntityRef::Loopuse(id));
+    }
+    for id in brep.loops().ids() {
+        push(5, id.index(), EntityRef::Loop(id));
+    }
+    for id in brep.edgeuses().ids() {
+        push(6, id.index(), EntityRef::Edgeuse(id));
+    }
+    for id in brep.edges().ids() {
+        push(7, id.index(), EntityRef::Edge(id));
+    }
+    for id in brep.vertexuses().ids() {
+        push(8, id.index(), EntityRef::Vertexuse(id));
+    }
+    for id in brep.vertices().ids() {
+        push(9, id.index(), EntityRef::Vertex(id));
+    }
+    rows
+}
+
+fn import_notification_metadata(brep: &Brep, raw: &[f64]) -> Result<NotifyEnv, HarnessError> {
+    let mut reader = NotificationReader { raw, at: 0 };
+    if reader.word()? != 1 {
+        return Err(harness("notification metadata: unsupported version"));
+    }
+    let callback_present = reader.flag()?;
+    let expected = notification_rows(brep);
+    if reader.count()? != expected.len() {
+        return Err(harness(
+            "notification metadata: topology count differs from graph",
+        ));
+    }
+    let mut records = BTreeMap::new();
+    let mut attributed_objects = 0_usize;
+    for (kind, index, object) in expected {
+        if reader.word()? != kind || reader.word()? != index {
+            return Err(harness(
+                "notification metadata: topology identity differs from graph",
+            ));
+        }
+        let mut record = Topology::new();
+        record.set_all_flags(reader.wide()?);
+        record.restore_marks([
+            reader.wide()?,
+            reader.wide()?,
+            reader.wide()?,
+            reader.wide()?,
+            reader.wide()?,
+        ]);
+        record.set_user_index1(reader.wide()?);
+        record.set_user_index2(reader.wide()?);
+        record.set_user_ptr1(reader.wide()?);
+        if reader.flag()? {
+            attributed_objects += 1;
+        }
+        if records.insert(object.key, record).is_some() {
+            return Err(harness("notification metadata: colliding topology keys"));
+        }
+    }
+    let geometry = brep
+        .edges()
+        .iter()
+        .map(|(id, edge)| (0, id.index(), edge.curve.is_some()))
+        .chain(
+            brep.faces()
+                .iter()
+                .map(|(id, face)| (1, id.index(), face.surface.is_some())),
+        )
+        .chain(
+            brep.edgeuses()
+                .iter()
+                .map(|(id, edgeuse)| (2, id.index(), edgeuse.uv_trim_curve.is_some())),
+        )
+        .collect::<Vec<_>>();
+    if reader.count()? != geometry.len() {
+        return Err(harness(
+            "notification metadata: geometry count differs from graph",
+        ));
+    }
+    for (kind, index, present) in geometry {
+        if reader.word()? != kind || reader.word()? != index || reader.flag()? != present {
+            return Err(harness(
+                "notification metadata: geometry identity differs from graph",
+            ));
+        }
+        let attributed = reader.flag()?;
+        if attributed && !present {
+            return Err(harness(
+                "notification metadata: attributes on absent geometry",
+            ));
+        }
+        if attributed {
+            attributed_objects += 1;
+        }
+    }
+    if reader.at != raw.len() {
+        return Err(harness("notification metadata: trailing values"));
+    }
+    Ok(NotifyEnv {
+        records,
+        // Exact only when native attribute presence is false. Mutating consumers
+        // check require_notifications before accessing this undecoded store.
+        attributes: AttributeStore::default(),
+        brep_ref: ObjectRef {
+            type_code: BREP_TYPE,
+            key: brep.key(),
+        },
+        callback_present,
+        attributed_objects,
+    })
+}
+
 const fn vid(h: H) -> VertexId {
     VertexId::from_index(h.i)
 }
@@ -814,8 +1020,18 @@ const fn fid(h: H) -> FaceId {
 }
 
 impl Two {
+    #[cfg(test)]
     fn new(a: Brep, b: Option<Brep>, query_metadata: [QueryMetadata; 2]) -> Self {
         let env = [NotifyEnv::new(Some(&a)), NotifyEnv::new(b.as_ref())];
+        Self::with_notifications(a, b, query_metadata, env)
+    }
+
+    fn with_notifications(
+        a: Brep,
+        b: Option<Brep>,
+        query_metadata: [QueryMetadata; 2],
+        env: [NotifyEnv; 2],
+    ) -> Self {
         let [metadata_a, metadata_b] = query_metadata;
         // These are the same two native scene slots used by H and by the typed
         // point classifier. Keep each operand's records across every edit/ray.
@@ -852,6 +1068,13 @@ impl Two {
         self.breps.get(slot)?.as_ref()?;
         self.invalidate_query_caches(slot).ok()?;
         self.breps.get_mut(slot)?.as_mut()
+    }
+
+    fn require_notifications(&self, slot: usize) -> solidcore::Result<()> {
+        self.env
+            .get(slot)
+            .ok_or_else(|| invalid("bad notification owner"))?
+            .require_notifications()
     }
 
     /// Invalidate before a geometry/topology mutation, including partial writes
@@ -1328,12 +1551,84 @@ pub(crate) fn p9_entity_ref(entity: EntityRef) -> ObjectRef {
     }
 }
 
+impl solidcore::topology::proto_topology::p3::BrepGlue<H> for Two {
+    fn glue_vertices(
+        &mut self,
+        k: &mut Kernel,
+        brep: H,
+        v1: H,
+        v2: H,
+        opt_wire_edges_in_brep: Option<&[H]>,
+    ) -> solidcore::Result<()> {
+        if brep.kind != K_BREP
+            || v1.kind != K_VERTEX
+            || v2.kind != K_VERTEX
+            || v1.b != brep.b
+            || v2.b != brep.b
+        {
+            return Err(invalid("glue vertex owner mismatch"));
+        }
+        // Native Glue returns before inspecting the optional wire list or
+        // notification inputs when both vertex identities are the same.
+        if v1 == v2 {
+            self.brep_r(brep)?;
+            return Ok(());
+        }
+        let wires = opt_wire_edges_in_brep
+            .map(|edges| {
+                edges
+                    .iter()
+                    .map(|&e| {
+                        if e.kind == K_EDGE && e.b == brep.b {
+                            Ok(eid(e))
+                        } else {
+                            Err(invalid("glue wire edge owner mismatch"))
+                        }
+                    })
+                    .collect::<solidcore::Result<Vec<_>>>()
+            })
+            .transpose()?;
+        let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
+        self.require_notifications(slot)?;
+        self.invalidate_query_caches(slot)?;
+        let b = self
+            .breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("absent B-rep"))?;
+        // Retain imported flags, marks and attribute records instead of rebuilding
+        // the default arena state when the new glue back-edge is reached.
+        let store = self
+            .env
+            .get_mut(slot)
+            .ok_or_else(|| invalid("bad notification owner"))?;
+        let brep_ref = store.brep_ref;
+        let mut env = solidcore::topology::edge::NotifyEnv {
+            records: &mut store.records,
+            attributes: &mut store.attributes,
+            context: None,
+            key_of: &|entity| notification_ref(brep_ref, entity),
+        };
+        solidcore::topology::brep::p5::glue_with_notifications(
+            k,
+            b,
+            Some(vid(v1)),
+            Some(vid(v2)),
+            wires.as_deref(),
+            Some(&mut env),
+        )
+    }
+}
+
 impl IntersectorBrep<H> for Two {
     fn make_vertex_loop(&mut self, brep: H, face: H, point: Point3) -> solidcore::Result<(H, H)> {
         if brep.kind != K_BREP || face.kind != K_FACE || brep.b != face.b {
             return Err(invalid("vertex loop owner mismatch"));
         }
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
+        self.brep_r(face)?.face(fid(face))?;
+        self.require_notifications(slot)?;
+        self.invalidate_query_caches(slot)?;
         let b = self
             .breps
             .get_mut(slot)
@@ -1343,11 +1638,12 @@ impl IntersectorBrep<H> for Two {
             .env
             .get_mut(slot)
             .ok_or_else(|| invalid("bad notification owner"))?;
+        let brep_ref = store.brep_ref;
         let mut env = solidcore::topology::edge::NotifyEnv {
             records: &mut store.records,
             attributes: &mut store.attributes,
             context: None,
-            key_of: &p9_entity_ref,
+            key_of: &|entity| notification_ref(brep_ref, entity),
         };
         let (loop_, vertex) = solidcore::topology::brep::p9::make_vertex_loop(
             b,
@@ -1372,6 +1668,7 @@ impl IntersectorBrep<H> for Two {
             return Err(invalid("split edge owner mismatch"));
         }
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
+        self.invalidate_query_caches(slot)?;
         let b = self
             .breps
             .get_mut(slot)
@@ -1381,13 +1678,18 @@ impl IntersectorBrep<H> for Two {
             .env
             .get_mut(slot)
             .ok_or_else(|| invalid("bad notification owner"))?;
+        let brep_ref = store.brep_ref;
+        // Delay the representation refusal until the real split reaches its
+        // first notification, after native endpoint/proximity effects.
+        let notification_status = store.require_notifications();
+        let check = || notification_status.clone();
         let mut env = solidcore::topology::edge::NotifyEnv {
             records: &mut store.records,
             attributes: &mut store.attributes,
             context: None,
-            key_of: &p9_entity_ref,
+            key_of: &|entity| notification_ref(brep_ref, entity),
         };
-        let out = solidcore::topology::brep::p9::make_vertex_split_edge(
+        let out = solidcore::topology::brep::p9::make_vertex_split_edge_with_notification_check(
             k,
             b,
             eid(edge),
@@ -1397,6 +1699,7 @@ impl IntersectorBrep<H> for Two {
                 key: ObjectKey(((kind as u64) << 32) | u64::from(e.index())),
                 type_code: kind,
             },
+            &check,
         )?;
         if !out.split {
             return Err(SolidError::sm_err("difftest::topology_intersector::split"));
@@ -1428,6 +1731,12 @@ impl IntersectorBrep<H> for Two {
             .map(|v| hd(brep.b, K_VERTEX, v.index()))
             .collect())
     }
+    fn brep_arena(&self, brep: H) -> solidcore::Result<&Brep> {
+        if brep.kind != K_BREP {
+            return Err(invalid("not a B-rep handle"));
+        }
+        self.brep_r(brep)
+    }
     fn vertex_brep(&self, vertex: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(vertex)?;
         Ok(vx::brep(b, vid(vertex))?.map(|_| brep_h(vertex.b)))
@@ -1438,6 +1747,7 @@ impl IntersectorBrep<H> for Two {
     }
     fn set_vertex_point(&mut self, _k: &Kernel, vertex: H, point: Point3) -> solidcore::Result<()> {
         let slot = usize::try_from(vertex.b).map_err(|_| invalid("bad B-rep"))?;
+        self.require_notifications(slot)?;
         self.invalidate_query_caches(slot)?;
         let (breps, env) = (&mut self.breps, &mut self.env);
         let b = breps
@@ -1452,7 +1762,7 @@ impl IntersectorBrep<H> for Two {
             &mut env.records,
             &mut env.attributes,
             None,
-            env.this,
+            p9_entity_ref(EntityRef::Vertex(vid(vertex))),
             &vertexuse_ref,
         )
     }
@@ -1833,6 +2143,9 @@ impl IntersectorBrep<H> for Two {
             Some([]) => Some(&[]),
             Some(_) => return Err(invalid("face-use handles are not modelled")),
         };
+        if surviving.is_some() && to_delete.is_some() && surviving != to_delete {
+            self.require_notifications(slot)?;
+        }
         self.invalidate_query_caches(slot)?;
         let (breps, envs, ray_queries) = (&mut self.breps, &mut self.env, &mut self.ray_queries);
         let b = breps
@@ -1844,11 +2157,12 @@ impl IntersectorBrep<H> for Two {
             .get_mut(slot)
             .and_then(Option::as_mut)
             .ok_or_else(|| invalid("missing B-rep shell query context"))?;
+        let brep_ref = env.brep_ref;
         let mut notify = ed::NotifyEnv {
             records: &mut env.records,
             attributes: &mut env.attributes,
             context: None,
-            key_of: &glue_key_of,
+            key_of: &|entity| notification_ref(brep_ref, entity),
         };
         let result = p7::glue_edges_general(
             k,
@@ -1870,20 +2184,9 @@ impl IntersectorBrep<H> for Two {
     }
 }
 
-/// The identity a glue notification runs under: vertex uses as the vertex
-/// environment's, edges, faces and edge uses by kind and index.
-fn glue_key_of(e: EntityRef) -> ObjectRef {
-    let (type_code, key) = match e {
-        EntityRef::Vertexuse(vu) => return vertexuse_ref(vu),
-        EntityRef::Face(f) => (fp2::TYPE, 1 + u64::from(f.index())),
-        EntityRef::Edge(x) => (ed::TYPE, 1 << 40 | u64::from(x.index())),
-        EntityRef::Edgeuse(x) => (16005, 2 << 40 | u64::from(x.index())),
-        _ => (0, 3 << 40),
-    };
-    ObjectRef {
-        type_code,
-        key: ObjectKey(key),
-    }
+/// A topology identity includes its concrete kind, preventing face/vertex aliases.
+fn glue_key_of(entity: EntityRef) -> ObjectRef {
+    p9_entity_ref(entity)
 }
 
 /// Object identities shared by native metadata, cache construction and owner
@@ -3240,7 +3543,16 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
     let counts = Counts {
         breps: [Some(count3(&brep_a)), brep_b.as_ref().map(count3)],
     };
-    let two = Two::new(brep_a, brep_b, [metadata_a, metadata_b]);
+    let notification_blocks = ffi::split_notification_metadata(&ex)
+        .ok_or_else(|| Box::new(Err(harness("malformed native notification envelope"))))?;
+    let env_a = import_notification_metadata(&brep_a, notification_blocks[0])
+        .map_err(|e| Box::new(Err(e)))?;
+    let env_b = match &brep_b {
+        Some(brep) => import_notification_metadata(brep, notification_blocks[1])
+            .map_err(|e| Box::new(Err(e)))?,
+        None => NotifyEnv::absent(),
+    };
+    let two = Two::with_notifications(brep_a, brep_b, [metadata_a, metadata_b], [env_a, env_b]);
     // (NOW / NOZ markers are +-f64::MAX)
     let block_max_abs = blocks(i)
         .map_err(|e| Box::new(Err(e)))?
@@ -3710,8 +4022,9 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<(Vec<f64>, Vec<usize>), Fa
                         continue;
                     }
                     let mut vs: Vec<Option<H>> = verts.iter().map(|&h| triple_to_h(h)).collect();
-                    let r =
-                        ti.vertex_face_intersect(&k, &mut two, &mut vs, &faces, *manifold, *ignore);
+                    let r = ti.vertex_face_intersect(
+                        &mut k, &mut two, &mut vs, &faces, *manifold, *ignore,
+                    );
                     let Some(r) = status(r, &mut o)? else {
                         continue;
                     };
@@ -5785,5 +6098,165 @@ mod face_query_tests {
             "{result:?}"
         );
         assert_eq!(pc, expected);
+    }
+}
+
+#[cfg(test)]
+mod notification_snapshot_tests {
+    use super::*;
+    use solidcore::geom::context::MarkType;
+    use solidcore::topology::proto_topology::p3::BrepGlue;
+
+    const VALUES: [u64; 9] = [
+        0xfedc_ba98_7654_3210,
+        (1 << 60) + 1,
+        (1 << 61) + 2,
+        (1 << 62) + 3,
+        u64::MAX - 4,
+        u64::MAX - 5,
+        0x1234_5678_9abc_def0,
+        u64::MAX - 7,
+        0xdead_beef_0123_4567,
+    ];
+
+    fn snapshot(b: &Brep, callback: bool, attributes: bool) -> Vec<f64> {
+        let rows = notification_rows(b);
+        let mut raw = vec![1.0, flag(callback), rows.len() as f64];
+        for (kind, index, _) in rows {
+            raw.extend([f64::from(kind), f64::from(index)]);
+            for value in VALUES {
+                raw.extend([f64::from(value as u32), f64::from((value >> 32) as u32)]);
+            }
+            raw.push(flag(attributes));
+        }
+        let geometry: Vec<_> = b
+            .edges()
+            .iter()
+            .map(|(i, e)| (0, i.index(), e.curve.is_some()))
+            .chain(
+                b.faces()
+                    .iter()
+                    .map(|(i, f)| (1, i.index(), f.surface.is_some())),
+            )
+            .chain(
+                b.edgeuses()
+                    .iter()
+                    .map(|(i, e)| (2, i.index(), e.uv_trim_curve.is_some())),
+            )
+            .collect();
+        raw.push(geometry.len() as f64);
+        for (kind, index, present) in geometry {
+            raw.extend([f64::from(kind), f64::from(index), flag(present), 0.0]);
+        }
+        raw
+    }
+
+    fn fixture() -> (Brep, VertexId, VertexId) {
+        let mut b = Brep::new();
+        b.set_key(query_key(0, CacheObject::Brep).key);
+        let a = b.add_vertex(Point3::ZERO).unwrap();
+        let z = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
+        b.add_face_record(solidcore::topology::Face::new(ShellId::from_index(0)))
+            .unwrap();
+        (b, a, z)
+    }
+
+    #[test]
+    fn exact_wide_fields_and_all_five_marks_keep_kind_qualified_identity() {
+        let (b, vertex, _) = fixture();
+        let imported = import_notification_metadata(&b, &snapshot(&b, false, false)).unwrap();
+        imported.require_notifications().unwrap();
+        let vertex_key = notification_ref(imported.brep_ref, EntityRef::Vertex(vertex));
+        let face_key = notification_ref(imported.brep_ref, EntityRef::Face(FaceId::from_index(0)));
+        assert_ne!(vertex_key.key, face_key.key);
+        assert_ne!(vertex_key.key, imported.brep_ref.key);
+        let record = imported.records.get(&vertex_key.key).unwrap();
+        assert_eq!(record.all_flags(), VALUES[0]);
+        for (mark, expected) in [
+            MarkType::Mark,
+            MarkType::Mark2,
+            MarkType::Mark3,
+            MarkType::MarkIo,
+            MarkType::MarkAssert,
+        ]
+        .into_iter()
+        .zip(VALUES[1..6].iter().copied())
+        {
+            assert_eq!(record.get_mark(mark), expected);
+        }
+        assert_eq!(record.user_index1(), VALUES[6]);
+        assert_eq!(record.user_index2(), VALUES[7]);
+        assert_eq!(record.user_ptr1(), VALUES[8]);
+    }
+
+    #[test]
+    fn malformed_snapshots_never_replace_notification_state() {
+        let (b, _, _) = fixture();
+        let raw = snapshot(&b, false, false);
+        for end in 0..raw.len() {
+            assert!(import_notification_metadata(&b, &raw[..end]).is_err());
+        }
+        for index in [0, 1, 2, 3, 4, 5] {
+            let mut bad = raw.clone();
+            bad[index] = f64::NAN;
+            assert!(import_notification_metadata(&b, &bad).is_err());
+        }
+        let mut bad = raw;
+        bad.push(0.0);
+        assert!(import_notification_metadata(&b, &bad).is_err());
+    }
+
+    #[test]
+    fn unsupported_handlers_defer_glue_only_when_a_notification_is_reached() {
+        for (callback, attributes) in [(true, false), (false, true)] {
+            let (b, first, second) = fixture();
+            let env =
+                import_notification_metadata(&b, &snapshot(&b, callback, attributes)).unwrap();
+            let mut two = Two::with_notifications(
+                b,
+                None,
+                [QueryMetadata::default(), QueryMetadata::default()],
+                [env, NotifyEnv::absent()],
+            );
+            let mut k = Kernel::default();
+            let a = hd(0, K_VERTEX, first.index());
+            let z = hd(0, K_VERTEX, second.index());
+            two.glue_vertices(&mut k, brep_h(0), a, a, None).unwrap();
+            let unused_wire = hd(1, K_FACE, 99);
+            two.glue_vertices(&mut k, brep_h(0), a, a, Some(&[unused_wire]))
+                .unwrap();
+            assert!(matches!(
+                two.glue_vertices(&mut k, brep_h(0), a, z, None),
+                Err(SolidError::Unported {
+                    unit: "harness:topology-notification-export",
+                    ..
+                })
+            ));
+            assert_eq!(
+                two.brep_r(brep_h(0)).unwrap().vertex(first).unwrap().point,
+                Point3::ZERO
+            );
+        }
+    }
+
+    #[test]
+    fn native_export_notification_rows_are_from_the_same_wire_fixture() {
+        let i: Inputs = serde_json::from_value(serde_json::json!({
+            "brep_a": {"kind":"wire", "curve":{"dim":3,"cpts":[[0,0,0,1],[2,0,0,1]],"p":1,"u":[0,0,1,1]},"t0":0.0,"t1":1.0},
+            "approx": 0.00001, "ang": 0.01, "ops": []
+        })).unwrap();
+        let raw = export(&i).unwrap();
+        let (a, absent) = ffi::split_exports(&raw).unwrap();
+        assert!(absent.is_none());
+        let query = ffi::split_query_metadata(&raw).unwrap();
+        let notifications = ffi::split_notification_metadata(&raw).unwrap();
+        assert!(notifications[1].is_empty());
+        let (mut b, _) = import(&a).unwrap();
+        apply_query_metadata(&mut b, query[0], &|object| query_key(0, object)).unwrap();
+        let env = import_notification_metadata(&b, notifications[0]).unwrap();
+        assert_eq!(env.records.len(), notification_rows(&b).len());
+        for (_, _, object) in notification_rows(&b) {
+            assert!(env.records.contains_key(&object.key));
+        }
     }
 }

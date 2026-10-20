@@ -1,5 +1,46 @@
 # solidcore status
 
+## Current PR #101 integration (2026-10-20; final validation pending)
+
+This draft integrates the query/cache work with its dependency branches.
+Combined native validation and published-head CI are pending. Historical
+results do not validate this candidate.
+
+The integration connects mutable B-rep query/cache providers, ProtoBrep/Glue,
+HCR scene-curve merging and Stitch query/split callers. Canonical topology
+numbering follows the actual region list. Native notification snapshots retain
+operand identity, flags, five stored marks and exact user fields; arbitrary
+attribute payloads/callback implementations remain explicit harness limits.
+
+### Offset scope and remaining coverage
+
+FillGapEdgeuses and MapEdgeuses now call real NormalizedEvaluate, superseding the former topology.edgeuse_p3 placeholder. FillGap preserves the native endpoint/candidate prefix, strict comparisons, duplicates/nulls and candidate accumulation across gap iterations. Exactly two candidates reach the real partial topology.brep_p1::create_corner_blend; ordinary coded failures collapse to SM_ERR while genuine dependency and Rust representation errors remain visible. Subsequent CreateFaceFromSurface is genuinely unported in TODO topology.brep_p8; no successful face creation or blend relations beyond it are certified. Map requires caller-owned MapEdgeuseNotifications, real UV evaluation, scale progression and DropPoint. UV lookup uses uv_trim_curve(...).0 with mate fallback. RelatePair precedes Copy notifications and source-slot removal, with distinct arena/type identities. The fixture additions include an opposite-original-faceuse case and correct MapPlane to separately owned equivalent faces. Runtime admissibility, intended scale/DropPoint execution, opposite-faceuse behavior and traversal agreement remain pending. F4/exactly-two-candidate coverage and accumulation across multiple processed gaps remain unqualified: FillTwoGaps returns on its first gap. Arbitrary attribute/callback behavior and marks/userdata qualification remain outside this fixture coverage.
+
+### Final validation
+
+| Evidence | Final candidate result |
+|---|---|
+| Source | Current PR #101 integration; final native qualification pending |
+| Formatting and strict plain all-target Clippy | Passed, including strict C++-feature all-target Clippy |
+| Default-feature workspace tests | 1541 core + 29 other tests passed |
+| C++-feature FFI and differential-runner self-tests | Pending |
+| wasm32-unknown-unknown | Passed |
+| Affected-unit C++ comparisons and full selected --green run | Pending; local runner compilation stopped by memory guard before cases ran |
+| Combined C++ report counts, errors and hashes | Pending; previous reports remain historical |
+| Published-head remote CI and mergeability | Awaiting checks after publishing the reconciled source |
+
+Deferred/rejected cases are not passes. Existing manifest states are not new
+certifications; promotions require final matching reports. Preserve unresolved
+geometry/context, handler and cache-lifetime limitations. No readiness claim
+is made while the final evidence is pending. PROGRESS.md remains CI-generated.
+
+## Historical checkpoints (source-specific evidence)
+
+All sections below retain their original provenance, authorship and results.
+Their references to latest/current/pending describe those historical snapshots,
+not the integration above. In particular the acc0fd57 224-unit run does not
+validate this candidate. Earlier failures remain attributed to earlier sources.
+
 ## Follow-up to the p4 test assertions (2026-10-20)
 
 Source: `61b45b0bce203f6d2660508bc0b1bb84232a3027`, parent `acc0fd57fe05661723b6ad7be67d8a11c01cd62f`. This follow-up changes only the assertions in `intersect_curve_class_p4::tests::undefined_scripts_are_rejected`. The complete source comparison preserves the other 1,412 files and the runner content outside its test module, including canonical case generation.

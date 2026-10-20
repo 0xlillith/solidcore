@@ -103,6 +103,78 @@
         "branch": "edgeuses_unmapped",
         "approx_tol": 1e-06
       }
+    },
+    {
+      "name": "fill_wire_nonempty",
+      "inputs": {
+        "op": "probe",
+        "branch": "fill_wire",
+        "approx_tol": 1e-06
+      }
+    },
+    {
+      "name": "fill_one_candidate",
+      "inputs": {
+        "op": "probe",
+        "branch": "fill_one_candidate",
+        "approx_tol": 1e-06
+      }
+    },
+    {
+      "name": "fill_two_gaps_first_early_return",
+      "inputs": {
+        "op": "probe",
+        "branch": "fill_two_gaps",
+        "approx_tol": 1e-06
+      }
+    },
+    {
+      "name": "map_distinct_breps_direct",
+      "inputs": {
+        "op": "probe",
+        "branch": "map_direct",
+        "approx_tol": 1e-06
+      }
+    },
+    {
+      "name": "map_distinct_breps_unmatched",
+      "inputs": {
+        "op": "probe",
+        "branch": "map_unmatched",
+        "approx_tol": 1e-06
+      }
+    },
+    {
+      "name": "map_distinct_breps_scale_ten",
+      "inputs": {
+        "op": "probe",
+        "branch": "map_scale_ten",
+        "approx_tol": 1e-06
+      }
+    },
+    {
+      "name": "map_distinct_breps_drop_point",
+      "inputs": {
+        "op": "probe",
+        "branch": "map_drop",
+        "approx_tol": 1e-06
+      }
+    },
+    {
+      "name": "map_distinct_breps_empty",
+      "inputs": {
+        "op": "probe",
+        "branch": "map_empty",
+        "approx_tol": 1e-06
+      }
+    },
+    {
+      "name": "map_distinct_breps_drop_point_opposite_mate_uv",
+      "inputs": {
+        "op": "probe",
+        "branch": "map_drop_opposite",
+        "approx_tol": 1e-06
+      }
     }
   ]
 }

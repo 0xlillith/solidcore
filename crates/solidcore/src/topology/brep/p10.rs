@@ -1768,20 +1768,35 @@ impl ClassObject for ProjectionObject {
     }
 }
 
+/// Borrow the original projection or HCR arrays without copying their geometry.
+enum ProjectionCurveSources<'a> {
+    Projected(&'a ProjectionCurves),
+    Scene {
+        curves_3d: &'a [Curve],
+        uv_curves: &'a [Curve],
+    },
+}
+
 /// Read-only view used by the already ported portions of `MergeCurvesOnSurface`.
-/// The same B-rep and projected curves remain live throughout classification;
+/// The same B-rep and source curves remain live throughout classification;
 /// downstream graph-edit dependencies still report their own missing operations.
 struct ProjectionObjects<'a> {
     brep: &'a Brep,
-    curves: &'a ProjectionCurves,
+    curves: ProjectionCurveSources<'a>,
     owner_of: &'a dyn Fn(ObjectRef) -> Option<ObjectRef>,
 }
 
 impl ClassGeometry<ProjectionObject> for ProjectionObjects<'_> {
     fn curve(&self, object: ProjectionObject) -> Option<&Curve> {
         match object {
-            ProjectionObject::Curve3d(i) => self.curves.curves_3d.get(i),
-            ProjectionObject::UvCurve(i) => self.curves.uv_curves.get(i)?.as_ref(),
+            ProjectionObject::Curve3d(i) => match &self.curves {
+                ProjectionCurveSources::Projected(curves) => curves.curves_3d.get(i),
+                ProjectionCurveSources::Scene { curves_3d, .. } => curves_3d.get(i),
+            },
+            ProjectionObject::UvCurve(i) => match &self.curves {
+                ProjectionCurveSources::Projected(curves) => curves.uv_curves.get(i)?.as_ref(),
+                ProjectionCurveSources::Scene { uv_curves, .. } => uv_curves.get(i),
+            },
             ProjectionObject::EdgeCurve(edge) => self.brep.edge(edge).ok()?.curve.as_ref(),
             ProjectionObject::TrimCurve(edgeuse) => {
                 self.brep.edgeuse(edgeuse).ok()?.uv_trim_curve.as_ref()
@@ -1824,6 +1839,15 @@ impl ClassGeometry<ProjectionObject> for ProjectionObjects<'_> {
             }
             _ => None,
         }
+    }
+    fn topology_entity(&self, object: ProjectionObject) -> Option<(&Brep, EntityRef)> {
+        match object {
+            ProjectionObject::Topology(entity) => Some((self.brep, entity)),
+            _ => None,
+        }
+    }
+    fn topology_handle(&self, entity: EntityRef) -> Option<ProjectionObject> {
+        Some(ProjectionObject::Topology(entity))
     }
     fn owner_of(&self, owner: ObjectRef) -> Option<ObjectRef> {
         (self.owner_of)(owner)
@@ -1898,7 +1922,7 @@ fn merge_curves_on_surface(
         .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "missing projected UV curve slot"))?;
     let objects = ProjectionObjects {
         brep: b,
-        curves: projected,
+        curves: ProjectionCurveSources::Projected(projected),
         owner_of: env.owner_of,
     };
     let curves = [ProjectionObject::Curve3d(index)];
@@ -1915,6 +1939,51 @@ fn merge_curves_on_surface(
         &curves,
         uv_curves,
         p2::MergeCurvesOptions::default(),
+    )
+}
+
+/// HCR's `MergeCurvesOnSurface(..., TRUE)`, using its live curve arrays and
+/// owner resolver. Every 3D/UV entry keeps its original index and geometry; the
+/// native part-2 face queue decides which entries are consumed and reports its
+/// own errors for a missing UV entry. No B-rep cache or replacement owner map is
+/// constructed here.
+#[allow(clippy::too_many_arguments)] // native arrays plus their live owner context
+pub(crate) fn merge_scene_curves_on_surface(
+    k: &mut Kernel,
+    b: &Brep,
+    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
+    face: FaceId,
+    tolerance: f64,
+    curves_3d: &[Curve],
+    uv_curves: &[Curve],
+) -> Result<p2::MergedCurves> {
+    let objects = ProjectionObjects {
+        brep: b,
+        curves: ProjectionCurveSources::Scene {
+            curves_3d,
+            uv_curves,
+        },
+        owner_of,
+    };
+    let curves: Vec<_> = (0..curves_3d.len())
+        .map(ProjectionObject::Curve3d)
+        .collect();
+    let uv: Vec<_> = (0..uv_curves.len())
+        .map(ProjectionObject::UvCurve)
+        .collect();
+    p2::merge_curves_on_surface(
+        k,
+        b,
+        &objects,
+        face,
+        tolerance,
+        &curves,
+        Some(&uv),
+        p2::MergeCurvesOptions {
+            use_projection: true,
+            intersection_surface: None,
+            uv_space_okay: true,
+        },
     )
 }
 
@@ -3187,6 +3256,71 @@ mod tests {
     }
 
     #[test]
+    fn projection_topology_handles_retain_the_live_brep() {
+        let mut data = square(1);
+        let b = build(&mut data, MakeTopologyOptions::default()).unwrap();
+        let objects = ProjectionObjects {
+            brep: &b,
+            curves: ProjectionCurveSources::Scene {
+                curves_3d: &[],
+                uv_curves: &[],
+            },
+            owner_of: &|_| None,
+        };
+        for entity in [
+            EntityRef::Face(FaceId::from_index(0)),
+            EntityRef::Edge(EdgeId::from_index(0)),
+            EntityRef::Vertex(VertexId::from_index(0)),
+            EntityRef::Loop(LoopId::from_index(0)),
+        ] {
+            let handle = objects.topology_handle(entity).unwrap();
+            let (resolved_brep, resolved_entity) = objects.topology_entity(handle).unwrap();
+            assert!(std::ptr::eq(resolved_brep, std::ptr::from_ref(&b)));
+            assert_eq!(resolved_entity, entity);
+        }
+        assert!(objects
+            .topology_entity(ProjectionObject::Curve3d(0))
+            .is_none());
+    }
+
+    #[test]
+    fn hcr_merge_keeps_later_curve_and_missing_uv_error() {
+        let mut data = square(1);
+        let mut b = build(&mut data, MakeTopologyOptions::default()).unwrap();
+        b.set_editing_enabled(true);
+        let mut k = Kernel::default();
+        k.context.set_doing_boolean(true);
+        let line = |length| {
+            Curve::from(crate::curve::line::Line::from_points(
+                Point3::ZERO,
+                Point3::new(length, 0.0, 0.0),
+                3,
+            ))
+        };
+        // The first curve is shorter than tolerance and needs no UV inspection.
+        // The second must still be visited; zipping the arrays would hide it.
+        let curves = [line(0.01), line(1.0)];
+        let uv = [line(0.01)];
+        let result = merge_scene_curves_on_surface(
+            &mut k,
+            &b,
+            &|_| panic!("no owner is queried before the missing UV entry"),
+            FaceId::from_index(0),
+            0.1,
+            &curves,
+            &uv,
+        );
+        assert!(matches!(
+            result,
+            Err(SolidError::InvalidInput {
+                reason: "missing UV curve",
+                ..
+            })
+        ));
+        assert!(k.context.doing_boolean());
+    }
+
+    #[test]
     fn healing_runs_and_manifold_is_recomputed() {
         // HealBrep (topology.brep_p1) runs; only the healer's own later stubs defer
         let mut d = square(1);
@@ -3203,6 +3337,8 @@ mod tests {
             ..MakeTopologyOptions::default()
         };
         assert!(build(&mut d, opts).is_ok());
+        // an UNSURE manifold flag is computed (IsManifoldSolid): a sheet is not a
+        // manifold solid
         let mut d = square(UNSURE);
         let b = build(&mut d, MakeTopologyOptions::default()).unwrap();
         assert_eq!(d.manifold, 0);

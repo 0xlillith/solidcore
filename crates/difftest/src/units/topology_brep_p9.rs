@@ -3,7 +3,7 @@
 //! Initial graphs are exported before either operation. Split refusals compare
 //! their retained endpoint as well as the complete semantic topology/geometry
 //! snapshot. Successful native mutations on deferred paths are not parity passes.
-use super::boolean_merge_p1::graph;
+use super::boolean_merge_p1::{graph, Canon};
 use super::topology_edgeuse_p1::{self as spec, BrepIn};
 use super::topology_shell::RayQueryContext;
 use super::topology_vertexuse::{apply_query_metadata, import, QueryMetadata};
@@ -274,11 +274,17 @@ fn rust_infinite_region(i: &Inputs, fixture: &ffi::QueryFixture) -> Result<Outpu
     let mut queries = InfiniteQueries::new(brep, brep_id, metadata);
     let mut kernel = Kernel::default();
     match port::find_infinite_region(&mut kernel, brep, None, None, &mut queries) {
-        Ok(region) => Ok(graph(brep, vec![0.0, id(region)])),
+        Ok(region) => {
+            let mut record = vec![0.0, id(region)];
+            canon_record(brep, i.op, &mut record)?;
+            graph(brep, record)
+        }
         Err(SolidError::Upstream { code, .. }) => {
             // FindInfiniteRegion keeps its public output NULL until success;
             // partial classifications/regions belong only to its internal retries.
-            Ok(graph(brep, vec![f64::from(code), -1.0]))
+            let mut record = vec![f64::from(code), -1.0];
+            canon_record(brep, i.op, &mut record)?;
+            graph(brep, record)
         }
         Err(error) => {
             if matches!(
@@ -542,7 +548,8 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
     match result {
         Ok(code) => {
             record.insert(0, f64::from(code));
-            Ok(graph(&b, record))
+            canon_record(&b, i.op, &mut record)?;
+            graph(&b, record)
         }
         Err(SolidError::Upstream { code, .. }) if i.op <= 4 => {
             // These APIs clear their pointer outputs before the first fallible
@@ -556,7 +563,8 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
             };
             record.resize(slots, -1.0);
             record.insert(0, f64::from(code));
-            Ok(graph(&b, record))
+            canon_record(&b, i.op, &mut record)?;
+            graph(&b, record)
         }
         Err(e) => status(&e),
     }
@@ -576,6 +584,36 @@ impl solidcore::intersect::point_class::ClassObject for Handle {
         }
     }
 }
+/// Puts the B-rep ids of `record` (status first) in [`Canon`] numbering, the shim's
+/// `fresh.find` of a walk after the op.
+fn canon_record(b: &Brep, op: u8, record: &mut [f64]) -> Result<(), HarnessError> {
+    let c = Canon::of(b).map_err(|e| error(&e))?;
+    let mut map = |at: usize, f: &dyn Fn(f64) -> f64| {
+        if let Some(x) = record.get_mut(at) {
+            *x = f(*x);
+        }
+    };
+    match op {
+        0 => map(1, &|x| c.regions.of_slot(x)),
+        2 => {
+            map(1, &|x| c.shells.of_slot(x));
+            map(2, &|x| c.vertices.of_slot(x));
+        }
+        3 => {
+            map(1, &|x| c.loops.of_slot(x));
+            map(2, &|x| c.vertices.of_slot(x));
+        }
+        4 => {
+            map(1, &|x| c.edges.of_slot(x));
+            map(2, &|x| c.edges.of_slot(x));
+            map(3, &|x| c.vertices.of_slot(x));
+        }
+        6 | 7 => map(2, &|x| c.vertices.of_slot(x)),
+        _ => {}
+    }
+    Ok(())
+}
+
 fn object_ref(e: EntityRef) -> ObjectRef {
     super::boolean_topology_intersector_p1::p9_entity_ref(e)
 }
@@ -606,7 +644,8 @@ impl UnitDiff for Runner {
             raw.get(2 + n..)
                 .ok_or_else(|| error("short native graph"))?,
         )?;
-        Ok(graph(&b, record))
+        canon_record(&b, i.op, &mut record)?;
+        graph(&b, record)
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
@@ -658,6 +697,28 @@ impl UnitDiff for Runner {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn region_output_uses_native_list_numbering() {
+        let mut b = Brep::new();
+        let first = b
+            .add_region_record(solidcore::topology::Region::default())
+            .unwrap();
+        let second = b
+            .add_region_record(solidcore::topology::Region::default())
+            .unwrap();
+        b.set_region_list(vec![second, first]).unwrap();
+        let mut record = [0.0, f64::from(first.index())];
+        canon_record(&b, 0, &mut record).unwrap();
+        assert_eq!(record, [0.0, 1.0]);
+        let mut null_record = [0.0, -1.0];
+        canon_record(&b, 0, &mut null_record).unwrap();
+        assert_eq!(null_record, [0.0, -1.0]);
+        b.set_region_list_head(Some(RegionId::from_index(99)));
+        let mut malformed = [0.0, 0.0];
+        assert!(canon_record(&b, 0, &mut malformed).is_err());
+        assert_eq!(malformed, [0.0, 0.0]);
+    }
 
     #[test]
     fn infinite_region_uses_native_owners_and_skips_cache_for_one_region() {

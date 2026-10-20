@@ -59,9 +59,7 @@
 //!   `pbOptCrvOnSurf` without UV curves (upstream loops over a null array).
 //! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::GetInfiniteRegion`
 //!   (`topology.brep_p1`); `MakeWireEdge`, `MakeWireEdgeVertex`
-//!   (`topology.brep_p3`); `DeleteEdge` (`topology.brep_p4`); `MakeShellVertexTopology`
-//!   (`topology.brep_p2`, reached through `topology.brep_p9`'s `MakeShellVertex`);
-//!   `SmFace::GetBrep`, `GetEdges`
+//!   (`topology.brep_p3`); `DeleteEdge` (`topology.brep_p4`); `SmFace::GetBrep`, `GetEdges`
 //!   (`topology.face_p4`); `SmMerge` (`boolean.merge_p2`); the curve constructor of
 //!   `SmCurveClassification` (`intersect.curve_class_p4`), which
 //!   `MergeSelfIntersectionCurves` reaches first. `GlueVertices` calls
@@ -781,7 +779,7 @@ pub fn make_face_with_curves(
                             zone_tol / 4.0,
                             false,
                         ))?
-                        .map(|l| Curve::from(l.curve))
+                        .map(|l| l.curve)
                     };
                     if new3d.is_some() {
                         to_check.push(s3d.len());

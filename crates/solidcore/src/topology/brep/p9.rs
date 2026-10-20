@@ -28,8 +28,9 @@
 //! dereferences return `InvalidInput`; nonfinite split parameters retain native
 //! refusal/output behavior. `OrientSheetSurfaces` preserves the native final TRUE
 //! status (1), distinct from its early `SM_SUCCESS` (0). Mutation success paths
-//! remain uncertified while part 2 and face notification dependencies defer;
-//! passing refusal/projection comparisons do not certify those paths.
+//! remain uncertified while downstream dependencies defer; passing
+//! refusal/projection comparisons do not certify those paths. Face notifications
+//! use the caller's records and context, without an attached trimmed-surface cache.
 
 use crate::curve::curve::Curve;
 use crate::error::{ignore_status, Result, SolidError, SM_ERR};
@@ -423,9 +424,9 @@ fn is_intersector_approx(curve: &Curve) -> Result<bool> {
 /// `OrientSheetSurfaces`. `same=true` is upstream's default orientation policy.
 ///
 /// # Errors
-/// `SM_ERR` for a face not in the B-rep or a B-rep that is not a sheet; the part-2
-/// sheet/oriented-sheet predicates and `SwapUV` (`Unported`). The UV swaps' own
-/// statuses are ignored, as upstream.
+/// `SM_ERR` for a face not in the B-rep or a B-rep that is not a sheet; those of the
+/// part-2 sheet/oriented-sheet predicates and of `SwapUV`. The UV swaps' own statuses
+/// are ignored, as upstream.
 pub fn orient_sheet_surfaces(
     k: &mut Kernel,
     b: &mut Brep,
@@ -436,10 +437,10 @@ pub fn orient_sheet_surfaces(
     let Some(face) = face.filter(|face| faces.contains(face)) else {
         return Err(SolidError::sm_err(OP));
     };
-    if !is_sheet(b)? {
+    if !is_sheet(k, b)? {
         return Err(SolidError::sm_err(OP));
     }
-    if is_oriented_sheet(b)? {
+    if is_oriented_sheet(k, b)? {
         if !same {
             // Status ignored upstream (SmBrep.cpp:11644).
             ignore_status(swap_brep_uv(k, b))?;
@@ -488,25 +489,20 @@ fn brep_faces(b: &Brep) -> Result<Vec<FaceId>> {
     crate::topology::brep::p1::faces(b, None)
 }
 
-fn is_sheet(b: &Brep) -> Result<bool> {
-    let _ = b;
-    // UNPORTED(topology.brep_p2): SmBrep::IsSheet
-    Err(SolidError::unported("SmBrep::IsSheet", "topology.brep_p2"))
+/// `IsSheet()` ([`crate::topology::brep::p2::is_sheet`]).
+fn is_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
+    crate::topology::brep::p2::is_sheet(k, b)
 }
 
-fn is_oriented_sheet(b: &Brep) -> Result<bool> {
-    let _ = b;
-    // UNPORTED(topology.brep_p2): SmBrep::IsOrientedSheet
-    Err(SolidError::unported(
-        "SmBrep::IsOrientedSheet",
-        "topology.brep_p2",
-    ))
+/// `IsOrientedSheet()` ([`crate::topology::brep::p2::is_oriented_sheet`]).
+fn is_oriented_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
+    crate::topology::brep::p2::is_oriented_sheet(k, b)
 }
 
+/// `SwapUV()` ([`crate::topology::brep::p2::swap_uv`], which claims its own mark).
 fn swap_brep_uv(k: &mut Kernel, b: &mut Brep) -> Result<()> {
-    let _ = (k, b);
-    // UNPORTED(topology.brep_p2): SmBrep::SwapUV
-    Err(SolidError::unported("SmBrep::SwapUV", "topology.brep_p2"))
+    let mut marks = crate::topology::topology_traverser::Marks::default();
+    crate::topology::brep::p2::swap_uv(k, b, &mut marks)
 }
 
 /// `sm_SwapFaceUV(pFace, SM_MT_NOMARK)`: swap without marking the face.
@@ -528,8 +524,8 @@ fn swap_face_uv(
 /// `MakeShellVertex`: `region=None` selects the infinite region.
 ///
 /// # Errors
-/// Allocation and linking first call part 2's `MakeShellVertexTopology`. No isolated
-/// vertex or shell is fabricated while that dependency is unavailable.
+/// Those of part 2's `MakeShellVertexTopology` (allocation and linking), the vertex
+/// point and tolerance setters and the two `ADD_TO_BREP` notifications.
 pub fn make_shell_vertex(
     b: &mut Brep,
     region: Option<RegionId>,
@@ -575,12 +571,9 @@ fn make_shell_vertex_topology(
     region: Option<RegionId>,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<(ShellId, VertexId)> {
-    let _ = (b, region, env);
-    // UNPORTED(topology.brep_p2): SmBrep::MakeShellVertexTopology
-    Err(SolidError::unported(
-        "SmBrep::MakeShellVertexTopology",
-        "topology.brep_p2",
-    ))
+    // MakeShellVertexTopology sends no notification; the caller registers the records
+    let _ = env;
+    crate::topology::brep::p2::make_shell_vertex_topology(b, region)
 }
 
 /// `MakeVertexLoop`: creates a vertex loop with the supplied orientation
@@ -741,9 +734,9 @@ fn brep_notify_call(
     operation: NotifyOperation,
     data: [Option<crate::geom::object::ObjectRef>; 3],
 ) -> Result<()> {
-    let _ = (b, env, operation, data);
-    // UNPORTED(topology.brep_p2): SmBrep::Notify
-    Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
+    // no B-rep cache is held by the caller (`brep::p2::notify` with no cache slot)
+    let data = data.map(|d| d.map(crate::topology::brep::p2::NotifyArg::Object));
+    crate::topology::brep::p2::notify(b, env, None, operation, data)
 }
 
 fn face_notify(
@@ -767,9 +760,9 @@ fn face_notify_call(
     operation: NotifyOperation,
     data: [Option<crate::geom::object::ObjectRef>; 3],
 ) -> Result<()> {
-    let _ = (b, face, env, operation, data);
-    // UNPORTED(topology.face_p3): SmFace::Notify
-    Err(SolidError::unported("SmFace::Notify", "topology.face_p3"))
+    // These topology-edit callers hold no attached trimmed-surface cache. Keep the
+    // caller's registered identities, attributes and context for the notification.
+    crate::topology::face::p3::notify(b, face, env, None, operation, data)
 }
 
 fn required<T>(v: Option<T>, reason: &'static str) -> Result<T> {
@@ -861,6 +854,34 @@ pub fn make_vertex_split_edge(
     env: &mut edge::NotifyEnv<'_>,
     curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
 ) -> Result<SplitEdgeOutput> {
+    make_vertex_split_edge_with_notification_check(
+        k,
+        b,
+        edge_id,
+        parameter,
+        env,
+        curve_ref,
+        &|| Ok(()),
+    )
+}
+
+/// Splits an edge with a caller check for imported notification state.
+/// The check runs immediately before the first notification, after the native
+/// editing, interval and endpoint tests. Callers unable to represent an imported
+/// handler can return a limitation at its actual consumption boundary, retaining
+/// earlier effects and restoration of the boolean-operation context.
+///
+/// # Errors
+/// Propagates the caller check and the same errors as [`make_vertex_split_edge`].
+pub fn make_vertex_split_edge_with_notification_check(
+    k: &mut Kernel,
+    b: &mut Brep,
+    edge_id: EdgeId,
+    parameter: f64,
+    env: &mut edge::NotifyEnv<'_>,
+    curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
+    check: &dyn Fn() -> Result<()>,
+) -> Result<SplitEdgeOutput> {
     let out = SplitEdgeOutput::default();
     if !b.editing_enabled() {
         return Ok(out);
@@ -926,6 +947,7 @@ pub fn make_vertex_split_edge(
             });
         }
 
+        check()?;
         let edge_ref = (env.key_of)(EntityRef::Edge(edge_id));
         ignore_status(edge::notify(
             b,
@@ -1728,18 +1750,20 @@ fn set_face_tolerance(
 
 fn compute_loop_orientation(
     k: &Kernel,
-    b: &Brep,
+    b: &mut Brep,
     face: FaceId,
     loop_: LoopId,
     uv_bounds: Option<&mut crate::geom::extent2d::Extent2d>,
     do_3d_loop_computation: bool,
 ) -> Result<OrientType> {
-    let _ = (k, b, face, loop_, uv_bounds, do_3d_loop_computation);
-    // UNPORTED(topology.face_p3): SmFace::ComputeLoopOrientation
-    Err(SolidError::unported(
-        "SmFace::ComputeLoopOrientation",
-        "topology.face_p3",
-    ))
+    crate::topology::face::p3::compute_loop_orientation(
+        k,
+        b,
+        face,
+        loop_,
+        uv_bounds,
+        do_3d_loop_computation,
+    )
 }
 
 fn shell_post_insert(
@@ -2186,6 +2210,122 @@ mod tests {
     use super::*;
 
     #[test]
+    fn split_checks_notification_context_only_after_native_endpoint_outcomes() {
+        use std::cell::Cell;
+
+        let mut k = Kernel::default();
+        let mut b = Brep::new();
+        let v0 = b.add_vertex(Point3::ZERO).unwrap();
+        let v1 = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
+        let e = b.add_edge(v0, v1).unwrap();
+        b.edge_mut(e).unwrap().interval = Extent1d::from_min_max(0.0, 1.0);
+        b.edge_mut(e).unwrap().curve = Some(Curve::from(crate::curve::line::Line::from_points(
+            Point3::ZERO,
+            Point3::new(1.0, 0.0, 0.0),
+            3,
+        )));
+        for (v, orientation) in [(v0, OrientType::Same), (v1, OrientType::Opposite)] {
+            let vu = b
+                .add_vertexuse_record(Vertexuse {
+                    vertex: Some(v),
+                    ..Vertexuse::default()
+                })
+                .unwrap();
+            let eu = b
+                .add_edgeuse_record(crate::topology::Edgeuse {
+                    edge: Some(e),
+                    vertexuse: Some(vu),
+                    orientation,
+                    owner: crate::topology::EdgeuseOwner::Shell(None),
+                    ..crate::topology::Edgeuse::default()
+                })
+                .unwrap();
+            b.vertexuse_mut(vu).unwrap().owner = VertexuseOwner::Edgeuse(Some(eu));
+            b.vertex_mut(v).unwrap().vertexuses.push(vu);
+            b.edge_mut(e).unwrap().edgeuses.push(eu);
+        }
+        let calls = Cell::new(0);
+        let check = || {
+            calls.set(calls.get() + 1);
+            Err(SolidError::unported(
+                "imported notification handler",
+                "representation:notification-handler",
+            ))
+        };
+        let curve_ref = |edge: EdgeId, kind| crate::geom::object::ObjectRef {
+            key: crate::geom::attribute::ObjectKey(999 + u64::from(edge.index())),
+            type_code: kind,
+        };
+        let mut state = crate::topology::brep::p2::ArenaNotifyState::new(&b);
+        let mut env = state.env(None);
+        // Editing refusal precedes even the edge lookup and the context check.
+        assert_eq!(
+            make_vertex_split_edge_with_notification_check(
+                &mut k,
+                &mut b,
+                EdgeId::from_index(99),
+                0.5,
+                &mut env,
+                &curve_ref,
+                &check,
+            )
+            .unwrap()
+            .status(),
+            SM_ERR
+        );
+        assert_eq!(calls.get(), 0);
+        b.set_editing_enabled(true);
+        b.vertex_mut(v0).unwrap().tolerance = 0.6;
+        vertex::set_exact(&mut b, v0, true).unwrap();
+        let near = make_vertex_split_edge_with_notification_check(
+            &mut k, &mut b, e, 0.25, &mut env, &curve_ref, &check,
+        )
+        .unwrap();
+        assert_eq!(near.vertex, Some(v0));
+        // This reference configuration has no SM_TOLERANT_WATCH:
+        // SmVertex.h:255-260 makes SetExact a no-op and IsExact always true.
+        assert!(vertex::is_exact(&b, v0).unwrap());
+        assert_eq!(calls.get(), 0);
+        b.vertex_mut(v0).unwrap().tolerance = 1e-6;
+        k.context.set_doing_boolean(true);
+        assert!(matches!(
+            make_vertex_split_edge_with_notification_check(
+                &mut k, &mut b, e, 0.5, &mut env, &curve_ref, &check,
+            ),
+            Err(SolidError::Unported { .. })
+        ));
+        assert_eq!(calls.get(), 1);
+        assert!(k.context.doing_boolean());
+        assert_eq!((b.vertices().len(), b.edges().len()), (2, 1));
+        assert_eq!(
+            b.edge(e).unwrap().interval,
+            Extent1d::from_min_max(0.0, 1.0)
+        );
+    }
+
+    #[test]
+    fn face_pre_edit_uses_live_notification_state() {
+        let mut b = Brep::new();
+        let face = b
+            .add_face_record(crate::topology::Face::new(ShellId::from_index(0)))
+            .unwrap();
+        b.face_mut(face).unwrap().rectangular_trim = 1;
+        let mut state = crate::topology::brep::p2::ArenaNotifyState::new(&b);
+        let mut k = Kernel::default();
+        face_notify(
+            &mut b,
+            face,
+            &mut state.env(Some(&mut k.context)),
+            NotifyOperation::PreEdit,
+        )
+        .unwrap();
+        assert_eq!(
+            b.face(face).unwrap().rectangular_trim,
+            crate::topology::face::p2::UNSURE
+        );
+    }
+
+    #[test]
     fn zero_ray_direction_retains_the_defined_native_status() {
         assert!(matches!(
             ray_direction(Vec3::ZERO),
@@ -2292,14 +2432,13 @@ mod tests {
                 type_code: kind,
             }
         });
-        // With part 1 wired, a wire split runs to its final B-rep ADD notification.
-        assert!(matches!(
-            result,
-            Err(SolidError::Unported {
-                unit: "topology.brep_p2",
-                upstream: "SmBrep::Notify",
-            })
-        ));
+        // With parts 1 and 2 wired, a wire split completes, its final B-rep ADD
+        // notification included.
+        let out = result.unwrap();
+        assert_eq!(out.status(), 0);
+        let edges = out.edges.unwrap();
+        assert!(edges.contains(&e));
+        assert!(out.vertex.is_some());
         assert_eq!(b.edge_list().len(), 2);
         assert_eq!(b.vertex_list().len(), 3);
         assert!(!k.context.doing_boolean());

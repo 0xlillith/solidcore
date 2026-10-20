@@ -370,6 +370,16 @@ enum Probe {
     PiecewiseEmpty,
     MapPlane,
     EdgeusesUnmapped,
+    RemoveWirePoint,
+    FillWire,
+    FillOneCandidate,
+    FillTwoGaps,
+    MapDirect,
+    MapUnmatched,
+    MapScaleTen,
+    MapDrop,
+    MapEmpty,
+    MapDropOpposite,
 }
 
 impl Probe {
@@ -388,6 +398,16 @@ impl Probe {
             Self::PiecewiseEmpty => ffi::Probe::PiecewiseEmpty,
             Self::MapPlane => ffi::Probe::MapPlane,
             Self::EdgeusesUnmapped => ffi::Probe::EdgeusesUnmapped,
+            Self::RemoveWirePoint => ffi::Probe::RemoveWirePoint,
+            Self::FillWire => ffi::Probe::FillWire,
+            Self::FillOneCandidate => ffi::Probe::FillOneCandidate,
+            Self::FillTwoGaps => ffi::Probe::FillTwoGaps,
+            Self::MapDirect => ffi::Probe::MapDirect,
+            Self::MapUnmatched => ffi::Probe::MapUnmatched,
+            Self::MapScaleTen => ffi::Probe::MapScaleTen,
+            Self::MapDrop => ffi::Probe::MapDrop,
+            Self::MapEmpty => ffi::Probe::MapEmpty,
+            Self::MapDropOpposite => ffi::Probe::MapDropOpposite,
         }
     }
 }
@@ -584,10 +604,33 @@ fn decode(input: &Inputs, raw: &[f64]) -> HResult<Output> {
                 }
             }
         }
-        Inputs::Probe { .. } => {
+        Inputs::Probe { branch, .. } => {
             output = output
                 .ints("probe", snapshot.integers(6)?)
                 .ints("lookups", snapshot.list()?);
+            if matches!(branch, Probe::RemoveWirePoint) {
+                output = output.ints("editing_geometry", snapshot.integers(8)?);
+            }
+            if matches!(
+                branch,
+                Probe::FillWire
+                    | Probe::FillOneCandidate
+                    | Probe::FillTwoGaps
+                    | Probe::MapDirect
+                    | Probe::MapUnmatched
+                    | Probe::MapScaleTen
+                    | Probe::MapDrop
+                    | Probe::MapEmpty
+                    | Probe::MapDropOpposite
+            ) {
+                output = output.ints("continuation_counts", snapshot.list()?);
+                output = output.ints("notification_before", snapshot.list()?);
+                output = output.ints("notification_after", snapshot.list()?);
+            }
+            if matches!(branch, Probe::MapDropOpposite) {
+                output = output.ints("mapping_selection", snapshot.integers(8)?);
+                output = output.values("mapping_geometry", snapshot.take(17)?.to_vec());
+            }
         }
     }
     snapshot.done()?;
@@ -1279,14 +1322,393 @@ fn rust_extend(input: &Extension) -> RResult<Output> {
     Ok(output)
 }
 
+fn continuation_rectangle(
+    brep: &mut Brep,
+    domain: [f64; 4],
+    empty: bool,
+) -> HResult<(FaceId, FaceuseId)> {
+    let [u0, v0, u1, v1] = domain;
+    let points = [[u0, v0, 0.0], [u1, v0, 0.0], [u1, v1, 0.0], [u0, v1, 0.0]];
+    let surface = Surface::from(Plane::new(
+        Vec3::ZERO,
+        Vec3::X,
+        Vec3::Y,
+        Vec2::new(1.0, 1.0),
+        &Extent2d::from_bounds(u0, v0, u1, v1),
+    ));
+    let mut edges = Vec::new();
+    if !empty {
+        let vertices = points
+            .iter()
+            .map(|&point| {
+                brep.add_vertex_record(Vertex {
+                    point: v3(point),
+                    ..Vertex::default()
+                })
+                .map_err(setup)
+            })
+            .collect::<HResult<Vec<_>>>()?;
+        for i in 0..4 {
+            let a = *at(&points, i)?;
+            let b = *at(&points, (i + 1) % 4)?;
+            let controls = vec![[a[0], a[1], 0.0, 1.0], [b[0], b[1], 0.0, 1.0]];
+            let curve = CurveIn::Bspline {
+                degree: 1,
+                control_points: controls,
+                knots: vec![0.0, 0.0, 1.0, 1.0],
+            }
+            .rust()?;
+            let edge = add_wire_with_vertices(
+                brep,
+                curve.clone(),
+                ivl([0.0, 1.0]),
+                Some([*at(&vertices, i)?, *at(&vertices, (i + 1) % 4)?]),
+            )?;
+            // Native SetUVTrimCurve attaches a degree-one, two-dimensional spline
+            // to the primary/mate pair. The primary owns the same curve here.
+            let mut uv = curve;
+            match uv.kind_mut() {
+                solidcore::curve::curve::CurveKind::BSpline(c) => {
+                    c.convert_to_2d().map_err(setup)?;
+                }
+                _ => return Err(bad("continuation UV fixture is not a spline")),
+            }
+            let use_id = primary(brep, edge)?;
+            brep.edgeuse_mut(use_id).map_err(setup)?.uv_trim_curve = Some(uv);
+            edges.push(edge);
+        }
+    }
+    face_with_edges(brep, surface, &edges)
+}
+fn continuation_key(entity: solidcore::error::EntityRef, side: u64) -> ObjectRef {
+    match entity {
+        solidcore::error::EntityRef::Edge(id) => ObjectRef {
+            key: ObjectKey((side << 32) | (1 << 24) | u64::from(id.index())),
+            type_code: solidcore::topology::edge::TYPE,
+        },
+        solidcore::error::EntityRef::Vertex(id) => ObjectRef {
+            key: ObjectKey((side << 32) | (2 << 24) | u64::from(id.index())),
+            type_code: solidcore::topology::vertex::TYPE,
+        },
+        _ => ObjectRef {
+            key: ObjectKey(0),
+            type_code: 0,
+        },
+    }
+}
+fn continuation_records(
+    brep: &Brep,
+    side: u64,
+    records: &mut BTreeMap<ObjectKey, solidcore::topology::topology::Topology>,
+) {
+    use solidcore::error::EntityRef;
+    for (index, (id, _)) in brep.edges().iter().enumerate() {
+        let mut record = solidcore::topology::topology::Topology::new();
+        record.set_all_flags(0x10000 + 0x1000 * side + index as u64);
+        records.insert(continuation_key(EntityRef::Edge(id), side).key, record);
+    }
+    for (index, (id, _)) in brep.vertices().iter().enumerate() {
+        let mut record = solidcore::topology::topology::Topology::new();
+        record.set_all_flags(0x20000 + 0x1000 * side + index as u64);
+        records.insert(continuation_key(EntityRef::Vertex(id), side).key, record);
+    }
+}
+fn continuation_metadata(
+    original: &Brep,
+    offset: &Brep,
+    records: &BTreeMap<ObjectKey, solidcore::topology::topology::Topology>,
+) -> HResult<Vec<i64>> {
+    use solidcore::error::EntityRef;
+    let mut out = Vec::new();
+    for (side, brep) in [(0, original), (1, offset)] {
+        // These fixtures construct no callbacks or attributes. The native snapshot
+        // independently exports their actual presence; a nonempty native state fails.
+        out.push(0);
+        for entity in brep
+            .edges()
+            .iter()
+            .map(|(id, _)| EntityRef::Edge(id))
+            .chain(brep.vertices().iter().map(|(id, _)| EntityRef::Vertex(id)))
+        {
+            let record = records
+                .get(&continuation_key(entity, side).key)
+                .ok_or_else(|| bad("missing continuation notification record"))?;
+            out.extend([0, record.all_flags() as i64]);
+        }
+    }
+    Ok(out)
+}
+
+// Observe the actual side-selection inputs and UV ownership without moving or
+// duplicating trim curves. The real evaluator resolves a mate-owned curve.
+fn opposite_map_witness(
+    kernel: &Kernel,
+    original: &mut Brep,
+    original_use: FaceuseId,
+    offset: &mut Brep,
+    offset_face: FaceId,
+) -> RResult<(Vec<i64>, Vec<f64>)> {
+    use solidcore::topology::edgeuse::{p1 as uses, p3 as evaluation};
+    let original_record = original.faceuse(original_use).map_err(setup)?;
+    let original_same = original_record.orientation == OrientType::Same;
+    let original_face = original_record
+        .face
+        .ok_or_else(|| bad("witness original use has no face"))?;
+    let old_face = original.face(original_face).map_err(setup)?;
+    let new_face = offset.face(offset_face).map_err(setup)?;
+    let domain = old_face.uv_domain.intersect(&new_face.uv_domain)?;
+    let uv = domain.evaluate(0.5, 0.5);
+    let old_normal = old_face
+        .surface
+        .as_ref()
+        .ok_or_else(|| bad("missing original surface"))?
+        .evaluate_normal(uv, Side::Right, Side::Right)?;
+    let new_normal = new_face
+        .surface
+        .as_ref()
+        .ok_or_else(|| bad("missing offset surface"))?
+        .evaluate_normal(uv, Side::Right, Side::Right)?;
+    let dot = old_normal.dot(new_normal);
+    let same = dot > 0.0;
+    let upward = new_face
+        .faceuse
+        .ok_or_else(|| bad("missing offset upward use"))?;
+    let selected = if (same && original_same) || (!same && !original_same) {
+        upward
+    } else {
+        offset
+            .faceuse(upward)
+            .map_err(setup)?
+            .mate
+            .ok_or_else(|| bad("missing offset opposite use"))?
+    };
+    let old_uses = uses::faceuse_edgeuses(original, original_use, false, None)?;
+    let new_uses = uses::faceuse_edgeuses(offset, selected, false, None)?;
+    let mut own = 0;
+    let mut resolved = 0;
+    let mut mate_owned = 0;
+    for &use_id in &old_uses {
+        own += i64::from(uses::uv_trim_curve_pointer(original, use_id)?.is_some());
+        resolved += i64::from(uses::uv_trim_curve(original, use_id)?.0.is_some());
+        if let Some(mate) = uses::mate(original, use_id)? {
+            mate_owned += i64::from(uses::uv_trim_curve_pointer(original, mate)?.is_some());
+        }
+    }
+    let selection = vec![
+        i64::from(same),
+        i64::from(original_same),
+        i64::from(offset.faceuse(selected).map_err(setup)?.orientation == OrientType::Same),
+        old_uses.len() as i64,
+        new_uses.len() as i64,
+        own,
+        resolved,
+        mate_owned,
+    ];
+    let mut geometry = vec![dot];
+    for new_use in new_uses {
+        let point =
+            evaluation::normalized_evaluate(kernel, offset, new_use, 0.5, true, false, true)?.point;
+        let mut nearest = solidcore::math::BIG_DOUBLE;
+        for &old_use in &old_uses {
+            let old_point =
+                evaluation::normalized_evaluate(kernel, original, old_use, 0.5, true, false, true)?
+                    .point;
+            let distance = old_point.distance(point);
+            if distance < nearest {
+                nearest = distance;
+            }
+        }
+        geometry.extend([
+            point.x,
+            point.y,
+            nearest,
+            solidcore::math::EFF_ZERO_SQRT * (1.0 + point.max_dimension()),
+        ]);
+    }
+    Ok((selection, geometry))
+}
+
+fn rust_continuation(branch: Probe, tolerance: f64) -> RResult<Output> {
+    let kernel = Kernel::default();
+    let mut original = Brep::new();
+    let mut offset = Brep::new();
+    let mut executive = OffsetExecutive::new(OffsetOperation::SolidOffset, 0.25, tolerance);
+    let fill = matches!(
+        branch,
+        Probe::FillWire | Probe::FillOneCandidate | Probe::FillTwoGaps
+    );
+    let mut originals = Vec::new();
+    let mut offsets = Vec::new();
+    let mut records = BTreeMap::new();
+    let mut attributes = AttributeStore::default();
+    let (old_faceuse, new_face, source, gaps, candidates) = if fill {
+        let source = unit_wire(&mut original, 0.0)?;
+        let edge = add_wire(
+            &mut offset,
+            CurveIn::Line {
+                start: [0.0, 0.0, 0.0],
+                end: [3.0, 0.0, 0.0],
+                domain: [-2.0, 4.0],
+            }
+            .rust()?,
+            ivl([-2.0, 4.0]),
+        )?;
+        let mut gaps = vec![primary(&offset, edge)?];
+        if matches!(branch, Probe::FillTwoGaps) {
+            gaps.push(*at(&offset.edge(edge).map_err(setup)?.edgeuses, 1)?);
+        }
+        let candidates = if matches!(branch, Probe::FillOneCandidate) {
+            vec![continuation_rectangle(&mut offset, [-1.0, 0.0, 0.0, 1.0], false)?.0]
+        } else {
+            Vec::new()
+        };
+        (None, None, Some(source), gaps, candidates)
+    } else {
+        let empty = matches!(branch, Probe::MapEmpty);
+        let (_, mut old_use) = continuation_rectangle(&mut original, [0.0, 0.0, 1.0, 1.0], empty)?;
+        if matches!(branch, Probe::MapDropOpposite) {
+            old_use = original
+                .faceuse(old_use)
+                .map_err(setup)?
+                .mate
+                .ok_or_else(|| bad("missing original opposite faceuse"))?;
+        }
+        let shift = if matches!(branch, Probe::MapUnmatched) {
+            0.01
+        } else if matches!(branch, Probe::MapScaleTen) {
+            5e-6
+        } else {
+            0.0
+        };
+        let domain = if matches!(branch, Probe::MapDrop | Probe::MapDropOpposite) {
+            [0.2, 0.0, 0.4, 1.0]
+        } else {
+            [shift, shift, 1.0 + shift, 1.0 + shift]
+        };
+        let (new_face, _) = continuation_rectangle(&mut offset, domain, empty)?;
+        originals = wire_uses(&original);
+        offsets = wire_uses(&offset);
+        (Some(old_use), Some(new_face), None, Vec::new(), Vec::new())
+    };
+    let vertices = original
+        .vertices()
+        .iter()
+        .map(|(id, _)| id)
+        .collect::<Vec<_>>();
+    for id in vertices {
+        original.vertex_mut(id).map_err(setup)?.tolerance = 1e-6;
+    }
+    let vertices = offset
+        .vertices()
+        .iter()
+        .map(|(id, _)| id)
+        .collect::<Vec<_>>();
+    for id in vertices {
+        offset.vertex_mut(id).map_err(setup)?.tolerance = 1e-6;
+    }
+    let witness = if matches!(branch, Probe::MapDropOpposite) {
+        Some(opposite_map_witness(
+            &kernel,
+            &mut original,
+            old_faceuse.ok_or_else(|| bad("missing witness original use"))?,
+            &mut offset,
+            new_face.ok_or_else(|| bad("missing witness offset face"))?,
+        )?)
+    } else {
+        None
+    };
+    continuation_records(&original, 0, &mut records);
+    continuation_records(&offset, 1, &mut records);
+    let before = continuation_metadata(&original, &offset, &records)?;
+    executive.set_offset_brep(offset);
+    let result = if fill {
+        executive.fill_gap_edgeuses(
+            &kernel,
+            source.ok_or_else(|| bad("missing source edge"))?,
+            &gaps,
+            &candidates,
+        )
+    } else {
+        let old_key = |entity| continuation_key(entity, 0);
+        let new_key = |entity| continuation_key(entity, 1);
+        let mut env = NotifyEnv {
+            records: &mut records,
+            attributes: &mut attributes,
+            context: None,
+            key_of: &old_key,
+        };
+        let mut notifications = solidcore::offset::offset_executive::p1::MapEdgeuseNotifications {
+            notifications: &mut env,
+            offset_key_of: &new_key,
+        };
+        executive.map_edgeuses(
+            &kernel,
+            &mut original,
+            old_faceuse.ok_or_else(|| bad("missing original faceuse"))?,
+            new_face.ok_or_else(|| bad("missing offset face"))?,
+            &mut notifications,
+        )
+    };
+    let (status, _) = operation(result)?;
+    let offset = executive
+        .offset_brep()
+        .ok_or_else(|| bad("lost continuation B-rep"))?;
+    let after = continuation_metadata(&original, offset, &records)?;
+    let mut output = Output::new()
+        .ints("probe", vec![status, 0, 0, 0, 0, 1])
+        .ints(
+            "lookups",
+            originals
+                .iter()
+                .map(|&use_id| id(&offsets, executive.offset_edgeuse(use_id)))
+                .collect::<Vec<_>>(),
+        );
+    if !matches!(branch, Probe::MapPlane) {
+        output = output
+            .ints(
+                "continuation_counts",
+                vec![
+                    original.edges().len() as i64,
+                    offset.edges().len() as i64,
+                    offset.vertices().len() as i64,
+                    offset.faces().len() as i64,
+                ],
+            )
+            .ints("notification_before", before)
+            .ints("notification_after", after);
+    }
+    if let Some((selection, geometry)) = witness {
+        output = output
+            .ints("mapping_selection", selection)
+            .values("mapping_geometry", geometry);
+    }
+    Ok(output)
+}
+
 fn rust_probe(branch: Probe, tolerance: f64) -> RResult<Output> {
+    if matches!(
+        branch,
+        Probe::MapPlane
+            | Probe::FillWire
+            | Probe::FillOneCandidate
+            | Probe::FillTwoGaps
+            | Probe::MapDirect
+            | Probe::MapUnmatched
+            | Probe::MapScaleTen
+            | Probe::MapDrop
+            | Probe::MapEmpty
+            | Probe::MapDropOpposite
+    ) {
+        return rust_continuation(branch, tolerance);
+    }
     let mut kernel = Kernel::default();
     let mut original = Brep::new();
     let mut executive = OffsetExecutive::new(OffsetOperation::SolidOffset, 0.25, tolerance);
     executive.set_offset_brep(Brep::new());
     let mut counts = [0_i64; 4]; // curves, orientations, surface, result B-rep
-    let mut originals = Vec::new();
-    let mut offsets = Vec::new();
+    let originals = Vec::new();
+    let offsets = Vec::new();
+    let mut editing_geometry = None;
     let result = match branch {
         Probe::ReplaceEmpty => {
             OffsetExecutive::replace_implicit_offsets(&kernel, &mut original, tolerance)
@@ -1294,6 +1716,49 @@ fn rust_probe(branch: Probe, tolerance: f64) -> RResult<Output> {
         Probe::RemoveNoMerge | Probe::RemoveEmpty => {
             executive.set_merge_results(matches!(branch, Probe::RemoveEmpty));
             executive.remove_excess_faces(&mut kernel, &mut original, &mut Brep::new())
+        }
+        Probe::RemoveWirePoint => {
+            let shell = original.add_shell_record(Shell::default()).map_err(setup)?;
+            let vertex = original
+                .add_vertex_record(Vertex {
+                    point: Vec3::new(0.5, 2.0, 0.0),
+                    ..Vertex::default()
+                })
+                .map_err(setup)?;
+            let vu = original
+                .add_vertexuse_record(Vertexuse {
+                    vertex: Some(vertex),
+                    owner: VertexuseOwner::Shell(Some(shell)),
+                    ..Vertexuse::default()
+                })
+                .map_err(setup)?;
+            original
+                .vertex_mut(vertex)
+                .map_err(setup)?
+                .vertexuses
+                .push(vu);
+            let mut live_result = Brep::new();
+            unit_wire(&mut live_result, 1.0)?;
+            unit_wire(&mut live_result, 2.0)?;
+            executive.set_merge_results(true);
+            original.set_editing_enabled(false);
+            live_result.set_editing_enabled(true);
+            let mut observed = vec![
+                i64::from(original.editing_enabled()),
+                i64::from(live_result.editing_enabled()),
+            ];
+            let status =
+                executive.remove_excess_faces(&mut kernel, &mut original, &mut live_result);
+            observed.extend([
+                i64::from(original.editing_enabled()),
+                i64::from(live_result.editing_enabled()),
+                original.vertices().len() as i64,
+                live_result.edges().len() as i64,
+                live_result.edgeuses().len() as i64,
+                live_result.faces().len() as i64,
+            ]);
+            editing_geometry = Some(observed);
+            status
         }
         Probe::SideWallNull => executive.build_side_wall_of_edgeuse(&kernel, None),
         Probe::SideWallUnmapped => {
@@ -1355,15 +1820,16 @@ fn rust_probe(branch: Probe, tolerance: f64) -> RResult<Output> {
             .map(|_| {
                 counts = [0, 0, 0, 1];
             }),
-        Probe::MapPlane => {
-            let (face, faceuse) = plane_face(&mut original, 0.0)?;
-            originals = wire_uses(&original);
-            offsets.clone_from(&originals);
-            // Native passes the original face itself as the offset face. The safe
-            // API resolves result IDs through its own B-rep, so install its clone.
-            executive.set_offset_brep(original.clone());
-            executive.map_edgeuses(&kernel, &original, faceuse, face)
-        }
+        Probe::MapPlane
+        | Probe::FillWire
+        | Probe::FillOneCandidate
+        | Probe::FillTwoGaps
+        | Probe::MapDirect
+        | Probe::MapUnmatched
+        | Probe::MapScaleTen
+        | Probe::MapDrop
+        | Probe::MapEmpty
+        | Probe::MapDropOpposite => return rust_continuation(branch, tolerance),
         Probe::EdgeusesUnmapped => {
             plane_face(&mut original, 0.0)?;
             let edge = original
@@ -1412,13 +1878,17 @@ fn rust_probe(branch: Probe, tolerance: f64) -> RResult<Output> {
     let mut fields = vec![status];
     fields.extend(counts);
     fields.push(i64::from(executive.offset_brep().is_some()));
-    Ok(Output::new().ints("probe", fields).ints(
+    let mut output = Output::new().ints("probe", fields).ints(
         "lookups",
         originals
             .iter()
             .map(|&original| id(&offsets, executive.offset_edgeuse(original)))
             .collect::<Vec<_>>(),
-    ))
+    );
+    if let Some(observed) = editing_geometry {
+        output = output.ints("editing_geometry", observed);
+    }
+    Ok(output)
 }
 
 impl UnitDiff for Runner {
@@ -1453,7 +1923,18 @@ impl UnitDiff for Runner {
     fn cases(&self, context: &CaseContext) -> HResult<Vec<Case>> {
         let mut context = context.clone();
         context.seeds = context.seeds.max(MIN_GENERATED);
-        default_cases(self, &context)
+        let mut cases = default_cases(self, &context)?;
+        cases.push(Case {
+            unit: self.id().into(),
+            name: "remove_wire_point_editing".into(),
+            source: crate::CaseSource::Inline,
+            inputs: serde_json::to_value(Inputs::Probe {
+                branch: Probe::RemoveWirePoint,
+                approx_tol: 1e-6,
+            })
+            .map_err(|error| bad(error.to_string()))?,
+        });
+        Ok(cases)
     }
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
         let input = match rng.below(20) {
@@ -1721,6 +2202,28 @@ mod tests {
             source: CaseSource::Inline,
             inputs: serde_json::to_value(input).unwrap(),
         }
+    }
+
+    #[test]
+    fn nonempty_remove_excess_enables_original_editing_and_preserves_wires() {
+        let output = Runner
+            .run_rust(&case(&Inputs::Probe {
+                branch: Probe::RemoveWirePoint,
+                approx_tol: 1e-6,
+            }))
+            .unwrap();
+        assert!(
+            output.error.is_none() && output.deferred.is_none(),
+            "{output:?}"
+        );
+        assert_eq!(
+            output.ints.get("probe").and_then(|values| values.first()),
+            Some(&i64::from(ffi::NATIVE_SUCCESS))
+        );
+        assert_eq!(
+            output.ints.get("editing_geometry"),
+            Some(&vec![0, 1, 1, 1, 1, 2, 4, 0])
+        );
     }
 
     #[test]
@@ -2043,6 +2546,38 @@ mod tests {
             output.values["action.2.domain"]
         );
         assert!(Runner.abs_floors().is_empty());
+    }
+
+    #[test]
+    fn opposite_drop_mapping_resolves_only_mate_owned_uv_and_notifies() {
+        let input = Inputs::Probe {
+            branch: Probe::MapDropOpposite,
+            approx_tol: 1e-6,
+        };
+        let output = Runner.run_rust(&case(&input)).unwrap();
+        assert!(output.deferred.is_none() && output.error.is_none() && output.rejected.is_none());
+        assert_eq!(
+            output.ints["probe"],
+            [i64::from(ffi::NATIVE_SUCCESS), 0, 0, 0, 0, 1]
+        );
+        assert_eq!(output.ints["mapping_selection"], [1, 0, 0, 4, 4, 0, 4, 4]);
+        assert_eq!(
+            output.ints["lookups"].iter().filter(|&&id| id >= 0).count(),
+            2
+        );
+        assert_ne!(
+            output.ints["notification_before"],
+            output.ints["notification_after"]
+        );
+        let geometry = &output.values["mapping_geometry"];
+        assert_eq!(geometry.len(), 17);
+        assert!(geometry[0] > 0.0);
+        for sample in geometry[1..].as_chunks::<4>().0 {
+            assert!(
+                sample[2] > sample[3] * 1000.0,
+                "direct midpoint matching must fail at every native scale"
+            );
+        }
     }
 
     #[test]

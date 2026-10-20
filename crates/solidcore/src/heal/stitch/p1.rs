@@ -63,6 +63,8 @@
 //!   `GetVertices`, `GetEdges` (`topology.face_p4`) and `SmMerge::MergeAddedFace`
 //!   (`boolean.merge_p2`) return [`SolidError::Unported`]. The API entry points call
 //!   `DoStitching`, `StitchIntoSolid` and `StitchIntoShell` in [`super::p2`].
+//!   `SmBrep::Notify(SM_NO_PRE_EDIT)` is `topology::brep::p2::notify` on an empty notify
+//!   state (no B-rep cache, no attribute state on the heal path).
 
 use std::collections::BTreeMap;
 
@@ -540,6 +542,16 @@ pub struct EdgeSplitTest {
     pub new_edge: Option<EdgeId>,
 }
 
+/// Borrowed notification state and curve identities for an edge split.
+/// The caller keeps the actual records, attributes and identity registry alive
+/// across all splits; no replacement notification environment is constructed.
+pub struct EdgeSplitContext<'a, 'records> {
+    /// Actual topology notification records and attributes.
+    pub notifications: &'a mut edge::NotifyEnv<'records>,
+    /// Identity of a curve created for the specified edge and native type.
+    pub curve_ref: &'a dyn Fn(EdgeId, i64) -> ObjectRef,
+}
+
 /// `sm_TestAndSplitEdge`: drops `point` onto the edge (global solve, snap distance
 /// `tol`) and, when it lands within `max(tol, edge tolerance)` in the edge's interior
 /// ([`check_interior_edge`]), splits the edge there. Notifications and new curve
@@ -557,6 +569,27 @@ pub fn test_and_split_edge(
     tol: f64,
     notifications: &mut edge::NotifyEnv<'_>,
     curve_ref: &dyn Fn(EdgeId, i64) -> ObjectRef,
+) -> Result<EdgeSplitTest> {
+    let mut context = EdgeSplitContext {
+        notifications,
+        curve_ref,
+    };
+    test_and_split_edge_with_context(k, b, e, point, tol, Some(&mut context))
+}
+
+/// Tests an edge before requiring the caller's mutation notification context.
+/// Far drops and boundary hits retain their ordinary results without a context.
+///
+/// # Errors
+/// Those of [`test_and_split_edge`]; an explicit representation limitation only
+/// when an interior hit reaches the actual split without its caller context.
+pub fn test_and_split_edge_with_context(
+    k: &mut Kernel,
+    b: &mut Brep,
+    e: EdgeId,
+    point: Point3,
+    tol: f64,
+    context: Option<&mut EdgeSplitContext<'_, '_>>,
 ) -> Result<EdgeSplitTest> {
     // Init outputs
     let mut out = EdgeSplitTest {
@@ -595,17 +628,30 @@ pub fn test_and_split_edge(
         return Ok(out);
     }
 
-    // Must have a point which can split the Edge.
-    let (e1, e2, new_v) =
-        match make_vertex_split_edge(k, b, e, dropped.parameter, notifications, curve_ref) {
-            Ok(r) => r,
-            Err(err) if err.is_unported() => return Err(err),
-            Err(_) => {
-                // most probable reason; don't really care too much.
-                out.reason = SplitReason::CloseToBoundary;
-                return Ok(out);
-            }
-        };
+    // Must have a point which can split the Edge. The preceding geometric
+    // tests need no notification records or new-curve identity.
+    let context = context.ok_or_else(|| {
+        SolidError::unported(
+            "SmStitch edge split caller notification and curve identity context",
+            "representation:stitch-edge-split-context",
+        )
+    })?;
+    let (e1, e2, new_v) = match make_vertex_split_edge(
+        k,
+        b,
+        e,
+        dropped.parameter,
+        context.notifications,
+        context.curve_ref,
+    ) {
+        Ok(r) => r,
+        Err(err) if err.is_unported() => return Err(err),
+        Err(_) => {
+            // most probable reason; don't really care too much.
+            out.reason = SplitReason::CloseToBoundary;
+            return Ok(out);
+        }
+    };
     out.new_vertex = Some(new_v.ok_or_else(|| ner("split without vertex"))?);
     out.new_edge = if e2 == Some(e) { e1 } else { e2 };
     Ok(out)
@@ -2325,6 +2371,80 @@ mod tests {
         let p = [3.0, 1.0, 2.0, 1.0, 5.0];
         let s = sort_by_param(5, |_| false, &p).unwrap();
         assert_eq!(s, vec![3, 1, 2, 0, 4]);
+    }
+
+    fn split_test_edge() -> (Brep, EdgeId) {
+        use crate::curve::line::Line;
+        use crate::geom::extent1d::Extent1d;
+        use crate::topology::{Edge, Vertex};
+        let mut b = Brep::new();
+        let start = Vec3::new(0.0, 0.0, 0.0);
+        let end = Vec3::new(10.0, 0.0, 0.0);
+        let a = b
+            .add_vertex_record(Vertex {
+                point: start,
+                ..Vertex::default()
+            })
+            .unwrap();
+        let z = b
+            .add_vertex_record(Vertex {
+                point: end,
+                ..Vertex::default()
+            })
+            .unwrap();
+        let e = b
+            .add_edge_record(Edge {
+                vertices: [a, z],
+                edgeuses: Vec::new(),
+                interval: Extent1d::from_min_max(0.0, 1.0),
+                tolerance: 0.0,
+                curve: Some(Curve::from(
+                    Line::create_line_segment(3, start, end, None).unwrap(),
+                )),
+            })
+            .unwrap();
+        (b, e)
+    }
+
+    #[test]
+    fn split_without_context_preserves_geometric_early_returns() {
+        let mut k = Kernel::default();
+        for (point, expected) in [
+            (Vec3::new(5.0, 3.0, 0.0), SplitReason::FarFromGeom),
+            (Vec3::new(0.0, 0.0, 0.0), SplitReason::CloseToBoundary),
+        ] {
+            let (mut b, e) = split_test_edge();
+            let result =
+                test_and_split_edge_with_context(&mut k, &mut b, e, point, 0.01, None).unwrap();
+            assert_eq!(result.reason, expected);
+            assert_eq!(result.new_edge, None);
+            assert_eq!(result.new_vertex, None);
+            assert_eq!(b.edges().len(), 1);
+            assert_eq!(b.vertices().len(), 2);
+        }
+    }
+
+    #[test]
+    fn interior_split_requires_context_before_any_topology_mutation() {
+        let mut k = Kernel::default();
+        let (mut b, e) = split_test_edge();
+        let result = test_and_split_edge_with_context(
+            &mut k,
+            &mut b,
+            e,
+            Vec3::new(5.0, 0.0, 0.0),
+            0.01,
+            None,
+        );
+        assert!(matches!(
+            result,
+            Err(SolidError::Unported {
+                unit: "representation:stitch-edge-split-context",
+                ..
+            })
+        ));
+        assert_eq!(b.edges().len(), 1);
+        assert_eq!(b.vertices().len(), 2);
     }
 
     #[test]
