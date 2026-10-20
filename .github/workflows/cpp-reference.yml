@@ -10,7 +10,7 @@ name: C++ reference
 # CI falls back to building from source (and caches that build).
 on:
   push:
-    branches: [main]
+    branches: [main, ci/cpp-prebuilt]  # TEMP: ci/cpp-prebuilt publishes the first key; drop before merge
     paths:
       - 'harness/cpp/**'
       - '!harness/cpp/shim/**'
