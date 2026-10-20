@@ -27178,8 +27178,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0022",
@@ -27275,8 +27275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0028",
@@ -28157,8 +28157,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0119",
@@ -28469,8 +28469,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0156",
@@ -28746,8 +28746,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0183",
@@ -28774,8 +28774,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0186",
@@ -29070,8 +29070,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0222",
@@ -29322,8 +29322,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0238",
@@ -29350,8 +29350,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSphere",
-        "unit": "surface.sphere"
+        "symbol": "SurfaceKind::Sphere (SmSphere dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0241",
@@ -29538,8 +29538,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0264",
@@ -30359,8 +30359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0344",
@@ -30559,8 +30559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0367",
@@ -31331,8 +31331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCone (no SurfaceKind)",
-        "unit": "surface.cone_p1"
+        "symbol": "SurfaceKind::Cone (SmCone dispatch)",
+        "unit": "surface.surface_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0450",
@@ -31583,9 +31583,8 @@
   "deferred_by_unit": {
     "blend.fillet_executive_p1": 16,
     "intersect.surface_drop_lib_p3": 6,
-    "surface.cone_p1": 11,
-    "surface.sphere": 2,
     "surface.surf_of_extrusion_p2": 1,
+    "surface.surface_p2": 13,
     "topology.brep_p10": 6
   },
   "max_rel_err": 0.0,
