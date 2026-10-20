@@ -49,6 +49,7 @@
 //! (undefined upstream: it corrupts the intrusive lists) is not run; its status is
 //! [`REJECTED`].
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -271,10 +272,6 @@ pub struct Program {
     pub ops: Vec<Op>,
 }
 
-fn bad(msg: &str) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
-}
-
 fn finite(x: f64) -> Result<f64, FfiError> {
     if x.is_finite() && x.abs() <= MAX_COORD {
         Ok(x)
@@ -419,7 +416,12 @@ impl Enc {
                 self.nums(a)?;
                 self.nums(b)
             }
-            CurveIn::BSpline { dim, p, cpts, knots } => {
+            CurveIn::BSpline {
+                dim,
+                p,
+                cpts,
+                knots,
+            } => {
                 if !(2..=3).contains(dim) || !(1..=8).contains(p) {
                     return Err(bad("curve dim or degree"));
                 }
@@ -445,7 +447,11 @@ impl Enc {
             return Err(bad("point length"));
         }
         let code = |x: f64, hi: f64| x >= 0.0 && x <= hi && x.fract() == 0.0;
-        let ok = p.iter().take(5).enumerate().all(|(k, &t)| code(t, if k == 0 { 7.0 } else { 5.0 }));
+        let ok = p
+            .iter()
+            .take(5)
+            .enumerate()
+            .all(|(k, &t)| code(t, if k == 0 { 7.0 } else { 5.0 }));
         if !ok {
             return Err(bad("point type codes"));
         }

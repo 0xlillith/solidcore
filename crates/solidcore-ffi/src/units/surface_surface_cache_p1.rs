@@ -41,6 +41,7 @@
 //! reads the tolerance of an unclassified node's face), continuity arrays no longer than the
 //! knot lists.
 
+use crate::validate::{NOW, NOZ};
 use crate::{call_with_buffer, FfiError};
 
 /// Largest control point index accepted by [`eval`].
@@ -53,11 +54,6 @@ pub const MAX_COORD: f64 = 1.0e6;
 pub const MAX_NODES: usize = 256;
 /// Number of fake object pointers (faces, user pointers).
 pub const MAX_OBJECTS: i64 = 4096;
-/// `NL_NOW`.
-const NOW: f64 = -f64::MAX;
-/// `NL_NOZ`.
-const NOZ: f64 = f64::MAX;
-
 /// The upstream routine run by the shim.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Op {
@@ -192,7 +188,12 @@ impl Reader<'_> {
     }
 
     pub(crate) fn domain(&mut self) -> Result<[f64; 4], FfiError> {
-        let d = [self.finite()?, self.finite()?, self.finite()?, self.finite()?];
+        let d = [
+            self.finite()?,
+            self.finite()?,
+            self.finite()?,
+            self.finite()?,
+        ];
         if d[0] > d[2] || d[1] > d[3] {
             return Err(bad("domain not ordered"));
         }
@@ -252,7 +253,9 @@ fn check_knots(knots: &[f64], p: usize, what: &str) -> Result<(f64, f64, usize),
     for w in inner.windows(2) {
         run = if w.first() == w.last() { run + 1 } else { 1 };
         if run > p {
-            return Err(bad(format!("{what}: interior multiplicity above the degree")));
+            return Err(bad(format!(
+                "{what}: interior multiplicity above the degree"
+            )));
         }
     }
     let distinct = 1 + knots.windows(2).filter(|w| w.first() != w.last()).count();
@@ -277,7 +280,10 @@ fn check_points(rd: &mut Reader<'_>, k: usize, what: &str) -> Result<(), FfiErro
         if rational && !(1e-3..=1e3).contains(&w) {
             return Err(bad(format!("{what}: weight out of range")));
         }
-        if [x, y, z].iter().any(|c| !c.is_finite() || c.abs() > MAX_COORD) {
+        if [x, y, z]
+            .iter()
+            .any(|c| !c.is_finite() || c.abs() > MAX_COORD)
+        {
             return Err(bad(format!("{what}: point out of range")));
         }
     }

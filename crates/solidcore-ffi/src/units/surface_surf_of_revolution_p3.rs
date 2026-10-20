@@ -32,6 +32,7 @@
 //! ASCII reader at the end of its stream leaves counts uninitialised).
 
 use super::surface_surf_of_revolution_p1::{push_surf, Surf};
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -187,10 +188,6 @@ const OP_READ_DB: i32 = 21;
 /// Largest byte count of a database record.
 pub const MAX_DB_BYTES: usize = 1 << 22;
 
-fn bad(msg: impl Into<String>) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
-}
-
 fn finite(v: &[f64], what: &str) -> Result<(), FfiError> {
     if v.iter().all(|x| x.is_finite()) {
         Ok(())
@@ -225,7 +222,9 @@ fn bounds(d: [f64; 4], what: &str) -> Result<(), FfiError> {
     finite(&d, what)?;
     let [a, b, c, e] = d;
     if !(a < c && b < e) {
-        return Err(bad(format!("{what}: domain not ordered with positive extents")));
+        return Err(bad(format!(
+            "{what}: domain not ordered with positive extents"
+        )));
     }
     Ok(())
 }

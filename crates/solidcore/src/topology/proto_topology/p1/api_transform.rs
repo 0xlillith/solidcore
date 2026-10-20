@@ -16,26 +16,73 @@ use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, EFF_ZERO, PI};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface::BSplineSurface;
+use crate::query::poly::{PolyBrep, PolyNotifyEnv};
 use crate::surface::surface::p2::SRF_IN_VOLUME_TYPE;
 use crate::surface::surface::Surface;
+use crate::topology::topology::TopologyRecords;
 
 const OP: &str = "topology::proto_topology::p1::transform_independent_object";
 const OP_ROTATE: &str = "topology::proto_topology::p1::api_rotate";
 
 /// The object an API transformation acts on (the `SmObject*` of
 /// `sm_TransformIndependentObject`, by kind).
-#[derive(Debug)]
 pub enum TransformObject<'a> {
     /// An `SmBrep`.
-    Brep,
-    /// An `SmPolyBrep`.
-    PolyBrep,
+    Brep(&'a mut crate::topology::Brep),
+    /// An `SmPolyBrep` (with what its notifications need; see [`PolyBrepTarget`]).
+    PolyBrep(&'a mut dyn PolyBrepTransform),
     /// An `SmCurve`.
     Curve(&'a mut Curve),
     /// An `SmSurface`.
     Surface(&'a mut Surface),
     /// Any other object.
     Other,
+}
+
+impl core::fmt::Debug for TransformObject<'_> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            Self::Brep(_) => f.write_str("Brep"),
+            Self::PolyBrep(_) => f.write_str("PolyBrep"),
+            Self::Curve(c) => f.debug_tuple("Curve").field(c).finish(),
+            Self::Surface(s) => f.debug_tuple("Surface").field(s).finish(),
+            Self::Other => f.write_str("Other"),
+        }
+    }
+}
+
+/// A poly B-rep as [`transform_independent_object`] moves it (`SmPolyBrep::Transform`).
+pub trait PolyBrepTransform {
+    /// `SmPolyBrep::Transform(crRotateNMove, cpOptScale)`.
+    ///
+    /// # Errors
+    ///
+    /// Those of [`PolyBrep::transform`].
+    fn transform(
+        &mut self,
+        k: &Kernel,
+        rotate_n_move: &Axis2Placement,
+        scale: Option<Vec3>,
+    ) -> Result<()>;
+}
+
+/// A [`PolyBrep`] with the environment its edit notifications go to.
+pub struct PolyBrepTarget<'a, 'e, R: ?Sized, T> {
+    /// The poly B-rep.
+    pub brep: &'a mut PolyBrep,
+    /// Its notification environment.
+    pub env: &'a mut PolyNotifyEnv<'e, R, T>,
+}
+
+impl<R: TopologyRecords + ?Sized, T> PolyBrepTransform for PolyBrepTarget<'_, '_, R, T> {
+    fn transform(
+        &mut self,
+        k: &Kernel,
+        rotate_n_move: &Axis2Placement,
+        scale: Option<Vec3>,
+    ) -> Result<()> {
+        self.brep.transform(k, self.env, rotate_n_move, scale)
+    }
 }
 
 /// `SM_ERR_INVALID_INPUT` as returned by the API functions.
@@ -62,11 +109,11 @@ fn is_uniform_positive_scale(scale: Vec3) -> bool {
 /// or near-zero scale, a non-positive poly B-rep scale, an owned curve or surface, a
 /// curve in a volume, on a surface, projected or composite, a surface in a volume,
 /// a scale a specialised kind does not take, or any other object; those of
-/// [`Curve::transform`] and [`Surface::transform`]; [`SolidError::Unported`] for
-/// B-reps (`SmBrep::Transform`, unit `topology.brep_p5`) and poly B-reps
-/// (`SmPolyBrep::Transform`, unit `query.poly`).
+/// [`Curve::transform`], [`Surface::transform`] and [`PolyBrep::transform`];
+/// [`SolidError::Unported`] for B-reps (`SmBrep::Transform`, unit
+/// `topology.brep_p2` through part 5).
 pub fn transform_independent_object(
-    k: &Kernel,
+    k: &mut Kernel,
     obj: Option<TransformObject<'_>>,
     transform: &Axis2Placement,
     scale: Option<Vec3>,
@@ -82,22 +129,17 @@ pub fn transform_independent_object(
     }
 
     match obj {
-        TransformObject::Brep => {
-            // UNPORTED(topology.brep_p5): SmBrep::Transform
-            Err(SolidError::unported(
-                "SmBrep::Transform",
-                "topology.brep_p5",
-            ))
+        TransformObject::Brep(brep) => {
+            crate::topology::brep::p5::transform(k, brep, transform, scale, true)
         }
-        TransformObject::PolyBrep => {
+        TransformObject::PolyBrep(poly) => {
             // The stable API publishes only positive, non-degenerate PolyBrep scales.
             if let Some(s) = scale {
                 if s.x <= EFF_ZERO || s.y <= EFF_ZERO || s.z <= EFF_ZERO {
                     return Err(invalid("poly B-rep scale is not positive"));
                 }
             }
-            // UNPORTED(query.poly): SmPolyBrep::Transform
-            Err(SolidError::unported("SmPolyBrep::Transform", "query.poly"))
+            poly.transform(k, transform, scale)
         }
         TransformObject::Curve(curve) => {
             let curve_type = curve.type_code();
@@ -167,7 +209,7 @@ pub fn transform_independent_object(
 ///
 /// Those of [`transform_independent_object`].
 pub fn api_transform(
-    k: &Kernel,
+    k: &mut Kernel,
     obj: Option<TransformObject<'_>>,
     rotate_move: &Axis2Placement,
 ) -> Result<()> {
@@ -179,7 +221,7 @@ pub fn api_transform(
 /// # Errors
 ///
 /// Those of [`transform_independent_object`].
-pub fn api_scale(k: &Kernel, obj: Option<TransformObject<'_>>, scale: Vec3) -> Result<()> {
+pub fn api_scale(k: &mut Kernel, obj: Option<TransformObject<'_>>, scale: Vec3) -> Result<()> {
     let matrix = Axis2Placement::default();
     transform_independent_object(k, obj, &matrix, Some(scale))
 }
@@ -192,7 +234,7 @@ pub fn api_scale(k: &Kernel, obj: Option<TransformObject<'_>>, scale: Vec3) -> R
 /// [`SolidError::InvalidInput`] for an undefined or near-zero scale; those of
 /// [`transform_independent_object`].
 pub fn api_scale_by_pt(
-    k: &Kernel,
+    k: &mut Kernel,
     obj: Option<TransformObject<'_>>,
     ref_pt: Point3,
     scale: Vec3,
@@ -219,7 +261,11 @@ pub fn api_scale_by_pt(
 /// # Errors
 ///
 /// Those of [`transform_independent_object`].
-pub fn api_translate(k: &Kernel, obj: Option<TransformObject<'_>>, translate: Vec3) -> Result<()> {
+pub fn api_translate(
+    k: &mut Kernel,
+    obj: Option<TransformObject<'_>>,
+    translate: Vec3,
+) -> Result<()> {
     let mut transform = Axis2Placement::default();
     transform.translate(translate);
     transform_independent_object(k, obj, &transform, None)
@@ -233,7 +279,7 @@ pub fn api_translate(k: &Kernel, obj: Option<TransformObject<'_>>, translate: Ve
 /// [`SolidError::InvalidInput`] for no object or a zero-length axis; those of
 /// [`transform_independent_object`].
 pub fn api_rotate(
-    k: &Kernel,
+    k: &mut Kernel,
     obj: Option<TransformObject<'_>>,
     ref_pt: Point3,
     axis: Vec3,

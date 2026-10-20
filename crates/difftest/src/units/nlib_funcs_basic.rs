@@ -28,6 +28,7 @@ use solidcore_ffi::FfiError;
 
 use crate::case::CaseContext;
 use crate::runner::default_cases;
+use crate::util::flag;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// Generated cases per run, whatever `--seeds` says (it can only raise this).
@@ -417,14 +418,6 @@ fn status<T>(r: &SolidResult<T>) -> f64 {
     }
 }
 
-fn flag(b: bool) -> f64 {
-    if b {
-        1.0
-    } else {
-        0.0
-    }
-}
-
 fn dump_crv(o: &mut Vec<f64>, c: &CurveFunction) {
     let (n, m) = c.array_sizes();
     o.extend([n, c.degree(), m].map(|k| k as f64));
@@ -452,6 +445,10 @@ fn rust_flat(i: &Inputs) -> Result<Vec<f64>, HarnessError> {
     let mut o = Vec::new();
     match i {
         Inputs::CrvEval { crv, der, params } => {
+            // Run only on orders the C++ guard accepts: `der` sizes every output row.
+            if *der > ffi::MAX_DER {
+                return Err(harness(format!("der {der} > {}", ffi::MAX_DER)));
+            }
             let c = build_crv(crv)?;
             for pt in params {
                 let f = c.eval(pt.u, pt.flag.side());

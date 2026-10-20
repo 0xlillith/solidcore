@@ -28,6 +28,7 @@
 //! written); a vertex loop has no edge uses. The shim itself rejects a point the surface
 //! cannot evaluate (build status `5`).
 
+use crate::validate::bad;
 use crate::FfiError;
 
 /// Largest degree accepted for NURB curves and surfaces.
@@ -209,10 +210,6 @@ pub struct Answer {
     pub edge_param: f64,
     /// `SmOrientType`.
     pub orientation: i32,
-}
-
-fn bad(m: impl Into<String>) -> FfiError {
-    FfiError::InvalidArgument(m.into())
 }
 
 fn finite(v: &[f64], what: &str) -> Result<(), FfiError> {
@@ -412,7 +409,9 @@ fn flatten(case: &Case) -> Result<Vec<f64>, FfiError> {
         let [a, b] = edge.interval;
         finite(&[a, b, edge.tol], "edge")?;
         if a > b || a < lo || b > hi {
-            return Err(bad(format!("edge use {i}: interval outside its trim curve")));
+            return Err(bad(format!(
+                "edge use {i}: interval outside its trim curve"
+            )));
         }
         if i == 0 && (b - a).abs() <= EFF_ZERO {
             return Err(bad("first edge use: degenerate interval"));

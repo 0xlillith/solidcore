@@ -48,6 +48,7 @@
 //! For upstream test files ([`Request::upstream_file`]) the simulation stops, and
 //! accepts, at the first geometry kind it does not know.
 
+use crate::validate::bad;
 use crate::{check, FfiError, SC_ERR_BUFFER};
 
 mod sys {
@@ -193,10 +194,6 @@ pub fn run(req: &Request) -> Result<Vec<Item>, FfiError> {
     Err(FfiError::Status(SC_ERR_BUFFER))
 }
 
-fn bad(m: impl Into<String>) -> FfiError {
-    FfiError::InvalidArgument(m.into())
-}
-
 /// `SM_BIG_ULONG`: `SmTArray::SetSize` refuses this size or more.
 const BIG_ULONG: u64 = 99_999_999;
 /// Largest attribute count / index accepted (as the Rust port).
@@ -294,7 +291,10 @@ impl<'a> Sim<'a> {
     // ---- binary --------------------------------------------------------------------
 
     fn take(&mut self, n: usize) -> Result<&[u8], FfiError> {
-        let end = self.pos.checked_add(n).ok_or_else(|| bad("short binary data"))?;
+        let end = self
+            .pos
+            .checked_add(n)
+            .ok_or_else(|| bad("short binary data"))?;
         let s = self
             .data
             .get(self.pos..end)
@@ -586,7 +586,12 @@ impl<'a> Sim<'a> {
         Ok((idx, true))
     }
 
-    fn record_attributes(&mut self, version: u64, persist: bool, lists: usize) -> Result<(), FfiError> {
+    fn record_attributes(
+        &mut self,
+        version: u64,
+        persist: bool,
+        lists: usize,
+    ) -> Result<(), FfiError> {
         if version > 30 && persist {
             for _ in 0..lists {
                 self.attributes()?;
@@ -1032,7 +1037,9 @@ impl<'a> Sim<'a> {
             return Err(bad("B-spline curve header out of range"));
         }
         if !(rat == 0 || rat == 1) || !(read_dim == 2 || read_dim == 3) {
-            return Err(bad("B-spline curve rational flag or dimension out of range"));
+            return Err(bad(
+                "B-spline curve rational flag or dimension out of range",
+            ));
         }
         let per = read_dim as usize + rat as usize;
         for _ in 0..=n {

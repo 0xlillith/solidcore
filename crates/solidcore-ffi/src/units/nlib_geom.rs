@@ -23,6 +23,7 @@
 //! (lengths, at least one polygon point, a positive integral net shape that matches
 //! the point count) so upstream only reads inside the arrays it is given.
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 /// Largest net side accepted by [`eval`].
@@ -103,10 +104,6 @@ mod sys {
     }
 }
 
-fn bad(msg: impl Into<String>) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
-}
-
 fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
     if let Some(n) = op.fixed_inputs() {
         if input.len() != n {
@@ -127,7 +124,10 @@ fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
         }
         Op::Net => {
             let side = |k: usize| -> Result<usize, FfiError> {
-                let v = input.get(k).copied().ok_or_else(|| bad("net: missing shape"))?;
+                let v = input
+                    .get(k)
+                    .copied()
+                    .ok_or_else(|| bad("net: missing shape"))?;
                 if v.fract() != 0.0 || v < 1.0 || v > MAX_NET_SIDE as f64 {
                     return Err(bad("net: bad shape"));
                 }

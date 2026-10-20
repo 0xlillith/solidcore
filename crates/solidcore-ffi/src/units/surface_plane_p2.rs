@@ -32,6 +32,7 @@
 //! planes with a non-zero normal and ellipses and circles without a zero radius (the
 //! upstream construction crashes).
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -273,10 +274,6 @@ pub enum Op {
     },
 }
 
-fn bad(msg: &str) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
-}
-
 fn finite(x: f64) -> Result<f64, FfiError> {
     if x.is_finite() && x.abs() <= MAX_COORD {
         Ok(x)
@@ -318,7 +315,13 @@ fn check_weights<'a>(mut ws: impl Iterator<Item = &'a [f64; 4]>) -> Result<(), F
         return Err(bad("no control points"));
     };
     let rational = first[3] != NOW;
-    let ok = |w: f64| if rational { w > 0.0 && w <= MAX_COORD } else { w == NOW };
+    let ok = |w: f64| {
+        if rational {
+            w > 0.0 && w <= MAX_COORD
+        } else {
+            w == NOW
+        }
+    };
     if !ok(first[3]) || ws.any(|c| !ok(c[3])) {
         return Err(bad("weights"));
     }
@@ -539,12 +542,7 @@ impl Enc {
                 self.nums(db)?;
                 self.opt(*tol)
             }
-            Op::TrimCurve {
-                a,
-                dom,
-                curve,
-                tol,
-            } => {
+            Op::TrimCurve { a, dom, curve, tol } => {
                 self.int(7);
                 self.plane(a)?;
                 self.nums(dom)?;

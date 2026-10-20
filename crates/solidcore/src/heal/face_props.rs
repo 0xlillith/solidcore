@@ -60,12 +60,12 @@
 //!   and the `SM_DEBUG_CODE` graphics and asserts are dropped (asserts are compiled out
 //!   of the reference build). The unreachable `SmCurveClassification::ReSet` branch of
 //!   `SetProps_Stage2` (the classifications are deleted by `ReSet(SM_PROPSTAGE_2)`
-//!   first) is kept as an `Unported` stub.
+//!   first) is kept and calls [`CurveClassification::reset`].
 //! - **Unported callees** (`UNPORTED` stubs): `SmFace::HasSeamProblem`
-//!   (`topology.face_p4`), `SmCurveClassification::ReSet` (`intersect.curve_class_p2`).
-//!   The `SmLoop` queries (`topology.loopuse`) and `SmFace::ClassifyLoops`
-//!   ([`crate::query::face::p4::classify_loops`], whose status `SetProps_Stage3` ignores
-//!   as upstream) are wired.
+//!   (`topology.face_p4`). The `SmLoop` queries (`topology.loopuse`),
+//!   `SmCurveClassification::ReSet` (`intersect.curve_class_p2`) and
+//!   `SmFace::ClassifyLoops` ([`crate::query::face::p4::classify_loops`], whose status
+//!   `SetProps_Stage3` ignores as upstream) are wired.
 
 use crate::error::{ignored, Result, SolidError};
 use crate::geom::tol::{calc_face_zone_tol_3d, xsect_tol_3d_from_zones};
@@ -73,6 +73,7 @@ use crate::geom::vector3d::{Point3, Vec3};
 use crate::intersect::curve_class::p1::{
     get_connected_touches, get_winding_count, CrvDirOnFaceType, CurveClassification, TouchData,
 };
+use crate::intersect::curve_class::p2::ResetOptions;
 use crate::intersect::point_class::ClassObject;
 use crate::kernel::Kernel;
 use crate::math::EFF_ZERO;
@@ -1083,12 +1084,11 @@ fn face_has_seam_problem<O: LoopObject>(
 }
 
 /// `SmCurveClassification::ReSet()` of an existing seam classification.
-fn curve_classification_reset<O: LoopObject>(_c: &mut CurveClassification<O>) -> Result<()> {
-    // UNPORTED(intersect.curve_class_p2): SmCurveClassification::ReSet
-    Err(SolidError::unported(
-        "SmCurveClassification::ReSet",
-        "intersect.curve_class_p2",
-    ))
+fn curve_classification_reset<O: LoopObject>(
+    k: &Kernel,
+    c: &mut CurveClassification<O>,
+) -> Result<()> {
+    c.reset(k, &ResetOptions::default())
 }
 
 /// The out-params of `SmFace::ClassifyLoops` ([`crate::query::face::p4::classify_loops`]).
@@ -1641,7 +1641,7 @@ impl<O: LoopObject> FaceProps<O> {
         let mut class_u = match self.crv_class_u.take() {
             None => CurveClassification::new(k),
             Some(mut c) => {
-                curve_classification_reset(&mut c)?;
+                curve_classification_reset(k, &mut c)?;
                 c
             }
         };
@@ -1649,7 +1649,7 @@ impl<O: LoopObject> FaceProps<O> {
         let mut class_v = match self.crv_class_v.take() {
             None => CurveClassification::new(k),
             Some(mut c) => {
-                curve_classification_reset(&mut c)?;
+                curve_classification_reset(k, &mut c)?;
                 c
             }
         };

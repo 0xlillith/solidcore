@@ -39,6 +39,7 @@
 //! B-splines and lines only (`SmBSplineCurve*`); gaps for a closed composite only with
 //! curves.
 
+use crate::validate::{bad, euclid, NOW, NOZ};
 use crate::{call_with_buffer, FfiError};
 
 /// Largest control point index `n`.
@@ -51,9 +52,6 @@ pub const MAX_COORD: f64 = 1e6;
 pub const MAX_SEGMENTS: usize = 8;
 /// Largest type code asked about.
 pub const MAX_TYPE: usize = 100_000;
-
-const NOZ: f64 = f64::MAX;
-const NOW: f64 = -f64::MAX;
 
 /// Shim operations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -121,75 +119,15 @@ mod sys {
     }
 }
 
-fn bad(msg: impl Into<String>) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
-}
+crate::reader::unit_reader!(MAX_COORD);
 
-/// Sequential reader over the input.
-struct Reader<'a> {
-    input: &'a [f64],
-    at: usize,
-}
-
-impl<'a> Reader<'a> {
-    fn num(&mut self) -> Result<f64, FfiError> {
-        let v = self
-            .input
-            .get(self.at)
-            .copied()
-            .ok_or_else(|| bad("input too short"))?;
-        self.at += 1;
-        Ok(v)
-    }
-
-    /// A finite value of magnitude at most [`MAX_COORD`].
-    fn finite(&mut self) -> Result<f64, FfiError> {
-        let v = self.num()?;
-        if !v.is_finite() || v.abs() > MAX_COORD {
-            return Err(bad(format!("value {v} not finite or too large")));
-        }
-        Ok(v)
-    }
-
-    fn vec3(&mut self) -> Result<[f64; 3], FfiError> {
-        Ok([self.finite()?, self.finite()?, self.finite()?])
-    }
-
+impl Reader<'_> {
     fn nonzero3(&mut self) -> Result<[f64; 3], FfiError> {
         let v = self.vec3()?;
         if len_sq(v) < 1e-12 {
             return Err(bad("zero vector"));
         }
         Ok(v)
-    }
-
-    fn index(&mut self, max: usize) -> Result<usize, FfiError> {
-        let v = self.num()?;
-        if v.fract() != 0.0 || v < 0.0 || v > max as f64 {
-            return Err(bad(format!("bad index/count {v}")));
-        }
-        Ok(v as usize)
-    }
-
-    fn flag(&mut self) -> Result<bool, FfiError> {
-        Ok(self.index(1)? == 1)
-    }
-
-    fn take(&mut self, k: usize) -> Result<&'a [f64], FfiError> {
-        let end = self.at.checked_add(k).ok_or_else(|| bad("overflow"))?;
-        let s = self
-            .input
-            .get(self.at..end)
-            .ok_or_else(|| bad("input too short"))?;
-        self.at = end;
-        Ok(s)
-    }
-
-    fn done(&self) -> Result<(), FfiError> {
-        if self.at != self.input.len() {
-            return Err(bad("trailing input"));
-        }
-        Ok(())
     }
 }
 
@@ -207,15 +145,6 @@ struct CurveInfo {
     /// for a line).
     start: [f64; 3],
     end: [f64; 3],
-}
-
-fn euclid([x, y, z, w]: [f64; 4]) -> [f64; 3] {
-    let z = if z == NOZ { 0.0 } else { z };
-    if w == NOW {
-        [x, y, z]
-    } else {
-        [x / w, y / w, z / w]
-    }
 }
 
 /// A B-spline `n p m cpts knots`: its range and end points.
@@ -400,7 +329,11 @@ fn check_approx(curves: &[CurveInfo]) -> Result<(), FfiError> {
         if c.kind == 2 || c.dim != 3 {
             return Err(bad("approx: only 3D B-spline and Hermite segments"));
         }
-        let d = [c.end[0] - c.start[0], c.end[1] - c.start[1], c.end[2] - c.start[2]];
+        let d = [
+            c.end[0] - c.start[0],
+            c.end[1] - c.start[1],
+            c.end[2] - c.start[2],
+        ];
         if c.kind == 1 && len_sq(d) < 1e-6 {
             return Err(bad("approx: degenerate Hermite segment"));
         }
@@ -409,8 +342,16 @@ fn check_approx(curves: &[CurveInfo]) -> Result<(), FfiError> {
         let (Some(p), Some(q)) = (w.first(), w.last()) else {
             continue;
         };
-        let size = p.end.iter().chain(&q.start).fold(1.0f64, |m, v| m.max(v.abs()));
-        let d = [q.start[0] - p.end[0], q.start[1] - p.end[1], q.start[2] - p.end[2]];
+        let size = p
+            .end
+            .iter()
+            .chain(&q.start)
+            .fold(1.0f64, |m, v| m.max(v.abs()));
+        let d = [
+            q.start[0] - p.end[0],
+            q.start[1] - p.end[1],
+            q.start[2] - p.end[2],
+        ];
         if len_sq(d).sqrt() > 1e-9 * size {
             return Err(bad("approx: segments not connected (the join fails)"));
         }
@@ -426,7 +367,9 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
         }
         Op::Knots => {
             if composite_block(rd)?.len() > 1 {
-                return Err(bad("knots: more than one segment reads past the knot array"));
+                return Err(bad(
+                    "knots: more than one segment reads past the knot array",
+                ));
             }
         }
         Op::BBox => {
@@ -550,7 +493,7 @@ fn validate_op(op: Op, rd: &mut Reader<'_>) -> Result<(), FfiError> {
 ///
 /// [`FfiError::InvalidArgument`] describing the first problem.
 pub fn validate(op: Op, input: &[f64]) -> Result<(), FfiError> {
-    let mut rd = Reader { input, at: 0 };
+    let mut rd = Reader::new(input);
     validate_op(op, &mut rd)?;
     rd.done()
 }

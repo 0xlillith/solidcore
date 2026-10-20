@@ -28,16 +28,15 @@
 //! **Outputs.** `status` (`0` or the `SmStatus` code), whether the face surface still
 //! has a trimmed surface cache (always `0`), and the classification: class, object kind and export
 //! index, gap, source tolerance, pre-snap parameter, curve and surface parameters and
-//! the parameters-set flag. `CurveOnClassify` cases are deferred (its callees are in
-//! units not ported yet); `SmProtoVertex` cases compare `ContainsPoint`, `DistanceTo`
-//! and the capture distances.
+//! the parameters-set flag. `CurveOnClassify` compares its status, modified flag and
+//! every interval (range and start/mid/end classifications; the classified line is
+//! `SmBSplineCurve::CreateLineSegment` on both sides); `SmProtoVertex` cases compare
+//! `ContainsPoint`, `DistanceTo` and the capture distances.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use solidcore::curve::curve::Curve;
-use solidcore::curve::line::{BoundedLineOptions, Line};
-use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::tol::zone_tol3d;
 use solidcore::geom::vector2d::Point2;
@@ -45,10 +44,11 @@ use solidcore::geom::vector3d::Vec3;
 use solidcore::intersect::curve_class::p1::CurveClassification;
 use solidcore::intersect::point_class::{ClassObject, ClassObjectKind, PointClassification};
 use solidcore::kernel::Kernel;
+use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::query::face::p2 as qf;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::proto_topology::ProtoTopologyManager;
-use solidcore::topology::{Brep, EdgeuseId, FaceId, LoopId, VertexId};
+use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, VertexId, VertexuseId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::query_face_p2::{self as ffi, Op};
 
@@ -475,6 +475,34 @@ fn pc_block(pc: &PointClassification<EntityRef>) -> Vec<f64> {
     ]
 }
 
+/// The shim's `put_pc` block for a curve classification's point classification: only
+/// faces, edges and vertices have an export index (other objects are `-3, -1`).
+fn cc_pc_block(k: &Kernel, objects: &Objects<'_>, pc: &PointClassification<H>) -> Result<Vec<f64>, HarnessError> {
+    let (kind, index) = match pc.object() {
+        None => (0.0, -1.0),
+        Some(H::Face(f)) => (1.0, f64::from(f.index())),
+        Some(H::Edge(e)) => (2.0, f64::from(e.index())),
+        Some(H::Vertex(v)) => (3.0, f64::from(v.index())),
+        Some(_) => (-3.0, -1.0),
+    };
+    let gap = pc
+        .gap_3d(k, objects, None)
+        .map_err(|e| harness(format!("gap: {e}")))?;
+    let uv = pc.uv_param();
+    Ok(vec![
+        f64::from(pc.point_class().code()),
+        kind,
+        index,
+        gap,
+        pc.src_zone_tol_3d(),
+        pc.pre_snap_param(),
+        pc.t_param(),
+        uv.x,
+        uv.y,
+        flag(pc.are_parameters_set()),
+    ])
+}
+
 /// No geometry behind the B-rep handles (only the stored gap is read).
 struct NoGeometry;
 
@@ -498,6 +526,11 @@ impl solidcore::intersect::point_class::ClassGeometry<EntityRef> for NoGeometry 
 enum H {
     Face(FaceId),
     Vertex(VertexId),
+    Edge(EdgeId),
+    Vertexuse(VertexuseId),
+    Edgeuse(EdgeuseId),
+    EdgeCurve(EdgeId),
+    Trim(EdgeuseId),
     Surface(FaceId),
     Curve,
 }
@@ -507,8 +540,11 @@ impl ClassObject for H {
         match self {
             Self::Face(_) => ClassObjectKind::Face,
             Self::Vertex(_) => ClassObjectKind::Vertex,
+            Self::Edge(_) => ClassObjectKind::Edge,
+            Self::Vertexuse(_) => ClassObjectKind::Vertexuse,
+            Self::Edgeuse(_) => ClassObjectKind::Edgeuse,
+            Self::EdgeCurve(_) | Self::Trim(_) | Self::Curve => ClassObjectKind::Curve,
             Self::Surface(_) => ClassObjectKind::Surface,
-            Self::Curve => ClassObjectKind::Curve,
         }
     }
 }
@@ -525,15 +561,27 @@ impl qf::CurveOnClassifyObjects<H> for Objects<'_> {
     fn face(&self, f: FaceId) -> H {
         H::Face(f)
     }
-    fn surface(&self, f: FaceId) -> Option<H> {
+    fn face_surface(&self, f: FaceId) -> Option<H> {
         self.brep
             .face(f)
             .ok()
             .and_then(|r| r.surface.as_ref())
             .map(|_| H::Surface(f))
     }
-    fn curve(&self, curve: H) -> Option<&Curve> {
-        (curve == H::Curve).then_some(&self.curve)
+    fn edge(&self, e: EdgeId) -> H {
+        H::Edge(e)
+    }
+    fn vertexuse(&self, vu: VertexuseId) -> H {
+        H::Vertexuse(vu)
+    }
+    fn edgeuse(&self, eu: EdgeuseId) -> H {
+        H::Edgeuse(eu)
+    }
+    fn edge_curve(&self, e: EdgeId) -> H {
+        H::EdgeCurve(e)
+    }
+    fn trim_curve(&self, eu: EdgeuseId) -> H {
+        H::Trim(eu)
     }
     fn loop_id(&self, _tgt_loop: H) -> Option<LoopId> {
         // the classification has no target loops
@@ -552,11 +600,17 @@ impl solidcore::intersect::point_class::ClassGeometry<H> for Objects<'_> {
         match o {
             H::Vertex(v) => self.brep.vertex(v).ok().map(|v| v.tolerance),
             H::Face(f) => self.brep.face(f).ok().map(|f| f.tolerance),
+            H::Edge(e) => self.brep.edge(e).ok().map(|e| e.tolerance),
             _ => None,
         }
     }
     fn curve(&self, o: H) -> Option<&Curve> {
-        (o == H::Curve).then_some(&self.curve)
+        match o {
+            H::Curve => Some(&self.curve),
+            H::EdgeCurve(e) => self.brep.edge(e).ok()?.curve.as_ref(),
+            H::Trim(eu) => eu1::uv_trim_curve(self.brep, eu).ok()?.0,
+            _ => None,
+        }
     }
     fn surface(&self, o: H) -> Option<&solidcore::surface::surface::Surface> {
         match o {
@@ -660,7 +714,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                 uv_space_okay: *uv_ok,
                 trim_cache: None,
             };
-            let status = match qf::point_classify(&k, b, f, uv, &mut pc, opts) {
+            let status = match qf::point_classify(&k, &mut b.clone(), f, uv, &mut pc, opts) {
                 Ok(()) => 0.0,
                 Err(SolidError::Upstream { code, .. }) => f64::from(code),
                 Err(e) => return Ok(rust_err(&e)),
@@ -680,7 +734,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let uv = Point2::new(a(0), a(1));
             let d1 = Extent2d::from_points(Point2::new(a(4), a(5)), Point2::new(a(6), a(7)));
             let d2 = Extent2d::from_points(Point2::new(a(9), a(10)), Point2::new(a(11), a(12)));
-            match qf::classify_param_on_faces(&k, b, uv, zone_tol3d(&k, *tol), f1, &d1, f2, &d2) {
+            match qf::classify_param_on_faces(&k, &mut b.clone(), uv, zone_tol3d(&k, *tol), f1, &d1, f2, &d2) {
                 Ok(w) => Ok(Output::new().values("which", vec![f64::from(w)])),
                 Err(e) => Ok(rust_err(&e)),
             }
@@ -700,26 +754,33 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let a = |i: usize| args.get(i).copied().unwrap_or(0.0);
             let p = Vec3::new(a(2), a(3), a(4));
             let q = Vec3::new(a(5), a(6), a(7));
-            let line = Line::bounded(
-                p,
-                q - p,
-                &Extent1d::from_min_max(0.0, (q - p).length()),
-                &BoundedLineOptions {
-                    dim: u64::from(*dim),
-                    ..BoundedLineOptions::default()
-                },
-            );
-            let objects = Objects {
-                brep: b,
-                curve: Curve::from(line),
+            // SmBSplineCurve::CreateLineSegment, as the shim
+            let line = match BSplineCurve::create_line_segment(u64::from(*dim), p, q) {
+                Ok(line) => line,
+                Err(SolidError::Upstream { code, .. }) => {
+                    return Ok(Output::new().values("curve_classification", vec![-3.0, f64::from(code)]))
+                }
+                Err(e) => return Ok(rust_err(&e)),
             };
-            let mut cc: CurveClassification<H> = CurveClassification::new(&k);
-            cc.set_curve(Some(H::Curve), false);
-            cc.set_src_zone_tol_3d(zone_tol3d(&k, *tol));
-            match qf::curve_on_classify(&k, b, f, &objects, *do_pc, &mut cc, *big_gaps, *check3d, true) {
-                Ok(_) => Err(harness("CurveOnClassify is expected to defer")),
-                Err(e) => Ok(rust_err(&e)),
+            let curve = Curve::from(line);
+            let interval = curve.natural_interval();
+            let objects = Objects { brep: b, curve };
+            let mut cc: CurveClassification<H> =
+                CurveClassification::with_curve_interval(&k, H::Curve, interval, zone_tol3d(&k, *tol));
+            let (status, modified) =
+                match qf::curve_on_classify(&k, b, f, &objects, *do_pc, &mut cc, *big_gaps, *check3d, true) {
+                    Ok(modified) => (0.0, modified),
+                    Err(SolidError::Upstream { code, .. }) => (f64::from(code), false),
+                    Err(e) => return Ok(rust_err(&e)),
+                };
+            let mut o = vec![status, flag(modified), cc.size() as f64];
+            for iv in cc.intervals() {
+                o.extend([iv.interval.min(), iv.interval.max()]);
+                for pc in [&iv.start, &iv.mid, &iv.end] {
+                    o.extend(cc_pc_block(&k, &objects, pc)?);
+                }
             }
+            Ok(Output::new().values("curve_classification", o))
         }
         _ => Err(harness("op mismatch")),
     }

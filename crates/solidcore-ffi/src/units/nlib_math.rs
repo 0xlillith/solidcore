@@ -35,6 +35,7 @@
 //! square with an odd bandwidth; vectors and point arrays are long enough; sizes at
 //! most [`MAX_DIM`]. See each function for the rest.
 
+use crate::validate::{bad, NOW};
 use crate::{call_with_buffer, check, FfiError};
 
 /// Largest highest-index (`n`, `m`) and storage dimension accepted.
@@ -45,9 +46,6 @@ pub const POINT_OPS_INPUTS: usize = 49;
 const MAX_DEGREE: usize = 17;
 /// `NL_MAXDER`.
 const MAX_DER: usize = 4;
-/// `NL_NOW`.
-const NOW: f64 = -f64::MAX;
-
 mod sys {
     extern "C" {
         pub fn sc_nlib_math_point_ops(
@@ -195,10 +193,6 @@ mod sys {
             out_len: *mut i64,
         ) -> i32;
     }
-}
-
-fn bad(msg: impl Into<String>) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
 }
 
 fn i64_of(v: usize) -> Result<i64, FfiError> {
@@ -431,7 +425,12 @@ pub fn check_mem(
     if !(MT_FULL..=MT_BANDED).contains(&req.2) {
         return Err(bad(format!("matrix type {}", req.2)));
     }
-    let r = [i64_of(req.0)?, i64_of(req.1)?, i64::from(req.2), i64_of(req.3)?];
+    let r = [
+        i64_of(req.0)?,
+        i64_of(req.1)?,
+        i64::from(req.2),
+        i64_of(req.3)?,
+    ];
     let mut out = [0i64; 5];
     // SAFETY: data/meta are null or valid (meta has 6 entries, data rows*cols); upstream
     // only reads the metadata; r has 4 entries, out 5 writable.

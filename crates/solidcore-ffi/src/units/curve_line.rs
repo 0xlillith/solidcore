@@ -55,6 +55,7 @@
 
 use std::fmt::Write as _;
 
+use crate::validate::{bad, NOW};
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -365,10 +366,6 @@ pub enum Op {
     SetDomain(f64, f64),
 }
 
-fn bad(msg: &str) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
-}
-
 fn finite(x: f64) -> Result<f64, FfiError> {
     if x.is_finite() && x.abs() <= MAX_COORD {
         Ok(x)
@@ -483,7 +480,12 @@ impl Enc {
                     self.bspline(c)?;
                 }
             }
-            Make::Segment { dim, a, b, interval } => {
+            Make::Segment {
+                dim,
+                a,
+                b,
+                interval,
+            } => {
                 self.int(4);
                 self.dim(*dim)?;
                 self.vec(*a)?;
@@ -772,9 +774,6 @@ impl Enc {
     }
 }
 
-/// `NL_NOW`: the weight of a non-rational control point.
-const NOW: f64 = -f64::MAX;
-
 /// Checks a B-spline is clamped and well formed (what upstream assumes).
 fn validate_bspline(c: &BSplineData) -> Result<(), FfiError> {
     let n1 = c.cpts.len();
@@ -854,7 +853,12 @@ pub fn line_db_bytes(db: &LineDb, binary: bool, version: u64) -> Result<Vec<u8>,
     }
     if binary {
         let mut o = Vec::new();
-        for x in db.point.iter().chain(db.vector.iter()).chain(db.domain.iter()) {
+        for x in db
+            .point
+            .iter()
+            .chain(db.vector.iter())
+            .chain(db.domain.iter())
+        {
             o.extend_from_slice(&x.to_ne_bytes());
         }
         o.extend_from_slice(&db.scale.to_ne_bytes());

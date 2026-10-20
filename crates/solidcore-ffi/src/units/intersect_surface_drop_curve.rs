@@ -59,6 +59,7 @@
 
 use core::cmp::Ordering;
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -254,10 +255,6 @@ pub struct Program {
     pub breaks: Option<Vec<f64>>,
     /// The operations.
     pub ops: Vec<Op>,
-}
-
-fn bad(msg: &str) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
 }
 
 fn finite(x: f64) -> Result<f64, FfiError> {
@@ -548,7 +545,9 @@ fn encode(prog: &Program) -> Result<Vec<f64>, FfiError> {
     let mut state = State {
         knots: prog.knots.as_ref().is_some_and(|k| !k.is_empty()),
         breaks: prog.breaks.is_some(),
-        wi_max: prog.working_interval.map(|[a, b]| if a > b { a } else { b }),
+        wi_max: prog
+            .working_interval
+            .map(|[a, b]| if a > b { a } else { b }),
     };
     for arr in [&prog.knots, &prog.breaks] {
         e.flag(arr.is_some());

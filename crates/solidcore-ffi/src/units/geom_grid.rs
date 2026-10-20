@@ -11,6 +11,7 @@
 //! Runs a small program against one upstream grid; the encoding is documented
 //! in the shim and validated here before any call.
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -56,10 +57,6 @@ pub fn op_size(op: i64) -> Option<usize> {
     })
 }
 
-fn bad(m: &str) -> FfiError {
-    FfiError::InvalidArgument(m.into())
-}
-
 fn int_in(v: f64, lo: i64, hi: i64) -> bool {
     v.fract() == 0.0 && v >= lo as f64 && v <= hi as f64
 }
@@ -94,7 +91,10 @@ fn validate(prog: &[f64]) -> Result<(), FfiError> {
     let mut hier = 0i64;
     let mut i = 10usize;
     while i < prog.len() {
-        let op = prog.get(i).copied().ok_or_else(|| bad("truncated program"))?;
+        let op = prog
+            .get(i)
+            .copied()
+            .ok_or_else(|| bad("truncated program"))?;
         if !int_in(op, 1, 10) {
             return Err(bad("op"));
         }

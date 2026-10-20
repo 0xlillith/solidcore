@@ -13,6 +13,7 @@
 //! validated here; checks that need run-time state (tree shapes, solver tree
 //! counts) are made by the shim (`SC_ERR_ARG`).
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -42,10 +43,6 @@ pub const NODE_LEN: usize = 10;
 
 /// Most nodes per tree.
 pub const MAX_TREE_NODES: usize = 256;
-
-fn bad(m: &str) -> FfiError {
-    FfiError::InvalidArgument(m.into())
-}
 
 fn at(s: &[f64], i: usize) -> Result<f64, FfiError> {
     s.get(i).copied().ok_or_else(|| bad("truncated program"))
@@ -93,7 +90,9 @@ fn check_solution(s: &[f64]) -> Result<(), FfiError> {
 fn op_len(prog: &[f64], i: usize) -> Result<usize, FfiError> {
     let op = at(prog, i)?;
     let a = prog.get(i + 1..).unwrap_or(&[]);
-    let need = |n: usize| -> Result<&[f64], FfiError> { a.get(..n).ok_or_else(|| bad("truncated program")) };
+    let need = |n: usize| -> Result<&[f64], FfiError> {
+        a.get(..n).ok_or_else(|| bad("truncated program"))
+    };
     check_int(op, 1.0, 10.0, "op")?;
     let len = match op as i64 {
         1 => {
@@ -102,7 +101,9 @@ fn op_len(prog: &[f64], i: usize) -> Result<usize, FfiError> {
             let len = 1 + NODE_LEN * nn as usize;
             let t = need(len)?;
             for k in 0..nn as usize {
-                let d = t.get(1 + NODE_LEN * k..1 + NODE_LEN * (k + 1)).ok_or_else(|| bad("tree"))?;
+                let d = t
+                    .get(1 + NODE_LEN * k..1 + NODE_LEN * (k + 1))
+                    .ok_or_else(|| bad("tree"))?;
                 for j in 0..3 {
                     check_int(at(d, j)?, -1.0, nn - 1.0, "tree node link")?;
                 }
@@ -174,13 +175,25 @@ pub fn run(prog: &[f64]) -> Result<(Vec<i64>, Vec<f64>), FfiError> {
         // SAFETY: prog valid for n reads (validated above); buf valid for buf.len()
         // writes; len valid.
         unsafe {
-            sys::sc_geom_global_solver_ints(prog.as_ptr(), n, buf.as_mut_ptr(), buf.len() as i64, &raw mut *len)
+            sys::sc_geom_global_solver_ints(
+                prog.as_ptr(),
+                n,
+                buf.as_mut_ptr(),
+                buf.len() as i64,
+                &raw mut *len,
+            )
         }
     })?;
     let floats = call_with_buffer(256, |buf: &mut [f64], len| {
         // SAFETY: as above.
         unsafe {
-            sys::sc_geom_global_solver_floats(prog.as_ptr(), n, buf.as_mut_ptr(), buf.len() as i64, &raw mut *len)
+            sys::sc_geom_global_solver_floats(
+                prog.as_ptr(),
+                n,
+                buf.as_mut_ptr(),
+                buf.len() as i64,
+                &raw mut *len,
+            )
         }
     })?;
     Ok((ints, floats))

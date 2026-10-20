@@ -11,6 +11,7 @@
 //! Both run a small program against an upstream tree; the encodings are
 //! documented in the shim and validated here before any call.
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -57,10 +58,6 @@ pub fn spatial_op_size(op: i64) -> Option<usize> {
     })
 }
 
-fn bad(m: &str) -> FfiError {
-    FfiError::InvalidArgument(m.into())
-}
-
 fn at<T: Copy>(s: &[T], i: usize) -> Result<T, FfiError> {
     s.get(i).copied().ok_or_else(|| bad("truncated program"))
 }
@@ -82,7 +79,9 @@ fn validate_spatial(prog: &[f64]) -> Result<(), FfiError> {
         if i + 1 + sz > prog.len() {
             return Err(bad("truncated program"));
         }
-        let a = prog.get(i + 1..i + 1 + sz).ok_or_else(|| bad("truncated program"))?;
+        let a = prog
+            .get(i + 1..i + 1 + sz)
+            .ok_or_else(|| bad("truncated program"))?;
         if (op <= 1) != (i == 0) {
             return Err(bad("constructor must be first and only"));
         }
@@ -173,7 +172,9 @@ pub fn subdiv(desc: &[i64], prog: &[i64]) -> Result<Vec<i64>, FfiError> {
         if i + 1 + sz > prog.len() {
             return Err(bad("truncated program"));
         }
-        let a = prog.get(i + 1..i + 1 + sz).ok_or_else(|| bad("truncated program"))?;
+        let a = prog
+            .get(i + 1..i + 1 + sz)
+            .ok_or_else(|| bad("truncated program"))?;
         if sz >= 1 && !(0..n_nodes).contains(&at(a, 0)?) {
             return Err(bad("node index"));
         }

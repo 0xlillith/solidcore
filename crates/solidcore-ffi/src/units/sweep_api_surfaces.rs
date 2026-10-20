@@ -44,17 +44,13 @@
 //! skin profiles; a skin-from-faces degree of 1 to 3 with 1 to 4 positive-radius
 //! circles (no faces crash upstream, `plan/upstream-issues.md` UB-78).
 
+use crate::validate::{bad, NOW, NOZ};
 use crate::{call_with_buffer, FfiError};
 
 /// Largest control point index accepted by [`run`].
 pub const MAX_INDEX: usize = 512;
 /// Largest NURB degree accepted by [`run`].
 pub const MAX_DEGREE: usize = 17;
-/// `NL_NOZ`.
-const NOZ: f64 = f64::MAX;
-/// `NL_NOW`.
-const NOW: f64 = -f64::MAX;
-
 mod sys {
     extern "C" {
         pub fn sc_sweep_api_surfaces_run(
@@ -183,10 +179,6 @@ pub enum Call {
     },
 }
 
-fn bad(msg: impl Into<String>) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
-}
-
 fn finite(v: &[f64], what: &str) -> Result<(), FfiError> {
     if v.iter().all(|x| x.is_finite()) {
         Ok(())
@@ -254,7 +246,10 @@ fn check_curve(c: &CurveSpec, need: Need, nullable: bool) -> Result<(), FfiError
             if !(1..=3).contains(dim) {
                 return Err(bad("nurb: dimension must be 1 to 3"));
             }
-            let n = cpts.len().checked_sub(1).ok_or_else(|| bad("nurb: no points"))?;
+            let n = cpts
+                .len()
+                .checked_sub(1)
+                .ok_or_else(|| bad("nurb: no points"))?;
             if n > MAX_INDEX || *p == 0 || *p > n || *p > MAX_DEGREE {
                 return Err(bad("nurb: need 1 <= p <= n, p <= 17, n <= 512"));
             }
@@ -299,7 +294,9 @@ fn check_curve(c: &CurveSpec, need: Need, nullable: bool) -> Result<(), FfiError
                 return Err(bad("circle: radius must be positive"));
             }
             if matches!(c, CurveSpec::AnalyticCircle { .. }) && need != Need::AnyCurve {
-                return Err(bad("analytic circle where upstream takes an SmBSplineCurve"));
+                return Err(bad(
+                    "analytic circle where upstream takes an SmBSplineCurve",
+                ));
             }
         }
         CurveSpec::LineSegment { start, end } => {

@@ -46,7 +46,7 @@ use solidcore::intersect::point_class::{
 use solidcore::kernel::Kernel;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface::BSplineSurface;
-use solidcore::nurbs::math::CPoint;
+use solidcore::nurbs::math::{CPoint, NOW, NOZ};
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
 use solidcore::nurbs::srf_basic::Surface as NurbSurface;
 use solidcore::surface::plane::Plane;
@@ -57,6 +57,7 @@ use solidcore_ffi::units::intersect_curve_class_p3::{self as ffi, kind, op};
 
 use crate::case::{CaseContext, CaseSource};
 use crate::runner::default_cases;
+use crate::util::v3;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// Generated cases per run, whatever `--seeds` says (it can only raise this).
@@ -69,8 +70,6 @@ fn harness(msg: impl Into<String>) -> HarnessError {
     HarnessError::new(msg)
 }
 
-const NOZ: f64 = f64::MAX;
-const NOW: f64 = -f64::MAX;
 /// `SM_USE_DEFAULT`.
 const USE_DEFAULT: f64 = 9876543.21;
 /// `SM_BIG_DOUBLE`.
@@ -233,10 +232,6 @@ struct Script {
 }
 
 // ---- objects ----------------------------------------------------------------------------
-
-fn v3(p: [f64; 3]) -> Vec3 {
-    Vec3::from_array(p)
-}
 
 fn b(x: bool) -> f64 {
     f64::from(u8::from(x))

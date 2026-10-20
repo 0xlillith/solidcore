@@ -51,6 +51,7 @@
 //! start point on a list when there are no curve points (it is appended); `Dpi`/`Dli`
 //! with a point twice or a point on a list (they are linked in place).
 
+use crate::validate::bad;
 use crate::{call_with_buffer, FfiError};
 
 mod sys {
@@ -258,10 +259,6 @@ pub struct Program {
     pub ops: Vec<Op>,
 }
 
-fn bad(msg: &str) -> FfiError {
-    FfiError::InvalidArgument(msg.into())
-}
-
 fn finite(x: f64) -> Result<f64, FfiError> {
     if x.is_finite() && x.abs() <= MAX_COORD {
         Ok(x)
@@ -413,7 +410,12 @@ impl Enc {
                 self.nums(a)?;
                 self.nums(b)
             }
-            CurveIn::BSpline { dim, p, cpts, knots } => {
+            CurveIn::BSpline {
+                dim,
+                p,
+                cpts,
+                knots,
+            } => {
                 if !(2..=3).contains(dim) || !(1..=8).contains(p) {
                     return Err(bad("curve dim or degree"));
                 }

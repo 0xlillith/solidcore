@@ -48,6 +48,10 @@
 //!   (`intersect.curve_class_p4`), reached only for a target loop that crosses no seam
 //!   the face props already classified. Faces whose loops all cross a periodic seam
 //!   (no-area loops of a missing seam) are classified entirely by the port.
+//!   `intersect.curve_class_p4` is `partial`, but its `get_loop_crossings` reads the
+//!   classification curve through a [`ClassGeometry`](crate::intersect::point_class::ClassGeometry)
+//!   that only the bisector's curves can supply; it is reached only after the bisector
+//!   succeeds, so it is wired together with the bisector (`query.face_p3`).
 //! - **Undefined behaviour upstream** is [`SolidError::InvalidInput`]: an index read
 //!   outside `rClassifyLoopIOs`, the face props' loop props or a touch list (odd length),
 //!   an empty seam classification read at its first or last interval, a loop without
@@ -791,6 +795,7 @@ mod tests {
             mate: None,
             orientation: OrientType::Same,
             loopuses: (0..kinds.len() as u32).map(LoopuseId::from_index).collect(),
+            sibling_links: None,
         })
         .unwrap();
         for (i, &vertex_loop) in kinds.iter().enumerate() {
