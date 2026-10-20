@@ -68,7 +68,7 @@ pub fn eval(request: Request<'_>, export_only: bool) -> Result<Vec<f64>, FfiErro
     eval_mode(request, u8::from(export_only))
 }
 
-/// Exact input-only metadata after native preparation of FindInfiniteRegion.
+/// Exact input-only metadata after native preparation of `FindInfiniteRegion`.
 /// Uses the same validated request and performs no queried operation.
 pub fn query_metadata(request: Request<'_>) -> Result<Vec<f64>, FfiError> {
     if request.op != 0 {

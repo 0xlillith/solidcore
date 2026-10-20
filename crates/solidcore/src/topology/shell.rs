@@ -35,7 +35,7 @@
 //! lock a context mark (`SmNewMarkAndLock`) and mark through
 //! [`crate::topology::topology_traverser::Marks`] (per-call, as the mark values on the
 //! objects are unique per claim), advancing the kernel context's mark counters as upstream. Incompatible array reinterpret casts return `InvalidInput`;
-//! `RayFire` and Shape share the caller persistent topology marks through ShellRayWorld.
+//! `RayFire` and Shape share the caller persistent topology marks through `ShellRayWorld`.
 //! checked member casts retain native NULL. Native
 //! notification/logging side effects are not represented by these arena records.
 //! Face-use sibling links survive a cleared owner head, as in native self-transfer.

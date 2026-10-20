@@ -18,8 +18,8 @@
 //! Classification handles may include the application's B-rep identity; the
 //! default `EntityRef` handles are meaningful only within this one B-rep.
 //!
-//! The main revision supplies read-only topology solving. RayFire belongs to the
-//! still-unported topology.brep_p2 unit and returns its explicit deferred error.
+//! The main revision supplies read-only topology solving. `RayFire` belongs to the
+//! still-unported `topology.brep_p2` unit and returns its explicit deferred error.
 //! Existing partial solver limitations are propagated without fabricated results.
 
 use super::BrepClassifyObjects;

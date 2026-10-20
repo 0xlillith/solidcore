@@ -1,5 +1,5 @@
 //! Original B-rep geometry and persistent marks for the real Shell/Shape path.
-//! Main solver and LocalCurveSector limitations propagate without new ports.
+//! Main solver and `LocalCurveSector` limitations propagate without new ports.
 use super::super::query_brep::query_metadata::QueryMetadata;
 use solidcore::curve::curve::Curve;
 use solidcore::geom::extent1d::Extent1d;

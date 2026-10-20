@@ -605,7 +605,9 @@ mod tests {
                 ..
             })
         ));
-        assert!(matches!(
+        // The real B-rep cache now reaches the face query. This fixture has no
+        // faces: SmTools::FindFace returns SM_ERR, represented as Ok(None).
+        assert_eq!(
             find_face(
                 &Kernel::default(),
                 &brep,
@@ -613,8 +615,9 @@ mod tests {
                 p(0.0, 0.0, 0.0),
                 &crate::topology::brep_cache::arena_identity,
                 &|_| None,
-            ),
-            Err(SolidError::Unported { .. })
-        ));
+            )
+            .unwrap(),
+            None
+        );
     }
 }

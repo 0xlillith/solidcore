@@ -140,8 +140,8 @@ mod graph_classify_sys {
     }
 }
 /// Export the actual nonempty PRE fixture or classify its point in the native B-rep.
-/// The construction block is the existing bounded query_brep_bbox layout; its
-/// box steps are not executed. Minimum regions are real PostInsert records.
+/// The construction block is the existing bounded `query_brep_bbox` layout; its
+/// box steps are not executed. Minimum regions are real `PostInsert` records.
 pub fn classify_graph(
     export: bool,
     path: &str,

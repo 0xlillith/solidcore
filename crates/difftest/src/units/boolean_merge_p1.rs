@@ -324,8 +324,8 @@ struct TransformFixture<'a> {
 impl<'a> TransformFixture<'a> {
     fn new(kernel: &'a mut Kernel, primary: &Brep, other: &Brep) -> Self {
         let records = [primary, other].map(|brep| {
-            let mut records = BTreeMap::new();
             use solidcore::EntityRef as E;
+            let mut records = BTreeMap::new();
             records.insert(
                 transform_key(E::Brep(BrepId::from_index(0))).key,
                 Topology::new(),

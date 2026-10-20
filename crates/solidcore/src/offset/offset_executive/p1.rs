@@ -2075,14 +2075,25 @@ mod tests {
     }
 
     #[test]
-    fn original_brep_query_propagates_actual_cache_dependency() {
+    fn original_brep_query_builds_complete_empty_cache() {
         let kernel = Kernel::default();
-        // The real cache constructor currently defers at bounding-box calculation,
-        // not at the already implemented BrepPointSolve entry point.
-        assert_dependency(
-            make_original_brep_cache(&kernel, &Brep::new()),
-            "SmBrep::CalculateBoundingBox",
-            "query.brep",
+        let original = Brep::new();
+        // BuildTrees publishes all three trees even when the input has no objects.
+        // A ready empty cache is distinct from the unbuilt cache checked below.
+        let cache = make_original_brep_cache(&kernel, &original).unwrap();
+        for tree in [
+            cache.vertex_tree(),
+            cache.curve_tree(),
+            cache.surface_tree(),
+        ] {
+            let tree = tree.expect("successful cache construction publishes every tree");
+            assert_eq!(tree.owner(), Some(crate::geom::tree::TreeOwner::BrepCache));
+            assert!(tree.object_list().unwrap().is_empty());
+        }
+        assert!(
+            solve_original_brep_point(&kernel, &original, &cache, Vec3::ZERO)
+                .unwrap()
+                .is_empty()
         );
     }
 
@@ -2122,7 +2133,10 @@ mod tests {
             );
         assert!(matches!(
             make_original_brep_cache(&kernel, &original),
-            Err(SolidError::Unsupported { .. })
+            Err(SolidError::Unsupported {
+                operation: OP,
+                reason: "point-solve edge owners require direct canonical arena identities",
+            })
         ));
         original
             .edge_mut(edge_id)
@@ -2131,11 +2145,18 @@ mod tests {
             .as_mut()
             .unwrap()
             .set_owner(Some(arena_identity(CacheObject::Edge(edge_id))), None);
-        assert_dependency(
-            make_original_brep_cache(&kernel, &original),
-            "SmBrep::CalculateBoundingBox",
-            "query.brep",
-        );
+        let cache = make_original_brep_cache(&kernel, &original).unwrap();
+        // A canonical owner must insert the actual curve, not silently omit it.
+        let curves = cache
+            .curve_tree()
+            .unwrap()
+            .lists()
+            .iter()
+            .filter_map(|list| list.object)
+            .collect::<Vec<_>>();
+        assert_eq!(curves, vec![CacheObject::Curve(edge_id)]);
+        assert!(cache.vertex_tree().is_some());
+        assert!(cache.surface_tree().is_some());
     }
 
     #[test]
@@ -2147,20 +2168,24 @@ mod tests {
             executive.set_offset_brep(Brep::new());
             executive.set_create_offset_solid(solid);
             executive.relate_edgeuses(EdgeuseId::from_index(1), EdgeuseId::from_index(2));
-            // StitchIntoShell defers at DoStitching's first Notify, StitchIntoSolid at
-            // its bounding box
-            let (symbol, owner) = if solid {
-                ("SmBrep::Notify", "topology.brep_p2")
-            } else {
-                ("SmBrep::CalculateBoundingBox", "query.brep")
-            };
+            executive.relate_faceuse(FaceuseId::from_index(3), FaceId::from_index(4));
+            executive.relate_edge_face(EdgeId::from_index(5), FaceId::from_index(6));
+            executive.relate_vertex_face(VertexId::from_index(7), FaceId::from_index(8));
+            executive.relate_blend_face(FaceId::from_index(9), FaceId::from_index(10));
+            // Both paths now reach DoStitching's first Notify. StitchIntoSolid's
+            // preceding bounding-box calculation is implemented by query.brep.
             assert_dependency(
                 executive.piecewise_merge(&mut kernel, &mut original),
-                symbol,
-                owner,
+                "SmBrep::Notify",
+                "topology.brep_p2",
             );
             assert!(executive.offset_brep().is_none());
             assert_eq!(executive.offset_edgeuse(EdgeuseId::from_index(1)), None);
+            assert!(executive.faceuse_to_faces.all_firsts().is_empty());
+            assert!(executive.edgeuse_to_edgeuses.all_firsts().is_empty());
+            assert!(executive.edge_to_faces.all_firsts().is_empty());
+            assert!(executive.vertex_to_faces.all_firsts().is_empty());
+            assert!(executive.blend_to_faces.all_firsts().is_empty());
         }
         let mut executive = executive();
         executive.set_merge_results(true);

@@ -68,7 +68,7 @@ fn import(input: &Operand) -> Result<Option<Brep>, HarnessError> {
 }
 
 /// Register only owner links actually stored by the imported PRE geometry.
-/// Missing/unrepresented native owners are caught by QueryMetadata's guard.
+/// Missing/unrepresented native owners are caught by `QueryMetadata`'s guard.
 pub(super) fn query_owner_links(brep: &Brep) -> Vec<(ObjectRef, ObjectRef)> {
     let mut owners = Vec::new();
     for edge in brep.edges().ids() {
@@ -76,7 +76,7 @@ pub(super) fn query_owner_links(brep: &Brep) -> Vec<(ObjectRef, ObjectRef)> {
             .edge(edge)
             .ok()
             .and_then(|e| e.curve.as_ref())
-            .and_then(|c| c.owner())
+            .and_then(solidcore::curve::curve::Curve::owner)
         {
             owners.push((query_graph_identity(CacheObject::Curve(edge)), owner));
         }
@@ -86,7 +86,7 @@ pub(super) fn query_owner_links(brep: &Brep) -> Vec<(ObjectRef, ObjectRef)> {
             .face(face)
             .ok()
             .and_then(|f| f.surface.as_ref())
-            .and_then(|s| s.owner())
+            .and_then(solidcore::surface::surface::Surface::owner)
         {
             owners.push((query_graph_identity(CacheObject::Surface(face)), owner));
         }

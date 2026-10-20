@@ -1142,6 +1142,10 @@ mod tests {
 
     #[test]
     fn notification_scope_preserves_marks_and_both_operand_callbacks_on_error() {
+        use crate::boolean::topology_intersector::p1::IntersectorBrep;
+        use crate::intersect::point_class::{PointClassType, PointClassification};
+        use crate::topology::proto_topology::ProtoBrep;
+
         // This test owns the two manually constructed arena scenes; geometry
         // has direct arena owners and no external owner chain.
         let mut primary_cache = None;
@@ -1161,9 +1165,6 @@ mod tests {
             ),
         };
 
-        use crate::boolean::topology_intersector::p1::IntersectorBrep;
-        use crate::intersect::point_class::{PointClassType, PointClassification};
-        use crate::topology::proto_topology::ProtoBrep;
         let mut k = Kernel::default();
         let mut other_k = Kernel::default();
         k.context.set_doing_boolean(true);
