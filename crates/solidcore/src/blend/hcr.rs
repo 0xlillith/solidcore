@@ -8,6 +8,7 @@
 //! | [`Hcr`]                                      | `SmHCR`                                   |
 //! | [`Hcr::new`], [`view_transform_for_vector`]  | `SmHCR::SmHCR(.., const SmVector3d&, ..)` |
 //! | [`Hcr::with_transform`]                      | `SmHCR::SmHCR(.., const SmAxis2Placement&, ..)`, `ConstructorInit` |
+//! | [`Hcr::from_transformed_scene`]              | `ConstructorInit` scene query and remaining setup |
 //! | [`Hcr::from_scene`]                          | `ConstructorInit` after the scene B-rep is built |
 //! | `Drop` (implicit)                            | `SmHCR::~SmHCR`                           |
 //! | [`Hcr::set_hcr_for_silhouettes`]             | `SetHCRForSilhouettes`                    |
@@ -26,10 +27,10 @@
 //!
 //! Deviations:
 //! - The scene B-rep copy, its transformation and infinite region (`SmBrep` copy
-//!   constructor, `Transform`, `FindAndSetInfiniteRegion`) and its bounding box
-//!   (`SmBrep::CalculateBoundingBox`) belong to unported units, so [`Hcr::with_transform`]
-//!   stops there; [`Hcr::from_scene`] is the rest of `ConstructorInit` for a caller that
-//!   already holds the transformed scene and its box.
+//!   constructor, `Transform`, `FindAndSetInfiniteRegion`) belong to unported units,
+//!   so [`Hcr::with_transform`] stops there; [`Hcr::from_transformed_scene`] computes
+//!   the real query box for an already transformed scene. [`Hcr::from_scene`] also
+//!   accepts an explicitly supplied box.
 //! - The pointer maps `m_pSilVertices`, `m_pSilEdges` and `m_pBackFacingEdges` are id
 //!   sets; [`Hcr::silhouette_edges`] returns the ids in ascending order (upstream
 //!   `GetAllKeys` iterates the pointer hash, whose order is not reproducible).
@@ -214,13 +215,9 @@ fn find_and_set_infinite_region(brep: &mut Brep) -> Result<()> {
 }
 
 /// `SmBrep::CalculateBoundingBox` (unit `query.brep`).
-fn brep_bounding_box(brep: &Brep) -> Result<Extent3d> {
-    let _ = brep;
-    // UNPORTED(query.brep): SmBrep::CalculateBoundingBox
-    Err(SolidError::unported(
-        "SmBrep::CalculateBoundingBox",
-        "query.brep",
-    ))
+fn brep_bounding_box(k: &Kernel, brep: &Brep) -> Result<Extent3d> {
+    // Native defaults: bApprox = FALSE, bTight = FALSE, bExpandByZoneTol3d = TRUE.
+    crate::query::brep::calculate_loose_bounding_box(k, brep, false, true)
 }
 
 /// `SmBrep::GetInfiniteRegion` (unit `topology.brep_p1`).
@@ -488,8 +485,8 @@ impl Hcr {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] from the scene copy, transform and box (units
-    /// `topology.brep_p3`, `topology.brep_p5`, `query.brep`).
+    /// [`SolidError::Unported`] from the scene copy and transform (units
+    /// `topology.brep_p3`, `topology.brep_p5`), or a selected box dependency.
     pub fn with_transform(
         k: &Kernel,
         brep: &Brep,
@@ -503,8 +500,24 @@ impl Hcr {
         // transform the copied Brep to place the eye looking up the Z axis
         ignore_status(transform_brep(&mut scene, &vt))?;
         ignore_status(find_and_set_infinite_region(&mut scene))?; // [B23]
-                                                                  // its status is ignored upstream (the box then stays empty)
-        let scene_box = ignored(brep_bounding_box(&scene))?.unwrap_or_else(Extent3d::new);
+        Self::from_transformed_scene(k, scene, view_transform, opts)
+    }
+
+    /// Finish `ConstructorInit` for an already copied and transformed scene, computing
+    /// its box with the native loose, exact-input, zone-expanded query defaults.
+    /// Translation in `view_transform` is ignored as in [`Self::with_transform`].
+    ///
+    /// # Errors
+    ///
+    /// Propagates unported box dependencies; ordinary query errors are ignored, as
+    /// upstream does, leaving an empty scene box.
+    pub fn from_transformed_scene(
+        k: &Kernel,
+        scene: Brep,
+        view_transform: &Axis2Placement,
+        opts: HcrOptions,
+    ) -> Result<Self> {
+        let scene_box = ignored(brep_bounding_box(k, &scene))?.unwrap_or_else(Extent3d::new);
         Ok(Self::from_scene(k, scene, view_transform, scene_box, opts))
     }
 
@@ -1539,6 +1552,39 @@ mod tests {
         let z = t.transform_vector(v);
         assert!((z.z - 1.0).abs() < 1e-12);
         assert!(view_transform_for_vector(Vec3::new(0.0, 0.0, 0.0)).is_err());
+    }
+
+    #[test]
+    fn transformed_scene_queries_vertex_boxes_with_zone_expansion() {
+        let k = Kernel::default();
+        let mut scene = Brep::new();
+        let a = scene.add_vertex(Point3::new(-2.0, 1.0, 3.0)).unwrap();
+        let b = scene.add_vertex(Point3::new(4.0, 5.0, 9.0)).unwrap();
+        scene.vertex_mut(a).unwrap().tolerance = 0.25;
+        scene.vertex_mut(b).unwrap().tolerance = 0.5;
+        let bbox = brep_bounding_box(&k, &scene).unwrap();
+        assert_eq!(bbox.min(), Point3::new(-2.25, 0.75, 2.75));
+        assert_eq!(bbox.max(), Point3::new(4.5, 5.5, 9.5));
+        let opts = HcrOptions {
+            approx_tol_3d: 1e-3,
+            ang_tol_rad: 0.1,
+            display_seams: true,
+            display_smooth_edges: true,
+        };
+        let h = Hcr::from_transformed_scene(&k, scene, &Axis2Placement::default(), opts)
+            .unwrap();
+        assert_eq!(h.ray_offset_tolerance(), (9.5 - 2.75 + 1.0) / 1000.0);
+        assert_eq!(h.proj_bbox().min(), Point3::new(-9.0, -6.0, -4.0));
+        assert_eq!(h.proj_bbox().max(), Point3::new(11.25, 12.25, 16.25));
+    }
+
+    #[test]
+    fn transformed_scene_empty_box_stays_empty() {
+        let k = Kernel::default();
+        let scene = Brep::new();
+        let bbox = brep_bounding_box(&k, &scene).unwrap();
+        assert_eq!(bbox.min(), Extent3d::new().min());
+        assert_eq!(bbox.max(), Extent3d::new().max());
     }
 
     #[test]

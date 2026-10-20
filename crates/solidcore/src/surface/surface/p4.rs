@@ -1607,8 +1607,10 @@ impl Surface {
                         // native guard does (SmFace.cpp:12796-12801). Other native
                         // guards still need to pass that mode at their call sites:
                         // SmCurveClass.cpp:1040, SmVertexUse.cpp:471-480 and
-                        // SmBrep.cpp:11098 (Rust: intersect::curve_class::p1,
-                        // topology::vertexuse, topology::brep::p1::find_sector_of_face).
+                        // SmBrep.cpp:11098 and SmFilletGeom.cpp:149-150,446-447
+                        // (Rust: intersect::curve_class::p1,
+                        // topology::vertexuse, topology::brep::p1::find_sector_of_face,
+                        // blend::fillet_geom::p1).
                         return Err(SolidError::unported(
                             "SmFace::PointClassify",
                             "query.face_p2",

@@ -8,8 +8,9 @@
 //! `ComputeSilhouettes`' edge loop) and back-facing edges, and runs one member. It
 //! exports the scene B-rep (`GetSceneBrep()`, the copy transformed by the unported
 //! `SmBrep` copy constructor and `Transform`) with its `CalculateBoundingBox` (unit
-//! `query.brep`, unported); the Rust side imports that scene record by record (the
-//! `topology.vertexuse` importer), builds its HCR with [`Hcr::from_scene`], seeds the same
+//! `query.brep`); the Rust side imports that scene record by record (the
+//! `topology.vertexuse` importer), computes its own query box through
+//! [`Hcr::from_transformed_scene`], seeds the same
 //! edges and runs the same member. Both sides first build the scene (shim op 8) and check
 //! the seeds and op arguments against it with the same `ffi::validate`.
 //!
@@ -411,16 +412,7 @@ impl UnitDiff for Runner {
                 let _ = surface.set_owner(Some(arena_identity(CacheObject::Face(id))));
             }
         }
-        let [x0, y0, z0, x1, y1, z1] = s.scene_box;
-        let (lo, hi) = (Vec3::new(x0, y0, z0), Vec3::new(x1, y1, z1));
-        let scene_box = if lo.x <= hi.x && lo.y <= hi.y && lo.z <= hi.z {
-            Extent3d::from_points(lo, hi)
-        } else if Extent3d::new().min() == lo && Extent3d::new().max() == hi {
-            Extent3d::new()
-        } else {
-            return Err(harness("scene box neither ordered nor empty"));
-        };
-        match run_rust(&i, &p.r, scene, scene_box) {
+        match run_rust(&i, &p.r, scene) {
             Ok((status, record)) => Ok(output(status, record)),
             Err(e) => Ok(Output::unported(&e).unwrap_or_else(|| match e {
                 SolidError::InvalidInput {
@@ -512,7 +504,6 @@ fn run_rust(
     i: &Inputs,
     r: &Resolved,
     scene: Brep,
-    scene_box: Extent3d,
 ) -> Result<(f64, Vec<f64>), SolidError> {
     let k = Kernel::default();
     let transform = match i.placement {
@@ -533,7 +524,7 @@ fn run_rust(
         display_seams: i.seams,
         display_smooth_edges: i.smooth,
     };
-    let mut h = Hcr::from_scene(&k, scene, &transform, scene_box, opts);
+    let mut h = Hcr::from_transformed_scene(&k, scene, &transform, opts)?;
     for &e in &r.sil {
         h.add_silhouette_edge(&k, eid(e))?;
     }
