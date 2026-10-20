@@ -1901,10 +1901,12 @@ mod tests {
             context: None,
             key_of: &key_of,
         };
+        // no faces to copy: past SetTolerance (topology.brep_p2) and the infinite region
+        // (topology.brep_p1, #246) nothing runs
+        let r = copy_faces(&k, &mut src, &[], &mut dest, false, &face_ref, &mut env);
         assert!(
-            copy_faces(&k, &mut src, &[], &mut dest, false, &face_ref, &mut env)
-                .unwrap_err()
-                .is_unported()
+            matches!(&r, Ok((faces, true)) if faces.is_empty()),
+            "copy: {r:?}"
         );
     }
 }

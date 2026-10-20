@@ -69,7 +69,7 @@ use std::collections::BTreeMap;
 use crate::curve::curve::p2::is_curve_class;
 use crate::curve::curve::{p8::CurveIntersectOptions, Curve, CurveKind};
 use crate::error::{ignore_status, EntityRef, Result, SolidError, SM_ERR};
-use crate::geom::a_object::{self, BREP_TYPE, REGION_TYPE};
+use crate::geom::a_object::{self, BREP_TYPE};
 use crate::geom::attribute::{AttributeStore, ObjectKey};
 use crate::geom::context::{MarkLock, ALL_MARKS};
 use crate::geom::extent1d::Extent1d;
@@ -633,17 +633,17 @@ pub fn notify(
     )
 }
 
-/// The identity of a region in a [`RegionNotifyState`]: `(SmRegion_TYPE, index)`. Any
-/// other entity maps to a key without record (`(0, u64::MAX)`), so notifying its
-/// `SmTopology` part through that state is [`SolidError::InvalidInput`], never a
-/// silent success.
+/// The identity of a region in a [`RegionNotifyState`]: its arena identity
+/// ([`loopuse::notify_ref`](crate::topology::loopuse::notify_ref), `SmRegion_TYPE`), the
+/// scheme of [`ArenaNotifyState`], so a caller decoding the events' keys (the heal path's
+/// topology tracker) reads every state's keys alike. Any other entity maps to a key
+/// without record (`(0, u64::MAX)`, which no arena identity is and the decoder rejects),
+/// so notifying its `SmTopology` part through that state is [`SolidError::InvalidInput`],
+/// never a silent success.
 #[must_use]
 pub fn region_only_key(e: EntityRef) -> ObjectRef {
     match e {
-        EntityRef::Region(r) => ObjectRef {
-            type_code: REGION_TYPE,
-            key: ObjectKey(u64::from(r.index())),
-        },
+        EntityRef::Region(_) => crate::topology::loopuse::notify_ref(e),
         _ => ObjectRef {
             type_code: 0,
             key: ObjectKey(u64::MAX),
@@ -2649,6 +2649,33 @@ mod tests {
             Vec3::new(0.0, 0.0, 1.0),
         )));
         (b, v, e, f)
+    }
+
+    /// The region keys of a [`RegionNotifyState`] are arena identities: the heal path's
+    /// tracker (`entity_of_notify_key`, the inverse of `notify_ref`) decodes a split's
+    /// regions back to themselves for every index (a bare index decoded region `r >= 1`
+    /// as `Brep(r - 1)`), and rejects the record-less key of any other entity.
+    #[test]
+    fn region_only_keys_decode_as_the_tracker_reads_them() {
+        use crate::topology::loopuse::{entity_of_notify_key, notify_ref};
+        use crate::topology::RegionId;
+        for i in [0, 1, 2, 7, u32::MAX] {
+            let r = EntityRef::Region(RegionId::from_index(i));
+            let key = region_only_key(r);
+            assert_eq!(key, notify_ref(r));
+            assert_eq!(entity_of_notify_key(key.key), Some(r));
+        }
+        let other = region_only_key(EntityRef::Face(FaceId::from_index(1)));
+        assert_eq!(entity_of_notify_key(other.key), None);
+        let mut b = Brep::new();
+        let r0 = b.add_region_record(crate::topology::Region::default()).unwrap();
+        let r1 = b.add_region_record(crate::topology::Region::default()).unwrap();
+        let state = RegionNotifyState::new(&b);
+        for r in [r0, r1] {
+            let key = region_only_key(EntityRef::Region(r)).key;
+            assert!(state.records.contains_key(&key));
+            assert_eq!(entity_of_notify_key(key), Some(EntityRef::Region(r)));
+        }
     }
 
     fn solution(objects: &[CacheObject], params: &[f64]) -> Solution<CacheObject> {

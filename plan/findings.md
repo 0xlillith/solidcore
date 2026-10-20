@@ -8601,6 +8601,31 @@ validation section below. These results do not certify the review fixes.
   `UNPORTED(query.brep)`: the generic default has neither the B-rep nor an entity
   classification, and the world over the B-rep cache (`query.brep`) overrides it with
   `brep::p2::local_curve_sector`.
+- **`--fuzz 2000`: FUZZ-PASS with 2 differs (rv-brep_p2's pre-review of `3a6ea1df`,
+  2026-10-20).** Both are `MateLaminaEdgeToSurface` with the mating plane's origin pushed
+  to about +/-9.2e18. `values.out[1]` is Mate's status: C++ 1001 (`SM_ERR`), Rust 1006
+  (`SM_ERR_NULL_POINTER`). The inputs:
+  - `fuzz00488`: base `mate_ellips_ts2_e0`, mutation
+    `/surface/plane/o/1 = 9223372036854775807`;
+  - `fuzz00815`: base `mate_surf_rev_e1`, mutations `/surface/plane/o/1 =
+    -9223372036854775808` and `uv_ext = -1e300`.
+  The Rust stops at the 6th of Mate's 21 distance samples. The extended mating plane's
+  `Surface::global_point_solve` (`surface.surface_p4`'s base `GlobalPointSolve` with the
+  plane's fast drop, `surface.plane_p1`) returns an empty solution array, and Mate raises
+  `null_deref("point solve without solution")`, where upstream reads `sSolutions[0]`
+  (`SmBrep.cpp:22222`). The C++ fails the same solve with `SM_ERR`, which Mate's `SER`
+  propagates. So the disagreement is in the callee (on the Rust side the in-domain test
+  drops the fast solution of a plane 9.2e18 away; the C++ errors), not in this unit's
+  logic, and the generator never makes such origins. difftest counts `differs` as a note,
+  not a failure. Owners of `surface.surface_p4` / `surface.plane_p1`: both inputs should
+  become fixtures once the solve's status agrees.
+- **Notification keys (rv-brep_p2's S1).** `region_only_key` keys a region by its arena
+  identity (`loopuse::notify_ref`) instead of a bare index, so the heal path's tracker
+  (`entity_of_notify_key`, the inverse of `notify_ref`) decodes a `SPLIT_IN_BREP` region of
+  `p6::split_closed` as itself. Before, region `r >= 1` decoded silently as `Brep(r - 1)`.
+  It was latent: the op defers at `CalculateBoundingBox` first. Every other entity keeps
+  the record-less `(0, u64::MAX)` key, which the decoder rejects. Unit test
+  `region_only_keys_decode_as_the_tracker_reads_them`.
 
 ## heal: no attribute state on the heal path (2026-10-18, PR #149)
 
