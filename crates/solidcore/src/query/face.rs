@@ -1,7 +1,17 @@
-//! Queries on faces (`SmFace`): point and curve classification against the face
-//! boundary. The methods are split over the plan units `query.face_p1` .. `_p4`.
+//! Face, shell and region queries, split by the owning port unit.
 //!
-//! Upstream: `source/SMLib/src/SmFace.cpp`, `source/SMLib/inc/SmFace.h`.
+//! Upstream: `source/SMLib/src/SmFace.cpp`, `source/SMLib/inc/SmFace.h`,
+//! `source/SMLib/src/SmShell.cpp`, `source/SMLib/src/SmRegion.cpp`,
+//! `source/SM_API/src/SmApiCurves.cpp`.
+//!
+//! | Rust | Upstream |
+//! |------|----------|
+//! | [`p1`] | unit `query.face_p1` |
+//! | [`p2`] | unit `query.face_p2` |
+//! | [`p4`] | unit `query.face_p4` |
+//!
+//! Deviations: methods become functions over arena ids; see the unit modules.
 
+pub mod p1;
 pub mod p2;
 pub mod p4;

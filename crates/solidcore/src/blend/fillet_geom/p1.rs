@@ -172,8 +172,9 @@
 //!   `SmSurfaceDropCurve::DoTrace` call of `intersect.surface_drop_lib_p1` (its stub
 //!   carries the label `intersect.surface_drop_curve`);
 //!   `SmFace::CreateUVTrimCurves` (`topology.face_p3`, reached through the wired
-//!   `SmFace::CalculateUVDomainFromUVTrimCurves` of `topology.face_p1`) and
-//!   `SmFace::Point3DClassify` (`query.face_p1`) in `sm_ClassifyFacePoint`;
+//!   `SmFace::CalculateUVDomainFromUVTrimCurves` of `topology.face_p1`) and the
+//!   unported callees of `SmFace::Point3DClassify` (wired to `query::face::p1`) in
+//!   `sm_ClassifyFacePoint`;
 //!   `SmFilletSolver::FindIndexOfRailOnFace` (`blend.fillet_solver_p1`) and
 //!   `SmFilletSolver::RailRailIntersect` (`blend.fillet_solver_p2`) in
 //!   `sm_CreateCubicRailRailInterpolant` (the cubic built from their result is ported
@@ -435,9 +436,8 @@ impl FilletVertexType {
 }
 
 /// How a fillet surface is trimmed (`SmBoundaryTrimmingType`); discriminants are the
-/// upstream values. PR #168 (`blend.fillet_standard_solver_p1`) co-ports the same enum,
-/// identically, at `blend::fillet_standard_solver::p1::BoundaryTrimmingType`; whichever
-/// lands second re-exports the other's.
+/// upstream values. `blend.fillet_standard_solver_p1` (PR #168) re-exports it at
+/// `blend::fillet_standard_solver::p1::BoundaryTrimmingType`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum BoundaryTrimmingType {
     /// `SM_BT_NONE`.
@@ -1077,7 +1077,7 @@ impl FilletGeom {
         let mut off_surfs = [None, None];
         for (slot, i) in off_surfs.iter_mut().zip(0..2usize) {
             if let Some((_, fs)) = solver {
-                *slot = match fs.surfaces.get(i).and_then(Option::as_ref) {
+                *slot = match fs.solver.surface(i)?.map(|slot| &slot.surface) {
                     // SmOffsetSurface::Copy() returns an SmSurface*, not SmOffsetSurface*;
                     // its status is ignored, so a failed copy leaves NULL
                     Some(off_srf) => match offset_surface_copy(k, off_srf) {
@@ -1194,7 +1194,7 @@ impl FilletGeom {
             return Ok(Some(s));
         }
         let fs = solver.ok_or_else(|| SolidError::null_pointer(OP_OFFSET))?;
-        Ok(fs.surfaces.get(rail_index).and_then(Option::as_ref))
+        Ok(fs.solver.surface(rail_index)?.map(|slot| &slot.surface))
     }
 
     /// `SetOffsetSurface(lWhichSrf, pNewOffSrf)`: replaces (deleting) the rail's offset
@@ -1701,7 +1701,8 @@ impl FilletBrep {
     ///
     /// # Errors
     ///
-    /// Those of [`classify_face_point`] (deferred: `topology.face_p3`, `query.face_p1`);
+    /// Those of [`classify_face_point`] (deferred: `topology.face_p3` and the unported
+    /// callees of `SmFace::Point3DClassify`);
     /// [`SolidError::NotFound`] for dangling ids.
     pub fn update_split_face(
         &mut self,
@@ -2501,7 +2502,7 @@ pub fn find_stepoff_uv(
     stepoff_dist: f64,
 ) -> Result<[Point2; 2]> {
     let mut uvs = [Point2::new(0.0, 0.0); 2];
-    for (slot, edgeuse) in uvs.iter_mut().zip(solver.edgeuses) {
+    for (slot, edgeuse) in uvs.iter_mut().zip(solver.solver.edgeuses) {
         let eu = edgeuse.ok_or_else(|| SolidError::null_pointer(OP_STEPOFF))?;
         let face = edgeuse_face(brep, eu)?.ok_or_else(|| SolidError::null_pointer(OP_STEPOFF))?;
         face2::surface(brep, face)?.ok_or_else(|| SolidError::null_pointer(OP_STEPOFF))?;
@@ -2518,7 +2519,7 @@ pub fn find_stepoff_uv(
         // in upstream's order) is borrowed again after it.
         let surface =
             face2::surface(brep, face)?.ok_or_else(|| SolidError::null_pointer(OP_STEPOFF))?;
-        let tol = solver.approx_tol_3d;
+        let tol = solver.solver.approx_tol_3d;
         // Make the surface think that it is a standalone surface.
         let solutions = surface.global_point_solve::<NoObject>(
             k,
@@ -2554,27 +2555,47 @@ fn uv_domain_from_uv_trim_curves(
     }
 }
 
-/// `SmFace::Point3DClassify` (unit `query.face_p1`): the classification's point class
-/// and the call's status. `zone_tol_3d` is `SmTol::GetZoneTol3d(pOrigFace)` for both
-/// faces; the flags are upstream's `TRUE` (check boundaries first), `FALSE` (target
-/// loops only), `NULL` (target loops) and `TRUE` (okay to work in UV space).
+/// `SmFace::Point3DClassify` ([`crate::query::face::p1::point_3d_classify`]): the
+/// classification's point class and whether the call returned `SM_SUCCESS` (upstream
+/// compares the status and does not propagate it). `zone_tol_3d` is
+/// `SmTol::GetZoneTol3d(pOrigFace)` for both faces; the flags are upstream's `TRUE`
+/// (check boundaries first), `FALSE` (target loops only), `NULL` (target loops) and
+/// `TRUE` (okay to work in UV space). A failed call keeps the class written before the
+/// failure; an unported callee propagates.
+#[allow(clippy::too_many_arguments)]
 fn point_3d_classify(
-    _k: &Kernel,
-    _brep: &Brep,
-    _face: FaceId,
-    _pos: Point3,
-    _zone_tol_3d: f64,
-    _check_boundaries_first: bool,
-    _guess_uv: Option<Point2>,
-    _target_loops_only: bool,
-    _target_loops: Option<&[crate::topology::LoopId]>,
-    _ok_in_uv_space: bool,
+    k: &Kernel,
+    brep: &mut Brep,
+    face: FaceId,
+    pos: Point3,
+    zone_tol_3d: f64,
+    check_boundaries_first: bool,
+    guess_uv: Option<Point2>,
+    target_loops_only: bool,
+    target_loops: Option<&[crate::topology::LoopId]>,
+    ok_in_uv_space: bool,
 ) -> Result<(PointClassType, bool)> {
-    // UNPORTED(query.face_p1): SmFace::Point3DClassify
-    Err(SolidError::unported(
-        "SmFace::Point3DClassify",
-        "query.face_p1",
-    ))
+    let mut pc = PointClassification::<EntityRef>::new(zone_tol_3d);
+    let r = crate::query::face::p1::point_3d_classify(
+        k,
+        brep,
+        face,
+        pos,
+        zone_tol_3d,
+        check_boundaries_first,
+        &mut pc,
+        crate::query::face::p1::Point3dClassifyOptions {
+            guess_uv,
+            tgt_loops_only: target_loops_only,
+            tgt_loops: target_loops,
+            uv_space_okay: ok_in_uv_space,
+        },
+    );
+    match r {
+        Ok(()) => Ok((pc.point_class(), true)),
+        Err(e) if e.is_unported() => Err(e),
+        Err(_) => Ok((pc.point_class(), false)),
+    }
 }
 
 /// `sm_ClassifyFacePoint`: which of two faces that were one face before a split
@@ -2586,8 +2607,8 @@ fn point_3d_classify(
 /// # Errors
 ///
 /// [`SolidError::Unported`]: `SmFace::CreateUVTrimCurves` (`topology.face_p3`, through
-/// `SmFace::CalculateUVDomainFromUVTrimCurves`), `SmFace::Point3DClassify`
-/// (`query.face_p1`);
+/// `SmFace::CalculateUVDomainFromUVTrimCurves`), the unported callees of
+/// `SmFace::Point3DClassify` ([`crate::query::face::p1::point_3d_classify`]);
 /// [`SolidError::Upstream`] (`SM_ERR_NULL_POINTER`) for a face without a surface.
 pub fn classify_face_point(
     k: &Kernel,
@@ -2895,7 +2916,8 @@ pub fn create_cubic_rail_rail_interpolant(
 ) -> Result<BSplineCurve> {
     const OP: &str = "blend::fillet_geom::p1::create_cubic_rail_rail_interpolant";
     let solver_edgeuse = |fs: &ConstantRadiusAssistedFs, i: usize| {
-        fs.edgeuses
+        fs.solver
+            .edgeuses
             .get(i)
             .copied()
             .flatten()
@@ -3317,11 +3339,11 @@ fn drop_rail_onto_offset_surface(
 ) -> Result<()> {
     let solver = adjust_solver.ok_or_else(|| SolidError::null_pointer(OP_EXAMINE))?;
     // SmFilletSolver::GetSurface(k); NER(pOffsetSurf)
-    let offset_surf = solver
-        .surfaces
-        .get_mut(rail_index)
-        .and_then(Option::as_mut)
-        .ok_or_else(|| SolidError::null_pointer(OP_EXAMINE))?;
+    let offset_surf = &mut solver
+        .solver
+        .surface_mut(rail_index)?
+        .ok_or_else(|| SolidError::null_pointer(OP_EXAMINE))?
+        .surface;
     let orig_offset_dist = offset_surf.offset_distance();
     offset_surf.set_offset_distance(0.0);
 
@@ -4072,7 +4094,14 @@ mod tests {
             "{err:?}"
         );
         // the offset distance was zeroed for the drop and restored
-        assert_eq!(solver.surfaces[0].as_ref().unwrap().offset_distance(), 0.25);
+        assert_eq!(
+            solver.solver.surfaces[0]
+                .as_ref()
+                .unwrap()
+                .surface
+                .offset_distance(),
+            0.25
+        );
         // geometry 0's start row is now geometry 1's end row; its other rows are its own
         let near = |a: Point3, b: Point3| a.distance(b) < 1e-12;
         let s0 = fb.geom(g0).unwrap().fillet_surface().unwrap();

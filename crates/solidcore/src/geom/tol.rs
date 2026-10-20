@@ -154,7 +154,7 @@ use crate::topology::{Brep, EdgeId, FaceId, VertexId};
 // SmTol::GetSrcZoneTol3d / GetObjZoneTol3d of SmLineSegClassification /
 // SmPolyPointClassification / SmLineSegInterval: those classes have no Rust type (their
 // constructors are outside the in-scope call graph).
-// UNPORTED(blend.fillet_solver_p1): SmTol::GetAngTolRad(const SmFilletSolver*);
+// SmTol::GetAngTolRad(const SmFilletSolver*) is blend::fillet_solver::p1::tol_ang_tol_rad.
 // UNPORTED(blend.fillet_corner_p1): the SmFilletCorner branch of GetApproxTol3d(SmObject*);
 // the other GetApproxTol3d / GetAngTolRad overloads of algorithm objects (SmHCR,
 // SmPolyIntersector, SmSurfaceIntersector, SmSurfaceTracer, SmTopologyIntersector,
@@ -162,10 +162,10 @@ use crate::topology::{Brep, EdgeId, FaceId, VertexId};
 // UNPORTED(topology.vertex): SmTol::GetScaledZero(const SmVertex&) (SmVertex::GetPoint).
 // UNPORTED(topology.edge): SmTol::GetScaledZero(const SmEdge&) (SmEdge::GetCurve).
 // UNPORTED(topology.face_p2): SmTol::GetScaledZero(const SmFace&) (SmFace::GetSurface).
-// UNPORTED(query.face_p1): SmTol::GetScaledZero(const SmRegion&) and (const SmShell&) are
-// each one call to SmRegion::CalculateBoundingBox / SmShell::CalculateBoundingBox, which
-// harness/callgraph/units.json assigns to query.face_p1 (the blocking callee is in that
-// unit, not in geom.tol).
+// SmTol::GetScaledZero(const SmRegion&) and (const SmShell&) (SmTol.cpp:1394-1395) are not
+// ported: nothing calls them yet. Each is the scaled zero of one box, now
+// query::face::p1::calculate_region_bounding_box / calculate_shell_bounding_box (query.face_p1);
+// geom cannot call query, so port them beside those when a caller needs them.
 // SmTol::UpdateObjectTolerance(SmTopology*, double, double, SmBoolean) is
 // update_object_tolerance below (CO-PORTED in boolean.topology_intersector_p1).
 
