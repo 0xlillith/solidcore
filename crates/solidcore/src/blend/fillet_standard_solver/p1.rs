@@ -48,7 +48,7 @@
 //! | [`GuessSphereSolve::new`]                                | `SmGuessSphereSolveENFO::SmGuessSphereSolveENFO` (file-local class) |
 //! | [`FilletSolverData`] (CO-PORTED)                         | the `SmFilletSolver` members these solvers read       |
 //! | [`fillet_solver_is_kind_of`] (CO-PORTED)                 | `SmFilletSolver::IsKindOf`                            |
-//! | [`FilletSolverType`], [`FilletSurfaceGeneratorType`], [`BoundaryTrimmingType`] (CO-PORTED) | `SmFilletSolverType`, `SmFilletSurfaceGeneratorType`, `SmBoundaryTrimmingType` |
+//! | [`FilletSolverType`], [`FilletSurfaceGeneratorType`], [`BoundaryTrimmingType`] (re-exported from `blend.fillet_geom_p1`) | `SmFilletSolverType`, `SmFilletSurfaceGeneratorType`, `SmBoundaryTrimmingType` |
 //! | [`FilletLaw`], [`FilletLawKind`] (CO-PORTED)             | `SmFilletLaw`, `SmLinearFilletLaw`, `SmBSplineFilletLaw` (the data these solvers read) |
 //! | [`JacobianSurfaces`]                                     | the `rpSurface1`, `rpSurface2` arguments of `LoadJacobian` |
 //!
@@ -231,22 +231,9 @@ pub enum FilletSurfaceGeneratorType {
     BlendCurve = 3,
 }
 
-/// How a fillet surface is trimmed (`SmBoundaryTrimmingType`, CO-PORTED from
-/// `SmFilletGeom.h`); discriminants are the upstream values.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub enum BoundaryTrimmingType {
-    /// `SM_BT_NONE`: no trimming.
-    #[default]
-    None = 0,
-    /// `SM_BT_MINIMAL`.
-    Minimal = 1,
-    /// `SM_BT_MAXIMAL`.
-    Maximal = 2,
-    /// `SM_BT_BEVEL`.
-    Bevel = 3,
-    /// `SM_BT_BLEND`.
-    Blend = 4,
-}
+/// How a fillet surface is trimmed (`SmBoundaryTrimmingType`): the enum co-ported by
+/// `blend.fillet_geom_p1` (PR #147), re-exported here.
+pub use crate::blend::fillet_geom::p1::BoundaryTrimmingType;
 
 // ---- co-ported solver data ----------------------------------------------------------------
 
