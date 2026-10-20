@@ -579,176 +579,10 @@ void extend(Reader& rd, std::vector<double>& out) {
     rd.done();
 }
 
-
-// These fixtures use separate native B-reps. Explicit UV lines prevent a missing
-// UV constructor from obscuring the executive mapping continuation.
-SmFace* continuation_face(SmContext& ctx, SmBrep* owner,
-                          double u0, double v0, double u1, double v1) {
-    SmExtent2d domain(SmPoint2d(u0,v0), SmPoint2d(u1,v1));
-    SmPlane* plane = new (ctx) SmPlane(SmPoint3d(0,0,0), SmVector3d(1,0,0),
-        SmVector3d(0,1,0), SmVector2d(1,1), domain, &ctx);
-    struct Pending { SmSurface* p; ~Pending() { if (p && !p->GetOwner()) delete p; } } pending{plane};
-    SmFace* face = nullptr;
-    constructed(owner->CreateFaceFromSurface(plane, domain, face));
-    if (!face) throw Argument{};
-    SmTArray<SmEdge*> edges;
-    face->GetEdges(edges);
-    for (ULONG i=0; i<edges.GetSize(); ++i) {
-        SmEdgeuse* use = edges[i]->GetPrimaryEdgeuse();
-        if (!use || !use->GetMate()) throw Argument{};
-        if (!use->GetUVTrimCurve()) {
-            SmPoint3d a(0,0,0), b(0,0,0);
-            constructed(edges[i]->GetCurve()->EvaluatePoint(edges[i]->GetInterval().GetMin(), a));
-            constructed(edges[i]->GetCurve()->EvaluatePoint(edges[i]->GetInterval().GetMax(), b));
-            SmBSplineCurve* uv = nullptr;
-            constructed(SmBSplineCurve::CreateLineSegment(ctx, 2, a, b, uv));
-            if (!uv) throw Argument{};
-            use->SetUVTrimCurve(uv, 0.0, TRUE, nullptr);
-        }
-    }
-    return face;
-}
-SmFace* continuation_empty_face(SmContext& ctx, SmBrep* owner) {
-    SmExtent2d domain(SmPoint2d(0,0),SmPoint2d(1,1));
-    SmPlane* plane = new (ctx) SmPlane(SmPoint3d(0,0,0),SmVector3d(1,0,0),SmVector3d(0,1,0),SmVector2d(1,1),domain,&ctx);
-    struct Pending { SmSurface* p; ~Pending() { if (p && !p->GetOwner()) delete p; } } pending{plane};
-    SmTArray<ULONG> loops; SmTArray<SmEdgeuse*> uses; SmTArray<SmVertex*> vertices;
-    SmRegion* region = nullptr; SmShell* shell = nullptr; SmFace* face = nullptr;
-    constructed(owner->MakeFaceTopology(nullptr,plane,SM_OT_SAME,loops,uses,vertices,region,shell,face,FALSE,FALSE));
-    if (!face) throw Argument{};
-    face->SetUVDomain(domain);
-    return face;
-}
-void continuation_seed(SmBrep* brep, ULONG side) {
-    SmTArray<SmEdge*> edges; SmTArray<SmVertex*> vertices;
-    brep->GetEdges(edges); brep->GetVertices(vertices);
-    for (ULONG i=0; i<edges.GetSize(); ++i) edges[i]->SetAllFlags(0x10000 + 0x1000*side + i);
-    for (ULONG i=0; i<vertices.GetSize(); ++i) { vertices[i]->SetTolerance(SmZoneTol3d(1e-6),FALSE,FALSE); vertices[i]->SetAllFlags(0x20000 + 0x1000*side + i); }
-}
-void continuation_metadata(std::vector<double>& out, SmBrep* original, SmBrep* offset) {
-    std::vector<double> values;
-    for (SmBrep* brep : {original, offset}) {
-        SmContext* context = const_cast<SmContext*>(brep->GetContext());
-        values.push_back(context && (context->GetUserNotifyCallback() || context->GetSysNotifyCallback()) ? 1 : 0);
-        SmTArray<SmEdge*> edges; SmTArray<SmVertex*> vertices;
-        brep->GetEdges(edges); brep->GetVertices(vertices);
-        for (ULONG i=0; i<edges.GetSize(); ++i) {
-            SmTopology* object = edges[i];
-            values.push_back(object->HasAttributes() ? 1 : 0);
-            values.push_back(object->GetAllFlags());
-        }
-        for (ULONG i=0; i<vertices.GetSize(); ++i) {
-            SmTopology* object = vertices[i];
-            values.push_back(object->HasAttributes() ? 1 : 0);
-            values.push_back(object->GetAllFlags());
-        }
-    }
-    out.push_back((double)values.size()); out.insert(out.end(), values.begin(), values.end());
-}
-
-// Measurements only: no ownership transfer or duplicated UV curves. Match the
-// production normal/orientation decision and retain the actual selected side.
-void opposite_map_witness(SmFaceuse* original_use, SmFace* offset_face,
-                          std::vector<double>& selection, std::vector<double>& geometry) {
-    SmExtent2d domain;
-    original_use->GetFace()->GetUVDomain().Intersect(offset_face->GetUVDomain(),domain);
-    SmPoint2d uv=domain.Evaluate(0.5,0.5);
-    SmVector3d old_normal(0,0,0),new_normal(0,0,0);
-    if (original_use->GetFace()->GetSurface()->EvaluateNormal(uv,TRUE,TRUE,old_normal)!=SM_SUCCESS ||
-        offset_face->GetSurface()->EvaluateNormal(uv,TRUE,TRUE,new_normal)!=SM_SUCCESS) throw Argument{};
-    double dot=old_normal.Dot(new_normal);
-    bool same=dot>0.0;
-    bool old_same=original_use->GetOrientation()==SM_OT_SAME;
-    SmFaceuse* selected=(same && old_same)||(!same && !old_same)
-        ? offset_face->GetUpwardFaceuse() : offset_face->GetUpwardFaceuse()->GetMate();
-    if (!selected) throw Argument{};
-    SmTArray<SmEdgeuse*> old_uses,new_uses;
-    original_use->GetEdgeuses(old_uses);selected->GetEdgeuses(new_uses);
-    ULONG own=0,resolved=0,mate_owned=0;
-    for (ULONG i=0;i<old_uses.GetSize();++i) {
-        own+=old_uses[i]->GetUVTrimCurvePointer()!=nullptr;
-        resolved+=old_uses[i]->GetUVTrimCurve()!=nullptr;
-        SmEdgeuse* mate=old_uses[i]->GetMate();
-        mate_owned+=mate && mate->GetUVTrimCurvePointer()!=nullptr;
-    }
-    selection.insert(selection.end(),{same?1.0:0.0,old_same?1.0:0.0,
-        selected->GetOrientation()==SM_OT_SAME?1.0:0.0,(double)old_uses.GetSize(),
-        (double)new_uses.GetSize(),(double)own,(double)resolved,(double)mate_owned});
-    geometry.push_back(dot);
-    for (ULONG i=0;i<new_uses.GetSize();++i) {
-        SmPoint3d point(0,0,0);
-        if (new_uses[i]->NormalizedEvaluate(0.5,TRUE,point)!=SM_SUCCESS) throw Argument{};
-        double nearest=SM_BIG_DOUBLE;
-        for (ULONG j=0;j<old_uses.GetSize();++j) {
-            SmPoint3d old_point(0,0,0);
-            if (old_uses[j]->NormalizedEvaluate(0.5,TRUE,old_point)!=SM_SUCCESS) throw Argument{};
-            double distance=old_point.DistanceBetween(point);
-            if (distance<nearest) nearest=distance;
-        }
-        geometry.insert(geometry.end(),{point.x,point.y,nearest,SM_EFF_ZERO_SQRT*(1.0+point.GetMaxDimension())});
-    }
-}
-
-void continuation_probe(int operation, double tol, std::vector<double>& out) {
-    SmContext ctx;
-    auto original = brep(ctx), offset = brep(ctx);
-    SmBrep* live = offset.get();
-    SmOffsetGeometryCreation geometry(0.25,tol);
-    Executive executive(ctx, SM_OO_SOLID_OFFSET, geometry, original.get());
-    SmStatus status = SM_SUCCESS;
-    SmTArray<SmEdgeuse*> originals, offsets;
-    std::vector<double> before, after, selection, mapping_geometry;
-    if (operation <= 16) {
-        SmEdge* source = unit_wire(ctx, original.get(),0);
-        SmTArray<SmEdgeuse*> gaps; SmTArray<SmFace*> candidates;
-        SmLine* curve = nullptr;
-        SmExtent1d interval(-2,4);
-        constructed(SmLine::CreateLineSegment(ctx,3,SmPoint3d(0,0,0),SmPoint3d(3,0,0),curve,&interval));
-        SmEdge* gap = make_wire(ctx,live,std::unique_ptr<SmCurve>(curve),interval);
-        gaps.Add(gap->GetPrimaryEdgeuse());
-        if (operation == 16) gaps.Add(gap->GetPrimaryEdgeuse()->GetMate());
-        if (operation == 15) candidates.Add(continuation_face(ctx,live,-1,0,0,1));
-        continuation_seed(original.get(),0); continuation_seed(live,1);
-        continuation_metadata(before,original.get(),live);
-        executive.install(std::move(offset));
-        status = executive.FillGapEdgeuses(source,gaps,candidates);
-    } else {
-        SmFace* old_face = operation == 21 ? continuation_empty_face(ctx,original.get()) : continuation_face(ctx,original.get(),0,0,1,1);
-        double shift = operation == 18 ? 0.01 : operation == 19 ? 5e-6 : 0.0;
-        SmFace* new_face = operation == 21 ? continuation_empty_face(ctx,live) : (operation == 20 || operation == 22) ? continuation_face(ctx,live,0.2,0,0.4,1)
-            : continuation_face(ctx,live,shift,shift,1+shift,1+shift);
-        SmFaceuse* old_use=old_face->GetUpwardFaceuse();
-        if (operation == 22) {
-            old_use=old_use->GetMate();
-            if (!old_use) throw Argument{};
-            opposite_map_witness(old_use,new_face,selection,mapping_geometry);
-        }
-        original->GetEdgeuses(originals); live->GetEdgeuses(offsets);
-        continuation_seed(original.get(),0); continuation_seed(live,1);
-        continuation_metadata(before,original.get(),live);
-        executive.install(std::move(offset));
-        status = executive.MapEdgeuses(old_use,new_face);
-    }
-    continuation_metadata(after,original.get(),live);
-    out.insert(out.end(),{0,(double)status,0,0,0,0,1});
-    out.push_back(originals.GetSize());
-    for (ULONG i=0;i<originals.GetSize();++i) out.push_back(id(offsets,executive.GetOffsetEdgeuse(originals[i])));
-    SmTArray<SmEdge*> old_edges,new_edges; SmTArray<SmFace*> faces; SmTArray<SmVertex*> vertices;
-    original->GetEdges(old_edges);live->GetEdges(new_edges);live->GetFaces(faces);live->GetVertices(vertices);
-    out.insert(out.end(),{4,(double)old_edges.GetSize(),(double)new_edges.GetSize(),(double)vertices.GetSize(),(double)faces.GetSize()});
-    out.insert(out.end(),before.begin(),before.end());out.insert(out.end(),after.begin(),after.end());
-    if (operation == 22) {
-        out.insert(out.end(),selection.begin(),selection.end());
-        out.insert(out.end(),mapping_geometry.begin(),mapping_geometry.end());
-    }
-}
-
 void probe(Reader& rd, std::vector<double>& out) {
-    int64_t operation = rd.index(22);
+    int64_t operation = rd.index(12);
     double tol = rd.number();
     rd.done();
-    if (operation == 11) { continuation_probe(17,tol,out); out.resize(8+(size_t)out.at(7)); return; }
-    if (operation >= 14) { continuation_probe((int)operation,tol,out); return; }
     SmContext ctx;
     auto original = brep(ctx), offset = brep(ctx);
     SmOffsetGeometryCreation geometry(0.25, tol);
@@ -760,7 +594,6 @@ void probe(Reader& rd, std::vector<double>& out) {
     SmBrep* result = nullptr;
     SmStatus status = SM_SUCCESS;
     SmTArray<SmEdgeuse*> originals, offsets;
-    std::vector<double> editing;
     switch (operation) {
     case 0: status = SmOffsetExecutive::ReplaceImplicitOffsets(original.get(), tol); break;
     case 1: status = executive.RemoveExcessFaces(executive.GetOffsetBrep()); break;
@@ -790,9 +623,8 @@ void probe(Reader& rd, std::vector<double>& out) {
     case 10: status = executive.PiecewiseMerge(result); break;
     case 11: {
         SmFace* face = plane_face(ctx, original.get(), 0);
-        SmFace* target = plane_face(ctx, executive.GetOffsetBrep(), 0);
-        status = executive.MapEdgeuses(face->GetUpwardFaceuse(), target);
-        original->GetEdgeuses(originals); executive.GetOffsetBrep()->GetEdgeuses(offsets);
+        status = executive.MapEdgeuses(face->GetUpwardFaceuse(), face);
+        original->GetEdgeuses(originals); offsets.Append(originals);
         break;
     }
     case 12: {
@@ -805,34 +637,6 @@ void probe(Reader& rd, std::vector<double>& out) {
         originals.ReSet();
         break;
     }
-    case 13: {
-        SmShell* shell = nullptr;
-        SmVertex* vertex = nullptr;
-        constructed(original->MakeShellVertex(nullptr, SmPoint3d(0.5,2,0), shell, vertex));
-        if (!shell || !vertex) throw Argument{};
-        SmBrep* live_result = executive.GetOffsetBrep();
-        unit_wire(ctx, live_result, 1);
-        unit_wire(ctx, live_result, 2);
-        executive.SetMergeResults(TRUE);
-        original->m_bEditingEnabled = FALSE;
-        live_result->m_bEditingEnabled = TRUE;
-        editing.push_back(original->m_bEditingEnabled ? 1.0 : 0.0);
-        editing.push_back(live_result->m_bEditingEnabled ? 1.0 : 0.0);
-        status = executive.RemoveExcessFaces(live_result);
-        editing.push_back(original->m_bEditingEnabled ? 1.0 : 0.0);
-        editing.push_back(live_result->m_bEditingEnabled ? 1.0 : 0.0);
-        SmTArray<SmVertex*> vertices;
-        SmTArray<SmEdge*> edges;
-        SmTArray<SmEdgeuse*> uses;
-        SmTArray<SmFace*> faces;
-        original->GetVertices(vertices);
-        live_result->GetEdges(edges);
-        live_result->GetEdgeuses(uses);
-        live_result->GetFaces(faces);
-        editing.insert(editing.end(), {(double)vertices.GetSize(), (double)edges.GetSize(),
-                                      (double)uses.GetSize(), (double)faces.GetSize()});
-        break;
-    }
     }
     // PiecewiseMerge transfers ownership out of m_pOffsetBrep before stitching.
     std::unique_ptr<SmBrep> result_owner(result);
@@ -843,7 +647,6 @@ void probe(Reader& rd, std::vector<double>& out) {
     out.push_back(originals.GetSize());
     for (ULONG i=0; i<originals.GetSize(); ++i)
         out.push_back(id(offsets, executive.GetOffsetEdgeuse(originals[i])));
-    if (operation == 13) out.insert(out.end(), editing.begin(), editing.end());
     for (ULONG i=0; i<curves.GetSize(); ++i) delete curves[i];
 }
 } // namespace

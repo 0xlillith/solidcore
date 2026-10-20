@@ -42,22 +42,18 @@ use solidcore::geom::extent2d::Extent2d;
 use solidcore::geom::extent3d::Extent3d;
 use solidcore::geom::global_solver::{SolutionRequested, SolverOperation};
 use solidcore::geom::object::ShapeMember;
-use solidcore::geom::solution_array::{
-    ObjectKind, Solution, SolutionArray, SolutionObject, SolutionType,
-};
+use solidcore::geom::solution_array::{ObjectKind, Solution, SolutionObject, SolutionType};
 use solidcore::geom::tree::{NodeGeomType, Tree};
 use solidcore::geom::vector3d::Vec3;
-use solidcore::intersect::point_class::PointClassification;
 use solidcore::intersect::topology_solver::p1::{
-    BrepTreeSolve, LocalSolver, LocalSolverKind, TopologyObjects, TopologySolver,
+    CurveRef, LocalSolver, LocalSolverKind, TopologyObjects, TopologySolver,
 };
 use solidcore::kernel::Kernel;
-use solidcore::math::{Point3, Vec2};
+use solidcore::math::Point3;
 use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::math::NOW;
 use solidcore::nurbs::nurbs_crv::allocate_nurb_curve;
 use solidcore::surface::surface::p2::Surface;
-use solidcore::EntityRef;
 use solidcore::SolidError;
 use solidcore_ffi::units::intersect_topology_solver_p1::{self as ffi, Op};
 
@@ -204,14 +200,8 @@ type BoxIn = [f64; 6];
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 enum TreeIn {
-    Point {
-        p: [f64; 3],
-        size: f64,
-    },
-    Spatial {
-        bbox: BoxIn,
-        items: Vec<(i64, BoxIn)>,
-    },
+    Point { p: [f64; 3], size: f64 },
+    Spatial { bbox: BoxIn, items: Vec<(i64, BoxIn)> },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -276,13 +266,7 @@ fn curve_block(v: &mut Vec<f64>, c: &CurveIn) {
             for p in [e.c, e.x, e.y] {
                 v.extend_from_slice(&p);
             }
-            v.extend([
-                e.domain[0],
-                e.domain[1],
-                e.radii[0],
-                e.radii[1],
-                b(e.inside_out),
-            ]);
+            v.extend([e.domain[0], e.domain[1], e.radii[0], e.radii[1], b(e.inside_out)]);
         }
         CurveIn::Circle(e) => {
             v.extend([4.0, 3.0]);
@@ -450,10 +434,7 @@ fn build(k: &Kernel, c: &CurveIn) -> Result<Curve, HarnessError> {
                 .len()
                 .checked_sub(1)
                 .ok_or_else(|| harness("no points"))?;
-            let m =
-                bs.u.len()
-                    .checked_sub(1)
-                    .ok_or_else(|| harness("no knots"))?;
+            let m = bs.u.len().checked_sub(1).ok_or_else(|| harness("no knots"))?;
             let mut cur =
                 allocate_nurb_curve(n, bs.p, m).map_err(|e| harness(format!("curve: {e}")))?;
             for (d, s) in cur.cpts_mut().iter_mut().zip(&bs.cpts) {
@@ -609,9 +590,12 @@ impl Scene {
         }
     }
 
-    fn curve_handle(&self, i: i64) -> Result<Option<Obj>, HarnessError> {
+    fn curve_ref(&self, i: i64) -> Result<Option<CurveRef<'_, Obj>>, HarnessError> {
         match self.handle(i)? {
-            Some(h @ Obj::Curve(_, _)) => Ok(Some(h)),
+            Some(h @ Obj::Curve(j, _)) => match self.items.get(j) {
+                Some(Item::Curve(c, _)) => Ok(Some(CurveRef { curve: c, handle: h })),
+                _ => Err(harness("not a curve")),
+            },
             None => Ok(None),
             Some(_) => Err(harness("not a curve")),
         }
@@ -619,92 +603,6 @@ impl Scene {
 }
 
 impl TopologyObjects<Obj> for Scene {
-    fn with_brep_trees(
-        &mut self,
-        _kernel: &Kernel,
-        _first: Obj,
-        _second: Option<Obj>,
-        _solve: &mut BrepTreeSolve<'_, Obj>,
-    ) -> solidcore::Result<SolutionArray<Obj>> {
-        Err(not_found("no B-reps in the scene"))
-    }
-
-    fn object_zone_tol_3d(&self, kernel: &Kernel, object: Option<Obj>) -> solidcore::Result<f64> {
-        let system = || {
-            solidcore::geom::tol::zone_tol_3d(
-                kernel,
-                solidcore::geom::tol::SmallTopoType::NormalSize,
-            )
-        };
-        match object {
-            None => Ok(system()),
-            Some(vertex @ Obj::Vertex(_)) => self.vertex_tolerance(vertex),
-            Some(edge @ Obj::Edge(_)) => {
-                self.edge_interval(edge)?;
-                // The native fixture constructs a free-standing edge with the
-                // default context and never changes its initial tolerance.
-                Ok(system())
-            }
-            Some(curve @ Obj::Curve(_, _)) => {
-                self.curve(curve)?;
-                if let Some(owner) = self.curve_edge(curve)? {
-                    self.edge_interval(owner)?;
-                }
-                Ok(system())
-            }
-            Some(Obj::Analytic(_)) => Err(not_found("analytic replacement has no stored identity")),
-        }
-    }
-
-    fn face_point_classify(
-        &mut self,
-        _kernel: &Kernel,
-        _face: Obj,
-        _uv: Vec2,
-        _source_zone_tolerance: f64,
-        _do_boundaries: bool,
-        _use_uv: bool,
-        _classification: &mut PointClassification<EntityRef>,
-    ) -> solidcore::Result<()> {
-        Err(not_found("no faces in the scene"))
-    }
-
-    fn face_point_3d_classify(
-        &mut self,
-        _kernel: &Kernel,
-        _face: Obj,
-        _point: Point3,
-        _source_zone_tolerance: f64,
-        _do_boundaries: bool,
-        _classification: &mut PointClassification<EntityRef>,
-    ) -> solidcore::Result<()> {
-        Err(not_found("no faces in the scene"))
-    }
-
-    fn face_brep_editing_enabled(&self, _face: Obj) -> solidcore::Result<bool> {
-        Err(not_found("no faces in the scene"))
-    }
-
-    fn set_face_brep_editing_enabled(
-        &mut self,
-        _face: Obj,
-        _editing: bool,
-    ) -> solidcore::Result<()> {
-        Err(not_found("no faces in the scene"))
-    }
-
-    fn face_create_uv_trim_curves(
-        &mut self,
-        _kernel: &Kernel,
-        _face: Obj,
-    ) -> solidcore::Result<()> {
-        Err(not_found("no faces in the scene"))
-    }
-
-    fn face_classification_object(&self, _face: Obj, _entity: EntityRef) -> solidcore::Result<Obj> {
-        Err(not_found("no faces in the scene"))
-    }
-
     fn curve(&self, object: Obj) -> solidcore::Result<&Curve> {
         match object {
             Obj::Curve(i, _) => match self.items.get(i) {
@@ -876,11 +774,11 @@ fn local_kind(code: usize) -> Result<LocalSolverKind, HarnessError> {
     })
 }
 
-fn new_solver<'t, 'a, 'objects>(
+fn new_solver<'a>(
     k: &'a Kernel,
-    scene: &'objects mut Scene,
+    scene: &'a Scene,
     s: &SolverIn,
-) -> Result<TopologySolver<'t, 'a, 'objects, Obj>, HarnessError> {
+) -> Result<TopologySolver<'a, 'a, Obj>, HarnessError> {
     let vecs: Vec<Vec3> = s.vecs.iter().map(|v| v3(*v)).collect();
     let mut ts = TopologySolver::new(
         k,
@@ -898,7 +796,7 @@ fn new_solver<'t, 'a, 'objects>(
 }
 
 /// The local solver of `l` over `scene` (as the shim sets it up).
-fn new_local<'a>(scene: &Scene, l: &LocalIn) -> Result<LocalSolver<'a, Obj>, HarnessError> {
+fn new_local<'a>(scene: &'a Scene, l: &LocalIn) -> Result<LocalSolver<'a, Obj>, HarnessError> {
     let kind = local_kind(l.kind)?;
     let mut ls = LocalSolver::new(kind, l.swap, None);
     match l.kind {
@@ -920,7 +818,7 @@ fn new_local<'a>(scene: &Scene, l: &LocalIn) -> Result<LocalSolver<'a, Obj>, Har
             let ivl = l
                 .ivl
                 .map_or_else(Extent1d::new, |i| Extent1d::from_min_max(i[0], i[1]));
-            ls.set_curve_object(scene.curve_handle(l.curve)?, ivl);
+            ls.set_curve(scene.curve_ref(l.curve)?, ivl);
             if l.cedge >= 0 {
                 ls.set_curve_edge(scene.handle(l.cedge)?);
             }
@@ -930,7 +828,7 @@ fn new_local<'a>(scene: &Scene, l: &LocalIn) -> Result<LocalSolver<'a, Obj>, Har
     Ok(ls)
 }
 
-fn put_result(o: &mut Vec<f64>, ts: &TopologySolver<'_, '_, '_, Obj>) {
+fn put_result(o: &mut Vec<f64>, ts: &TopologySolver<'_, '_, Obj>) {
     o.push(ts.base.best_answer_so_far_sq);
     o.push(ts.base.solutions.len() as f64);
     for s in ts.base.solutions.as_slice() {
@@ -957,8 +855,8 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
     let mut o: Vec<f64> = Vec::new();
     match op {
         OpIn::Ctor { solver } => {
-            let mut scene = Scene { items: Vec::new() };
-            let ts = new_solver(&k, &mut scene, solver)?;
+            let scene = Scene { items: Vec::new() };
+            let ts = new_solver(&k, &scene, solver)?;
             o.push(0.0);
             o.push(f64::from(ts.base.category.code()));
             o.push(b(ts.base.projected_operation));
@@ -967,8 +865,8 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
             o.push(best.unwrap_or(0.0));
         }
         OpIn::May { solver, pairs } => {
-            let mut scene = Scene { items: Vec::new() };
-            let ts = new_solver(&k, &mut scene, solver)?;
+            let scene = Scene { items: Vec::new() };
+            let ts = new_solver(&k, &scene, solver)?;
             o.push(0.0);
             for [b1, b2] in pairs {
                 match ts.may_contain_answer(&ext(b1), &ext(b2)) {
@@ -988,28 +886,13 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
             local,
             calls,
         } => {
-            let mut scene = Scene::new(&k, objects)?;
+            let scene = Scene::new(&k, objects)?;
+            let mut ts = new_solver(&k, &scene, solver)?;
             let mut ls = new_local(&scene, local)?;
-            // Resolve the immutable object registry before lending its geometry.
-            // Per-call invalid indices are still checked at their original point.
-            let handles = (0..scene.items.len())
-                .map(|i| scene.handle(i as i64))
-                .collect::<Result<Vec<_>, _>>()?;
-            let handle = |i: i64| {
-                if i < 0 {
-                    Ok(None)
-                } else {
-                    handles
-                        .get(i as usize)
-                        .copied()
-                        .ok_or_else(|| harness("object index out of range"))
-                }
-            };
-            let mut ts = new_solver(&k, &mut scene, solver)?;
             let mut st = 0.0;
             let mut done = 0usize;
             for [o1, o2] in calls {
-                let r = ls.solve_it(&mut ts, handle(*o1)?, handle(*o2)?);
+                let r = ls.solve_it(&mut ts, scene.handle(*o1)?, scene.handle(*o2)?);
                 done += 1;
                 if let Err(e) = r {
                     if let Some(d) = Output::unported(&e) {
@@ -1031,11 +914,11 @@ fn rust(op: &OpIn) -> Result<Output, HarnessError> {
             tree2,
             two,
         } => {
-            let mut scene = Scene::new(&k, objects)?;
+            let scene = Scene::new(&k, objects)?;
             let t1 = build_tree(&scene, tree1)?;
             let t2 = build_tree(&scene, tree2)?;
+            let mut ts = new_solver(&k, &scene, solver)?;
             let mut ls = new_local(&scene, local)?;
-            let mut ts = new_solver(&k, &mut scene, solver)?;
             let r = if *two {
                 ts.solve_two_trees(&t1, &t2, &mut ls)
             } else {
@@ -1126,9 +1009,7 @@ fn gen_scale(rng: &mut Rng) -> f64 {
 }
 
 fn gen_tol(rng: &mut Rng, s: f64) -> f64 {
-    s * *rng
-        .choose(&[1e-6, 1e-6, 1e-4, 1e-3, 1e-8, 0.1, 0.0])
-        .unwrap_or(&1e-6)
+    s * *rng.choose(&[1e-6, 1e-6, 1e-4, 1e-3, 1e-8, 0.1, 0.0]).unwrap_or(&1e-6)
 }
 
 /// A best answer for distances around `d`: none, around `d`, or exactly `d * d`.
@@ -1350,10 +1231,8 @@ fn on_curve(rng: &mut Rng, c: &CurveIn) -> [f64; 3] {
 /// A point near the curve: on it, within or just outside the tolerance `tol`, or
 /// farther away (sometimes a conic's centre).
 fn near_curve(rng: &mut Rng, c: &CurveIn, s: f64, tol: f64) -> [f64; 3] {
-    if let (
-        CurveIn::Circle(CircleIn { c: centre, .. }) | CurveIn::Ellipse(EllipseIn { c: centre, .. }),
-        true,
-    ) = (c, rng.chance(0.1))
+    if let (CurveIn::Circle(CircleIn { c: centre, .. }) | CurveIn::Ellipse(EllipseIn { c: centre, .. }), true) =
+        (c, rng.chance(0.1))
     {
         return *centre;
     }
@@ -1398,13 +1277,8 @@ fn gen_vertex_case(rng: &mut Rng) -> OpIn {
     // aim rays at a vertex (sometimes off by about its tolerance)
     if matches!(solver.op, 8 | 9) && rng.chance(0.6) {
         let i = rng.below(nv as u64) as usize;
-        if let (Some(ObjIn::Vertex { p, tol }), Some(v0)) =
-            (objects.get(i), solver.vecs.first_mut())
-        {
-            let off = scale3(
-                unit(rp(rng, 1.0)),
-                *rng.choose(&[0.0, 0.5, 1.0, 2.0]).unwrap_or(&0.0) * (*tol + solver.tol),
-            );
+        if let (Some(ObjIn::Vertex { p, tol }), Some(v0)) = (objects.get(i), solver.vecs.first_mut()) {
+            let off = scale3(unit(rp(rng, 1.0)), *rng.choose(&[0.0, 0.5, 1.0, 2.0]).unwrap_or(&0.0) * (*tol + solver.tol));
             let d = add(add(*p, off), scale3(point, -1.0));
             if d.iter().map(|x| x * x).sum::<f64>() > 1e-12 * s * s {
                 *v0 = unit(d);
@@ -1427,11 +1301,7 @@ fn gen_vertex_case(rng: &mut Rng) -> OpIn {
         } else {
             pair
         };
-        calls.push(if vv && pair.contains(&-1) {
-            [a, a]
-        } else {
-            pair
-        });
+        calls.push(if vv && pair.contains(&-1) { [a, a] } else { pair });
     }
     let pv = if !vv && rng.chance(0.3) {
         rng.below(nv as u64) as i64
@@ -1494,11 +1364,7 @@ fn gen_point_curve_case(rng: &mut Rng) -> OpIn {
     let vtx = objects.len() as i64;
     objects.push(ObjIn::Vertex {
         p: point,
-        tol: if rng.chance(0.5) {
-            0.0
-        } else {
-            gen_tol(rng, s)
-        },
+        tol: if rng.chance(0.5) { 0.0 } else { gen_tol(rng, s) },
     });
     let mut calls = Vec::new();
     let c0 = rng.below(nc as u64) as usize;
@@ -1508,19 +1374,11 @@ fn gen_point_curve_case(rng: &mut Rng) -> OpIn {
         None
     };
     for _ in 0..=rng.below(3) {
-        let c = if kind == 4 {
-            c0
-        } else {
-            rng.below(nc as u64) as usize
-        } as i64;
+        let c = if kind == 4 { c0 } else { rng.below(nc as u64) as usize } as i64;
         let other = if kind == 6 { vtx } else { -1 };
         calls.push(if swap { [c, other] } else { [other, c] });
     }
-    let pv = if kind != 6 && rng.chance(0.3) {
-        vtx
-    } else {
-        -1
-    };
+    let pv = if kind != 6 && rng.chance(0.3) { vtx } else { -1 };
     let owner = if kind == 4 && !edge_of.is_empty() && rng.chance(0.5) {
         edge_of.get(c0).copied().unwrap_or(-1)
     } else {
@@ -1748,25 +1606,17 @@ impl UnitDiff for Runner {
 /// Encodes a tree fixture for the p2 reference entry without duplicating the protocol.
 pub(super) fn p2_tree_input(case: &Case) -> Result<Vec<f64>, HarnessError> {
     let parsed: OpIn = case.parse()?;
-    if !matches!(parsed, OpIn::Trees { .. }) {
-        return Err(harness("p2 tree fixture requires op=trees"));
-    }
+    if !matches!(parsed, OpIn::Trees { .. }) { return Err(harness("p2 tree fixture requires op=trees")); }
     Ok(cpp_input(&parsed).1)
 }
 /// Decodes the shared reference result for the p2 runner.
-pub(super) fn p2_tree_output(flat: &[f64]) -> Output {
-    to_output(flat)
-}
+pub(super) fn p2_tree_output(flat: &[f64]) -> Output { to_output(flat) }
 /// Generates a bounded tree fixture, seeded independently by the p2 unit id.
-pub(super) fn p2_tree_generate(rng: &mut Rng) -> Option<Value> {
-    serde_json::to_value(gen_trees_case(rng)).ok()
-}
+pub(super) fn p2_tree_generate(rng: &mut Rng) -> Option<Value> { serde_json::to_value(gen_trees_case(rng)).ok() }
 
 /// Encodes a p2 local fixture using the shared object-construction protocol.
 pub(super) fn p2_local_input(case: &Case) -> Result<Vec<f64>, HarnessError> {
     let parsed: OpIn = case.parse()?;
-    if !matches!(parsed, OpIn::Local { .. }) {
-        return Err(harness("p2 local fixture requires op=local"));
-    }
+    if !matches!(parsed, OpIn::Local { .. }) { return Err(harness("p2 local fixture requires op=local")); }
     Ok(cpp_input(&parsed).1)
 }

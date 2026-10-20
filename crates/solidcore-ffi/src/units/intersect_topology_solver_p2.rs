@@ -9,13 +9,6 @@ mod sys {
     extern "C" {
         pub fn sc_intersect_topology_solver_p2_empty_lists(results: *mut i64) -> i32;
         pub fn sc_intersect_topology_solver_p2_edge_vertex_operand() -> i32;
-        pub fn sc_intersect_topology_solver_p2_static_fixture(
-            input: *const f64,
-            n_in: i64,
-            out: *mut f64,
-            cap: i64,
-            out_len: *mut i64,
-        ) -> i32;
         pub fn sc_intersect_topology_solver_p2_static(
             input: *const f64,
             n_in: i64,
@@ -109,7 +102,13 @@ pub fn eval_local(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     })
 }
 
-fn validate_static(input: &[f64]) -> Result<(), FfiError> {
+/// Runs bounded static topology entrypoints on shell-vertex B-reps or empty shapes.
+/// Header: entry, operation, request, tolerance, best, n1, n2, query xyz, vertices xyz;
+/// the final two flags select swapped arguments and inclusion without a shape limit.
+///
+/// # Errors
+/// Malformed/nonfinite/unbounded input, or a reference construction failure.
+pub fn eval_static(input: &[f64]) -> Result<Vec<f64>, FfiError> {
     let invalid = || FfiError::InvalidArgument("unsafe topology p2 static fixture".into());
     let Some(&[entry, operation, request, tolerance, best, n1, n2, _, _, _]) = input.get(..10)
     else {
@@ -141,17 +140,6 @@ fn validate_static(input: &[f64]) -> Result<(), FfiError> {
     {
         return Err(invalid());
     }
-    Ok(())
-}
-
-/// Runs bounded static topology entrypoints on shell-vertex B-reps or empty shapes.
-/// Header: entry, operation, request, tolerance, best, n1, n2, query xyz, vertices xyz;
-/// the final two flags select swapped arguments and inclusion without a shape limit.
-///
-/// # Errors
-/// Malformed/nonfinite/unbounded input, or a reference construction failure.
-pub fn eval_static(input: &[f64]) -> Result<Vec<f64>, FfiError> {
-    validate_static(input)?;
     call_with_buffer(1024, |out, len| {
         // SAFETY: the complete fixed header, bounded counts and finite payload are
         // validated above; the reference copies only within the supplied capacity.
@@ -165,136 +153,6 @@ pub fn eval_static(input: &[f64]) -> Result<Vec<f64>, FfiError> {
             )
         }
     })
-}
-
-/// Input-only graph and query metadata of one native static fixture B-rep.
-#[derive(Debug)]
-pub struct StaticBrepFixture {
-    /// Shared topology graph, including its success prefix.
-    pub graph: Vec<f64>,
-    /// Native lists, tolerances, geometry kinds, owner links and face state.
-    pub query_metadata: Vec<f64>,
-    /// The exact face created for this operand, absent for entries 0–4.
-    pub face: Option<u32>,
-    /// Original query vertices in input order, as graph registry ids.
-    pub vertices: Vec<u32>,
-    /// Edge reached by the query curve's real owner chain (entry 7 only).
-    pub curve_edge: Option<u32>,
-}
-
-fn invalid_fixture() -> FfiError {
-    FfiError::InvalidArgument("malformed topology p2 native fixture export".into())
-}
-
-struct FixtureReader<'a> {
-    values: &'a [f64],
-    at: usize,
-}
-impl FixtureReader<'_> {
-    fn number(&mut self) -> Result<f64, FfiError> {
-        let value = *self.values.get(self.at).ok_or_else(invalid_fixture)?;
-        self.at += 1;
-        if !value.is_finite() {
-            return Err(invalid_fixture());
-        }
-        Ok(value)
-    }
-    fn count(&mut self) -> Result<usize, FfiError> {
-        let value = self.number()?;
-        if value < 0.0
-            || value.fract() != 0.0
-            || value > self.values.len().saturating_sub(self.at) as f64
-        {
-            return Err(invalid_fixture());
-        }
-        Ok(value as usize)
-    }
-    fn block(&mut self) -> Result<Vec<f64>, FfiError> {
-        let count = self.count()?;
-        let end = self.at.checked_add(count).ok_or_else(invalid_fixture)?;
-        let block = self
-            .values
-            .get(self.at..end)
-            .ok_or_else(invalid_fixture)?
-            .to_vec();
-        self.at = end;
-        Ok(block)
-    }
-    fn id(&mut self, count: usize) -> Result<Option<u32>, FfiError> {
-        let value = self.number()?;
-        if value == -1.0 {
-            return Ok(None);
-        }
-        if value < 0.0
-            || value.fract() != 0.0
-            || value >= count as f64
-            || value > f64::from(u32::MAX)
-        {
-            return Err(invalid_fixture());
-        }
-        Ok(Some(value as u32))
-    }
-    fn brep(&mut self, vertex_count: usize) -> Result<StaticBrepFixture, FfiError> {
-        let graph = self.block()?;
-        let counts = super::topology_edgeuse_p1::counts(&graph).ok_or_else(invalid_fixture)?;
-        let query_metadata = self.block()?;
-        let face = self.id(counts[3])?;
-        let count = self.count()?;
-        if count != vertex_count {
-            return Err(invalid_fixture());
-        }
-        let mut vertices = Vec::with_capacity(count);
-        for _ in 0..count {
-            vertices.push(self.id(counts[9])?.ok_or_else(invalid_fixture)?);
-        }
-        let curve_edge = self.id(counts[7])?;
-        Ok(StaticBrepFixture {
-            graph,
-            query_metadata,
-            face,
-            vertices,
-            curve_edge,
-        })
-    }
-}
-
-/// Export the exact native input B-reps used by [`eval_static`], before running
-/// any topology solve. The versioned envelope contains two length-prefixed graph
-/// and query-metadata pairs, followed by the selected face/vertex/curve-owner ids.
-/// It includes no reference solutions, classifications or expected statuses.
-///
-/// # Errors
-/// The same input/setup errors as [`eval_static`], or a malformed export envelope.
-pub fn static_fixture(input: &[f64]) -> Result<[StaticBrepFixture; 2], FfiError> {
-    validate_static(input)?;
-    let values = call_with_buffer(4096, |out, len| {
-        // SAFETY: the common validator bounds every constructor input; the shim
-        // uses the same constructors as eval_static and checks output capacity.
-        unsafe {
-            sys::sc_intersect_topology_solver_p2_static_fixture(
-                input.as_ptr(),
-                input.len() as i64,
-                out.as_mut_ptr(),
-                out.len() as i64,
-                &raw mut *len,
-            )
-        }
-    })?;
-    let mut reader = FixtureReader {
-        values: &values,
-        at: 0,
-    };
-    if reader.number()? != 1.0 {
-        return Err(invalid_fixture());
-    }
-    let n1 = *input.get(5).ok_or_else(invalid_fixture)? as usize;
-    let n2 = *input.get(6).ok_or_else(invalid_fixture)? as usize;
-    let first = reader.brep(n1)?;
-    let second = reader.brep(n2)?;
-    if reader.at != values.len() {
-        return Err(invalid_fixture());
-    }
-    Ok([first, second])
 }
 
 /// Whether the native vertex selected as a curve by `EdgeVertex` is a curve.
@@ -382,42 +240,6 @@ mod tests {
             }
         }
     }
-    #[test]
-    fn native_static_export_keeps_created_face_topology_and_query_owner() {
-        for entry in 5..=8 {
-            let input = [
-                f64::from(entry),
-                3.0,
-                1.0,
-                1e-5,
-                1e30,
-                1.0,
-                1.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                1.0,
-                0.0,
-                1.0,
-            ];
-            let [first, second] = static_fixture(&input).unwrap();
-            for brep in [&first, &second] {
-                let counts = super::super::topology_edgeuse_p1::counts(&brep.graph).unwrap();
-                assert_eq!(brep.vertices.len(), 1);
-                assert!(brep.face.is_some());
-                assert!(counts[6] >= 4 && counts[7] >= 4 && counts[9] >= 4);
-                assert!(brep.query_metadata.len() > 10);
-            }
-            assert_eq!(first.curve_edge.is_some(), entry == 7);
-            assert!(second.curve_edge.is_none());
-        }
-    }
-
     #[test]
     fn cpp_empty_object_lists_succeed_in_both_orders() {
         assert_eq!(empty_list_results().unwrap(), [0, 0, 0, 0]);

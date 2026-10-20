@@ -20,9 +20,6 @@
 //!   geometry by plain B-splines first (what the Rust import rebuilds); the Rust side
 //!   imports the C++ export (the `topology.vertexuse` importer) and restores each
 //!   vertex's vertex use order from the shim.
-//!   Native query metadata comes from that same prepared fixture. Region queries
-//!   retain one live B-rep identity and persistent shell marks across the script,
-//!   including recursive healing; geometry guards run only at the actual queries.
 //!
 //! Deferred: `Fix_TolSizes` (`SmBrep::GetThisModelSizeEstimate`, `topology.brep_p1`),
 //! `Cache_DegenFaces` with a face (`SmFace::IsDegenerate` classifies its edges with
@@ -46,19 +43,15 @@ use solidcore::heal::heal_data::p2::{
 };
 use solidcore::intersect::point_class::{ClassObject, ClassObjectKind};
 use solidcore::kernel::Kernel;
-use solidcore::topology::brep_cache::arena_identity;
 use solidcore::topology::topology_traverser::Marks;
 use solidcore::topology::{
-    Arena, Brep, BrepId, EdgeId, EdgeuseId, FaceId, LoopId, RegionId, VertexId, VertexuseId,
+    Brep, EdgeId, EdgeuseId, FaceId, LoopId, RegionId, VertexId, VertexuseId,
 };
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::heal_heal_data_p2 as ffi;
 use solidcore_ffi::units::topology_vertexuse::counts;
 
-use super::topology_shell::RayQueryContext;
-use super::topology_vertexuse::{
-    apply_query_metadata, gen_brep, import, path_of, push_curve, push_surface, BrepIn,
-};
+use super::topology_vertexuse::{gen_brep, import, path_of, push_curve, push_surface, BrepIn};
 use crate::case::CaseContext;
 use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -1265,21 +1258,6 @@ fn rust_heal(
     // each vertex's vertex use order and the cached gaps, as upstream has them
     let extra = ffi::vertex_lists(&path, &block).map_err(|e| harness(format!("c++ lists: {e}")))?;
     restore(&mut b, &extra, c)?;
-    let raw_metadata = ffi::query_metadata(&path, &block)
-        .map_err(|e| harness(format!("c++ query metadata: {e}")))?;
-    let metadata = apply_query_metadata(&mut b, &raw_metadata, &arena_identity)?;
-    // The native script constructs SmHealData over this live B-rep before any
-    // step, including a later HealBrep(NULL). Its imported lists must be exact;
-    // geometry limitations remain guarded only at their actual reads.
-    if let Some(output) = metadata.deferred_output_for(false, false) {
-        return Ok(output);
-    }
-    let mut breps = Arena::<BrepId, Brep>::default();
-    let brep_id = breps.insert(b).map_err(|e| harness(e.to_string()))?;
-    let b = breps
-        .get_mut(brep_id)
-        .ok_or_else(|| harness("missing registered healer B-rep"))?;
-    let mut queries = RayQueryContext::new(b, brep_id, metadata, arena_identity);
 
     let mut k = Kernel::default();
     let mut marks = Marks::default();
@@ -1359,18 +1337,20 @@ fn rust_heal(
             };
         o.push(f64::from(code));
         let r: Result<bool, SolidError> = match s {
-            Step::CacheEdgeProps => h.cache_edge_props(&k, b, HealerOpType::CacheEdgeprops),
-            Step::CacheVertexProps => h.cache_vertex_props(&k, b, HealerOpType::CacheVertexprops),
+            Step::CacheEdgeProps => h.cache_edge_props(&k, &mut b, HealerOpType::CacheEdgeprops),
+            Step::CacheVertexProps => {
+                h.cache_vertex_props(&k, &mut b, HealerOpType::CacheVertexprops)
+            }
             Step::CacheFacePropsGaps => {
-                h.cache_face_props_gaps(&k, b, HealerOpType::CacheFacepropsGaps)
+                h.cache_face_props_gaps(&k, &mut b, HealerOpType::CacheFacepropsGaps)
             }
             Step::FixTolSizes => h
-                .fix_tol_sizes(&mut k, b, HealerOpType::FixTolsizes)
+                .fix_tol_sizes(&mut k, &mut b, HealerOpType::FixTolsizes)
                 .map(|()| false),
             Step::CacheCoinVertices => {
-                h.cache_coin_vertices(&k, b, HealerOpType::CacheCoinVertices)
+                h.cache_coin_vertices(&k, &b, HealerOpType::CacheCoinVertices)
             }
-            Step::CacheDegenFaces => h.cache_degen_faces(&k, b, HealerOpType::CacheDegenFaces),
+            Step::CacheDegenFaces => h.cache_degen_faces(&k, &mut b, HealerOpType::CacheDegenFaces),
             Step::CacheCoinEdges => Ok(h.cache_coin_edges(HealerOpType::CacheCoinEdges)),
             Step::FixCoinEdges => h.fix_coin_edges(HealerOpType::FixCoinEdges).map(|()| false),
             Step::CacheMissedEdgeXsects => {
@@ -1513,35 +1493,30 @@ fn rust_heal(
                 }
             }
             Step::CacheFacePropsStage2 => {
-                h.cache_face_props_stage2(&k, b, HealerOpType::CacheFaceprops2)
+                h.cache_face_props_stage2(&k, &b, HealerOpType::CacheFaceprops2)
             }
             Step::CacheFacePropsStage3 => {
-                h.cache_face_props_stage3(&k, b, HealerOpType::CacheFaceprops3)
+                h.cache_face_props_stage3(&k, &b, HealerOpType::CacheFaceprops3)
             }
             Step::FixBadSheets => {
                 let mut lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, ALL_MARKS)
                     .map_err(|e| harness(format!("mark lock: {e}")))?;
-                // harness env: the runner holds no attribute state (default region
-                // records, empty store; see RegionNotifyState)
-                let mut state = solidcore::topology::brep::p2::RegionNotifyState::new(b);
                 let r = h.fix_bad_sheets(
                     &mut k,
-                    b,
+                    &mut b,
                     &mut marks,
-                    &mut state.env(),
                     &lock,
                     HealerOpType::FixBadsheets,
-                    &mut queries,
                 );
                 lock.release(std::slice::from_mut(&mut k.context))
                     .map_err(|e| harness(format!("mark lock: {e}")))?;
                 r.map(|()| false)
             }
             Step::MakeUvTrimCurves { make } => h
-                .make_uv_trim_curves(&k, b, *make, HealerOpType::MakeUvtrimcurves)
+                .make_uv_trim_curves(&k, &mut b, *make, HealerOpType::MakeUvtrimcurves)
                 .map(|()| false),
             Step::FixInfiniteRegion => h
-                .fix_infinite_region(b, HealerOpType::FixInfiniteRegions)
+                .fix_infinite_region(&mut b, HealerOpType::FixInfiniteRegions)
                 .map(|()| false),
             Step::HealBrep {
                 mode,
@@ -1562,12 +1537,11 @@ fn rust_heal(
                         edges: Some(e),
                         faces: Some(f),
                     });
-                let brep = if *mode == 0 { None } else { Some(&mut *b) };
-                h.heal_brep(&mut k, brep, op, t, *make, &mut queries)
-                    .map(|()| false)
+                let brep = if *mode == 0 { None } else { Some(&mut b) };
+                h.heal_brep(&mut k, brep, op, t, *make).map(|()| false)
             }
             Step::HealTargets { op, make } => {
-                let r = h.heal_targets(&mut k, b, op_of(i64::from(*op)), *make, &mut queries);
+                let r = h.heal_targets(&mut k, &mut b, op_of(i64::from(*op)), *make);
                 o.extend([
                     h.stop_heal_op.code() as f64,
                     h.done_heal_op.code() as f64,
@@ -1640,7 +1614,7 @@ fn rust_heal(
                         "target/props drift or incremental catch-up before voxel initialization",
                     ))
                 } else {
-                    h.update_target_lists(&mut k, b, &rm, &add, op_of(i64::from(*op)), &mut queries)
+                    h.update_target_lists(&mut k, &mut b, &rm, &add, op_of(i64::from(*op)))
                         .map(|()| false)
                 }
             }
@@ -1687,34 +1661,26 @@ fn rust_heal(
                 Ok(false)
             }
             Step::FixCoinVertices => h
-                .fix_coin_vertices(&mut k, b, HealerOpType::FixCoinVertices, &mut queries)
+                .fix_coin_vertices(&mut k, &mut b, HealerOpType::FixCoinVertices)
                 .map(|()| false),
             Step::FixDegenFaces => h
-                .fix_degen_faces(&mut k, b, HealerOpType::FixDegenFaces, &mut queries)
+                .fix_degen_faces(&mut k, &mut b, HealerOpType::FixDegenFaces)
                 .map(|()| false),
             Step::FixDegenEdges => h
-                .fix_degen_edges(&mut k, b, HealerOpType::FixDegenEdges, &mut queries)
+                .fix_degen_edges(&mut k, &mut b, HealerOpType::FixDegenEdges)
                 .map(|()| false),
             Step::FixMoveSeam | Step::FixSplitEdgesAtSeam => {
                 let mut lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, ALL_MARKS)
                     .map_err(|e| harness(e.to_string()))?;
                 let r = if matches!(s, Step::FixMoveSeam) {
-                    h.fix_move_seam(
-                        &mut k,
-                        b,
-                        &mut marks,
-                        &lock,
-                        HealerOpType::FixMoveseam,
-                        &mut queries,
-                    )
+                    h.fix_move_seam(&mut k, &mut b, &mut marks, &lock, HealerOpType::FixMoveseam)
                 } else {
                     h.fix_split_edges_at_seam(
                         &mut k,
-                        b,
+                        &mut b,
                         &mut marks,
                         &lock,
                         HealerOpType::FixSplitedgeAtseam,
-                        &mut queries,
                     )
                 };
                 lock.release(std::slice::from_mut(&mut k.context))
@@ -1722,19 +1688,22 @@ fn rust_heal(
                 r.map(|()| false)
             }
             Step::FixSplitFaceAtSeams => h
-                .fix_split_face_at_seams(&mut k, b, HealerOpType::FixSplitfaceAtseams, &mut queries)
+                .fix_split_face_at_seams(&mut k, &mut b, HealerOpType::FixSplitfaceAtseams)
                 .map(|()| false),
             Step::UpdateTracked { active, op } => {
-                use solidcore::topology::topology::TrackTopologyChanges;
-                let mut tracker =
-                    TrackTopologyChanges::new(Some(brep_id), 123, *active, Some(&mut k.context));
+                use solidcore::topology::{topology::TrackTopologyChanges, BrepId};
+                let mut tracker = TrackTopologyChanges::new(
+                    Some(BrepId::from_index(0)),
+                    123,
+                    *active,
+                    Some(&mut k.context),
+                );
                 let r = h.update_tracked_targets(
                     &mut k,
-                    b,
+                    &mut b,
                     &tracker,
                     |_| None,
                     op_of(i64::from(*op)),
-                    &mut queries,
                 );
                 tracker.stop_tracking(Some(&mut k.context));
                 r.map(|()| false)
@@ -1775,32 +1744,24 @@ fn rust_heal(
                 break;
             }
             Ok(new_probs) => o.extend([0.0, flag(new_probs)]),
-            Err(e) => {
-                if matches!(&e, SolidError::Unported { unit, .. } if *unit == "harness:analytic-geometry-export")
-                {
-                    if let Some(output) = queries.metadata().deferred_output() {
-                        return Ok(output);
-                    }
+            Err(e) => match classify(e) {
+                Fail::NullDeref => {
+                    o.push(NULL_DEREF);
+                    stop = true;
+                    break;
                 }
-                match classify(e) {
-                    Fail::NullDeref => {
-                        o.push(NULL_DEREF);
-                        stop = true;
-                        break;
-                    }
-                    Fail::Status(code) => {
-                        o.extend([f64::from(code), 0.0]);
-                        stop = true;
-                        break;
-                    }
-                    Fail::Deferred(d) => return Ok(d),
-                    Fail::Other(m) => return Ok(Output::err(m)),
+                Fail::Status(code) => {
+                    o.extend([f64::from(code), 0.0]);
+                    stop = true;
+                    break;
                 }
-            }
+                Fail::Deferred(d) => return Ok(d),
+                Fail::Other(m) => return Ok(Output::err(m)),
+            },
         }
     }
     if !stop {
-        if let Err(e) = dump(&h, b, &mut o) {
+        if let Err(e) = dump(&h, &b, &mut o) {
             return Ok(match classify(e) {
                 Fail::Deferred(d) => d,
                 _ => Output::err("dump failed"),

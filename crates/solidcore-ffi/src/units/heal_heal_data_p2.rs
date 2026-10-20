@@ -16,7 +16,6 @@
 //! | `VertexLists` | block | `0`, per vertex its vertex use list (`len vu*`), then the cached gap records of every edge use (`init gap eu0 eu1 t0 t1`, `init gap eu t u v`) and vertex use (`init gap vu t`, `init gap vu u v`); or `-1 status` |
 //! | `Prob`   | `kind n nops (code a b c)*` | per op `code result` (`-2`: upstream would read past the end or a null member, and nothing follows), then `-100`, the array (`size elem* orig get_op labels`), `coin_pair_cnt orig`, and per object its 18 flags, 2 mixed and 3 tried members |
 //! | `Heal`   | block `targets vx vy vz nsteps step*` | `0`, per step `code` and its outputs, then `-100` and the healer's state (layout in the difftest runner); or `-1 status` |
-//! | `QueryMetadata` | block | native lists, concrete types and direct owners after the same fixture preparation (`sc_brep_query_metadata.h`) |
 //!
 //! `targets` is `nv sel* ne sel* nf sel*` (selectors modulo the B-rep's counts). A
 //! `Prob` `kind` is `0` `SmProbArray`, `1` `SmPairProbArray`, `2` `SmMixedProbArray`,
@@ -59,7 +58,6 @@ pub enum Op {
     Prob = 1,
     Heal = 2,
     VertexLists = 3,
-    QueryMetadata = 4,
 }
 
 mod sys {
@@ -193,17 +191,6 @@ pub fn export(path: &str, block: &[f64]) -> Result<Vec<f64>, FfiError> {
 pub fn vertex_lists(path: &str, block: &[f64]) -> Result<Vec<f64>, FfiError> {
     check_block(path, block)?;
     raw(Op::VertexLists, path, block)
-}
-
-/// Query metadata from the same prepared fixture as [`export`] and the heal script.
-/// This preserves the existing fixture's normalization; it adds no geometry changes.
-///
-/// # Errors
-///
-/// As [`export`].
-pub fn query_metadata(path: &str, block: &[f64]) -> Result<Vec<f64>, FfiError> {
-    check_block(path, block)?;
-    raw(Op::QueryMetadata, path, block)
 }
 
 /// Checks a problem array script: `kind n nops (code a b c)*`. Codes: `0` `Setup(a,

@@ -548,17 +548,14 @@ pub struct Brep {
     validate_only: bool,
     /// `m_sThisZoneTol3d` (CO-PORTED by `topology.edgeuse_p2`): the B-rep's tolerance.
     tolerance: f64,
-    /// `m_pLockedBoundingBox` (unit `query.brep`): the explicitly locked box.
+    /// A caller-locked bounding box; copies intentionally do not inherit it.
     pub(crate) locked_bounding_box: Option<Extent3d>,
     /// The identity the B-rep is attributed and notified under (`SmBrep*`).
     key: ObjectKey,
     /// `SmOwningTopology::m_pList` of the B-rep (unit `topology.brep_p1`): the head of
-    /// its circular region list, `None` for the first listed region during record
-    /// construction. Changing the head rotates the list without changing its links.
+    /// its circular region list, `None` for the first region record (the region arena
+    /// holds the list in traversal order; the head only rotates it).
     region_list_head: Option<RegionId>,
-    /// Region list links in circular order, independent of the append-only arena.
-    /// A new attached record joins the tail relative to `region_list_head`.
-    region_list: Vec<RegionId>,
     /// `m_pFaceListHead` (unit `topology.brep_p1`): the face list in its list order
     /// (every face record, once; an importer may reorder it). Upstream appends on
     /// `PostInsert` and unlinks on `Remove`: a record deletion (`DeleteFace` /
@@ -602,7 +599,6 @@ impl Clone for Brep {
             locked_bounding_box: None,
             key: self.key,
             region_list_head: self.region_list_head,
-            region_list: self.region_list.clone(),
             face_list: self.face_list.clone(),
             edge_list: self.edge_list.clone(),
             vertex_list: self.vertex_list.clone(),
@@ -633,7 +629,6 @@ impl Default for Brep {
             locked_bounding_box: None,
             key: ObjectKey(0),
             region_list_head: None,
-            region_list: Vec::new(),
             face_list: Vec::new(),
             edge_list: Vec::new(),
             vertex_list: Vec::new(),
@@ -670,7 +665,7 @@ impl Brep {
     pub fn new_with_infinite_region() -> Result<Self> {
         let mut b = Self::default();
         // Create infinite region and put into brep's region list
-        let r = b.add_region_record(Region {
+        let r = b.regions.insert(Region {
             in_brep: true,
             shells: Vec::new(),
             is_void: 1,
@@ -940,27 +935,9 @@ impl Brep {
         self.key = key;
     }
 
-    /// Appends a region record as is. An attached record also joins the tail of
-    /// the B-rep's circular region list (`SmOwningTopology::PostInsert`), keeping
-    /// its arena id independent of list order. Detached records are not listed.
+    /// Appends a region record as is (no validation).
     pub fn add_region_record(&mut self, region: Region) -> Result<RegionId> {
-        let attached = region.in_brep;
-        let id = self.regions.insert(region)?;
-        if attached {
-            // Inserting just before the current head appends to its traversal.
-            // None retains the construction convention of the first list item;
-            // a friend-write head referring to a later record is not resolved here.
-            let position = self
-                .region_list_head
-                .and_then(|head| self.region_list.iter().position(|&region| region == head));
-            match position {
-                // The start and end are adjacent in the circular list. Avoid
-                // shifting every existing item when the head is the first one.
-                None | Some(0) => self.region_list.push(id),
-                Some(position) => self.region_list.insert(position, id),
-            }
-        }
-        Ok(id)
+        self.regions.insert(region)
     }
 
     /// Appends a shell record as is (no validation).
@@ -1110,45 +1087,6 @@ mod tests {
     use crate::math::Vec3;
 
     #[test]
-    fn infinite_region_constructor_initializes_the_native_list() {
-        let mut b = Brep::new_with_infinite_region().unwrap();
-        let infinite = b.infinite_region().unwrap();
-        assert_eq!(brep::p1::regions(&b, None).unwrap(), vec![infinite]);
-        assert_eq!(b.region_list_head(), Some(infinite));
-        assert_eq!(b.region(infinite).unwrap().is_void, 1);
-
-        let next = b
-            .add_region_record(Region {
-                in_brep: true,
-                ..Region::default()
-            })
-            .unwrap();
-        assert_eq!(brep::p1::regions(&b, None).unwrap(), vec![infinite, next]);
-        assert_eq!(b.infinite_region(), Some(infinite));
-    }
-
-    #[test]
-    fn copied_brep_does_not_reuse_the_original_locked_box() {
-        use crate::query::brep::{calculate_loose_bounding_box, lock_bounding_box};
-
-        let k = crate::kernel::Kernel::default();
-        let mut original = Brep::new();
-        let vertex = original.add_vertex(Vec3::ZERO).unwrap();
-        lock_bounding_box(&k, &mut original, false).unwrap();
-        let original_box = calculate_loose_bounding_box(&k, &original, false, true).unwrap();
-
-        let mut copied = original.clone();
-        assert!(copied.locked_bounding_box.is_none());
-        copied.vertex_mut(vertex).unwrap().point = Vec3::new(10.0, 20.0, 30.0);
-        let copied_box = calculate_loose_bounding_box(&k, &copied, false, true).unwrap();
-        assert!(copied_box.min().x > original_box.max().x);
-        assert_eq!(
-            calculate_loose_bounding_box(&k, &original, false, true).unwrap(),
-            original_box
-        );
-    }
-
-    #[test]
     fn build_single_triangle_face() {
         let mut b = Brep::new();
         let s = b.add_shell().unwrap();
@@ -1185,6 +1123,35 @@ mod tests {
         assert_eq!(b.edge(e2).unwrap().vertices, [v[0], v[2]]);
         let (first_id, first) = b.vertices().iter().next().unwrap();
         assert_eq!((first_id, first.point), (v[0], Vec3::ZERO));
+    }
+
+    #[test]
+    fn brep_copy_keeps_geometry_but_releases_locked_bounds() {
+        use crate::kernel::Kernel;
+        use crate::query::brep::{calculate_loose_bounding_box, lock_bounding_box};
+
+        let kernel = Kernel::default();
+        let mut original = Brep::new();
+        let vertex = original.add_vertex(Vec3::ZERO).unwrap();
+        original.vertex_mut(vertex).unwrap().tolerance = 0.0;
+        lock_bounding_box(&kernel, &mut original, false).unwrap();
+        original.vertex_mut(vertex).unwrap().point = Vec3::new(10.0, 20.0, 30.0);
+
+        let copied = original.clone();
+        assert!(original.locked_bounding_box.is_some());
+        assert!(copied.locked_bounding_box.is_none());
+        assert_eq!(copied.key(), original.key());
+        assert_eq!(copied.tolerance(), original.tolerance());
+        assert_eq!(
+            copied.vertex(vertex).unwrap().point,
+            Vec3::new(10.0, 20.0, 30.0)
+        );
+        let retained = calculate_loose_bounding_box(&kernel, &original, false, false).unwrap();
+        let recomputed = calculate_loose_bounding_box(&kernel, &copied, false, false).unwrap();
+        assert_eq!(retained.min(), Vec3::ZERO);
+        assert_eq!(retained.max(), Vec3::ZERO);
+        assert_eq!(recomputed.min(), Vec3::new(10.0, 20.0, 30.0));
+        assert_eq!(recomputed.max(), Vec3::new(10.0, 20.0, 30.0));
     }
 
     #[test]

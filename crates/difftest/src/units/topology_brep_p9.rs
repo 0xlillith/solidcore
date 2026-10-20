@@ -3,29 +3,23 @@
 //! Initial graphs are exported before either operation. Split refusals compare
 //! their retained endpoint as well as the complete semantic topology/geometry
 //! snapshot. Successful native mutations on deferred paths are not parity passes.
-use super::boolean_merge_p1::{graph, Canon};
+use super::boolean_merge_p1::graph;
 use super::topology_edgeuse_p1::{self as spec, BrepIn};
-use super::topology_shell::RayQueryContext;
-use super::topology_vertexuse::{apply_query_metadata, import, QueryMetadata};
+use super::topology_vertexuse::import;
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use solidcore::curve::curve::Curve;
 use solidcore::curve::line::Line;
 use solidcore::geom::extent1d::Extent1d;
-use solidcore::geom::object::ObjectRef;
 use solidcore::geom::tol::zone_tol3d;
 use solidcore::geom::vector2d::Point2;
 use solidcore::kernel::Kernel;
 use solidcore::math::Vec3;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
-use solidcore::topology::brep::{p2 as brep2, p6::RegionSplitQueries, p9 as port};
-use solidcore::topology::brep_cache::{self, BrepCache, CacheObject, CacheSource};
-use solidcore::topology::shell::{ShellRayAttempt, ShellRayInput, ShellRayState};
-use solidcore::topology::{
-    Arena, ArenaId, Brep, BrepId, EdgeId, FaceId, RegionId, ShellId, VertexuseId,
-};
-use solidcore::{EntityRef, SolidError};
+use solidcore::topology::brep::p9 as port;
+use solidcore::topology::{ArenaId, EdgeId, FaceId, RegionId, VertexuseId};
+use solidcore::SolidError;
 use solidcore_ffi::units::topology_brep_p9 as ffi;
 
 /// Differential runner for `topology.brep_p9`.
@@ -152,158 +146,7 @@ fn request<'a>(i: &Inputs, path: &'a str, block: &'a [f64]) -> ffi::Request<'a> 
 fn target<I: ArenaId>(count: usize, selector: u8) -> Option<I> {
     (count > 0).then(|| I::from_index(u32::from(selector) % count as u32))
 }
-
-// The query registry is independent of notification records used by the mutation
-// cases. Native metadata installs only the exact direct owners it actually found.
-fn query_key(object: CacheObject) -> ObjectRef {
-    let mut identity = brep_cache::arena_identity(object);
-    identity.key = solidcore::geom::attribute::ObjectKey(
-        ((identity.type_code as u64) << 32) | (identity.key.0 + 1),
-    );
-    identity
-}
-
-/// One registered B-rep, with persistent shell marks and a lazily built cache.
-/// Trim creation borrows the live B-rep; it never clones geometry or resets marks.
-struct InfiniteQueries {
-    id: BrepId,
-    shell: RayQueryContext,
-    cache: Option<BrepCache>,
-}
-
-impl InfiniteQueries {
-    fn new(brep: &Brep, id: BrepId, metadata: QueryMetadata) -> Self {
-        Self {
-            id,
-            shell: RayQueryContext::new(brep, id, metadata, query_key),
-            cache: None,
-        }
-    }
-}
-
-impl RegionSplitQueries for InfiniteQueries {
-    fn check_geometry(
-        &mut self,
-        brep: &Brep,
-        read_curves: bool,
-        read_surfaces: bool,
-    ) -> solidcore::Result<()> {
-        self.shell.check_geometry(brep, read_curves, read_surfaces)
-    }
-
-    fn ray_fire(
-        &mut self,
-        kernel: &mut Kernel,
-        brep: &mut Brep,
-        shell: ShellId,
-        input: ShellRayInput<EntityRef>,
-    ) -> ShellRayAttempt<EntityRef> {
-        self.shell.ray_fire(kernel, brep, shell, input)
-    }
-}
-
-impl port::InfiniteRegionQueries for InfiniteQueries {
-    fn brep_ray_fire(
-        &mut self,
-        kernel: &mut Kernel,
-        brep: &mut Brep,
-        input: ShellRayInput<EntityRef>,
-    ) -> ShellRayAttempt<EntityRef> {
-        let mut output = brep2::RayFireResult {
-            region: input.state.region,
-            intersection: input.state.classification,
-        };
-        let status = (|| {
-            self.shell.metadata().require_geometry()?;
-            let cache = &mut self.cache;
-            // This closure is called only after RayFire's bounding box, sphere
-            // and unit direction. Publish the cache only after BuildTrees succeeds.
-            brep2::ray_fire_with_cache_into(
-                kernel,
-                brep,
-                self.id,
-                |brep| {
-                    if cache.is_none() {
-                        *cache = Some(brep_cache::make_brep_cache(
-                            kernel,
-                            CacheSource::Brep(brep),
-                            &query_key,
-                        )?);
-                    }
-                    cache.as_ref().ok_or_else(|| {
-                        SolidError::invalid_input("difftest::brep_p9", "missing built cache")
-                    })
-                },
-                &query_key,
-                &|_| None,
-                input.start,
-                input.direction,
-                input.zone_tolerance,
-                None,
-                &mut output,
-            )
-        })();
-        ShellRayAttempt {
-            status,
-            state: ShellRayState {
-                region: output.region,
-                classification: output.intersection,
-            },
-        }
-    }
-}
-
-fn rust_infinite_region(i: &Inputs, fixture: &ffi::QueryFixture) -> Result<Output, HarnessError> {
-    let (mut brep, _) = import(
-        fixture
-            .initial
-            .get(2..)
-            .ok_or_else(|| error("missing initial query export"))?,
-    )?;
-    let metadata = apply_query_metadata(&mut brep, &fixture.metadata, &query_key)?;
-    if let Some(output) = metadata.deferred_output_for(false, false) {
-        return Ok(output);
-    }
-    // As native, fixture preparation precedes the caller's editing flag.
-    brep.set_editing_enabled(i.editing);
-    let mut breps: Arena<BrepId, Brep> = Arena::default();
-    let brep_id = breps.insert(brep).map_err(|e| error(&e))?;
-    let brep = breps
-        .get_mut(brep_id)
-        .ok_or_else(|| error("inserted B-rep is absent from its arena"))?;
-    let mut queries = InfiniteQueries::new(brep, brep_id, metadata);
-    let mut kernel = Kernel::default();
-    match port::find_infinite_region(&mut kernel, brep, None, None, &mut queries) {
-        Ok(region) => {
-            let mut record = vec![0.0, id(region)];
-            canon_record(brep, i.op, &mut record)?;
-            graph(brep, record)
-        }
-        Err(SolidError::Upstream { code, .. }) => {
-            // FindInfiniteRegion keeps its public output NULL until success;
-            // partial classifications/regions belong only to its internal retries.
-            let mut record = vec![f64::from(code), -1.0];
-            canon_record(brep, i.op, &mut record)?;
-            graph(brep, record)
-        }
-        Err(error) => {
-            if matches!(
-                error,
-                SolidError::Unported {
-                    unit: "harness:analytic-geometry-export",
-                    ..
-                }
-            ) {
-                if let Some(output) = queries.shell.metadata().deferred_output() {
-                    return Ok(output);
-                }
-            }
-            status(&error)
-        }
-    }
-}
-
-fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
+fn rust(i: &Inputs, initial: &[f64], metadata: Option<&[f64]>) -> Result<Output, HarnessError> {
     let (mut b, _) = import(
         initial
             .get(2..)
@@ -311,6 +154,15 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
     )?;
     // As the shim, after setup and export: `b->m_bEditingEnabled = editing`.
     b.set_editing_enabled(i.editing);
+    let mut ray_context = metadata
+        .map(|raw| {
+            super::topology_shell::prepare_ray_context(
+                &mut b,
+                solidcore::topology::BrepId::from_index(0),
+                raw,
+            )
+        })
+        .transpose()?;
     let mut k = Kernel::default();
     let mut record = Vec::new();
     let mut records = std::collections::BTreeMap::new();
@@ -323,6 +175,23 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
     };
     let result: solidcore::Result<i32> = (|| {
         match i.op {
+            0 => {
+                let brep_id = solidcore::topology::BrepId::from_index(0);
+                let context = ray_context.as_mut().ok_or_else(|| {
+                    SolidError::invalid_input(
+                        "difftest::brep_p9::ray_metadata",
+                        "missing prepared query context",
+                    )
+                })?;
+                let mut world = context.world(&mut b);
+                record.push(id(port::find_infinite_region::<
+                    super::topology_shell::RayObject,
+                    _,
+                >(
+                    &mut k, brep_id, None, None, &mut world
+                )?));
+                Ok(0)
+            }
             1 => {
                 let face = if i.variant == 1 {
                     None
@@ -548,8 +417,7 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
     match result {
         Ok(code) => {
             record.insert(0, f64::from(code));
-            canon_record(&b, i.op, &mut record)?;
-            graph(&b, record)
+            Ok(graph(&b, record))
         }
         Err(SolidError::Upstream { code, .. }) if i.op <= 4 => {
             // These APIs clear their pointer outputs before the first fallible
@@ -563,14 +431,13 @@ fn rust(i: &Inputs, initial: &[f64]) -> Result<Output, HarnessError> {
             };
             record.resize(slots, -1.0);
             record.insert(0, f64::from(code));
-            canon_record(&b, i.op, &mut record)?;
-            graph(&b, record)
+            Ok(graph(&b, record))
         }
         Err(e) => status(&e),
     }
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Handle(EntityRef);
+struct Handle(solidcore::EntityRef);
 impl solidcore::intersect::point_class::ClassObject for Handle {
     fn class_kind(&self) -> solidcore::intersect::point_class::ClassObjectKind {
         use solidcore::intersect::point_class::ClassObjectKind as K;
@@ -584,42 +451,12 @@ impl solidcore::intersect::point_class::ClassObject for Handle {
         }
     }
 }
-/// Puts the B-rep ids of `record` (status first) in [`Canon`] numbering, the shim's
-/// `fresh.find` of a walk after the op.
-fn canon_record(b: &Brep, op: u8, record: &mut [f64]) -> Result<(), HarnessError> {
-    let c = Canon::of(b).map_err(|e| error(&e))?;
-    let mut map = |at: usize, f: &dyn Fn(f64) -> f64| {
-        if let Some(x) = record.get_mut(at) {
-            *x = f(*x);
-        }
-    };
-    match op {
-        0 => map(1, &|x| c.regions.of_slot(x)),
-        2 => {
-            map(1, &|x| c.shells.of_slot(x));
-            map(2, &|x| c.vertices.of_slot(x));
-        }
-        3 => {
-            map(1, &|x| c.loops.of_slot(x));
-            map(2, &|x| c.vertices.of_slot(x));
-        }
-        4 => {
-            map(1, &|x| c.edges.of_slot(x));
-            map(2, &|x| c.edges.of_slot(x));
-            map(3, &|x| c.vertices.of_slot(x));
-        }
-        6 | 7 => map(2, &|x| c.vertices.of_slot(x)),
-        _ => {}
-    }
-    Ok(())
-}
-
-fn object_ref(e: EntityRef) -> ObjectRef {
+fn object_ref(e: solidcore::EntityRef) -> solidcore::geom::object::ObjectRef {
     super::boolean_topology_intersector_p1::p9_entity_ref(e)
 }
 
-fn curve_ref(edge: EdgeId, kind: i64) -> ObjectRef {
-    ObjectRef {
+fn curve_ref(edge: EdgeId, kind: i64) -> solidcore::geom::object::ObjectRef {
+    solidcore::geom::object::ObjectRef {
         key: solidcore::geom::attribute::ObjectKey(((kind as u64) << 32) | u64::from(edge.index())),
         type_code: kind,
     }
@@ -644,19 +481,19 @@ impl UnitDiff for Runner {
             raw.get(2 + n..)
                 .ok_or_else(|| error("short native graph"))?,
         )?;
-        canon_record(&b, i.op, &mut record)?;
-        graph(&b, record)
+        Ok(graph(&b, record))
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
         let path = spec::path_of(Some(&i.brep))?;
         let block = spec::brep_block_of(Some(&i.brep), false, false)?;
-        if i.op == 0 {
-            let fixture = ffi::query_fixture(request(&i, &path, &block)).map_err(|e| error(&e))?;
-            return rust_infinite_region(&i, &fixture);
-        }
         let initial = ffi::eval(request(&i, &path, &block), true).map_err(|e| error(&e))?;
-        rust(&i, &initial)
+        let metadata = if i.op == 0 {
+            Some(ffi::query_metadata(request(&i, &path, &block)).map_err(|e| error(&e))?)
+        } else {
+            None
+        };
+        rust(&i, &initial, metadata.as_deref())
     }
     fn generate(&self, rng: &mut Rng) -> Option<Value> {
         let scale = *[1e-6, 1.0, 1e6].get(rng.below(3) as usize)?;
@@ -691,81 +528,5 @@ impl UnitDiff for Runner {
                 seeds: ctx.seeds.max(512),
             },
         )
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn region_output_uses_native_list_numbering() {
-        let mut b = Brep::new();
-        let first = b
-            .add_region_record(solidcore::topology::Region::default())
-            .unwrap();
-        let second = b
-            .add_region_record(solidcore::topology::Region::default())
-            .unwrap();
-        b.set_region_list(vec![second, first]).unwrap();
-        let mut record = [0.0, f64::from(first.index())];
-        canon_record(&b, 0, &mut record).unwrap();
-        assert_eq!(record, [0.0, 1.0]);
-        let mut null_record = [0.0, -1.0];
-        canon_record(&b, 0, &mut null_record).unwrap();
-        assert_eq!(null_record, [0.0, -1.0]);
-        b.set_region_list_head(Some(RegionId::from_index(99)));
-        let mut malformed = [0.0, 0.0];
-        assert!(canon_record(&b, 0, &mut malformed).is_err());
-        assert_eq!(malformed, [0.0, 0.0]);
-    }
-
-    #[test]
-    fn infinite_region_uses_native_owners_and_skips_cache_for_one_region() {
-        let inputs: Inputs = serde_json::from_value(json!({
-            "op": 0,
-            "editing": false,
-            "brep": {
-                "kind": "wire",
-                "curve": {
-                    "dim": 3,
-                    "cpts": [[-2.0, 3.0, 1.0, 1.0], [4.0, 5.0, 2.0, 1.0]],
-                    "p": 1,
-                    "u": [0.0, 0.0, 1.0, 1.0]
-                },
-                "t0": 0.0,
-                "t1": 1.0
-            }
-        }))
-        .unwrap();
-        let path = spec::path_of(Some(&inputs.brep)).unwrap();
-        let block = spec::brep_block_of(Some(&inputs.brep), false, false).unwrap();
-        let request = request(&inputs, &path, &block);
-        let native = ffi::eval(request, false).unwrap();
-        let fixture = ffi::query_fixture(request).unwrap();
-        let (mut brep, _) = import(fixture.initial.get(2..).unwrap()).unwrap();
-        let metadata = apply_query_metadata(&mut brep, &fixture.metadata, &query_key).unwrap();
-        assert!(metadata.deferred_output().is_none());
-        let regions = solidcore::topology::brep::p1::regions(&brep, None).unwrap();
-        assert_eq!(regions.len(), 1);
-        for (edge, record) in brep.edges().iter() {
-            assert_eq!(
-                record.curve.as_ref().unwrap().owner(),
-                Some(query_key(CacheObject::Edge(edge)))
-            );
-        }
-        brep.set_editing_enabled(inputs.editing);
-        let mut breps: Arena<BrepId, Brep> = Arena::default();
-        let brep_id = breps.insert(brep).unwrap();
-        let brep = breps.get_mut(brep_id).unwrap();
-        let mut queries = InfiniteQueries::new(brep, brep_id, metadata);
-        let region =
-            port::find_infinite_region(&mut Kernel::default(), brep, None, None, &mut queries)
-                .unwrap();
-        assert_eq!(native.first(), Some(&0.0));
-        assert_eq!(native.get(2), Some(&id(region)));
-        assert_eq!(region, regions.first().copied());
-        assert!(queries.cache.is_none());
-        assert!(!brep.editing_enabled());
     }
 }

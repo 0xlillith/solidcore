@@ -439,57 +439,10 @@ impl Surface {
         guess: Point2,
         surface_object: Option<O>,
     ) -> Result<LocalPointSolve<O>> {
-        self.local_point_solve_1_with_tolerance_context(
-            k,
-            domain,
-            op,
-            point,
-            guess,
-            surface_object,
-            &mut |surface| zone_tol_3d(k, surface),
-            &mut |_| Ok(None),
-        )
-    }
-
-    /// The same iteration with live tolerance lookups supplied by the caller's
-    /// topology context. `SmTol::GetZoneTol3d(GetOwner())` is read only for an
-    /// owned surface, after enabling out-of-bounds evaluation and before the
-    /// first stepper, including an already-correct guess. `SmTol(this)` is read
-    /// separately only when the iteration checks for a seam; `None` keeps the
-    /// existing surface-only default in that test.
-    pub(crate) fn local_point_solve_1_with_tolerance_context<O: Copy>(
-        &self,
-        k: &Kernel,
-        domain: &Extent2d,
-        op: SolverOperation,
-        point: Point3,
-        guess: Point2,
-        surface_object: Option<O>,
-        owner_tolerance: &mut dyn FnMut(&Surface) -> Result<f64>,
-        surface_tolerance: &mut dyn FnMut(&Surface) -> Result<Option<f64>>,
-    ) -> Result<LocalPointSolve<O>> {
         if let Some(surface) = with_out_of_bounds_enabled(self)? {
-            return surface.local_point_solve_1_body(
-                k,
-                domain,
-                op,
-                point,
-                guess,
-                surface_object,
-                owner_tolerance,
-                surface_tolerance,
-            );
+            return surface.local_point_solve_1_body(k, domain, op, point, guess, surface_object);
         }
-        self.local_point_solve_1_body(
-            k,
-            domain,
-            op,
-            point,
-            guess,
-            surface_object,
-            owner_tolerance,
-            surface_tolerance,
-        )
+        self.local_point_solve_1_body(k, domain, op, point, guess, surface_object)
     }
 
     fn local_point_solve_1_body<O: Copy>(
@@ -500,8 +453,6 @@ impl Surface {
         point: Point3,
         guess: Point2,
         surface_object: Option<O>,
-        owner_tolerance: &mut dyn FnMut(&Surface) -> Result<f64>,
-        surface_tolerance: &mut dyn FnMut(&Surface) -> Result<Option<f64>>,
     ) -> Result<LocalPointSolve<O>> {
         use TerminationReason::{
             FoundAnswerConverged as Converged, OutOfBounds, StillIterating, UnableToConverge,
@@ -509,7 +460,7 @@ impl Surface {
         let guess = domain.clamp_point(guess);
         let tight = EFF_ZERO * (1.0 + point.max_dimension());
         let loose = if self.owner().is_some() {
-            owner_tolerance(self)?
+            zone_tol_3d(k, self)?
         } else if op == SolverOperation::Intersect {
             0.01
         } else {
@@ -550,14 +501,7 @@ impl Surface {
                 next.snap_to_boundaries(loose)?;
                 if next.gap_length()? > loose {
                     let uv = next.uv();
-                    // Native IsOnSeam(NULL) resolves SmTol(this), independently
-                    // of the direct owner's loose tolerance chosen above. The
-                    // contextual read stays lazy, at this branch; passing its
-                    // value replaces the repeated read in IsOnBoundary: owner
-                    // links and tolerances stay immutable throughout these
-                    // numerical evaluations on the surface snapshot.
-                    let seam_tolerance = surface_tolerance(self)?;
-                    let seam = self.is_on_seam(k, uv, seam_tolerance)?;
+                    let seam = self.is_on_seam(k, uv, None)?;
                     which = match which {
                         SurfParamType::VMin | SurfParamType::VMax => SurfParamType::V,
                         SurfParamType::UMin | SurfParamType::UMax => SurfParamType::U,

@@ -51,7 +51,7 @@
 
 /*******************************************************************//**
 PURPOSE: Find the set of intervals on an ellipse known to be
-            on the cone's surface that are inside given cone's
+            on the cone's surface that are inside given cone's 
             trim boundaries.
 
 NOTES: return intervals are in the ellipse's anal domain
@@ -83,7 +83,7 @@ void sm_GetEllipseTrimIntervals
   SmBoolean        bInside[6] ;             // TRUE = ith Ivl is inside trim boundaries
 
   // ellipse locals
-  ULONG ii, lCnt = 0 ;
+  ULONG ii, lCnt = 0 ;               
   SmVector3d       sEllipseZ       = rEllipseXAxis * rEllipseYAxis ;
   SmExtent1d       sEllipseIvl (dEllipseStartAngDeg, dEllipseEndAngDeg) ;
   SmEllipse        sFullEllipse(rEllipseOrigin, rEllipseXAxis, rEllipseYAxis,
@@ -119,23 +119,23 @@ void sm_GetEllipseTrimIntervals
 SmBoolean bDebugMe = FALSE;
 static ULONG lCount      = 1 ; lCount++ ;
 static ULONG lDebugCount = 0 ;
-  if (bDebugMe || lCount == lDebugCount)
+  if (bDebugMe || lCount == lDebugCount) 
     {
-      SmBSplineCurve *pCirc1 = NULL ;
+      SmBSplineCurve *pCirc1 = NULL ; 
       if(SM_IS_ZERO(crCone.GetTopRadius()))
            { SmBSplineCurve::CreateDegenerateCurve(crContext, 3, sCenterTop, pCirc1) ; }
-      else { pCirc1 = new (crContext) SmCircle(sCenterTop,
-                                               crCone.GetPosition().GetXAxisRef(),
+      else { pCirc1 = new (crContext) SmCircle(sCenterTop, 
+                                               crCone.GetPosition().GetXAxisRef(), 
                                                crCone.GetPosition().GetYAxisRef(),
                                                sSweepIvl, crCone.GetTopRadius(), 3, &crContext) ;
            }
       SmObjDelete sClean1(pCirc1) ;
 
-      SmBSplineCurve *pCirc2 = NULL ;
+      SmBSplineCurve *pCirc2 = NULL ; 
       if(SM_IS_ZERO(crCone.GetBotRadius()))
            { SmBSplineCurve::CreateDegenerateCurve(crContext, 3, rCenterBot, pCirc2) ; }
-      else { pCirc2 = new (crContext) SmCircle(rCenterBot,
-                                               crCone.GetPosition().GetXAxisRef(),
+      else { pCirc2 = new (crContext) SmCircle(rCenterBot, 
+                                               crCone.GetPosition().GetXAxisRef(), 
                                                crCone.GetPosition().GetYAxisRef(),
                                                sSweepIvl, crCone.GetBotRadius(), 3, &crContext) ;
            }
@@ -161,18 +161,18 @@ static ULONG lDebugCount = 0 ;
     }
 #endif
 
-  // get ellipse/TopCircle(max 2), ellipse/BotCircle(max 2)
+  // get ellipse/TopCircle(max 2), ellipse/BotCircle(max 2) 
   //     ellipse/StartSeamLine(max 1), ellipse/EndSeamLine(max 1) intersections
   ULONG lNumTsect1, lNumTsect2 ;
   SmPoint3d sTsectPoints[6] ;
   double dParam[2] ;
-  smgu_CirclePlaneIntersect(dTol,
+  smgu_CirclePlaneIntersect(dTol, 
                             crCone.GetTopRadius(), sCenterTop, sConeAxis,
-                            rEllipseOrigin, sEllipseZ,
+                            rEllipseOrigin, sEllipseZ, 
                             lNumTsect1, sTsectPoints) ;
-  smgu_CirclePlaneIntersect(dTol,
+  smgu_CirclePlaneIntersect(dTol, 
                             crCone.GetBotRadius(), rCenterBot, sConeAxis,
-                            rEllipseOrigin, sEllipseZ,
+                            rEllipseOrigin, sEllipseZ, 
                             lNumTsect2, sTsectPoints+2) ;
   smgu_LinePlaneIntersect  (sCorners[0], sStartLineVec,
                             rEllipseOrigin, sEllipseZ,
@@ -197,9 +197,9 @@ static ULONG lDebugCount = 0 ;
   // circle/Plane xSect lNumTSect == 0 is a miss - nothing to do
   //                    lNumTSect == 1 is a tangent point - not put on in/out point list
   //                    lNumTSect == 2 is a trimmed section in/out boundary
-  //                    lNumTSect == 3 is a coincident circle/plane
+  //                    lNumTSect == 3 is a coincident circle/plane 
   SM_ASSERT(   lNumTsect1 != 3 || lNumTsect2 != 3) ;
-
+          
   // get ellipse angle in degrees for each XSectPoint and place in the in/out dXSectAngle array
   // exclude intersection points outside the cone sweep trim boundaries
 
@@ -265,12 +265,12 @@ static ULONG lDebugCount = 0 ;
   // of the ConeTrimDomain.  There should be an even number of these transitions
   // The ellipse trim range has not yet been applied.  When there are no intersections
   // the whole curve must lie outside the cone trim domain.
-  if(lCnt < 2)
+  if(lCnt < 2) 
     { return ; }
 
   // when there are intersections there should be an even number of them
   // unless ellipse intersects a corner exactly.
-  //      SM_ASSERT(lCnt % 2 == 0) ;
+  //      SM_ASSERT(lCnt % 2 == 0) ;  
 
   // order the XSectPoints by angle
   smgu_ShellSort_double_array(dXSectAngle.GetDataArray(), lCnt) ;
@@ -296,7 +296,7 @@ static ULONG lDebugCount = 0 ;
       // mark degenerate intervals as unknown for now - they will be classified
       // based on their neighbor classifications once they are available
       if((dEndAngDeg - dStartAngDeg < dScaledAngZero))
-        { bInside[iThis] = UNSURE ;
+        { bInside[iThis] = UNSURE ; 
           continue ;
         }
 
@@ -331,7 +331,7 @@ static ULONG lDebugCount = 0 ;
       // when the segment is inside
       if(   bInside[iThis] == TRUE   // nonDegnerate Ivl classification
          || (   bInside[iThis] == UNSURE  // Degenerate IVl is inside
-             && bInside[iPrev] == FALSE   // when both neighbor intervals
+             && bInside[iPrev] == FALSE   // when both neighbor intervals 
              && bInside[iNext] == FALSE)) //      are outside
         {
           // make and trim interval to ellipse interval
@@ -344,12 +344,12 @@ static ULONG lDebugCount = 0 ;
           sEllipseIvl.IntersectPeriodic(sUnTrimmedIvl, 360.0, sTrimIvls, FALSE) ;
 
           // add every trim invl to output
-          rIvls.Append(sTrimIvls) ;
+          rIvls.Append(sTrimIvls) ;                
 
         } // end segment inside check
 
     } // end iter every ellipse segment
-
+  
   // all done
 
 #ifdef SM_DEBUG_CODE
@@ -363,14 +363,14 @@ static ULONG lDebugCount = 0 ;
       SmFace *pThisFace  = ((SmFace *)crCone.GetFace()) ;
       SmBrep *pThisBrep  = pThisFace  ? pThisFace->GetBrep()  : NULL ;
 
-      // draw Breps(Blue,Green), Surfaces(cyan,yellow), faces(black),
+      // draw Breps(Blue,Green), Surfaces(cyan,yellow), faces(black), 
       // ellipse(red), TrimPoints(blue)
-      smgfx_Erase() ;
-      smgfx_SetLook(1,2, 0,0,1) ; if(pThisBrep)  { pThisBrep->Draw(TRUE) ; }  sm_GraphicsLoop() ;
+      smgfx_Erase() ; 
+      smgfx_SetLook(1,2, 0,0,1) ; if(pThisBrep)  { pThisBrep->Draw(TRUE) ; }  sm_GraphicsLoop() ; 
       smgfx_SetLook(1,2, 0,1,1) ; crCone.DrawUV() ; sm_GraphicsLoop() ;
       smgfx_SetLook(3,4, 0,1,0) ; (dEllipseXRadius * rEllipseXAxis).Draw(&rEllipseOrigin) ; sm_GraphicsLoop() ;
       smgfx_SetLook(3,4, 0,0,1) ; (dEllipseYRadius * rEllipseYAxis).Draw(&rEllipseOrigin) ; sm_GraphicsLoop() ;
-      smgfx_SetLook(6,7, 0,0,1) ;
+      smgfx_SetLook(6,7, 0,0,1) ; 
 
       for(ii=0;ii<lCnt;ii++) { sFullEllipse.EvaluateSTEPPoint(dXSectAngle[ii], sPoint) ;
                                smgfx_SetLook(8,9, 0,0,1) ; sPoint.Draw() ; sm_GraphicsLoop() ;
@@ -380,9 +380,9 @@ static ULONG lDebugCount = 0 ;
                                || (ii >=4))
                               { smgfx_SetLook(10,11, 1,0,0) ; sTsectPoints[ii].Draw() ; sm_GraphicsLoop() ; }
                           }
-      smgfx_SetLook(10,11, 1,0,0) ; (sCorners[0] + dParam[0] * sStartLineVec).Draw() ; sm_GraphicsLoop() ;
-      smgfx_SetLook(10,11, 1,0,0) ; (sCorners[2] + dParam[1] * sEndLineVec).Draw() ; sm_GraphicsLoop() ;
-      for(ii=0;ii<rIvls.GetSize();ii++) {
+      smgfx_SetLook(10,11, 1,0,0) ; (sCorners[0] + dParam[0] * sStartLineVec).Draw() ; sm_GraphicsLoop() ; 
+      smgfx_SetLook(10,11, 1,0,0) ; (sCorners[2] + dParam[1] * sEndLineVec).Draw() ; sm_GraphicsLoop() ;  
+      for(ii=0;ii<rIvls.GetSize();ii++) { 
                                           ULONG jj;
                                           SmExtent1d sStepIvl = rIvls[ii] ;
                                           SmTArray<SmExtent1d> sNurbIvl ;

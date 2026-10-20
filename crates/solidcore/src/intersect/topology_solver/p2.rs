@@ -37,14 +37,14 @@
 //!   rewrite only start parameters, preserving upstream's `i < 1` behavior.
 
 use super::p1::TopologyObjects;
-use super::p1::{self, best_answer_so_far, CurveRef, SolverCurve};
+use super::p1::{self, best_answer_so_far, CurveRef};
 use super::p1::{LocalSolver, LocalSolverKind, TopologySolver};
 use crate::curve::curve::Curve;
 use crate::error::{Result, SolidError};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::global_solver::Branch;
-use crate::geom::global_solver::{SolutionRequested, SolverOperation};
+use crate::geom::global_solver::{GlobalSolve, SolutionRequested, SolverOperation};
 use crate::geom::object::{Shape, ShapeMember};
 use crate::geom::solution_array::SolutionObject;
 use crate::geom::solution_array::{Solution, SolutionArray, SolutionType, SortKey};
@@ -52,22 +52,19 @@ use crate::geom::tol::{are_same, zone_tol3d};
 use crate::geom::tree::{AuxDataType, Tree};
 use crate::intersect::curve_class::p1::CurveClassification;
 use crate::intersect::curve_class::p4::ClassificationInit;
-use crate::intersect::point_class::{
-    ClassObject, ClassObjectKind, PointClassType, PointClassification,
-};
+use crate::intersect::point_class::{ClassObject, ClassObjectKind};
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec2};
 use crate::nurbs::b_spline_curve::BoundingBoxRequest;
-use crate::surface::surface::p1::get_surface_cache;
-use crate::surface::surface::p4::{FacePointTest, NoObject};
+use crate::surface::surface::p4::global_point_solve_starts;
 use crate::surface::surface::Surface;
-use crate::EntityRef;
+use crate::surface::trim_srf_cache::POINT_CLASS_UNKNOWN;
 
 const OP_LOCAL: &str = "intersect::topology_solver::p2::TopologySolver::local_solve_branch";
 const OP_VF: &str = "intersect::topology_solver::p2::LocalSolver::solve_vertex_face";
 const OP_CV: &str = "intersect::topology_solver::p2::LocalSolver::solve_curve_vertex";
 
-impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
+impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, O> {
     /// Solves the object pairs of the two branch nodes in their native list order
     /// (`LocalSolve`), asking for further subdivision when either has child one.
     ///
@@ -124,7 +121,7 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
 impl<'a, O: SolutionObject> LocalSolver<'a, O> {
     pub(super) fn solve_vertex_face(
         &mut self,
-        ts: &mut TopologySolver<'_, 'a, '_, O>,
+        ts: &mut TopologySolver<'_, 'a, O>,
         object1: Option<O>,
         object2: Option<O>,
     ) -> Result<()> {
@@ -137,7 +134,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
 
     pub(super) fn solve_curve_vertex(
         &mut self,
-        ts: &mut TopologySolver<'_, 'a, '_, O>,
+        ts: &mut TopologySolver<'_, 'a, O>,
         _object1: Option<O>,
         object2: Option<O>,
     ) -> Result<()> {
@@ -151,15 +148,8 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         let vertex = object2.ok_or(SolidError::null_pointer(OP_CV))?;
         point_curve.point_vertex = Some(vertex);
         point_curve.point = ts.objects.vertex_point(vertex)?;
-        let source = self.curve.ok_or(SolidError::null_pointer(OP_CV))?;
-        let curve = source.resolve(&*ts.objects)?;
-        point_curve.point_curve(
-            ts.kernel,
-            &*ts.objects,
-            &mut ts.base,
-            curve.curve,
-            Some(curve.handle),
-        )
+        let curve = self.curve.ok_or(SolidError::null_pointer(OP_CV))?;
+        point_curve.point_curve(ts, curve.curve, Some(curve.handle))
     }
 }
 
@@ -243,10 +233,9 @@ fn classified_curve_intervals<O>(
     };
     let _classification = CurveClassification::with_curve(kernel, &init)?;
     // UNPORTED(query.face_p2): SmFace::CurveOnClassify -- justified: plan/findings.md
-    // "intersect.curve_class_p4" (the solver's object adapter has no
-    // CurveOnClassifyObjects resolution for its handle `O`; its mutable point-face
-    // classification hooks do not provide that curve-classification contract.
-    // Unreachable today: the constructor above defers on ReSet first.)
+    // "intersect.curve_class_p4" (the solver's object adapter has no face -> (Brep, FaceId) /
+    // CurveOnClassifyObjects resolution for its handle `O`, as for PointClassify in
+    // topology_solver::p1; unreachable today: the constructor above defers on ReSet first)
     Err(SolidError::unported(
         "SmFace::CurveOnClassify",
         "query.face_p2",
@@ -262,49 +251,41 @@ fn untrimmed_range_endpoints<O>(
     end: Point3,
     tol: f64,
 ) -> Result<Option<(Vec2, Vec2)>> {
-    // SmTopologySolver.cpp:1662-1689 acquires one cache (NER), then disables its
-    // point test around both endpoint drops. Keep that checkout across the two
-    // calls; unlike Point3DClassify, a null cache fails before the first solve.
-    let mut cache = Some(match get_surface_cache(kernel, surface, None::<NoObject>) {
-        Ok(cache) => cache,
-        Err(error) if error.is_unported() => return Err(error),
-        Err(_) => return Err(SolidError::null_pointer(OP_CF)),
-    });
-    let first = surface.global_point_intersect_with_cache(
+    // Upstream switches the surface cache's point test off around both solves. The
+    // solver here keeps every solution of a surface that owns no face, and a face-owned
+    // surface is Unported (query.face_p2) inside `Surface::global_point_solve`.
+    let first = global_point_solve_starts(
         kernel,
+        surface,
         face_domain,
+        SolverOperation::Intersect,
         start,
         tol,
         SolutionRequested::All,
-        FacePointTest::Disabled,
-        &mut cache,
     )?;
-    let Some(s) = first.as_slice().first() else {
+    let Some(s) = first.first() else {
         return Ok(None); // error - something is wrong here - quit
     };
-    let uv_start = Vec2::new(s.start.param(0)?, s.start.param(1)?);
-    let second = surface.global_point_intersect_with_cache(
+    let uv_start = Vec2::new(s.param(0)?, s.param(1)?);
+    let second = global_point_solve_starts(
         kernel,
+        surface,
         face_domain,
+        SolverOperation::Intersect,
         end,
         tol,
         SolutionRequested::All,
-        FacePointTest::Disabled,
-        &mut cache,
     )?;
-    let Some(e) = second.as_slice().first() else {
+    let Some(e) = second.first() else {
         return Ok(None);
     };
-    Ok(Some((
-        uv_start,
-        Vec2::new(e.start.param(0)?, e.start.param(1)?),
-    )))
+    Ok(Some((uv_start, Vec2::new(e.param(0)?, e.param(1)?))))
 }
 
 impl<'a, O: SolutionObject> LocalSolver<'a, O> {
     pub(super) fn solve_edge_vertex(
         &mut self,
-        ts: &mut TopologySolver<'_, 'a, '_, O>,
+        ts: &mut TopologySolver<'_, 'a, O>,
         object1: Option<O>,
         object2: Option<O>,
     ) -> Result<()> {
@@ -323,14 +304,20 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         }
         let _ = ts.objects.curve(curve_object)?;
         let edge = ts.objects.curve_edge(curve_object)?;
-        if self.in_shape(&*ts.objects, edge) {
+        if self.in_shape(ts.objects, edge) {
             let edge = edge.ok_or(SolidError::invalid_input(
                 OP_EV,
                 "upstream selects a vertex as a curve",
             ))?;
             self.curve_edge = Some(edge);
             self.interval = ts.objects.edge_interval(edge)?;
-            self.curve = ts.objects.edge_curve(edge)?.map(SolverCurve::Object);
+            self.curve = match ts.objects.edge_curve(edge)? {
+                Some(handle) => Some(CurveRef {
+                    curve: ts.objects.curve(handle)?,
+                    handle,
+                }),
+                None => None,
+            };
             self.solve_curve_vertex(ts, Some(vertex), Some(vertex))?;
         }
         Ok(())
@@ -338,18 +325,24 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
 
     pub(super) fn solve_edge_face(
         &mut self,
-        ts: &mut TopologySolver<'_, 'a, '_, O>,
+        ts: &mut TopologySolver<'_, 'a, O>,
         object1: Option<O>,
         object2: Option<O>,
     ) -> Result<()> {
         let curve = if self.swap_order { object2 } else { object1 }
             .ok_or(SolidError::null_pointer(OP_EF))?;
         let edge = ts.objects.curve_edge(curve)?;
-        if self.in_shape(&*ts.objects, edge) {
+        if self.in_shape(ts.objects, edge) {
             let edge = edge.ok_or(SolidError::invalid_input(OP_EF, "curve without an edge"))?;
             self.curve_edge = Some(edge);
             self.interval = ts.objects.edge_interval(edge)?;
-            self.curve = ts.objects.edge_curve(edge)?.map(SolverCurve::Object);
+            self.curve = match ts.objects.edge_curve(edge)? {
+                Some(handle) => Some(CurveRef {
+                    curve: ts.objects.curve(handle)?,
+                    handle,
+                }),
+                None => None,
+            };
             self.solve_curve_face(ts, object1, object2)?;
         }
         Ok(())
@@ -357,7 +350,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
 
     pub(super) fn solve_curve_face(
         &self,
-        ts: &mut TopologySolver<'_, '_, '_, O>,
+        ts: &mut TopologySolver<'_, '_, O>,
         object1: Option<O>,
         object2: Option<O>,
     ) -> Result<()> {
@@ -366,14 +359,14 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         let owner = self
             .curve_edge
             .or(self.curve_face)
-            .or(self.curve.map(SolverCurve::handle));
+            .or(self.curve.map(|c| c.handle));
         let named = if self.swap_order {
             [Some(surface_handle), owner]
         } else {
             [owner, Some(surface_handle)]
         };
         let face = ts.objects.surface_face(surface_handle)?;
-        if !self.in_shape(&*ts.objects, face) {
+        if !self.in_shape(ts.objects, face) {
             return Ok(());
         }
         let face = face.ok_or(SolidError::invalid_input(OP_CF, "surface without a face"))?;
@@ -381,7 +374,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         if ts.base.projected_operation {
             let (curves, uv_curves) = p1::face_silhouettes(
                 ts.kernel,
-                &*ts.objects,
+                ts.objects,
                 face,
                 &ts.base.opt_vectors,
                 ts.base.tolerance_3d,
@@ -396,10 +389,10 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 local.surface_curve = self.surface_curve;
                 // The face owner replaces this temporary curve in every result;
                 // its placeholder handle is never used as a curve lookup.
-                local.curve2 = Some(SolverCurve::Borrowed(CurveRef {
+                local.curve2 = Some(CurveRef {
                     curve: other,
                     handle: face,
-                }));
+                });
                 local.curve_edge2 = None;
                 local.interval2 = other.natural_interval();
                 local.curve_face2 = Some(face);
@@ -410,45 +403,41 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         }
         let best = best_answer_so_far(&ts.base);
         let face_surface_handle = ts.objects.face_surface(face)?;
+        let surface = ts.objects.surface(face_surface_handle)?;
         let domain = ts.objects.face_uv_domain(face)?;
         let tol = ts.base.tolerance_3d + ts.objects.face_tolerance(face)?;
-        let solutions = {
-            let curve = curve.resolve(&*ts.objects)?;
-            let surface = ts.objects.surface(face_surface_handle)?;
-            if ts.base.operation == SolverOperation::Intersect {
-                // surface->GlobalCurveIntersect(domain, curve, interval, tol, solutions)
-                // (SER): the solutions name the curve and the surface
-                surface.global_curve_intersect(
-                    ts.kernel,
-                    [curve.handle, surface_handle],
-                    &domain,
-                    curve.curve,
-                    &self.interval,
-                    tol,
-                )?
-            } else {
-                let mut vectors = ts.base.opt_vectors.clone();
-                if ts.base.operation == SolverOperation::Signed3dDirectedMinimize && self.swap_order
-                {
-                    let vector = vectors
-                        .first_mut()
-                        .ok_or(SolidError::invalid_input(OP_CF, "missing direction vector"))?;
-                    *vector = -*vector;
-                    vectors.truncate(1);
-                }
-                surface.global_curve_solve(
-                    ts.kernel,
-                    &domain,
-                    curve.curve,
-                    &self.interval,
-                    ts.base.operation,
-                    tol,
-                    best,
-                    &vectors,
-                    SolutionRequested::All,
-                    [Some(curve.handle), Some(face_surface_handle)],
-                )?
+        let solutions = if ts.base.operation == SolverOperation::Intersect {
+            // surface->GlobalCurveIntersect(domain, curve, interval, tol, solutions)
+            // (SER): the solutions name the curve and the surface
+            surface.global_curve_intersect(
+                ts.kernel,
+                [curve.handle, surface_handle],
+                &domain,
+                curve.curve,
+                &self.interval,
+                tol,
+            )?
+        } else {
+            let mut vectors = ts.base.opt_vectors.clone();
+            if ts.base.operation == SolverOperation::Signed3dDirectedMinimize && self.swap_order {
+                let vector = vectors
+                    .first_mut()
+                    .ok_or(SolidError::invalid_input(OP_CF, "missing direction vector"))?;
+                *vector = -*vector;
+                vectors.truncate(1);
             }
+            surface.global_curve_solve(
+                ts.kernel,
+                &domain,
+                curve.curve,
+                &self.interval,
+                ts.base.operation,
+                tol,
+                best,
+                &vectors,
+                SolutionRequested::All,
+                [Some(curve.handle), Some(face_surface_handle)],
+            )?
         };
         for found in solutions.as_slice() {
             let mut solution = *found;
@@ -460,7 +449,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                         Extent1d::from_min_max(solution.start.param(0)?, solution.end.param(0)?);
                     let intervals = classified_curve_intervals(
                         ts.kernel,
-                        curve.resolve(&*ts.objects)?.curve,
+                        curve.curve,
                         &interval,
                         face,
                         ts.base.tolerance_3d,
@@ -474,13 +463,8 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                         }
                         solution.start.parameters[0] = interval.min();
                         solution.end.parameters[0] = interval.max();
-                        let (start, end) = {
-                            let curve = curve.resolve(&*ts.objects)?;
-                            (
-                                curve.curve.evaluate_point(interval.min())?,
-                                curve.curve.evaluate_point(interval.max())?,
-                            )
-                        };
+                        let start = curve.curve.evaluate_point(interval.min())?;
+                        let end = curve.curve.evaluate_point(interval.max())?;
                         if let Some((uv_start, uv_end)) = untrimmed_range_endpoints(
                             ts.kernel,
                             ts.objects.surface(surface_handle)?,
@@ -501,32 +485,19 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                         if self.swap_order {
                             swap_curve_surface_parameters(&mut solution)?;
                         }
-                        p1::add_sorted_solution(
-                            ts.kernel,
-                            &*ts.objects,
-                            &mut ts.base,
-                            &solution,
-                            SortKey::BySolutionValue,
-                            false,
-                        )?;
+                        ts.base
+                            .add_sorted_solution(&solution, SortKey::BySolutionValue, false)?;
                     }
                     continue;
                 }
-                let src_tol = ts.objects.object_zone_tol_3d(ts.kernel, owner)?;
-                let mut classification = PointClassification::<EntityRef>::new(src_tol);
-                let uv = Vec2::new(solution.start.param(1)?, solution.start.param(2)?);
-                // Unlike SmTLSPointFace, SmTLSCurveFace uses SER here: native
-                // classification failures propagate with the partial PC intact.
-                ts.objects.face_point_classify(
-                    ts.kernel,
-                    face,
-                    uv,
-                    src_tol,
-                    false,
-                    false,
-                    &mut classification,
+                let src_tol = p1::object_zone_tol_3d(
+                    self.curve_edge
+                        .or(self.curve_face)
+                        .or(self.curve.map(|c| c.handle)),
                 )?;
-                if classification.point_class() == PointClassType::Unknown {
+                let uv = Vec2::new(solution.start.param(1)?, solution.start.param(2)?);
+                if p1::face_point_classify(face, uv, src_tol, false, false)? == POINT_CLASS_UNKNOWN
+                {
                     continue;
                 }
             }
@@ -534,21 +505,15 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             if self.swap_order {
                 swap_curve_surface_parameters(&mut solution)?;
             }
-            p1::add_sorted_solution(
-                ts.kernel,
-                &*ts.objects,
-                &mut ts.base,
-                &solution,
-                SortKey::BySolutionValue,
-                true,
-            )?;
+            ts.base
+                .add_sorted_solution(&solution, SortKey::BySolutionValue, true)?;
         }
         Ok(())
     }
 
     pub(super) fn solve_face_face(
         &self,
-        ts: &mut TopologySolver<'_, '_, '_, O>,
+        ts: &mut TopologySolver<'_, '_, O>,
         object1: Option<O>,
         object2: Option<O>,
     ) -> Result<()> {
@@ -556,7 +521,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         let surface2 = object2.ok_or(SolidError::null_pointer(OP_FF))?;
         let face1 = ts.objects.surface_face(surface1)?;
         let face2 = ts.objects.surface_face(surface2)?;
-        if !self.in_shape(&*ts.objects, face1) || !self.in_shape(&*ts.objects, face2) {
+        if !self.in_shape(ts.objects, face1) || !self.in_shape(ts.objects, face2) {
             return Ok(());
         }
         let face1 = face1.ok_or(SolidError::invalid_input(
@@ -571,7 +536,7 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
         if ts.base.projected_operation {
             let (curves, uv_curves) = p1::face_silhouettes(
                 ts.kernel,
-                &*ts.objects,
+                ts.objects,
                 face1,
                 &ts.base.opt_vectors,
                 ts.base.tolerance_3d,
@@ -579,10 +544,10 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
             for (i, curve) in curves.iter().enumerate() {
                 let mut local =
                     LocalSolver::new(LocalSolverKind::CurveFace, self.swap_order, self.shape);
-                local.curve = Some(SolverCurve::Borrowed(CurveRef {
+                local.curve = Some(CurveRef {
                     curve,
                     handle: face1,
-                }));
+                });
                 local.curve_face = Some(face1);
                 local.curve_edge = None;
                 local.interval = curve.natural_interval();
@@ -610,14 +575,8 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 solution.objects[1] = Some(face2);
                 solution.num_objects = 2;
                 solution.num_variables = 4;
-                p1::add_sorted_solution(
-                    ts.kernel,
-                    &*ts.objects,
-                    &mut ts.base,
-                    &solution,
-                    SortKey::BySolutionValue,
-                    true,
-                )?;
+                ts.base
+                    .add_sorted_solution(&solution, SortKey::BySolutionValue, true)?;
             }
         }
         Ok(())
@@ -735,11 +694,11 @@ fn curve_tree<O: SolutionObject>(
     Ok(tree)
 }
 
-fn new_topology_solver<'t, 'a, 'objects, O: SolutionObject + 't>(
+fn new_topology_solver<'t, 'a, O: SolutionObject + 't>(
     kernel: &'a Kernel,
-    objects: &'objects mut dyn TopologyObjects<O>,
+    objects: &'a dyn TopologyObjects<O>,
     options: TopologySolveOptions<'_>,
-) -> TopologySolver<'t, 'a, 'objects, O> {
+) -> TopologySolver<'t, 'a, O> {
     TopologySolver::new(
         kernel,
         objects,
@@ -752,7 +711,7 @@ fn new_topology_solver<'t, 'a, 'objects, O: SolutionObject + 't>(
 }
 
 fn early_point_answer<O: SolutionObject>(
-    ts: &TopologySolver<'_, '_, '_, O>,
+    ts: &TopologySolver<'_, '_, O>,
     options: TopologySolveOptions<'_>,
 ) -> bool {
     options.requested == SolutionRequested::Single
@@ -784,7 +743,7 @@ fn rewrite_endpoint_solutions<O: SolutionObject>(
     }
 }
 
-impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
+impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, O> {
     /// Solves a query point against a B-rep's vertex, edge and face trees
     /// (`BrepPointSolve`), retaining upstream's early single-answer exits.
     ///
@@ -792,7 +751,7 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
     /// Invalid operation or null B-rep, unavailable B-rep cache, or a local solve.
     pub fn brep_point_solve(
         kernel: &Kernel,
-        objects: &mut dyn TopologyObjects<O>,
+        objects: &dyn TopologyObjects<O>,
         brep: Option<O>,
         point: Point3,
         options: TopologySolveOptions<'_>,
@@ -802,28 +761,27 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
             return Err(SolidError::invalid_input(OP, "unsupported operation"));
         }
         let brep = brep.ok_or(SolidError::null_pointer(OP))?;
-        objects.with_brep_trees(kernel, brep, None, &mut |objects, trees, _| {
-            let mut ts = new_topology_solver(kernel, objects, options);
-            let query = point_tree(point);
-            if options.operation != SolverOperation::Normalize {
-                let mut vertices = LocalSolver::new(LocalSolverKind::PointVertex, false, None);
-                vertices.set_point(point);
-                ts.solve_trees(&query, trees.vertices, &mut vertices)?;
-                if early_point_answer(&ts, options) {
-                    return Ok(ts.base.solutions);
-                }
-                let mut edges = LocalSolver::new(LocalSolverKind::PointEdge, false, None);
-                edges.set_point(point);
-                ts.solve_trees(&query, trees.curves, &mut edges)?;
-                if early_point_answer(&ts, options) {
-                    return Ok(ts.base.solutions);
-                }
+        let mut ts = new_topology_solver(kernel, objects, options);
+        let trees = objects.brep_trees(brep)?;
+        let query = point_tree(point);
+        if options.operation != SolverOperation::Normalize {
+            let mut vertices = LocalSolver::new(LocalSolverKind::PointVertex, false, None);
+            vertices.set_point(point);
+            ts.solve_trees(&query, trees.vertices, &mut vertices)?;
+            if early_point_answer(&ts, options) {
+                return Ok(ts.base.solutions);
             }
-            let mut faces = LocalSolver::new(LocalSolverKind::PointFace, false, None);
-            faces.set_point(point);
-            ts.solve_trees(&query, trees.surfaces, &mut faces)?;
-            Ok(ts.base.solutions)
-        })
+            let mut edges = LocalSolver::new(LocalSolverKind::PointEdge, false, None);
+            edges.set_point(point);
+            ts.solve_trees(&query, trees.curves, &mut edges)?;
+            if early_point_answer(&ts, options) {
+                return Ok(ts.base.solutions);
+            }
+        }
+        let mut faces = LocalSolver::new(LocalSolverKind::PointFace, false, None);
+        faces.set_point(point);
+        ts.solve_trees(&query, trees.surfaces, &mut faces)?;
+        Ok(ts.base.solutions)
     }
 
     /// Solves a point against the members of `shape` (`ShapePointSolve`).
@@ -832,7 +790,7 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
     /// Invalid operation, handle mapping failure or a local solve.
     pub fn shape_point_solve(
         kernel: &Kernel,
-        objects: &mut dyn TopologyObjects<O>,
+        objects: &dyn TopologyObjects<O>,
         shape: &Shape,
         point: Point3,
         options: TopologySolveOptions<'_>,
@@ -841,9 +799,9 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
         if !valid_point_operation(options.operation) {
             return Err(SolidError::invalid_input(OP, "unsupported operation"));
         }
-        let mapped = ShapeTreeViews::new(&*objects, shape)?;
-        let trees = mapped.views();
         let mut ts = new_topology_solver(kernel, objects, options);
+        let mapped = ShapeTreeViews::new(objects, shape)?;
+        let trees = mapped.views();
         let query = point_tree(point);
         if options.operation != SolverOperation::Normalize {
             let mut vertices = LocalSolver::new(LocalSolverKind::PointVertex, false, Some(shape));
@@ -866,9 +824,9 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
     /// Invalid operation or null B-rep, cache, bounding-box or local-solve errors.
     pub fn brep_curve_solve(
         kernel: &Kernel,
-        objects: &mut dyn TopologyObjects<O>,
+        objects: &dyn TopologyObjects<O>,
         brep: Option<O>,
-        curve: SolverCurve<'_, O>,
+        curve: CurveRef<'_, O>,
         interval: &Extent1d,
         mut options: TopologySolveOptions<'_>,
     ) -> Result<SolutionArray<O>> {
@@ -880,51 +838,40 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
         if wires_only {
             options.operation = SolverOperation::Intersect;
         }
-        let brep = brep.ok_or(SolidError::null_pointer(OP))?;
-        objects.with_brep_trees(kernel, brep, None, &mut |objects, trees, _| {
-            let mut ts = new_topology_solver(kernel, objects, options);
-            let query = curve_tree(kernel, curve.resolve(&*ts.objects)?, interval)?;
-            if options.operation != SolverOperation::Normalize {
-                let mut vertices = LocalSolver::new(LocalSolverKind::CurveVertex, false, None);
-                vertices.curve = Some(curve);
-                vertices.interval = *interval;
-                ts.solve_trees(&query, trees.vertices, &mut vertices)?;
-                let mut edges = LocalSolver::new(LocalSolverKind::CurveEdge, false, None);
-                edges.curve = Some(curve);
-                edges.interval = *interval;
-                ts.solve_trees(&query, trees.curves, &mut edges)?;
+        let mut ts = new_topology_solver(kernel, objects, options);
+        let trees = objects.brep_trees(brep.ok_or(SolidError::null_pointer(OP))?)?;
+        let query = curve_tree(kernel, curve, interval)?;
+        if options.operation != SolverOperation::Normalize {
+            let mut vertices = LocalSolver::new(LocalSolverKind::CurveVertex, false, None);
+            vertices.set_curve(Some(curve), *interval);
+            ts.solve_trees(&query, trees.vertices, &mut vertices)?;
+            let mut edges = LocalSolver::new(LocalSolverKind::CurveEdge, false, None);
+            edges.set_curve(Some(curve), *interval);
+            ts.solve_trees(&query, trees.curves, &mut edges)?;
+        }
+        if !wires_only {
+            let mut faces = LocalSolver::new(LocalSolverKind::CurveFace, false, None);
+            faces.set_curve(Some(curve), *interval);
+            ts.solve_trees(&query, trees.surfaces, &mut faces)?;
+            if options.operation == SolverOperation::Signed3dDirectedMinimize {
+                let parameter = interval.min(); // upstream currently tests only the start
+                let point = curve.curve.evaluate_point(parameter)?;
+                let query = point_tree(point);
+                let mut faces = LocalSolver::new(LocalSolverKind::PointFace, false, None);
+                faces.set_point(point);
+                let mut scoped = TopologySolver {
+                    base: ts.take_base(),
+                    kernel,
+                    objects,
+                    local_solver: None,
+                };
+                let result = scoped.solve_trees(&query, trees.surfaces, &mut faces);
+                ts.restore_base(scoped.base, trees.surfaces);
+                result?;
+                rewrite_endpoint_solutions(&mut ts.base.solutions, curve.handle, parameter);
             }
-            if !wires_only {
-                let mut faces = LocalSolver::new(LocalSolverKind::CurveFace, false, None);
-                faces.curve = Some(curve);
-                faces.interval = *interval;
-                ts.solve_trees(&query, trees.surfaces, &mut faces)?;
-                if options.operation == SolverOperation::Signed3dDirectedMinimize {
-                    let parameter = interval.min(); // upstream currently tests only the start
-                    let point = curve
-                        .resolve(&*ts.objects)?
-                        .curve
-                        .evaluate_point(parameter)?;
-                    let query = point_tree(point);
-                    let mut faces = LocalSolver::new(LocalSolverKind::PointFace, false, None);
-                    faces.set_point(point);
-                    let (result, base) = {
-                        let mut scoped = TopologySolver {
-                            base: ts.take_base(),
-                            kernel,
-                            objects: &mut *ts.objects,
-                            local_solver: None,
-                        };
-                        let result = scoped.solve_trees(&query, trees.surfaces, &mut faces);
-                        (result, scoped.base)
-                    };
-                    ts.restore_base(base, trees.surfaces);
-                    result?;
-                    rewrite_endpoint_solutions(&mut ts.base.solutions, curve.handle(), parameter);
-                }
-            }
-            Ok(ts.base.solutions)
-        })
+        }
+        Ok(ts.base.solutions)
     }
 
     /// Solves a curve against `shape` (`ShapeCurveSolve`).
@@ -933,9 +880,9 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
     /// Invalid operation, handle mapping, curve bounding box or local solve.
     pub fn shape_curve_solve(
         kernel: &Kernel,
-        objects: &mut dyn TopologyObjects<O>,
+        objects: &dyn TopologyObjects<O>,
         shape: &Shape,
-        curve: SolverCurve<'_, O>,
+        curve: CurveRef<'_, O>,
         interval: &Extent1d,
         options: TopologySolveOptions<'_>,
     ) -> Result<SolutionArray<O>> {
@@ -943,46 +890,37 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
         if !valid_curve_operation(options.operation, false) {
             return Err(SolidError::invalid_input(OP, "unsupported operation"));
         }
-        let mapped = ShapeTreeViews::new(&*objects, shape)?;
-        let trees = mapped.views();
         let mut ts = new_topology_solver(kernel, objects, options);
-        let query = curve_tree(kernel, curve.resolve(&*ts.objects)?, interval)?;
+        let mapped = ShapeTreeViews::new(objects, shape)?;
+        let trees = mapped.views();
+        let query = curve_tree(kernel, curve, interval)?;
         if options.operation != SolverOperation::Normalize {
             let mut vertices = LocalSolver::new(LocalSolverKind::CurveVertex, false, Some(shape));
-            vertices.curve = Some(curve);
-            vertices.interval = *interval;
+            vertices.set_curve(Some(curve), *interval);
             ts.solve_trees(&query, trees.vertices, &mut vertices)?;
             let mut edges = LocalSolver::new(LocalSolverKind::CurveEdge, false, Some(shape));
-            edges.curve = Some(curve);
-            edges.interval = *interval;
+            edges.set_curve(Some(curve), *interval);
             ts.solve_trees(&query, trees.curves, &mut edges)?;
         }
         let mut faces = LocalSolver::new(LocalSolverKind::CurveFace, false, Some(shape));
-        faces.curve = Some(curve);
-        faces.interval = *interval;
+        faces.set_curve(Some(curve), *interval);
         ts.solve_trees(&query, trees.surfaces, &mut faces)?;
         if options.operation == SolverOperation::Signed3dDirectedMinimize {
             let parameter = interval.min();
-            let point = curve
-                .resolve(&*ts.objects)?
-                .curve
-                .evaluate_point(parameter)?;
+            let point = curve.curve.evaluate_point(parameter)?;
             let query = point_tree(point);
             let mut faces = LocalSolver::new(LocalSolverKind::PointFace, false, Some(shape));
             faces.set_point(point);
-            let (result, base) = {
-                let mut scoped = TopologySolver {
-                    base: ts.take_base(),
-                    kernel,
-                    objects: &mut *ts.objects,
-                    local_solver: None,
-                };
-                let result = scoped.solve_trees(&query, trees.surfaces, &mut faces);
-                (result, scoped.base)
+            let mut scoped = TopologySolver {
+                base: ts.take_base(),
+                kernel,
+                objects,
+                local_solver: None,
             };
-            ts.restore_base(base, trees.surfaces);
+            let result = scoped.solve_trees(&query, trees.surfaces, &mut faces);
+            ts.restore_base(scoped.base, trees.surfaces);
             result?;
-            rewrite_endpoint_solutions(&mut ts.base.solutions, curve.handle(), parameter);
+            rewrite_endpoint_solutions(&mut ts.base.solutions, curve.handle, parameter);
         }
         Ok(ts.base.solutions)
     }
@@ -1062,7 +1000,7 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
     /// Invalid operation or null B-reps, unavailable caches or local-solve errors.
     pub fn brep_brep_solve(
         kernel: &Kernel,
-        objects: &mut dyn TopologyObjects<O>,
+        objects: &dyn TopologyObjects<O>,
         first: Option<O>,
         second: Option<O>,
         options: TopologySolveOptions<'_>,
@@ -1071,17 +1009,11 @@ impl<'t, O: SolutionObject + 't> TopologySolver<'t, '_, '_, O> {
         if !valid_curve_operation(options.operation, false) {
             return Err(SolidError::invalid_input(OP, "unsupported operation"));
         }
-        let first = first.ok_or(SolidError::null_pointer(OP))?;
-        objects.with_brep_trees(kernel, first, second, &mut |objects, first, trees| {
-            second.ok_or(SolidError::null_pointer(OP))?;
-            let second = trees.ok_or(SolidError::invalid_input(
-                OP,
-                "cache provider omitted the second requested B-rep",
-            ))?;
-            let mut ts = new_topology_solver(kernel, objects, options);
-            ts.solve_two_tree_sets(first, second)?;
-            Ok(ts.base.solutions)
-        })
+        let mut ts = new_topology_solver(kernel, objects, options);
+        let first = objects.brep_trees(first.ok_or(SolidError::null_pointer(OP))?)?;
+        let second = objects.brep_trees(second.ok_or(SolidError::null_pointer(OP))?)?;
+        ts.solve_two_tree_sets(first, second)?;
+        Ok(ts.base.solutions)
     }
 }
 
@@ -1094,7 +1026,7 @@ mod tests {
     #[test]
     fn nodes_without_object_lists_solve_as_empty_in_both_orders() {
         let kernel = Kernel::default();
-        let mut objects = scene();
+        let objects = scene();
         let empty = Tree::<Obj>::from_point(Point3::ZERO, 0.0, false);
         let mut populated = Tree::<Obj>::from_point(Point3::ZERO, 0.0, true);
         let item = populated.object_list().unwrap()[0];
@@ -1102,7 +1034,7 @@ mod tests {
         for swap in [false, true] {
             let mut solver = TopologySolver::new(
                 &kernel,
-                &mut objects,
+                &objects,
                 SolverOperation::Intersect,
                 SolutionRequested::All,
                 1e-6,
@@ -1122,11 +1054,11 @@ mod tests {
     #[test]
     fn edge_vertex_rejects_the_upstream_wrong_class_operand() {
         let kernel = Kernel::default();
-        let mut objects = scene();
+        let objects = scene();
         for swap in [false, true] {
             let mut solver = TopologySolver::new(
                 &kernel,
-                &mut objects,
+                &objects,
                 SolverOperation::Intersect,
                 SolutionRequested::All,
                 1e-6,

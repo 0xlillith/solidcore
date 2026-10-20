@@ -47,6 +47,7 @@ impl QueryMetadata {
     }
 
     /// A query guard for a single edge curve that is about to be read.
+    #[cfg(test)]
     pub(crate) fn require_curve_geometry(&self, edge: EdgeId) -> solidcore::Result<()> {
         if self.topology.is_empty() && !self.curves.contains_key(&edge) {
             Ok(())
@@ -59,6 +60,7 @@ impl QueryMetadata {
     }
 
     /// Explain all limitations when a geometry guard was actually reached.
+    #[cfg(test)]
     pub(crate) fn deferred_output(&self) -> Option<Output> {
         self.deferred_output_for(true, true)
     }
@@ -84,6 +86,7 @@ impl QueryMetadata {
 
     /// Explain the reached curve's limitations without naming unvisited geometry.
     /// Topology limitations remain included, as in [`Self::deferred_output_for`].
+    #[cfg(test)]
     pub(crate) fn deferred_output_for_curve(&self, edge: EdgeId) -> Option<Output> {
         let mut reasons: Vec<&str> = self.topology.iter().map(String::as_str).collect();
         if let Some(curve) = self.curves.get(&edge) {
@@ -358,8 +361,23 @@ pub(crate) fn apply_query_metadata(
         region.is_void = is_void;
     }
     if let NativeValue::Known(list) = regions {
-        brep.set_region_list(list.into_iter().map(RegionId::from_index).collect())
-            .map_err(|e| error(e.to_string()))?;
+        // Main represents region order as attached arena order rotated to its head.
+        // Install real membership, then reject an unrepresentable order explicitly.
+        let order: Vec<_> = list.into_iter().map(RegionId::from_index).collect();
+        let ids: Vec<_> = brep.regions().ids().collect();
+        for id in ids {
+            brep.region_mut(id)
+                .map_err(|e| error(e.to_string()))?
+                .in_brep = order.contains(&id);
+        }
+        brep.set_region_list_head(order.first().copied());
+        if solidcore::topology::brep::p1::regions(brep, None).map_err(|e| error(e.to_string()))?
+            != order
+        {
+            return Err(error(
+                "native region order is not representable by main's attached arena order/head",
+            ));
+        }
     }
     if let NativeValue::Known(list) = faces {
         brep.set_face_list(list.into_iter().map(FaceId::from_index).collect())
@@ -402,6 +420,13 @@ pub(crate) fn apply_query_metadata(
         face.rectangular_trim = rectangular_trim;
     }
     Ok(report)
+}
+
+/// Fixture-local identities preserve native owner kinds and do not alias arena ids.
+pub(super) fn query_graph_identity(object: CacheObject) -> ObjectRef {
+    let mut identity = solidcore::topology::brep_cache::arena_identity(object);
+    identity.key = solidcore::geom::attribute::ObjectKey(identity.key.0 + 0x10_0000);
+    identity
 }
 
 #[cfg(test)]

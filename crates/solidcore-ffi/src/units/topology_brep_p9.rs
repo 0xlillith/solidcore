@@ -65,37 +65,21 @@ pub struct Request<'a> {
 /// callable. Part-container streams (UB-1)
 /// are rejected before the shared native fixture validator reads them.
 pub fn eval(request: Request<'_>, export_only: bool) -> Result<Vec<f64>, FfiError> {
-    eval_mode(request, i32::from(export_only))
+    eval_mode(request, u8::from(export_only))
 }
 
-/// Initial graph and query metadata of the same prepared native B-rep.
-#[derive(Debug)]
-pub struct QueryFixture {
-    /// The historical export-only result, including its two prepared VU ids.
-    pub initial: Vec<f64>,
-    /// Native lists, tolerances, concrete types and direct geometry owners.
-    pub metadata: Vec<f64>,
-}
-
-/// Export the real input needed by the infinite-region query adapter.
-/// The shim reads the graph and its metadata from one B-rep, before the query.
-pub fn query_fixture(request: Request<'_>) -> Result<QueryFixture, FfiError> {
-    let mut initial = eval_mode(request, 2)?;
-    let bad = || FfiError::InvalidArgument("brep_p9 query fixture envelope".into());
-    let length = *initial.first().ok_or_else(bad)?;
-    if !length.is_finite()
-        || length.fract() != 0.0
-        || length < 3.0
-        || length >= initial.len().saturating_sub(1) as f64
-    {
-        return Err(bad());
+/// Exact input-only metadata after native preparation of FindInfiniteRegion.
+/// Uses the same validated request and performs no queried operation.
+pub fn query_metadata(request: Request<'_>) -> Result<Vec<f64>, FfiError> {
+    if request.op != 0 {
+        return Err(FfiError::InvalidArgument(
+            "metadata requires FindInfiniteRegion fixture".into(),
+        ));
     }
-    let metadata = initial.split_off(1 + length as usize);
-    initial.remove(0);
-    Ok(QueryFixture { initial, metadata })
+    eval_mode(request, 2)
 }
 
-fn eval_mode(request: Request<'_>, export_only: i32) -> Result<Vec<f64>, FfiError> {
+fn eval_mode(request: Request<'_>, export_mode: u8) -> Result<Vec<f64>, FfiError> {
     let bad = || FfiError::InvalidArgument("brep_p9 request or fixture".into());
     if request.op > 8 || request.variant > 5 {
         return Err(bad());
@@ -132,7 +116,7 @@ fn eval_mode(request: Request<'_>, export_only: i32) -> Result<Vec<f64>, FfiErro
         unsafe {
             sys::sc_topology_brep_p9_eval(
                 i32::from(request.op),
-                export_only,
+                i32::from(export_mode),
                 i32::from(request.selector),
                 i32::from(request.variant),
                 i32::from(request.editing),

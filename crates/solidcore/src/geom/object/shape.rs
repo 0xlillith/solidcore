@@ -119,7 +119,7 @@ fn face_box(
 ) -> Result<()> {
     // The loose face call writes only on success; one precompute loop reuses out.
     ignore_status(
-        crate::query::face::p1::calculate_loose_bounding_box(k, objects.brep(face.0)?, face.1)
+        crate::query::face::p1::calculate_bounding_box(k, objects.brep(face.0)?, face.1, false)
             .map(|value| *out = value),
     )
 }

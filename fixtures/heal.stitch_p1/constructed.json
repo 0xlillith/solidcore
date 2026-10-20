@@ -1,38 +1,6 @@
 {
  "cases": [
   {
-   "name": "unify_null_face_with_curves_on_surface",
-   "inputs": {
-    "brep": {
-     "kind": "brep",
-     "brep": {
-      "kind": "crv_on_surf_face",
-      "surface": {
-       "bspline": {
-        "net": [
-         [[0, 0, 0, 1], [0, 1, 0, 1]],
-         [[1, 0, 0, 1], [1, 1, 0, 1]]
-        ],
-        "p": 1,
-        "q": 1,
-        "u": [0, 0, 1, 1],
-        "v": [0, 0, 1, 1]
-       }
-      },
-      "dom": [0, 0, 1, 1]
-     }
-    },
-    "op": {
-     "op": "api",
-     "which": 4,
-     "null_brep": false,
-     "face": -1,
-     "n": 3
-    }
-   },
-   "upstream_ref": "source/SM_API/src/SmApiBrep.cpp SmApiUnifyNormals: null start face returns before geometry access"
-  },
-  {
    "name": "box_stitch_into_solid",
    "inputs": {
     "brep": {

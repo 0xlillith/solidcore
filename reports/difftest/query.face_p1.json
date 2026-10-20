@@ -8195,1350 +8195,6 @@
     },
     {
       "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind0_high_bit_only",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#0 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind0_all_bits",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#1 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind0_minimum_i32",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#2 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind0_maximum_i32",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#3 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind0_high_bit_and_point",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#4 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind1_high_bit_only",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#5 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind1_all_bits",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#6 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind1_minimum_i32",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#7 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind1_maximum_i32",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#8 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind1_high_bit_and_point",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#9 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind2_high_bit_only",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#10 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind2_all_bits",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#11 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind2_minimum_i32",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#12 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind2_maximum_i32",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#13 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "curve_output_mask_kind2_high_bit_and_point",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/query.face_p1/curve_output_masks.json#14 (upstream source/SM_API/src/SmApiCurves.cpp:1043-1080; source/SM_API/inc/SmApiCurves.h:171-177)",
-      "values_compared": 9
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_baseline",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#0 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_baseline_hint",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#1 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_source_negative_small",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#2 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_source_negative_one",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#3 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_classification_negative_small",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#4 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_classification_negative_one",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#5 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_source_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#6 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_classification_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#7 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_point_x_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#8 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_point_z_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#9 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_active_guess_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#10 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_source_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#11 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_classification_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#12 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_point_x_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#13 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_point_z_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#14 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_active_guess_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#15 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_source_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#16 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_classification_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#17 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_point_x_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#18 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_point_z_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#19 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_active_guess_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#20 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_active_guess_u_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#21 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_containment_active_guess_v_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#22 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_baseline",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#23 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_baseline_hint",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#24 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_source_negative_small",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#25 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_source_negative_one",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#26 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_classification_negative_small",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#27 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_classification_negative_one",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#28 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_source_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#29 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_classification_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#30 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_point_x_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#31 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_point_z_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#32 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_active_guess_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#33 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_source_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#34 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_classification_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#35 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_point_x_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#36 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_point_z_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#37 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_active_guess_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#38 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_source_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#39 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_classification_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#40 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_point_x_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#41 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_point_z_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#42 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_active_guess_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#43 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_active_guess_u_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#44 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_plane_boundary_active_guess_v_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#45 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_baseline",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#46 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_baseline_hint",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#47 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_source_negative_small",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#48 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_source_negative_one",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#49 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_classification_negative_small",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#50 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_classification_negative_one",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#51 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_source_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#52 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_classification_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#53 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_point_x_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#54 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_point_z_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#55 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_active_guess_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#56 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_source_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#57 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_classification_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#58 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_point_x_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#59 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_point_z_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#60 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_active_guess_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#61 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_source_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#62 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_classification_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#63 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_point_x_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#64 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_point_z_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#65 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_active_guess_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#66 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_active_guess_u_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#67 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_containment_active_guess_v_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#68 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_baseline",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#69 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_baseline_hint",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#70 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_source_negative_small",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#71 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_source_negative_one",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#72 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_classification_negative_small",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#73 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_classification_negative_one",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#74 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_source_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#75 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_classification_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#76 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_point_x_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#77 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_point_z_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#78 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_active_guess_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#79 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_source_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#80 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_classification_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#81 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_point_x_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#82 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_point_z_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#83 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_active_guess_positive_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#84 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_source_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#85 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_classification_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#86 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_point_x_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#87 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_point_z_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#88 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_active_guess_negative_infinity",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#89 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_active_guess_u_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#90 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point3d_numeric_bilinear_boundary_active_guess_v_nan",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point3d_numeric_guards.json#91 (upstream source/SMLib/src/SmFace.cpp:12756-12880; SmZoneTol3d constructor at the native call boundary)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_plane_interior_global",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#0 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_plane_edge_global",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#1 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_plane_vertex_global",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#2 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_plane_boundary_without_intersections",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#3 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_explicit_uv_empty_target_loops",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#4 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_plane_local_guess",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#5 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_face_uv_domain_still_applies",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#6 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_surface_distance_still_applies",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#7 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_bspline_global",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#8 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
-      },
-      "max_rel_err": 0.0,
-      "name": "point_test_scope_bspline_offset_guess",
-      "outcome": "deferred",
-      "pass": false,
-      "source": "fixture:fixtures/query.face_p1/point_test_scope.json#9 (upstream source/SMLib/src/SmFace.cpp:12791-12880; source/SMLib/src/SmSurface.cpp:20030-20107)",
-      "values_compared": 0
-    },
-    {
-      "max_rel_err": 0.0,
       "name": "gen0000",
       "outcome": "pass",
       "pass": true,
@@ -9575,8 +8231,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0004",
@@ -9587,8 +8243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0005",
@@ -9651,8 +8307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0012",
@@ -9664,7 +8320,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0013",
@@ -9691,8 +8347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0016",
@@ -9739,8 +8395,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0021",
@@ -9751,8 +8407,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0022",
@@ -9795,8 +8451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0027",
@@ -9863,8 +8519,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0034",
@@ -9911,8 +8567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0038",
@@ -9923,8 +8579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0039",
@@ -9963,8 +8619,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0043",
@@ -9999,8 +8655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0047",
@@ -10020,7 +8676,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0049",
@@ -10103,8 +8759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0057",
@@ -10123,8 +8779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0059",
@@ -10135,8 +8791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0060",
@@ -10147,8 +8803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0061",
@@ -10159,8 +8815,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0062",
@@ -10172,7 +8828,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0063",
@@ -10191,8 +8847,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0065",
@@ -10228,7 +8884,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0069",
@@ -10267,8 +8923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0073",
@@ -10295,8 +8951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0076",
@@ -10331,8 +8987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0080",
@@ -10351,8 +9007,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0082",
@@ -10363,8 +9019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0083",
@@ -10375,8 +9031,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0084",
@@ -10387,8 +9043,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0085",
@@ -10455,8 +9111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0093",
@@ -10492,7 +9148,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0097",
@@ -10519,8 +9175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0100",
@@ -10531,8 +9187,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0101",
@@ -10551,8 +9207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0103",
@@ -10564,7 +9220,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0104",
@@ -10684,7 +9340,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0116",
@@ -10695,8 +9351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0117",
@@ -10723,8 +9379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0120",
@@ -10803,8 +9459,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0129",
@@ -10823,8 +9479,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0131",
@@ -10899,8 +9555,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0138",
@@ -10911,8 +9567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0139",
@@ -10931,8 +9587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0141",
@@ -10944,7 +9600,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0142",
@@ -10955,8 +9611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0143",
@@ -11003,8 +9659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0148",
@@ -11023,8 +9679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0150",
@@ -11035,8 +9691,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0151",
@@ -11047,8 +9703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0152",
@@ -11115,8 +9771,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0159",
@@ -11127,8 +9783,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0160",
@@ -11180,7 +9836,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0165",
@@ -11191,8 +9847,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0166",
@@ -11211,8 +9867,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0168",
@@ -11267,8 +9923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0174",
@@ -11339,8 +9995,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0182",
@@ -11391,8 +10047,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0187",
@@ -11411,8 +10067,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0189",
@@ -11423,8 +10079,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0190",
@@ -11447,8 +10103,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0192",
@@ -11467,8 +10123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0194",
@@ -11479,8 +10135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0195",
@@ -11543,8 +10199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0202",
@@ -11571,8 +10227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0205",
@@ -11591,8 +10247,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0207",
@@ -11603,8 +10259,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0208",
@@ -11623,8 +10279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0210",
@@ -11635,8 +10291,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0211",
@@ -11647,8 +10303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0212",
@@ -11659,8 +10315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0213",
@@ -11671,8 +10327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0214",
@@ -11695,8 +10351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0216",
@@ -11723,8 +10379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0219",
@@ -11743,8 +10399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0221",
@@ -11756,7 +10412,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0222",
@@ -11855,8 +10511,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0233",
@@ -11883,8 +10539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0236",
@@ -11911,8 +10567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0239",
@@ -11923,8 +10579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0240",
@@ -11963,8 +10619,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0244",
@@ -12008,7 +10664,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0249",
@@ -12091,8 +10747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0258",
@@ -12135,8 +10791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0262",
@@ -12159,8 +10815,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0264",
@@ -12183,8 +10839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0266",
@@ -12219,8 +10875,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0269",
@@ -12263,8 +10919,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0274",
@@ -12323,8 +10979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0281",
@@ -12335,8 +10991,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0282",
@@ -12348,7 +11004,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0283",
@@ -12359,8 +11015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0284",
@@ -12371,8 +11027,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0285",
@@ -12395,8 +11051,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0287",
@@ -12408,7 +11064,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0288",
@@ -12451,8 +11107,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0293",
@@ -12495,8 +11151,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0297",
@@ -12507,8 +11163,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0298",
@@ -12551,8 +11207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0303",
@@ -12563,8 +11219,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0304",
@@ -12575,8 +11231,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0305",
@@ -12607,8 +11263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0308",
@@ -12619,8 +11275,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0309",
@@ -12631,8 +11287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0310",
@@ -12671,8 +11327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0314",
@@ -12695,8 +11351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0316",
@@ -12715,8 +11371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0318",
@@ -12727,8 +11383,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0319",
@@ -12751,8 +11407,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0321",
@@ -12775,8 +11431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0323",
@@ -12787,8 +11443,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0324",
@@ -12807,8 +11463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0326",
@@ -12820,7 +11476,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0327",
@@ -12839,8 +11495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0329",
@@ -12899,8 +11555,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0335",
@@ -12947,8 +11603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0339",
@@ -12971,8 +11627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0341",
@@ -12983,8 +11639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0342",
@@ -13011,8 +11667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0345",
@@ -13023,8 +11679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0346",
@@ -13044,7 +11700,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0348",
@@ -13083,8 +11739,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0352",
@@ -13119,8 +11775,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0356",
@@ -13159,8 +11815,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0360",
@@ -13171,8 +11827,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0361",
@@ -13216,7 +11872,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0366",
@@ -13235,8 +11891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0368",
@@ -13295,8 +11951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0374",
@@ -13323,8 +11979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0377",
@@ -13359,8 +12015,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0381",
@@ -13399,8 +12055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0385",
@@ -13435,8 +12091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0389",
@@ -13455,8 +12111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0391",
@@ -13467,8 +12123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0392",
@@ -13479,8 +12135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0393",
@@ -13507,8 +12163,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0396",
@@ -13519,8 +12175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0397",
@@ -13571,8 +12227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0402",
@@ -13583,8 +12239,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0403",
@@ -13596,7 +12252,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0404",
@@ -13615,8 +12271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0406",
@@ -13647,8 +12303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0409",
@@ -13659,8 +12315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0410",
@@ -13691,8 +12347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0413",
@@ -13703,8 +12359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0414",
@@ -13715,8 +12371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0415",
@@ -13759,8 +12415,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0420",
@@ -13807,8 +12463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0425",
@@ -13827,8 +12483,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0427",
@@ -13839,8 +12495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0428",
@@ -13851,8 +12507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0429",
@@ -13879,8 +12535,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0432",
@@ -13891,8 +12547,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0433",
@@ -13911,8 +12567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0435",
@@ -13923,8 +12579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0436",
@@ -13936,7 +12592,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0437",
@@ -13955,8 +12611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0439",
@@ -13967,8 +12623,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0440",
@@ -13979,8 +12635,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0441",
@@ -14011,8 +12667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0444",
@@ -14023,8 +12679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0445",
@@ -14067,8 +12723,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0449",
@@ -14079,8 +12735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0450",
@@ -14091,8 +12747,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0451",
@@ -14115,8 +12771,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0453",
@@ -14143,8 +12799,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0456",
@@ -14164,7 +12820,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0458",
@@ -14176,7 +12832,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0459",
@@ -14188,7 +12844,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0460",
@@ -14227,8 +12883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0464",
@@ -14248,7 +12904,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0466",
@@ -14259,8 +12915,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0467",
@@ -14271,8 +12927,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0468",
@@ -14283,8 +12939,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0469",
@@ -14372,7 +13028,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0478",
@@ -14383,8 +13039,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0479",
@@ -14404,7 +13060,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0481",
@@ -14415,8 +13071,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0482",
@@ -14427,8 +13083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0483",
@@ -14463,8 +13119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0487",
@@ -14476,7 +13132,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0488",
@@ -14503,8 +13159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0491",
@@ -14539,8 +13195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0495",
@@ -14551,8 +13207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0496",
@@ -14663,8 +13319,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0508",
@@ -14675,8 +13331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0509",
@@ -14695,8 +13351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0511",
@@ -14715,8 +13371,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0513",
@@ -14739,8 +13395,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0515",
@@ -14779,8 +13435,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0519",
@@ -14791,8 +13447,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0520",
@@ -14811,8 +13467,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0522",
@@ -14867,8 +13523,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0528",
@@ -14903,8 +13559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0532",
@@ -14915,8 +13571,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0533",
@@ -14955,8 +13611,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0537",
@@ -15015,8 +13671,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0544",
@@ -15027,8 +13683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0545",
@@ -15039,8 +13695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0546",
@@ -15064,7 +13720,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0548",
@@ -15095,8 +13751,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0551",
@@ -15107,8 +13763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0552",
@@ -15119,8 +13775,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0553",
@@ -15208,7 +13864,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0563",
@@ -15219,8 +13875,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0564",
@@ -15243,8 +13899,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0566",
@@ -15291,8 +13947,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0571",
@@ -15323,8 +13979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0574",
@@ -15347,8 +14003,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0576",
@@ -15367,8 +14023,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0578",
@@ -15379,8 +14035,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0579",
@@ -15427,8 +14083,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0584",
@@ -15467,8 +14123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0588",
@@ -15479,8 +14135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0589",
@@ -15507,8 +14163,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0592",
@@ -15519,8 +14175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0593",
@@ -15539,8 +14195,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0595",
@@ -15551,8 +14207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0596",
@@ -15647,8 +14303,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0606",
@@ -15659,8 +14315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0607",
@@ -15679,8 +14335,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0609",
@@ -15747,8 +14403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0615",
@@ -15795,8 +14451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0620",
@@ -15808,7 +14464,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0621",
@@ -15820,7 +14476,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0622",
@@ -15831,8 +14487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0623",
@@ -15851,8 +14507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0625",
@@ -15903,8 +14559,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0631",
@@ -15943,8 +14599,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0635",
@@ -15979,8 +14635,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0639",
@@ -15991,8 +14647,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0640",
@@ -16011,8 +14667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0642",
@@ -16023,8 +14679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0643",
@@ -16047,8 +14703,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0645",
@@ -16079,8 +14735,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0648",
@@ -16103,8 +14759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0650",
@@ -16143,8 +14799,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0654",
@@ -16167,8 +14823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0656",
@@ -16227,8 +14883,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0662",
@@ -16239,8 +14895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0663",
@@ -16287,8 +14943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0668",
@@ -16307,8 +14963,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0670",
@@ -16327,8 +14983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0672",
@@ -16363,8 +15019,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0676",
@@ -16399,8 +15055,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0680",
@@ -16412,7 +15068,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0681",
@@ -16431,8 +15087,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0683",
@@ -16463,8 +15119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0686",
@@ -16487,8 +15143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0688",
@@ -16499,8 +15155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0689",
@@ -16551,8 +15207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0694",
@@ -16575,8 +15231,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0696",
@@ -16587,8 +15243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0697",
@@ -16607,8 +15263,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0699",
@@ -16676,7 +15332,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0705",
@@ -16695,8 +15351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0707",
@@ -16707,8 +15363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0708",
@@ -16719,8 +15375,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0709",
@@ -16795,8 +15451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0716",
@@ -16807,8 +15463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0717",
@@ -16819,8 +15475,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0718",
@@ -16839,8 +15495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0720",
@@ -16939,8 +15595,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0729",
@@ -17027,8 +15683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0738",
@@ -17059,8 +15715,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0741",
@@ -17083,8 +15739,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0743",
@@ -17095,8 +15751,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0744",
@@ -17156,7 +15812,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0751",
@@ -17200,7 +15856,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0755",
@@ -17235,8 +15891,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0759",
@@ -17255,8 +15911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0761",
@@ -17267,8 +15923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0762",
@@ -17311,8 +15967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0767",
@@ -17323,8 +15979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0768",
@@ -17387,8 +16043,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0775",
@@ -17455,8 +16111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0782",
@@ -17487,8 +16143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0785",
@@ -17548,7 +16204,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0791",
@@ -17572,7 +16228,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0793",
@@ -17611,8 +16267,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0797",
@@ -17623,8 +16279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0798",
@@ -17635,8 +16291,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0799",
@@ -17648,7 +16304,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0800",
@@ -17695,8 +16351,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0805",
@@ -17707,8 +16363,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0806",
@@ -17731,8 +16387,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0808",
@@ -17787,8 +16443,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0814",
@@ -17799,8 +16455,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0815",
@@ -17820,7 +16476,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0817",
@@ -17843,8 +16499,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0819",
@@ -17864,7 +16520,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0821",
@@ -17875,8 +16531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0822",
@@ -17887,8 +16543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0823",
@@ -17911,8 +16567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0825",
@@ -17931,8 +16587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0827",
@@ -17959,8 +16615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0830",
@@ -17991,8 +16647,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0833",
@@ -18003,8 +16659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0834",
@@ -18015,8 +16671,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0835",
@@ -18063,8 +16719,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0840",
@@ -18075,8 +16731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0841",
@@ -18103,8 +16759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0844",
@@ -18123,8 +16779,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0846",
@@ -18135,8 +16791,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0847",
@@ -18147,8 +16803,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0848",
@@ -18159,8 +16815,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0849",
@@ -18183,8 +16839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0851",
@@ -18204,7 +16860,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0853",
@@ -18243,8 +16899,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0857",
@@ -18255,8 +16911,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0858",
@@ -18267,8 +16923,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0859",
@@ -18287,8 +16943,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0861",
@@ -18299,8 +16955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0862",
@@ -18327,8 +16983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0865",
@@ -18355,8 +17011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0868",
@@ -18407,8 +17063,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0873",
@@ -18419,8 +17075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0874",
@@ -18459,8 +17115,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0878",
@@ -18471,8 +17127,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0879",
@@ -18503,8 +17159,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0882",
@@ -18515,8 +17171,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0883",
@@ -18567,8 +17223,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0888",
@@ -18587,8 +17243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0890",
@@ -18599,8 +17255,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0891",
@@ -18639,8 +17295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0895",
@@ -18699,8 +17355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0902",
@@ -18711,8 +17367,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0903",
@@ -18751,8 +17407,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0907",
@@ -18823,8 +17479,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0914",
@@ -18851,8 +17507,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0917",
@@ -18899,8 +17555,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0922",
@@ -18911,8 +17567,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0923",
@@ -18959,8 +17615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0928",
@@ -19011,8 +17667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0933",
@@ -19023,8 +17679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0934",
@@ -19036,7 +17692,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0935",
@@ -19067,8 +17723,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0938",
@@ -19103,8 +17759,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0941",
@@ -19116,7 +17772,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0942",
@@ -19155,8 +17811,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0946",
@@ -19167,8 +17823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0947",
@@ -19239,8 +17895,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0955",
@@ -19251,8 +17907,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0956",
@@ -19283,8 +17939,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0959",
@@ -19295,8 +17951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0960",
@@ -19323,8 +17979,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0963",
@@ -19343,8 +17999,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0965",
@@ -19391,8 +18047,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0970",
@@ -19412,7 +18068,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0972",
@@ -19455,8 +18111,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0976",
@@ -19467,8 +18123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0977",
@@ -19479,8 +18135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0978",
@@ -19523,8 +18179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0983",
@@ -19543,8 +18199,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0985",
@@ -19587,8 +18243,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0989",
@@ -19643,8 +18299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0995",
@@ -19675,8 +18331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0998",
@@ -19735,8 +18391,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1005",
@@ -19755,8 +18411,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1007",
@@ -19795,8 +18451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1011",
@@ -19827,8 +18483,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1014",
@@ -19875,8 +18531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1019",
@@ -19887,8 +18543,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1020",
@@ -19923,8 +18579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1024",
@@ -19935,8 +18591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1025",
@@ -19948,7 +18604,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1026",
@@ -19987,8 +18643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1030",
@@ -19999,8 +18655,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1031",
@@ -20011,8 +18667,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1032",
@@ -20035,8 +18691,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1034",
@@ -20075,8 +18731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1038",
@@ -20087,8 +18743,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1039",
@@ -20111,8 +18767,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1041",
@@ -20140,7 +18796,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1044",
@@ -20171,8 +18827,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1047",
@@ -20183,8 +18839,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1048",
@@ -20195,8 +18851,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1049",
@@ -20207,8 +18863,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1050",
@@ -20256,7 +18912,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1054",
@@ -20268,7 +18924,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1055",
@@ -20280,7 +18936,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1056",
@@ -20299,8 +18955,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1058",
@@ -20355,8 +19011,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1063",
@@ -20375,8 +19031,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1065",
@@ -20388,7 +19044,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1066",
@@ -20407,8 +19063,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1068",
@@ -20435,8 +19091,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1071",
@@ -20463,8 +19119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1074",
@@ -20487,8 +19143,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1076",
@@ -20499,8 +19155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1077",
@@ -20535,8 +19191,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1080",
@@ -20547,8 +19203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1081",
@@ -20571,8 +19227,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1083",
@@ -20591,8 +19247,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1085",
@@ -20623,8 +19279,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1088",
@@ -20651,8 +19307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1091",
@@ -20739,8 +19395,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1100",
@@ -20775,8 +19431,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1104",
@@ -20795,8 +19451,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1106",
@@ -20807,8 +19463,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1107",
@@ -20832,7 +19488,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1109",
@@ -20844,7 +19500,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1110",
@@ -20947,8 +19603,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1121",
@@ -20959,8 +19615,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1122",
@@ -20971,8 +19627,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1123",
@@ -20983,8 +19639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1124",
@@ -21027,8 +19683,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1129",
@@ -21039,8 +19695,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1130",
@@ -21051,8 +19707,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1131",
@@ -21083,8 +19739,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1134",
@@ -21163,8 +19819,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1142",
@@ -21176,7 +19832,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1143",
@@ -21187,8 +19843,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1144",
@@ -21244,7 +19900,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1150",
@@ -21264,7 +19920,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1152",
@@ -21283,8 +19939,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1154",
@@ -21295,8 +19951,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1155",
@@ -21307,8 +19963,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1156",
@@ -21387,8 +20043,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1164",
@@ -21419,8 +20075,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1167",
@@ -21431,8 +20087,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1168",
@@ -21443,8 +20099,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1169",
@@ -21467,8 +20123,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1171",
@@ -21479,8 +20135,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1172",
@@ -21507,8 +20163,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1175",
@@ -21519,8 +20175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1176",
@@ -21547,8 +20203,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1179",
@@ -21659,8 +20315,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1191",
@@ -21699,8 +20355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1195",
@@ -21711,8 +20367,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1196",
@@ -21723,8 +20379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmFace::GetTolerance",
+        "unit": "topology.face_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen1197",
@@ -21755,21 +20411,20 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 756,
+  "cases_deferred": 654,
   "cases_failed": 0,
-  "cases_passed": 1585,
-  "cases_total": 2341,
+  "cases_passed": 1570,
+  "cases_total": 2224,
   "deferred_by_unit": {
     "curve.crv_on_surf": 19,
+    "geom.tol": 57,
     "harness:analytic-geometry-export": 31,
     "intersect.surface_drop_lib_p3": 36,
     "surface.cone_p1": 41,
     "surface.sphere": 12,
     "surface.surf_of_extrusion_p2": 59,
-    "surface.surface_cache_p2": 297,
-    "topology.face_p2": 24,
-    "topology.face_p3": 2,
-    "topology.face_p4": 235
+    "topology.face_p2": 397,
+    "topology.face_p3": 2
   },
   "max_rel_err": 0.0,
   "pass": true,

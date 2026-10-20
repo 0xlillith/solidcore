@@ -8,9 +8,8 @@
 //! `ComputeSilhouettes`' edge loop) and back-facing edges, and runs one member. It
 //! exports the scene B-rep (`GetSceneBrep()`, the copy transformed by the unported
 //! `SmBrep` copy constructor and `Transform`) with its `CalculateBoundingBox` (unit
-//! `query.brep`); the Rust side imports that scene record by record (the
-//! `topology.vertexuse` importer), computes its own query box through
-//! [`Hcr::from_transformed_scene`], seeds the same
+//! `query.brep`, unported); the Rust side imports that scene record by record (the
+//! `topology.vertexuse` importer), builds its HCR with [`Hcr::from_scene`], seeds the same
 //! edges and runs the same member. Both sides first build the scene (shim op 8) and check
 //! the seeds and op arguments against it with the same `ffi::validate`.
 //!
@@ -44,15 +43,11 @@
 //! `ComputeSilhouettes` and `ComputeGlobalVisibility` are not run: their C++ path reaches
 //! UB-170 on open silhouette chains.
 
-use super::topology_vertexuse::{
-    gen_brep, import, path_of, push_curve, push_surface, sel, BrepIn, CrvIn,
-};
+use super::topology_vertexuse::{gen_brep, import, path_of, push_curve, push_surface, sel, BrepIn, CrvIn};
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use solidcore::blend::hcr::{
-    new_curve_classification, view_transform_for_vector, Hcr, HcrObject, HcrOptions,
-};
+use solidcore::blend::hcr::{new_curve_classification, view_transform_for_vector, Hcr, HcrObject, HcrOptions};
 use solidcore::curve::curve::p2::{BSPLINE_CURVE_TYPE, LINE_TYPE};
 use solidcore::curve::curve::Curve;
 use solidcore::geom::axis2_placement::Axis2Placement;
@@ -79,34 +74,13 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 #[serde(tag = "op", rename_all = "snake_case")]
 enum OpIn {
     Construct,
-    IsSilhouette {
-        edge: i64,
-    },
-    IsBackFacing {
-        edge: i64,
-    },
-    Intersect {
-        edge: i64,
-        fa: f64,
-        fb: f64,
-    },
-    CurveVisibility {
-        edge: i64,
-        fa: f64,
-        fb: f64,
-        start_hint: f64,
-        end_hint: f64,
-    },
-    EdgeVisibility {
-        edge: i64,
-        vertex: i64,
-        visible: bool,
-        premark: bool,
-    },
+    IsSilhouette { edge: i64 },
+    IsBackFacing { edge: i64 },
+    Intersect { edge: i64, fa: f64, fb: f64 },
+    CurveVisibility { edge: i64, fa: f64, fb: f64, start_hint: f64, end_hint: f64 },
+    EdgeVisibility { edge: i64, vertex: i64, visible: bool, premark: bool },
     SilhouetteEdges,
-    PointVisible {
-        p: [f64; 3],
-    },
+    PointVisible { p: [f64; 3] },
 }
 
 /// A wire edge added to the B-rep (`CreateWireEdgeFromCurve`).
@@ -201,12 +175,7 @@ struct Resolved {
 }
 
 fn resolve(i: &Inputs, n_e: usize, n_v: usize) -> Option<Resolved> {
-    if n_e == 0
-        && !matches!(
-            i.op,
-            OpIn::Construct | OpIn::SilhouetteEdges | OpIn::PointVisible { .. }
-        )
-    {
+    if n_e == 0 && !matches!(i.op, OpIn::Construct | OpIn::SilhouetteEdges | OpIn::PointVisible { .. }) {
         return None;
     }
     let e = |s: i64| sel(s, n_e).max(0);
@@ -217,44 +186,17 @@ fn resolve(i: &Inputs, n_e: usize, n_v: usize) -> Option<Resolved> {
     } else {
         i.sil.iter().map(|&s| e(s)).collect()
     };
-    let back = if n_e == 0 {
-        Vec::new()
-    } else {
-        i.back.iter().map(|&s| e(s)).collect()
-    };
+    let back = if n_e == 0 { Vec::new() } else { i.back.iter().map(|&s| e(s)).collect() };
     let op = match i.op.clone() {
         OpIn::IsSilhouette { edge } => OpIn::IsSilhouette { edge: e(edge) },
         OpIn::IsBackFacing { edge } => OpIn::IsBackFacing { edge: e(edge) },
-        OpIn::Intersect { edge, fa, fb } => OpIn::Intersect {
+        OpIn::Intersect { edge, fa, fb } => OpIn::Intersect { edge: e(edge), fa, fb },
+        OpIn::CurveVisibility { edge, fa, fb, start_hint, end_hint } => {
+            OpIn::CurveVisibility { edge: e(edge), fa, fb, start_hint, end_hint }
+        }
+        OpIn::EdgeVisibility { edge, vertex, visible, premark } => OpIn::EdgeVisibility {
             edge: e(edge),
-            fa,
-            fb,
-        },
-        OpIn::CurveVisibility {
-            edge,
-            fa,
-            fb,
-            start_hint,
-            end_hint,
-        } => OpIn::CurveVisibility {
-            edge: e(edge),
-            fa,
-            fb,
-            start_hint,
-            end_hint,
-        },
-        OpIn::EdgeVisibility {
-            edge,
-            vertex,
-            visible,
-            premark,
-        } => OpIn::EdgeVisibility {
-            edge: e(edge),
-            vertex: if vertex < 0 || n_v == 0 {
-                -1
-            } else {
-                sel(vertex, n_v)
-            },
+            vertex: if vertex < 0 || n_v == 0 { -1 } else { sel(vertex, n_v) },
             visible,
             premark,
         },
@@ -269,22 +211,12 @@ fn op_args(op: &OpIn) -> (u8, Vec<f64>) {
         OpIn::IsSilhouette { edge } => (1, vec![edge as f64]),
         OpIn::IsBackFacing { edge } => (2, vec![edge as f64]),
         OpIn::Intersect { edge, fa, fb } => (3, vec![edge as f64, fa, fb, 0.0, 0.0]),
-        OpIn::CurveVisibility {
-            edge,
-            fa,
-            fb,
-            start_hint,
-            end_hint,
-        } => (4, vec![edge as f64, fa, fb, start_hint, end_hint]),
-        OpIn::EdgeVisibility {
-            edge,
-            vertex,
-            visible,
-            premark,
-        } => (
-            5,
-            vec![edge as f64, vertex as f64, flag(visible), flag(premark)],
-        ),
+        OpIn::CurveVisibility { edge, fa, fb, start_hint, end_hint } => {
+            (4, vec![edge as f64, fa, fb, start_hint, end_hint])
+        }
+        OpIn::EdgeVisibility { edge, vertex, visible, premark } => {
+            (5, vec![edge as f64, vertex as f64, flag(visible), flag(premark)])
+        }
         OpIn::SilhouetteEdges => (6, vec![]),
         OpIn::PointVisible { p } => (7, p.to_vec()),
     }
@@ -359,9 +291,7 @@ fn inexact(r: &Resolved, types: &[f64], exact_faces: &[bool]) -> bool {
 }
 
 fn output(status: f64, record: Vec<f64>) -> Output {
-    Output::new()
-        .values("status", vec![status])
-        .values("record", record)
+    Output::new().values("status", vec![status]).values("record", record)
 }
 
 impl UnitDiff for Runner {
@@ -412,7 +342,16 @@ impl UnitDiff for Runner {
                 let _ = surface.set_owner(Some(arena_identity(CacheObject::Face(id))));
             }
         }
-        match run_rust(&i, &p.r, scene) {
+        let [x0, y0, z0, x1, y1, z1] = s.scene_box;
+        let (lo, hi) = (Vec3::new(x0, y0, z0), Vec3::new(x1, y1, z1));
+        let scene_box = if lo.x <= hi.x && lo.y <= hi.y && lo.z <= hi.z {
+            Extent3d::from_points(lo, hi)
+        } else if Extent3d::new().min() == lo && Extent3d::new().max() == hi {
+            Extent3d::new()
+        } else {
+            return Err(harness("scene box neither ordered nor empty"));
+        };
+        match run_rust(&i, &p.r, scene, scene_box) {
             Ok((status, record)) => Ok(output(status, record)),
             Err(e) => Ok(Output::unported(&e).unwrap_or_else(|| match e {
                 SolidError::InvalidInput {
@@ -500,11 +439,7 @@ fn put_piece(o: &mut Vec<f64>, c: &Curve) {
     }
 }
 
-fn run_rust(
-    i: &Inputs,
-    r: &Resolved,
-    scene: Brep,
-) -> Result<(f64, Vec<f64>), SolidError> {
+fn run_rust(i: &Inputs, r: &Resolved, scene: Brep, scene_box: Extent3d) -> Result<(f64, Vec<f64>), SolidError> {
     let k = Kernel::default();
     let transform = match i.placement {
         None => view_transform_for_vector(Vec3::new(i.view[0], i.view[1], i.view[2]))?,
@@ -524,7 +459,7 @@ fn run_rust(
         display_seams: i.seams,
         display_smooth_edges: i.smooth,
     };
-    let mut h = Hcr::from_transformed_scene(&k, scene, &transform, opts)?;
+    let mut h = Hcr::from_scene(&k, scene, &transform, scene_box, opts);
     for &e in &r.sil {
         h.add_silhouette_edge(&k, eid(e))?;
     }
@@ -552,34 +487,20 @@ fn run_rust(
             let tol = edge::tolerance(h.scene_brep(), e)?;
             let mut cc = new_curve_classification(&k, HcrObject::Curve(e), ivl, tol);
             let res = match r.op {
-                OpIn::CurveVisibility {
-                    start_hint,
-                    end_hint,
-                    ..
-                } => h.compute_curve_visibility(
-                    &k,
-                    &mut cc,
-                    hint_ulong(start_hint),
-                    hint_ulong(end_hint),
-                ),
+                OpIn::CurveVisibility { start_hint, end_hint, .. } => {
+                    h.compute_curve_visibility(&k, &mut cc, hint_ulong(start_hint), hint_ulong(end_hint))
+                }
                 _ => h.intersect_curve_with_silhouettes(&k, &mut cc),
             };
             match res {
                 Ok(()) => {}
-                Err(e) if e.is_unported() || matches!(e, SolidError::InvalidInput { .. }) => {
-                    return Err(e)
-                }
+                Err(e) if e.is_unported() || matches!(e, SolidError::InvalidInput { .. }) => return Err(e),
                 Err(SolidError::Upstream { code, .. }) => status = f64::from(code),
                 Err(e) => return Err(e),
             }
             put_cc(&mut rec, &cc);
         }
-        OpIn::EdgeVisibility {
-            edge,
-            vertex,
-            visible,
-            premark,
-        } => {
+        OpIn::EdgeVisibility { edge, vertex, visible, premark } => {
             let mut marked = BTreeSet::new();
             if premark {
                 marked.insert(eid(edge));
@@ -604,9 +525,7 @@ fn run_rust(
             rec.push(edges.len() as f64);
             rec.extend(edges.iter().map(|e| f64::from(e.index())));
         }
-        OpIn::PointVisible { p } => {
-            rec.push(flag(h.is_point_visible(&k, Vec3::new(p[0], p[1], p[2]))?));
-        }
+        OpIn::PointVisible { p } => rec.push(flag(h.is_point_visible(&k, Vec3::new(p[0], p[1], p[2]))?)),
     }
     Ok((status, rec))
 }
@@ -645,10 +564,7 @@ fn scale_brep(b: &mut Value, s: f64) {
     if let Some(pts) = b.pointer_mut("/curve/cpts").and_then(Value::as_array_mut) {
         pts.iter_mut().for_each(scale_pt);
     }
-    if let Some(rows) = b
-        .pointer_mut("/surface/bspline/net")
-        .and_then(Value::as_array_mut)
-    {
+    if let Some(rows) = b.pointer_mut("/surface/bspline/net").and_then(Value::as_array_mut) {
         for row in rows.iter_mut() {
             if let Some(r) = row.as_array_mut() {
                 r.iter_mut().for_each(scale_pt);
@@ -688,11 +604,7 @@ fn gen_view(rng: &mut Rng) -> (Value, Option<Value>) {
     };
     let placement = rng.chance(0.2).then(|| {
         let z = rng.point3(-1.0, 1.0);
-        let x = if rng.chance(0.2) {
-            z
-        } else {
-            rng.point3(-1.0, 1.0)
-        };
+        let x = if rng.chance(0.2) { z } else { rng.point3(-1.0, 1.0) };
         json!([[z[0], z[1], z[2] + 0.01], [x[0], x[1], x[2]]])
     });
     (view, placement)
@@ -706,16 +618,8 @@ fn gen_op(rng: &mut Rng, edge: i64, crossing: bool) -> Value {
         (a, a + rng.uniform(0.1, 0.4))
     };
     let hint = |rng: &mut Rng| *rng.choose(&[0u8, 1, 1, 1, 2]).unwrap_or(&1);
-    let vertex = if rng.chance(0.3) {
-        -1
-    } else {
-        rng.below(1 << 20) as i64
-    };
-    let pick = if crossing {
-        2 + rng.below(12)
-    } else {
-        rng.below(16)
-    };
+    let vertex = if rng.chance(0.3) { -1 } else { rng.below(1 << 20) as i64 };
+    let pick = if crossing { 2 + rng.below(12) } else { rng.below(16) };
     match pick {
         0 | 1 => json!({"op": "construct"}),
         2 => json!({"op": "is_silhouette", "edge": edge}),
@@ -739,36 +643,19 @@ fn gen_op(rng: &mut Rng, edge: i64, crossing: bool) -> Value {
 fn gen_crossing(rng: &mut Rng) -> Value {
     let s = *rng.choose(&[1e-4, 1.0, 1.0, 1e4]).unwrap_or(&1.0);
     let sc = |p: [f64; 3]| [p[0] * s, p[1] * s, p[2] * s];
-    let base: Vec<[f64; 3]> = [
-        [0.0, 0.0, 0.0],
-        [2.0, 0.0, 0.0],
-        [2.0, 2.0, 0.0],
-        [0.0, 2.0, 0.0],
-    ]
-    .into_iter()
-    .map(sc)
-    .collect();
+    let base: Vec<[f64; 3]> = [[0.0, 0.0, 0.0], [2.0, 0.0, 0.0], [2.0, 2.0, 0.0], [0.0, 2.0, 0.0]]
+        .into_iter()
+        .map(sc)
+        .collect();
     let variant = rng.below(3);
     let mut z = || *rng.choose(&[-1.0, -0.5, 0.5, 1.0, 2.0]).unwrap_or(&1.0);
     let other: Vec<[f64; 3]> = match variant {
-        0 => [
-            [1.0, 1.0, z()],
-            [3.0, 1.0, z()],
-            [3.0, 3.0, z()],
-            [1.0, 3.0, z()],
-        ]
-        .to_vec(),
+        0 => [[1.0, 1.0, z()], [3.0, 1.0, z()], [3.0, 3.0, z()], [1.0, 3.0, z()]].to_vec(),
         1 => {
             let h = z();
             [[1.0, 0.0, h], [3.0, 0.0, h], [3.0, 2.0, h], [1.0, 2.0, h]].to_vec()
         }
-        _ => [
-            [1.5, 0.5, z()],
-            [3.0, 0.5, z()],
-            [3.0, 3.0, z()],
-            [1.5, 3.0, z()],
-        ]
-        .to_vec(),
+        _ => [[1.5, 0.5, z()], [3.0, 0.5, z()], [3.0, 3.0, z()], [1.5, 3.0, z()]].to_vec(),
     }
     .into_iter()
     .map(sc)
@@ -821,13 +708,9 @@ fn gen_case(rng: &mut Rng) -> Value {
     let sil: Vec<i64> = match rng.below(4) {
         0 => vec![],
         1 => vec![-1],
-        _ => (0..rng.below(4))
-            .map(|_| rng.below(1 << 20) as i64)
-            .collect(),
+        _ => (0..rng.below(4)).map(|_| rng.below(1 << 20) as i64).collect(),
     };
-    let back: Vec<i64> = (0..rng.below(3))
-        .map(|_| rng.below(1 << 20) as i64)
-        .collect();
+    let back: Vec<i64> = (0..rng.below(3)).map(|_| rng.below(1 << 20) as i64).collect();
     let edge = rng.below(1 << 20) as i64;
     let mut v = json!({
         "brep": brep,

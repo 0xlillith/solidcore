@@ -117,6 +117,11 @@ SC_EXPORT int32_t sc_boolean_merge_p5_eval(
     aa.brep = operand(path_a,a,status);
     if (!aa.brep || status != SM_SUCCESS) return SC_ERR_ARG;
     Graph ga; native_graph(aa.brep,ga);
+    if (mode == -2) {
+        std::vector<double> metadata;
+        append_query_metadata(aa.brep, ga, metadata);
+        return sc_copy_out(metadata.data(), (int64_t)metadata.size(), out, cap, out_len);
+    }
     if (mode == -1) {
         std::vector<double> raw{0.0};
         export_graph(aa.brep,ga,raw);
@@ -127,10 +132,6 @@ SC_EXPORT int32_t sc_boolean_merge_p5_eval(
             for (auto* vu : list_of(v->GetList())) list.push_back(ga.find(8,vu));
             put_list(result,list);
         }
-        std::vector<double> metadata;
-        append_query_metadata(aa.brep,ga,metadata);
-        result.push_back((double)metadata.size());
-        result.insert(result.end(),metadata.begin(),metadata.end());
         return sc_copy_out(result.data(),(int64_t)result.size(),out,cap,out_len);
     }
     if (mode != 0 || !b || !path_b || nb < 1)

@@ -43,16 +43,13 @@ use solidcore::topology::database_io::FileType;
 use solidcore::topology::edgeuse::p1 as eu1;
 use solidcore::topology::shell::{ShellMembers, ShellType};
 use solidcore::topology::topology::Topology;
-use solidcore::topology::topology_traverser::Marks;
 use solidcore::topology::{
-    Arena, Brep, BrepId, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId,
+    Brep, BrepId, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId,
     LoopuseStart, RegionId, ShellId, VertexId, VertexuseId, VertexuseOwner,
 };
 use solidcore::{EntityRef, Kernel, SolidError};
 use solidcore_ffi::units::topology_brep_p10::{self as ffi, Item, Op, Patch, Request};
 
-use super::topology_shell::RayQueryContext;
-use super::topology_vertexuse::QueryMetadata;
 use crate::case::{repo_root, CaseContext};
 use crate::fixtures::upstream_test_file;
 use crate::runner::default_cases;
@@ -260,20 +257,6 @@ fn key_of(e: EntityRef) -> ObjectRef {
     }
 }
 
-/// Keys of the topology built from `BrepData`; the mapping is reused by all queries.
-fn query_key(object: CacheObject) -> ObjectRef {
-    match object {
-        CacheObject::Edge(edge) | CacheObject::Curve(edge) => key_of(EntityRef::Edge(edge)),
-        CacheObject::Face(face) | CacheObject::Surface(face) => key_of(EntityRef::Face(face)),
-        CacheObject::Vertex(vertex) => key_of(EntityRef::Vertex(vertex)),
-        CacheObject::Brep => ObjectRef {
-            type_code: 16011,
-            key: ObjectKey(1u64 << KIND_SHIFT),
-        },
-        other => solidcore::topology::brep_cache::arena_identity(other),
-    }
-}
-
 fn stamp(t: &mut TopologyData, base: u64, i: u64, k: u64) {
     t.flags = base.wrapping_add(7u64.wrapping_mul(i)).wrapping_add(k);
     t.user_index1 = base.wrapping_mul(3).wrapping_add(i);
@@ -435,17 +418,7 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
     apply_patches(&mut data, &i.patches)?;
 
     let mut out = Vec::new();
-    let initial = Brep::new_with_infinite_region().map_err(|e| harness(e.to_string()))?;
-    let mut breps = Arena::<BrepId, Brep>::default();
-    let brep_id = breps.insert(initial).map_err(|e| harness(e.to_string()))?;
-    let b = breps
-        .get_mut(brep_id)
-        .ok_or_else(|| harness("missing registered B-rep"))?;
-    // BrepData builds the actual curves, surfaces and owner links; this route does
-    // not import analytic stand-ins through the legacy topology fixture decoder.
-    // The query context registers new members lazily and persists across healing
-    // and every edge/face-use closure callback.
-    let mut queries = RayQueryContext::new(b, brep_id, QueryMetadata::default(), query_key);
+    let mut b = Brep::new_with_infinite_region().map_err(|e| harness(e.to_string()))?;
     let mut store = AttributeStore::new();
     let mut records: BTreeMap<ObjectKey, Topology> = BTreeMap::new();
     let mut env = TopologyEnv {
@@ -454,7 +427,6 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
         key_of: &key_of,
         records: &mut records,
         next_key: 1u64 << 50,
-        region_queries: &mut queries,
     };
     let [make_uv_trim_curves, add_analytics, force_same_tol, check_uv_trim_curves, always_heal, healer_enabled] =
         i.options;
@@ -466,7 +438,7 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
         always_heal,
         healer_enabled,
     };
-    match make_topology_from_data(&mut k, b, &mut data, &mut env, options) {
+    match make_topology_from_data(&mut k, &mut b, &mut data, &mut env, options) {
         Ok(()) => out.push(Item::Int(0)),
         Err(e @ SolidError::Unported { .. }) => return Ok(Err(e)),
         Err(e) => {
@@ -474,34 +446,16 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
             return Ok(Ok(out));
         }
     }
-    let next_key = env.next_key;
-    // This is the last use of the construction view; the same stores and query
-    // context are borrowed directly by the operations below.
     out.push(Item::Int(i64::from(data.manifold)));
     out.push(Item::Int(i64::from(data.is_geom_borrowed)));
-    let g = Graph::walk(b).map_err(|e| harness(e.to_string()))?;
-    export(b, &g, &records, &mut out).map_err(|e| harness(e.to_string()))?;
+    let g = Graph::walk(&b).map_err(|e| harness(e.to_string()))?;
+    export(&b, &g, &records, &mut out).map_err(|e| harness(e.to_string()))?;
 
     match i.op {
         OpIn::Make => {}
         OpIn::Closure { do_infinite } => {
-            let mut marks = Marks::default();
-            let mut notify = solidcore::topology::edge::NotifyEnv {
-                records: &mut records,
-                attributes: &mut store,
-                context: None,
-                key_of: &key_of,
-            };
             for &e in &g.edges.items {
-                match test_closure_split_region(
-                    &mut k,
-                    b,
-                    &mut marks,
-                    &mut notify,
-                    do_infinite,
-                    e,
-                    &mut queries,
-                ) {
+                match test_closure_split_region(&mut k, &mut b, do_infinite, e) {
                     Ok(r) => {
                         out.push(Item::Int(0));
                         out.push(Item::Int(r.new_shells.len() as i64));
@@ -515,18 +469,18 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
                     }
                 }
             }
-            let g2 = Graph::walk(b).map_err(|e| harness(e.to_string()))?;
-            export(b, &g2, &records, &mut out).map_err(|e| harness(e.to_string()))?;
+            let g2 = Graph::walk(&b).map_err(|e| harness(e.to_string()))?;
+            export(&b, &g2, &records, &mut out).map_err(|e| harness(e.to_string()))?;
         }
         OpIn::RemoveAll { editing } => {
             b.set_editing_enabled(editing);
-            match remove_all_topology(&mut k, b) {
+            match remove_all_topology(&mut k, &mut b) {
                 Ok(()) => out.push(Item::Int(0)),
                 Err(e @ SolidError::Unported { .. }) => return Ok(Err(e)),
                 Err(e) => out.push(Item::Int(status(&e))),
             }
-            let g2 = Graph::walk(b).map_err(|e| harness(e.to_string()))?;
-            export(b, &g2, &records, &mut out).map_err(|e| harness(e.to_string()))?;
+            let g2 = Graph::walk(&b).map_err(|e| harness(e.to_string()))?;
+            export(&b, &g2, &records, &mut out).map_err(|e| harness(e.to_string()))?;
         }
         OpIn::Project {
             trim,
@@ -553,28 +507,19 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
                 1 => TrimType::DeletePoint,
                 _ => TrimType::Split,
             };
-            // Curves built by MakeTopologyFromData have direct topology owners.
-            // Preserve the actual edge-use -> edge link for any intermediate
-            // owner query; these are identities, not copied geometry.
-            let owners: BTreeMap<ObjectRef, ObjectRef> = b
-                .edgeuses()
-                .iter()
-                .filter_map(|(id, eu)| {
-                    eu.edge.map(|edge| {
-                        (
-                            key_of(EntityRef::Edgeuse(id)),
-                            key_of(EntityRef::Edge(edge)),
-                        )
-                    })
-                })
-                .collect();
-            let owner_of = |object: ObjectRef| owners.get(&object).copied();
+            let keys = |o: CacheObject| match o {
+                CacheObject::Edge(e) | CacheObject::Curve(e) => key_of(EntityRef::Edge(e)),
+                CacheObject::Face(f) | CacheObject::Surface(f) => key_of(EntityRef::Face(f)),
+                CacheObject::Vertex(x) => key_of(EntityRef::Vertex(x)),
+                CacheObject::Other(r) => r,
+                _ => key_of(EntityRef::Brep(BrepId::from_index(0))),
+            };
+            let owner_of = |_: ObjectRef| None;
             let mut penv = ProjectEnv {
-                brep_id,
-                keys: &query_key,
+                brep_id: BrepId::from_index(0),
+                keys: &keys,
                 owner_of: &owner_of,
                 records: &mut records,
-                next_key,
             };
             let opts = ProjectAndTrimOptions {
                 approximation_tol_3d: approx_tol,
@@ -583,7 +528,7 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
             };
             match project_and_trim(
                 &mut k,
-                b,
+                &mut b,
                 &mut penv,
                 &curve,
                 v(dir),
@@ -595,8 +540,8 @@ fn rust(i: &Inputs) -> Result<Dump, HarnessError> {
                 Err(e @ SolidError::Unported { .. }) => return Ok(Err(e)),
                 Err(e) => out.push(Item::Int(status(&e))),
             }
-            let g2 = Graph::walk(b).map_err(|e| harness(e.to_string()))?;
-            export(b, &g2, &records, &mut out).map_err(|e| harness(e.to_string()))?;
+            let g2 = Graph::walk(&b).map_err(|e| harness(e.to_string()))?;
+            export(&b, &g2, &records, &mut out).map_err(|e| harness(e.to_string()))?;
         }
     }
     Ok(Ok(out))
@@ -678,8 +623,10 @@ impl Graph {
             vertexuses: Reg::new(),
             vertices: Reg::new(),
         };
-        for id in solidcore::topology::brep::p1::regions(b, None)? {
-            g.regions.add(Some(id), RegionId::index);
+        for (id, r) in b.regions().iter() {
+            if r.in_brep {
+                g.regions.add(Some(id), RegionId::index);
+            }
         }
         let (mut r, mut s, mut fu, mut lu, mut eu, mut vu, mut l, mut e, mut v) =
             (0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -1050,6 +997,63 @@ fn export(
     Ok(())
 }
 
+/// Shared post-state snapshot: topology in traversal order, sampled geometry,
+/// and lazy-cache initialization/UV fields not used by the p10 operation runner.
+pub(crate) fn snapshot(b: &Brep) -> Result<Output, HarnessError> {
+    let g = Graph::walk(b).map_err(|e| harness(e.to_string()))?;
+    let mut items = Vec::new();
+    export(b, &g, &BTreeMap::new(), &mut items).map_err(|e| harness(e.to_string()))?;
+    let mut output = to_output(&items).int("validate_only", i64::from(b.validate_only()));
+    // This caller uses the normal relative comparison, not p10's bit audit.
+    output.ints.remove("dbl_bits");
+    output.values.insert(
+        "dbls".into(),
+        items
+            .iter()
+            .filter_map(|x| match x {
+                Item::Dbl(v) => Some(*v),
+                Item::Int(_) => None,
+            })
+            .collect(),
+    );
+    let mut flags = Vec::new();
+    let mut uv = Vec::new();
+    let mut links = Vec::new();
+    for id in &g.faceuses.items {
+        let f = b.faceuse(*id).map_err(|e| harness(e.to_string()))?;
+        let (next, last) = f.sibling_links.unwrap_or((None, None));
+        links.extend([
+            g.faceuses.find(next, FaceuseId::index),
+            g.faceuses.find(last, FaceuseId::index),
+        ]);
+    }
+    for id in &g.edgeuses.items {
+        let e = b.edgeuse(*id).map_err(|e| harness(e.to_string()))?;
+        flags.extend([
+            i64::from(e.drop_curve_fail.is_some()),
+            e.drop_curve_fail
+                .as_ref()
+                .map_or(0, |f| i64::from(f.fail_status)),
+            i64::from(e.drop_curve_fail.as_ref().is_some_and(|f| f.brep.is_some())),
+            i64::from(e.max_edge_face_gap.is_init()),
+            i64::from(e.edge_ccw_edge_gap.is_init()),
+        ]);
+    }
+    for id in &g.vertexuses.items {
+        let v = b.vertexuse(*id).map_err(|e| harness(e.to_string()))?;
+        flags.extend([
+            i64::from(v.vertex_face_gap.is_init()),
+            i64::from(v.vertex_edge_gap.is_init()),
+        ]);
+        uv.extend([v.uv_point.x, v.uv_point.y]);
+    }
+    output = output
+        .ints("gap_initialized", flags)
+        .ints("faceuse_links", links)
+        .values("uv", uv);
+    Ok(output)
+}
+
 impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "topology.brep_p10"
@@ -1190,25 +1194,6 @@ fn generate(rng: &mut Rng) -> Inputs {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn graph_walk_uses_native_region_list_and_propagates_bad_head() {
-        let mut b = Brep::new();
-        let first = b
-            .add_region_record(solidcore::topology::Region::default())
-            .unwrap();
-        let second = b
-            .add_region_record(solidcore::topology::Region::default())
-            .unwrap();
-        b.set_region_list(vec![second, first]).unwrap();
-        let graph = Graph::walk(&b).unwrap();
-        assert_eq!(graph.regions.items, [second, first]);
-        b.set_region_list_head(Some(first));
-        let graph = Graph::walk(&b).unwrap();
-        assert_eq!(graph.regions.items, [first, second]);
-        b.set_region_list_head(Some(RegionId::from_index(99)));
-        assert!(Graph::walk(&b).is_err());
-    }
 
     #[test]
     fn keys_are_distinct_per_kind() {

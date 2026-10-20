@@ -24,8 +24,7 @@ mod sys {
 }
 
 /// Call the real API, retaining seeded outputs where optional pointers are null
-/// or evaluation fails. `mask` bits 0, 1 and 2 request point, d1 and d2; all other
-/// bits are ignored. Every `i32` mask is representable by the shim's ABI.
+/// or evaluation fails. `mask` bits 0, 1 and 2 request point, d1 and d2.
 ///
 /// Geometry must be finite; parameter NaN/infinity is deliberately admitted so
 /// the API's own natural-domain rejection is compared.
@@ -35,13 +34,15 @@ pub fn evaluate_curve(
     parameter: f64,
     mask: i32,
 ) -> Result<(i32, [f64; 9]), FfiError> {
-    if !(0..=2).contains(&kind) || data.iter().any(|x| !x.is_finite()) {
-        return Err(FfiError::InvalidArgument("curve construction".into()));
+    if !(0..=2).contains(&kind) || !(0..=7).contains(&mask) || data.iter().any(|x| !x.is_finite()) {
+        return Err(FfiError::InvalidArgument(
+            "curve construction or output mask".into(),
+        ));
     }
     let mut values = [0.0; 9];
     let mut status = 0;
-    // SAFETY: fixed arrays provide exactly 12 reads and 9 writes; kind is checked,
-    // mask is already i32, and all borrowed buffers remain live throughout the call.
+    // SAFETY: fixed arrays provide exactly 12 reads and 9 writes; kind and mask
+    // are checked and all borrowed buffers remain live throughout the call.
     let result = unsafe {
         sys::sc_query_face_p1_curve(
             kind,
@@ -61,11 +62,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn malformed_curve_construction_fails_before_cpp() {
+    fn malformed_construction_and_masks_fail_before_cpp() {
         let data = [0.0; 12];
         for kind in [-1, 3, i32::MAX] {
             assert!(matches!(
                 evaluate_curve(kind, &data, 0.5, 7),
+                Err(FfiError::InvalidArgument(_))
+            ));
+        }
+        for mask in [-1, 8, i32::MAX] {
+            assert!(matches!(
+                evaluate_curve(1, &data, 0.5, mask),
                 Err(FfiError::InvalidArgument(_))
             ));
         }
@@ -76,17 +83,6 @@ mod tests {
                 evaluate_curve(1, &data, 0.5, 7),
                 Err(FfiError::InvalidArgument(_))
             ));
-        }
-    }
-
-    #[test]
-    fn curve_masks_use_only_the_three_optional_output_bits() {
-        let data = [0., 0., 0., 1., 0., 0., 2., 4., 6., 0., 1., 0.];
-        for (mask, low_bits) in [(8, 0), (-1, 7), (i32::MIN, 0), (i32::MAX, 7), (9, 1)] {
-            assert_eq!(
-                evaluate_curve(1, &data, 0.5, mask).unwrap(),
-                evaluate_curve(1, &data, 0.5, low_bits).unwrap()
-            );
         }
     }
 }
@@ -179,12 +175,15 @@ fn check_args(op: Op, args: &[f64]) -> Result<(), FfiError> {
         }
         Op::Point3d => {
             // face P[3] src_tol do_bnd has_guess gu gv tgt_only has_loops n loop* uv_ok pc_tol
-            // Point3DClassify handles negative/non-finite tolerances, points and
-            // guesses itself; a guess is not read when has_guess is false. Only
-            // structural fields are constrained here, not these native inputs.
+            // Stricter than needed: the C++ also survives non-finite points/guesses and
+            // negative tolerances. Every Point3DClassify case defers on the Rust side
+            // today; narrow these checks when they start comparing (AGENTS.md §4 5.6).
             selector(at(args, 0)?, false)?;
+            finite(args.get(1..4).ok_or_else(|| bad("arguments too short"))?)?;
+            tolerance(at(args, 4)?)?;
             flag(at(args, 5)?)?;
             flag(at(args, 6)?)?;
+            finite(&[at(args, 7)?, at(args, 8)?])?;
             flag(at(args, 9)?)?;
             flag(at(args, 10)?)?;
             let n = at(args, 11)?;
@@ -196,6 +195,7 @@ fn check_args(op: Op, args: &[f64]) -> Result<(), FfiError> {
                 selector(at(args, 12 + i)?, false)?;
             }
             flag(at(args, 12 + n)?)?;
+            tolerance(at(args, 13 + n)?)?;
             14 + n
         }
         Op::EdgeOn => {
@@ -274,7 +274,7 @@ mod eval_tests {
         ];
         assert!(check_args(Op::Point3d, &p).is_ok());
         p[2] = f64::NAN;
-        assert!(check_args(Op::Point3d, &p).is_ok());
+        assert!(check_args(Op::Point3d, &p).is_err());
         p[2] = 2.0;
         p[11] = 65.0;
         assert!(check_args(Op::Point3d, &p).is_err());
@@ -287,45 +287,5 @@ mod eval_tests {
         e[2] = 2.0;
         e[1] = -2.0;
         assert!(check_args(Op::EdgeOn, &e).is_err());
-    }
-
-    #[test]
-    fn point_numeric_inputs_do_not_weaken_structural_validation() {
-        let args = [
-            0.0, 0.0, 0.0, 0.0, 1e-6, 0.0, 1.0, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 3e-6,
-        ];
-        for value in [-1.0, f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
-            for slot in [1, 2, 3, 4, 7, 8, 13] {
-                let mut input = args;
-                input[slot] = value;
-                assert!(check_args(Op::Point3d, &input).is_ok());
-            }
-            for slot in [0, 5, 6, 9, 10, 11, 12] {
-                let mut input = args;
-                input[slot] = value;
-                assert!(check_args(Op::Point3d, &input).is_err());
-            }
-        }
-        assert!(check_args(Op::Point3d, &args[..13]).is_err());
-    }
-
-    #[test]
-    fn inactive_point_guess_preserves_the_native_result() {
-        // A real plane face over [-1, 1]^2, through the shared fixture builder.
-        let block = [2., 1., 0., 0., 0., 0., 0., 1., -1., -1., 1., 1., 0., 0.];
-        let mut args = [
-            0.0, 0.0, 0.0, 0.0, 1e-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 3e-6,
-        ];
-        let baseline = eval(Op::Point3d, "", &block, &args).unwrap();
-        assert_eq!(baseline.len(), 13);
-        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
-            args[7] = value;
-            args[8] = value;
-            let result = eval(Op::Point3d, "", &block, &args).unwrap();
-            assert_eq!(
-                result.iter().map(|x| x.to_bits()).collect::<Vec<_>>(),
-                baseline.iter().map(|x| x.to_bits()).collect::<Vec<_>>()
-            );
-        }
     }
 }

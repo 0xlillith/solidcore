@@ -25,7 +25,7 @@
 //! | [`Solution::point_of`]                        | `SmSolution::GetPoint(const SmObject*, ...)`               |
 //! | [`Solution::object_index_for_parameter_index`] | `SmSolution::GetObjectIndexForParameterIndex`             |
 //! | [`Solution::parameter_interval`]              | `SmSolution::GetParameterInterval`                         |
-//! | [`Solution::object_tolerance`], [`Solution::object_tolerance_with`] | `SmSolution::GetObjectTolerance`                |
+//! | [`Solution::object_tolerance`]                | `SmSolution::GetObjectTolerance`                           |
 //! | [`Solution::is_equal`]                        | `SmSolution::IsEqual`                                      |
 //! | `are_sequential` (private)                    | `sm_AreSequential`                                         |
 //! | [`SolutionObject`], [`ObjectKind`]            | the `SmObject*` of `m_apObjects` and its `IsKindOf` tests  |
@@ -57,11 +57,10 @@
 //!   nodes (`m_apNodes`) are opaque [`NodeId`]s.
 //! - **Unported geometry.** Evaluating a curve, surface, edge, face, vertex or
 //!   poly vertex, the parameter domains of surfaces, edges, faces and volumes
-//!   (and of curves whose handle does not report it) belong to units not ported
-//!   yet or need the object model; those paths return [`SolidError::Unported`]
-//!   (see the `UNPORTED` markers). [`Solution::object_tolerance_with`] accepts
-//!   the owning object context for `SmTol::GetZoneTol3d(const SmObject*)`;
-//!   [`Solution::object_tolerance`] remains limited for a non-null opaque handle.
+//!   (and of curves whose handle does not report it), and
+//!   `SmTol::GetZoneTol3d(const SmObject*)` belong to units not ported yet or
+//!   need the object model; those paths return [`SolidError::Unported`] (see the
+//!   `UNPORTED` markers).
 //! - **Status out-params.** `GetIndex`, `GetPoint`,
 //!   `GetObjectIndexForParameterIndex` and `GetParameterInterval` return
 //!   `Ok(None)` for upstream's `SM_ERR` (their out-params then hold only
@@ -934,31 +933,6 @@ impl<O: SolutionObject> Solution<O> {
     /// fixed arrays;
     /// [`SolidError::Unported`] for a non-null object (zone tolerances).
     pub fn object_tolerance(&self, index: usize) -> Result<f64> {
-        self.object_tolerance_with(index, |_| {
-            // UNPORTED(geom.solution_array): a non-null opaque handle carries no
-            // owning object context. Contextual solvers use object_tolerance_with
-            // to call the real SmTol::GetZoneTol3d dispatch on their live objects.
-            Err(SolidError::Unported {
-                upstream: "SmTol::GetZoneTol3d(const SmObject*)",
-                unit: "geom.solution_array",
-            })
-        })
-    }
-
-    /// `GetObjectTolerance` with access to the live object named by each handle.
-    /// `resolve` supplies `SmTol::GetZoneTol3d` for an existing non-null object;
-    /// it must preserve the object's actual topology owner and tolerance.
-    /// A null object or index outside the object list returns `0.0` without
-    /// calling `resolve`, rather than asking for the system's null-object tolerance.
-    ///
-    /// # Errors
-    /// [`SolidError::InvalidInput`] when a count exceeds the fixed arrays;
-    /// otherwise the object-context error is propagated unchanged.
-    pub fn object_tolerance_with(
-        &self,
-        index: usize,
-        resolve: impl FnOnce(O) -> Result<f64>,
-    ) -> Result<f64> {
         const OP: &str = "geom::solution_array::Solution::object_tolerance";
         self.check(OP)?;
 
@@ -969,7 +943,16 @@ impl<O: SolutionObject> Solution<O> {
 
         // pass the call along
         match self.object(index, OP)? {
-            Some(object) => resolve(object),
+            Some(_) => {
+                // UNPORTED(geom.tol): SmTol::GetZoneTol3d(const SmObject*) on an opaque handle. Every
+                // arm it dispatches to is ported (topology::{vertex, edge, face::p2, edgeuse::p1}::tolerance,
+                // Brep::tolerance) but each takes `&Brep` and none is in scope here; wire once this code
+                // receives the owning B-rep
+                Err(SolidError::Unported {
+                    upstream: "SmTol::GetZoneTol3d(const SmObject*)",
+                    unit: "geom.tol",
+                })
+            }
             None => Ok(0.0),
         }
     }

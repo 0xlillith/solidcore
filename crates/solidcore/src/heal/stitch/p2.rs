@@ -34,23 +34,17 @@
 //! - `DoStitching` collects the modified faces (`sModifiedFaces`) as upstream, though
 //!   only commented-out code reads them; its `dMinEdgeLength` is dropped for the same
 //!   reason (the lengths are still computed).
-//! - `SmBrep::Notify(SM_NO_PRE_EDIT)` is `super::p1::brep_notify_pre_edit`
-//!   (`topology::brep::p2::notify`). Bounding boxes use `query.brep` with the
-//!   actual caller kernel, native approximation and tolerance-expansion flags,
-//!   and `bTight = FALSE`. The calls into `DeleteFace`, `SqueezeEdge`
-//!   (`topology.brep_p3`), `GlueVertices`,
+//! - The calls into `SmBrep::Notify` (`topology.brep_p2`), `CalculateBoundingBox`
+//!   (`query.brep`), `DeleteFace`, `SqueezeEdge` (`topology.brep_p3`), `GlueVertices`,
 //!   `FindAndSetInfiniteRegion` (`topology.brep_p5`), `GlueEdgesGeneral`
-//!   (`topology.brep_p7`) and `SmFace::IsLamina`, `IsDegenerate`, `Notify`
-//!   (`topology.face_p3`) retain dependency limits. Edge splitting delegates to
-//!   the landed `topology.brep_p9` through part 1. Contextual entry points borrow
-//!   the caller's notification records and new-curve identities; compatibility
-//!   entry points report a representation limit only when an interior hit
-//!   actually requires `MakeVertexSplitEdge`.
+//!   (`topology.brep_p7`), `MakeVertexSplitEdge` (`topology.brep_p9`, through
+//!   [`test_and_split_edge`]) and `SmFace::IsLamina`, `IsDegenerate`, `Notify`
+//!   (`topology.face_p3`) return [`SolidError::Unported`].
 
 use super::p1::{
     brep_notify_pre_edit, glue_edges_general, glue_vertices, set_point, sort_by_param,
-    squeeze_edge_to, test_and_split_edge_with_context, AdvancedStitch, DefaultStitchCallback,
-    EdgeSplitContext, SplitReason, Stitch,
+    squeeze_edge_to, test_and_split_edge, AdvancedStitch, DefaultStitchCallback, SplitReason,
+    Stitch,
 };
 use crate::curve::curve::Curve;
 use crate::error::{ignore_status, ignored, EntityRef, SM_ERR};
@@ -236,31 +230,6 @@ impl Stitch<'_> {
         candidate_edges: Option<&[EdgeId]>,
         min_gaps: MinGapRequest,
     ) -> Result<Stitching> {
-        self.do_stitching_with_split_context(
-            k,
-            b,
-            candidate_vertices,
-            candidate_edges,
-            min_gaps,
-            None,
-        )
-    }
-
-    /// Stitches using the caller's real notification and curve identity state
-    /// for edge splits. Without it, geometric no-split results remain available.
-    ///
-    /// # Errors
-    /// Those of [`Self::do_stitching`], including a missing mutation context
-    /// only when an interior hit reaches `MakeVertexSplitEdge`.
-    pub fn do_stitching_with_split_context(
-        &mut self,
-        k: &mut Kernel,
-        b: &mut Brep,
-        candidate_vertices: Option<&[VertexId]>,
-        candidate_edges: Option<&[EdgeId]>,
-        min_gaps: MinGapRequest,
-        split_context: Option<&mut EdgeSplitContext<'_, '_>>,
-    ) -> Result<Stitching> {
         // init output
         let mut out = Stitching {
             stitched_edges: 0,
@@ -276,14 +245,7 @@ impl Stitch<'_> {
         b.set_editing_enabled(true);
         let old_doing_boolean = k.context.doing_boolean();
         k.context.set_doing_boolean(true);
-        let r = self.do_stitching_body(
-            k,
-            b,
-            candidate_vertices,
-            candidate_edges,
-            &mut out,
-            split_context,
-        );
+        let r = self.do_stitching_body(k, b, candidate_vertices, candidate_edges, &mut out);
         k.context.set_doing_boolean(old_doing_boolean);
         b.set_editing_enabled(old_editing);
         r.map(|()| out)
@@ -297,7 +259,6 @@ impl Stitch<'_> {
         candidate_vertices: Option<&[VertexId]>,
         candidate_edges: Option<&[EdgeId]>,
         out: &mut Stitching,
-        mut split_context: Option<&mut EdgeSplitContext<'_, '_>>,
     ) -> Result<()> {
         let tol_3d = self.stitch_tol_3d();
         // (status not checked)
@@ -433,14 +394,7 @@ impl Stitch<'_> {
                         // split edges when vertex is within tolerance
                         let this_tol =
                             smos_max(tol_3d, vertex::tolerance(b, v)? + edge::tolerance(b, e)?);
-                        let split = test_and_split_edge_with_context(
-                            k,
-                            b,
-                            e,
-                            vertex::point(b, v)?,
-                            this_tol,
-                            split_context.as_deref_mut(),
-                        )?;
+                        let split = test_and_split_edge(k, b, e, vertex::point(b, v)?, this_tol)?;
 
                         // when split created a new vertex
                         if let Some(new_v) = split.new_vertex {
@@ -1149,7 +1103,7 @@ impl Stitch<'_> {
     ///
     /// # Errors
     ///
-    /// Those of [`super::p1::test_and_split_edge`] unless [`Stitch::ignore_problems`];
+    /// Those of [`test_and_split_edge`] unless [`Stitch::ignore_problems`];
     /// [`SolidError::InvalidInput`] past the per-vertex split bound.
     pub fn split_edges_with_vertices(
         &mut self,
@@ -1157,23 +1111,6 @@ impl Stitch<'_> {
         b: &mut Brep,
         verts: &mut [Option<VertexId>],
         edges: &mut Vec<Option<EdgeId>>,
-    ) -> Result<SplitEdges> {
-        self.split_edges_with_vertices_with_split_context(k, b, verts, edges, None)
-    }
-
-    /// Splits edges using the caller's real notification and curve identity
-    /// state. The borrowed context persists across every split in this call.
-    ///
-    /// # Errors
-    /// Those of [`Self::split_edges_with_vertices`]; an absent context is reported
-    /// only after the drop and interior tests request an actual edge split.
-    pub fn split_edges_with_vertices_with_split_context(
-        &mut self,
-        k: &mut Kernel,
-        b: &mut Brep,
-        verts: &mut [Option<VertexId>],
-        edges: &mut Vec<Option<EdgeId>>,
-        mut split_context: Option<&mut EdgeSplitContext<'_, '_>>,
     ) -> Result<SplitEdges> {
         // Init outputs.
         let mut out = SplitEdges {
@@ -1227,14 +1164,7 @@ impl Stitch<'_> {
 
                 let this_tol = smos_max(tol_3d, vertex::tolerance(b, v)? + edge::tolerance(b, e)?);
 
-                let split = match test_and_split_edge_with_context(
-                    k,
-                    b,
-                    e,
-                    pv_point,
-                    this_tol,
-                    split_context.as_deref_mut(),
-                ) {
+                let split = match test_and_split_edge(k, b, e, pv_point, this_tol) {
                     Ok(s) => s,
                     Err(err) if err.is_unported() => return Err(err),
                     Err(_) if self.ignore_problems => continue,
@@ -1504,16 +1434,15 @@ pub fn stitch_into_shell(
 
 // ---- unported callees ----------------------------------------------------------------
 
-/// Read-only `SmBrep::CalculateBoundingBox`: both stitch callers use the
-/// native `bTight = FALSE` contract. Approximation and tolerance expansion are
-/// forwarded unchanged; the caller supplies its actual kernel and B-rep.
+/// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
+/// `query.brep`; upstream defaults `FALSE`, `FALSE`, `TRUE`).
 fn brep_bounding_box(
     k: &Kernel,
     b: &Brep,
     approx: bool,
-    expand_by_zone_tol: bool,
+    expand_by_zone_tol_3d: bool,
 ) -> Result<Extent3d> {
-    crate::query::brep::calculate_loose_bounding_box(k, b, approx, expand_by_zone_tol)
+    crate::query::brep::calculate_loose_bounding_box(k, b, approx, expand_by_zone_tol_3d)
 }
 
 /// `SmBrep::DeleteFace(face, bDeleteEdgesVertices, bDoRegionNesting,
@@ -1625,32 +1554,6 @@ mod tests {
             .split_edges_with_vertices(&mut k, &mut b, &mut [], &mut Vec::new())
             .unwrap();
         assert!(r.processed.is_empty() && r.max_vertex_gap == 0.0);
-    }
-
-    #[test]
-    fn solid_stitch_start_expands_by_actual_vertex_tolerances() {
-        let k = Kernel::default();
-        let mut b = Brep::new();
-        let a = b.add_vertex(Vec3::new(0.0, 0.0, 0.0)).unwrap();
-        let z = b.add_vertex(Vec3::new(3.0, 4.0, 0.0)).unwrap();
-        b.vertex_mut(a).unwrap().tolerance = 0.5;
-        b.vertex_mut(z).unwrap().tolerance = 1.0;
-        let (tol, diagonal) = solid_stitch_start(&k, &b).unwrap();
-        assert_eq!(tol, b.tolerance() / 10.0);
-        // Union of the two expanded point boxes: [-.5,-.5,-1]..[4,5,1].
-        assert_eq!(diagonal, Vec3::new(4.5, 5.5, 2.0).length());
-    }
-
-    #[test]
-    fn solid_stitch_start_respects_the_actual_locked_box() {
-        let k = Kernel::default();
-        let mut b = Brep::new();
-        b.add_vertex(Vec3::new(100.0, 100.0, 100.0)).unwrap();
-        b.locked_bounding_box = Some(
-            Extent3d::from_point(Vec3::ZERO).union(&Extent3d::from_point(Vec3::new(2.0, 3.0, 6.0))),
-        );
-        let (_, diagonal) = solid_stitch_start(&k, &b).unwrap();
-        assert_eq!(diagonal, 7.0);
     }
 
     #[test]

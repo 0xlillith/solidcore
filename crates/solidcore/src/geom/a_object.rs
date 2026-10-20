@@ -33,8 +33,6 @@
 //! | [`sag_is_kind_of`]                     | `SmSAGObject::IsKindOf`                               |
 //! | [`sag_notify`]                         | `SmSAGObject::Notify`                                 |
 //! | [`sag_cache_make_or_validate`]         | `SmSAGObject::CacheMakeOrValidate`                    |
-//! | [`sag_cache_make_or_validate_with`]    | the same factory with borrowed source geometry       |
-//! | [`get_or_create_object_cache_with`]   | `SmCacheMgr::GetOrCreateObjectCache` with explicit virtual dispatch |
 //! | `Drop` (implicit)                      | `SmSAGObject::~SmSAGObject`, `SmCacheMgr::~SmCacheMgr` |
 //! | [`BooleanOperation`]                   | `SmBooleanOperationType`                              |
 //! | [`cpt_to_pt_euclid_specialized`]       | `NI_CPtToPtEuclid_specialized`                        |
@@ -66,9 +64,8 @@
 //!   query is actually needed; generic attribute operations remain available.
 //! - **Cache factories.** A new B-rep, curve or surface cache requires its source
 //!   geometry. The object-level validators reuse existing caches; callers building
-//!   new ones use the explicit factory callbacks, which retain the source geometry,
-//!   context and cache store supplied by the caller. Calling the legacy validator
-//!   without that geometry returns [`SolidError::InvalidInput`].
+//!   new ones use `make_brep_cache`, `make_curve_cache` or the surface factories.
+//!   Calling without that geometry returns [`SolidError::InvalidInput`].
 //! - **Graphics and debug.** The display list of `SmSAGObject` (reset on edits and
 //!   destruction), `SE_MSG` / `SM_ASSERT*` (compiled out of the release reference
 //!   build) and `Dump` are not ported. `SmAObject::AssertValid`'s two checks (the
@@ -1006,66 +1003,6 @@ pub fn sag_cache_make_or_validate(
         "geom::a_object::sag_cache_make_or_validate",
         "new B-rep cache requires its geometry (make_brep_cache)",
     ))
-}
-
-/// `SmSAGObject::CacheMakeOrValidate` with access to the target's source geometry.
-///
-/// `build` constructs the target B-rep or poly B-rep cache with its actual kernel
-/// and geometry (normally [`crate::topology::brep_cache::make_brep_cache`]). The
-/// new cache is kept in `caches` and installed on `this` only after construction
-/// succeeds. The target may differ from `this`, as in the native virtual call.
-/// An existing `old` is returned without invoking `build` or changing `this`.
-///
-/// # Errors
-/// `SM_ERR` for a target that is neither a B-rep nor a poly B-rep, then errors of
-/// cache construction or insertion. No cache is published on those failures.
-pub fn sag_cache_make_or_validate_with<T>(
-    _cache_type: ObjectCacheType,
-    target_type: i64,
-    old: Option<CacheId>,
-    this: &mut AObject,
-    caches: &mut CacheStore<T>,
-    build: impl FnOnce() -> Result<T>,
-) -> Result<Option<CacheId>> {
-    if target_type != BREP_TYPE && target_type != POLY_BREP_TYPE {
-        return Err(SolidError::sm_err(
-            "geom::a_object::sag_cache_make_or_validate",
-        ));
-    }
-    if let Some(old) = old {
-        return Ok(Some(old));
-    }
-    let data = build()?;
-    let cache = caches.insert(data)?;
-    this.set_cache_obj(Some(cache));
-    Ok(Some(cache))
-}
-
-/// `SmCacheMgr::GetOrCreateObjectCache` with the caller's real cache factory.
-///
-/// The object must have a context before its cache or factory is consulted. The
-/// callback performs the native `CacheMakeOrValidate` override, including any
-/// successful publication on `object`; its ordinary errors produce no cache.
-/// This keeps context and geometry resolution explicit without interpreting an
-/// opaque object key as a B-rep id or creating replacement geometry.
-///
-/// # Errors
-/// An unavailable dependency remains [`SolidError::Unported`].
-pub fn get_or_create_object_cache_with(
-    cache_type: ObjectCacheType,
-    context: Option<&Context>,
-    object: &mut AObject,
-    make: impl FnOnce(ObjectCacheType, &mut AObject, Option<CacheId>) -> Result<Option<CacheId>>,
-) -> Result<Option<CacheId>> {
-    if context.is_none() {
-        return Ok(None);
-    }
-    let old = object.cache_obj();
-    match make(cache_type, object, old) {
-        Ok(cache) => Ok(cache),
-        Err(e @ SolidError::Unported { .. }) => Err(e),
-        Err(_) => Ok(None),
-    }
 }
 
 /// `SmCacheMgr::GetOrCreateObjectCache`: the object's cache, validated or built by its

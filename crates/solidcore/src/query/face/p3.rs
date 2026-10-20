@@ -10,11 +10,11 @@
 //!
 //! | Rust                                          | Upstream                                    |
 //! |-----------------------------------------------|---------------------------------------------|
-//! | [`calculate_tight_bounding_box_into`], [`calculate_tight_bounding_box`] | `SmFace::CalculateTightBoundingBox` |
+//! | [`calculate_tight_bounding_box`]              | `SmFace::CalculateTightBoundingBox`         |
 //! | [`face_classify_uv_line`]                     | `sm_FaceClassifyUVLine` (file static)       |
 //! | [`find_and_classify_loop_bisector`], [`LoopBisector`] | `sms_FindAndClassifyLoopBisector`   |
 //! | [`sector_classify_curve_on`], [`SectorEdgeuse`], [`SectorClassifyInput`], [`SectorClass`] | `SmFace::SectorClassifyCurveOn` |
-//! | [`ClassifyProblem`]                           | `SmClassifyProblem` (CO-PORTED, `SmCurveClass.h`) |
+//! | [`ClassifyProblem`] (re-export of [`crate::query::face::p1::ClassifyProblem`]) | `SmClassifyProblem` (`SmCurveClass.h`) |
 //! | [`ClassifyCurveObjects`], [`LoopObjectCurves`] | the curves `ReSet` stores in an `SmCurveClassification` |
 //! | `surface_is_planar`, `surface_bounding_box` (private) | `SmSurface::IsPlanar`, `SmSurface::CalculateBoundingBox` of the face's surface |
 //! | `find_element_in_masked_array` (private)      | `SmTArray::FindElementInMaskedArray`        |
@@ -36,14 +36,11 @@
 //!   `ReplaceObj` are the replacement of the stored curves). [`LoopObjectCurves`]
 //!   borrows the B-rep and resolves the face, surface, topology, edge curve and trim
 //!   curve handles `CurveOnClassify` makes against it.
-//! - **Mutable classification state.** The tight box takes the original B-rep
-//!   mutably: `PointClassify` may attach missing UV trim curves, which remain available
-//!   to later classifications. The bisector still takes an immutable B-rep and runs
-//!   `SmEdge::IsSeam` on a private copy; its cache-only updates are discarded.
-//! - **Partial tight box.** The in/out form publishes the boundary box after all
-//!   vertex and edge calculations, before the fallible surface work. An earlier edge
-//!   failure preserves the caller's previous box; a later failure preserves the
-//!   published boundary box. The returning wrapper exposes the box only on success.
+//! - **B-rep snapshots.** `PointClassify` (tight box) and `SmEdge::IsSeam` (bisector)
+//!   may attach missing UV trim curves to the B-rep, which the port's functions take
+//!   immutably; they run on one private copy of the B-rep per call, as
+//!   `query::face::p2`'s boundary views do. The attached curves are the same ones a
+//!   later call makes again, so no result changes.
 //! - **Surface boxes of a face's surface.** `IsPlanar` and `CalculateBoundingBox` of a
 //!   B-spline, plane or surface of revolution expand their boxes by the owning face's
 //!   tolerance (`GetFace()->GetTolerance()`); the port's surface cannot reach its face,
@@ -318,42 +315,32 @@ fn surface_bounding_box(
 /// that maximise the signed distance along `±x`, `±y`, `±z` over the face's domain and
 /// classify on the face (not `SM_PC_UNKNOWN`).
 ///
-/// The B-rep is mutable because classifications can attach missing UV trim curves.
-/// Use [`calculate_tight_bounding_box_into`] when an ignored error must preserve
-/// the native method's partial output.
-///
 /// # Errors
 ///
 /// `SM_ERR_NULL_POINTER`-like [`SolidError::InvalidInput`] for a face without surface;
 /// those of [`face_vertices`], the edge boxes ([`qe::calculate_tight_bounding_box`]),
 /// the planarity test and the surface's loose box; [`SolidError::Unported`] from the
 /// global solves and point classifications.
-pub fn calculate_tight_bounding_box(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<Extent3d> {
-    let mut output = Extent3d::new();
-    calculate_tight_bounding_box_into(k, b, f, &mut output)?;
-    Ok(output)
+pub fn calculate_tight_bounding_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
+    let mut out = Extent3d::new();
+    calculate_tight_bounding_box_into(k, b, f, &mut out)?;
+    Ok(out)
 }
 
-/// [`calculate_tight_bounding_box`] with the native in/out box contract.
-///
-/// The caller's box is unchanged until every edge box succeeds. The boundary box is
-/// then published before the planarity test and surface box calculation; a failure
-/// in those stages or a classification leaves that boundary box in `output`. On
-/// success, `output` also includes the accepted surface extrema. Classifications
-/// operate on `b` itself, retaining any trim curves they create even on failure.
+/// Preserve the native output written before later fallible surface work.
+/// Earlier vertex or edge errors leave the caller's previous output untouched.
 ///
 /// # Errors
-///
-/// Those of [`calculate_tight_bounding_box`].
+/// The same errors as [`calculate_tight_bounding_box`].
 pub fn calculate_tight_bounding_box_into(
     k: &Kernel,
-    b: &mut Brep,
+    b: &Brep,
     f: FaceId,
-    output: &mut Extent3d,
+    out: &mut Extent3d,
 ) -> Result<()> {
     let mut face_bbox = Extent3d::new();
 
-    face_surface(b, f, OP_TIGHT)?;
+    let surface = face_surface(b, f, OP_TIGHT)?;
     let face_zone_tol_3d = zone_tol3d(k, b.face(f)?.tolerance);
 
     // Method: get the bounding box of the Vertices.
@@ -374,12 +361,11 @@ pub fn calculate_tight_bounding_box_into(
         face_bbox = face_bbox.union(&e_bbox);
     } // end loop on Edges
 
-    // SmFace.cpp:1014 publishes the boundary box before the fallible surface work.
-    *output = face_bbox;
+    // SmFace.cpp:1014 publishes the boundary box before surface queries.
+    *out = face_bbox;
 
     // Now the surface.
     // If it's a plane, then we're done.
-    let surface = face_surface(b, f, OP_TIGHT)?;
     if surface_is_planar(k, b, f, surface, EFF_ZERO)? {
         return Ok(());
     }
@@ -401,6 +387,8 @@ pub fn calculate_tight_bounding_box_into(
     let mut srf_bbox = Extent3d::new();
 
     let mut dir_vec = Vec3::new(1.0, 0.0, 0.0); // +/- x
+                                                // (PointClassify may attach missing UV trim curves: a private snapshot of the B-rep)
+    let mut snapshot = b.clone();
     for idx in 0..3 {
         if idx == 1 {
             dir_vec = Vec3::new(0.0, 1.0, 0.0); // +/- y
@@ -416,7 +404,7 @@ pub fn calculate_tight_bounding_box_into(
             }
             let solutions = ignored(global_point_solve_starts(
                 k,
-                face_surface(b, f, OP_TIGHT)?,
+                surface,
                 &uv_domain,
                 SolverOperation::Signed3dDirectedMaximize,
                 dir_vec,
@@ -430,10 +418,11 @@ pub fn calculate_tight_bounding_box_into(
                     sol.parameters.first().copied().unwrap_or(0.0),
                     sol.parameters.get(1).copied().unwrap_or(0.0),
                 );
+                let mut eval = SurfaceEval::with_uv(Some(surface), uv.x, uv.y);
                 // (status ignored upstream)
                 ignored(point_classify(
                     k,
-                    b,
+                    &mut snapshot,
                     f,
                     uv,
                     &mut pt_class,
@@ -445,10 +434,6 @@ pub fn calculate_tight_bounding_box_into(
                     },
                 ))?;
                 if pt_class.point_class() != PointClassType::Unknown {
-                    // PointClassify edits trim records, not the face's surface. End
-                    // its mutable borrow before resolving the original surface.
-                    let mut eval =
-                        SurfaceEval::with_uv(Some(face_surface(b, f, OP_TIGHT)?), uv.x, uv.y);
                     srf_bbox.add_point(eval_pos(&mut eval)?);
                 }
             }
@@ -458,7 +443,7 @@ pub fn calculate_tight_bounding_box_into(
     face_bbox = face_bbox.union(&srf_bbox);
 
     // End copy of Surface::CalculateTightBoundingBox():
-    *output = face_bbox;
+    *out = face_bbox;
     Ok(())
 }
 
@@ -1271,8 +1256,7 @@ pub fn find_and_classify_loop_bisector_into<O: LoopObject + PartialEq>(
 
 // ---- SmFace::SectorClassifyCurveOn ----------------------------------------------------------
 
-/// The shared `SmClassifyProblem` type used by face edge and sector classifications.
-pub use super::p1::ClassifyProblem;
+pub use crate::query::face::p1::ClassifyProblem;
 
 /// One edge use bounding the sector of [`sector_classify_curve_on`].
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -1983,14 +1967,10 @@ mod tests {
     use super::*;
     use crate::curve::line::BoundedLineOptions;
     use crate::intersect::point_class::ClassObjectKind;
-    use crate::nurbs::b_spline_curve::BSplineCurve;
-    use crate::nurbs::b_spline_surface::BSplineSurface;
-    use crate::nurbs::math::{CPoint, NOW};
-    use crate::nurbs::srf_basic::Surface as NurbSurface;
     use crate::surface::plane::Plane;
     use crate::topology::{
         Edge, Edgeuse, EdgeuseOwner, Face, Faceuse, FaceuseId, Loop, Loopuse, LoopuseId,
-        LoopuseStart, Region, Vertex, VertexId, Vertexuse, VertexuseId, VertexuseOwner,
+        LoopuseStart, Vertex, VertexId, Vertexuse, VertexuseId, VertexuseOwner,
     };
 
     /// A unit-square planar face over `[0, 1]^2` (lifted to `z`) with UV trim lines.
@@ -2089,145 +2069,9 @@ mod tests {
         let k = Kernel::default();
         let mut b = Brep::new();
         let f = square(&mut b, 2.0);
-        let bx = calculate_tight_bounding_box(&k, &mut b, f).unwrap();
+        let bx = calculate_tight_bounding_box(&k, &b, f).unwrap();
         assert_eq!(bx.min(), Point3::new(0.0, 0.0, 2.0));
         assert_eq!(bx.max(), Point3::new(1.0, 1.0, 2.0));
-    }
-
-    #[test]
-    fn tight_box_edge_failure_keeps_the_callers_previous_box() {
-        let k = Kernel::default();
-        let mut b = Brep::new();
-        let f = square(&mut b, 2.0);
-        // The vertices and the first two edges have usable geometry. The third
-        // edge exercises Rust's empty-NURBS guard before publication; this tests
-        // the Rust error contract, not a defined C++ result for missing NURBS.
-        b.edge_mut(EdgeId::from_index(2)).unwrap().curve = Some(Curve::from(BSplineCurve::new(3)));
-        let previous = Extent3d::from_point(Point3::new(-20.0, -30.0, -40.0));
-        let mut output = previous;
-
-        let error = calculate_tight_bounding_box_into(&k, &mut b, f, &mut output).unwrap_err();
-
-        assert!(!matches!(error, SolidError::Unported { .. }), "{error:?}");
-        assert_eq!(output, previous);
-    }
-
-    /// A polynomial bulge with its actual rectangular boundary and owning region.
-    fn bulged_square(b: &mut Brep) -> (FaceId, BSplineSurface) {
-        let f = square(b, 0.0);
-        // A quadratic patch with straight z=0 boundaries and an interior z=1
-        // maximum. The boundary box cannot contain the surface box, so the tight
-        // query must classify actual global-solve candidates against the loop.
-        let net = (0..3)
-            .map(|i| {
-                (0..3)
-                    .map(|j| {
-                        CPoint::new(
-                            f64::from(i) * 0.5,
-                            f64::from(j) * 0.5,
-                            if i == 1 && j == 1 { 4.0 } else { 0.0 },
-                            NOW,
-                        )
-                    })
-                    .collect()
-            })
-            .collect();
-        let knots = vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0];
-        let nurb = NurbSurface::new(net, 2, 2, knots.clone(), knots).unwrap();
-        let base = BSplineSurface::from_nurb(nurb, false);
-        b.face_mut(f).unwrap().surface = Some(Surface::from(base.clone()));
-        b.face_mut(f).unwrap().loops = vec![LoopId::from_index(0)];
-        let shell = b.face(f).unwrap().shell;
-        let region = b
-            .add_region_record(Region {
-                in_brep: true,
-                shells: vec![shell],
-                ..Region::default()
-            })
-            .unwrap();
-        b.shell_mut(shell).unwrap().region = Some(region);
-        (f, base)
-    }
-
-    #[test]
-    fn tight_box_trim_failure_keeps_the_published_boundary_box() {
-        let k = Kernel::default();
-        let mut b = Brep::new();
-        let (f, _) = bulged_square(&mut b);
-        // A valid nonplanar surface and four valid 3D boundary lines. The
-        // boundary box is published before PointClassify asks to create this
-        // absent trim through the still-unported general surface drop.
-        // An empty NURB would not test this: IsPlanar ignores its box failure
-        // and the default PseudoBox takes the planar early return.
-        let missing_trim = EdgeuseId::from_index(3);
-        b.edgeuse_mut(missing_trim).unwrap().uv_trim_curve = None;
-        let mut output = Extent3d::from_point(Point3::new(-20.0, -30.0, -40.0));
-
-        let error = calculate_tight_bounding_box_into(&k, &mut b, f, &mut output).unwrap_err();
-
-        assert!(
-            matches!(
-                error,
-                SolidError::Unported {
-                    upstream: "SmSurface::DropCurve",
-                    unit: "intersect.surface_drop_lib_p3",
-                }
-            ),
-            "{error:?}"
-        );
-        assert_eq!(output.min(), Point3::new(0.0, 0.0, 0.0));
-        assert_eq!(output.max(), Point3::new(1.0, 1.0, 0.0));
-        assert!(eu1::uv_trim_curve_pointer(&b, missing_trim)
-            .unwrap()
-            .is_none());
-    }
-
-    #[test]
-    fn tight_box_classification_retains_a_created_trim_on_the_original_brep() {
-        let k = Kernel::default();
-        let mut b = Brep::new();
-        let (f, base) = bulged_square(&mut b);
-        // A curve on this same patch has an exact UV trim that CreateUVTrimCurve
-        // can recover through its native FromCrvOnSurf branch. This does not need
-        // the still-unported general Surface::DropCurve path.
-        let missing_trim = EdgeuseId::from_index(3);
-        let uv_curve = b
-            .edgeuse_mut(missing_trim)
-            .unwrap()
-            .uv_trim_curve
-            .take()
-            .unwrap();
-        let mut cos = CrvOnSurf::new(&k, uv_curve, base, None, 0).unwrap();
-        // This linear UV segment crosses no interior surface knots: its exact
-        // break list is [0, 1]. Load the supported ReadFromDB cache state so its
-        // bounding box need not discover that list through CurveClassification.
-        // The curve remains a real CrvOnSurf and its approximation/bbox are still
-        // computed by the production path, not supplied as fabricated results.
-        cos.set_breaks_cache(false, vec![0.0, 1.0]);
-        for t in [0.0, 0.25, 0.5, 0.75, 1.0] {
-            let expected = Point3::new(0.0, 1.0 - t, 0.0);
-            assert!(cos.evaluate_point(t).unwrap().distance(expected) < 1e-10);
-        }
-        b.edge_mut(EdgeId::from_index(3)).unwrap().curve = Some(Curve::from(cos));
-        // Verify the previously failing prerequisite before asserting any trim
-        // write: the COS edge itself now has its actual straight boundary box.
-        let edge_box = qe::calculate_tight_bounding_box(&k, &b, EdgeId::from_index(3))
-            .unwrap()
-            .unwrap();
-        assert!(edge_box.min().distance(Point3::new(0.0, 0.0, 0.0)) < 1e-10);
-        assert!(edge_box.max().distance(Point3::new(0.0, 1.0, 0.0)) < 1e-10);
-        assert!(eu1::uv_trim_curve_pointer(&b, missing_trim)
-            .unwrap()
-            .is_none());
-
-        let bbox = calculate_tight_bounding_box(&k, &mut b, f).unwrap();
-
-        assert!((bbox.max().z - 1.0).abs() < 1e-10);
-        let trim = eu1::uv_trim_curve_pointer(&b, missing_trim)
-            .unwrap()
-            .expect("PointClassify must retain the trim it created on this B-rep");
-        let middle = trim.evaluate_point(0.5).unwrap();
-        assert!(middle.distance(Point3::new(0.0, 0.5, 0.0)) < 1e-10);
     }
 
     #[test]

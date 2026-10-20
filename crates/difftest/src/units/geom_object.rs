@@ -451,7 +451,7 @@ pub(crate) fn query_graph_identity(object: CacheObject) -> ObjectRef {
 /// import-only shims. Both blocks describe the same native object graph.
 pub(crate) fn import_query_graph(
     export: &[f64],
-) -> Result<(Brep, super::topology_vertexuse::QueryMetadata), HarnessError> {
+) -> Result<(Brep, super::query_brep::query_metadata::QueryMetadata), HarnessError> {
     fn block<'a>(rest: &mut &'a [f64]) -> Result<&'a [f64], HarnessError> {
         let (length, tail) = rest
             .split_first()
@@ -474,7 +474,7 @@ pub(crate) fn import_query_graph(
         return Err(harness("trailing graph envelope data"));
     }
     let (mut graph, _) = super::topology_edgeuse_p1::import_with_types(graph_export)?;
-    let metadata = super::topology_vertexuse::apply_query_metadata(
+    let metadata = super::query_brep::query_metadata::apply_query_metadata(
         &mut graph,
         metadata_export,
         &query_graph_identity,

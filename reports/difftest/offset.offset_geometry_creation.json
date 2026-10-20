@@ -62,12 +62,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0000",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762756",
-      "values_compared": 1096
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -163,8 +167,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0011",
@@ -211,8 +215,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0016",
@@ -230,17 +234,21 @@
       "values_compared": 216
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0018",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762774",
-      "values_compared": 480
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0019",
@@ -250,12 +258,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0020",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762776",
-      "values_compared": 481
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -288,7 +300,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0024",
@@ -320,7 +332,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0027",
@@ -402,17 +414,21 @@
       "values_compared": 548
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0036",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762792",
-      "values_compared": 75
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0037",
@@ -423,8 +439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MateLaminaEdgeToSurface / ReplaceSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::MateLaminaEdgeToSurface",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0038",
@@ -436,7 +452,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0039",
@@ -448,7 +464,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0040",
@@ -474,12 +490,16 @@
       "values_compared": 372
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0043",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762799",
-      "values_compared": 73
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -494,12 +514,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0045",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762801",
-      "values_compared": 198
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -555,8 +579,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0051",
@@ -662,12 +686,16 @@
       "values_compared": 12
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0063",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762819",
-      "values_compared": 246
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -706,12 +734,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0068",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762824",
-      "values_compared": 54
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -722,12 +754,16 @@
       "values_compared": 13
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0070",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762826",
-      "values_compared": 209
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -756,7 +792,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0074",
@@ -838,12 +874,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0082",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762838",
-      "values_compared": 77
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -887,8 +927,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0087",
@@ -964,7 +1004,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0095",
@@ -976,7 +1016,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0096",
@@ -1028,7 +1068,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0101",
@@ -1038,12 +1078,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0102",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762858",
-      "values_compared": 155
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -1058,17 +1102,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0104",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762860",
-      "values_compared": 52
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0105",
@@ -1118,12 +1166,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0111",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762867",
-      "values_compared": 123
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1134,17 +1186,21 @@
       "values_compared": 27
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0113",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762869",
-      "values_compared": 325
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0114",
@@ -1190,21 +1246,17 @@
       "values_compared": 19
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
-      },
       "max_rel_err": 0.0,
       "name": "gen0119",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058762875",
-      "values_compared": 0
+      "values_compared": 259
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0120",
@@ -1247,8 +1299,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0124",
@@ -1292,7 +1344,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0128",
@@ -1303,8 +1355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0129",
@@ -1315,8 +1367,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0130",
@@ -1350,12 +1402,16 @@
       "values_compared": 338
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0134",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762890",
-      "values_compared": 142
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1415,8 +1471,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0141",
@@ -1442,12 +1498,16 @@
       "values_compared": 173
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0144",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762900",
-      "values_compared": 40
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1458,12 +1518,16 @@
       "values_compared": 56
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0146",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762902",
-      "values_compared": 85
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1498,17 +1562,21 @@
       "values_compared": 196
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0151",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762907",
-      "values_compared": 312
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0152",
@@ -1520,7 +1588,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0153",
@@ -1544,7 +1612,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0155",
@@ -1562,25 +1630,33 @@
       "values_compared": 14
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0157",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762913",
-      "values_compared": 54
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0158",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762914",
-      "values_compared": 94
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0159",
@@ -1616,7 +1692,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0163",
@@ -1690,12 +1766,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0171",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762927",
-      "values_compared": 57
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -1712,7 +1792,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0173",
@@ -1730,12 +1810,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0175",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762931",
-      "values_compared": 207
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -1758,17 +1842,21 @@
       "values_compared": 46
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0178",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762934",
-      "values_compared": 408
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0179",
@@ -1796,7 +1884,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0182",
@@ -1831,8 +1919,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0186",
@@ -1842,12 +1930,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0187",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762943",
-      "values_compared": 204
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1931,8 +2023,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0197",
@@ -1954,20 +2046,28 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0199",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762955",
-      "values_compared": 159
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0200",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762956",
-      "values_compared": 375
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1978,12 +2078,16 @@
       "values_compared": 12
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0202",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762958",
-      "values_compared": 96
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2034,12 +2138,16 @@
       "values_compared": 185
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0209",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762965",
-      "values_compared": 201
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2072,7 +2180,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0213",
@@ -2187,8 +2295,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0226",
@@ -2224,7 +2332,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0230",
@@ -2254,12 +2362,16 @@
       "values_compared": 7
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0233",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058762989",
-      "values_compared": 549
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -2455,7 +2567,7 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -2504,7 +2616,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0258",
@@ -2538,12 +2650,16 @@
       "values_compared": 22
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0262",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763018",
-      "values_compared": 188
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2572,7 +2688,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0266",
@@ -2582,12 +2698,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0267",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763023",
-      "values_compared": 180
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2599,8 +2719,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0269",
@@ -2610,28 +2730,40 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0270",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763026",
-      "values_compared": 81
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0271",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763027",
-      "values_compared": 399
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0272",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763028",
-      "values_compared": 526
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -2660,7 +2792,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0275",
@@ -2706,16 +2838,20 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0280",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763036",
-      "values_compared": 229
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
+        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
         "unit": "harness:analytic-geometry-export"
       },
       "max_rel_err": 0.0,
@@ -2750,12 +2886,16 @@
       "values_compared": 35
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0285",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763041",
-      "values_compared": 91
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2774,12 +2914,16 @@
       "values_compared": 216
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0288",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763044",
-      "values_compared": 1308
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -2824,7 +2968,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0293",
@@ -2834,20 +2978,28 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0294",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763050",
-      "values_compared": 285
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0295",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763051",
-      "values_compared": 234
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -2862,17 +3014,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0297",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763053",
-      "values_compared": 91
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetUpwardLoopuses",
-        "unit": "topology.face_p4"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0298",
@@ -2898,17 +3054,21 @@
       "values_compared": 219
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0301",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763057",
-      "values_compared": 189
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0302",
@@ -2928,7 +3088,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0304",
@@ -2946,17 +3106,21 @@
       "values_compared": 181
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0306",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763062",
-      "values_compared": 346
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0307",
@@ -2986,17 +3150,21 @@
       "values_compared": 35
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0310",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763066",
-      "values_compared": 142
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0311",
@@ -3016,7 +3184,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0313",
@@ -3100,7 +3268,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0323",
@@ -3110,12 +3278,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0324",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763080",
-      "values_compared": 84
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3126,12 +3298,16 @@
       "values_compared": 27
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0326",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763082",
-      "values_compared": 401
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3150,12 +3326,16 @@
       "values_compared": 86
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0329",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763085",
-      "values_compared": 102
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -3199,8 +3379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0334",
@@ -3248,7 +3428,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0339",
@@ -3304,7 +3484,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0345",
@@ -3315,8 +3495,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0346",
@@ -3326,17 +3506,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0347",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763103",
-      "values_compared": 280
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0348",
@@ -3355,8 +3539,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0350",
@@ -3382,12 +3566,16 @@
       "values_compared": 280
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0353",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763109",
-      "values_compared": 160
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3424,7 +3612,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0357",
@@ -3446,12 +3634,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0359",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763115",
-      "values_compared": 191
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3474,20 +3666,28 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0362",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763118",
-      "values_compared": 718
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0363",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763119",
-      "values_compared": 228
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3528,7 +3728,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0368",
@@ -3562,12 +3762,16 @@
       "values_compared": 172
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0372",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763128",
-      "values_compared": 72
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3594,16 +3798,12 @@
       "values_compared": 143
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
-      },
       "max_rel_err": 0.0,
       "name": "gen0376",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763132",
-      "values_compared": 0
+      "values_compared": 217
     },
     {
       "max_rel_err": 0.0,
@@ -3614,12 +3814,16 @@
       "values_compared": 144
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0378",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763134",
-      "values_compared": 171
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -3646,12 +3850,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0381",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763137",
-      "values_compared": 82
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3664,7 +3872,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0383",
@@ -3692,7 +3900,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0386",
@@ -3702,12 +3910,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0387",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763143",
-      "values_compared": 81
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -3723,8 +3935,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0389",
@@ -3742,12 +3954,16 @@
       "values_compared": 402
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0391",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763147",
-      "values_compared": 211
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3767,8 +3983,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0394",
@@ -3800,7 +4016,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0397",
@@ -3832,7 +4048,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0400",
@@ -3890,12 +4106,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0406",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763162",
-      "values_compared": 317
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -3924,7 +4144,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0410",
@@ -3952,7 +4172,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0413",
@@ -3970,17 +4190,21 @@
       "values_compared": 19
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0415",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763171",
-      "values_compared": 180
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0416",
@@ -4010,12 +4234,16 @@
       "values_compared": 109
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0419",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763175",
-      "values_compared": 218
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4118,20 +4346,28 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0432",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763188",
-      "values_compared": 316
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0433",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763189",
-      "values_compared": 81
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -4176,7 +4412,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0438",
@@ -4198,12 +4434,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0440",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763196",
-      "values_compared": 273
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4230,12 +4470,16 @@
       "values_compared": 43
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0444",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763200",
-      "values_compared": 310
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -4258,12 +4502,16 @@
       "values_compared": 43
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0447",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763203",
-      "values_compared": 268
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4275,8 +4523,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0449",
@@ -4296,7 +4544,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0451",
@@ -4324,7 +4572,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0454",
@@ -4348,7 +4596,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0456",
@@ -4360,7 +4608,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0457",
@@ -4370,12 +4618,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0458",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763214",
-      "values_compared": 115
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -4392,7 +4644,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0460",
@@ -4411,8 +4663,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0462",
@@ -4482,33 +4734,45 @@
       "values_compared": 64
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0470",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763226",
-      "values_compared": 329
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0471",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=9515163603058763227",
-      "values_compared": 134
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0472",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=9515163603058763228",
-      "values_compared": 408
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0471",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=9515163603058763227",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0472",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=9515163603058763228",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "gen0473",
@@ -4528,7 +4792,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0475",
@@ -4538,12 +4802,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0476",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763232",
-      "values_compared": 431
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4678,12 +4946,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0491",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763247",
-      "values_compared": 160
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -4698,17 +4970,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0493",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763249",
-      "values_compared": 413
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0494",
@@ -4746,12 +5022,16 @@
       "values_compared": 188
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0498",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763254",
-      "values_compared": 81
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4792,7 +5072,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0503",
@@ -4812,7 +5092,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0505",
@@ -4822,12 +5102,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0506",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763262",
-      "values_compared": 57
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4858,12 +5142,16 @@
       "values_compared": 244
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0510",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763266",
-      "values_compared": 201
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4942,12 +5230,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0519",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763275",
-      "values_compared": 252
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4986,12 +5278,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0524",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763280",
-      "values_compared": 154
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5031,8 +5327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0529",
@@ -5090,12 +5386,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0535",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763291",
-      "values_compared": 228
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5106,17 +5406,21 @@
       "values_compared": 119
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0537",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763293",
-      "values_compared": 275
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MateLaminaEdgeToSurface / ReplaceSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::MateLaminaEdgeToSurface",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0538",
@@ -5158,12 +5462,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0542",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763298",
-      "values_compared": 82
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5183,8 +5491,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0545",
@@ -5202,12 +5510,16 @@
       "values_compared": 13
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0547",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763303",
-      "values_compared": 188
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5228,7 +5540,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0550",
@@ -5278,20 +5590,28 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0555",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763311",
-      "values_compared": 489
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0556",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763312",
-      "values_compared": 96
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5302,12 +5622,16 @@
       "values_compared": 16
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0558",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763314",
-      "values_compared": 89
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5319,8 +5643,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0560",
@@ -5398,41 +5722,57 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0568",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763324",
-      "values_compared": 129
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0569",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=9515163603058763325",
-      "values_compared": 101
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0570",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=9515163603058763326",
-      "values_compared": 195
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0571",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=9515163603058763327",
-      "values_compared": 182
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0569",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=9515163603058763325",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0570",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=9515163603058763326",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0571",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=9515163603058763327",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0572",
@@ -5442,17 +5782,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0573",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763329",
-      "values_compared": 424
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0574",
@@ -5484,7 +5828,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0577",
@@ -5522,12 +5866,16 @@
       "values_compared": 64
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0581",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763337",
-      "values_compared": 122
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5540,7 +5888,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0583",
@@ -5550,12 +5898,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0584",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763340",
-      "values_compared": 252
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5614,12 +5966,16 @@
       "values_compared": 9
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0591",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763347",
-      "values_compared": 107
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5662,12 +6018,16 @@
       "values_compared": 24
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0597",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763353",
-      "values_compared": 105
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5678,12 +6038,16 @@
       "values_compared": 330
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0599",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763355",
-      "values_compared": 146
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -5830,12 +6194,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0615",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763371",
-      "values_compared": 142
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5882,12 +6250,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0620",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763376",
-      "values_compared": 43
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5947,8 +6319,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0627",
@@ -5959,8 +6331,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0628",
@@ -5972,7 +6344,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0629",
@@ -5983,8 +6355,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0630",
@@ -6002,12 +6374,16 @@
       "values_compared": 67
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0632",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763388",
-      "values_compared": 97
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -6082,12 +6458,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0640",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763396",
-      "values_compared": 161
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -6104,7 +6484,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0642",
@@ -6114,20 +6494,28 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0643",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763399",
-      "values_compared": 61
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0644",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763400",
-      "values_compared": 139
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6222,25 +6610,33 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0656",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763412",
-      "values_compared": 615
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "gen0657",
-      "outcome": "pass",
-      "pass": true,
-      "source": "generated:seed=9515163603058763413",
-      "values_compared": 289
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
+      "max_rel_err": 0.0,
+      "name": "gen0657",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "generated:seed=9515163603058763413",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0658",
@@ -6311,8 +6707,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0666",
@@ -6336,7 +6732,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0668",
@@ -6355,8 +6751,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface subclass::CreateOffsetSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0670",
@@ -6451,8 +6847,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0680",
@@ -6464,7 +6860,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0681",
@@ -6476,7 +6872,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0682",
@@ -6486,12 +6882,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0683",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763439",
-      "values_compared": 243
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6518,12 +6918,16 @@
       "values_compared": 165
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0687",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763443",
-      "values_compared": 166
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -6588,7 +6992,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0694",
@@ -6630,12 +7034,16 @@
       "values_compared": 16
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0698",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763454",
-      "values_compared": 267
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6670,12 +7078,16 @@
       "values_compared": 26
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0703",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763459",
-      "values_compared": 126
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6688,7 +7100,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0705",
@@ -6706,21 +7118,17 @@
       "values_compared": 4
     },
     {
-      "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
-      },
       "max_rel_err": 0.0,
       "name": "gen0707",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=9515163603058763463",
-      "values_compared": 0
+      "values_compared": 115
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0708",
@@ -6786,12 +7194,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0715",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763471",
-      "values_compared": 80
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6854,12 +7266,16 @@
       "values_compared": 693
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0723",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763479",
-      "values_compared": 88
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6880,7 +7296,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0726",
@@ -6952,7 +7368,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0733",
@@ -6983,8 +7399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MateLaminaEdgeToSurface / ReplaceSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::MateLaminaEdgeToSurface",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0736",
@@ -7042,17 +7458,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0741",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763497",
-      "values_compared": 249
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0742",
@@ -7078,12 +7498,16 @@
       "values_compared": 20
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0745",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763501",
-      "values_compared": 1070
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -7096,7 +7520,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0747",
@@ -7126,12 +7550,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0750",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763506",
-      "values_compared": 68
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -7159,8 +7587,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCrvOnSurf::SmCrvOnSurf (non-B-spline surface)",
-        "unit": "curve.crv_on_surf"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0754",
@@ -7172,7 +7600,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0755",
@@ -7212,7 +7640,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0759",
@@ -7223,8 +7651,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0760",
@@ -7250,12 +7678,16 @@
       "values_compared": 356
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0763",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763519",
-      "values_compared": 161
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -7274,28 +7706,40 @@
       "values_compared": 183
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0766",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763522",
-      "values_compared": 159
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0767",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763523",
-      "values_compared": 386
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0768",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763524",
-      "values_compared": 88
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -7370,25 +7814,33 @@
       "values_compared": 70
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0777",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763533",
-      "values_compared": 313
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0778",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763534",
-      "values_compared": 177
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0779",
@@ -7430,17 +7882,21 @@
       "values_compared": 27
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "gen0784",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=9515163603058763540",
-      "values_compared": 111
+      "values_compared": 0
     },
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0785",
@@ -7491,8 +7947,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0791",
@@ -7572,7 +8028,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0799",
@@ -7582,12 +8038,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "cone_fixture_ops",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 306
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -7630,12 +8090,16 @@
       "values_compared": 806
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "box_replace_edge_curves",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 332
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -7682,12 +8146,16 @@
       "values_compared": 689
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "box_vertex_offset_three_arcs",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 385
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -7707,8 +8175,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmSurfaceDropCurve::DoTrace",
+        "unit": "intersect.surface_drop_curve"
       },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_extend",
@@ -7739,8 +8207,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MateLaminaEdgeToSurface / ReplaceSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::MateLaminaEdgeToSurface",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_edgeuse_offset_inset_shell",
@@ -7871,8 +8339,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MateLaminaEdgeToSurface / ReplaceSurface (face surface imported as its B-spline part)",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::MateLaminaEdgeToSurface",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "mouse_edgeuse_offset_inset_shell",
@@ -7884,7 +8352,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "mouse_edgeuse_offset_extend",
@@ -7907,8 +8375,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCircularCrossSectionFSG::CreateSurfaceFromCurves",
-        "unit": "blend.fillet_standard_solver_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edgeuse_offset_rails_torus",
@@ -7918,17 +8386,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_rails_torus",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 374
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCircularCrossSectionFSG::CreateSurfaceFromCurves",
-        "unit": "blend.fillet_standard_solver_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edgeuse_offset_rails_torus_self_intersecting",
@@ -7938,17 +8410,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_rails_torus_self_intersecting",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 374
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCircularCrossSectionFSG::CreateSurfaceFromCurves",
-        "unit": "blend.fillet_standard_solver_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edgeuse_offset_rails_torus_vertical",
@@ -7958,17 +8434,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_rails_torus_vertical",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 374
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCircularCrossSectionFSG::CreateSurfaceFromCurves",
-        "unit": "blend.fillet_standard_solver_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edgeuse_offset_rails_cylinder",
@@ -7978,17 +8458,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_rails_cylinder",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 262
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCircularCrossSectionFSG::CreateSurfaceFromCurves",
-        "unit": "blend.fillet_standard_solver_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edgeuse_offset_rails_cone",
@@ -7998,17 +8482,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_rails_cone",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 262
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCircularCrossSectionFSG::CreateSurfaceFromCurves",
-        "unit": "blend.fillet_standard_solver_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edgeuse_offset_rails_close_rails",
@@ -8018,17 +8506,21 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_rails_close_rails",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 262
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "SmCircularCrossSectionFSG::CreateSurfaceFromCurves",
-        "unit": "blend.fillet_standard_solver_p1"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "box_with_large_fillet_edgeuse_offset_rails_mismatched_intervals",
@@ -8038,12 +8530,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
+      },
       "max_rel_err": 0.0,
       "name": "cone_edgeuse_offset_rails_mismatched_intervals",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "inline",
-      "values_compared": 262
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -8080,7 +8576,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "cone_mate_extend_local",
@@ -8127,20 +8623,21 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 309,
+  "cases_deferred": 433,
   "cases_failed": 0,
-  "cases_passed": 552,
+  "cases_passed": 428,
   "cases_total": 861,
   "deferred_by_unit": {
-    "blend.fillet_standard_solver_p1": 11,
-    "curve.crv_on_surf": 27,
-    "harness:analytic-geometry-export": 107,
-    "intersect.surface_drop_curve": 17,
+    "blend.fillet_standard_solver_p1": 4,
+    "curve.crv_on_surf": 25,
+    "geom.tol": 78,
+    "harness:analytic-geometry-export": 70,
+    "intersect.surface_drop_curve": 27,
     "intersect.surface_drop_lib_p3": 7,
     "surface.sphere": 2,
-    "surface.surface_cache_p2": 82,
-    "topology.face_p2": 13,
-    "topology.face_p4": 43
+    "topology.brep_p2": 166,
+    "topology.face_p2": 12,
+    "topology.face_p4": 42
   },
   "max_rel_err": 0.0,
   "pass": true,

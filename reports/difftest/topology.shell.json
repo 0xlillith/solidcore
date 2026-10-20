@@ -2986,33 +2986,45 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
       "max_rel_err": 0.0,
       "name": "ray_default_bound_vertex",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/topology.shell/ray-fire.json#144 (upstream SmShell.cpp:592 RayFire default Brep.CalculateBoundingBox)",
-      "values_compared": 3
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "ray_default_bound_wire",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/topology.shell/ray-fire.json#145 (upstream SmShell.cpp:592 RayFire default Brep.CalculateBoundingBox)",
-      "values_compared": 3
-    },
-    {
-      "max_rel_err": 0.0,
-      "name": "ray_default_bound_face",
-      "outcome": "pass",
-      "pass": true,
-      "source": "fixture:fixtures/topology.shell/ray-fire.json#146 (upstream SmShell.cpp:592 RayFire default Brep.CalculateBoundingBox)",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required; face 1 surface concrete type 15030 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "ray_default_bound_wire",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.shell/ray-fire.json#145 (upstream SmShell.cpp:592 RayFire default Brep.CalculateBoundingBox)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
+      "max_rel_err": 0.0,
+      "name": "ray_default_bound_face",
+      "outcome": "deferred",
+      "pass": false,
+      "source": "fixture:fixtures/topology.shell/ray-fire.json#146 (upstream SmShell.cpp:592 RayFire default Brep.CalculateBoundingBox)",
+      "values_compared": 0
+    },
+    {
+      "deferred": {
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_147",
@@ -3023,8 +3035,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required; face 1 surface concrete type 15030 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_148",
@@ -3035,8 +3047,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required; face 1 surface concrete type 15030 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_149",
@@ -3047,8 +3059,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required; face 1 surface concrete type 15030 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_Mouse.smb_150",
@@ -3059,8 +3071,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 6 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_151",
@@ -3071,8 +3083,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 6 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_152",
@@ -3083,8 +3095,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 6 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_153",
@@ -3095,8 +3107,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 6 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmShape::SmShape / SmTopologySolver::ShapePointSolve on boundary faces",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "ray_closed_box_with_large_fillet.smb_154",
@@ -7348,12 +7360,12 @@
     }
   ],
   "cases_both_errored": 9,
-  "cases_deferred": 12,
+  "cases_deferred": 15,
   "cases_failed": 0,
-  "cases_passed": 899,
+  "cases_passed": 896,
   "cases_total": 911,
   "deferred_by_unit": {
-    "harness:analytic-geometry-export": 8,
+    "query.brep": 11,
     "topology.face_p4": 4
   },
   "max_rel_err": 0.0,

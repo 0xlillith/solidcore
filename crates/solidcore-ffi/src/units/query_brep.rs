@@ -121,3 +121,59 @@ mod tests {
         assert!(validate(0, &input).is_ok());
     }
 }
+
+mod graph_classify_sys {
+    extern "C" {
+        pub fn sc_query_brep_graph_classify(
+            op: i32,
+            path: *const std::ffi::c_char,
+            input: *const f64,
+            n_in: i64,
+            point: *const f64,
+            tolerance: f64,
+            boundary: i32,
+            minimum_regions: i32,
+            out: *mut f64,
+            cap: i64,
+            out_len: *mut i64,
+        ) -> i32;
+    }
+}
+/// Export the actual nonempty PRE fixture or classify its point in the native B-rep.
+/// The construction block is the existing bounded query_brep_bbox layout; its
+/// box steps are not executed. Minimum regions are real PostInsert records.
+pub fn classify_graph(
+    export: bool,
+    path: &str,
+    input: &[f64],
+    point: &[f64; 3],
+    tolerance: f64,
+    boundary: bool,
+    minimum_regions: u8,
+) -> Result<Vec<f64>, FfiError> {
+    super::query_brep_bbox::validate(path, input)?;
+    if !(1..=4).contains(&minimum_regions) {
+        return Err(FfiError::InvalidArgument("minimum region count".into()));
+    }
+    let path = std::ffi::CString::new(path)
+        .map_err(|_| FfiError::InvalidArgument("path contains NUL".into()))?;
+    call_with_buffer(128, |buffer, length| {
+        // SAFETY: the existing bbox validator bounds every construction field;
+        // point has3 doubles, flags/count are bounded and buffers remain live.
+        unsafe {
+            graph_classify_sys::sc_query_brep_graph_classify(
+                i32::from(!export),
+                path.as_ptr(),
+                input.as_ptr(),
+                input.len() as i64,
+                point.as_ptr(),
+                tolerance,
+                i32::from(boundary),
+                i32::from(minimum_regions),
+                buffer.as_mut_ptr(),
+                buffer.len() as i64,
+                &raw mut *length,
+            )
+        }
+    })
+}

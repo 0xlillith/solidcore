@@ -11,8 +11,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmSurface::DropCurve",
-        "unit": "intersect.surface_drop_lib_p3"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "loop_crossings_sheet_line_topology",
@@ -83,7 +83,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "fixture:fixtures/boolean.topology_intersector_p2/upstream.json#8 (upstream tests/prog_test/src/smTopoTest.cpp:my_test_analytic_tsurf_creation (one-face B-reps intersected); RegisterExistingSSI marking the pair as not intersecting, then IntersectTopology)",
-      "values_compared": 15
+      "values_compared": 14
     },
     {
       "max_rel_err": 0.0,
@@ -91,7 +91,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360420",
-      "values_compared": 17
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -107,7 +107,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360422",
-      "values_compared": 13
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -159,8 +159,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0009",
@@ -191,8 +191,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0012",
@@ -271,8 +271,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0021",
@@ -343,7 +343,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360449",
-      "values_compared": 17
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -487,7 +487,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360466",
-      "values_compared": 118
+      "values_compared": 117
     },
     {
       "max_rel_err": 0.0,
@@ -635,8 +635,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0064",
@@ -779,7 +779,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360499",
-      "values_compared": 13
+      "values_compared": 12
     },
     {
       "max_rel_err": 0.0,
@@ -931,8 +931,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::SqueezeEdge",
+        "unit": "topology.brep_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0098",
@@ -1164,7 +1164,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360543",
-      "values_compared": 119
+      "values_compared": 118
     },
     {
       "max_rel_err": 0.0,
@@ -1180,7 +1180,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360545",
-      "values_compared": 16
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -1204,7 +1204,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360548",
-      "values_compared": 21
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -1268,7 +1268,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360556",
-      "values_compared": 9
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1340,7 +1340,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360564",
-      "values_compared": 9
+      "values_compared": 8
     },
     {
       "both_errored": true,
@@ -1353,8 +1353,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::SqueezeEdge",
+        "unit": "topology.brep_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0146",
@@ -1373,8 +1373,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0148",
@@ -1413,7 +1413,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360572",
-      "values_compared": 26
+      "values_compared": 25
     },
     {
       "max_rel_err": 0.0,
@@ -1565,8 +1565,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15014 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0170",
@@ -1601,8 +1601,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0174",
@@ -1657,8 +1657,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::SqueezeEdge",
+        "unit": "topology.brep_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0180",
@@ -1829,7 +1829,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360618",
-      "values_compared": 9
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1853,7 +1853,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360621",
-      "values_compared": 9
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1936,12 +1936,16 @@
       "values_compared": 11
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
       "max_rel_err": 0.0,
       "name": "gen0212",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2894391486768360632",
-      "values_compared": 17
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2073,7 +2077,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360646",
-      "values_compared": 26
+      "values_compared": 25
     },
     {
       "deferred": {
@@ -2109,7 +2113,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360650",
-      "values_compared": 22
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -2201,8 +2205,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0241",
@@ -2433,7 +2437,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360687",
-      "values_compared": 17
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -2477,8 +2481,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::SqueezeEdge",
+        "unit": "topology.brep_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0273",
@@ -2557,8 +2561,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0282",
@@ -2600,12 +2604,16 @@
       "values_compared": 16
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
       "max_rel_err": 0.0,
       "name": "gen0287",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2894391486768360707",
-      "values_compared": 18
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2641,8 +2649,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0292",
@@ -2665,7 +2673,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360714",
-      "values_compared": 20
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -2685,8 +2693,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "surface.surface_cache_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0297",
@@ -2709,7 +2717,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360719",
-      "values_compared": 13
+      "values_compared": 12
     },
     {
       "deferred": {
@@ -2733,8 +2741,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::m_bEditingEnabled",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0302",
@@ -2941,8 +2949,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15014 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0325",
@@ -3005,8 +3013,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::SqueezeEdge",
+        "unit": "topology.brep_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0332",
@@ -3017,8 +3025,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 6 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0333",
@@ -3049,8 +3057,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0336",
@@ -3073,8 +3081,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::SqueezeEdge",
+        "unit": "topology.brep_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0338",
@@ -3137,8 +3145,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0345",
@@ -3157,8 +3165,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15014 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0347",
@@ -3197,7 +3205,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360771",
-      "values_compared": 23
+      "values_compared": 22
     },
     {
       "max_rel_err": 0.0,
@@ -3221,7 +3229,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360774",
-      "values_compared": 9
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -3229,7 +3237,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360775",
-      "values_compared": 14
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -3317,8 +3325,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0366",
@@ -3345,8 +3353,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0369",
@@ -3489,8 +3497,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::SqueezeEdge",
+        "unit": "topology.brep_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0386",
@@ -3553,7 +3561,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360812",
-      "values_compared": 28
+      "values_compared": 27
     },
     {
       "max_rel_err": 0.0,
@@ -3565,8 +3573,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0394",
@@ -3621,7 +3629,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360820",
-      "values_compared": 11
+      "values_compared": 10
     },
     {
       "max_rel_err": 0.0,
@@ -3725,8 +3733,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::m_bEditingEnabled",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0413",
@@ -3761,8 +3769,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0417",
@@ -3869,8 +3877,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0429",
@@ -3885,7 +3893,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360850",
-      "values_compared": 25
+      "values_compared": 24
     },
     {
       "max_rel_err": 0.0,
@@ -3961,8 +3969,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::SqueezeEdge",
+        "unit": "topology.brep_p3"
       },
       "max_rel_err": 0.0,
       "name": "gen0439",
@@ -4049,7 +4057,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360868",
-      "values_compared": 21
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -4077,8 +4085,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15014 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0452",
@@ -4117,8 +4125,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0456",
@@ -4173,7 +4181,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360882",
-      "values_compared": 9
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -4205,8 +4213,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0466",
@@ -4256,12 +4264,16 @@
       "values_compared": 5
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
       "max_rel_err": 0.0,
       "name": "gen0472",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2894391486768360892",
-      "values_compared": 173
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4505,7 +4517,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360920",
-      "values_compared": 9
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -4521,7 +4533,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360922",
-      "values_compared": 22
+      "values_compared": 21
     },
     {
       "max_rel_err": 0.0,
@@ -4677,7 +4689,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360941",
-      "values_compared": 20
+      "values_compared": 19
     },
     {
       "max_rel_err": 0.0,
@@ -4741,7 +4753,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768360949",
-      "values_compared": 19
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -4833,8 +4845,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0541",
@@ -5124,12 +5136,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
       "max_rel_err": 0.0,
       "name": "gen0575",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2894391486768360995",
-      "values_compared": 3
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -5233,7 +5249,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361007",
-      "values_compared": 27
+      "values_compared": 26
     },
     {
       "deferred": {
@@ -5285,8 +5301,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::m_bEditingEnabled",
+        "unit": "topology.brep_p1"
       },
       "max_rel_err": 0.0,
       "name": "gen0593",
@@ -5297,8 +5313,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0594",
@@ -5309,8 +5325,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 6 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0595",
@@ -5517,7 +5533,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361039",
-      "values_compared": 21
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -5629,7 +5645,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361051",
-      "values_compared": 16
+      "values_compared": 15
     },
     {
       "max_rel_err": 0.0,
@@ -5680,12 +5696,16 @@
       "values_compared": 168
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
       "max_rel_err": 0.0,
       "name": "gen0638",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=2894391486768361058",
-      "values_compared": 19
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -5697,8 +5717,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0640",
@@ -5909,8 +5929,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0665",
@@ -6045,7 +6065,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361099",
-      "values_compared": 122
+      "values_compared": 121
     },
     {
       "max_rel_err": 0.0,
@@ -6133,8 +6153,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0690",
@@ -6197,7 +6217,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361117",
-      "values_compared": 32
+      "values_compared": 31
     },
     {
       "max_rel_err": 0.0,
@@ -6269,8 +6289,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0706",
@@ -6309,7 +6329,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361130",
-      "values_compared": 21
+      "values_compared": 20
     },
     {
       "max_rel_err": 0.0,
@@ -6369,8 +6389,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0718",
@@ -6453,8 +6473,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required; face 1 surface concrete type 15030 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0727",
@@ -6549,8 +6569,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::ReSet",
-        "unit": "intersect.curve_class_p2"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0736",
@@ -6569,8 +6589,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15020 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0738",
@@ -6657,8 +6677,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0748",
@@ -6837,7 +6857,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "generated:seed=2894391486768361186",
-      "values_compared": 19
+      "values_compared": 18
     },
     {
       "max_rel_err": 0.0,
@@ -6865,8 +6885,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 0 surface concrete type 15030 is represented as 15002; exact geometry is required; face 1 surface concrete type 15030 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "gen0770",
@@ -6913,8 +6933,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "gen0775",
@@ -7185,8 +7205,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::CombineCoincidentVertices",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::Notify",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "squeeze_conflict_closer",
@@ -7253,7 +7273,7 @@
       "outcome": "pass",
       "pass": true,
       "source": "inline",
-      "values_compared": 9
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -7285,12 +7305,12 @@
       "outcome": "pass",
       "pass": true,
       "source": "inline",
-      "values_compared": 9
+      "values_compared": 8
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "SmBrep::GetMinEdgeBBoxSize",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "iir_negative_tol",
@@ -7301,8 +7321,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::GetTolerance",
-        "unit": "topology.face_p2"
+        "symbol": "SmBrep::GetMinEdgeBBoxSize",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "iir_tiny_tol",
@@ -7409,17 +7429,16 @@
     }
   ],
   "cases_both_errored": 2,
-  "cases_deferred": 169,
+  "cases_deferred": 174,
   "cases_failed": 0,
-  "cases_passed": 672,
+  "cases_passed": 667,
   "cases_total": 841,
   "deferred_by_unit": {
-    "harness:analytic-geometry-export": 17,
-    "intersect.curve_class_p2": 11,
-    "intersect.surface_drop_lib_p3": 1,
-    "surface.surface_cache_p2": 2,
-    "topology.brep_p5": 15,
-    "topology.face_p2": 77,
+    "query.brep": 41,
+    "topology.brep_p1": 3,
+    "topology.brep_p2": 6,
+    "topology.brep_p3": 8,
+    "topology.face_p2": 70,
     "topology.face_p3": 12,
     "topology.face_p4": 34
   },

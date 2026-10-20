@@ -205,8 +205,7 @@ fn model(i: &Inputs) -> Result<Result<Model, Output>, HarnessError> {
     }
     let mut input = block(i)?;
     input.extend(&edit_block);
-    let ex =
-        ffi::eval(Op::Export, &path, &input).map_err(|e| harness(format!("c++ export: {e}")))?;
+    let ex = ffi::eval(Op::Export, &path, &input).map_err(|e| harness(format!("c++ export: {e}")))?;
     if ex.first() != Some(&0.0) {
         return Ok(Err(Output::err(format!(
             "brep_build_status_{}",
@@ -241,13 +240,7 @@ fn face_edgeuses(b: &Brep, f: FaceId) -> Result<Vec<EdgeuseId>, HarnessError> {
 
 /// Whether face `f`'s surface and the curves of its loop edges were imported exactly.
 fn face_exact(m: &Model, f: FaceId) -> Result<bool, HarnessError> {
-    if !m
-        .exact
-        .faces
-        .get(f.index() as usize)
-        .copied()
-        .unwrap_or(false)
-    {
+    if !m.exact.faces.get(f.index() as usize).copied().unwrap_or(false) {
         return Ok(false);
     }
     for eu in face_edgeuses(&m.brep, f)? {
@@ -257,13 +250,7 @@ fn face_exact(m: &Model, f: FaceId) -> Result<bool, HarnessError> {
             .map_err(|e| harness(e.to_string()))?
             .edge
             .ok_or_else(|| harness("edge use without edge"))?;
-        if !m
-            .exact
-            .edges
-            .get(e.index() as usize)
-            .copied()
-            .unwrap_or(false)
-        {
+        if !m.exact.edges.get(e.index() as usize).copied().unwrap_or(false) {
             return Ok(false);
         }
     }
@@ -276,10 +263,7 @@ fn point_of(m: &Model, f: FaceId, at: &At) -> Result<Point2, HarnessError> {
     let dom = face.uv_domain;
     let (min, max) = (dom.min(), dom.max());
     let base = match at.mode.as_str() {
-        "frac" => Point2::new(
-            min.x + at.a * (max.x - min.x),
-            min.y + at.b * (max.y - min.y),
-        ),
+        "frac" => Point2::new(min.x + at.a * (max.x - min.x), min.y + at.b * (max.y - min.y)),
         "abs" => Point2::new(at.a, at.b),
         "trim" => {
             let eus = face_edgeuses(&m.brep, f)?;
@@ -287,11 +271,9 @@ fn point_of(m: &Model, f: FaceId, at: &At) -> Result<Point2, HarnessError> {
                 .ok()
                 .and_then(|i| eus.get(i).copied());
             let curve = match eu {
-                Some(eu) => {
-                    eu1::uv_trim_curve(&m.brep, eu)
-                        .map_err(|e| harness(e.to_string()))?
-                        .0
-                }
+                Some(eu) => eu1::uv_trim_curve(&m.brep, eu)
+                    .map_err(|e| harness(e.to_string()))?
+                    .0,
                 None => None,
             };
             match curve {
@@ -314,11 +296,7 @@ fn dom_of(m: &Model, f: FaceId, d: Option<[f64; 4]>) -> Result<[f64; 4], Harness
     if let Some(d) = d {
         Ok(d)
     } else {
-        let dom = m
-            .brep
-            .face(f)
-            .map_err(|e| harness(e.to_string()))?
-            .uv_domain;
+        let dom = m.brep.face(f).map_err(|e| harness(e.to_string()))?.uv_domain;
         Ok([dom.min().x, dom.min().y, dom.max().x, dom.max().y])
     }
 }
@@ -343,14 +321,7 @@ fn op_args(m: &Model, op: &OpIn) -> Result<(Op, Vec<f64>, Vec<FaceId>), HarnessE
         } => {
             let f = face_of(m, *face)?;
             let uv = point_of(m, f, at)?;
-            let mut v = vec![
-                f64::from(f.index()),
-                uv.x,
-                uv.y,
-                *src_tol,
-                flag(*do_bnd),
-                flag(*use_uv),
-            ];
+            let mut v = vec![f64::from(f.index()), uv.x, uv.y, *src_tol, flag(*do_bnd), flag(*use_uv)];
             v.extend([flag(*tgt_only), flag(*has_loops)]);
             let n_loops = m.brep.loops().len();
             let ls: Vec<f64> = loops
@@ -470,9 +441,7 @@ fn cpp(i: &Inputs) -> Result<Output, HarnessError> {
             let status = head.first().copied().unwrap_or(-9.0);
             let tsc = head.get(1).copied().unwrap_or(-9.0);
             Ok(put_pc(
-                Output::new()
-                    .scalar("status", status)
-                    .scalar("has_trim_cache", tsc),
+                Output::new().scalar("status", status).scalar("has_trim_cache", tsc),
                 "",
                 pc,
             ))
@@ -496,8 +465,7 @@ fn pc_block(pc: &PointClassification<EntityRef>) -> Vec<f64> {
         f64::from(pc.point_class().code()),
         kind,
         index,
-        pc.gap_3d(&Kernel::default(), &NoGeometry, None)
-            .unwrap_or(f64::NAN),
+        pc.gap_3d(&Kernel::default(), &NoGeometry, None).unwrap_or(f64::NAN),
         pc.src_zone_tol_3d(),
         pc.pre_snap_param(),
         pc.t_param(),
@@ -509,11 +477,7 @@ fn pc_block(pc: &PointClassification<EntityRef>) -> Vec<f64> {
 
 /// The shim's `put_pc` block for a curve classification's point classification: only
 /// faces, edges and vertices have an export index (other objects are `-3, -1`).
-fn cc_pc_block(
-    k: &Kernel,
-    objects: &Objects<'_>,
-    pc: &PointClassification<H>,
-) -> Result<Vec<f64>, HarnessError> {
+fn cc_pc_block(k: &Kernel, objects: &Objects<'_>, pc: &PointClassification<H>) -> Result<Vec<f64>, HarnessError> {
     let (kind, index) = match pc.object() {
         None => (0.0, -1.0),
         Some(H::Face(f)) => (1.0, f64::from(f.index())),
@@ -680,20 +644,11 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
     } = &i.op
     {
         let h = EntityRef::Face(FaceId::from_index(0));
-        // two empty B-reps, as the shim's
-        let e = Brep::new();
-        let mut mgr: ProtoTopologyManager<EntityRef> = match ProtoTopologyManager::new(
-            &k,
-            (h, &e),
-            (h, &e),
-            h,
-            *approx,
-            *capture,
-            *override_tol,
-        ) {
-            Ok(m) => m,
-            Err(e) => return Ok(rust_err(&e)),
-        };
+        let mut mgr: ProtoTopologyManager<EntityRef> =
+            match ProtoTopologyManager::new(h, h, h, *approx, *capture, *override_tol) {
+                Ok(m) => m,
+                Err(e) => return Ok(rust_err(&e)),
+            };
         let [px, py, pz] = *p;
         let [qx, qy, qz] = *q;
         let id = match mgr.new_proto_vertex(Vec3::new(px, py, pz), *tol) {
@@ -765,9 +720,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
                 Err(e) => return Ok(rust_err(&e)),
             };
             Ok(put_pc(
-                Output::new()
-                    .scalar("status", status)
-                    .scalar("has_trim_cache", 0.0),
+                Output::new().scalar("status", status).scalar("has_trim_cache", 0.0),
                 "",
                 &pc_block(&pc),
             ))
@@ -781,16 +734,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let uv = Point2::new(a(0), a(1));
             let d1 = Extent2d::from_points(Point2::new(a(4), a(5)), Point2::new(a(6), a(7)));
             let d2 = Extent2d::from_points(Point2::new(a(9), a(10)), Point2::new(a(11), a(12)));
-            match qf::classify_param_on_faces(
-                &k,
-                &mut b.clone(),
-                uv,
-                zone_tol3d(&k, *tol),
-                f1,
-                &d1,
-                f2,
-                &d2,
-            ) {
+            match qf::classify_param_on_faces(&k, &mut b.clone(), uv, zone_tol3d(&k, *tol), f1, &d1, f2, &d2) {
                 Ok(w) => Ok(Output::new().values("which", vec![f64::from(w)])),
                 Err(e) => Ok(rust_err(&e)),
             }
@@ -814,28 +758,21 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let line = match BSplineCurve::create_line_segment(u64::from(*dim), p, q) {
                 Ok(line) => line,
                 Err(SolidError::Upstream { code, .. }) => {
-                    return Ok(
-                        Output::new().values("curve_classification", vec![-3.0, f64::from(code)])
-                    )
+                    return Ok(Output::new().values("curve_classification", vec![-3.0, f64::from(code)]))
                 }
                 Err(e) => return Ok(rust_err(&e)),
             };
             let curve = Curve::from(line);
             let interval = curve.natural_interval();
             let objects = Objects { brep: b, curve };
-            let mut cc: CurveClassification<H> = CurveClassification::with_curve_interval(
-                &k,
-                H::Curve,
-                interval,
-                zone_tol3d(&k, *tol),
-            );
-            let (status, modified) = match qf::curve_on_classify(
-                &k, b, f, &objects, *do_pc, &mut cc, *big_gaps, *check3d, true,
-            ) {
-                Ok(modified) => (0.0, modified),
-                Err(SolidError::Upstream { code, .. }) => (f64::from(code), false),
-                Err(e) => return Ok(rust_err(&e)),
-            };
+            let mut cc: CurveClassification<H> =
+                CurveClassification::with_curve_interval(&k, H::Curve, interval, zone_tol3d(&k, *tol));
+            let (status, modified) =
+                match qf::curve_on_classify(&k, b, f, &objects, *do_pc, &mut cc, *big_gaps, *check3d, true) {
+                    Ok(modified) => (0.0, modified),
+                    Err(SolidError::Upstream { code, .. }) => (f64::from(code), false),
+                    Err(e) => return Ok(rust_err(&e)),
+                };
             let mut o = vec![status, flag(modified), cc.size() as f64];
             for iv in cc.intervals() {
                 o.extend([iv.interval.min(), iv.interval.max()]);
@@ -853,9 +790,7 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
 
 fn gen_at(rng: &mut Rng) -> At {
     let scale = *rng
-        .choose(&[
-            0.0, 0.0, 1e-12, 1e-9, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1,
-        ])
+        .choose(&[0.0, 0.0, 1e-12, 1e-9, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1])
         .unwrap_or(&0.0);
     let off = |rng: &mut Rng| if rng.chance(0.5) { scale } else { -scale };
     match rng.below(10) {
@@ -911,11 +846,7 @@ const EXACT_FILES: [&str; 7] = [
 
 fn gen_brep(rng: &mut Rng) -> BrepIn {
     if rng.chance(0.8) {
-        let files: &[&str] = if rng.chance(0.95) {
-            &EXACT_FILES
-        } else {
-            &FILES
-        };
+        let files: &[&str] = if rng.chance(0.95) { &EXACT_FILES } else { &FILES };
         BrepIn::File {
             file: (*rng.choose(files).unwrap_or(&"plane_square.smb")).to_string(),
             rebuild: rng.chance(0.8),
@@ -939,8 +870,7 @@ fn gen_brep(rng: &mut Rng) -> BrepIn {
 }
 
 fn gen_tol(rng: &mut Rng) -> f64 {
-    *rng.choose(&[0.0, 0.0, 1e-9, 1e-6, 1e-4, 1e-3, 1e-2, 0.1])
-        .unwrap_or(&0.0)
+    *rng.choose(&[0.0, 0.0, 1e-9, 1e-6, 1e-4, 1e-3, 1e-2, 0.1]).unwrap_or(&0.0)
 }
 
 /// Tolerance edits, and the UV trim curves of face `face` built with probability
@@ -957,14 +887,10 @@ fn gen_edits(rng: &mut Rng, face: i64, trims: f64) -> Vec<Edit> {
     if rng.chance(0.6) {
         return out;
     }
-    out.extend((0..=rng.below(3)).map(|_| {
-        Edit {
-            kind: rng.below(3) as u8,
-            sel: rng.below(64) as i64,
-            value: *rng
-                .choose(&[0.0, 1e-9, 1e-6, 1e-4, 1e-2, 0.1, 1.0])
-                .unwrap_or(&1e-6),
-        }
+    out.extend((0..=rng.below(3)).map(|_| Edit {
+        kind: rng.below(3) as u8,
+        sel: rng.below(64) as i64,
+        value: *rng.choose(&[0.0, 1e-9, 1e-6, 1e-4, 1e-2, 0.1, 1.0]).unwrap_or(&1e-6),
     }));
     out
 }
@@ -974,9 +900,7 @@ fn gen_case(rng: &mut Rng) -> Inputs {
     if kind == 0 {
         let scale = *rng.choose(&[1e-6, 1e-3, 1.0, 1e3]).unwrap_or(&1.0);
         let p = rng.point3(-1.0, 1.0).map(|c| c * scale);
-        let d = rng
-            .point3(-1.0, 1.0)
-            .map(|c| c * scale * rng.uniform(0.0, 2.0));
+        let d = rng.point3(-1.0, 1.0).map(|c| c * scale * rng.uniform(0.0, 2.0));
         return Inputs {
             brep: None,
             validate_only: false,
@@ -1038,11 +962,7 @@ fn gen_case(rng: &mut Rng) -> Inputs {
         OpIn::ClassifyParam { face1, .. } => *face1,
         OpIn::ProtoVertex { .. } => 0,
     };
-    let trims = if matches!(brep, BrepIn::Face { .. }) {
-        0.9
-    } else {
-        0.5
-    };
+    let trims = if matches!(brep, BrepIn::Face { .. }) { 0.9 } else { 0.5 };
     let mut edits = gen_edits(rng, face, trims);
     if let OpIn::ClassifyParam { face2, .. } = &op {
         if rng.chance(trims) {

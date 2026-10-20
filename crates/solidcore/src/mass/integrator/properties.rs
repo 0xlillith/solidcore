@@ -352,7 +352,7 @@ fn brep_box(k: &Kernel, b: &Brep) -> Result<Extent3d> {
     crate::query::brep::calculate_loose_bounding_box(k, b, false, true)
 }
 fn face_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
-    crate::query::face::p1::calculate_loose_bounding_box(k, b, f)
+    crate::query::face::p1::calculate_bounding_box(k, b, f, false)
 }
 fn faces(b: &Brep) -> Result<Vec<FaceId>> {
     crate::topology::brep::p1::faces(b, None)
@@ -367,8 +367,12 @@ fn vertices(b: &Brep) -> Result<Vec<VertexId>> {
 fn region_void(b: &Brep, r: RegionId) -> Result<bool> {
     Ok(b.region(r)?.is_void() != 0)
 }
-fn manifold_solid(b: &Brep) -> Result<bool> {
-    crate::topology::brep::p2::is_manifold_solid(b)
+fn manifold_solid(_b: &Brep) -> Result<bool> {
+    // UNPORTED(topology.brep_p2): SmBrep::IsManifoldSolid
+    Err(SolidError::unported(
+        "SmBrep::IsManifoldSolid",
+        "topology.brep_p2",
+    ))
 }
 fn add(total: &mut PreciseProperties, delta: &PreciseProperties, density: f64) {
     total.area += delta.area;

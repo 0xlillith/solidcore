@@ -2,20 +2,28 @@
   "abs_floors": [],
   "cases": [
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "adv_rayfire_behind_start_single_False",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/adv.json#0",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "adv_rayfire_ahead_single_False",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/adv.json#1",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -26,20 +34,28 @@
       "values_compared": 9
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "adv_rayfire_behind_start_single_True",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/adv.json#3",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "adv_rayfire_ahead_single_True",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/adv.json#4",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -436,7 +452,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "adv_pc_line_8_False",
@@ -448,7 +464,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "adv_pc_line_8_True",
@@ -1638,20 +1654,28 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "point_vertex_op_8_coincident",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#43",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "point_vertex_op_8_unit_away",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#44",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2398,28 +2422,40 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "point_vertex_rayfire_tolerance_limit",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#137",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "point_vertex_rayfire_behind_start",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#138",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "point_vertex_rayfire_behind_start_swapped",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/edge.json#139",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -2678,12 +2714,16 @@
       "values_compared": 9
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "rectangle_point_vertex_rayfire_corner",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/intersect.topology_solver_p1/upstream.json#26 (upstream tests/SM_API_test/src/TestSmCurves.cpp:430 (SmApiCreateRectangle 10 x 6 at the origin))",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4714,12 +4754,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen0045",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172591290",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "deferred": {
@@ -4750,12 +4794,16 @@
       "values_compared": 9
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen0049",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172591294",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -4974,12 +5022,16 @@
       "values_compared": 10
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen0077",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172591322",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -6088,7 +6140,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0214",
@@ -7254,12 +7306,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen0357",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172591602",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -8690,12 +8746,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen0534",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172591779",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -9278,12 +9338,16 @@
       "values_compared": 10
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen0607",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172591852",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -9614,12 +9678,16 @@
       "values_compared": 4
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen0648",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172591893",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -9800,7 +9868,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0671",
@@ -11232,7 +11300,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0848",
@@ -11316,7 +11384,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0858",
@@ -11782,12 +11850,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen0916",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172592161",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -11980,7 +12052,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen0940",
@@ -12606,12 +12678,16 @@
       "values_compared": 9
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen1018",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172592263",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -12638,12 +12714,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen1022",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172592267",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -12766,12 +12846,16 @@
       "values_compared": 0
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen1037",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172592282",
-      "values_compared": 15
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -15834,12 +15918,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen1416",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172592661",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -16288,7 +16376,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1472",
@@ -16748,7 +16836,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1529",
@@ -17126,12 +17214,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen1576",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172592821",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -17606,12 +17698,16 @@
       "values_compared": 9
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen1636",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172592881",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -19036,7 +19132,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1812",
@@ -19674,12 +19770,16 @@
       "values_compared": 6
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen1891",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172593136",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -19772,7 +19872,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen1903",
@@ -21526,12 +21626,16 @@
       "values_compared": 10
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen2119",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172593364",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -22638,12 +22742,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen2257",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172593502",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -22704,7 +22812,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen2265",
@@ -23032,7 +23140,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen2304",
@@ -23186,12 +23294,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen2323",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172593568",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -24820,7 +24932,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen2525",
@@ -26244,7 +26356,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen2699",
@@ -26862,12 +26974,16 @@
       "values_compared": 3
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen2775",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172594020",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -26888,7 +27004,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen2778",
@@ -26996,7 +27112,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen2791",
@@ -27532,7 +27648,7 @@
     {
       "deferred": {
         "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
-        "unit": "geom.solution_array"
+        "unit": "geom.tol"
       },
       "max_rel_err": 0.0,
       "name": "gen2857",
@@ -28238,12 +28354,16 @@
       "values_compared": 10
     },
     {
+      "deferred": {
+        "symbol": "SmTol::GetZoneTol3d(const SmObject*)",
+        "unit": "geom.tol"
+      },
       "max_rel_err": 0.0,
       "name": "gen2941",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "generated:seed=4917428403172594186",
-      "values_compared": 9
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -28711,12 +28831,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 113,
+  "cases_deferred": 143,
   "cases_failed": 0,
-  "cases_passed": 3419,
+  "cases_passed": 3389,
   "cases_total": 3532,
   "deferred_by_unit": {
-    "geom.solution_array": 18,
+    "geom.tol": 48,
     "topology.edge": 95
   },
   "max_rel_err": 0.0,

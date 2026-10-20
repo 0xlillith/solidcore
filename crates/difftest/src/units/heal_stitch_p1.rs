@@ -20,31 +20,15 @@
 //! **Inexact geometry.** The export carries B-spline curves, `SmLine`s, B-spline
 //! surfaces and `SmPlane`s exactly; other analytic kinds arrive as their B-spline part,
 //! so the ops evaluating geometry defer on B-reps holding them (as `topology.brep_p1`).
-//! Normal unification and edge splitting install the native query metadata: exact owner
-//! links, primary faceuses, trim flags, tolerances and B-rep lists. Unrepresentable
-//! query geometry defers before the operation; null API arguments retain their
-//! native early exits without inspecting that geometry. Splits additionally import
-//! flags and user values for the notification records. Their separate native export
-//! checks general marks, attribute storage (including `TESSELLATING`) and native
-//! notification callbacks. This fixture-wide guard is conservative: unsupported
-//! state defers before the operation, including early exits that might not use it,
-//! and before any native-status mapping.
-
-use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-use solidcore::geom::a_object::BREP_TYPE;
-use solidcore::geom::attribute::{AttributeStore, ObjectKey};
-use solidcore::geom::object::ObjectRef;
 use solidcore::heal::stitch::p1 as st;
 use solidcore::kernel::Kernel;
 use solidcore::math::Point3;
 use solidcore::topology::brep::p1 as bp1;
-use solidcore::topology::brep_cache::CacheObject;
 use solidcore::topology::face::p2 as fp2;
-use solidcore::topology::topology::Topology;
 use solidcore::topology::{edge, vertex, Brep, EdgeId, FaceId, VertexId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::heal_stitch_p1::{self as ffi, Op, TY_EDGE, TY_FACE, TY_VERTEX};
@@ -610,15 +594,7 @@ pub(crate) fn inexact(types: &ImportTypes) -> Option<Output> {
 /// Whether the op evaluates curves or surfaces (and so defers on inexact geometry).
 fn evaluates_geometry(op: &Resolved) -> bool {
     match op {
-        // SmApiUnifyNormals rejects a null start face before reading the B-rep
-        // tolerance or constructing SmStitch, even if its geometry is inexact.
-        Resolved::Export
-        | Resolved::VPairs { .. }
-        | Resolved::Api {
-            which: 4,
-            face: None,
-            ..
-        } => false,
+        Resolved::Export | Resolved::VPairs { .. } => false,
         Resolved::Api {
             null_brep, which, ..
         } => !*null_brep && *which != 5,
@@ -716,262 +692,8 @@ pub(crate) fn digest(b: &Brep, o: &mut Vec<f64>) -> solidcore::Result<()> {
     Ok(())
 }
 
-/// Fixture identities include the class because notification records are keyed
-/// only by `ObjectKey`. For example, edge 0 and vertex 0 must remain distinct.
-fn split_object_ref(type_code: i64, index: u64) -> ObjectRef {
-    ObjectRef {
-        type_code,
-        key: ObjectKey(((type_code as u64) << 32) | (index + 1)),
-    }
-}
-
-fn split_key(entity: EntityRef) -> ObjectRef {
-    let (type_code, index) = match entity {
-        EntityRef::Region(id) => (16012, id.index()),
-        EntityRef::Shell(id) => (16013, id.index()),
-        EntityRef::Faceuse(id) => (16022, id.index()),
-        EntityRef::Face(id) => (16002, id.index()),
-        EntityRef::Loopuse(id) => (16004, id.index()),
-        EntityRef::Loop(id) => (16003, id.index()),
-        EntityRef::Edgeuse(id) => (16005, id.index()),
-        EntityRef::Edge(id) => (16016, id.index()),
-        EntityRef::Vertexuse(id) => (16006, id.index()),
-        EntityRef::Vertex(id) => (16021, id.index()),
-        // Every call contains exactly the B-rep imported for this fixture.
-        EntityRef::Brep(_) => (BREP_TYPE, 0),
-    };
-    split_object_ref(type_code, u64::from(index))
-}
-
-fn split_query_key(object: CacheObject) -> ObjectRef {
-    let identity = solidcore::topology::brep_cache::arena_identity(object);
-    split_object_ref(identity.type_code, identity.key.0)
-}
-
-fn split_curve_ref(edge: EdgeId, type_code: i64) -> ObjectRef {
-    split_object_ref(type_code, u64::from(edge.index()))
-}
-
-/// Notification inputs that the native export proved representable. Records are
-/// registered before any split; part 9 appends records for its newly created ids.
-struct SplitNotifications {
-    records: BTreeMap<ObjectKey, Topology>,
-    attributes: AttributeStore,
-}
-
-enum SplitMetadata {
-    Ready(SplitNotifications),
-    Deferred(Output),
-}
-
-const HARNESS_NOTIFICATIONS: &str = "harness:topology-notification-export";
-
-struct SplitMetadataReader<'a> {
-    raw: &'a [f64],
-    at: usize,
-}
-
-impl<'a> SplitMetadataReader<'a> {
-    fn word(&mut self) -> Result<u32, HarnessError> {
-        let value = *self
-            .raw
-            .get(self.at)
-            .ok_or_else(|| harness("split metadata: truncated integer"))?;
-        self.at += 1;
-        if !value.is_finite()
-            || value.fract() != 0.0
-            || !(0.0..=f64::from(u32::MAX)).contains(&value)
-        {
-            return Err(harness("split metadata: invalid integer"));
-        }
-        Ok(value as u32)
-    }
-
-    fn count(&mut self) -> Result<usize, HarnessError> {
-        usize::try_from(self.word()?).map_err(|_| harness("split metadata: count overflow"))
-    }
-
-    fn wide(&mut self) -> Result<u64, HarnessError> {
-        let lo = u64::from(self.word()?);
-        let hi = u64::from(self.word()?);
-        Ok(lo | (hi << 32))
-    }
-
-    fn flag(&mut self) -> Result<bool, HarnessError> {
-        match self.word()? {
-            0 => Ok(false),
-            1 => Ok(true),
-            _ => Err(harness("split metadata: invalid flag")),
-        }
-    }
-
-    fn block(&mut self) -> Result<&'a [f64], HarnessError> {
-        let count = self.count()?;
-        let end = self
-            .at
-            .checked_add(count)
-            .ok_or_else(|| harness("split metadata: block length overflow"))?;
-        let result = self
-            .raw
-            .get(self.at..end)
-            .ok_or_else(|| harness("split metadata: truncated block"))?;
-        self.at = end;
-        Ok(result)
-    }
-}
-
-fn split_topology_rows(brep: &Brep) -> Vec<(u32, u32, ObjectRef)> {
-    let mut rows = vec![(10, 0, split_query_key(CacheObject::Brep))];
-    let mut push = |kind, index, entity| rows.push((kind, index, split_key(entity)));
-    for id in brep.regions().ids() {
-        push(0, id.index(), EntityRef::Region(id));
-    }
-    for id in brep.shells().ids() {
-        push(1, id.index(), EntityRef::Shell(id));
-    }
-    for id in brep.faceuses().ids() {
-        push(2, id.index(), EntityRef::Faceuse(id));
-    }
-    for id in brep.faces().ids() {
-        push(3, id.index(), EntityRef::Face(id));
-    }
-    for id in brep.loopuses().ids() {
-        push(4, id.index(), EntityRef::Loopuse(id));
-    }
-    for id in brep.loops().ids() {
-        push(5, id.index(), EntityRef::Loop(id));
-    }
-    for id in brep.edgeuses().ids() {
-        push(6, id.index(), EntityRef::Edgeuse(id));
-    }
-    for id in brep.edges().ids() {
-        push(7, id.index(), EntityRef::Edge(id));
-    }
-    for id in brep.vertexuses().ids() {
-        push(8, id.index(), EntityRef::Vertexuse(id));
-    }
-    for id in brep.vertices().ids() {
-        push(9, id.index(), EntityRef::Vertex(id));
-    }
-    rows
-}
-
-/// Parse all state before publishing owner/list metadata or calling the operation.
-/// Attribute storage and nonzero general marks have no decoder here. Their actual
-/// native presence is a harness limit, never an empty `AttributeStore` or zero mark
-/// passed off as equivalent input. List links and non-general marks are not read
-/// by these notification records; the B-rep graph carries the actual lists.
-#[allow(clippy::too_many_lines)]
-fn import_split_metadata(brep: &mut Brep, raw: &[f64]) -> Result<SplitMetadata, HarnessError> {
-    let mut reader = SplitMetadataReader { raw, at: 0 };
-    if reader.word()? != 1 {
-        return Err(harness("split metadata: unsupported version"));
-    }
-    let query = reader.block()?;
-    let callback_present = reader.flag()?;
-    let expected = split_topology_rows(brep);
-    if reader.count()? != expected.len() {
-        return Err(harness("split metadata: topology count differs from graph"));
-    }
-    let mut records = BTreeMap::new();
-    let mut marked_records = 0_usize;
-    let mut attributed_objects = 0_usize;
-    for (kind, index, object) in expected {
-        if reader.word()? != kind || reader.word()? != index {
-            return Err(harness(
-                "split metadata: topology identity differs from graph",
-            ));
-        }
-        let mut record = Topology::new();
-        record.set_all_flags(reader.wide()?);
-        let marks = [reader.wide()?, reader.wide()?, reader.wide()?];
-        if marks.iter().any(|&mark| mark != 0) {
-            marked_records += 1;
-        }
-        record.set_user_index1(reader.wide()?);
-        record.set_user_index2(reader.wide()?);
-        record.set_user_ptr1(reader.wide()?);
-        if reader.flag()? {
-            attributed_objects += 1;
-        }
-        if records.insert(object.key, record).is_some() {
-            return Err(harness("split metadata: colliding topology keys"));
-        }
-    }
-
-    let geometry = brep
-        .edges()
-        .iter()
-        .map(|(id, edge)| (0, id.index(), edge.curve.is_some()))
-        .chain(
-            brep.faces()
-                .iter()
-                .map(|(id, face)| (1, id.index(), face.surface.is_some())),
-        )
-        .chain(
-            brep.edgeuses()
-                .iter()
-                .map(|(id, edgeuse)| (2, id.index(), edgeuse.uv_trim_curve.is_some())),
-        )
-        .collect::<Vec<_>>();
-    if reader.count()? != geometry.len() {
-        return Err(harness("split metadata: geometry count differs from graph"));
-    }
-    for (kind, index, present) in geometry {
-        if reader.word()? != kind || reader.word()? != index || reader.flag()? != present {
-            return Err(harness(
-                "split metadata: geometry identity differs from graph",
-            ));
-        }
-        let attributed = reader.flag()?;
-        if attributed && !present {
-            return Err(harness("split metadata: attributes on absent geometry"));
-        }
-        if attributed {
-            attributed_objects += 1;
-        }
-    }
-    if reader.at != raw.len() {
-        return Err(harness("split metadata: trailing values"));
-    }
-
-    let metadata = super::topology_vertexuse::apply_query_metadata(brep, query, &split_query_key)?;
-    if let Some(deferred) = metadata.deferred_output() {
-        return Ok(SplitMetadata::Deferred(deferred));
-    }
-    let mut limitations = Vec::new();
-    if callback_present {
-        limitations.push("native system or user notification callback is present".to_owned());
-    }
-    if marked_records != 0 {
-        limitations.push(format!(
-            "nonzero native general marks on {marked_records} topology records"
-        ));
-    }
-    if attributed_objects != 0 {
-        limitations.push(format!("native attribute storage on {attributed_objects} objects is not decoded (including any TESSELLATING attribute)"));
-    }
-    if !limitations.is_empty() {
-        return Ok(SplitMetadata::Deferred(Output::deferred(
-            HARNESS_NOTIFICATIONS,
-            limitations.join("; "),
-        )));
-    }
-    Ok(SplitMetadata::Ready(SplitNotifications {
-        records,
-        // Empty is exact here: every topology and geometry attribute slot was
-        // inspected natively above, including the B-rep's TESSELLATING lookup.
-        attributes: AttributeStore::default(),
-    }))
-}
-
 #[allow(clippy::too_many_lines)] // one arm per op
-fn run_rust_op(
-    k: &mut Kernel,
-    b: &mut Brep,
-    op: &Resolved,
-    split: Option<&mut SplitNotifications>,
-) -> solidcore::Result<Vec<f64>> {
+fn run_rust_op(k: &mut Kernel, b: &mut Brep, op: &Resolved) -> solidcore::Result<Vec<f64>> {
     let mut cb = st::DefaultStitchCallback::new();
     match op {
         Resolved::Export => Err(SolidError::invalid_input(
@@ -996,46 +718,22 @@ fn run_rust_op(
                 vec![flag(r)]
             })
         }
-        Resolved::Split { edge, p, tol } => {
-            // This error exits before the native-status match below, so an
-            // absent fixture provider cannot become SM_ERR_INVALID_INPUT.
-            let split = split.ok_or_else(|| {
-                SolidError::invalid_input(
-                    "difftest",
-                    "split notification metadata was not imported",
-                )
-            })?;
-            let mut notifications = edge::NotifyEnv {
-                records: &mut split.records,
-                attributes: &mut split.attributes,
-                context: None, // the native export proved no notification callback exists
-                key_of: &split_key,
-            };
-            match st::test_and_split_edge(
-                k,
-                b,
-                *edge,
-                *p,
-                *tol,
-                &mut notifications,
-                &split_curve_ref,
-            ) {
-                Ok(r) => {
-                    let mut o = vec![
-                        0.0,
-                        f64::from(r.reason as u8),
-                        r.dist_to_edge,
-                        flag(r.new_vertex.is_some()),
-                    ];
-                    if r.new_vertex.is_some() {
-                        digest(b, &mut o)?;
-                    }
-                    Ok(o)
+        Resolved::Split { edge, p, tol } => match st::test_and_split_edge(k, b, *edge, *p, *tol) {
+            Ok(r) => {
+                let mut o = vec![
+                    0.0,
+                    f64::from(r.reason as u8),
+                    r.dist_to_edge,
+                    flag(r.new_vertex.is_some()),
+                ];
+                if r.new_vertex.is_some() {
+                    digest(b, &mut o)?;
                 }
-                Err(e) if e.is_unported() => Err(e),
-                Err(e) => Ok(vec![status_of(&e)]),
+                Ok(o)
             }
-        }
+            Err(e) if e.is_unported() => Err(e),
+            Err(e) => Ok(vec![status_of(&e)]),
+        },
         Resolved::VPairs {
             tol,
             ignore,
@@ -1199,37 +897,8 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     if matches!(op, Resolved::Export) {
         return Ok(Output::new().values("out", Vec::new()));
     }
-    let mut split = None;
-    if matches!(op, Resolved::Split { .. }) {
-        let raw = ffi::split_metadata(&path(&i.brep)?, &block_of(&i.brep)?)
-            .map_err(|e| harness(format!("split metadata: {e}")))?;
-        match import_split_metadata(&mut b, &raw)? {
-            SplitMetadata::Ready(state) => split = Some(state),
-            SplitMetadata::Deferred(output) => return Ok(output),
-        }
-    } else if matches!(
-        &op,
-        Resolved::Unify { .. }
-            | Resolved::Api {
-                which: 4,
-                null_brep: false,
-                face: Some(_),
-                ..
-            }
-    ) {
-        let raw = ffi::query_metadata(&path(&i.brep)?, &block_of(&i.brep)?)
-            .map_err(|e| harness(format!("query metadata: {e}")))?;
-        let metadata = super::topology_vertexuse::apply_query_metadata(
-            &mut b,
-            &raw,
-            &solidcore::topology::brep_cache::arena_identity,
-        )?;
-        if let Some(deferred) = metadata.deferred_output() {
-            return Ok(deferred);
-        }
-    }
     let mut k = Kernel::default();
-    match run_rust_op(&mut k, &mut b, &op, split.as_mut()) {
+    match run_rust_op(&mut k, &mut b, &op) {
         Ok(o) => Ok(guarded_output(o)),
         Err(e) => match Output::unported(&e) {
             Some(o) => Ok(o),
@@ -1429,75 +1098,5 @@ impl UnitDiff for Runner {
             op: gen_op(rng),
         })
         .ok()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn split_uses_native_notification_inputs_for_a_real_wire() {
-        for offset in [[0.0; 3], [0.0, 0.0, 1.0]] {
-            let inputs: Inputs = serde_json::from_value(json!({
-                "brep": {
-                    "kind": "brep",
-                    "brep": {
-                        "kind": "wire",
-                        "curve": {
-                            "dim": 3,
-                            "cpts": [[-1, 0, 0, 1], [1, 0, 0, 1]],
-                            "p": 1,
-                            "u": [0, 0, 1, 1]
-                        },
-                        "t0": 0,
-                        "t1": 1
-                    },
-                    "validate_only": false,
-                    "init_gaps": false
-                },
-                "op": {"op": "split", "edge": 0, "s": 0.5, "offset": offset, "tol": 1e-6}
-            }))
-            .unwrap();
-            let export = export(&inputs.brep).unwrap();
-            let (_, graph_at) = counts(&export).unwrap();
-            let (mut brep, types) =
-                super::super::topology_brep_p1::import(&export, graph_at).unwrap();
-            assert!(inexact(&types).is_none());
-            let op = resolve(&inputs.op, &brep).unwrap().unwrap();
-            let path = path(&inputs.brep).unwrap();
-            let mut block = block_of(&inputs.brep).unwrap();
-            let raw = ffi::split_metadata(&path, &block).unwrap();
-            let SplitMetadata::Ready(mut notifications) =
-                import_split_metadata(&mut brep, &raw).unwrap()
-            else {
-                panic!("native wire notification state is not representable");
-            };
-            let edge = brep.edges().ids().next().unwrap();
-            assert_eq!(
-                brep.edge(edge).unwrap().curve.as_ref().unwrap().owner(),
-                Some(split_query_key(CacheObject::Edge(edge)))
-            );
-            assert!(notifications.records.contains_key(&brep.key()));
-            assert!(notifications
-                .records
-                .contains_key(&split_key(EntityRef::Edge(edge)).key));
-            // This constructor leaves editing disabled. The test covers the real
-            // interior/no-edit and far-point outputs, not a successful mutation.
-            assert!(!brep.editing_enabled());
-            let (code, operation) = args(&op);
-            block.extend(operation);
-            let native = ffi::eval(code, &path, &block).unwrap();
-            assert_eq!(native.first(), Some(&0.0));
-            let rust = run_rust_op(
-                &mut Kernel::default(),
-                &mut brep,
-                &op,
-                Some(&mut notifications),
-            )
-            .unwrap();
-            assert_eq!(native.get(1..), Some(rust.as_slice()));
-            assert!(!brep.editing_enabled());
-        }
     }
 }

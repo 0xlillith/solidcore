@@ -28,7 +28,6 @@
 #undef SmStitchCallback
 
 #include "sc_edgeuse_graph.h"
-#include "sc_brep_query_metadata.h"
 
 #include <SmApiBrep.h>
 #include <SmApiGeneral.h>
@@ -36,8 +35,6 @@
 #include <SmContext.h>
 #include <SmRegion.h>
 #include <SmShell.h>
-
-#include <cstdint>
 
 namespace
 {
@@ -231,77 +228,6 @@ void put_digest(SmBrep* brep, std::vector<double>& o)
     o.push_back((double)vs.GetSize());
     for (ULONG i = 0; i < vs.GetSize(); i++)
         put_vec(o, vs[i]->GetPoint());
-}
-
-// Notification data is input to the Rust operation, never its expected output.
-// Two 32-bit limbs preserve ULONG/user values exactly through the double ABI.
-void put_notification_u64(std::vector<double>& out, uint64_t value)
-{
-    out.push_back((double)(value & UINT64_C(0xffffffff)));
-    out.push_back((double)(value >> 32));
-}
-
-void put_notification_topology(std::vector<double>& out, int kind, size_t index, SmTopology* object)
-{
-    out.push_back((double)kind);
-    out.push_back((double)index);
-    put_notification_u64(out, (uint64_t)object->GetAllFlags());
-    put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARK));
-    put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARK2));
-    put_notification_u64(out, (uint64_t)object->GetMark(SM_MT_MARK3));
-    put_notification_u64(out, (uint64_t)object->GetUserIndex1());
-    put_notification_u64(out, (uint64_t)object->GetUserIndex2());
-    put_notification_u64(out, (uint64_t)(uintptr_t)object->GetUserPtr1());
-    out.push_back(object->HasAttributes() ? 1.0 : 0.0);
-}
-
-template <class T>
-void put_notification_list(std::vector<double>& out, int kind, const std::vector<T*>& objects)
-{
-    for (size_t i = 0; i < objects.size(); ++i)
-        put_notification_topology(out, kind, i, objects[i]);
-}
-
-void put_notification_geometry(std::vector<double>& out, int kind, size_t index, const SmAObject* object)
-{
-    out.push_back((double)kind);
-    out.push_back((double)index);
-    out.push_back(object != NULL ? 1.0 : 0.0);
-    out.push_back(object != NULL && object->HasAttributes() ? 1.0 : 0.0);
-}
-
-void put_notification_state(SmBrep* brep, const Graph& graph, std::vector<double>& out)
-{
-    // SmApiCreateBox can select its own context. Inspect the actual B-rep's
-    // callbacks instead of silently replacing either callback with a Rust None.
-    // GetSysNotifyCallback is not const, although its inline body only reads.
-    SmContext* context = const_cast<SmContext*>(brep->GetContext());
-    out.push_back(context != NULL &&
-                          (context->GetUserNotifyCallback() != NULL || context->GetSysNotifyCallback() != NULL)
-                      ? 1.0
-                      : 0.0);
-    out.push_back((double)(1 + graph.regions.size() + graph.shells.size() + graph.faceuses.size() +
-                           graph.faces.size() + graph.loopuses.size() + graph.loops.size() +
-                           graph.edgeuses.size() + graph.edges.size() + graph.vertexuses.size() +
-                           graph.vertices.size()));
-    put_notification_topology(out, 10, 0, brep);
-    put_notification_list(out, 0, graph.regions);
-    put_notification_list(out, 1, graph.shells);
-    put_notification_list(out, 2, graph.faceuses);
-    put_notification_list(out, 3, graph.faces);
-    put_notification_list(out, 4, graph.loopuses);
-    put_notification_list(out, 5, graph.loops);
-    put_notification_list(out, 6, graph.edgeuses);
-    put_notification_list(out, 7, graph.edges);
-    put_notification_list(out, 8, graph.vertexuses);
-    put_notification_list(out, 9, graph.vertices);
-    out.push_back((double)(graph.edges.size() + graph.faces.size() + graph.edgeuses.size()));
-    for (size_t i = 0; i < graph.edges.size(); ++i)
-        put_notification_geometry(out, 0, i, graph.edges[i]->GetCurve());
-    for (size_t i = 0; i < graph.faces.size(); ++i)
-        put_notification_geometry(out, 1, i, graph.faces[i]->GetSurface());
-    for (size_t i = 0; i < graph.edgeuses.size(); ++i)
-        put_notification_geometry(out, 2, i, graph.edgeuses[i]->GetUVTrimCurvePointer());
 }
 
 // DoSimpleFaceStitch's validation, read-only: a VERBATIM copy of SmStitch.cpp:625-780 (commit
@@ -498,7 +424,13 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         double dist = rd.num();
         SmTopology* a = topo(g, t1, i1);
         SmTopology* c = topo(g, t2, i2);
-        // the edge branch dereferences the surfaces of both edges' faces
+        // the edge branch dereferences the surfaces of both edges' faces. The vertex branch
+        // reaches the edge branch too (its recursive calls, SmStitch.cpp:157, :222), unguarded:
+        // that is safe because no block of this harness builds a face without a surface. The
+        // face kinds, the sheets and SmApiCreateBox always attach one, and none of the 15
+        // upstream .smb files in topology.edgeuse_p1's FILES has a surface-less face (checked
+        // over every face after ReadFromFile; SmallBox.smb and Platform.smb are excluded because
+        // ReadFromFile itself crashes on them).
         if (t1 == TY_EDGE && t2 == TY_EDGE)
             for (SmFace* f : g.faces)
                 if (f->GetSurface() == NULL)
@@ -772,58 +704,5 @@ SC_EXPORT int32_t sc_heal_stitch_p1_eval(int32_t op, const char* path, const dou
     std::vector<double> o;
     run_op(op, rd, path, o);
     return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);
-    SC_CATCH
-}
-
-// Import-only metadata of the same construction and registry as OP_EXPORT.
-// Never call UnifyNormals or another operation under test while exporting.
-SC_EXPORT int32_t sc_heal_stitch_p1_query_metadata(const char* path, const double* input, int64_t count,
-                                                 double* out, int64_t cap, int64_t* out_len)
-{
-    if (!path || !input || !out_len || count < 1)
-        return SC_ERR_ARG;
-    SC_TRY
-    Rd rd{input, 0};
-    Built built;
-    SmStatus status = SM_SUCCESS;
-    built.brep = build_block(rd, path, status);
-    if (!built.brep || status != SM_SUCCESS)
-        return status == SM_SUCCESS ? SC_ERR_ARG : (int32_t)status;
-    if (rd.at != count)
-        return SC_ERR_ARG;
-    Graph graph;
-    walk(built.brep, graph);
-    walk_more(built.brep, graph);
-    std::vector<double> metadata;
-    append_query_metadata(built.brep, graph, metadata);
-    return sc_copy_out(metadata.data(), (int64_t)metadata.size(), out, cap, out_len);
-    SC_CATCH
-}
-
-// Split-only import envelope: version, query length, query metadata, notification
-// state. Both payloads use this same constructed object and graph registry.
-SC_EXPORT int32_t sc_heal_stitch_p1_split_metadata(const char* path, const double* input, int64_t count,
-                                                 double* out, int64_t cap, int64_t* out_len)
-{
-    if (!path || !input || !out_len || count < 1)
-        return SC_ERR_ARG;
-    SC_TRY
-    Rd rd{input, 0};
-    Built built;
-    SmStatus status = SM_SUCCESS;
-    built.brep = build_block(rd, path, status);
-    if (!built.brep || status != SM_SUCCESS)
-        return status == SM_SUCCESS ? SC_ERR_ARG : (int32_t)status;
-    if (rd.at != count)
-        return SC_ERR_ARG;
-    Graph graph;
-    walk(built.brep, graph);
-    walk_more(built.brep, graph);
-    std::vector<double> query;
-    append_query_metadata(built.brep, graph, query);
-    std::vector<double> metadata{1.0, (double)query.size()};
-    metadata.insert(metadata.end(), query.begin(), query.end());
-    put_notification_state(built.brep, graph, metadata);
-    return sc_copy_out(metadata.data(), (int64_t)metadata.size(), out, cap, out_len);
     SC_CATCH
 }

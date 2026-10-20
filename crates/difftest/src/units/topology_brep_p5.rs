@@ -23,124 +23,8 @@ use solidcore_ffi::units::topology_brep_p5::{self as ffi, Op};
 use solidcore_ffi::FfiError;
 
 use super::boolean_merge_p1::graph;
-use super::topology_shell::RayQueryContext;
-use super::topology_vertexuse::{import, QueryMetadata};
+use super::topology_vertexuse::import;
 use crate::{Case, CaseContext, HarnessError, Output, Rng, UnitDiff};
-use solidcore::topology::brep::{p2 as brep2, p6::RegionSplitQueries, p9};
-use solidcore::topology::brep_cache::{self, BrepCache, CacheSource};
-use solidcore::topology::shell::{ShellRayAttempt, ShellRayInput, ShellRayState};
-use solidcore::topology::{BrepId, ShellId};
-use solidcore::EntityRef;
-
-/// The fixture owns one live B-rep. Keep shell marks and a lazily published
-/// B-rep cache for the whole query; never substitute a cloned B-rep or kernel.
-struct InfiniteQueries {
-    id: BrepId,
-    shell: RayQueryContext,
-    cache: Option<BrepCache>,
-}
-
-impl InfiniteQueries {
-    fn new(brep: &Brep) -> Self {
-        let id = BrepId::from_index(0);
-        Self {
-            id,
-            shell: RayQueryContext::new(
-                brep,
-                id,
-                QueryMetadata::default(),
-                brep_cache::arena_identity,
-            ),
-            cache: None,
-        }
-    }
-
-    fn require_geometry(brep: &Brep, curves: bool, surfaces: bool) -> SolidResult<()> {
-        // This unit's native Export includes topology but no direct curve-owner
-        // or concrete analytic-type metadata. An empty geometry domain needs no
-        // such metadata. Reject only when that geometry is actually consumed;
-        // in particular, FindInfiniteRegion's one-region return comes first.
-        if (curves && !brep.edges().is_empty()) || (surfaces && !brep.faces().is_empty()) {
-            return Err(SolidError::unported(
-                "part 5 native query owner and geometry metadata export",
-                "harness:infinite-region-query-metadata",
-            ));
-        }
-        Ok(())
-    }
-}
-
-impl RegionSplitQueries for InfiniteQueries {
-    fn check_geometry(&mut self, brep: &Brep, curves: bool, surfaces: bool) -> SolidResult<()> {
-        Self::require_geometry(brep, curves, surfaces)?;
-        self.shell.check_geometry(brep, curves, surfaces)
-    }
-
-    fn ray_fire(
-        &mut self,
-        kernel: &mut Kernel,
-        brep: &mut Brep,
-        shell: ShellId,
-        input: ShellRayInput<EntityRef>,
-    ) -> ShellRayAttempt<EntityRef> {
-        if let Err(error) = Self::require_geometry(brep, true, true) {
-            return ShellRayAttempt {
-                status: Err(error),
-                state: input.state,
-            };
-        }
-        self.shell.ray_fire(kernel, brep, shell, input)
-    }
-}
-
-impl p9::InfiniteRegionQueries for InfiniteQueries {
-    fn brep_ray_fire(
-        &mut self,
-        kernel: &mut Kernel,
-        brep: &mut Brep,
-        input: ShellRayInput<EntityRef>,
-    ) -> ShellRayAttempt<EntityRef> {
-        let mut output = brep2::RayFireResult {
-            region: input.state.region,
-            intersection: input.state.classification,
-        };
-        let status = (|| {
-            Self::require_geometry(brep, true, true)?;
-            let cache = &mut self.cache;
-            brep2::ray_fire_with_cache_into(
-                kernel,
-                brep,
-                self.id,
-                |brep| {
-                    if cache.is_none() {
-                        *cache = Some(brep_cache::make_brep_cache(
-                            kernel,
-                            CacheSource::Brep(brep),
-                            &brep_cache::arena_identity,
-                        )?);
-                    }
-                    cache.as_ref().ok_or_else(|| {
-                        SolidError::invalid_input("difftest::brep_p5", "missing built cache")
-                    })
-                },
-                &brep_cache::arena_identity,
-                &|_| None,
-                input.start,
-                input.direction,
-                input.zone_tolerance,
-                None,
-                &mut output,
-            )
-        })();
-        ShellRayAttempt {
-            status,
-            state: ShellRayState {
-                region: output.region,
-                classification: output.intersection,
-            },
-        }
-    }
-}
 
 /// Part 5's runner.
 pub struct Runner;
@@ -302,17 +186,12 @@ fn rust_record(k: &mut Kernel, b: &mut Brep, i: &Inputs) -> SolidResult<Vec<f64>
         3 => vec![status(p5::delete_topological_vertex(
             k, b, i.editing, v1, e,
         ))?],
-        4 => {
-            let mut queries = InfiniteQueries::new(b);
-            vec![status(p5::find_and_set_infinite_region_with_queries(
-                k,
-                b,
-                None,
-                i32::from(i.mode),
-                None,
-                &mut queries,
-            ))?]
-        }
+        4 => vec![status(p5::find_and_set_infinite_region(
+            b,
+            None,
+            i32::from(i.mode),
+            None,
+        ))?],
         5 => vec![status(p5::glue_vertices(k, b, v1, v2, None))?],
         6 => {
             let old = p5::EdgeInFace {
@@ -568,45 +447,6 @@ fn notification_values(lists: &solidcore::topology::topology::TopologyChangeList
     out
 }
 
-// A local op4 snapshot supplements the shared geometry/topology graph. The
-// infinite identity is its index in the actual owning list, not its arena id;
-// the remaining entries are raw native IsVoid flags in that same list order.
-fn infinite_region_state(b: &Brep) -> Result<Vec<i64>, HarnessError> {
-    let regions = solidcore::topology::brep::p1::regions(b, None)
-        .map_err(|e| HarnessError::new(e.to_string()))?;
-    let infinite = match b.infinite_region() {
-        None => -1,
-        Some(id) => {
-            let index = regions
-                .iter()
-                .position(|region| *region == id)
-                .ok_or_else(|| HarnessError::new("infinite region outside owning list"))?;
-            i64::try_from(index)
-                .map_err(|_| HarnessError::new("infinite region index outside i64"))?
-        }
-    };
-    let mut state = vec![infinite];
-    for region in regions {
-        state.push(i64::from(
-            b.region(region)
-                .map_err(|e| HarnessError::new(e.to_string()))?
-                .is_void,
-        ));
-    }
-    Ok(state)
-}
-
-fn operation_graph(b: &Brep, record: Vec<f64>, op: u8) -> Result<Output, HarnessError> {
-    let output = graph(b, record)?;
-    if op == 4 {
-        // Both sides read their own post-operation B-rep. The C++ side is the
-        // native export/import, never a Rust execution used as expected output.
-        Ok(output.ints("infinite_region_state", infinite_region_state(b)?))
-    } else {
-        Ok(output)
-    }
-}
-
 impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "topology.brep_p5"
@@ -641,7 +481,7 @@ impl UnitDiff for Runner {
             raw.get(n + 1..)
                 .ok_or_else(|| HarnessError::new("short graph"))?,
         )?;
-        operation_graph(&b, record, i.op)
+        Ok(graph(&b, record))
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
@@ -656,7 +496,7 @@ impl UnitDiff for Runner {
         }
         match rust_record(&mut Kernel::default(), &mut b, &i) {
             Ok(record) if i.op == 2 => Ok(Output::new().values("target_stage", record)),
-            Ok(record) => operation_graph(&b, record, i.op),
+            Ok(record) => Ok(graph(&b, record)),
             Err(e) => Output::unported(&e).ok_or_else(|| HarnessError::new(e.to_string())),
         }
     }
@@ -710,198 +550,6 @@ impl UnitDiff for Runner {
     fn cases(&self, ctx: &CaseContext) -> Result<Vec<Case>, HarnessError> {
         let mut ctx = ctx.clone();
         ctx.seeds = ctx.seeds.max(512);
-        let mut cases = crate::runner::default_cases(self, &ctx)?;
-        // Add every native void-setting mode on vertex, wire and face fixtures.
-        // Existing fixture/generated cases, seeds and comparisons stay intact.
-        for kind in 0..=2 {
-            for mode in 0..=2 {
-                let mut input = Inputs {
-                    op: 4,
-                    mode,
-                    ..Inputs::default()
-                };
-                input.fixture[0] = f64::from(kind);
-                cases.push(Case {
-                    unit: self.id().to_string(),
-                    name: format!("infinite_region_state_kind{kind}_mode{mode}"),
-                    source: crate::CaseSource::Inline,
-                    inputs: serde_json::to_value(input)
-                        .map_err(|e| HarnessError::new(e.to_string()))?,
-                });
-            }
-        }
-        Ok(cases)
-    }
-}
-
-#[cfg(test)]
-mod infinite_region_tests {
-    use super::*;
-    use solidcore::topology::brep::p1;
-    use solidcore::topology::Region;
-
-    #[test]
-    fn single_region_uses_live_reset_without_building_a_ray_cache() {
-        for mode in 0..=2 {
-            let mut kernel = Kernel::default();
-            let mut brep = Brep::new_with_infinite_region().unwrap();
-            let region = brep.infinite_region().unwrap();
-            brep.region_mut(region).unwrap().is_void = 0;
-            let mut queries = InfiniteQueries::new(&brep);
-            p5::find_and_set_infinite_region_with_queries(
-                &mut kernel,
-                &mut brep,
-                None,
-                mode,
-                None,
-                &mut queries,
-            )
-            .unwrap();
-            assert_eq!(brep.infinite_region(), Some(region));
-            assert_eq!(p1::regions(&brep, None).unwrap(), vec![region]);
-            assert_eq!(brep.region(region).unwrap().is_void, 1);
-            assert!(queries.cache.is_none());
-        }
-    }
-
-    #[test]
-    fn swap_without_old_infinite_region_retains_native_partial_writes() {
-        let mut kernel = Kernel::default();
-        let mut brep = Brep::new();
-        let region = brep
-            .add_region_record(Region {
-                in_brep: true,
-                is_void: 2,
-                ..Region::default()
-            })
-            .unwrap();
-        let mut queries = InfiniteQueries::new(&brep);
-        let result = p5::find_and_set_infinite_region_with_queries(
-            &mut kernel,
-            &mut brep,
-            None,
-            2,
-            None,
-            &mut queries,
-        );
-        assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
-        assert_eq!(brep.infinite_region(), Some(region));
-        assert_eq!(p1::regions(&brep, None).unwrap(), vec![region]);
-        assert_eq!(brep.region(region).unwrap().is_void, 2);
-        assert!(queries.cache.is_none());
-    }
-
-    #[test]
-    fn faceuse_shell_forces_swap_after_single_region_selection() {
-        use solidcore::topology::{shell::ShellType, Shell};
-        for (shell_type, fails) in [(ShellType::Wire, false), (ShellType::Faceuse, true)] {
-            let mut kernel = Kernel::default();
-            let mut brep = Brep::new();
-            let region = brep
-                .add_region_record(Region {
-                    in_brep: true,
-                    is_void: 2,
-                    ..Region::default()
-                })
-                .unwrap();
-            let shell = brep
-                .add_shell_record(Shell {
-                    region: Some(region),
-                    shell_type,
-                    ..Shell::default()
-                })
-                .unwrap();
-            brep.region_mut(region).unwrap().shells.push(shell);
-            let mut queries = InfiniteQueries::new(&brep);
-            let result = p5::find_and_set_infinite_region_with_queries(
-                &mut kernel,
-                &mut brep,
-                Some(shell),
-                1,
-                None,
-                &mut queries,
-            );
-            assert_eq!(result.is_err(), fails);
-            assert_eq!(brep.infinite_region(), Some(region));
-            assert_eq!(
-                brep.region(region).unwrap().is_void,
-                if fails { 2 } else { 1 }
-            );
-            assert!(queries.cache.is_none());
-        }
-    }
-
-    #[test]
-    fn unknown_void_code_preserves_flags_after_selecting_the_region() {
-        let mut kernel = Kernel::default();
-        let mut brep = Brep::new_with_infinite_region().unwrap();
-        let region = brep.infinite_region().unwrap();
-        brep.set_infinite_region(None);
-        brep.region_mut(region).unwrap().is_void = 2;
-        let mut queries = InfiniteQueries::new(&brep);
-        p5::find_and_set_infinite_region_with_queries(
-            &mut kernel,
-            &mut brep,
-            None,
-            19,
-            None,
-            &mut queries,
-        )
-        .unwrap();
-        assert_eq!(brep.infinite_region(), Some(region));
-        assert_eq!(brep.region(region).unwrap().is_void, 2);
-        assert!(queries.cache.is_none());
-    }
-
-    #[test]
-    fn snapshot_tracks_native_order_infinite_identity_and_raw_void_flags() {
-        let mut b = Brep::new();
-        let mut regions = Vec::new();
-        for flag in [0, 1, 2] {
-            regions.push(
-                b.add_region_record(Region {
-                    in_brep: true,
-                    is_void: flag,
-                    ..Region::default()
-                })
-                .unwrap(),
-            );
-        }
-        // Allocation order differs from the native owning-list order.
-        b.set_region_list(vec![regions[2], regions[0], regions[1]])
-            .unwrap();
-        b.set_infinite_region_record(Some(regions[0]));
-        assert_eq!(infinite_region_state(&b).unwrap(), vec![1, 2, 0, 1]);
-        b.region_mut(regions[2]).unwrap().is_void = 0;
-        assert_eq!(infinite_region_state(&b).unwrap(), vec![1, 0, 0, 1]);
-        b.set_infinite_region_record(Some(regions[1]));
-        assert_eq!(infinite_region_state(&b).unwrap(), vec![2, 0, 0, 1]);
-        b.set_infinite_region_record(None);
-        assert_eq!(infinite_region_state(&b).unwrap(), vec![-1, 0, 0, 1]);
-    }
-
-    #[test]
-    fn snapshot_refuses_an_infinite_identity_outside_the_native_list() {
-        let mut b = Brep::new_with_infinite_region().unwrap();
-        let outside = b
-            .add_region_record(Region {
-                in_brep: false,
-                is_void: 2,
-                ..Region::default()
-            })
-            .unwrap();
-        b.set_infinite_region_record(Some(outside));
-        assert!(infinite_region_state(&b).is_err());
-    }
-
-    #[test]
-    fn compatibility_boundary_does_not_manufacture_a_kernel_or_mutate_state() {
-        let mut brep = Brep::new_with_infinite_region().unwrap();
-        let region = brep.infinite_region().unwrap();
-        brep.region_mut(region).unwrap().is_void = 2;
-        let result = p5::find_and_set_infinite_region(&mut brep, None, 2, None);
-        assert!(result.unwrap_err().is_unported());
-        assert_eq!(brep.infinite_region(), Some(region));
-        assert_eq!(brep.region(region).unwrap().is_void, 2);
+        crate::runner::default_cases(self, &ctx)
     }
 }

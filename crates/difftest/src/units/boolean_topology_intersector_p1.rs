@@ -38,22 +38,15 @@
 //! order upstream; both sides sort those lists by handle (plan hazard `ptr-hash`, see
 //! `plan/findings.md`).
 //!
-//! **Live query state.** Native export metadata supplies each B-rep's list order,
-//! tolerance, region state, face state, concrete geometry types and direct owners.
-//! Point classification uses the mutable B-rep and the caller's kernel through
-//! `BrepPointObjects::with_handles`; every classification field retains its H
-//! identity. Spatial caches are built lazily and invalidated by B-rep mutations.
-//! A separate classifier cache slot is necessary only in this harness because the
-//! intersector's trees store H while the typed classifier's trees store `CacheObject`.
-//! These cases do not measure cache-build performance. Unrepresented analytic
-//! geometry or owner chains defer at reached geometry work with an explicit
-//! harness reason. Notification snapshots of these same native fixtures preserve
-//! flags, all five stored marks and user values. One kind-qualified identity is
-//! shared by imported records, queries and edits; B-rep keys retain operand identity.
-//! Attribute/callback presence is retained and defers notifying mutations when the
-//! handlers are not represented. Other missing kernel callees retain their unit errors.
+//! **Deferred.** Everything that reaches `SmBrep::GetEdges` / `GetVertices`
+//! (`topology.brep_p1`: the common edge/vertex lists, the shell-vertex and wire/lamina
+//! intersections), the B-rep edits (`topology.brep_p3/p5/p7/p9`), `SmFace::GetEdges` /
+//! `GetVertices` / `GetBrep` (`topology.face_p4`), `SmFace::CalculateBoundingBox` and
+//! `Point3DClassify` (`query.face_p1`), `SmFace::FaceIntersect` (`topology.face_p3`),
+//! `SmSurface::GlobalCurveIntersect` / `CoincidenceCheck` (`surface.surface_p8`) and
+//! the manager's construction when the approximation tolerance is zero
+//! (`SmBrep::GetTolerance`, `topology.brep_p1`).
 
-use std::cell::Cell;
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
@@ -84,7 +77,6 @@ use solidcore::nurbs::b_spline_curve::BSplineCurve;
 use solidcore::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use solidcore::nurbs::crv_basic::Curve as NlCurve;
 use solidcore::nurbs::math::{CPoint, NOW, NOZ};
-use solidcore::query::brep::{point_3d_classify, BrepPointObjects};
 use solidcore::query::face::p2::{
     curve_on_classify, point_classify, CurveOnClassifyObjects, PointClassifyOptions,
 };
@@ -92,6 +84,7 @@ use solidcore::surface::surface::p2::TsectCurveType;
 use solidcore::surface::surface::Surface;
 use solidcore::surface::volume::Volume;
 use solidcore::topology::brep::p1 as bp1;
+use solidcore::topology::brep::p5 as bp5;
 use solidcore::topology::brep::p7;
 use solidcore::topology::brep_cache::{arena_identity, BrepCache, CacheObject, CacheSource};
 use solidcore::topology::edge as ed;
@@ -103,16 +96,12 @@ use solidcore::topology::proto_topology::p1::ProtoTopology;
 use solidcore::topology::proto_topology::{ProtoBrep, ProtoGeometry, ProtoTopologyManager};
 use solidcore::topology::topology::Topology;
 use solidcore::topology::vertex as vx;
-use solidcore::topology::{
-    Brep, BrepId, EdgeId, EdgeuseId, FaceId, FaceuseId, LoopId, LoopuseId, RegionId, ShellId,
-    VertexId, VertexuseId,
-};
+use solidcore::topology::{Brep, EdgeId, EdgeuseId, FaceId, LoopId, VertexId, VertexuseId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::boolean_topology_intersector_p1::{self as ffi, Op};
 use solidcore_ffi::units::boolean_topology_intersector_p2 as ffi2;
 
-use super::topology_shell::RayQueryContext;
-use super::topology_vertexuse::{apply_query_metadata, import, QueryMetadata};
+use super::topology_vertexuse::import;
 use crate::case::{CaseContext, CaseSource};
 use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -595,6 +584,8 @@ pub(super) const K_EDGE_CURVE: u8 = 3;
 pub(super) const K_FACE_SURFACE: u8 = 4;
 pub(super) const K_CURVE: u8 = 5;
 pub(super) const K_BREP: u8 = 6;
+// Internal identity for a real region, unregistered by the native output table.
+const K_QUERY_REGION: u8 = 14;
 /// A curve copy made by the port (never named by an input; `-1 -3 -1` in outputs, as
 /// the shim's table copies).
 const K_EXTRA: u8 = 7;
@@ -609,11 +600,6 @@ const K_VERTEXUSE: u8 = 12;
 /// The UV trim curve stored on an edge use (or its mate), by the edge use's index
 /// (Rust side only, resolved by `ClassGeometry::curve`).
 const K_TRIM_CURVE: u8 = 13;
-/// Topology kept in classifications but absent from the shim's output registry.
-const K_REGION: u8 = 14;
-const K_FACEUSE: u8 = 15;
-const K_LOOPUSE: u8 = 16;
-const K_SHELL: u8 = 17;
 
 /// An object handle: the B-rep (`2` for the curve stores, `-1` for the intersector),
 /// the kind and the index. Ordered as the shim sorts (`brep`, `kind`, `index`). A
@@ -678,9 +664,7 @@ impl ClassObject for H {
             K_EDGEUSE => ClassObjectKind::Edgeuse,
             K_VERTEXUSE => ClassObjectKind::Vertexuse,
             K_LOOP => ClassObjectKind::Loop,
-            K_REGION => ClassObjectKind::Region,
-            K_FACEUSE => ClassObjectKind::Faceuse,
-            K_LOOPUSE => ClassObjectKind::Loopuse,
+            K_QUERY_REGION => ClassObjectKind::Region,
             _ => ClassObjectKind::Other,
         }
     }
@@ -717,10 +701,11 @@ fn put_h(o: &mut Vec<f64>, h: Option<H>) {
     match h {
         None => o.extend([-1.0, f64::from(K_NULL as u8), -1.0]),
         Some(h)
-            if matches!(
-                h.kind,
-                K_EXTRA | K_TI | K_EDGEUSE | K_LOOP | K_REGION | K_FACEUSE | K_LOOPUSE | K_SHELL
-            ) =>
+            if h.kind == K_EXTRA
+                || h.kind == K_TI
+                || h.kind == K_EDGEUSE
+                || h.kind == K_LOOP
+                || h.kind == K_QUERY_REGION =>
         {
             o.extend([-1.0, -3.0, -1.0]);
         }
@@ -744,66 +729,39 @@ fn triple_to_h(t: Hin) -> Option<H> {
 
 // ---- the two B-reps behind the handles --------------------------------------------------
 
-/// Persistent notification inputs imported from this exact native B-rep.
-/// Unsupported native handlers are retained as presence, never treated as absent.
+/// The topology records, identities and attribute store a vertex notification runs
+/// with (the `topology.vertex` runner's environment).
 struct NotifyEnv {
     records: BTreeMap<ObjectKey, Topology>,
     attributes: AttributeStore,
-    brep_ref: ObjectRef,
-    callback_present: bool,
-    attributed_objects: usize,
+    this: ObjectRef,
 }
 
 impl NotifyEnv {
-    fn absent() -> Self {
-        Self {
-            records: BTreeMap::new(),
-            attributes: AttributeStore::default(),
-            brep_ref: ObjectRef {
-                type_code: BREP_TYPE,
-                key: ObjectKey(0),
-            },
-            callback_present: false,
-            attributed_objects: 0,
-        }
-    }
-
-    // Source-only synthetic tests construct their own attribute-free arenas.
-    // The native prepare path always uses import_notification_metadata instead.
-    #[cfg(test)]
     fn new(b: Option<&Brep>) -> Self {
-        let Some(b) = b else { return Self::absent() };
-        let mut env = Self::absent();
-        env.brep_ref = ObjectRef {
-            type_code: BREP_TYPE,
-            key: b.key(),
-        };
-        for (_, _, object) in notification_rows(b) {
-            env.records.insert(object.key, Topology::new());
+        let mut records = BTreeMap::new();
+        records.insert(ObjectKey(1), Topology::new());
+        if let Some(b) = b {
+            for id in b.vertexuses().ids() {
+                records.insert(ObjectKey(100 + u64::from(id.index())), Topology::new());
+            }
         }
-        env
-    }
-
-    fn require_notifications(&self) -> solidcore::Result<()> {
-        if self.callback_present || self.attributed_objects != 0 {
-            return Err(SolidError::unported(
-                "native notification attributes or callbacks are not represented",
-                "harness:topology-notification-export",
-            ));
+        Self {
+            records,
+            attributes: AttributeStore::default(),
+            this: ObjectRef {
+                type_code: vx::TYPE,
+                key: ObjectKey(1),
+            },
         }
-        Ok(())
-    }
-}
-
-fn notification_ref(brep_ref: ObjectRef, entity: EntityRef) -> ObjectRef {
-    match entity {
-        EntityRef::Brep(_) => brep_ref,
-        _ => p9_entity_ref(entity),
     }
 }
 
 fn vertexuse_ref(vu: VertexuseId) -> ObjectRef {
-    p9_entity_ref(EntityRef::Vertexuse(vu))
+    ObjectRef {
+        type_code: solidcore::topology::vertexuse::TYPE,
+        key: ObjectKey(100 + u64::from(vu.index())),
+    }
 }
 
 /// The two B-reps, the registered curves (kind 5) and the port's curve copies (kind
@@ -815,198 +773,11 @@ struct Two {
     env: [NotifyEnv; 2],
     /// Each B-rep's cache (`SmBrep::GetBrepCache`), built on first use as the C++
     /// topology solver builds it on demand.
-    caches: [std::cell::OnceCell<std::rc::Rc<BrepCache<H>>>; 2],
-    /// The classifier's `CacheObject` trees cannot borrow the H-valued solver
-    /// trees. Keep a separate lazy slot in this harness only, on the same live
-    /// geometry and owners. These cases do not measure native cache-build costs.
-    point_caches: [Option<BrepCache>; 2],
-    /// Each registered operand's native metadata and persistent shell query
-    /// marks. Geometry is borrowed from `breps` only for the actual query.
-    ray_queries: [Option<RayQueryContext>; 2],
-    /// Harness diagnostic: the operand whose geometry guard actually failed.
-    gated_metadata: Cell<Option<usize>>,
-    /// A selective curve read records its exact operand and edge independently
-    /// of the existing guards that consume all of an operand's geometry.
-    gated_curve_metadata: Cell<Option<(usize, EdgeId)>>,
+    caches: [std::cell::OnceCell<BrepCache<H>>; 2],
 }
 
 fn invalid(reason: &'static str) -> SolidError {
     SolidError::invalid_input("difftest::boolean_topology_intersector_p1::Two", reason)
-}
-
-struct NotificationReader<'a> {
-    raw: &'a [f64],
-    at: usize,
-}
-
-impl NotificationReader<'_> {
-    fn word(&mut self) -> Result<u32, HarnessError> {
-        let value = *self
-            .raw
-            .get(self.at)
-            .ok_or_else(|| harness("notification metadata: truncated integer"))?;
-        self.at += 1;
-        if !value.is_finite()
-            || value.fract() != 0.0
-            || !(0.0..=f64::from(u32::MAX)).contains(&value)
-        {
-            return Err(harness("notification metadata: invalid integer"));
-        }
-        Ok(value as u32)
-    }
-
-    fn count(&mut self) -> Result<usize, HarnessError> {
-        usize::try_from(self.word()?).map_err(|_| harness("notification metadata: count overflow"))
-    }
-
-    fn wide(&mut self) -> Result<u64, HarnessError> {
-        let lo = u64::from(self.word()?);
-        let hi = u64::from(self.word()?);
-        Ok(lo | (hi << 32))
-    }
-
-    fn flag(&mut self) -> Result<bool, HarnessError> {
-        match self.word()? {
-            0 => Ok(false),
-            1 => Ok(true),
-            _ => Err(harness("notification metadata: invalid flag")),
-        }
-    }
-}
-
-fn notification_rows(brep: &Brep) -> Vec<(u32, u32, ObjectRef)> {
-    let mut rows = vec![(
-        10,
-        0,
-        ObjectRef {
-            type_code: BREP_TYPE,
-            key: brep.key(),
-        },
-    )];
-    let mut push = |kind, index, entity| rows.push((kind, index, p9_entity_ref(entity)));
-    for id in brep.regions().ids() {
-        push(0, id.index(), EntityRef::Region(id));
-    }
-    for id in brep.shells().ids() {
-        push(1, id.index(), EntityRef::Shell(id));
-    }
-    for id in brep.faceuses().ids() {
-        push(2, id.index(), EntityRef::Faceuse(id));
-    }
-    for id in brep.faces().ids() {
-        push(3, id.index(), EntityRef::Face(id));
-    }
-    for id in brep.loopuses().ids() {
-        push(4, id.index(), EntityRef::Loopuse(id));
-    }
-    for id in brep.loops().ids() {
-        push(5, id.index(), EntityRef::Loop(id));
-    }
-    for id in brep.edgeuses().ids() {
-        push(6, id.index(), EntityRef::Edgeuse(id));
-    }
-    for id in brep.edges().ids() {
-        push(7, id.index(), EntityRef::Edge(id));
-    }
-    for id in brep.vertexuses().ids() {
-        push(8, id.index(), EntityRef::Vertexuse(id));
-    }
-    for id in brep.vertices().ids() {
-        push(9, id.index(), EntityRef::Vertex(id));
-    }
-    rows
-}
-
-fn import_notification_metadata(brep: &Brep, raw: &[f64]) -> Result<NotifyEnv, HarnessError> {
-    let mut reader = NotificationReader { raw, at: 0 };
-    if reader.word()? != 1 {
-        return Err(harness("notification metadata: unsupported version"));
-    }
-    let callback_present = reader.flag()?;
-    let expected = notification_rows(brep);
-    if reader.count()? != expected.len() {
-        return Err(harness(
-            "notification metadata: topology count differs from graph",
-        ));
-    }
-    let mut records = BTreeMap::new();
-    let mut attributed_objects = 0_usize;
-    for (kind, index, object) in expected {
-        if reader.word()? != kind || reader.word()? != index {
-            return Err(harness(
-                "notification metadata: topology identity differs from graph",
-            ));
-        }
-        let mut record = Topology::new();
-        record.set_all_flags(reader.wide()?);
-        record.restore_marks([
-            reader.wide()?,
-            reader.wide()?,
-            reader.wide()?,
-            reader.wide()?,
-            reader.wide()?,
-        ]);
-        record.set_user_index1(reader.wide()?);
-        record.set_user_index2(reader.wide()?);
-        record.set_user_ptr1(reader.wide()?);
-        if reader.flag()? {
-            attributed_objects += 1;
-        }
-        if records.insert(object.key, record).is_some() {
-            return Err(harness("notification metadata: colliding topology keys"));
-        }
-    }
-    let geometry = brep
-        .edges()
-        .iter()
-        .map(|(id, edge)| (0, id.index(), edge.curve.is_some()))
-        .chain(
-            brep.faces()
-                .iter()
-                .map(|(id, face)| (1, id.index(), face.surface.is_some())),
-        )
-        .chain(
-            brep.edgeuses()
-                .iter()
-                .map(|(id, edgeuse)| (2, id.index(), edgeuse.uv_trim_curve.is_some())),
-        )
-        .collect::<Vec<_>>();
-    if reader.count()? != geometry.len() {
-        return Err(harness(
-            "notification metadata: geometry count differs from graph",
-        ));
-    }
-    for (kind, index, present) in geometry {
-        if reader.word()? != kind || reader.word()? != index || reader.flag()? != present {
-            return Err(harness(
-                "notification metadata: geometry identity differs from graph",
-            ));
-        }
-        let attributed = reader.flag()?;
-        if attributed && !present {
-            return Err(harness(
-                "notification metadata: attributes on absent geometry",
-            ));
-        }
-        if attributed {
-            attributed_objects += 1;
-        }
-    }
-    if reader.at != raw.len() {
-        return Err(harness("notification metadata: trailing values"));
-    }
-    Ok(NotifyEnv {
-        records,
-        // Exact only when native attribute presence is false. Mutating consumers
-        // check require_notifications before accessing this undecoded store.
-        attributes: AttributeStore::default(),
-        brep_ref: ObjectRef {
-            type_code: BREP_TYPE,
-            key: brep.key(),
-        },
-        callback_present,
-        attributed_objects,
-    })
 }
 
 const fn vid(h: H) -> VertexId {
@@ -1020,42 +791,14 @@ const fn fid(h: H) -> FaceId {
 }
 
 impl Two {
-    #[cfg(test)]
-    fn new(a: Brep, b: Option<Brep>, query_metadata: [QueryMetadata; 2]) -> Self {
+    fn new(a: Brep, b: Option<Brep>) -> Self {
         let env = [NotifyEnv::new(Some(&a)), NotifyEnv::new(b.as_ref())];
-        Self::with_notifications(a, b, query_metadata, env)
-    }
-
-    fn with_notifications(
-        a: Brep,
-        b: Option<Brep>,
-        query_metadata: [QueryMetadata; 2],
-        env: [NotifyEnv; 2],
-    ) -> Self {
-        let [metadata_a, metadata_b] = query_metadata;
-        // These are the same two native scene slots used by H and by the typed
-        // point classifier. Keep each operand's records across every edit/ray.
-        let ray_queries = [
-            Some(RayQueryContext::new(
-                &a,
-                BrepId::from_index(0),
-                metadata_a,
-                query_key_0,
-            )),
-            b.as_ref().map(|brep| {
-                RayQueryContext::new(brep, BrepId::from_index(1), metadata_b, query_key_1)
-            }),
-        ];
         Self {
             breps: [Some(a), b],
             curves: Vec::new(),
             extra: Vec::new(),
             env,
             caches: [std::cell::OnceCell::new(), std::cell::OnceCell::new()],
-            point_caches: [None, None],
-            ray_queries,
-            gated_metadata: Cell::new(None),
-            gated_curve_metadata: Cell::new(None),
         }
     }
 
@@ -1064,47 +807,7 @@ impl Two {
     }
 
     fn brep_mut(&mut self, h: H) -> Option<&mut Brep> {
-        let slot = usize::try_from(h.b).ok()?;
-        self.breps.get(slot)?.as_ref()?;
-        self.invalidate_query_caches(slot).ok()?;
-        self.breps.get_mut(slot)?.as_mut()
-    }
-
-    fn require_notifications(&self, slot: usize) -> solidcore::Result<()> {
-        self.env
-            .get(slot)
-            .ok_or_else(|| invalid("bad notification owner"))?
-            .require_notifications()
-    }
-
-    /// Invalidate before a geometry/topology mutation, including partial writes
-    /// before an error. A mutable raw geometry borrow uses this same boundary.
-    fn invalidate_query_caches(&mut self, slot: usize) -> solidcore::Result<()> {
-        self.caches
-            .get_mut(slot)
-            .ok_or_else(|| invalid("bad B-rep cache slot"))?
-            .take();
-        *self
-            .point_caches
-            .get_mut(slot)
-            .ok_or_else(|| invalid("bad B-rep cache slot"))? = None;
-        Ok(())
-    }
-
-    fn require_query_geometry(&self, slot: usize) -> solidcore::Result<()> {
-        let result = self.query_metadata(slot)?.require_geometry();
-        if result.is_err() {
-            self.gated_metadata.set(Some(slot));
-        }
-        result
-    }
-
-    fn query_metadata(&self, slot: usize) -> solidcore::Result<&QueryMetadata> {
-        self.ray_queries
-            .get(slot)
-            .and_then(Option::as_ref)
-            .map(RayQueryContext::metadata)
-            .ok_or_else(|| invalid("bad B-rep metadata slot"))
+        self.breps.get_mut(usize::try_from(h.b).ok()?)?.as_mut()
     }
 
     fn brep_r(&self, h: H) -> solidcore::Result<&Brep> {
@@ -1161,58 +864,7 @@ impl Two {
             EntityRef::Face(f) => Some(hd(b, K_FACE, f.index())),
             EntityRef::Loop(l) => Some(hd(b, K_LOOP, l.index())),
             EntityRef::Edgeuse(eu) => Some(hd(b, K_EDGEUSE, eu.index())),
-            EntityRef::Vertexuse(vu) => Some(hd(b, K_VERTEXUSE, vu.index())),
-            EntityRef::Region(r) => Some(hd(b, K_REGION, r.index())),
-            EntityRef::Faceuse(fu) => Some(hd(b, K_FACEUSE, fu.index())),
-            EntityRef::Loopuse(lu) => Some(hd(b, K_LOOPUSE, lu.index())),
-            EntityRef::Shell(s) => Some(hd(b, K_SHELL, s.index())),
-            EntityRef::Brep(id) => (u32::try_from(b).ok() == Some(id.index())).then(|| brep_h(b)),
-        }
-    }
-
-    /// Resolve classification topology in the same registered operand. A handle
-    /// from the other B-rep must not alias a local arena record with the same id.
-    fn classification_entity(&self, slot: i8, h: H) -> solidcore::Result<EntityRef> {
-        if h.b != slot {
-            return Err(invalid("classification handle is outside this B-rep"));
-        }
-        let b = self.brep_r(h)?;
-        match h.kind {
-            K_VERTEX => b.vertex(vid(h)).map(|_| EntityRef::Vertex(vid(h))),
-            K_EDGE => b.edge(eid(h)).map(|_| EntityRef::Edge(eid(h))),
-            K_FACE => b.face(fid(h)).map(|_| EntityRef::Face(fid(h))),
-            K_LOOP => {
-                let id = LoopId::from_index(h.i);
-                b.loop_(id).map(|_| EntityRef::Loop(id))
-            }
-            K_EDGEUSE => {
-                let id = EdgeuseId::from_index(h.i);
-                b.edgeuse(id).map(|_| EntityRef::Edgeuse(id))
-            }
-            K_VERTEXUSE => {
-                let id = VertexuseId::from_index(h.i);
-                b.vertexuse(id).map(|_| EntityRef::Vertexuse(id))
-            }
-            K_REGION => {
-                let id = RegionId::from_index(h.i);
-                b.region(id).map(|_| EntityRef::Region(id))
-            }
-            K_FACEUSE => {
-                let id = FaceuseId::from_index(h.i);
-                b.faceuse(id).map(|_| EntityRef::Faceuse(id))
-            }
-            K_LOOPUSE => {
-                let id = LoopuseId::from_index(h.i);
-                b.loopuse(id).map(|_| EntityRef::Loopuse(id))
-            }
-            K_SHELL => {
-                let id = ShellId::from_index(h.i);
-                b.shell(id).map(|_| EntityRef::Shell(id))
-            }
-            K_BREP if u32::try_from(slot).ok() == Some(h.i) => {
-                Ok(EntityRef::Brep(BrepId::from_index(h.i)))
-            }
-            _ => Err(invalid("classification handle is not registered topology")),
+            _ => None,
         }
     }
 
@@ -1353,61 +1005,110 @@ impl CurveOnClassifyObjects<H> for Objs<'_> {
     }
 }
 
+/// Reuse this scene's actual topology handles, geometry owners and cache.
+/// No geometry copies or new owner namespace are introduced for the coordinator.
+struct TwoPointObjects<'a> {
+    two: &'a mut Two,
+    brep: H,
+}
+
+impl solidcore::query::brep::BrepClassifyObjects<H> for TwoPointObjects<'_> {
+    fn boundary_intersection(
+        &mut self,
+        k: &Kernel,
+        point: Point3,
+        point_zone_tolerance: f64,
+        classification: &mut PointClassification<H>,
+    ) -> solidcore::Result<bool> {
+        // Populate the caller-owned cache with the actual query kernel before
+        // the readonly solver requests it through TopologyObjects.
+        // Main's scene mutators do not consistently invalidate their OnceCells.
+        // Rebuild only when this new callback performs a boundary solve, so it
+        // never consumes trees from before a preceding native-equivalent edit.
+        let slot = usize::try_from(self.brep.b).map_err(|_| invalid("bad B-rep"))?;
+        self.two
+            .caches
+            .get_mut(slot)
+            .ok_or_else(|| invalid("bad B-rep"))?
+            .take();
+        self.two.query_cache(k, self.brep)?;
+        let solutions =
+            solidcore::intersect::topology_solver::p1::TopologySolver::brep_point_solve(
+                k,
+                &*self.two,
+                Some(self.brep),
+                point,
+                solidcore::intersect::topology_solver::p2::TopologySolveOptions {
+                    operation: solidcore::geom::global_solver::SolverOperation::Intersect,
+                    requested: solidcore::geom::global_solver::SolutionRequested::Single,
+                    tolerance_3d: point_zone_tolerance,
+                    best_answer_so_far_sq: 0.0,
+                    opt_vectors: &[],
+                },
+            )?;
+        let Some(solution) = solutions.as_slice().first() else {
+            return Ok(false);
+        };
+        let object = solution
+            .objects
+            .first()
+            .copied()
+            .flatten()
+            .ok_or_else(|| invalid("null boundary intersection object"))?;
+        classification.load_from_intersection(
+            point_zone_tolerance,
+            object,
+            &solution.start,
+            0,
+            solidcore::math::BIG_DOUBLE,
+        )?;
+        Ok(true)
+    }
+
+    fn regions(&self) -> solidcore::Result<Vec<H>> {
+        Ok(bp1::regions(self.two.brep_r(self.brep)?, None)?
+            .into_iter()
+            .map(|region| hd(self.brep.b, K_QUERY_REGION, region.index()))
+            .collect())
+    }
+
+    fn ray_fire(
+        &mut self,
+        _k: &Kernel,
+        _point: Point3,
+        _direction: Vec3,
+        _point_zone_tolerance: f64,
+        _classification: &mut PointClassification<H>,
+    ) -> solidcore::Result<Option<H>> {
+        // UNPORTED(topology.brep_p2): SmBrep::RayFire
+        Err(SolidError::unported("SmBrep::RayFire", "topology.brep_p2"))
+    }
+}
+
 impl ProtoBrep<H> for Two {
     fn brep_point_3d_classify(
         &mut self,
         k: &Kernel,
-        handle: H,
+        brep: H,
         point: Point3,
-        tolerance: f64,
-        boundary: bool,
+        point_zone_tolerance: f64,
+        boundary_intersections: bool,
         classification: &mut PointClassification<H>,
     ) -> solidcore::Result<()> {
-        if handle.kind != K_BREP {
+        if brep.kind != K_BREP {
             return Err(invalid("Point3DClassify handle is not a B-rep"));
         }
-        let slot = usize::try_from(handle.b).map_err(|_| invalid("bad B-rep"))?;
-        // Native Export registers the two live B-reps in these fixed scene slots.
-        // Their entities retain both that slot and the original Graph index in H.
-        let brep_id =
-            BrepId::from_index(u32::try_from(slot).map_err(|_| invalid("bad B-rep identity"))?);
-        let metadata = self
-            .ray_queries
-            .get(slot)
-            .and_then(Option::as_ref)
-            .map(RayQueryContext::metadata)
-            .ok_or_else(|| invalid("bad B-rep"))?;
-        let gated = &self.gated_metadata;
-        let geometry_check = || {
-            let result = metadata.require_geometry();
-            if result.is_err() {
-                gated.set(Some(slot));
-            }
-            result
-        };
-        let brep = self
-            .breps
-            .get_mut(slot)
-            .and_then(Option::as_mut)
-            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
-        let cache = self
-            .point_caches
-            .get_mut(slot)
-            .ok_or_else(|| invalid("bad B-rep"))?;
-        let keys = |object| query_key(slot, object);
-        // Metadata either installs the exact direct owner or reports its missing
-        // representation at the guard. No indirect chain is fabricated here.
-        let owner_of = |_| None;
-        let handles = |entity| {
-            Self::entity_h(handle.b, entity)
-                .ok_or_else(|| invalid("classification entity is outside this B-rep"))
-        };
-        let mut objects =
-            BrepPointObjects::with_handles(brep, brep_id, cache, &keys, &owner_of, &handles)
-                .with_geometry_check(&geometry_check);
-        point_3d_classify(k, &mut objects, point, tolerance, boundary, classification)
+        self.brep_r(brep)?;
+        let mut objects = TwoPointObjects { two: self, brep };
+        solidcore::query::brep::point_3d_classify(
+            k,
+            &mut objects,
+            point,
+            point_zone_tolerance,
+            boundary_intersections,
+            classification,
+        )
     }
-
     fn edge_interval(&self, edge: H) -> Option<Extent1d> {
         ed::interval(self.brep(edge)?, eid(edge)).ok()
     }
@@ -1551,84 +1252,12 @@ pub(crate) fn p9_entity_ref(entity: EntityRef) -> ObjectRef {
     }
 }
 
-impl solidcore::topology::proto_topology::p3::BrepGlue<H> for Two {
-    fn glue_vertices(
-        &mut self,
-        k: &mut Kernel,
-        brep: H,
-        v1: H,
-        v2: H,
-        opt_wire_edges_in_brep: Option<&[H]>,
-    ) -> solidcore::Result<()> {
-        if brep.kind != K_BREP
-            || v1.kind != K_VERTEX
-            || v2.kind != K_VERTEX
-            || v1.b != brep.b
-            || v2.b != brep.b
-        {
-            return Err(invalid("glue vertex owner mismatch"));
-        }
-        // Native Glue returns before inspecting the optional wire list or
-        // notification inputs when both vertex identities are the same.
-        if v1 == v2 {
-            self.brep_r(brep)?;
-            return Ok(());
-        }
-        let wires = opt_wire_edges_in_brep
-            .map(|edges| {
-                edges
-                    .iter()
-                    .map(|&e| {
-                        if e.kind == K_EDGE && e.b == brep.b {
-                            Ok(eid(e))
-                        } else {
-                            Err(invalid("glue wire edge owner mismatch"))
-                        }
-                    })
-                    .collect::<solidcore::Result<Vec<_>>>()
-            })
-            .transpose()?;
-        let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
-        self.require_notifications(slot)?;
-        self.invalidate_query_caches(slot)?;
-        let b = self
-            .breps
-            .get_mut(slot)
-            .and_then(Option::as_mut)
-            .ok_or_else(|| invalid("absent B-rep"))?;
-        // Retain imported flags, marks and attribute records instead of rebuilding
-        // the default arena state when the new glue back-edge is reached.
-        let store = self
-            .env
-            .get_mut(slot)
-            .ok_or_else(|| invalid("bad notification owner"))?;
-        let brep_ref = store.brep_ref;
-        let mut env = solidcore::topology::edge::NotifyEnv {
-            records: &mut store.records,
-            attributes: &mut store.attributes,
-            context: None,
-            key_of: &|entity| notification_ref(brep_ref, entity),
-        };
-        solidcore::topology::brep::p5::glue_with_notifications(
-            k,
-            b,
-            Some(vid(v1)),
-            Some(vid(v2)),
-            wires.as_deref(),
-            Some(&mut env),
-        )
-    }
-}
-
 impl IntersectorBrep<H> for Two {
     fn make_vertex_loop(&mut self, brep: H, face: H, point: Point3) -> solidcore::Result<(H, H)> {
         if brep.kind != K_BREP || face.kind != K_FACE || brep.b != face.b {
             return Err(invalid("vertex loop owner mismatch"));
         }
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
-        self.brep_r(face)?.face(fid(face))?;
-        self.require_notifications(slot)?;
-        self.invalidate_query_caches(slot)?;
         let b = self
             .breps
             .get_mut(slot)
@@ -1638,12 +1267,11 @@ impl IntersectorBrep<H> for Two {
             .env
             .get_mut(slot)
             .ok_or_else(|| invalid("bad notification owner"))?;
-        let brep_ref = store.brep_ref;
         let mut env = solidcore::topology::edge::NotifyEnv {
             records: &mut store.records,
             attributes: &mut store.attributes,
             context: None,
-            key_of: &|entity| notification_ref(brep_ref, entity),
+            key_of: &p9_entity_ref,
         };
         let (loop_, vertex) = solidcore::topology::brep::p9::make_vertex_loop(
             b,
@@ -1668,7 +1296,6 @@ impl IntersectorBrep<H> for Two {
             return Err(invalid("split edge owner mismatch"));
         }
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
-        self.invalidate_query_caches(slot)?;
         let b = self
             .breps
             .get_mut(slot)
@@ -1678,18 +1305,13 @@ impl IntersectorBrep<H> for Two {
             .env
             .get_mut(slot)
             .ok_or_else(|| invalid("bad notification owner"))?;
-        let brep_ref = store.brep_ref;
-        // Delay the representation refusal until the real split reaches its
-        // first notification, after native endpoint/proximity effects.
-        let notification_status = store.require_notifications();
-        let check = || notification_status.clone();
         let mut env = solidcore::topology::edge::NotifyEnv {
             records: &mut store.records,
             attributes: &mut store.attributes,
             context: None,
-            key_of: &|entity| notification_ref(brep_ref, entity),
+            key_of: &p9_entity_ref,
         };
-        let out = solidcore::topology::brep::p9::make_vertex_split_edge_with_notification_check(
+        let out = solidcore::topology::brep::p9::make_vertex_split_edge(
             k,
             b,
             eid(edge),
@@ -1699,7 +1321,6 @@ impl IntersectorBrep<H> for Two {
                 key: ObjectKey(((kind as u64) << 32) | u64::from(e.index())),
                 type_code: kind,
             },
-            &check,
         )?;
         if !out.split {
             return Err(SolidError::sm_err("difftest::topology_intersector::split"));
@@ -1731,12 +1352,6 @@ impl IntersectorBrep<H> for Two {
             .map(|v| hd(brep.b, K_VERTEX, v.index()))
             .collect())
     }
-    fn brep_arena(&self, brep: H) -> solidcore::Result<&Brep> {
-        if brep.kind != K_BREP {
-            return Err(invalid("not a B-rep handle"));
-        }
-        self.brep_r(brep)
-    }
     fn vertex_brep(&self, vertex: H) -> solidcore::Result<Option<H>> {
         let b = self.brep_r(vertex)?;
         Ok(vx::brep(b, vid(vertex))?.map(|_| brep_h(vertex.b)))
@@ -1747,8 +1362,6 @@ impl IntersectorBrep<H> for Two {
     }
     fn set_vertex_point(&mut self, _k: &Kernel, vertex: H, point: Point3) -> solidcore::Result<()> {
         let slot = usize::try_from(vertex.b).map_err(|_| invalid("bad B-rep"))?;
-        self.require_notifications(slot)?;
-        self.invalidate_query_caches(slot)?;
         let (breps, env) = (&mut self.breps, &mut self.env);
         let b = breps
             .get_mut(slot)
@@ -1762,7 +1375,7 @@ impl IntersectorBrep<H> for Two {
             &mut env.records,
             &mut env.attributes,
             None,
-            p9_entity_ref(EntityRef::Vertex(vid(vertex))),
+            env.this,
             &vertexuse_ref,
         )
     }
@@ -1843,26 +1456,6 @@ impl IntersectorBrep<H> for Two {
         )?;
         boxes.normal.ok_or_else(|| invalid("no normal box"))
     }
-    fn face_bounding_box(
-        &mut self,
-        k: &Kernel,
-        face: H,
-        output: &mut Extent3d,
-    ) -> solidcore::Result<()> {
-        if face.kind != K_FACE {
-            return Err(invalid("not a face handle"));
-        }
-        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
-        self.require_query_geometry(slot)?;
-        let b = self
-            .breps
-            .get_mut(slot)
-            .and_then(Option::as_mut)
-            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
-        // Native default: bTight = FALSE. Keep the caller's previous box when
-        // the loose calculation fails before assigning its output.
-        solidcore::query::face::p1::calculate_bounding_box_into(k, b, fid(face), false, output)
-    }
     fn face_uv_domain_from_uv_trim_curves(
         &mut self,
         k: &Kernel,
@@ -1917,90 +1510,6 @@ impl IntersectorBrep<H> for Two {
             pc.unset_parameters();
         }
         r
-    }
-    fn face_point_3d_classify(
-        &mut self,
-        k: &Kernel,
-        face: H,
-        point: Point3,
-        src_zone_tol_3d: f64,
-        do_boundary_intersections: bool,
-        pc: &mut PointClassification<H>,
-        guess_uv: Option<Point2>,
-    ) -> solidcore::Result<()> {
-        if face.kind != K_FACE {
-            return Err(invalid("not a face handle"));
-        }
-        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
-        self.require_query_geometry(slot)?;
-        let mut local = pc.try_map_objects(|h| self.classification_entity(face.b, h))?;
-        let result = (|| {
-            // Keep the canonical Rust guard for an absent surface. This branch
-            // stops after its one domain read and PC initialisation, before any
-            // cache access; valid surfaces use the live context below.
-            if matches!(self.face_surface_h(face), Some(None)) {
-                let b = self
-                    .breps
-                    .get_mut(slot)
-                    .and_then(Option::as_mut)
-                    .ok_or_else(|| invalid("handle names an absent B-rep"))?;
-                return solidcore::query::face::p1::point_3d_classify(
-                    k,
-                    b,
-                    fid(face),
-                    point,
-                    src_zone_tol_3d,
-                    do_boundary_intersections,
-                    &mut local,
-                    solidcore::query::face::p1::Point3dClassifyOptions {
-                        guess_uv,
-                        ..solidcore::query::face::p1::Point3dClassifyOptions::default()
-                    },
-                );
-            }
-            let Some(uv) =
-                solidcore::intersect::topology_solver::p1::face_point_3d_uv_with_context(
-                    k,
-                    self,
-                    face,
-                    fid(face),
-                    point,
-                    src_zone_tol_3d,
-                    &mut local,
-                    guess_uv,
-                )?
-            else {
-                return Ok(());
-            };
-            // Only lazy UV trim data changes. Keep both published spatial caches
-            // alive; brep_m is reserved for topology/3D geometry edits.
-            let b = self
-                .breps
-                .get_mut(slot)
-                .and_then(Option::as_mut)
-                .ok_or_else(|| invalid("handle names an absent B-rep"))?;
-            solidcore::query::face::p1::point_3d_classify_finish(
-                k,
-                b,
-                fid(face),
-                uv,
-                point,
-                src_zone_tol_3d,
-                do_boundary_intersections,
-                &mut local,
-                solidcore::query::face::p1::Point3dClassifyOptions {
-                    guess_uv,
-                    ..solidcore::query::face::p1::Point3dClassifyOptions::default()
-                },
-            )
-        })();
-        // Copy every field back even when the native call returns an error:
-        // its caller deliberately ignores ordinary statuses during refreshes.
-        *pc = local.try_map_objects(|entity| {
-            Self::entity_h(face.b, entity)
-                .ok_or_else(|| invalid("classification entity is outside this B-rep"))
-        })?;
-        result
     }
     fn face_intersect(
         &mut self,
@@ -2106,12 +1615,12 @@ impl IntersectorBrep<H> for Two {
             .breps
             .get_mut(slot)
             .and_then(Option::as_mut)
-            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+            .ok_or_else(|| invalid("not a B-rep handle"))?;
         let old = b.editing_enabled();
         b.set_editing_enabled(enabled);
         Ok(old)
     }
-    fn topology_objects(&mut self) -> &mut dyn TopologyObjects<H> {
+    fn topology_objects(&self) -> &dyn TopologyObjects<H> {
         self
     }
     fn brep_glue_edges_general(
@@ -2138,33 +1647,24 @@ impl IntersectorBrep<H> for Two {
         };
         let (surviving, to_delete) = (edge(surviving)?, edge(to_delete)?);
         // (no face-use handles exist here: the only caller passes NULL)
-        let inside: Option<&[FaceuseId]> = match inside_faceuses {
+        let inside: Option<&[solidcore::topology::FaceuseId]> = match inside_faceuses {
             None => None,
             Some([]) => Some(&[]),
             Some(_) => return Err(invalid("face-use handles are not modelled")),
         };
-        if surviving.is_some() && to_delete.is_some() && surviving != to_delete {
-            self.require_notifications(slot)?;
-        }
-        self.invalidate_query_caches(slot)?;
-        let (breps, envs, ray_queries) = (&mut self.breps, &mut self.env, &mut self.ray_queries);
+        let (breps, envs) = (&mut self.breps, &mut self.env);
         let b = breps
             .get_mut(slot)
             .and_then(Option::as_mut)
             .ok_or_else(|| invalid("handle names an absent B-rep"))?;
         let env = envs.get_mut(slot).ok_or_else(|| invalid("bad B-rep"))?;
-        let queries = ray_queries
-            .get_mut(slot)
-            .and_then(Option::as_mut)
-            .ok_or_else(|| invalid("missing B-rep shell query context"))?;
-        let brep_ref = env.brep_ref;
         let mut notify = ed::NotifyEnv {
             records: &mut env.records,
             attributes: &mut env.attributes,
             context: None,
-            key_of: &|entity| notification_ref(brep_ref, entity),
+            key_of: &glue_key_of,
         };
-        let result = p7::glue_edges_general(
+        p7::glue_edges_general(
             k,
             b,
             surviving,
@@ -2174,264 +1674,33 @@ impl IntersectorBrep<H> for Two {
             to_delete,
             inside,
             &mut notify,
-            queries,
-        );
-        if matches!(&result, Err(SolidError::Unported { unit, .. }) if *unit == "harness:analytic-geometry-export")
-        {
-            self.gated_metadata.set(Some(slot));
-        }
-        result
-    }
-}
-
-/// A topology identity includes its concrete kind, preventing face/vertex aliases.
-fn glue_key_of(entity: EntityRef) -> ObjectRef {
-    p9_entity_ref(entity)
-}
-
-/// Object identities shared by native metadata, cache construction and owner
-/// lookup. Face/edge identities are the existing notification keys; the B-rep
-/// identity is its actual registered operand slot. Each query scopes these keys
-/// to one B-rep, while all solver/classification handles retain that slot in H.
-fn query_key(slot: usize, object: CacheObject) -> ObjectRef {
-    match object {
-        CacheObject::Brep => ObjectRef {
-            type_code: BREP_TYPE,
-            key: ObjectKey(slot as u64),
-        },
-        CacheObject::Edge(e) | CacheObject::Curve(e) => glue_key_of(EntityRef::Edge(e)),
-        CacheObject::Face(f) | CacheObject::Surface(f) => glue_key_of(EntityRef::Face(f)),
-        _ => arena_identity(object),
-    }
-}
-
-fn query_key_0(object: CacheObject) -> ObjectRef {
-    query_key(0, object)
-}
-
-fn query_key_1(object: CacheObject) -> ObjectRef {
-    query_key(1, object)
-}
-
-impl TopologyObjects<H> for Two {
-    fn with_brep_trees(
-        &mut self,
-        k: &Kernel,
-        first: H,
-        second: Option<H>,
-        solve: &mut solidcore::intersect::topology_solver::p1::BrepTreeSolve<'_, H>,
-    ) -> solidcore::Result<SolutionArray<H>> {
-        fn trees(
-            cache: &BrepCache<H>,
-        ) -> solidcore::Result<solidcore::intersect::topology_solver::p2::TopologyTrees<'_, H>>
-        {
-            Ok(solidcore::intersect::topology_solver::p2::TopologyTrees {
-                vertices: cache
-                    .vertex_tree()
-                    .ok_or_else(|| invalid("missing vertex tree"))?,
-                curves: cache
-                    .curve_tree()
-                    .ok_or_else(|| invalid("missing curve tree"))?,
-                surfaces: cache
-                    .surface_tree()
-                    .ok_or_else(|| invalid("missing surface tree"))?,
-            })
-        }
-        let cache = |world: &Self, handle: H| -> solidcore::Result<std::rc::Rc<BrepCache<H>>> {
-            world.brep_cache(k, handle)?;
-            let slot = usize::try_from(handle.b).map_err(|_| invalid("bad B-rep"))?;
-            world
-                .caches
-                .get(slot)
-                .and_then(std::cell::OnceCell::get)
-                .cloned()
-                .ok_or_else(|| invalid("B-rep cache not stored"))
-        };
-        let first_cache = cache(self, first)?;
-        let first_trees = trees(&first_cache)?;
-        let second_cache = second.map(|handle| cache(self, handle)).transpose()?;
-        let second_trees = second_cache.as_deref().map(trees).transpose()?;
-        // Owning only Rc handles keeps the same caches published while the
-        // classifiers edit UV trim state in the original B-reps.
-        solve(self, first_trees, second_trees)
-    }
-    fn object_zone_tol_3d(&self, k: &Kernel, object: Option<H>) -> solidcore::Result<f64> {
-        let system = || {
-            solidcore::geom::tol::zone_tol_3d(k, solidcore::geom::tol::SmallTopoType::NormalSize)
-        };
-        let Some(mut handle) = object else {
-            return Ok(system());
-        };
-        if handle.kind == K_CURVE {
-            let Some(owner) = self.curve_edge(handle)? else {
-                return Ok(system());
-            };
-            handle = owner;
-        }
-        let mapped = match handle.kind {
-            K_VERTEX => CacheObject::Vertex(vid(handle)),
-            K_EDGE => CacheObject::Edge(eid(handle)),
-            K_FACE => CacheObject::Face(fid(handle)),
-            K_EDGE_CURVE => CacheObject::Curve(eid(handle)),
-            K_FACE_SURFACE => CacheObject::Surface(fid(handle)),
-            K_BREP => CacheObject::Brep,
-            _ => return Err(invalid("unsupported topology tolerance handle")),
-        };
-        let slot = usize::try_from(handle.b).map_err(|_| invalid("bad B-rep"))?;
-        solidcore::topology::brep_cache::object_zone_tol_3d(
-            k,
-            self.brep_r(handle)?,
-            Some(mapped),
-            &|object| query_key(slot, object),
-            &|_| None,
         )
     }
-    fn face_point_classify(
-        &mut self,
-        k: &Kernel,
-        face: H,
-        uv: Point2,
-        source_zone_tolerance: f64,
-        do_boundaries: bool,
-        use_uv: bool,
-        classification: &mut PointClassification<EntityRef>,
-    ) -> solidcore::Result<()> {
-        if face.kind != K_FACE {
-            return Err(invalid("not a face handle"));
-        }
-        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
-        self.require_query_geometry(slot)?;
-        // Creating a missing UV trim does not invalidate the 3D query trees.
-        let brep = self
-            .breps
-            .get_mut(slot)
-            .and_then(Option::as_mut)
-            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
-        point_classify(
-            k,
-            brep,
-            fid(face),
-            uv,
-            classification,
-            PointClassifyOptions {
-                src_zone_tol_3d: source_zone_tolerance,
-                do_boundary_intersections: do_boundaries,
-                use_uv_classification: use_uv,
-                ..PointClassifyOptions::default()
-            },
-        )
-    }
-    fn face_point_3d_classify(
-        &mut self,
-        k: &Kernel,
-        face: H,
-        point: Point3,
-        source_zone_tolerance: f64,
-        do_boundaries: bool,
-        classification: &mut PointClassification<EntityRef>,
-    ) -> solidcore::Result<()> {
-        if face.kind != K_FACE {
-            return Err(invalid("not a face handle"));
-        }
-        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
-        self.require_query_geometry(slot)?;
-        let Some(uv) = solidcore::intersect::topology_solver::p1::face_point_3d_uv_with_context(
-            k,
-            self,
-            face,
-            fid(face),
-            point,
-            source_zone_tolerance,
-            classification,
-            None,
-        )?
-        else {
-            return Ok(());
-        };
-        let brep = self
-            .breps
-            .get_mut(slot)
-            .and_then(Option::as_mut)
-            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
-        solidcore::query::face::p1::point_3d_classify_finish(
-            k,
-            brep,
-            fid(face),
-            uv,
-            point,
-            source_zone_tolerance,
-            do_boundaries,
-            classification,
-            solidcore::query::face::p1::Point3dClassifyOptions::default(),
-        )
-    }
+}
 
-    fn face_brep_editing_enabled(&self, face: H) -> solidcore::Result<bool> {
-        if face.kind != K_FACE {
-            return Err(invalid("not a face handle"));
-        }
-        let brep = self.brep_r(face)?;
-        brep.face(fid(face))?;
-        Ok(brep.editing_enabled())
+/// The identity a glue notification runs under: vertex uses as the vertex
+/// environment's, edges, faces and edge uses by kind and index.
+fn glue_key_of(e: EntityRef) -> ObjectRef {
+    let (type_code, key) = match e {
+        EntityRef::Vertexuse(vu) => return vertexuse_ref(vu),
+        EntityRef::Face(f) => (fp2::TYPE, 1 + u64::from(f.index())),
+        EntityRef::Edge(x) => (ed::TYPE, 1 << 40 | u64::from(x.index())),
+        EntityRef::Edgeuse(x) => (16005, 2 << 40 | u64::from(x.index())),
+        _ => (0, 3 << 40),
+    };
+    ObjectRef {
+        type_code,
+        key: ObjectKey(key),
     }
+}
 
-    fn set_face_brep_editing_enabled(&mut self, face: H, editing: bool) -> solidcore::Result<()> {
-        if face.kind != K_FACE {
-            return Err(invalid("not a face handle"));
-        }
-        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
-        // A cache's temporary editing scope changes neither topology nor its
-        // published 3D trees. Do not use brep_mut, which invalidates those trees.
-        let brep = self
-            .breps
-            .get_mut(slot)
-            .and_then(Option::as_mut)
-            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
-        brep.face(fid(face))?;
-        brep.set_editing_enabled(editing);
-        Ok(())
-    }
-
-    fn face_create_uv_trim_curves(&mut self, k: &Kernel, face: H) -> solidcore::Result<()> {
-        if face.kind != K_FACE {
-            return Err(invalid("not a face handle"));
-        }
-        let slot = usize::try_from(face.b).map_err(|_| invalid("bad B-rep"))?;
-        self.require_query_geometry(slot)?;
-        let brep = self
-            .breps
-            .get_mut(slot)
-            .and_then(Option::as_mut)
-            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
-        solidcore::topology::face::p3::create_uv_trim_curves(k, brep, fid(face), true, None)
-            .map(|_| ())
-    }
-
-    fn face_classification_object(&self, face: H, entity: EntityRef) -> solidcore::Result<H> {
-        if face.kind != K_FACE {
-            return Err(invalid("not a face handle"));
-        }
-        self.brep_r(face)?.face(fid(face))?;
-        let object = Self::entity_h(face.b, entity)
-            .ok_or_else(|| invalid("classification entity is outside this B-rep"))?;
-        self.classification_entity(face.b, object)?;
-        Ok(object)
-    }
-
-    /// The B-rep's cache (`SmBrep::GetBrepCache`), built on demand with the caller's
-    /// kernel and this adapter's handles. The geometric export is checked before
-    /// `BuildTrees` consumes its bounding boxes; ordinary topology-only paths do
-    /// not build a cache or require geometric representation.
-    fn brep_cache(&self, k: &Kernel, brep: H) -> solidcore::Result<&BrepCache<H>> {
-        if brep.kind != K_BREP {
-            return Err(invalid("cache handle is not a B-rep"));
-        }
+impl Two {
+    fn query_cache(&self, k: &Kernel, brep: H) -> solidcore::Result<&BrepCache<H>> {
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
         let cell = self.caches.get(slot).ok_or_else(|| invalid("bad B-rep"))?;
         if let Some(cache) = cell.get() {
             return Ok(cache);
         }
-        self.require_query_geometry(slot)?;
         let b = self
             .breps
             .get(slot)
@@ -2457,12 +1726,26 @@ impl TopologyObjects<H> for Two {
                 CacheObject::Brep => brep_h(bi),
                 _ => hd(bi, K_NULL as u8, 0),
             },
-            &|object| query_key(slot, object),
+            &arena_identity,
         )?;
-        let _ = cell.set(std::rc::Rc::new(cache));
-        cell.get()
-            .map(std::rc::Rc::as_ref)
-            .ok_or_else(|| invalid("B-rep cache not stored"))
+        let _ = cell.set(cache);
+        cell.get().ok_or_else(|| invalid("B-rep cache not stored"))
+    }
+}
+
+impl TopologyObjects<H> for Two {
+    /// The B-rep's cache (`SmBrep::GetBrepCache`), built from the B-rep on first use (the
+    /// C++ topology solver builds it on demand) with this adapter's handles. The build
+    /// starts with `SmBrep::CalculateBoundingBox` (unit `query.brep`), so until that
+    /// lands the solves needing a cache defer there.
+    fn brep_cache(&self, brep: H) -> solidcore::Result<&BrepCache<H>> {
+        let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
+        if let Some(cache) = self.caches.get(slot).and_then(std::cell::OnceCell::get) {
+            return Ok(cache);
+        }
+        // Existing fallback for unrelated readonly TopologyObjects callers.
+        // The point-query callback has already initialized this with its kernel.
+        self.query_cache(&Kernel::default(), brep)
     }
     fn curve(&self, object: H) -> solidcore::Result<&SmCurve> {
         ClassGeometry::curve(self, object).ok_or_else(|| invalid("not a curve handle"))
@@ -2477,22 +1760,7 @@ impl TopologyObjects<H> for Two {
         vx::tolerance(self.brep_r(vertex)?, vid(vertex))
     }
     fn curve_edge(&self, curve: H) -> solidcore::Result<Option<H>> {
-        if curve.kind == K_EDGE_CURVE {
-            let slot = usize::try_from(curve.b).map_err(|_| invalid("bad curve B-rep"))?;
-            self.require_query_geometry(slot)?;
-        }
-        let geometry =
-            ClassGeometry::curve(self, curve).ok_or_else(|| invalid("not a curve handle"))?;
-        let Some(owner) = geometry.edge(|_| None)? else {
-            return Ok(None);
-        };
-        let slot = usize::try_from(curve.b).map_err(|_| invalid("bad curve B-rep"))?;
-        let brep = self.brep_r(curve)?;
-        brep.edges()
-            .ids()
-            .find(|id| query_key(slot, CacheObject::Edge(*id)) == owner)
-            .map(|id| Some(hd(curve.b, K_EDGE, id.index())))
-            .ok_or_else(|| invalid("curve owner is outside this B-rep"))
+        Ok((curve.kind == K_EDGE_CURVE).then_some(hd(curve.b, K_EDGE, curve.i)))
     }
     fn edge_curve(&self, edge: H) -> solidcore::Result<Option<H>> {
         self.edge_curve_h(edge)
@@ -2502,19 +1770,7 @@ impl TopologyObjects<H> for Two {
         ed::interval(self.brep_r(edge)?, eid(edge))
     }
     fn surface_face(&self, surface: H) -> solidcore::Result<Option<H>> {
-        let slot = usize::try_from(surface.b).map_err(|_| invalid("bad surface B-rep"))?;
-        self.require_query_geometry(slot)?;
-        let geometry =
-            ClassGeometry::surface(self, surface).ok_or_else(|| invalid("not a surface handle"))?;
-        let Some(owner) = geometry.face()? else {
-            return Ok(None);
-        };
-        let brep = self.brep_r(surface)?;
-        brep.faces()
-            .ids()
-            .find(|id| query_key(slot, CacheObject::Face(*id)) == owner)
-            .map(|id| Some(hd(surface.b, K_FACE, id.index())))
-            .ok_or_else(|| invalid("surface owner is outside this B-rep"))
+        Ok((surface.kind == K_FACE_SURFACE).then_some(hd(surface.b, K_FACE, surface.i)))
     }
     fn face_surface(&self, face: H) -> solidcore::Result<H> {
         self.face_surface_h(face).flatten().ok_or_else(|| {
@@ -3518,41 +2774,16 @@ fn prepare(i: &Inputs) -> Result<Prepared, Box<Result<Output, HarnessError>>> {
     let Some((a, b)) = ffi::split_exports(&ex) else {
         return Err(Box::new(Ok(build_failure(&ex))));
     };
-    let raw_metadata = ffi::split_query_metadata(&ex)
-        .ok_or_else(|| Box::new(Err(harness("malformed native query metadata envelope"))))?;
-    let (mut brep_a, _) = import(&a).map_err(|e| Box::new(Err(e)))?;
-    let mut brep_b = match &b {
+    let (brep_a, _) = import(&a).map_err(|e| Box::new(Err(e)))?;
+    let brep_b = match &b {
         Some(b) => Some(import(b).map_err(|e| Box::new(Err(e)))?.0),
         None => None,
     };
-    let metadata_a =
-        apply_query_metadata(&mut brep_a, raw_metadata[0], &|object| query_key(0, object))
-            .map_err(|e| Box::new(Err(e)))?;
-    let metadata_b = match &mut brep_b {
-        Some(brep) => apply_query_metadata(brep, raw_metadata[1], &|object| query_key(1, object))
-            .map_err(|e| Box::new(Err(e)))?,
-        None => QueryMetadata::default(),
-    };
-    if let Some(output) = metadata_a
-        .deferred_output_for(false, false)
-        .or_else(|| metadata_b.deferred_output_for(false, false))
-    {
-        return Err(Box::new(Ok(output)));
-    }
     let count3 = |b: &Brep| [b.vertices().len(), b.edges().len(), b.faces().len()];
     let counts = Counts {
         breps: [Some(count3(&brep_a)), brep_b.as_ref().map(count3)],
     };
-    let notification_blocks = ffi::split_notification_metadata(&ex)
-        .ok_or_else(|| Box::new(Err(harness("malformed native notification envelope"))))?;
-    let env_a = import_notification_metadata(&brep_a, notification_blocks[0])
-        .map_err(|e| Box::new(Err(e)))?;
-    let env_b = match &brep_b {
-        Some(brep) => import_notification_metadata(brep, notification_blocks[1])
-            .map_err(|e| Box::new(Err(e)))?,
-        None => NotifyEnv::absent(),
-    };
-    let two = Two::with_notifications(brep_a, brep_b, [metadata_a, metadata_b], [env_a, env_b]);
+    let two = Two::new(brep_a, brep_b);
     // (NOW / NOZ markers are +-f64::MAX)
     let block_max_abs = blocks(i)
         .map_err(|e| Box::new(Err(e)))?
@@ -3606,7 +2837,6 @@ pub(super) fn run_cpp_with(i: &Inputs, eval: Eval) -> Result<Output, HarnessErro
 enum Fail {
     Solid(SolidError),
     Harness(HarnessError),
-    Deferred(Box<Output>),
 }
 
 impl From<SolidError> for Fail {
@@ -3691,537 +2921,501 @@ fn reason_code(r: Reason) -> f64 {
 #[allow(clippy::too_many_lines)]
 fn run_rust_script(i: &Inputs, p: Prepared) -> Result<(Vec<f64>, Vec<usize>), Fail> {
     let Prepared { mut two, ops, cut } = p;
-    let result = (|| {
-        let mut k = Kernel::default();
-        let hb = two.breps[1].as_ref().map(|_| brep_h(1));
-        let mut ti: TopologyIntersector<H> = if i.ctor == 0 {
-            TopologyIntersector::new(Some(brep_h(0)), hb, i.approx, i.ang)
-        } else {
-            let mut t = TopologyIntersector::with_context();
-            t.set_primary_brep(Some(brep_h(0)));
-            t.set_other_brep(hb);
-            t.set_this_approx_tol_3d(i.approx);
-            t.set_this_ang_tol_rad(i.ang);
-            t
-        };
-        let mut o = vec![0.0]; // the shim's "both B-reps built"
-        let mut registered = 0usize;
-        let mut marks = Vec::new();
-        for r in &ops {
-            marks.push(o.len());
-            match &r.op {
-                OpIn::Relate { a, b } => {
-                    o.push(1.0);
-                    let (a, b) = (triple_to_h(*a), triple_to_h(*b));
-                    if a.is_none() || i.ctor != 0 {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    status(ti.relate(&k, &mut two, a, b), &mut o)?;
-                    o.push(tol_of(&two, a));
-                    o.push(tol_of(&two, b));
+    let mut k = Kernel::default();
+    let hb = two.breps[1].as_ref().map(|_| brep_h(1));
+    let mut ti: TopologyIntersector<H> = if i.ctor == 0 {
+        TopologyIntersector::new(Some(brep_h(0)), hb, i.approx, i.ang)
+    } else {
+        let mut t = TopologyIntersector::with_context();
+        t.set_primary_brep(Some(brep_h(0)));
+        t.set_other_brep(hb);
+        t.set_this_approx_tol_3d(i.approx);
+        t.set_this_ang_tol_rad(i.ang);
+        t
+    };
+    let mut o = vec![0.0]; // the shim's "both B-reps built"
+    let mut registered = 0usize;
+    let mut marks = Vec::new();
+    for r in &ops {
+        marks.push(o.len());
+        match &r.op {
+            OpIn::Relate { a, b } => {
+                o.push(1.0);
+                let (a, b) = (triple_to_h(*a), triple_to_h(*b));
+                if a.is_none() || i.ctor != 0 {
+                    o.push(NULL_DEREF);
+                    continue;
                 }
-                OpIn::OtherMate { h } => {
-                    o.push(2.0);
-                    put_h(&mut o, ti.other_mate(triple_to_h(*h)));
-                }
-                OpIn::ThisMate { h } => {
-                    o.push(3.0);
-                    put_h(&mut o, ti.this_mate(triple_to_h(*h)));
-                }
-                OpIn::BrepMate { h } => {
-                    o.push(4.0);
-                    put_h(&mut o, ti.brep_mate(triple_to_h(*h)));
-                }
-                OpIn::IsMated { a, b } => {
-                    o.push(5.0);
-                    o.push(flag(ti.is_mated_pair(triple_to_h(*a), triple_to_h(*b))));
-                }
-                OpIn::MappedBrep { ty } => {
-                    o.push(6.0);
-                    if i.ctor != 0 {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let kind = match *ty {
-                        VERTEX_TYPE => ClassObjectKind::Vertex,
-                        EDGE_TYPE => ClassObjectKind::Edge,
-                        FACE_TYPE => ClassObjectKind::Face,
-                        _ => ClassObjectKind::Other,
-                    };
-                    let mut list = ti.mapped_brep_objects(kind)?;
-                    list.sort();
-                    put_hs(&mut o, &list);
-                }
-                OpIn::CommonEdges => {
-                    o.push(7.0);
-                    let (a, b) = ti.common_edges(&two)?;
-                    put_hs(&mut o, &a);
-                    put_hs(&mut o, &b);
-                }
-                OpIn::CommonVertices => {
-                    o.push(8.0);
-                    let (a, b) = ti.common_vertices(&two)?;
-                    put_hs(&mut o, &a);
-                    put_hs(&mut o, &b);
-                }
-                OpIn::SetSubset { list } => {
-                    o.push(9.0);
-                    let subset: Vec<H> = list.iter().filter_map(|&h| triple_to_h(h)).collect();
-                    ti.set_subset(&subset);
-                    o.push(0.0);
-                    match ti.subset() {
-                        None => o.push(-1.0),
-                        Some(s) => {
-                            let v: Vec<H> = s.iter().copied().collect();
-                            put_hs(&mut o, &v);
-                        }
-                    }
-                }
-                OpIn::FixupEnd {
-                    dim,
-                    tol,
-                    pc_b,
-                    pc_o,
-                }
-                | OpIn::FixupMid {
-                    dim,
-                    tol,
-                    pc_b,
-                    pc_o,
-                } => {
-                    let end = matches!(r.op, OpIn::FixupEnd { .. });
-                    o.push(if end { 11.0 } else { 12.0 });
-                    let mut b = pc_from(pc_b, *tol)?;
-                    let mut c = pc_from(pc_o, *tol)?;
-                    if end {
-                        ti.fixup_end_point_class_mates(u64::from(*dim), &mut b, &mut c, None);
-                    } else {
-                        ti.fixup_mid_point_class_mates(u64::from(*dim), &mut b, &mut c, None);
-                    }
-                    o.push(0.0);
-                    put_pc(&mut o, &b);
-                    put_pc(&mut o, &c);
-                }
-                OpIn::Getters => {
-                    o.push(13.0);
-                    put_h(&mut o, ti.primary_brep());
-                    put_h(&mut o, ti.other_brep());
-                    o.push(ti.this_approx_tol_3d());
-                    o.push(ti.this_ang_tol_rad());
-                }
-                OpIn::SetTols { approx, ang } => {
-                    o.push(14.0);
-                    ti.set_this_approx_tol_3d(*approx);
-                    ti.set_this_ang_tol_rad(*ang);
-                    o.push(ti.this_approx_tol_3d());
-                    o.push(ti.this_ang_tol_rad());
-                }
-                OpIn::SetBreps { a, b } => {
-                    o.push(15.0);
-                    ti.set_primary_brep(triple_to_h(*a));
-                    ti.set_other_brep(triple_to_h(*b));
-                    put_h(&mut o, ti.primary_brep());
-                    put_h(&mut o, ti.other_brep());
-                }
-                OpIn::RegisterSsi { s1, s2, curves } => {
-                    o.push(16.0);
-                    // RegisterExistingSSI (unit boolean.topology_intersector_p2) of the
-                    // script's curves, stored as the shim stores them (3D, then each UV
-                    // curve given), with null UV entries where none is given
-                    let mut c3s: Vec<Option<H>> = Vec::new();
-                    let mut u1s: Vec<Option<H>> = Vec::new();
-                    let mut u2s: Vec<Option<H>> = Vec::new();
-                    let mut tys: Vec<TsectCurveType> = Vec::new();
-                    let mut devs: Vec<f64> = Vec::new();
-                    let store = |two: &mut Two, c: &CrvIn| -> Result<H, Fail> {
-                        let curve = rust_curve(c)?;
-                        let idx = u32::try_from(two.curves.len()).map_err(|_| harness("store"))?;
-                        let h = curve_h(2, K_CURVE, idx, &curve);
-                        two.curves.push(curve);
-                        Ok(h)
-                    };
-                    for sc in curves {
-                        c3s.push(Some(store(&mut two, &sc.c3)?));
-                        registered += 1;
-                        for (uv, list) in [(&sc.uv1, &mut u1s), (&sc.uv2, &mut u2s)] {
-                            match uv {
-                                Some(uv) => {
-                                    list.push(Some(store(&mut two, uv)?));
-                                    registered += 1;
-                                }
-                                None => list.push(None),
-                            }
-                        }
-                        tys.push(tsect_type(sc.ty)?);
-                        devs.push(sc.dev);
-                    }
-                    let r = ti.register_existing_ssi(
-                        &mut two,
-                        triple_to_h(*s1),
-                        triple_to_h(*s2),
-                        &c3s,
-                        &u1s,
-                        &u2s,
-                        &tys,
-                        &devs,
-                    );
-                    status(r, &mut o)?;
-                }
-                OpIn::CheckSsi { s1, s2 } => {
-                    o.push(17.0);
-                    let r =
-                        ti.check_if_have_existing_ssi(&mut two, triple_to_h(*s1), triple_to_h(*s2));
-                    let Some(r) = status(r, &mut o)? else {
-                        continue;
-                    };
-                    // (SM_ERR after a non-B-spline 3D curve comes with the outputs filled so far)
-                    if let Some(e) = &r.status {
-                        o.pop();
-                        o.push(match e {
-                            SolidError::Upstream { code, .. } => f64::from(*code),
-                            _ => NULL_DEREF,
-                        });
-                    }
-                    o.push(flag(r.have_existing_ssi));
-                    o.push(r.curves_3d.len() as f64);
-                    for j in 0..r.curves_3d.len() {
-                        let c3 = r.curves_3d.get(j).copied().flatten();
-                        let u1 = r.uv_curves1.get(j).copied().flatten();
-                        let u2 = r.uv_curves2.get(j).copied().flatten();
-                        put_curve(&mut o, c3.and_then(|h| ClassGeometry::curve(&two, h)));
-                        put_curve(&mut o, u1.and_then(|h| ClassGeometry::curve(&two, h)));
-                        put_curve(&mut o, u2.and_then(|h| ClassGeometry::curve(&two, h)));
-                        o.push(r.curve_types.get(j).map_or(-1.0, |t| *t as i64 as f64));
-                        o.push(r.deviations.get(j).copied().unwrap_or(-1.0));
-                    }
-                }
-                OpIn::ClearSsi => {
-                    o.push(18.0);
-                    let _ = ti.clear_existing_ssi();
-                    o.push(0.0);
-                }
-                OpIn::CanImprint { ty } => {
-                    o.push(19.0);
-                    let cls = i32::try_from(*ty)
-                        .ok()
-                        .and_then(PointClassType::from_code)
-                        .ok_or_else(|| harness("bad point class"))?;
-                    o.push(flag(ti::can_imprint(cls)));
-                }
-                OpIn::Lowest { list } => {
-                    o.push(20.0);
-                    let hs: Vec<Option<H>> = list.iter().map(|&h| triple_to_h(h)).collect();
-                    if hs.len() > 1 && hs.iter().any(Option::is_none) {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let mut sols: SolutionArray<H> = SolutionArray::with_capacity(hs.len());
-                    for h in hs {
-                        let mut s = Solution::default();
-                        s.objects[0] = h;
-                        s.num_objects = 1;
-                        sols.add(&s);
-                    }
-                    match ti::find_first_lowest_dimension_sol(&sols) {
-                        Ok(idx) => o.push(idx as f64),
-                        Err(SolidError::InvalidInput { .. }) => o.push(NULL_DEREF),
-                        Err(e) => return Err(e.into()),
-                    }
-                }
-                OpIn::SetEdgeClass { e, t0, t1, tol, .. } => {
-                    o.push(21.0);
-                    let eh = triple_to_h(*e);
-                    if !two.edge_ok(eh) || !eh.is_some_and(|e| two.has_primary_edgeuse(e)) {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let eh = eh.ok_or_else(|| harness("edge"))?;
-                    let curve = two
-                        .edge_curve_h(eh)
-                        .flatten()
-                        .ok_or_else(|| harness("curve"))?;
-                    let ivl = Extent1d::from_min_max(*t0, *t1);
-                    let mut cc = new_classification(&k, curve, ivl, *tol)?;
-                    if status(ti::set_edge_class(&k, &two, &mut cc, eh), &mut o)?.is_none() {
-                        continue;
-                    }
-                    o.push(cc.size() as f64);
-                    let ci = cc.at(0)?;
-                    put_pc_full(&mut o, &ci.start);
-                    put_pc_full(&mut o, &ci.mid);
-                    put_pc_full(&mut o, &ci.end);
-                }
-                OpIn::CheckInterior { e, t, tol, .. } => {
-                    o.push(22.0);
-                    let eh = triple_to_h(*e);
-                    if !two.edge_ok(eh) {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let eh = eh.ok_or_else(|| harness("edge"))?;
-                    match status(ti::check_interior_edge(&two, eh, *t, *tol), &mut o)? {
-                        Some(interior) => o.push(flag(interior)),
-                        None => o.push(0.0), // bInterior == FALSE on trouble
-                    }
-                }
-                OpIn::SplitTwo { e1, e2, tol } => {
-                    o.push(23.0);
-                    let (a, b) = (triple_to_h(*e1), triple_to_h(*e2));
-                    if !two.edge_ok(a) || !two.edge_ok(b) {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let (a, b) = (
-                        a.ok_or_else(|| harness("edge"))?,
-                        b.ok_or_else(|| harness("edge"))?,
-                    );
-                    if let Some(r) = status(
-                        ti::test_and_split_two_edges(&mut k, &mut two, a, b, *tol),
-                        &mut o,
-                    )? {
-                        o.extend([
-                            r.dist_to_edge,
-                            r.min_unstitched,
-                            r.new_verts.len() as f64,
-                            r.new_edges1.len() as f64,
-                            r.new_edges2.len() as f64,
-                        ]);
-                    }
-                }
-                OpIn::ImprintFace { f, p, tol, .. } => {
-                    o.push(24.0);
-                    let fh = triple_to_h(*f);
-                    if !two.face_ok(fh) {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let fh = fh.ok_or_else(|| harness("face"))?;
-                    let pt = Point3::new(p[0], p[1], p[2]);
-                    if let Some(r) = status(
-                        ti::test_and_imprint_face(&k, &mut two, fh, pt, *tol),
-                        &mut o,
-                    )? {
-                        o.extend([
-                            reason_code(r.reason),
-                            r.dist_to_face,
-                            flag(r.new_vertex.is_some()),
-                        ]);
-                    }
-                }
-                OpIn::VertexFace {
-                    verts,
-                    faces,
-                    manifold,
-                    ignore,
-                } => {
-                    o.push(25.0);
-                    let faces: Vec<Option<H>> = faces.iter().map(|&h| triple_to_h(h)).collect();
-                    if faces.iter().any(|f| f.is_some() && !two.face_ok(*f)) {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let mut vs: Vec<Option<H>> = verts.iter().map(|&h| triple_to_h(h)).collect();
-                    let r = ti.vertex_face_intersect(
-                        &mut k, &mut two, &mut vs, &faces, *manifold, *ignore,
-                    );
-                    let Some(r) = status(r, &mut o)? else {
-                        continue;
-                    };
-                    put_hs(&mut o, &r.processed_verts);
-                    put_hs(&mut o, &r.processed_faces);
-                    o.push(r.max_vertex_gap);
-                    o.push(r.min_unstitched_vert_gap);
-                    o.push(vs.len() as f64);
-                    for v in &vs {
-                        o.push(flag(v.is_some()));
-                    }
-                }
-                OpIn::EdgeFace {
-                    edges,
-                    faces,
-                    manifold,
-                    ignore,
-                } => {
-                    o.push(26.0);
-                    let es: Vec<Option<H>> = edges.iter().map(|&h| triple_to_h(h)).collect();
-                    let fs: Vec<Option<H>> = faces.iter().map(|&h| triple_to_h(h)).collect();
-                    if es.iter().any(|e| e.is_some() && !two.edge_ok(*e))
-                        || fs.iter().any(|f| f.is_some() && !two.face_ok(*f))
-                    {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let r = ti.edge_face_intersect(&mut k, &mut two, &es, &fs, *manifold, *ignore);
-                    let Some(r) = status(r, &mut o)? else {
-                        continue;
-                    };
-                    o.push(r.new_verts.len() as f64);
-                    put_hs(&mut o, &r.split_edges);
-                    o.push(r.new_edges.len() as f64);
-                    put_hs(&mut o, &r.processed_faces);
-                    o.push(r.max_vertex_gap);
-                    o.push(r.min_unstitched_vert_gap);
-                }
-                OpIn::FaceFace {
-                    verts,
-                    faces1,
-                    faces2,
-                    ignore,
-                    nesting,
-                } => {
-                    o.push(27.0);
-                    let vs: Vec<Option<H>> = verts.iter().map(|&h| triple_to_h(h)).collect();
-                    let f1: Vec<H> = faces1.iter().filter_map(|&h| triple_to_h(h)).collect();
-                    let f2: Vec<H> = faces2.iter().filter_map(|&h| triple_to_h(h)).collect();
-                    if vs.iter().any(Option::is_none)
-                        || f1.len() != faces1.len()
-                        || f2.len() != faces2.len()
-                        || f1.iter().chain(f2.iter()).any(|f| !two.face_ok(Some(*f)))
-                    {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let vs: Vec<H> = vs.into_iter().flatten().collect();
-                    let r =
-                        ti.face_face_intersect(&mut k, &mut two, &vs, &f1, &f2, *ignore, *nesting);
-                    let Some(r) = status(r, &mut o)? else {
-                        continue;
-                    };
-                    put_hs(&mut o, &r.processed_faces);
-                    o.push(r.new_faces.len() as f64);
-                    o.push(r.new_edges.len() as f64);
-                    o.push(r.max_gap);
-                    o.push(r.min_unstitched);
-                }
-                OpIn::FaceFaceCoin {
-                    edges,
-                    faces,
-                    ignore,
-                    nesting,
-                } => {
-                    o.push(28.0);
-                    let es: Vec<Option<H>> = edges.iter().map(|&h| triple_to_h(h)).collect();
-                    let fs: Vec<H> = faces.iter().filter_map(|&h| triple_to_h(h)).collect();
-                    let mut ok = fs.len() == faces.len();
-                    for e in es.iter().flatten() {
-                        for f in two.edge_faces(*e)? {
-                            if !two.face_ok(Some(f)) {
-                                ok = false;
-                            }
-                        }
-                    }
-                    if !ok {
-                        o.push(NULL_DEREF);
-                        continue;
-                    }
-                    let r = ti.face_face_coincidence(&k, &mut two, &es, &fs, *ignore, *nesting);
-                    let Some(r) = status(r, &mut o)? else {
-                        continue;
-                    };
-                    put_hs(&mut o, &r.processed_faces);
-                    put_hs(&mut o, &r.deleted_faces);
-                    o.push(r.max_gap);
-                    o.push(r.min_unstitched);
-                }
-                OpIn::MgrNew {
-                    capture,
-                    override_tol,
-                } => {
-                    o.push(33.0);
-                    let mgr = ProtoTopologyManager::new_with_curve_check(
-                        &k,
-                        (brep_h(0), two.brep_r(brep_h(0))?),
-                        (brep_h(1), two.brep_r(brep_h(1))?),
-                        TI_HANDLE,
-                        ti.this_approx_tol_3d(),
-                        *capture,
-                        *override_tol,
-                        &mut |brep, edge| two.check_edge_curve(brep, edge),
-                    )?;
-                    let tol = mgr.tolerance(&k);
-                    ti.set_proto_topology_manager(Some(mgr));
-                    o.push(0.0);
-                    o.push(tol);
-                }
-                OpIn::Resolve => {
-                    o.push(29.0);
-                    status(ti.resolve_intersections(&k, &mut two), &mut o)?;
-                    let m = ti
-                        .proto_topology_manager()
-                        .ok_or_else(|| harness("no manager"))?;
-                    o.push(m.proto_vertices().len() as f64);
-                    o.push(m.proto_edges().len() as f64);
-                }
-                OpIn::Imprint => {
-                    o.push(30.0);
-                    status(ti.imprint_intersections(&mut k, &mut two), &mut o)?;
-                    let m = ti
-                        .proto_topology_manager()
-                        .ok_or_else(|| harness("no manager"))?;
-                    o.push(m.proto_vertices().len() as f64);
-                    o.push(m.proto_edges().len() as f64);
-                }
-                OpIn::ShellVerts { first, swap } | OpIn::WireLamina { first, swap, .. } => {
-                    let (b1, b2) = if *first == 0 {
-                        (brep_h(0), brep_h(1))
-                    } else {
-                        (brep_h(1), brep_h(0))
-                    };
-                    let ti_tol = ti.this_approx_tol_3d();
-                    let m = ti
-                        .proto_topology_manager_mut()
-                        .ok_or_else(|| harness("no manager"))?;
-                    let r = match &r.op {
-                        OpIn::ShellVerts { .. } => {
-                            o.push(31.0);
-                            ti::intersect_shell_vertices(&k, &mut two, b1, b2, *swap, m)
-                        }
-                        OpIn::WireLamina { lamina, .. } => {
-                            o.push(32.0);
-                            ti::intersect_wire_lamina_edges(
-                                &k, &mut two, b1, b2, *lamina, *swap, ti_tol, m,
-                            )
-                        }
-                        _ => unreachable!(),
-                    };
-                    status(r, &mut o)?;
-                    o.push(m.proto_vertices().len() as f64);
-                    o.push(m.proto_edges().len() as f64);
-                }
-                _ => run_part2_op(i, &r.op, &mut k, &mut two, &mut ti, &mut o)?,
+                status(ti.relate(&k, &mut two, a, b), &mut o)?;
+                o.push(tol_of(&two, a));
+                o.push(tol_of(&two, b));
             }
-        }
-        let _ = registered;
-        put_cut(&mut o, cut.as_ref());
-        Ok((o, marks))
-    })();
-    if matches!(
-        &result,
-        Err(Fail::Solid(SolidError::Unported {
-            unit: "harness:analytic-geometry-export",
-            ..
-        }))
-    ) {
-        if let Some(output) = two
-            .gated_curve_metadata
-            .get()
-            .and_then(|(slot, edge)| {
-                two.query_metadata(slot)
-                    .ok()?
-                    .deferred_output_for_curve(edge)
-            })
-            .or_else(|| {
-                two.gated_metadata
-                    .get()
-                    .and_then(|slot| two.query_metadata(slot).ok())
-                    .and_then(QueryMetadata::deferred_output)
-            })
-        {
-            return Err(Fail::Deferred(Box::new(output)));
+            OpIn::OtherMate { h } => {
+                o.push(2.0);
+                put_h(&mut o, ti.other_mate(triple_to_h(*h)));
+            }
+            OpIn::ThisMate { h } => {
+                o.push(3.0);
+                put_h(&mut o, ti.this_mate(triple_to_h(*h)));
+            }
+            OpIn::BrepMate { h } => {
+                o.push(4.0);
+                put_h(&mut o, ti.brep_mate(triple_to_h(*h)));
+            }
+            OpIn::IsMated { a, b } => {
+                o.push(5.0);
+                o.push(flag(ti.is_mated_pair(triple_to_h(*a), triple_to_h(*b))));
+            }
+            OpIn::MappedBrep { ty } => {
+                o.push(6.0);
+                if i.ctor != 0 {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let kind = match *ty {
+                    VERTEX_TYPE => ClassObjectKind::Vertex,
+                    EDGE_TYPE => ClassObjectKind::Edge,
+                    FACE_TYPE => ClassObjectKind::Face,
+                    _ => ClassObjectKind::Other,
+                };
+                let mut list = ti.mapped_brep_objects(kind)?;
+                list.sort();
+                put_hs(&mut o, &list);
+            }
+            OpIn::CommonEdges => {
+                o.push(7.0);
+                let (a, b) = ti.common_edges(&two)?;
+                put_hs(&mut o, &a);
+                put_hs(&mut o, &b);
+            }
+            OpIn::CommonVertices => {
+                o.push(8.0);
+                let (a, b) = ti.common_vertices(&two)?;
+                put_hs(&mut o, &a);
+                put_hs(&mut o, &b);
+            }
+            OpIn::SetSubset { list } => {
+                o.push(9.0);
+                let subset: Vec<H> = list.iter().filter_map(|&h| triple_to_h(h)).collect();
+                ti.set_subset(&subset);
+                o.push(0.0);
+                match ti.subset() {
+                    None => o.push(-1.0),
+                    Some(s) => {
+                        let v: Vec<H> = s.iter().copied().collect();
+                        put_hs(&mut o, &v);
+                    }
+                }
+            }
+            OpIn::FixupEnd {
+                dim,
+                tol,
+                pc_b,
+                pc_o,
+            }
+            | OpIn::FixupMid {
+                dim,
+                tol,
+                pc_b,
+                pc_o,
+            } => {
+                let end = matches!(r.op, OpIn::FixupEnd { .. });
+                o.push(if end { 11.0 } else { 12.0 });
+                let mut b = pc_from(pc_b, *tol)?;
+                let mut c = pc_from(pc_o, *tol)?;
+                if end {
+                    ti.fixup_end_point_class_mates(u64::from(*dim), &mut b, &mut c, None);
+                } else {
+                    ti.fixup_mid_point_class_mates(u64::from(*dim), &mut b, &mut c, None);
+                }
+                o.push(0.0);
+                put_pc(&mut o, &b);
+                put_pc(&mut o, &c);
+            }
+            OpIn::Getters => {
+                o.push(13.0);
+                put_h(&mut o, ti.primary_brep());
+                put_h(&mut o, ti.other_brep());
+                o.push(ti.this_approx_tol_3d());
+                o.push(ti.this_ang_tol_rad());
+            }
+            OpIn::SetTols { approx, ang } => {
+                o.push(14.0);
+                ti.set_this_approx_tol_3d(*approx);
+                ti.set_this_ang_tol_rad(*ang);
+                o.push(ti.this_approx_tol_3d());
+                o.push(ti.this_ang_tol_rad());
+            }
+            OpIn::SetBreps { a, b } => {
+                o.push(15.0);
+                ti.set_primary_brep(triple_to_h(*a));
+                ti.set_other_brep(triple_to_h(*b));
+                put_h(&mut o, ti.primary_brep());
+                put_h(&mut o, ti.other_brep());
+            }
+            OpIn::RegisterSsi { s1, s2, curves } => {
+                o.push(16.0);
+                // RegisterExistingSSI (unit boolean.topology_intersector_p2) of the
+                // script's curves, stored as the shim stores them (3D, then each UV
+                // curve given), with null UV entries where none is given
+                let mut c3s: Vec<Option<H>> = Vec::new();
+                let mut u1s: Vec<Option<H>> = Vec::new();
+                let mut u2s: Vec<Option<H>> = Vec::new();
+                let mut tys: Vec<TsectCurveType> = Vec::new();
+                let mut devs: Vec<f64> = Vec::new();
+                let store = |two: &mut Two, c: &CrvIn| -> Result<H, Fail> {
+                    let curve = rust_curve(c)?;
+                    let idx = u32::try_from(two.curves.len()).map_err(|_| harness("store"))?;
+                    let h = curve_h(2, K_CURVE, idx, &curve);
+                    two.curves.push(curve);
+                    Ok(h)
+                };
+                for sc in curves {
+                    c3s.push(Some(store(&mut two, &sc.c3)?));
+                    registered += 1;
+                    for (uv, list) in [(&sc.uv1, &mut u1s), (&sc.uv2, &mut u2s)] {
+                        match uv {
+                            Some(uv) => {
+                                list.push(Some(store(&mut two, uv)?));
+                                registered += 1;
+                            }
+                            None => list.push(None),
+                        }
+                    }
+                    tys.push(tsect_type(sc.ty)?);
+                    devs.push(sc.dev);
+                }
+                let r = ti.register_existing_ssi(
+                    &mut two,
+                    triple_to_h(*s1),
+                    triple_to_h(*s2),
+                    &c3s,
+                    &u1s,
+                    &u2s,
+                    &tys,
+                    &devs,
+                );
+                status(r, &mut o)?;
+            }
+            OpIn::CheckSsi { s1, s2 } => {
+                o.push(17.0);
+                let r = ti.check_if_have_existing_ssi(&mut two, triple_to_h(*s1), triple_to_h(*s2));
+                let Some(r) = status(r, &mut o)? else {
+                    continue;
+                };
+                // (SM_ERR after a non-B-spline 3D curve comes with the outputs filled so far)
+                if let Some(e) = &r.status {
+                    o.pop();
+                    o.push(match e {
+                        SolidError::Upstream { code, .. } => f64::from(*code),
+                        _ => NULL_DEREF,
+                    });
+                }
+                o.push(flag(r.have_existing_ssi));
+                o.push(r.curves_3d.len() as f64);
+                for j in 0..r.curves_3d.len() {
+                    let c3 = r.curves_3d.get(j).copied().flatten();
+                    let u1 = r.uv_curves1.get(j).copied().flatten();
+                    let u2 = r.uv_curves2.get(j).copied().flatten();
+                    put_curve(&mut o, c3.and_then(|h| ClassGeometry::curve(&two, h)));
+                    put_curve(&mut o, u1.and_then(|h| ClassGeometry::curve(&two, h)));
+                    put_curve(&mut o, u2.and_then(|h| ClassGeometry::curve(&two, h)));
+                    o.push(r.curve_types.get(j).map_or(-1.0, |t| *t as i64 as f64));
+                    o.push(r.deviations.get(j).copied().unwrap_or(-1.0));
+                }
+            }
+            OpIn::ClearSsi => {
+                o.push(18.0);
+                let _ = ti.clear_existing_ssi();
+                o.push(0.0);
+            }
+            OpIn::CanImprint { ty } => {
+                o.push(19.0);
+                let cls = i32::try_from(*ty)
+                    .ok()
+                    .and_then(PointClassType::from_code)
+                    .ok_or_else(|| harness("bad point class"))?;
+                o.push(flag(ti::can_imprint(cls)));
+            }
+            OpIn::Lowest { list } => {
+                o.push(20.0);
+                let hs: Vec<Option<H>> = list.iter().map(|&h| triple_to_h(h)).collect();
+                if hs.len() > 1 && hs.iter().any(Option::is_none) {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let mut sols: SolutionArray<H> = SolutionArray::with_capacity(hs.len());
+                for h in hs {
+                    let mut s = Solution::default();
+                    s.objects[0] = h;
+                    s.num_objects = 1;
+                    sols.add(&s);
+                }
+                match ti::find_first_lowest_dimension_sol(&sols) {
+                    Ok(idx) => o.push(idx as f64),
+                    Err(SolidError::InvalidInput { .. }) => o.push(NULL_DEREF),
+                    Err(e) => return Err(e.into()),
+                }
+            }
+            OpIn::SetEdgeClass { e, t0, t1, tol, .. } => {
+                o.push(21.0);
+                let eh = triple_to_h(*e);
+                if !two.edge_ok(eh) || !eh.is_some_and(|e| two.has_primary_edgeuse(e)) {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let eh = eh.ok_or_else(|| harness("edge"))?;
+                let curve = two
+                    .edge_curve_h(eh)
+                    .flatten()
+                    .ok_or_else(|| harness("curve"))?;
+                let ivl = Extent1d::from_min_max(*t0, *t1);
+                let mut cc = new_classification(&k, curve, ivl, *tol)?;
+                if status(ti::set_edge_class(&k, &two, &mut cc, eh), &mut o)?.is_none() {
+                    continue;
+                }
+                o.push(cc.size() as f64);
+                let ci = cc.at(0)?;
+                put_pc_full(&mut o, &ci.start);
+                put_pc_full(&mut o, &ci.mid);
+                put_pc_full(&mut o, &ci.end);
+            }
+            OpIn::CheckInterior { e, t, tol, .. } => {
+                o.push(22.0);
+                let eh = triple_to_h(*e);
+                if !two.edge_ok(eh) {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let eh = eh.ok_or_else(|| harness("edge"))?;
+                match status(ti::check_interior_edge(&two, eh, *t, *tol), &mut o)? {
+                    Some(interior) => o.push(flag(interior)),
+                    None => o.push(0.0), // bInterior == FALSE on trouble
+                }
+            }
+            OpIn::SplitTwo { e1, e2, tol } => {
+                o.push(23.0);
+                let (a, b) = (triple_to_h(*e1), triple_to_h(*e2));
+                if !two.edge_ok(a) || !two.edge_ok(b) {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let (a, b) = (
+                    a.ok_or_else(|| harness("edge"))?,
+                    b.ok_or_else(|| harness("edge"))?,
+                );
+                if let Some(r) = status(
+                    ti::test_and_split_two_edges(&mut k, &mut two, a, b, *tol),
+                    &mut o,
+                )? {
+                    o.extend([
+                        r.dist_to_edge,
+                        r.min_unstitched,
+                        r.new_verts.len() as f64,
+                        r.new_edges1.len() as f64,
+                        r.new_edges2.len() as f64,
+                    ]);
+                }
+            }
+            OpIn::ImprintFace { f, p, tol, .. } => {
+                o.push(24.0);
+                let fh = triple_to_h(*f);
+                if !two.face_ok(fh) {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let fh = fh.ok_or_else(|| harness("face"))?;
+                let pt = Point3::new(p[0], p[1], p[2]);
+                if let Some(r) = status(
+                    ti::test_and_imprint_face(&k, &mut two, fh, pt, *tol),
+                    &mut o,
+                )? {
+                    o.extend([
+                        reason_code(r.reason),
+                        r.dist_to_face,
+                        flag(r.new_vertex.is_some()),
+                    ]);
+                }
+            }
+            OpIn::VertexFace {
+                verts,
+                faces,
+                manifold,
+                ignore,
+            } => {
+                o.push(25.0);
+                let faces: Vec<Option<H>> = faces.iter().map(|&h| triple_to_h(h)).collect();
+                if faces.iter().any(|f| f.is_some() && !two.face_ok(*f)) {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let mut vs: Vec<Option<H>> = verts.iter().map(|&h| triple_to_h(h)).collect();
+                let r = ti.vertex_face_intersect(&k, &mut two, &mut vs, &faces, *manifold, *ignore);
+                let Some(r) = status(r, &mut o)? else {
+                    continue;
+                };
+                put_hs(&mut o, &r.processed_verts);
+                put_hs(&mut o, &r.processed_faces);
+                o.push(r.max_vertex_gap);
+                o.push(r.min_unstitched_vert_gap);
+                o.push(vs.len() as f64);
+                for v in &vs {
+                    o.push(flag(v.is_some()));
+                }
+            }
+            OpIn::EdgeFace {
+                edges,
+                faces,
+                manifold,
+                ignore,
+            } => {
+                o.push(26.0);
+                let es: Vec<Option<H>> = edges.iter().map(|&h| triple_to_h(h)).collect();
+                let fs: Vec<Option<H>> = faces.iter().map(|&h| triple_to_h(h)).collect();
+                if es.iter().any(|e| e.is_some() && !two.edge_ok(*e))
+                    || fs.iter().any(|f| f.is_some() && !two.face_ok(*f))
+                {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let r = ti.edge_face_intersect(&mut k, &mut two, &es, &fs, *manifold, *ignore);
+                let Some(r) = status(r, &mut o)? else {
+                    continue;
+                };
+                o.push(r.new_verts.len() as f64);
+                put_hs(&mut o, &r.split_edges);
+                o.push(r.new_edges.len() as f64);
+                put_hs(&mut o, &r.processed_faces);
+                o.push(r.max_vertex_gap);
+                o.push(r.min_unstitched_vert_gap);
+            }
+            OpIn::FaceFace {
+                verts,
+                faces1,
+                faces2,
+                ignore,
+                nesting,
+            } => {
+                o.push(27.0);
+                let vs: Vec<Option<H>> = verts.iter().map(|&h| triple_to_h(h)).collect();
+                let f1: Vec<H> = faces1.iter().filter_map(|&h| triple_to_h(h)).collect();
+                let f2: Vec<H> = faces2.iter().filter_map(|&h| triple_to_h(h)).collect();
+                if vs.iter().any(Option::is_none)
+                    || f1.len() != faces1.len()
+                    || f2.len() != faces2.len()
+                    || f1.iter().chain(f2.iter()).any(|f| !two.face_ok(Some(*f)))
+                {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let vs: Vec<H> = vs.into_iter().flatten().collect();
+                let r = ti.face_face_intersect(&mut k, &mut two, &vs, &f1, &f2, *ignore, *nesting);
+                let Some(r) = status(r, &mut o)? else {
+                    continue;
+                };
+                put_hs(&mut o, &r.processed_faces);
+                o.push(r.new_faces.len() as f64);
+                o.push(r.new_edges.len() as f64);
+                o.push(r.max_gap);
+                o.push(r.min_unstitched);
+            }
+            OpIn::FaceFaceCoin {
+                edges,
+                faces,
+                ignore,
+                nesting,
+            } => {
+                o.push(28.0);
+                let es: Vec<Option<H>> = edges.iter().map(|&h| triple_to_h(h)).collect();
+                let fs: Vec<H> = faces.iter().filter_map(|&h| triple_to_h(h)).collect();
+                let mut ok = fs.len() == faces.len();
+                for e in es.iter().flatten() {
+                    for f in two.edge_faces(*e)? {
+                        if !two.face_ok(Some(f)) {
+                            ok = false;
+                        }
+                    }
+                }
+                if !ok {
+                    o.push(NULL_DEREF);
+                    continue;
+                }
+                let r = ti.face_face_coincidence(&k, &mut two, &es, &fs, *ignore, *nesting);
+                let Some(r) = status(r, &mut o)? else {
+                    continue;
+                };
+                put_hs(&mut o, &r.processed_faces);
+                put_hs(&mut o, &r.deleted_faces);
+                o.push(r.max_gap);
+                o.push(r.min_unstitched);
+            }
+            OpIn::MgrNew {
+                capture,
+                override_tol,
+            } => {
+                o.push(33.0);
+                let mgr = ProtoTopologyManager::new(
+                    brep_h(0),
+                    brep_h(1),
+                    TI_HANDLE,
+                    ti.this_approx_tol_3d(),
+                    *capture,
+                    *override_tol,
+                )?;
+                ti.set_proto_topology_manager(Some(mgr));
+                o.push(0.0);
+            }
+            OpIn::Resolve => {
+                o.push(29.0);
+                status(ti.resolve_intersections(&k, &mut two), &mut o)?;
+                let m = ti
+                    .proto_topology_manager()
+                    .ok_or_else(|| harness("no manager"))?;
+                o.push(m.proto_vertices().len() as f64);
+                o.push(m.proto_edges().len() as f64);
+            }
+            OpIn::Imprint => {
+                o.push(30.0);
+                status(ti.imprint_intersections(&mut k, &mut two), &mut o)?;
+                let m = ti
+                    .proto_topology_manager()
+                    .ok_or_else(|| harness("no manager"))?;
+                o.push(m.proto_vertices().len() as f64);
+                o.push(m.proto_edges().len() as f64);
+            }
+            OpIn::ShellVerts { first, swap } | OpIn::WireLamina { first, swap, .. } => {
+                let (b1, b2) = if *first == 0 {
+                    (brep_h(0), brep_h(1))
+                } else {
+                    (brep_h(1), brep_h(0))
+                };
+                let ti_tol = ti.this_approx_tol_3d();
+                let m = ti
+                    .proto_topology_manager_mut()
+                    .ok_or_else(|| harness("no manager"))?;
+                let r = match &r.op {
+                    OpIn::ShellVerts { .. } => {
+                        o.push(31.0);
+                        ti::intersect_shell_vertices(&k, &mut two, b1, b2, *swap, m)
+                    }
+                    OpIn::WireLamina { lamina, .. } => {
+                        o.push(32.0);
+                        ti::intersect_wire_lamina_edges(
+                            &k, &mut two, b1, b2, *lamina, *swap, ti_tol, m,
+                        )
+                    }
+                    _ => unreachable!(),
+                };
+                status(r, &mut o)?;
+                o.push(m.proto_vertices().len() as f64);
+                o.push(m.proto_edges().len() as f64);
+            }
+            _ => run_part2_op(i, &r.op, &mut k, &mut two, &mut ti, &mut o)?,
         }
     }
-    result
+    let _ = registered;
+    put_cut(&mut o, cut.as_ref());
+    Ok((o, marks))
 }
 
 // ---- part 2's ops (unit boolean.topology_intersector_p2), Rust side -----------------------
@@ -4318,7 +3512,7 @@ fn run_part2_op(
             // (a null B-rep where a combination would run, or a mate that is not a vertex
             // where upstream dereferences it, is the port's InvalidInput, reported as -2
             // like the shim's guard)
-            let Some(r) = status(ti.check_for_squeeze_vertices(two, bv, ov), o)? else {
+            let Some(r) = status(ti.check_for_squeeze_vertices(k, two, bv, ov), o)? else {
                 return Ok(());
             };
             o.push(r.deleted_vertices.len() as f64);
@@ -4352,7 +3546,7 @@ fn run_part2_op(
                 o.push(NULL_DEREF);
                 return Ok(());
             }
-            let Some(r) = status(ti.fix_gaps(two, &vs), o)? else {
+            let Some(r) = status(ti.fix_gaps(k, two, &vs), o)? else {
                 return Ok(());
             };
             o.push(flag(r.modified_topology));
@@ -4487,35 +3681,62 @@ fn run_part2_op(
 }
 
 impl IntersectorBrepP2<H> for Two {
-    fn live_brep(&self, brep: H) -> solidcore::Result<&Brep> {
-        if brep != brep_h(brep.b) {
-            return Err(invalid("handle does not name a B-rep"));
-        }
-        self.brep_r(brep)
-    }
-
-    fn check_edge_curve(&self, brep: H, edge: EdgeId) -> solidcore::Result<()> {
-        self.live_brep(brep)?.edge(edge)?;
-        let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep slot"))?;
-        let result = self.query_metadata(slot)?.require_curve_geometry(edge);
-        if result.is_err() {
-            self.gated_curve_metadata.set(Some((slot, edge)));
-        }
-        result
-    }
-
-    fn brep_faces(
-        &self,
-        brep: H,
-        attribute: Option<&ed::AttributeFilter<'_>>,
-    ) -> solidcore::Result<Vec<H>> {
-        let b = self.live_brep(brep)?;
-        Ok(bp1::faces(b, attribute)?
+    fn brep_faces(&self, brep: H) -> solidcore::Result<Vec<H>> {
+        let b = self.brep_r(brep)?;
+        Ok(bp1::faces(b, None)?
             .into_iter()
-            .map(|face| hd(brep.b, K_FACE, face.index()))
+            .map(|f| hd(brep.b, K_FACE, f.index()))
             .collect())
     }
-
+    fn brep_combine_coincident_vertices(
+        &mut self,
+        k: &mut Kernel,
+        brep: H,
+        surviving: H,
+        to_delete: H,
+    ) -> solidcore::Result<Option<H>> {
+        if brep.kind != K_BREP {
+            return Err(invalid("not a B-rep handle"));
+        }
+        let vertex = |h: H| -> solidcore::Result<VertexId> {
+            if h.kind == K_VERTEX && h.b == brep.b {
+                Ok(vid(h))
+            } else {
+                Err(invalid("not a vertex of this B-rep"))
+            }
+        };
+        let (surviving, to_delete) = (vertex(surviving)?, vertex(to_delete)?);
+        let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
+        let (breps, envs) = (&mut self.breps, &mut self.env);
+        let b = breps
+            .get_mut(slot)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| invalid("handle names an absent B-rep"))?;
+        let env = envs.get_mut(slot).ok_or_else(|| invalid("bad B-rep"))?;
+        // (SmVertex::SetPoint notifies under the vertex environment's identities, as
+        // set_vertex_point)
+        let this = env.this;
+        let key_of = move |e: EntityRef| match e {
+            EntityRef::Vertex(_) => this,
+            e => glue_key_of(e),
+        };
+        let mut notify = ed::NotifyEnv {
+            records: &mut env.records,
+            attributes: &mut env.attributes,
+            context: None,
+            key_of: &key_of,
+        };
+        let mut deleted_edge = None;
+        bp5::combine_with_notifications(
+            k,
+            b,
+            surviving,
+            to_delete,
+            &mut deleted_edge,
+            Some(&mut notify),
+        )?;
+        Ok(deleted_edge.map(|e| hd(brep.b, K_EDGE, e.index())))
+    }
     fn vertex_edges(&self, vertex: H) -> solidcore::Result<Vec<H>> {
         let b = self.brep_r(vertex)?;
         Ok(vx::edges(b, vid(vertex), None)?
@@ -4544,7 +3765,6 @@ pub(super) fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
             None => Err(harness(format!("rust: {e}"))),
         },
         Err(Fail::Harness(h)) => Err(h),
-        Err(Fail::Deferred(output)) => Ok(*output),
     }
 }
 
@@ -5673,590 +4893,4 @@ fn edge_cases() -> Vec<(String, Value)> {
         );
     }
     out
-}
-
-#[cfg(test)]
-mod face_query_tests {
-    use super::*;
-    use solidcore::geom::attribute::{Attribute, Behavior};
-    use solidcore::nurbs::b_spline_surface::BSplineSurface;
-    use solidcore::nurbs::srf_basic::Surface as NurbSurface;
-    use solidcore::topology::shell::{ShellMembers, ShellType};
-    use solidcore::topology::{Faceuse, Region};
-    use std::rc::Rc;
-
-    /// Finite quadratic plane on a real face/use/shell/region. With no boundary
-    /// loops `PointClassify` returns Unknown, while still executing the point drop
-    /// and writing its gap. The two operands have distinct 3D positions.
-    fn plane_face(slot: usize, z: f64) -> (Brep, H) {
-        let mut b = Brep::new();
-        b.set_key(query_key(slot, CacheObject::Brep).key);
-        let shell = b.add_shell().unwrap();
-        let face = b.add_face(shell).unwrap();
-        let faceuse = b
-            .add_faceuse_record(Faceuse {
-                shell: Some(shell),
-                face: Some(face),
-                orientation: OrientType::Same,
-                ..Faceuse::default()
-            })
-            .unwrap();
-        let region = b
-            .add_region_record(Region {
-                in_brep: true,
-                shells: vec![shell],
-                ..Region::default()
-            })
-            .unwrap();
-        let sh = b.shell_mut(shell).unwrap();
-        sh.region = Some(region);
-        sh.shell_type = ShellType::Faceuse;
-        sh.members = ShellMembers::Faceuses(vec![faceuse]);
-        let net = (0..3)
-            .map(|i| {
-                (0..3)
-                    .map(|j| CPoint::new(f64::from(i) * 0.5, f64::from(j) * 0.5, z, NOW))
-                    .collect()
-            })
-            .collect();
-        let knots = vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0];
-        let nurb = NurbSurface::new(net, 2, 2, knots.clone(), knots).unwrap();
-        let mut surface = Surface::from(BSplineSurface::from_nurb(nurb, false));
-        surface.set_owner(Some(query_key(slot, CacheObject::Face(face))));
-        let record = b.face_mut(face).unwrap();
-        record.surface = Some(surface);
-        record.faceuse = Some(faceuse);
-        record.uv_domain = Extent2d::from_bounds(0.0, 0.0, 1.0, 1.0);
-        record.tolerance = 0.25;
-        (b, hd(slot as i8, K_FACE, face.index()))
-    }
-
-    fn prior_classification(face: H) -> PointClassification<H> {
-        let mut pc = PointClassification::new(3.0);
-        pc.set_class_object(PointClassType::Face, Some(face));
-        pc.set_face(Some(face));
-        pc.set_gap_3d(2.0);
-        pc.set_t_param(0.875, false);
-        pc.set_uv_param(Point2::new(0.75, 0.125));
-        pc.set_uvw_param(Point3::new(4.0, 5.0, 6.0));
-        pc.set_pre_snap_param(17.0);
-        pc.set_sss_point(Point3::new(7.0, 8.0, 9.0));
-        pc.unset_parameters();
-        pc
-    }
-
-    fn manager_curve_brep(slot: usize) -> (Brep, [EdgeId; 2]) {
-        let mut b = Brep::new();
-        b.set_key(query_key(slot, CacheObject::Brep).key);
-        b.set_tolerance(if slot == 0 { 0.001 } else { 0.003 });
-        let start = b.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
-        let end = b.add_vertex(Point3::new(2.0, 0.0, 0.0)).unwrap();
-        let first = b.add_edge(start, end).unwrap();
-        let second = b.add_edge(start, end).unwrap();
-        for edge in [first, second] {
-            let mut curve = SmCurve::from(
-                BSplineCurve::create_line_segment(
-                    3,
-                    Point3::new(0.0, 0.0, 0.0),
-                    Point3::new(2.0, 0.0, 0.0),
-                )
-                .unwrap(),
-            );
-            let _ = curve.set_owner(
-                Some(query_key(slot, CacheObject::Edge(edge))),
-                Some(query_key(slot, CacheObject::Brep)),
-            );
-            let record = b.edge_mut(edge).unwrap();
-            record.curve = Some(curve);
-            record.interval = Extent1d::from_min_max(0.0, 1.0);
-        }
-        b.set_edge_list(vec![second, first]).unwrap();
-        (b, [second, first])
-    }
-
-    #[test]
-    fn manager_curve_checks_preserve_threshold_and_native_operand_order() {
-        let k = Kernel::default();
-        let (a, order_a) = manager_curve_brep(0);
-        let (b, order_b) = manager_curve_brep(1);
-        let two = Two::new(
-            a,
-            Some(b),
-            [QueryMetadata::default(), QueryMetadata::default()],
-        );
-        let a = (brep_h(0), two.live_brep(brep_h(0)).unwrap());
-        let b = (brep_h(1), two.live_brep(brep_h(1)).unwrap());
-        let mut visited = Vec::new();
-        for approx in [solidcore::math::EFF_ZERO, 0.0] {
-            let expected =
-                ProtoTopologyManager::new(&k, a, b, TI_HANDLE, approx, 0.01, 8.0).unwrap();
-            let actual = ProtoTopologyManager::new_with_curve_check(
-                &k,
-                a,
-                b,
-                TI_HANDLE,
-                approx,
-                0.01,
-                8.0,
-                &mut |brep, edge| {
-                    visited.push((brep, edge));
-                    two.check_edge_curve(brep, edge)
-                },
-            )
-            .unwrap();
-            assert_eq!(actual, expected);
-            if approx == solidcore::math::EFF_ZERO {
-                assert!(visited.is_empty());
-                assert_eq!(actual.raw_tolerance(), approx);
-            }
-        }
-        assert_eq!(
-            visited,
-            order_a
-                .map(|edge| (brep_h(0), edge))
-                .into_iter()
-                .chain(order_b.map(|edge| (brep_h(1), edge)))
-                .collect::<Vec<_>>()
-        );
-        assert!(two.gated_curve_metadata.get().is_none());
-        assert!(two.caches.iter().all(|cache| cache.get().is_none()));
-        assert!(two.point_caches.iter().all(Option::is_none));
-    }
-
-    #[test]
-    fn manager_curve_check_error_stops_before_other_edges_or_operand() {
-        let k = Kernel::default();
-        let (a, order_a) = manager_curve_brep(0);
-        let (b, _) = manager_curve_brep(1);
-        let two = Two::new(
-            a,
-            Some(b),
-            [QueryMetadata::default(), QueryMetadata::default()],
-        );
-        let mut visited = Vec::new();
-        let error = invalid("curve identity is unavailable in the provider");
-        let result = ProtoTopologyManager::new_with_curve_check(
-            &k,
-            (brep_h(0), two.live_brep(brep_h(0)).unwrap()),
-            (brep_h(1), two.live_brep(brep_h(1)).unwrap()),
-            TI_HANDLE,
-            0.0,
-            0.01,
-            0.0,
-            &mut |brep, edge| {
-                visited.push((brep, edge));
-                Err(error.clone())
-            },
-        );
-        assert_eq!(result, Err(error));
-        assert_eq!(visited, vec![(brep_h(0), order_a[0])]);
-        assert!(matches!(
-            two.check_edge_curve(hd(0, K_FACE, 0), order_a[0]),
-            Err(SolidError::InvalidInput { .. })
-        ));
-        assert!(matches!(
-            two.check_edge_curve(brep_h(0), EdgeId::from_index(999)),
-            Err(SolidError::NotFound { .. })
-        ));
-        assert!(two.gated_curve_metadata.get().is_none());
-        assert!(two.caches.iter().all(|cache| cache.get().is_none()));
-    }
-
-    #[test]
-    fn intersector_face_lists_preserve_operand_order_and_actual_attribute_filter() {
-        let (a, face_a) = plane_face(0, 0.0);
-        let (mut b, face_b) = plane_face(1, 4.0);
-        let first = fid(face_b);
-        let shell = b.face(first).unwrap().shell;
-        let second = b.add_face(shell).unwrap();
-        let third = b.add_face(shell).unwrap();
-        b.set_face_list(vec![third, first, second]).unwrap();
-        let two = Two::new(
-            a,
-            Some(b),
-            [QueryMetadata::default(), QueryMetadata::default()],
-        );
-
-        let attribute_id = 812;
-        let mut attributes = AttributeStore::new();
-        let attribute = attributes
-            .insert(Attribute::new(attribute_id, Behavior::Reference))
-            .unwrap();
-        let key_of = |entity| glue_key_of(entity).key;
-        for face in [first, third] {
-            attributes
-                .add_attribute(key_of(EntityRef::Face(face)), attribute)
-                .unwrap();
-        }
-        let filter = ed::AttributeFilter {
-            attributes: &attributes,
-            attribute_id,
-            key_of: &key_of,
-        };
-        let third_h = hd(1, K_FACE, third.index());
-        let second_h = hd(1, K_FACE, second.index());
-        assert_eq!(
-            two.brep_faces(brep_h(1), None).unwrap(),
-            vec![third_h, face_b, second_h]
-        );
-        assert_eq!(
-            two.brep_faces(brep_h(1), Some(&filter)).unwrap(),
-            vec![third_h, face_b]
-        );
-        assert_eq!(two.brep_faces(brep_h(0), None).unwrap(), vec![face_a]);
-        assert!(matches!(
-            two.brep_faces(face_b, None),
-            Err(SolidError::InvalidInput { .. })
-        ));
-        assert!(matches!(
-            two.brep_faces(brep_h(2), None),
-            Err(SolidError::InvalidInput { .. })
-        ));
-        assert!(two.caches.iter().all(|cache| cache.get().is_none()));
-        assert!(two.point_caches.iter().all(Option::is_none));
-    }
-
-    #[test]
-    fn face_query_hooks_use_live_operand_and_preserve_complete_classification() {
-        let k = Kernel::default();
-        let (a, _) = plane_face(0, 0.0);
-        let (mut b, face) = plane_face(1, 4.0);
-        // Native TrimSrfCache skips trim creation while this target B-rep is
-        // being edited. Keep the other operand in its default state.
-        b.set_editing_enabled(true);
-        let mut two = Two::new(
-            a,
-            Some(b),
-            [QueryMetadata::default(), QueryMetadata::default()],
-        );
-        TopologyObjects::brep_cache(&two, &k, brep_h(1)).unwrap();
-        let published = Rc::clone(two.caches[1].get().unwrap());
-        two.point_caches[1] = Some(
-            solidcore::topology::brep_cache::make_brep_cache(
-                &k,
-                CacheSource::Brep(two.breps[1].as_ref().unwrap()),
-                &query_key_1,
-            )
-            .unwrap(),
-        );
-
-        let mut bbox = Extent3d::new();
-        IntersectorBrep::face_bounding_box(&mut two, &k, face, &mut bbox).unwrap();
-        assert_eq!(bbox.min(), Point3::new(-0.25, -0.25, 3.75));
-        assert_eq!(bbox.max(), Point3::new(1.25, 1.25, 4.25));
-
-        let mut pc = prior_classification(face);
-        let mut expected = pc;
-        expected.set_class_object(PointClassType::Unknown, None);
-        expected.set_src_zone_tol_3d(0.125);
-        expected.set_gap_3d(0.0);
-        IntersectorBrep::face_point_3d_classify(
-            &mut two,
-            &k,
-            face,
-            Point3::new(0.25, 0.75, 4.0),
-            0.125,
-            false,
-            &mut pc,
-            Some(Point2::new(0.25, 0.75)),
-        )
-        .unwrap();
-        assert_eq!(pc, expected);
-        assert!(Rc::ptr_eq(two.caches[1].get().unwrap(), &published));
-        assert!(two.point_caches[1].is_some());
-        assert!(two.breps[1].as_ref().unwrap().editing_enabled());
-        assert!(!two.breps[0].as_ref().unwrap().editing_enabled());
-
-        // The same numeric arena id in the other operand must not be reinterpreted.
-        assert!(matches!(
-            two.classification_entity(1, hd(0, K_FACE, face.i)),
-            Err(SolidError::InvalidInput { .. })
-        ));
-    }
-
-    #[test]
-    fn face_query_hooks_keep_partial_state_when_trim_creation_is_deferred() {
-        let k = Kernel::default();
-        let (a, _) = plane_face(0, 0.0);
-        let (b, face) = plane_face(1, 4.0);
-        let mut two = Two::new(
-            a,
-            Some(b),
-            [QueryMetadata::default(), QueryMetadata::default()],
-        );
-        assert!(!two.breps[1].as_ref().unwrap().editing_enabled());
-        let owner = Some(query_key_1(CacheObject::Face(fid(face))));
-        assert_eq!(
-            two.breps[1]
-                .as_ref()
-                .unwrap()
-                .face(fid(face))
-                .unwrap()
-                .surface
-                .as_ref()
-                .unwrap()
-                .owner(),
-            owner
-        );
-        TopologyObjects::brep_cache(&two, &k, brep_h(1)).unwrap();
-        let published = Rc::clone(two.caches[1].get().unwrap());
-        let point_cache = solidcore::topology::brep_cache::make_brep_cache(
-            &k,
-            CacheSource::Brep(two.breps[1].as_ref().unwrap()),
-            &query_key_1,
-        )
-        .unwrap();
-        // This small cache snapshot is only the assertion's expected state;
-        // the provider and the query continue to use the original mutable B-rep.
-        two.point_caches[1] = Some(point_cache.clone());
-
-        let mut pc = prior_classification(face);
-        let mut expected = pc;
-        expected.set_class_object(PointClassType::Unknown, None);
-        expected.set_src_zone_tol_3d(0.125);
-        // Cache acquisition precedes even an exact local hint. With editing
-        // disabled it reaches the real CreateUVTrimCurves dependency before
-        // Point3DClassify can update the previous gap or other scalar fields.
-        let result = IntersectorBrep::face_point_3d_classify(
-            &mut two,
-            &k,
-            face,
-            Point3::new(0.25, 0.75, 4.0),
-            0.125,
-            false,
-            &mut pc,
-            Some(Point2::new(0.25, 0.75)),
-        );
-        assert!(matches!(
-            result,
-            Err(SolidError::Unported {
-                upstream: "SmFace::GetUpwardLoopuses",
-                unit: "topology.face_p4",
-            })
-        ));
-        assert_eq!(pc, expected);
-        assert_eq!(pc.deviation(), 2.0);
-        assert!(!two.breps[1].as_ref().unwrap().editing_enabled());
-        assert!(!two.breps[0].as_ref().unwrap().editing_enabled());
-        assert_eq!(
-            two.breps[1]
-                .as_ref()
-                .unwrap()
-                .face(fid(face))
-                .unwrap()
-                .surface
-                .as_ref()
-                .unwrap()
-                .owner(),
-            owner
-        );
-        assert!(Rc::ptr_eq(two.caches[1].get().unwrap(), &published));
-        assert_eq!(two.point_caches[1].as_ref(), Some(&point_cache));
-    }
-
-    #[test]
-    fn face_query_hooks_keep_partial_state_on_the_rust_missing_surface_guard() {
-        let k = Kernel::default();
-        let (b, face) = plane_face(0, 2.0);
-        let mut two = Two::new(
-            b,
-            None,
-            [QueryMetadata::default(), QueryMetadata::default()],
-        );
-        let mut bbox = Extent3d::new();
-        IntersectorBrep::face_bounding_box(&mut two, &k, face, &mut bbox).unwrap();
-        let previous = bbox;
-        // This checks Rust's documented missing-surface guard, not a defined C++
-        // result for dereferencing null. The geometry edit invalidates its caches.
-        two.brep_m(face)
-            .unwrap()
-            .face_mut(fid(face))
-            .unwrap()
-            .surface = None;
-        assert!(matches!(
-            IntersectorBrep::face_bounding_box(&mut two, &k, face, &mut bbox),
-            Err(SolidError::InvalidInput { .. })
-        ));
-        assert_eq!(bbox, previous);
-
-        let mut pc = prior_classification(face);
-        let mut expected = pc;
-        expected.set_class_object(PointClassType::Unknown, None);
-        expected.set_src_zone_tol_3d(0.125);
-        let result = IntersectorBrep::face_point_3d_classify(
-            &mut two,
-            &k,
-            face,
-            Point3::new(0.25, 0.75, 2.0),
-            0.125,
-            false,
-            &mut pc,
-            Some(Point2::new(0.25, 0.75)),
-        );
-        assert!(
-            matches!(result, Err(SolidError::InvalidInput { .. })),
-            "{result:?}"
-        );
-        assert_eq!(pc, expected);
-    }
-}
-
-#[cfg(test)]
-mod notification_snapshot_tests {
-    use super::*;
-    use solidcore::geom::context::MarkType;
-    use solidcore::topology::proto_topology::p3::BrepGlue;
-
-    const VALUES: [u64; 9] = [
-        0xfedc_ba98_7654_3210,
-        (1 << 60) + 1,
-        (1 << 61) + 2,
-        (1 << 62) + 3,
-        u64::MAX - 4,
-        u64::MAX - 5,
-        0x1234_5678_9abc_def0,
-        u64::MAX - 7,
-        0xdead_beef_0123_4567,
-    ];
-
-    fn snapshot(b: &Brep, callback: bool, attributes: bool) -> Vec<f64> {
-        let rows = notification_rows(b);
-        let mut raw = vec![1.0, flag(callback), rows.len() as f64];
-        for (kind, index, _) in rows {
-            raw.extend([f64::from(kind), f64::from(index)]);
-            for value in VALUES {
-                raw.extend([f64::from(value as u32), f64::from((value >> 32) as u32)]);
-            }
-            raw.push(flag(attributes));
-        }
-        let geometry: Vec<_> = b
-            .edges()
-            .iter()
-            .map(|(i, e)| (0, i.index(), e.curve.is_some()))
-            .chain(
-                b.faces()
-                    .iter()
-                    .map(|(i, f)| (1, i.index(), f.surface.is_some())),
-            )
-            .chain(
-                b.edgeuses()
-                    .iter()
-                    .map(|(i, e)| (2, i.index(), e.uv_trim_curve.is_some())),
-            )
-            .collect();
-        raw.push(geometry.len() as f64);
-        for (kind, index, present) in geometry {
-            raw.extend([f64::from(kind), f64::from(index), flag(present), 0.0]);
-        }
-        raw
-    }
-
-    fn fixture() -> (Brep, VertexId, VertexId) {
-        let mut b = Brep::new();
-        b.set_key(query_key(0, CacheObject::Brep).key);
-        let a = b.add_vertex(Point3::ZERO).unwrap();
-        let z = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
-        b.add_face_record(solidcore::topology::Face::new(ShellId::from_index(0)))
-            .unwrap();
-        (b, a, z)
-    }
-
-    #[test]
-    fn exact_wide_fields_and_all_five_marks_keep_kind_qualified_identity() {
-        let (b, vertex, _) = fixture();
-        let imported = import_notification_metadata(&b, &snapshot(&b, false, false)).unwrap();
-        imported.require_notifications().unwrap();
-        let vertex_key = notification_ref(imported.brep_ref, EntityRef::Vertex(vertex));
-        let face_key = notification_ref(imported.brep_ref, EntityRef::Face(FaceId::from_index(0)));
-        assert_ne!(vertex_key.key, face_key.key);
-        assert_ne!(vertex_key.key, imported.brep_ref.key);
-        let record = imported.records.get(&vertex_key.key).unwrap();
-        assert_eq!(record.all_flags(), VALUES[0]);
-        for (mark, expected) in [
-            MarkType::Mark,
-            MarkType::Mark2,
-            MarkType::Mark3,
-            MarkType::MarkIo,
-            MarkType::MarkAssert,
-        ]
-        .into_iter()
-        .zip(VALUES[1..6].iter().copied())
-        {
-            assert_eq!(record.get_mark(mark), expected);
-        }
-        assert_eq!(record.user_index1(), VALUES[6]);
-        assert_eq!(record.user_index2(), VALUES[7]);
-        assert_eq!(record.user_ptr1(), VALUES[8]);
-    }
-
-    #[test]
-    fn malformed_snapshots_never_replace_notification_state() {
-        let (b, _, _) = fixture();
-        let raw = snapshot(&b, false, false);
-        for end in 0..raw.len() {
-            assert!(import_notification_metadata(&b, &raw[..end]).is_err());
-        }
-        for index in [0, 1, 2, 3, 4, 5] {
-            let mut bad = raw.clone();
-            bad[index] = f64::NAN;
-            assert!(import_notification_metadata(&b, &bad).is_err());
-        }
-        let mut bad = raw;
-        bad.push(0.0);
-        assert!(import_notification_metadata(&b, &bad).is_err());
-    }
-
-    #[test]
-    fn unsupported_handlers_defer_glue_only_when_a_notification_is_reached() {
-        for (callback, attributes) in [(true, false), (false, true)] {
-            let (b, first, second) = fixture();
-            let env =
-                import_notification_metadata(&b, &snapshot(&b, callback, attributes)).unwrap();
-            let mut two = Two::with_notifications(
-                b,
-                None,
-                [QueryMetadata::default(), QueryMetadata::default()],
-                [env, NotifyEnv::absent()],
-            );
-            let mut k = Kernel::default();
-            let a = hd(0, K_VERTEX, first.index());
-            let z = hd(0, K_VERTEX, second.index());
-            two.glue_vertices(&mut k, brep_h(0), a, a, None).unwrap();
-            let unused_wire = hd(1, K_FACE, 99);
-            two.glue_vertices(&mut k, brep_h(0), a, a, Some(&[unused_wire]))
-                .unwrap();
-            assert!(matches!(
-                two.glue_vertices(&mut k, brep_h(0), a, z, None),
-                Err(SolidError::Unported {
-                    unit: "harness:topology-notification-export",
-                    ..
-                })
-            ));
-            assert_eq!(
-                two.brep_r(brep_h(0)).unwrap().vertex(first).unwrap().point,
-                Point3::ZERO
-            );
-        }
-    }
-
-    #[test]
-    fn native_export_notification_rows_are_from_the_same_wire_fixture() {
-        let i: Inputs = serde_json::from_value(serde_json::json!({
-            "brep_a": {"kind":"wire", "curve":{"dim":3,"cpts":[[0,0,0,1],[2,0,0,1]],"p":1,"u":[0,0,1,1]},"t0":0.0,"t1":1.0},
-            "approx": 0.00001, "ang": 0.01, "ops": []
-        })).unwrap();
-        let raw = export(&i).unwrap();
-        let (a, absent) = ffi::split_exports(&raw).unwrap();
-        assert!(absent.is_none());
-        let query = ffi::split_query_metadata(&raw).unwrap();
-        let notifications = ffi::split_notification_metadata(&raw).unwrap();
-        assert!(notifications[1].is_empty());
-        let (mut b, _) = import(&a).unwrap();
-        apply_query_metadata(&mut b, query[0], &|object| query_key(0, object)).unwrap();
-        let env = import_notification_metadata(&b, notifications[0]).unwrap();
-        assert_eq!(env.records.len(), notification_rows(&b).len());
-        for (_, _, object) in notification_rows(&b) {
-            assert!(env.records.contains_key(&object.key));
-        }
-    }
 }

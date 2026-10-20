@@ -57,9 +57,12 @@
 //!   a failed `GetEnds` keeps the previous end point. A failed `CopyAndAddAnalytics` is
 //!   [`SolidError::InvalidInput`] (upstream then dereferences the null copy), as is
 //!   `pbOptCrvOnSurf` without UV curves (upstream loops over a null array).
-//! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::GetInfiniteRegion`
-//!   (`topology.brep_p1`); `MakeWireEdge`, `MakeWireEdgeVertex`
-//!   (`topology.brep_p3`); `DeleteEdge` (`topology.brep_p4`); `SmFace::GetBrep`, `GetEdges`
+//! - **Unported callees** return [`SolidError::Unported`]: `SmBrep::Notify`,
+//!   `SetTolerance`, `sm_CheckAndFixUVTrimCurves`, `RebuildUVTrimCurves`
+//!   (`topology.brep_p2`); `MakeWireEdge`, `MakeWireEdgeVertex`
+//!   (`topology.brep_p3`); `DeleteEdge` (`topology.brep_p4`); `MakeShellVertexTopology`
+//!   (`topology.brep_p2`, reached through `topology.brep_p9`'s `MakeShellVertex`);
+//!   `SmFace::GetBrep`, `GetEdges`
 //!   (`topology.face_p4`); `SmMerge` (`boolean.merge_p2`); the curve constructor of
 //!   `SmCurveClassification` (`intersect.curve_class_p4`), which
 //!   `MergeSelfIntersectionCurves` reaches first. `GlueVertices` calls
@@ -72,6 +75,8 @@
 //!   `MakeFaceTopology` and `TestClosureSplitRegion(faceuse)` call `topology.brep_p6`'s;
 //!   `MakeTopologyFromData` and `TestClosureSplitRegion(edge)` call
 //!   `topology.brep_p10`'s (`ReadFromFile` takes that unit's [`TopologyEnv`]).
+//!   `GetInfiniteRegion` is the inline read [`Brep::infinite_region`], and the glue's
+//!   removal of an emptied region walks `topology.brep_p1`'s region list.
 //!   That `MakeFaceTopology` names the face for its surface's owner before the face
 //!   exists, so it gets the key `this_face` gives the next face id (arenas only append);
 //!   it builds the face on a copy of the surface, which `MakeFace` then replaces with
@@ -101,8 +106,8 @@ use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_curve_n_lib::InValueType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::{Surface, SurfaceKind};
+use crate::topology::brep::p1;
 use crate::topology::brep::p10::{self, MakeTopologyOptions, TopologyEnv};
-use crate::topology::brep::p2;
 use crate::topology::brep::p6;
 use crate::topology::brep_data::BrepData;
 use crate::topology::database_io::FileType;
@@ -121,89 +126,74 @@ fn null(reason: &'static str) -> SolidError {
 /// `SM_ZONE_TOL_3D / 10.0`: the default point tolerance of the surface degeneracy tests.
 const DEGENERATE_TOL_3D: f64 = crate::geom::tol::ZONE_TOL_3D / 10.0;
 
+/// `SmBrep::Remove(region)` (the inline `SmOwningTopology::Remove`): takes `region` off
+/// the B-rep's region list (`topology.brep_p1`'s [`p1::regions`] order); removing the
+/// list head passes the head to the next region, or `NULL` when the list empties.
+///
+/// # Errors
+///
+/// `SM_ERR` when `region` is not on the list.
+fn brep_remove_region(b: &mut Brep, region: RegionId) -> Result<()> {
+    let list = p1::regions(b, None)?;
+    if !list.contains(&region) {
+        return Err(SolidError::sm_err(OP));
+    }
+    let head = list.first().copied();
+    let new_head = if head == Some(region) {
+        list.get(1).copied()
+    } else {
+        head
+    };
+    b.region_mut(region)?.in_brep = false;
+    b.set_region_list_head(new_head);
+    Ok(())
+}
+
 // ---- unported callees ---------------------------------------------------------------------
 
-/// `GetInfiniteRegion()` (and the raw `m_pInfiniteRegion`).
-fn infinite_region(_b: &Brep) -> Result<RegionId> {
-    // UNPORTED(topology.brep_p1): SmBrep::GetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::GetInfiniteRegion",
-        "topology.brep_p1",
-    ))
+/// `SmBrep::Notify(op, data1, data2, data3)` (`None` for a null datum or for the B-rep,
+/// which has no identity here).
+fn brep_notify(_b: &mut Brep, _op: NotifyOperation, _data: [Option<EntityRef>; 3]) -> Result<()> {
+    // UNPORTED(topology.brep_p2): SmBrep::Notify
+    Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
 }
 
-/// `m_pInfiniteRegion = SM_CAST_PTR(SmRegion, m_pList)` after a region was removed.
-fn reset_infinite_region(_b: &mut Brep) -> Result<()> {
-    // UNPORTED(topology.brep_p1): SmBrep::SetInfiniteRegion
-    Err(SolidError::unported(
-        "SmBrep::SetInfiniteRegion",
-        "topology.brep_p1",
-    ))
-}
-
-/// Ignore native statuses without hiding a missing dependency or an invalid
-/// arena/object identity, which has no defined native continuation.
-fn ignore_native_status(result: Result<()>) -> Result<()> {
-    match result {
-        Err(
-            error @ (SolidError::Unported { .. }
-            | SolidError::InvalidInput { .. }
-            | SolidError::NotFound { .. }),
-        ) => Err(error),
-        _ => Ok(()),
-    }
-}
-
-/// `SmBrep::Notify(op, data1, data2, data3)` through the caller's live `env`.
-/// Callers discard externally owned B-rep caches before topology edits; there
-/// is no cache slot in this API. Native call sites ignore the returned status
-/// (`SmBrep.cpp:9840`, `:9854`).
-fn brep_notify(
-    b: &mut Brep,
-    env: &mut ed::NotifyEnv<'_>,
-    op: NotifyOperation,
-    data: [Option<p2::NotifyArg>; 3],
-) -> Result<()> {
-    ignore_native_status(p2::notify(b, env, None, op, data))
-}
-
-/// The B-rep's actual identity as a notification datum (`this`).
-fn this_brep(b: &Brep) -> p2::NotifyArg {
-    p2::NotifyArg::Object(p2::brep_ref(b))
-}
-
-/// `SmBrep::SetTolerance(tol, bUpdateOnlyIfLarger, bCascadeToBndries)`
-/// (`SM_USE_OLDTOL`); `CopyFaces` ignores its status (`SmBrep.cpp:2014`).
+/// `SmBrep::SetTolerance(tol, bUpdateOnlyIfLarger, bCascadeToBndries)` (`SM_USE_OLDTOL`).
 fn brep_set_tolerance(
-    k: &Kernel,
-    b: &mut Brep,
-    tol: f64,
-    update_only_if_larger: bool,
-    cascade_to_boundaries: bool,
+    _b: &mut Brep,
+    _tol: f64,
+    _update_only_if_larger: bool,
+    _cascade_to_boundaries: bool,
 ) -> Result<()> {
-    ignore_native_status(p2::set_tolerance(
-        k,
-        b,
-        tol,
-        update_only_if_larger,
-        cascade_to_boundaries,
+    // UNPORTED(topology.brep_p2): SmBrep::SetTolerance
+    Err(SolidError::unported(
+        "SmBrep::SetTolerance",
+        "topology.brep_p2",
     ))
 }
 
-/// `sm_CheckAndFixUVTrimCurves(this)` ([`p2::check_and_fix_uv_trim_curves`]).
-fn check_and_fix_uv_trim_curves(k: &Kernel, b: &mut Brep) -> Result<()> {
-    p2::check_and_fix_uv_trim_curves(k, b)
+/// `sm_CheckAndFixUVTrimCurves(this)`.
+fn check_and_fix_uv_trim_curves(_k: &Kernel, _b: &mut Brep) -> Result<()> {
+    // UNPORTED(topology.brep_p2): sm_CheckAndFixUVTrimCurves
+    Err(SolidError::unported(
+        "sm_CheckAndFixUVTrimCurves",
+        "topology.brep_p2",
+    ))
 }
 
-/// `RebuildUVTrimCurves()` ([`p2::rebuild_uv_trim_curves`]).
-fn rebuild_uv_trim_curves(k: &Kernel, b: &mut Brep) -> Result<()> {
-    p2::rebuild_uv_trim_curves(k, b)
+/// `RebuildUVTrimCurves()`.
+fn rebuild_uv_trim_curves(_k: &Kernel, _b: &mut Brep) -> Result<()> {
+    // UNPORTED(topology.brep_p2): SmBrep::RebuildUVTrimCurves
+    Err(SolidError::unported(
+        "SmBrep::RebuildUVTrimCurves",
+        "topology.brep_p2",
+    ))
 }
 
 /// `MakeWireEdge(region, start, end, curve, ivl, orient, rpNewEdge)`.
 fn make_wire_edge(
     _b: &mut Brep,
-    _region: RegionId,
+    _region: Option<RegionId>,
     _start: VertexId,
     _end: VertexId,
     _curve: Curve,
@@ -220,7 +210,7 @@ fn make_wire_edge(
 /// `MakeWireEdgeVertex(region, start, curve, ivl, orient, endPt, rpNewEdge, rpEndVertex)`.
 fn make_wire_edge_vertex(
     _b: &mut Brep,
-    _region: RegionId,
+    _region: Option<RegionId>,
     _start: VertexId,
     _curve: Curve,
     _ivl: Extent1d,
@@ -257,25 +247,18 @@ fn glue_vertices(
 
 /// `TestClosureSplitRegion(TRUE, edge, aNewShells, aNewRegions)` (unit
 /// `topology.brep_p10`; status ignored by the caller).
-fn test_closure_split_region_edge(
-    k: &mut Kernel,
-    b: &mut Brep,
-    marks: &mut Marks,
-    env: &mut ed::NotifyEnv<'_>,
-    e: EdgeId,
-    queries: &mut dyn p6::RegionSplitQueries,
-) -> Result<()> {
-    p10::test_closure_split_region(k, b, marks, env, true, e, queries).map(|_| ())
+fn test_closure_split_region_edge(k: &mut Kernel, b: &mut Brep, e: EdgeId) -> Result<()> {
+    p10::test_closure_split_region(k, b, true, e).map(|_| ())
 }
 
 /// `MakeShellVertex(region, point, rpNewShell, rpNewVertex)`.
 fn make_shell_vertex(
     b: &mut Brep,
-    region: RegionId,
+    region: Option<RegionId>,
     point: Point3,
     env: &mut ed::NotifyEnv<'_>,
 ) -> Result<(ShellId, VertexId)> {
-    super::p9::make_shell_vertex(b, Some(region), point, env)
+    super::p9::make_shell_vertex(b, region, point, env)
 }
 
 /// `MakeTopologyFromData(pBrepData, sAttributes, bMakeUVTrimCurves, bAddAnalytics,
@@ -443,12 +426,13 @@ fn edge_remove(b: &mut Brep, e: EdgeId, eu: EdgeuseId) -> Result<()> {
 /// Merges `del_shell` into `keep_shell` and drops the empty region (the shell-merging
 /// tails of `GlueEdgesGeneral`).
 fn merge_shells(k: &mut Kernel, b: &mut Brep, mut del: ShellId, mut keep: ShellId) -> Result<()> {
-    let inf = infinite_region(b)?;
+    // m_pInfiniteRegion (NULL when unset; pointer equality, NULL == NULL)
+    let inf = b.infinite_region();
     let keep_region = eu1::shell_region(b, keep)?;
     let del_region = eu1::shell_region(b, del)?;
-    if keep_region == Some(inf) {
+    if keep_region == inf {
         // ok.
-    } else if del_region == Some(inf)
+    } else if del_region == inf
         // pKeepShell->IsInnerShell(bIsInner): swap when it succeeds with TRUE (asked
         // only when neither region is the infinite one)
         || ignored(b.shell(keep)?.is_inner_shell(k, b))? == Some(true)
@@ -463,14 +447,20 @@ fn merge_shells(k: &mut Kernel, b: &mut Brep, mut del: ShellId, mut keep: ShellI
     // pReg->Remove(pDelShell), then pReg->GetSize()
     crate::topology::shell::region_remove_shell(b, reg, del)?;
     if b.region(reg)?.shells.is_empty() {
-        // Native this->Remove(pReg) ignores SmStatus; typed-id failures still
-        // refuse the operation instead of silently leaving a dangling list.
-        match b.remove_region_from_list(reg) {
-            Ok(()) | Err(SolidError::Upstream { .. }) => {}
-            Err(error) => return Err(error),
-        }
-        reset_infinite_region(b)?;
+        remove_emptied_region(b, reg)?;
     }
+    Ok(())
+}
+
+/// The tail of the shell merge once `reg` lost its last shell: `this->Remove(pReg)`
+/// (status ignored), then `m_pInfiniteRegion = m_pList`.
+fn remove_emptied_region(b: &mut Brep, reg: RegionId) -> Result<()> {
+    ignore_status(brep_remove_region(b, reg))?;
+    // make sure infinite region points where it should: the first region of the list
+    // (a stored head of None starts at the first region on the list; it is not an
+    // empty list)
+    let head = p1::regions(b, None)?.first().copied();
+    b.set_infinite_region(head);
     Ok(())
 }
 
@@ -504,10 +494,10 @@ pub fn read_from_file(
 
     // check the UV trim curves unless they are rebuilt (statuses ignored)
     if !rebuild_uv_trim_curves_flag {
-        ignore_native_status(check_and_fix_uv_trim_curves(k, b))?;
+        ignore_status(check_and_fix_uv_trim_curves(k, b))?;
     }
     if rebuild_uv_trim_curves_flag {
-        ignore_native_status(rebuild_uv_trim_curves(k, b))?;
+        ignore_status(rebuild_uv_trim_curves(k, b))?;
     }
     Ok(())
 }
@@ -548,8 +538,8 @@ pub struct NewFace {
 /// # Errors
 ///
 /// `SM_ERR_NULL_POINTER` without surface; those of the topology build;
-/// [`SolidError::Unported`] (`GetInfiniteRegion`; `SmFace::SetTolerance`, which
-/// `MakeFaceTopology` reaches first).
+/// [`SolidError::Unported`] (`SmFace::SetTolerance`, which `MakeFaceTopology` reaches
+/// first).
 #[allow(clippy::too_many_arguments)]
 pub fn make_face(
     _k: &Kernel,
@@ -567,10 +557,8 @@ pub fn make_face(
     let Some(mut surface) = surface else {
         return Err(SolidError::null_pointer(OP));
     };
-    let region = match region {
-        Some(r) => r,
-        None => infinite_region(b)?,
-    };
+    // GetInfiniteRegion() (an inline field read; NULL when unset)
+    let region = region.or(b.infinite_region());
 
     // get preexisting surface owner
     let old_owner = surface.owner();
@@ -585,7 +573,7 @@ pub fn make_face(
         orientation,
         this_face(next_face).key,
         &p6::FaceTopologyOptions {
-            region: Some(region),
+            region,
             edge_loops: loops,
             edgeuses,
             loop_vertices,
@@ -698,10 +686,8 @@ pub fn make_face_with_curves(
     if loops.is_empty() {
         return Err(SolidError::invalid_input(OP, "no loops"));
     }
-    let region = match region {
-        Some(r) => r,
-        None => infinite_region(b)?,
-    };
+    // GetInfiniteRegion() (an inline field read; NULL when unset)
+    let region = region.or(b.infinite_region());
     // (the surface tests return flags upstream: a failed test is "no")
     if ignored(surface.is_degenerate_curve(EFF_ZERO_DEG, None, DEGENERATE_TOL_3D))?.unwrap_or(false)
     {
@@ -779,7 +765,7 @@ pub fn make_face_with_curves(
                             zone_tol / 4.0,
                             false,
                         ))?
-                        .map(|l| l.curve)
+                        .map(|l| Curve::from(l.curve))
                     };
                     if new3d.is_some() {
                         to_check.push(s3d.len());
@@ -1018,7 +1004,7 @@ pub fn make_face_with_curves(
     let made = make_face(
         k,
         b,
-        Some(region),
+        region,
         &sorted_loops,
         &face_edgeuses,
         &loop_vertices,
@@ -1066,18 +1052,13 @@ pub fn make_face_with_curves(
 /// edge, widens the surviving edge's tolerance by `edge_gap`, merges the shells that now
 /// touch and, with `do_region_nesting`, places the edge uses in their radial sectors and
 /// tests for split regions. A wire `to_delete` is deleted. Nothing happens without both
-/// edges or for one edge. `queries` supplies the caller's live shell ray context if
-/// a region split reaches the infinite-region test.
-/// The caller invalidates any externally owned B-rep caches before this edit;
-/// notifications use the supplied live attribute and topology records in `env`.
-/// Before the same-orientation distance test reads either edge curve, `queries`
-/// checks that curve's representation; unvisited geometry does not trigger it.
+/// edges or for one edge.
 ///
 /// # Errors
 ///
 /// `SM_ERR` when the edges do not share both vertices; those of the radial sector, edge
-/// use and shell edits and the notification's identity checks;
-/// [`SolidError::Unported`] from missing callees (see the module docs).
+/// use and shell edits; [`SolidError::Unported`] (`SmBrep::Notify` first; see the module
+/// docs).
 #[allow(clippy::too_many_arguments, clippy::too_many_lines)] // one upstream routine
 pub fn glue_edges_general(
     k: &mut Kernel,
@@ -1089,7 +1070,6 @@ pub fn glue_edges_general(
     to_delete: Option<EdgeId>,
     inside_faceuses: Option<&[FaceuseId]>,
     env: &mut ed::NotifyEnv<'_>,
-    queries: &mut dyn p6::RegionSplitQueries,
 ) -> Result<()> {
     let (Some(surv), Some(del)) = (surviving, to_delete) else {
         return Ok(());
@@ -1099,8 +1079,7 @@ pub fn glue_edges_general(
     }
 
     // Notify(SM_NO_PRE_EDIT, this, NULL, NULL)
-    let this = this_brep(b);
-    brep_notify(b, env, NotifyOperation::PreEdit, [Some(this), None, None])?;
+    brep_notify(b, NotifyOperation::PreEdit, [None, None, None])?;
 
     // a wire edge is just deleted
     if ed::is_wire(b, del)? {
@@ -1109,25 +1088,23 @@ pub fn glue_edges_general(
     }
 
     let surv_ref = (env.key_of)(EntityRef::Edge(surv));
-    let brep_ref = p2::brep_ref(b);
     ed::notify(
         b,
         surv,
         env,
         NotifyOperation::PreEdit,
-        // SmBrep.cpp:9853 passes the live B-rep identity to attribute/context callbacks.
-        [Some(surv_ref), Some(brep_ref), None],
+        // (upstream passes (pSurvivingEdge, this, NULL); the B-rep has no identity here
+        // and PreEdit does not read it)
+        [Some(surv_ref), None, None],
     )?;
     // Notify(SM_NO_MERGE_IN_BREP, pSurvivingEdge, pEdgeToDelete, this)
-    let this = this_brep(b);
     brep_notify(
         b,
-        env,
         NotifyOperation::MergeInBrep,
         [
-            Some(p2::NotifyArg::Entity(EntityRef::Edge(surv))),
-            Some(p2::NotifyArg::Entity(EntityRef::Edge(del))),
-            Some(this),
+            Some(EntityRef::Edge(surv)),
+            Some(EntityRef::Edge(del)),
+            None,
         ],
     )?;
     for f in ed::faces(b, del, None)? {
@@ -1155,11 +1132,6 @@ pub fn glue_edges_general(
                 (None, None) => same_geometry = true,
                 // test the geometry
                 (Some(sc), Some(dc)) => {
-                    // Only these two curves are consumed here. Keep the checks
-                    // after notifications and the null/wire/orientation/interval
-                    // branches, before any natural-interval or numerical query.
-                    queries.check_edge_curve_geometry(b, surv)?;
-                    queries.check_edge_curve_geometry(b, del)?;
                     let surv_tol = b.edge(surv)?.tolerance;
                     let tol = surv_tol / 100.0;
                     let dn = dc.natural_interval();
@@ -1378,14 +1350,11 @@ pub fn glue_edges_general(
         let mut new_region = None;
         for fu in test_split {
             // status ignored; each call first resets rpNewRegion to NULL
-            let attempt =
-                p6::test_closure_split_region_attempt(k, b, &mut marks, env, true, fu, queries)?;
+            let attempt = p6::test_closure_split_region_attempt(k, b, &mut marks, true, fu)?;
             new_region = attempt.region;
         }
         if ed::is_spine(b, surv)? && new_region.is_none() {
-            ignore_status(test_closure_split_region_edge(
-                k, b, &mut marks, env, surv, queries,
-            ))?;
+            ignore_status(test_closure_split_region_edge(k, b, surv))?;
         }
     }
     Ok(())
@@ -1402,8 +1371,8 @@ pub fn glue_edges_general(
 ///
 /// # Errors
 ///
-/// `SM_ERR` for a face of another B-rep; [`SolidError::Unported`] from missing callees
-/// (see the module docs).
+/// `SM_ERR` for a face of another B-rep; [`SolidError::Unported`] (`SmBrep::SetTolerance`
+/// first; see the module docs).
 pub fn copy_faces(
     k: &Kernel,
     src: &mut Brep,
@@ -1414,11 +1383,12 @@ pub fn copy_faces(
     env: &mut ed::NotifyEnv<'_>,
 ) -> Result<(Vec<FaceId>, bool)> {
     // pDestinationBrep->SetTolerance(GetTolerance()) = (tol, TRUE, TRUE): grow only
-    brep_set_tolerance(k, dest, src.tolerance(), true, true)?;
+    brep_set_tolerance(dest, src.tolerance(), true, true)?;
     let mut new_faces = Vec::new();
     let mut all_ok = true;
-    // (upstream reads the destination's infinite region before both branches)
-    let inf = infinite_region(dest)?;
+    // (upstream reads the destination's infinite region before both branches; an
+    // inline field read, NULL when unset)
+    let inf = dest.infinite_region();
 
     if use_merge {
         // (the merge object is made before the face loop; MakeFaceuse's status is
@@ -1464,7 +1434,7 @@ pub fn copy_faces(
         match make_face_with_curves(
             k,
             dest,
-            Some(inf),
+            inf,
             input,
             s2,
             &dom,
@@ -1522,7 +1492,6 @@ pub fn merge_self_intersection_curves(
     tol_3d: f64,
     curves: &[SelfIntersectionCurve],
     env: &mut ed::NotifyEnv<'_>,
-    queries: &mut dyn p6::RegionSplitQueries,
 ) -> Result<Vec<EdgeId>> {
     let mut new_edges = Vec::new();
     let mut all_faces: Vec<FaceId> = face.into_iter().collect();
@@ -1582,7 +1551,6 @@ pub fn merge_self_intersection_curves(
                     Some(e2),
                     None,
                     env,
-                    queries,
                 )?;
             }
             new_edges.push(e1);
@@ -1595,46 +1563,56 @@ pub fn merge_self_intersection_curves(
 mod tests {
     use super::*;
     use crate::geom::attribute::{AttributeStore, ObjectKey};
-    use crate::geom::context::{Context, MarkType, NotifyCallback};
     use crate::geom::vector2d::Point2;
     use crate::math::Vec3;
     use crate::surface::plane::Plane;
-    use crate::topology::topology::{NotifyEvent, Topology};
     use crate::topology::Region;
-    use std::sync::{Arc, Mutex};
-
-    #[derive(Debug, Clone, Default)]
-    struct GlueNotifyLog(Arc<Mutex<Vec<NotifyEvent>>>);
-
-    impl NotifyCallback for GlueNotifyLog {
-        fn execute(
-            &mut self,
-            operation: NotifyOperation,
-            caller: ObjectRef,
-            data1: Option<ObjectRef>,
-            data2: Option<ObjectRef>,
-            data3: Option<ObjectRef>,
-        ) -> Result<()> {
-            self.0.lock().unwrap().push(NotifyEvent {
-                operation,
-                caller: Some(caller),
-                data1,
-                data2,
-                data3,
-            });
-            Ok(())
-        }
-
-        fn as_any(&self) -> Option<&dyn core::any::Any> {
-            Some(self)
-        }
-    }
 
     fn key_of(_e: EntityRef) -> ObjectRef {
         ObjectRef {
             type_code: 0,
             key: ObjectKey(0),
         }
+    }
+
+    fn on_list() -> Region {
+        Region {
+            in_brep: true,
+            ..Region::default()
+        }
+    }
+
+    #[test]
+    fn emptied_region_resets_the_infinite_region_to_the_list_head() {
+        // the region is not on the list (Remove fails, ignored): the head stays, and a
+        // stored head of None is the first region on the list
+        let mut b = Brep::new();
+        let r0 = b.add_region_record(on_list()).unwrap();
+        let r1 = b.add_region_record(Region::default()).unwrap();
+        assert_eq!(b.region_list_head(), None);
+        remove_emptied_region(&mut b, r1).unwrap();
+        assert_eq!(b.infinite_region(), Some(r0));
+        assert_eq!(p1::regions(&b, None).unwrap(), vec![r0]);
+
+        // removing the head passes it on; removing the last region empties the list
+        let mut b = Brep::new();
+        let r0 = b.add_region_record(on_list()).unwrap();
+        let r1 = b.add_region_record(on_list()).unwrap();
+        b.set_infinite_region(Some(r0));
+        remove_emptied_region(&mut b, r0).unwrap();
+        assert_eq!(b.infinite_region(), Some(r1));
+        assert_eq!(b.region_list_head(), Some(r1));
+        remove_emptied_region(&mut b, r1).unwrap();
+        assert_eq!(b.infinite_region(), None);
+        assert!(p1::regions(&b, None).unwrap().is_empty());
+
+        // removing a region behind the head keeps the head
+        let mut b = Brep::new();
+        let r0 = b.add_region_record(on_list()).unwrap();
+        let r1 = b.add_region_record(on_list()).unwrap();
+        remove_emptied_region(&mut b, r1).unwrap();
+        assert_eq!(b.infinite_region(), Some(r0));
+        assert_eq!(p1::regions(&b, None).unwrap(), vec![r0]);
     }
 
     fn face_ref(f: FaceId) -> ObjectRef {
@@ -1653,63 +1631,19 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::too_many_lines)] // one native notification sequence and its early-out boundaries
     fn glue_no_ops() {
         let mut k = Kernel::default();
         let mut b = Brep::new();
         let v0 = b.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();
         let v1 = b.add_vertex(Point3::new(1.0, 0.0, 0.0)).unwrap();
         let e = b.add_edge(v0, v1).unwrap();
-        let e2 = b.add_edge(v0, v1).unwrap();
-        let key_of_edge = |entity| match entity {
-            EntityRef::Edge(edge) => ObjectRef {
-                type_code: ed::TYPE,
-                key: ObjectKey(1 + u64::from(edge.index())),
-            },
-            _ => panic!("this glue fixture only notifies its edges and B-rep"),
-        };
-        let this = p2::brep_ref(&b);
-        let surv = key_of_edge(EntityRef::Edge(e));
-        let deleted = key_of_edge(EntityRef::Edge(e2));
-        let log = GlueNotifyLog::default();
-        let mut context = Context::default();
-        context.set_sys_notify_callback(Some(Box::new(log.clone())));
-        let mut survivor_record = Topology::default();
-        survivor_record.set_all_flags(1);
-        survivor_record.set_user_index1(11);
-        survivor_record.mark(Some(&context), MarkType::MarkIo);
-        let mut deleted_record = Topology::default();
-        deleted_record.set_all_flags(2);
-        deleted_record.set_user_index1(22);
-        deleted_record.set_user_index2(33);
-        deleted_record.set_user_ptr1(44);
-        for mark in [MarkType::Mark, MarkType::Mark2, MarkType::Mark3] {
-            deleted_record.mark(Some(&context), mark);
-        }
-        let mut records = std::collections::BTreeMap::from([
-            (this.key, Topology::default()),
-            (surv.key, survivor_record),
-            (deleted.key, deleted_record),
-        ]);
-        assert_eq!(
-            records.len(),
-            3,
-            "fixture notification identities must differ"
-        );
-        let before_records = records.clone();
+        let mut records = std::collections::BTreeMap::new();
         let mut attrs = AttributeStore::default();
         let mut env = ed::NotifyEnv {
             records: &mut records,
             attributes: &mut attrs,
-            context: Some(&mut context),
-            key_of: &key_of_edge,
-        };
-        let mut queries = |_: &mut Kernel,
-                           _: &mut Brep,
-                           _: ShellId,
-                           _: crate::topology::shell::ShellRayInput<EntityRef>|
-         -> crate::topology::shell::ShellRayAttempt<EntityRef> {
-            panic!("a no-op glue must not fire a shell ray")
+            context: None,
+            key_of: &key_of,
         };
         for (s, d) in [
             (None, Some(e)),
@@ -1727,12 +1661,10 @@ mod tests {
                 d,
                 None,
                 &mut env,
-                &mut queries,
             )
             .unwrap();
         }
-        assert!(log.0.lock().unwrap().is_empty());
-        assert_eq!(&*env.records, &before_records);
+        let e2 = b.add_edge(v0, v1).unwrap();
         let r = glue_edges_general(
             &mut k,
             &mut b,
@@ -1743,350 +1675,8 @@ mod tests {
             Some(e2),
             None,
             &mut env,
-            &mut queries,
         );
-        // The malformed edge fixture still stops at its missing primary edge use,
-        // after the native notification sequence (SmBrep.cpp:9840-9854) completes.
-        assert!(
-            matches!(
-                r,
-                Err(SolidError::InvalidInput {
-                    reason: "edge without primary edge use",
-                    ..
-                })
-            ),
-            "glue: {r:?}"
-        );
-        let event = |operation, caller, data: [Option<ObjectRef>; 3]| NotifyEvent {
-            operation,
-            caller: Some(caller),
-            data1: data[0],
-            data2: data[1],
-            data3: data[2],
-        };
-        assert_eq!(
-            *log.0.lock().unwrap(),
-            vec![
-                event(NotifyOperation::PreEdit, this, [Some(this), None, None]),
-                event(
-                    NotifyOperation::PreEdit,
-                    surv,
-                    [Some(surv), Some(this), None]
-                ),
-                event(
-                    NotifyOperation::MergeInBrep,
-                    this,
-                    [Some(surv), Some(deleted), Some(this)],
-                ),
-            ]
-        );
-        let survivor_after = env.records[&surv.key];
-        let deleted_after = env.records[&deleted.key];
-        assert_eq!(survivor_after.all_flags(), 3);
-        assert_eq!(deleted_after.all_flags(), 3);
-        assert_eq!(survivor_after.user_index1(), 22);
-        assert_eq!(survivor_after.user_index2(), 33);
-        assert_eq!(survivor_after.user_ptr1(), 44);
-        for mark in [MarkType::Mark, MarkType::Mark2, MarkType::Mark3] {
-            assert_eq!(survivor_after.get_mark(mark), deleted_record.get_mark(mark));
-        }
-        assert_eq!(
-            survivor_after.get_mark(MarkType::MarkIo),
-            survivor_record.get_mark(MarkType::MarkIo)
-        );
-        assert_eq!(env.records[&this.key], before_records[&this.key]);
-    }
-
-    /// Synthetic non-wire edges with distinct endpoint identities. Loop-typed edge uses
-    /// have no face, a case `GetFaces` explicitly skips. The complete endpoint and
-    /// mate records make the later shared-vertex rejection well-defined. This is
-    /// a control-flow regression, not an assertion of native fixture parity.
-    fn glue_geometry_fixture() -> (Brep, [EdgeId; 3]) {
-        use crate::topology::{Edgeuse, EdgeuseOwner, Vertexuse, VertexuseOwner};
-
-        let mut brep = Brep::new();
-        let mut edges = Vec::new();
-        for _ in 0..3 {
-            // Coincident geometry avoids a numerical dependency unrelated to the
-            // guard, while fresh vertex ids still require the later rejection.
-            let start = Point3::new(0.0, 0.0, 0.0);
-            let end = Point3::new(1.0, 0.0, 0.0);
-            let v0 = brep.add_vertex(start).unwrap();
-            let v1 = brep.add_vertex(end).unwrap();
-            let edge = brep.add_edge(v0, v1).unwrap();
-            let mut uses = Vec::new();
-            for (vertex, orientation) in [(v0, OrientType::Same), (v1, OrientType::Opposite)] {
-                let eu = brep
-                    .add_edgeuse_record(Edgeuse {
-                        edge: Some(edge),
-                        owner: EdgeuseOwner::Loopuse(None),
-                        orientation,
-                        ..Edgeuse::default()
-                    })
-                    .unwrap();
-                let vu = brep
-                    .add_vertexuse_record(Vertexuse {
-                        vertex: Some(vertex),
-                        owner: VertexuseOwner::Edgeuse(Some(eu)),
-                        ..Vertexuse::default()
-                    })
-                    .unwrap();
-                brep.edgeuse_mut(eu).unwrap().vertexuse = Some(vu);
-                brep.vertex_mut(vertex).unwrap().vertexuses.push(vu);
-                uses.push(eu);
-            }
-            let record = brep.edge_mut(edge).unwrap();
-            record.edgeuses = uses;
-            record.interval = Extent1d::from_raw(0.0, 1.0);
-            record.curve = Some(Curve::from(
-                BSplineCurve::create_line_segment(3, start, end).unwrap(),
-            ));
-            assert!(!ed::is_wire(&brep, edge).unwrap());
-            edges.push(edge);
-        }
-        (brep, edges.try_into().unwrap())
-    }
-
-    fn glue_geometry_key(entity: EntityRef) -> ObjectRef {
-        match entity {
-            EntityRef::Edge(edge) => ObjectRef {
-                type_code: ed::TYPE,
-                key: ObjectKey(1 + u64::from(edge.index())),
-            },
-            _ => panic!("the geometry-check fixture notifies only edges and its B-rep"),
-        }
-    }
-
-    #[derive(Debug)]
-    struct GlueCurveChecks {
-        rejected: Option<EdgeId>,
-        checked: Vec<EdgeId>,
-        notification_counts: Vec<usize>,
-        notifications: GlueNotifyLog,
-    }
-
-    impl p6::RegionSplitQueries for GlueCurveChecks {
-        fn check_edge_curve_geometry(&mut self, _brep: &Brep, edge: EdgeId) -> Result<()> {
-            self.checked.push(edge);
-            self.notification_counts
-                .push(self.notifications.0.lock().unwrap().len());
-            if self.rejected == Some(edge) {
-                Err(SolidError::unported(
-                    "test edge curve representation",
-                    "harness:analytic-geometry-export",
-                ))
-            } else {
-                Ok(())
-            }
-        }
-
-        fn ray_fire(
-            &mut self,
-            _kernel: &mut Kernel,
-            _brep: &mut Brep,
-            _shell: ShellId,
-            _input: crate::topology::shell::ShellRayInput<EntityRef>,
-        ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
-            panic!("the fixture rejects distinct vertices before any shell ray")
-        }
-    }
-
-    fn run_glue_geometry_check(
-        brep: &mut Brep,
-        edges: [EdgeId; 3],
-        surviving: Option<EdgeId>,
-        deleted: Option<EdgeId>,
-        orientation: OrientType,
-        rejected: Option<EdgeId>,
-    ) -> (Result<()>, GlueCurveChecks, Topology) {
-        let mut kernel = Kernel::default();
-        let notifications = GlueNotifyLog::default();
-        let mut context = Context::default();
-        context.set_sys_notify_callback(Some(Box::new(notifications.clone())));
-        let mut records =
-            std::collections::BTreeMap::from([(p2::brep_ref(brep).key, Topology::default())]);
-        for edge in edges {
-            let mut record = Topology::default();
-            record.set_user_index1(10 + u64::from(edge.index()));
-            records.insert(glue_geometry_key(EntityRef::Edge(edge)).key, record);
-        }
-        let mut attributes = AttributeStore::default();
-        let mut env = ed::NotifyEnv {
-            records: &mut records,
-            attributes: &mut attributes,
-            context: Some(&mut context),
-            key_of: &glue_geometry_key,
-        };
-        let mut queries = GlueCurveChecks {
-            rejected,
-            checked: Vec::new(),
-            notification_counts: Vec::new(),
-            notifications,
-        };
-        let result = glue_edges_general(
-            &mut kernel,
-            brep,
-            surviving,
-            orientation,
-            0.0,
-            false,
-            deleted,
-            None,
-            &mut env,
-            &mut queries,
-        );
-        let survivor = env.records[&glue_geometry_key(EntityRef::Edge(edges[0])).key];
-        (result, queries, survivor)
-    }
-
-    #[test]
-    fn glue_curve_checks_follow_notifications_and_stop_before_evaluation() {
-        for reject_second in [false, true] {
-            let (mut brep, edges) = glue_geometry_fixture();
-            let [first, second, _] = edges;
-            // Neither curve can be evaluated. Moving a check past the first
-            // geometric read must fail with that error instead of this guard.
-            for edge in [first, second] {
-                brep.edge_mut(edge).unwrap().curve = Some(Curve::from(BSplineCurve::new(3)));
-            }
-            let rejected = if reject_second { second } else { first };
-            let (result, queries, survivor) = run_glue_geometry_check(
-                &mut brep,
-                edges,
-                Some(first),
-                Some(second),
-                OrientType::Same,
-                Some(rejected),
-            );
-            assert!(matches!(
-                result,
-                Err(SolidError::Unported {
-                    unit: "harness:analytic-geometry-export",
-                    ..
-                })
-            ));
-            let expected = if reject_second {
-                vec![first, second]
-            } else {
-                vec![first]
-            };
-            assert_eq!(queries.checked, expected);
-            // The actual B-rep PreEdit, survivor PreEdit and MergeInBrep all ran
-            // before the first representation check. Merge copied the user value.
-            assert_eq!(queries.notification_counts, vec![3; expected.len()]);
-            assert_eq!(survivor.user_index1(), 10 + u64::from(second.index()));
-            assert_eq!(brep.edges().len(), 3);
-        }
-    }
-
-    #[test]
-    fn glue_curve_checks_skip_unvisited_curves_and_non_geometric_branches() {
-        for (orientation, equal_intervals) in [
-            (OrientType::Same, true),
-            (OrientType::Opposite, true),
-            (OrientType::Same, false),
-        ] {
-            let (mut brep, edges) = glue_geometry_fixture();
-            let [first, second, unused] = edges;
-            if !equal_intervals {
-                brep.edge_mut(second).unwrap().interval = Extent1d::from_raw(0.0, 2.0);
-            }
-            let (result, queries, _) = run_glue_geometry_check(
-                &mut brep,
-                edges,
-                Some(first),
-                Some(second),
-                orientation,
-                Some(unused),
-            );
-            assert_eq!(result, Err(SolidError::sm_err(OP)));
-            let expected = if orientation == OrientType::Same && equal_intervals {
-                vec![first, second]
-            } else {
-                Vec::new()
-            };
-            assert_eq!(queries.checked, expected);
-        }
-        for (null_survivor, null_deleted, same_edge) in [
-            (true, false, false),
-            (false, true, false),
-            (true, true, false),
-            (false, false, true),
-        ] {
-            let (mut brep, edges) = glue_geometry_fixture();
-            let [first, second, _] = edges;
-            let surviving = (!null_survivor).then_some(first);
-            let deleted = (!null_deleted).then_some(if same_edge { first } else { second });
-            let (result, queries, _) = run_glue_geometry_check(
-                &mut brep,
-                edges,
-                surviving,
-                deleted,
-                OrientType::Same,
-                Some(first),
-            );
-            assert_eq!(result, Ok(()));
-            assert!(queries.checked.is_empty());
-            assert!(queries.notifications.0.lock().unwrap().is_empty());
-        }
-    }
-
-    #[test]
-    fn glue_curve_checks_follow_wire_deletion_and_null_curve_branches() {
-        use crate::topology::EdgeuseOwner;
-
-        let (mut brep, edges) = glue_geometry_fixture();
-        let [first, second, _] = edges;
-        for eu in brep.edge(second).unwrap().edgeuses.clone() {
-            brep.edgeuse_mut(eu).unwrap().owner = EdgeuseOwner::Shell(None);
-        }
-        assert!(ed::is_wire(&brep, second).unwrap());
-        let (result, queries, _) = run_glue_geometry_check(
-            &mut brep,
-            edges,
-            Some(first),
-            Some(second),
-            OrientType::Same,
-            Some(first),
-        );
-        assert!(matches!(
-            result,
-            Err(SolidError::Unported {
-                unit: "topology.brep_p4",
-                ..
-            })
-        ));
-        assert!(queries.checked.is_empty());
-        assert_eq!(queries.notifications.0.lock().unwrap().len(), 1);
-
-        for both_null in [false, true] {
-            let (mut brep, edges) = glue_geometry_fixture();
-            let [first, second, _] = edges;
-            brep.edge_mut(first).unwrap().curve = None;
-            if both_null {
-                brep.edge_mut(second).unwrap().curve = None;
-            }
-            let (result, queries, _) = run_glue_geometry_check(
-                &mut brep,
-                edges,
-                Some(first),
-                Some(second),
-                OrientType::Same,
-                Some(second),
-            );
-            if both_null {
-                assert_eq!(result, Err(SolidError::sm_err(OP)));
-            } else {
-                assert!(matches!(
-                    result,
-                    Err(SolidError::InvalidInput {
-                        reason: "edge without curve",
-                        ..
-                    })
-                ));
-            }
-            assert!(queries.checked.is_empty());
-        }
+        assert!(r.unwrap_err().is_unported());
     }
 
     #[test]
@@ -2127,6 +1717,35 @@ mod tests {
             &opts,
             &face_ref,
         );
+        // no infinite region: MakeFaceTopology's NULL region
+        assert!(matches!(
+            e,
+            Err(SolidError::Upstream {
+                code: crate::error::SM_ERR_NULL_POINTER,
+                ..
+            })
+        ));
+        let inf = b
+            .add_region_record(Region {
+                in_brep: true,
+                ..Region::default()
+            })
+            .unwrap();
+        b.set_infinite_region_record(Some(inf));
+        let e = make_face(
+            &k,
+            &mut b,
+            None,
+            &[],
+            &[],
+            &[],
+            Some(plane()),
+            &dom(),
+            OrientType::Same,
+            &opts,
+            &face_ref,
+        );
+        // the infinite region: MakeFaceTopology reaches SmFace::SetTolerance (unported)
         assert!(e.unwrap_err().is_unported());
     }
 
@@ -2181,7 +1800,9 @@ mod tests {
             run(&mut b, input, Some(r)),
             Err(SolidError::InvalidInput { .. })
         ));
-        // the infinite region is unported
+        // a NULL region is the infinite region: a degenerate curve only reaches
+        // unported topology
+        b.set_infinite_region_record(Some(r));
         let input = FaceCurvesInput {
             loops: vec![1],
             curves_3d: Some(vec![None]),
@@ -2218,75 +1839,36 @@ mod tests {
             context: None,
             key_of: &key_of,
         };
-        let mut queries = |_: &mut Kernel,
-                           _: &mut Brep,
-                           _: ShellId,
-                           _: crate::topology::shell::ShellRayInput<EntityRef>|
-         -> crate::topology::shell::ShellRayAttempt<EntityRef> {
-            panic!("a merge without curves must not fire a shell ray")
-        };
-        assert!(merge_self_intersection_curves(
-            &mut k,
-            &mut b,
-            Some(f),
-            1e-5,
-            &[],
-            &mut env,
-            &mut queries,
-        )
-        .unwrap()
-        .is_empty());
-        assert!(merge_self_intersection_curves(
-            &mut k,
-            &mut b,
-            None,
-            1e-5,
-            &[],
-            &mut env,
-            &mut queries,
-        )
-        .unwrap()
-        .is_empty());
+        assert!(
+            merge_self_intersection_curves(&mut k, &mut b, Some(f), 1e-5, &[], &mut env)
+                .unwrap()
+                .is_empty()
+        );
+        assert!(
+            merge_self_intersection_curves(&mut k, &mut b, None, 1e-5, &[], &mut env)
+                .unwrap()
+                .is_empty()
+        );
     }
 
     #[test]
-    fn empty_read_and_copy_dependency() {
+    fn read_errors_and_deferral() {
         let mut k = Kernel::default();
         let mut b = Brep::new_with_infinite_region().unwrap();
         let mut store = AttributeStore::new();
         let mut records = std::collections::BTreeMap::new();
-        let mut queries = |_: &mut Kernel,
-                           _: &mut Brep,
-                           _: ShellId,
-                           _: crate::topology::shell::ShellRayInput<EntityRef>|
-         -> crate::topology::shell::ShellRayAttempt<EntityRef> {
-            panic!("an empty input stream must not require geometric queries")
-        };
         let mut env = TopologyEnv {
             all_attributes: &[],
             attributes: &mut store,
             key_of: &key_of,
             records: &mut records,
             next_key: 1,
-            region_queries: &mut queries,
         };
-        // Native empty input produces an empty B-rep; the real trim-curve
-        // checker finds no edge uses requiring a repair.
-        for rebuild in [false, true] {
-            let result = read_from_file(
-                &mut k,
-                &mut b,
-                Vec::new(),
-                FileType::Ascii,
-                rebuild,
-                &mut env,
-            );
-            assert!(result.is_ok(), "read (rebuild={rebuild}): {result:?}");
-        }
+        assert!(
+            read_from_file(&mut k, &mut b, Vec::new(), FileType::Ascii, false, &mut env).is_err()
+        );
         let mut src = Brep::new();
         let mut dest = Brep::new();
-        src.set_tolerance(1.0 / 8.0);
-        dest.set_tolerance(1.0 / 32.0);
         let mut records = std::collections::BTreeMap::new();
         let mut attrs = AttributeStore::default();
         let mut env = ed::NotifyEnv {
@@ -2295,18 +1877,10 @@ mod tests {
             context: None,
             key_of: &key_of,
         };
-        let result = copy_faces(&k, &mut src, &[], &mut dest, false, &face_ref, &mut env);
         assert!(
-            matches!(
-                result,
-                Err(SolidError::Unported {
-                    upstream: "SmBrep::GetInfiniteRegion",
-                    unit: "topology.brep_p1",
-                })
-            ),
-            "copy: {result:?}"
+            copy_faces(&k, &mut src, &[], &mut dest, false, &face_ref, &mut env)
+                .unwrap_err()
+                .is_unported()
         );
-        // SetTolerance completes before the pending infinite-region lookup.
-        assert_eq!(dest.tolerance(), 1.0 / 8.0);
     }
 }

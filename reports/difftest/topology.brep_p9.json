@@ -1403,8 +1403,8 @@
     },
     {
       "deferred": {
-        "symbol": "face 6 surface concrete type 15012 is represented as 15002; exact geometry is required",
-        "unit": "harness:analytic-geometry-export"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "real_box_with_large_fillet_infinite_region",
@@ -6060,9 +6060,9 @@
   "cases_passed": 539,
   "cases_total": 684,
   "deferred_by_unit": {
-    "harness:analytic-geometry-export": 1,
     "intersect.surface_drop_curve": 1,
     "intersect.surface_drop_lib_p3": 1,
+    "query.brep": 1,
     "topology.brep_p2": 103,
     "topology.face_p3": 39
   },

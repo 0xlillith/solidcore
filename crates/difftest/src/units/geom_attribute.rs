@@ -942,7 +942,9 @@ impl RustRun {
                 AttributeValue::DecimateVertex(_)
                 | AttributeValue::QuadricVertex(_)
                 | AttributeValue::QuadricEdge(_) => {
-                    return Err(HarnessError::new("decimation payloads belong to the query.brep runner"));
+                    return Err(HarnessError::new(
+                        "decimation payloads belong to the query.brep runner",
+                    ));
                 }
             }
             ints.push(v.len() as i64);

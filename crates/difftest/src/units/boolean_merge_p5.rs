@@ -1,5 +1,8 @@
 //! Wire/shell-vertex boolean stage on identical raw input topology. Construction
 //! uses the shared real-B-rep fixture builder; no C++ merge results enter Rust.
+use super::boolean_merge_p4::{query_owner, query_owner_links};
+use super::geom_object::query_graph_identity;
+use super::query_brep::query_metadata::apply_query_metadata;
 use super::topology_vertexuse::{self as shared, BrepIn};
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 use serde::{Deserialize, Serialize};
@@ -13,14 +16,10 @@ use solidcore::geom::context::MarkLock;
 use solidcore::geom::object::ObjectRef;
 use solidcore::kernel::Kernel;
 use solidcore::query::brep::BrepQueryContext;
-use solidcore::topology::brep_cache::arena_identity;
 use solidcore::topology::topology_traverser::{Entity, Marks};
-use solidcore::topology::{
-    edge, vertex, vertexuse, ArenaId, Brep, BrepId, EdgeId, VertexId, VertexuseId,
-};
-use solidcore::SolidError;
+use solidcore::topology::BrepId;
+use solidcore::topology::{edge, vertex, vertexuse, ArenaId, Brep, EdgeId, VertexId, VertexuseId};
 use solidcore_ffi::units::boolean_merge_p5::{self as ffi, Operand, Request};
-use std::cell::Cell;
 use std::collections::BTreeMap;
 
 /// Differential runner for `SmMerge::ProcessWiresAndShellVertices`.
@@ -118,17 +117,16 @@ fn mapping(i: &Inputs, a: [usize; 10], b: [usize; 10]) -> Vec<i64> {
             .collect()
     })
 }
-fn import(f: &ffi::Fixture) -> Result<(Brep, shared::QueryMetadata), HarnessError> {
-    let (mut b, _) = shared::import(&f.graph)?;
+fn import(
+    f: &solidcore_ffi::units::topology_topology_traverser::Fixture,
+) -> Result<Brep, HarnessError> {
+    let (mut b, _) = super::topology_edgeuse_p1::import_with_types(&f.graph)?;
     for (i, list) in f.vertexuses.iter().enumerate() {
         b.vertex_mut(VertexId::from_index(i as u32))
             .map_err(|e| err(&e))?
             .vertexuses = list.iter().map(|&j| VertexuseId::from_index(j)).collect();
     }
-    // Restore the native list order and concrete geometry ownership under this
-    // operand's query keys. Missing owners/types are never inferred from position.
-    let metadata = shared::apply_query_metadata(&mut b, &f.query_metadata, &arena_identity)?;
-    Ok((b, metadata))
+    Ok(b)
 }
 fn seed(
     k: &Kernel,
@@ -306,26 +304,55 @@ impl UnitDiff for Runner {
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
         let i: Inputs = case.parse()?;
-        let a = program(&i.primary)?;
-        let b = program(&i.other)?;
-        let aa = ffi::export(operand(&a)).map_err(|e| err(&e))?;
-        let bb = ffi::export(operand(&b)).map_err(|e| err(&e))?;
+        let a_program = program(&i.primary)?;
+        let b_program = program(&i.other)?;
+        let aa = ffi::export(operand(&a_program)).map_err(|e| err(&e))?;
+        let bb = ffi::export(operand(&b_program)).map_err(|e| err(&e))?;
         let ac = solidcore_ffi::units::topology_vertexuse::counts(&aa.graph)
             .ok_or_else(|| err("primary graph"))?;
         let bc = solidcore_ffi::units::topology_vertexuse::counts(&bb.graph)
             .ok_or_else(|| err("other graph"))?;
         let edge_mates = mapping(&i, ac, bc);
         ffi::validate_mates(&edge_mates, ac[7], bc[7]).map_err(|e| err(&e))?;
-        let (mut a, a_metadata) = import(&aa)?;
-        let (mut b, b_metadata) = import(&bb)?;
-        // Every pass and the final snapshot use the imported topology. Check
-        // representable native lists now, retaining lazy geometry checks below.
-        if let Some(deferred) = a_metadata
-            .deferred_output_for(false, false)
-            .or_else(|| b_metadata.deferred_output_for(false, false))
-        {
-            return Ok(deferred);
+        let mut a = import(&aa)?;
+        let mut b = import(&bb)?;
+        let primary_meta = apply_query_metadata(
+            &mut a,
+            &ffi::query_metadata(operand(&a_program)).map_err(|e| err(&e))?,
+            &query_graph_identity,
+        )?;
+        let other_meta = apply_query_metadata(
+            &mut b,
+            &ffi::query_metadata(operand(&b_program)).map_err(|e| err(&e))?,
+            &query_graph_identity,
+        )?;
+        for metadata in [&primary_meta, &other_meta] {
+            if let Some(output) = metadata.deferred_output_for(false, false) {
+                return Ok(output);
+            }
         }
+        let primary_owners = query_owner_links(&a);
+        let other_owners = query_owner_links(&b);
+        let owner_primary = |object| query_owner(&primary_owners, object);
+        let owner_other = |object| query_owner(&other_owners, object);
+        let guard_primary = || primary_meta.require_geometry();
+        let guard_other = || other_meta.require_geometry();
+        let mut primary_cache = None;
+        let mut other_cache = None;
+        let mut primary_query = BrepQueryContext::new(
+            BrepId::from_index(0),
+            &mut primary_cache,
+            &query_graph_identity,
+            &owner_primary,
+        )
+        .with_geometry_check(&guard_primary);
+        let mut other_query = BrepQueryContext::new(
+            BrepId::from_index(1),
+            &mut other_cache,
+            &query_graph_identity,
+            &owner_other,
+        )
+        .with_geometry_check(&guard_other);
         let mut k = Kernel::default();
         let la = MarkLock::new(std::slice::from_mut(&mut k.context), 0, i.marks[0])
             .map_err(|e| err(&e))?;
@@ -400,55 +427,18 @@ impl UnitDiff for Runner {
         };
         let operation =
             BooleanOperation::from_code(i.operation).ok_or_else(|| err("boolean operation"))?;
-        let mut a_cache = None;
-        let mut b_cache = None;
-        // Metadata assigns the actual direct owners under arena_identity. Each
-        // context scopes those keys to its operand. Representation limitations
-        // defer only at reached geometric work; marked-wire and single-region
-        // topology paths retain their native behavior. This Cell records which
-        // operand's check failed solely to report its precise harness cause.
-        let gated_metadata: Cell<Option<&shared::QueryMetadata>> = Cell::new(None);
-        let a_geometry_check = || {
-            let result = a_metadata.require_geometry();
-            if result.is_err() {
-                gated_metadata.set(Some(&a_metadata));
-            }
-            result
-        };
-        let b_geometry_check = || {
-            let result = b_metadata.require_geometry();
-            if result.is_err() {
-                gated_metadata.set(Some(&b_metadata));
-            }
-            result
-        };
-        let owner_of = |_| None;
-        let mut a_query = BrepQueryContext::new(
-            BrepId::from_index(0),
-            &mut a_cache,
-            &arena_identity,
-            &owner_of,
-        )
-        .with_geometry_check(&a_geometry_check);
-        let mut b_query = BrepQueryContext::new(
-            BrepId::from_index(1),
-            &mut b_cache,
-            &arena_identity,
-            &owner_of,
-        )
-        .with_geometry_check(&b_geometry_check);
         let mut keep = Vec::new();
         let mut ids = Vec::new();
         for _ in 0..i.repeat {
             if i.prefill && ac[7] > 0 {
                 keep.push(EdgeId::from_index(0));
             }
-            let result = process_wires_and_shell_vertices(
+            match process_wires_and_shell_vertices(
                 &k,
                 &mut a,
                 &mut b,
-                &mut a_query,
-                &mut b_query,
+                &mut primary_query,
+                &mut other_query,
                 &mut am,
                 &mut bm,
                 &mut relations,
@@ -458,31 +448,12 @@ impl UnitDiff for Runner {
                 ma,
                 mb,
                 &mut keep,
-            );
-            let status = match result {
-                Ok(()) => 0,
-                Err(e) => {
-                    if let Some(deferred) = gated_metadata
-                        .get()
-                        .and_then(shared::QueryMetadata::deferred_output)
-                    {
-                        return Ok(deferred);
-                    }
-                    if let Some(deferred) = Output::unported(&e) {
-                        return Ok(deferred);
-                    }
-                    match e {
-                        SolidError::Upstream { code, .. } => i64::from(code),
-                        other => return Err(err(&other)),
-                    }
+            ) {
+                Ok(()) => {
+                    ids.extend([0, keep.len() as i64]);
+                    ids.extend(keep.iter().map(|e| i64::from(e.index())));
                 }
-            };
-            // The native shim retains both partial output and topology after an
-            // ordinary failing status, then stops its repetition loop.
-            ids.extend([status, keep.len() as i64]);
-            ids.extend(keep.iter().map(|e| i64::from(e.index())));
-            if status != 0 {
-                break;
+                Err(e) => return Output::unported(&e).ok_or_else(|| err(&e)),
             }
         }
         let mut values = Vec::new();

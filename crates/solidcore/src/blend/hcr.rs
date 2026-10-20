@@ -8,7 +8,6 @@
 //! | [`Hcr`]                                      | `SmHCR`                                   |
 //! | [`Hcr::new`], [`view_transform_for_vector`]  | `SmHCR::SmHCR(.., const SmVector3d&, ..)` |
 //! | [`Hcr::with_transform`]                      | `SmHCR::SmHCR(.., const SmAxis2Placement&, ..)`, `ConstructorInit` |
-//! | [`Hcr::from_transformed_scene`]              | `ConstructorInit` scene query and remaining setup |
 //! | [`Hcr::from_scene`]                          | `ConstructorInit` after the scene B-rep is built |
 //! | `Drop` (implicit)                            | `SmHCR::~SmHCR`                           |
 //! | [`Hcr::set_hcr_for_silhouettes`]             | `SetHCRForSilhouettes`                    |
@@ -27,10 +26,10 @@
 //!
 //! Deviations:
 //! - The scene B-rep copy, its transformation and infinite region (`SmBrep` copy
-//!   constructor, `Transform`, `FindAndSetInfiniteRegion`) belong to unported units,
-//!   so [`Hcr::with_transform`] stops there; [`Hcr::from_transformed_scene`] computes
-//!   the real query box for an already transformed scene. [`Hcr::from_scene`] also
-//!   accepts an explicitly supplied box.
+//!   constructor, `Transform`, `FindAndSetInfiniteRegion`) and its bounding box
+//!   (`SmBrep::CalculateBoundingBox`) belong to unported units, so [`Hcr::with_transform`]
+//!   stops there; [`Hcr::from_scene`] is the rest of `ConstructorInit` for a caller that
+//!   already holds the transformed scene and its box.
 //! - The pointer maps `m_pSilVertices`, `m_pSilEdges` and `m_pBackFacingEdges` are id
 //!   sets; [`Hcr::silhouette_edges`] returns the ids in ascending order (upstream
 //!   `GetAllKeys` iterates the pointer hash, whose order is not reproducible).
@@ -55,12 +54,6 @@
 //!   on the same surface object (`SmHCR.cpp:1264-1266`, pointer equality). A port face
 //!   owns its surface record, so the object is identified by the surface's owner
 //!   (`SmSurface::m_pOwner`); see `same_surface`. Surface data is never compared.
-//! - `SmBrep::MergeCurvesOnSurface` of `ComputeSilhouettes` is
-//!   `topology::brep::p2::merge_curves_on_surface` through the real scene/curve
-//!   provider of `topology.brep_p10`, with complete 3D/UV arrays and native projection
-//!   enabled. [`Hcr::compute_silhouettes`] and [`Hcr::compute_global_visibility`]
-//!   take the kernel mutably and the caller's real intermediate-owner resolver;
-//!   downstream unported classification/edit operations still propagate.
 //! - `IsPointVisible` keeps the ray tracer's surface set and grid and rebuilds the
 //!   tracer (which borrows the surfaces) for each ray.
 //! - `DrawVisibleCurves`, `IsConcaveSilhouette` and `IsFrontFacingFace` are not owned by
@@ -273,28 +266,21 @@ fn add_deleted_surface(brep: &mut Brep, surface: &Surface) {
     brep.add_deleted_surface(surface.clone());
 }
 
-/// `MergeCurvesOnSurface(*pSurface, m_dThisApproxTol3d, s3DCurves, &sUVBSCurves,
-/// sNewFaces, sEdges, TRUE)` (`SmHCR.cpp:1229`): the edges of the curves, through the
-/// real scene and curve provider in `topology.brep_p10`, with projection enabled.
+/// `SmBrep::MergeCurvesOnSurface` (unit `topology.brep_p2`): the new faces and the
+/// edges of the curves.
 fn merge_curves_on_surface(
-    k: &mut Kernel,
     brep: &mut Brep,
-    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
     face: FaceId,
     approx_tol_3d: f64,
     curves: &[Curve],
     uv_curves: &[Curve],
 ) -> Result<Vec<EdgeId>> {
-    let out = crate::topology::brep::p10::merge_scene_curves_on_surface(
-        k,
-        brep,
-        owner_of,
-        face,
-        approx_tol_3d,
-        curves,
-        uv_curves,
-    )?;
-    Ok(out.edges)
+    let _ = (brep, face, approx_tol_3d, curves, uv_curves);
+    // UNPORTED(topology.brep_p2): SmBrep::MergeCurvesOnSurface
+    Err(SolidError::unported(
+        "SmBrep::MergeCurvesOnSurface",
+        "topology.brep_p2",
+    ))
 }
 
 /// `SmEdgeuse::EvaluateBinormal(t, FALSE, ..)` (unit `topology.edgeuse_p3`): binormal,
@@ -498,8 +484,8 @@ impl Hcr {
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] from the scene copy and transform (units
-    /// `topology.brep_p3`, `topology.brep_p5`), or a selected box dependency.
+    /// [`SolidError::Unported`] from the scene copy, transform and box (units
+    /// `topology.brep_p3`, `topology.brep_p5`, `query.brep`).
     pub fn with_transform(
         k: &Kernel,
         brep: &Brep,
@@ -513,23 +499,7 @@ impl Hcr {
         // transform the copied Brep to place the eye looking up the Z axis
         ignore_status(transform_brep(&mut scene, &vt))?;
         ignore_status(find_and_set_infinite_region(&mut scene))?; // [B23]
-        Self::from_transformed_scene(k, scene, view_transform, opts)
-    }
-
-    /// Finish `ConstructorInit` for an already copied and transformed scene, computing
-    /// its box with the native loose, exact-input, zone-expanded query defaults.
-    /// Translation in `view_transform` is ignored as in [`Self::with_transform`].
-    ///
-    /// # Errors
-    ///
-    /// Propagates unported box dependencies; ordinary query errors are ignored, as
-    /// upstream does, leaving an empty scene box.
-    pub fn from_transformed_scene(
-        k: &Kernel,
-        scene: Brep,
-        view_transform: &Axis2Placement,
-        opts: HcrOptions,
-    ) -> Result<Self> {
+                                                                  // its status is ignored upstream (the box then stays empty)
         let scene_box = ignored(brep_bounding_box(k, &scene))?.unwrap_or_else(Extent3d::new);
         Ok(Self::from_scene(k, scene, view_transform, scene_box, opts))
     }
@@ -746,20 +716,15 @@ impl Hcr {
     }
 
     /// Computes the visible and hidden pieces of every edge and silhouette of the scene
-    /// (`ComputeGlobalVisibility`). `owner_of` resolves intermediate owners of
-    /// the scene's generated and UV trim curves, as in [`Self::compute_silhouettes`].
+    /// (`ComputeGlobalVisibility`).
     ///
     /// # Errors
     ///
     /// Those of [`Hcr::compute_edge_visibility`], of the curve copies and of the scene
     /// B-rep queries.
-    pub fn compute_global_visibility(
-        &mut self,
-        k: &mut Kernel,
-        owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
-    ) -> Result<()> {
-        // Find silhouette curves on faces with the caller's actual owner chains.
-        ignore_status(self.compute_silhouettes(k, owner_of))?;
+    pub fn compute_global_visibility(&mut self, k: &Kernel) -> Result<()> {
+        // Find silhouette curves on faces
+        ignore_status(self.compute_silhouettes(k))?;
 
         // Attributes for curves are attached to the scene edge curves (graphics only):
         // the edge list is the first scene query.
@@ -1004,19 +969,13 @@ impl Hcr {
 
     /// Computes the silhouette curves of every non-planar scene surface, merges them
     /// into the scene as edges, and lists the silhouette and back-facing scene edges
-    /// (`ComputeSilhouettes`). `owner_of` supplies the real scene owner chains
-    /// through generating curves and edge uses; it must not substitute an empty
-    /// ownership context. Both silhouette curve arrays are passed in full.
+    /// (`ComputeSilhouettes`).
     ///
     /// # Errors
     ///
     /// Those of the scene B-rep queries; [`SolidError::Unported`] from the silhouette
     /// curve walk.
-    pub fn compute_silhouettes(
-        &mut self,
-        k: &mut Kernel,
-        owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
-    ) -> Result<()> {
+    pub fn compute_silhouettes(&mut self, k: &Kernel) -> Result<()> {
         // Get SceneBrep Surfaces
         let surfaces = brep_surfaces(&self.scene)?;
         for f in surfaces {
@@ -1049,9 +1008,7 @@ impl Hcr {
             };
             // Turn the curves into Edges in this surface's face.
             let Some(edges) = ignored(merge_curves_on_surface(
-                k,
                 &mut self.scene,
-                owner_of,
                 f,
                 self.approx_tol_3d,
                 &curves,
@@ -1572,72 +1529,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn silhouette_merge_reaches_native_editing_guard() {
-        let mut k = Kernel::default();
-        let mut scene = Brep::new();
-        scene.set_editing_enabled(false);
-        // This scene has no curves or owners. The native editing guard must refuse
-        // before classification could request any owner, not defer to a dummy world.
-        let owner_of = |_: ObjectRef| panic!("empty scene must not query curve owners");
-        let error = merge_curves_on_surface(
-            &mut k,
-            &mut scene,
-            &owner_of,
-            FaceId::from_index(0),
-            1e-3,
-            &[],
-            &[],
-        )
-        .unwrap_err();
-        assert!(matches!(
-            error,
-            SolidError::Upstream {
-                operation: "topology::brep::p2",
-                code: crate::error::SM_ERR,
-                entity: None,
-            }
-        ));
-    }
-
-    #[test]
     fn view_transform_maps_view_to_z() {
         let t = view_transform_for_vector(Vec3::new(1.0, 2.0, 3.0)).unwrap();
         let v = Vec3::new(1.0, 2.0, 3.0).unitize().unwrap();
         let z = t.transform_vector(v);
         assert!((z.z - 1.0).abs() < 1e-12);
         assert!(view_transform_for_vector(Vec3::new(0.0, 0.0, 0.0)).is_err());
-    }
-
-    #[test]
-    fn transformed_scene_queries_vertex_boxes_with_zone_expansion() {
-        let k = Kernel::default();
-        let mut scene = Brep::new();
-        let a = scene.add_vertex(Point3::new(-2.0, 1.0, 3.0)).unwrap();
-        let b = scene.add_vertex(Point3::new(4.0, 5.0, 9.0)).unwrap();
-        scene.vertex_mut(a).unwrap().tolerance = 0.25;
-        scene.vertex_mut(b).unwrap().tolerance = 0.5;
-        let bbox = brep_bounding_box(&k, &scene).unwrap();
-        assert_eq!(bbox.min(), Point3::new(-2.25, 0.75, 2.75));
-        assert_eq!(bbox.max(), Point3::new(4.5, 5.5, 9.5));
-        let opts = HcrOptions {
-            approx_tol_3d: 1e-3,
-            ang_tol_rad: 0.1,
-            display_seams: true,
-            display_smooth_edges: true,
-        };
-        let h = Hcr::from_transformed_scene(&k, scene, &Axis2Placement::default(), opts).unwrap();
-        assert_eq!(h.ray_offset_tolerance(), (9.5 - 2.75 + 1.0) / 1000.0);
-        assert_eq!(h.proj_bbox().min(), Point3::new(-9.0, -6.0, -4.0));
-        assert_eq!(h.proj_bbox().max(), Point3::new(11.25, 12.25, 16.25));
-    }
-
-    #[test]
-    fn transformed_scene_empty_box_stays_empty() {
-        let k = Kernel::default();
-        let scene = Brep::new();
-        let bbox = brep_bounding_box(&k, &scene).unwrap();
-        assert_eq!(bbox.min(), Extent3d::new().min());
-        assert_eq!(bbox.max(), Extent3d::new().max());
     }
 
     #[test]

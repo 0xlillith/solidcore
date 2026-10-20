@@ -63,9 +63,9 @@
 //!   visiting more edge uses than the B-rep holds (upstream would loop forever).
 //!   There is no recursion.
 //! - **Face-use closure.** The edge version calls the face use version of
-//!   `TestClosureSplitRegion` ([`super::p6::test_closure_split_region`]) with the
-//!   caller's persistent marks, notification records and geometric query context.
-//!   A NULL face use (upstream dereferences it) is [`SolidError::InvalidInput`].
+//!   `TestClosureSplitRegion` ([`super::p6::test_closure_split_region`]) with a fresh
+//!   [`Marks`] record per call (each call claims a new mark upstream); a NULL face use
+//!   (upstream dereferences it) is [`SolidError::InvalidInput`].
 //! - **UV trim curves.** `m_pUVTrimCurve = SM_CAST_PTR(SmBSplineCurve, pNewUV)`: a copy
 //!   that is not a B-spline curve is made and owned but not stored.
 
@@ -74,7 +74,6 @@ use crate::curve::curve::Curve;
 use crate::error::{ignored, EntityRef, Result, SolidError};
 use crate::geom::a_object;
 use crate::geom::attribute::{AttributeHandle, AttributeStore, ObjectKey};
-use crate::geom::extent1d::Extent1d;
 use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::geom_utility::p1::line_closest_point;
@@ -82,22 +81,18 @@ use crate::geom::global_solver::{SolutionRequested, SolverOperation};
 use crate::geom::object::{
     EdgeKey, FaceKey, NotifyOperation, ObjectRef, Shape, ShapeMember, ShapeObjects,
 };
-use crate::geom::solution_array::{ObjectKind, Solution, SolutionArray, SolutionObject};
+use crate::geom::solution_array::Solution;
 use crate::heal::face_props::HealerOpType;
-use crate::intersect::point_class::{
-    ClassGeometry, ClassObject, ClassObjectKind, PointClassification,
-};
-use crate::intersect::topology_solver::p1::{
-    BrepTreeSolve, CurveRef, TopologyObjects, TopologySolver,
-};
+use crate::intersect::topology_solver::p1::{CurveRef, TopologySolver};
 use crate::intersect::topology_solver::p2::TopologySolveOptions;
 use crate::kernel::Kernel;
-use crate::math::{max2, Point3, Vec2, Vec3, BIG_DOUBLE, EFF_ZERO};
+use crate::math::{max2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO};
 use crate::nurbs::b_spline_curve::BSplineCurve;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::Surface;
-use crate::topology::brep::{p1, p2, p6};
-use crate::topology::brep_cache::CacheObject;
+use crate::topology::brep::p1;
+use crate::topology::brep::p6;
+use crate::topology::brep_cache::{make_brep_cache, BrepObjects, CacheObject, CacheSource};
 use crate::topology::brep_data::{BrepData, TopologyData, NO_OBJECT, UNSURE};
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::shell::{ShellMembers, ShellType};
@@ -158,7 +153,7 @@ impl Default for MakeTopologyOptions {
 }
 
 /// What [`make_topology_from_data`] needs besides the B-rep and its data: object
-/// identities, persistent records, the attribute store and live healing queries.
+/// identities and the attribute store.
 pub struct TopologyEnv<'a> {
     /// `rAllAttributes`: the attributes the records' attribute indices refer to.
     pub all_attributes: &'a [AttributeHandle],
@@ -172,8 +167,6 @@ pub struct TopologyEnv<'a> {
     pub records: &'a mut BTreeMap<ObjectKey, Topology>,
     /// The next free identity for a geometry copy; incremented per copy.
     pub next_key: u64,
-    /// Queries over this live B-rep, reused by any healing and region splitting.
-    pub region_queries: &'a mut dyn p6::RegionSplitQueries,
 }
 
 impl TopologyEnv<'_> {
@@ -480,7 +473,11 @@ fn make_topology(
 
     // Set isManifold after all objects are created and connected to one another
     if calculate_is_manifold {
-        data.manifold = i32::from(p2::is_manifold_solid(b)?);
+        // UNPORTED(topology.brep_p2): SmBrep::IsManifoldSolid
+        return Err(SolidError::Unported {
+            upstream: "SmBrep::IsManifoldSolid",
+            unit: "topology.brep_p2",
+        });
     }
 
     // When requested and needed - find and heal common AssertValid problems
@@ -495,7 +492,6 @@ fn make_topology(
             None,
             None,
             options.make_uv_trim_curves,
-            env.region_queries,
         )?;
     }
     let _ = options.check_uv_trim_curves; // SM_REF1: not used
@@ -558,11 +554,8 @@ fn build_regions(
         let solid = new_region(b, env, Region::default())?;
         add_attributes(env, EntityRef::Region(solid), &rr.topology.attributes)?;
         set_topology(env, EntityRef::Region(solid), &rr.topology);
-        // PostInsert after attributes and flags: the new region joins the tail
-        // of the native list without replacing the existing infinite region.
-        let mut regions = p1::regions(b, None)?;
-        regions.push(solid);
-        b.set_region_list(regions)?;
+        // Add region to Brep
+        b.region_mut(solid)?.in_brep = true;
 
         // for every BrepData Shell - build 2 Brep SmShells
         for (ii, rs) in data.shells.iter().enumerate() {
@@ -1676,21 +1669,16 @@ pub struct ProjectAndTrimOptions<'a> {
     pub subset_faces: Option<&'a [FaceId]>,
 }
 
-/// The identities and persistent mark records [`project_and_trim`] needs for its
-/// topology solve. `next_key` must name an unused identity in the caller's store.
+/// The identities [`project_and_trim`] needs for its topology solve.
 pub struct ProjectEnv<'a> {
     /// This B-rep's id in the caller's shape store.
     pub brep_id: BrepId,
-    /// Identity of each cache object of the B-rep. Topology members must have
-    /// distinct keys across faces, edges and vertices, as required by `records`.
+    /// Identity of each cache object of the B-rep.
     pub keys: &'a dyn Fn(CacheObject) -> ObjectRef,
     /// Owners of generated curves and edge uses, as for `Curve::edge`.
     pub owner_of: &'a dyn Fn(ObjectRef) -> Option<ObjectRef>,
-    /// Persistent topology records shared with the caller's other shape queries.
+    /// Actual persistent topology records, keyed by the same identities as `keys`.
     pub records: &'a mut BTreeMap<ObjectKey, Topology>,
-    /// First unused identity in a caller-reserved range for temporary curves.
-    /// Each native line-segment construction consumes one identity.
-    pub next_key: u64,
 }
 
 /// The output of `CreateParallelProjectionCurves`.
@@ -1733,681 +1721,19 @@ fn create_parallel_projection_curves(
     })
 }
 
-/// Handles retain the distinction between projected curves and the B-rep's
-/// actual topology/geometry. No integer sentinel stands in for a face or owner.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ProjectionObject {
-    Curve3d(usize),
-    UvCurve(usize),
-    Topology(EntityRef),
-    EdgeCurve(EdgeId),
-    TrimCurve(EdgeuseId),
-    Surface(FaceId),
-}
-
-impl ClassObject for ProjectionObject {
-    fn class_kind(&self) -> ClassObjectKind {
-        match self {
-            Self::Curve3d(_) | Self::UvCurve(_) | Self::EdgeCurve(_) | Self::TrimCurve(_) => {
-                ClassObjectKind::Curve
-            }
-            Self::Surface(_) => ClassObjectKind::Surface,
-            Self::Topology(entity) => match entity {
-                EntityRef::Face(_) => ClassObjectKind::Face,
-                EntityRef::Vertex(_) => ClassObjectKind::Vertex,
-                EntityRef::Edge(_) => ClassObjectKind::Edge,
-                EntityRef::Vertexuse(_) => ClassObjectKind::Vertexuse,
-                EntityRef::Edgeuse(_) => ClassObjectKind::Edgeuse,
-                EntityRef::Loop(_) => ClassObjectKind::Loop,
-                EntityRef::Faceuse(_) => ClassObjectKind::Faceuse,
-                EntityRef::Loopuse(_) => ClassObjectKind::Loopuse,
-                EntityRef::Region(_) => ClassObjectKind::Region,
-                EntityRef::Brep(_) | EntityRef::Shell(_) => ClassObjectKind::Other,
-            },
-        }
-    }
-}
-
-/// Borrow the original projection or HCR arrays without copying their geometry.
-enum ProjectionCurveSources<'a> {
-    Projected(&'a ProjectionCurves),
-    Scene {
-        curves_3d: &'a [Curve],
-        uv_curves: &'a [Curve],
-    },
-}
-
-/// Read-only view used by the already ported portions of `MergeCurvesOnSurface`.
-/// The same B-rep and source curves remain live throughout classification;
-/// downstream graph-edit dependencies still report their own missing operations.
-struct ProjectionObjects<'a> {
-    brep: &'a Brep,
-    curves: ProjectionCurveSources<'a>,
-    owner_of: &'a dyn Fn(ObjectRef) -> Option<ObjectRef>,
-}
-
-impl ClassGeometry<ProjectionObject> for ProjectionObjects<'_> {
-    fn curve(&self, object: ProjectionObject) -> Option<&Curve> {
-        match object {
-            ProjectionObject::Curve3d(i) => match &self.curves {
-                ProjectionCurveSources::Projected(curves) => curves.curves_3d.get(i),
-                ProjectionCurveSources::Scene { curves_3d, .. } => curves_3d.get(i),
-            },
-            ProjectionObject::UvCurve(i) => match &self.curves {
-                ProjectionCurveSources::Projected(curves) => curves.uv_curves.get(i)?.as_ref(),
-                ProjectionCurveSources::Scene { uv_curves, .. } => uv_curves.get(i),
-            },
-            ProjectionObject::EdgeCurve(edge) => self.brep.edge(edge).ok()?.curve.as_ref(),
-            ProjectionObject::TrimCurve(edgeuse) => {
-                self.brep.edgeuse(edgeuse).ok()?.uv_trim_curve.as_ref()
-            }
-            _ => None,
-        }
-    }
-    fn surface(&self, object: ProjectionObject) -> Option<&Surface> {
-        match object {
-            ProjectionObject::Surface(face) => self.brep.face(face).ok()?.surface.as_ref(),
-            _ => None,
-        }
-    }
-    fn volume(&self, _object: ProjectionObject) -> Option<&crate::surface::volume::Volume> {
-        // This handle type has no volume variant.
-        None
-    }
-    fn point(&self, _object: ProjectionObject) -> Option<Point3> {
-        // This handle type has no standalone point variant.
-        None
-    }
-    fn classification_vertex_point(&self, object: ProjectionObject) -> Option<Point3> {
-        match object {
-            ProjectionObject::Topology(EntityRef::Vertex(vertex)) => {
-                Some(self.brep.vertex(vertex).ok()?.point)
-            }
-            _ => None,
-        }
-    }
-    fn topology_zone_tol_3d(&self, object: ProjectionObject) -> Option<f64> {
-        match object {
-            ProjectionObject::Topology(EntityRef::Vertex(vertex)) => {
-                Some(self.brep.vertex(vertex).ok()?.tolerance)
-            }
-            ProjectionObject::Topology(EntityRef::Edge(edge)) => {
-                Some(self.brep.edge(edge).ok()?.tolerance)
-            }
-            ProjectionObject::Topology(EntityRef::Face(face)) => {
-                Some(self.brep.face(face).ok()?.tolerance)
-            }
-            _ => None,
-        }
-    }
-    fn topology_entity(&self, object: ProjectionObject) -> Option<(&Brep, EntityRef)> {
-        match object {
-            ProjectionObject::Topology(entity) => Some((self.brep, entity)),
-            _ => None,
-        }
-    }
-    fn topology_handle(&self, entity: EntityRef) -> Option<ProjectionObject> {
-        Some(ProjectionObject::Topology(entity))
-    }
-    fn owner_of(&self, owner: ObjectRef) -> Option<ObjectRef> {
-        (self.owner_of)(owner)
-    }
-}
-
-impl crate::query::face::p2::CurveOnClassifyObjects<ProjectionObject> for ProjectionObjects<'_> {
-    fn face(&self, face: FaceId) -> ProjectionObject {
-        ProjectionObject::Topology(EntityRef::Face(face))
-    }
-    fn vertex(&self, vertex: VertexId) -> ProjectionObject {
-        ProjectionObject::Topology(EntityRef::Vertex(vertex))
-    }
-    fn edge(&self, edge: EdgeId) -> ProjectionObject {
-        ProjectionObject::Topology(EntityRef::Edge(edge))
-    }
-    fn vertexuse(&self, vertexuse: VertexuseId) -> ProjectionObject {
-        ProjectionObject::Topology(EntityRef::Vertexuse(vertexuse))
-    }
-    fn edgeuse(&self, edgeuse: EdgeuseId) -> ProjectionObject {
-        ProjectionObject::Topology(EntityRef::Edgeuse(edgeuse))
-    }
-    fn edge_curve(&self, edge: EdgeId) -> ProjectionObject {
-        ProjectionObject::EdgeCurve(edge)
-    }
-    fn trim_curve(&self, edgeuse: EdgeuseId) -> ProjectionObject {
-        ProjectionObject::TrimCurve(edgeuse)
-    }
-    fn face_surface(&self, face: FaceId) -> Option<ProjectionObject> {
-        self.brep.face(face).ok()?.surface.as_ref()?;
-        Some(ProjectionObject::Surface(face))
-    }
-    fn loop_id(&self, object: ProjectionObject) -> Option<LoopId> {
-        match object {
-            ProjectionObject::Topology(EntityRef::Loop(loop_id)) => Some(loop_id),
-            _ => None,
-        }
-    }
-}
-
-impl p2::MergeCurvesObjects<ProjectionObject> for ProjectionObjects<'_> {
-    fn edge_of(&self, object: ProjectionObject) -> Option<EdgeId> {
-        match object {
-            ProjectionObject::Topology(EntityRef::Edge(edge)) => Some(edge),
-            _ => None,
-        }
-    }
-    fn face_of(&self, object: ProjectionObject) -> Option<FaceId> {
-        match object {
-            ProjectionObject::Topology(EntityRef::Face(face)) => Some(face),
-            _ => None,
-        }
-    }
-}
-
 fn merge_curves_on_surface(
-    k: &mut Kernel,
-    b: &Brep,
-    env: &ProjectEnv<'_>,
-    projected: &ProjectionCurves,
-    index: usize,
-    face: FaceId,
-    tolerance: f64,
-) -> Result<p2::MergedCurves> {
-    projected
-        .curves_3d
-        .get(index)
-        .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "missing projected 3D curve"))?;
-    let uv_curve = projected
-        .uv_curves
-        .get(index)
-        .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "missing projected UV curve slot"))?;
-    let objects = ProjectionObjects {
-        brep: b,
-        curves: ProjectionCurveSources::Projected(projected),
-        owner_of: env.owner_of,
-    };
-    let curves = [ProjectionObject::Curve3d(index)];
-    let uv_curves = [ProjectionObject::UvCurve(index)];
-    // The native array contains one nullable UV curve. No UV geometry is read
-    // when that entry is NULL; the classification constructor receives NULL.
-    let uv_curves = uv_curve.as_ref().map(|_| uv_curves.as_slice());
-    p2::merge_curves_on_surface(
-        k,
-        b,
-        &objects,
-        face,
-        tolerance,
-        &curves,
-        uv_curves,
-        p2::MergeCurvesOptions::default(),
-    )
-}
-
-/// HCR's `MergeCurvesOnSurface(..., TRUE)`, using its live curve arrays and
-/// owner resolver. Every 3D/UV entry keeps its original index and geometry; the
-/// native part-2 face queue decides which entries are consumed and reports its
-/// own errors for a missing UV entry. No B-rep cache or replacement owner map is
-/// constructed here.
-#[allow(clippy::too_many_arguments)] // native arrays plus their live owner context
-pub(crate) fn merge_scene_curves_on_surface(
-    k: &mut Kernel,
-    b: &Brep,
-    owner_of: &dyn Fn(ObjectRef) -> Option<ObjectRef>,
-    face: FaceId,
-    tolerance: f64,
-    curves_3d: &[Curve],
-    uv_curves: &[Curve],
-) -> Result<p2::MergedCurves> {
-    let objects = ProjectionObjects {
-        brep: b,
-        curves: ProjectionCurveSources::Scene {
-            curves_3d,
-            uv_curves,
-        },
-        owner_of,
-    };
-    let curves: Vec<_> = (0..curves_3d.len())
-        .map(ProjectionObject::Curve3d)
-        .collect();
-    let uv: Vec<_> = (0..uv_curves.len())
-        .map(ProjectionObject::UvCurve)
-        .collect();
-    p2::merge_curves_on_surface(
-        k,
-        b,
-        &objects,
-        face,
-        tolerance,
-        &curves,
-        Some(&uv),
-        p2::MergeCurvesOptions {
-            use_projection: true,
-            intersection_surface: None,
-            uv_space_okay: true,
-        },
-    )
-}
-
-/// Shape construction borrows live geometry and the caller's persistent records.
-struct ProjectShapeObjects<'a> {
-    brep: &'a Brep,
-    id: BrepId,
-    keys: &'a dyn Fn(CacheObject) -> ObjectRef,
-    records: &'a mut BTreeMap<ObjectKey, Topology>,
-}
-
-impl ProjectShapeObjects<'_> {
-    fn member_key(&self, member: ShapeMember) -> Result<ObjectKey> {
-        let (id, object) = match member {
-            ShapeMember::Face((id, face)) => (id, CacheObject::Face(face)),
-            ShapeMember::Edge((id, edge)) => (id, CacheObject::Edge(edge)),
-            ShapeMember::Vertex((id, vertex)) => (id, CacheObject::Vertex(vertex)),
-            ShapeMember::Other => {
-                return Err(SolidError::invalid_input(
-                    OP_PROJECT,
-                    "unexpected shape member",
-                ));
-            }
-        };
-        if id != self.id {
-            return Err(SolidError::invalid_input(OP_PROJECT, "foreign shape B-rep"));
-        }
-        Ok((self.keys)(object).key)
-    }
-}
-
-impl ShapeObjects for ProjectShapeObjects<'_> {
-    fn brep(&self, id: BrepId) -> Result<&Brep> {
-        if id != self.id {
-            return Err(SolidError::invalid_input(
-                OP_PROJECT,
-                "unregistered shape B-rep",
-            ));
-        }
-        Ok(self.brep)
-    }
-    fn edge_owner(&self, owner: ObjectRef) -> Result<EdgeKey> {
-        self.brep
-            .edges()
-            .iter()
-            .find(|(edge, _)| (self.keys)(CacheObject::Edge(*edge)) == owner)
-            .map(|(edge, _)| (self.id, edge))
-            .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "unregistered edge owner"))
-    }
-    fn face_owner(&self, owner: ObjectRef) -> Result<FaceKey> {
-        self.brep
-            .faces()
-            .iter()
-            .find(|(face, _)| (self.keys)(CacheObject::Face(*face)) == owner)
-            .map(|(face, _)| (self.id, face))
-            .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "unregistered face owner"))
-    }
-    fn topology(&self, member: ShapeMember) -> Result<&Topology> {
-        self.records
-            .get(&self.member_key(member)?)
-            .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "missing topology mark record"))
-    }
-    fn topology_mut(&mut self, member: ShapeMember) -> Result<&mut Topology> {
-        let key = self.member_key(member)?;
-        self.records
-            .get_mut(&key)
-            .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "missing topology mark record"))
-    }
-}
-
-/// Solver handles distinguish a registered query curve from B-rep members.
-/// Its native Curve kind is retained when a solution counts curve parameters.
-#[derive(Debug, Clone, Copy, PartialEq)]
-enum ProjectSolveObject {
-    Object(CacheObject),
-    Segment(ObjectRef, Extent1d),
-}
-
-impl SolutionObject for ProjectSolveObject {
-    fn kind(&self) -> ObjectKind {
-        match self {
-            Self::Object(object) => object.kind(),
-            Self::Segment(..) => ObjectKind::Curve,
-        }
-    }
-    fn natural_interval(&self) -> Option<Extent1d> {
-        match self {
-            Self::Object(object) => object.natural_interval(),
-            Self::Segment(_, interval) => Some(*interval),
-        }
-    }
-}
-
-/// Shape-only query provider. Native `ShapeCurveSolve` uses the Shape's trees,
-/// so no whole-B-rep cache is built or advertised by this view. Source geometry,
-/// owner links and lazy face classification all use the actual mutable B-rep.
-struct ProjectSolverObjects<'a> {
-    brep: &'a mut Brep,
-    brep_id: BrepId,
-    keys: &'a dyn Fn(CacheObject) -> ObjectRef,
-    owner_of: &'a dyn Fn(ObjectRef) -> Option<ObjectRef>,
-    segment: CurveRef<'a, ProjectSolveObject>,
-}
-
-impl ProjectSolverObjects<'_> {
-    fn context_error(reason: &'static str) -> SolidError {
-        SolidError::invalid_input(OP_PROJECT, reason)
-    }
-    fn face_id(object: ProjectSolveObject) -> Result<FaceId> {
-        match object {
-            ProjectSolveObject::Object(CacheObject::Face(face)) => Ok(face),
-            _ => Err(Self::context_error("expected registered face handle")),
-        }
-    }
-    fn edge_owner(&self, owner: ObjectRef) -> Result<EdgeId> {
-        self.brep
-            .edges()
-            .iter()
-            .find(|(id, _)| (self.keys)(CacheObject::Edge(*id)) == owner)
-            .map(|(id, _)| id)
-            .ok_or_else(|| Self::context_error("unresolved edge owner"))
-    }
-    fn face_owner(&self, owner: ObjectRef) -> Result<FaceId> {
-        self.brep
-            .faces()
-            .iter()
-            .find(|(id, _)| (self.keys)(CacheObject::Face(*id)) == owner)
-            .map(|(id, _)| id)
-            .ok_or_else(|| Self::context_error("unresolved face owner"))
-    }
-}
-
-impl TopologyObjects<ProjectSolveObject> for ProjectSolverObjects<'_> {
-    fn with_brep_trees(
-        &mut self,
-        _kernel: &Kernel,
-        _first: ProjectSolveObject,
-        _second: Option<ProjectSolveObject>,
-        _solve: &mut BrepTreeSolve<'_, ProjectSolveObject>,
-    ) -> Result<SolutionArray<ProjectSolveObject>> {
-        // No B-rep handle is registered by this private ShapeCurveSolve view.
-        // This is an interface error, never an unavailable native dependency.
-        Err(Self::context_error(
-            "shape query provider has no B-rep tree handle",
-        ))
-    }
-    fn object_zone_tol_3d(
-        &self,
-        kernel: &Kernel,
-        object: Option<ProjectSolveObject>,
-    ) -> Result<f64> {
-        let source = match object {
-            Some(object) if object == self.segment.handle => {
-                return match self.segment.curve.edge(self.owner_of)? {
-                    Some(owner) => Ok(self.brep.edge(self.edge_owner(owner)?)?.tolerance),
-                    None => Ok(crate::geom::tol::zone_tol_3d(
-                        kernel,
-                        crate::geom::tol::SmallTopoType::NormalSize,
-                    )),
-                };
-            }
-            Some(ProjectSolveObject::Object(object)) => Some(object),
-            Some(ProjectSolveObject::Segment(..)) => {
-                return Err(Self::context_error("unregistered query curve"));
-            }
-            None => None,
-        };
-        crate::topology::brep_cache::object_zone_tol_3d(
-            kernel,
-            self.brep,
-            source,
-            self.keys,
-            self.owner_of,
-        )
-    }
-    fn face_point_classify(
-        &mut self,
-        kernel: &Kernel,
-        face: ProjectSolveObject,
-        uv: Vec2,
-        source_zone_tolerance: f64,
-        do_boundaries: bool,
-        use_uv: bool,
-        classification: &mut PointClassification<EntityRef>,
-    ) -> Result<()> {
-        crate::query::face::p2::point_classify(
-            kernel,
-            self.brep,
-            Self::face_id(face)?,
-            uv,
-            classification,
-            crate::query::face::p2::PointClassifyOptions {
-                src_zone_tol_3d: source_zone_tolerance,
-                do_boundary_intersections: do_boundaries,
-                use_uv_classification: use_uv,
-                ..crate::query::face::p2::PointClassifyOptions::default()
-            },
-        )
-    }
-    fn face_point_3d_classify(
-        &mut self,
-        kernel: &Kernel,
-        face: ProjectSolveObject,
-        point: Point3,
-        source_zone_tolerance: f64,
-        do_boundaries: bool,
-        classification: &mut PointClassification<EntityRef>,
-    ) -> Result<()> {
-        let face_id = Self::face_id(face)?;
-        let Some(uv) = crate::intersect::topology_solver::p1::face_point_3d_uv_with_context(
-            kernel,
-            self,
-            face,
-            face_id,
-            point,
-            source_zone_tolerance,
-            classification,
-            None,
-        )?
-        else {
-            return Ok(());
-        };
-        crate::query::face::p1::point_3d_classify_finish(
-            kernel,
-            self.brep,
-            face_id,
-            uv,
-            point,
-            source_zone_tolerance,
-            do_boundaries,
-            classification,
-            crate::query::face::p1::Point3dClassifyOptions::default(),
-        )
-    }
-    fn face_brep_editing_enabled(&self, face: ProjectSolveObject) -> Result<bool> {
-        self.brep.face(Self::face_id(face)?)?;
-        Ok(self.brep.editing_enabled)
-    }
-    fn set_face_brep_editing_enabled(
-        &mut self,
-        face: ProjectSolveObject,
-        editing: bool,
-    ) -> Result<()> {
-        self.brep.face(Self::face_id(face)?)?;
-        self.brep.editing_enabled = editing;
-        Ok(())
-    }
-    fn face_create_uv_trim_curves(
-        &mut self,
-        kernel: &Kernel,
-        face: ProjectSolveObject,
-    ) -> Result<()> {
-        crate::topology::face::p3::create_uv_trim_curves(
-            kernel,
-            self.brep,
-            Self::face_id(face)?,
-            true,
-            None,
-        )
-        .map(|_| ())
-    }
-    fn face_classification_object(
-        &self,
-        face: ProjectSolveObject,
-        entity: EntityRef,
-    ) -> Result<ProjectSolveObject> {
-        self.brep.face(Self::face_id(face)?)?;
-        let object = match entity {
-            EntityRef::Vertex(vertex) => {
-                self.brep.vertex(vertex)?;
-                CacheObject::Vertex(vertex)
-            }
-            EntityRef::Edge(edge) => {
-                self.brep.edge(edge)?;
-                CacheObject::Edge(edge)
-            }
-            EntityRef::Face(face) => {
-                self.brep.face(face)?;
-                CacheObject::Face(face)
-            }
-            _ => {
-                return Err(Self::context_error(
-                    "unsupported face classification entity",
-                ))
-            }
-        };
-        Ok(ProjectSolveObject::Object(object))
-    }
-    fn shape_member_object(&self, member: ShapeMember) -> Result<ProjectSolveObject> {
-        let (id, object) = match member {
-            ShapeMember::Vertex((id, vertex)) => {
-                self.brep.vertex(vertex)?;
-                (id, CacheObject::Vertex(vertex))
-            }
-            ShapeMember::Edge((id, edge)) => {
-                self.brep.edge(edge)?;
-                (id, CacheObject::Edge(edge))
-            }
-            ShapeMember::Face((id, face)) => {
-                self.brep.face(face)?;
-                (id, CacheObject::Face(face))
-            }
-            ShapeMember::Other => return Err(Self::context_error("not a shape member")),
-        };
-        if id != self.brep_id {
-            return Err(Self::context_error("foreign shape B-rep"));
-        }
-        Ok(ProjectSolveObject::Object(object))
-    }
-    fn curve(&self, object: ProjectSolveObject) -> Result<&Curve> {
-        if object == self.segment.handle {
-            return Ok(self.segment.curve);
-        }
-        let ProjectSolveObject::Object(CacheObject::Curve(edge)) = object else {
-            return Err(Self::context_error("unregistered curve handle"));
-        };
-        self.brep
-            .edge(edge)?
-            .curve
-            .as_ref()
-            .ok_or(SolidError::null_pointer(OP_PROJECT))
-    }
-    fn analytic_curve_handle(&self, object: ProjectSolveObject) -> Option<ProjectSolveObject> {
-        self.curve(object).ok().map(|_| object)
-    }
-    fn vertex_point(&self, object: ProjectSolveObject) -> Result<Point3> {
-        let ProjectSolveObject::Object(CacheObject::Vertex(vertex)) = object else {
-            return Err(Self::context_error("expected registered vertex handle"));
-        };
-        Ok(self.brep.vertex(vertex)?.point)
-    }
-    fn vertex_tolerance(&self, object: ProjectSolveObject) -> Result<f64> {
-        let ProjectSolveObject::Object(CacheObject::Vertex(vertex)) = object else {
-            return Err(Self::context_error("expected registered vertex handle"));
-        };
-        Ok(self.brep.vertex(vertex)?.tolerance)
-    }
-    fn curve_edge(&self, object: ProjectSolveObject) -> Result<Option<ProjectSolveObject>> {
-        self.curve(object)?
-            .edge(self.owner_of)?
-            .map(|owner| {
-                self.edge_owner(owner)
-                    .map(|edge| ProjectSolveObject::Object(CacheObject::Edge(edge)))
-            })
-            .transpose()
-    }
-    fn edge_curve(&self, object: ProjectSolveObject) -> Result<Option<ProjectSolveObject>> {
-        let ProjectSolveObject::Object(CacheObject::Edge(edge)) = object else {
-            return Err(Self::context_error("expected registered edge handle"));
-        };
-        Ok(self
-            .brep
-            .edge(edge)?
-            .curve
-            .as_ref()
-            .map(|_| ProjectSolveObject::Object(CacheObject::Curve(edge))))
-    }
-    fn edge_interval(&self, object: ProjectSolveObject) -> Result<Extent1d> {
-        let ProjectSolveObject::Object(CacheObject::Edge(edge)) = object else {
-            return Err(Self::context_error("expected registered edge handle"));
-        };
-        Ok(self.brep.edge(edge)?.interval)
-    }
-    fn surface_face(&self, object: ProjectSolveObject) -> Result<Option<ProjectSolveObject>> {
-        self.surface(object)?
-            .face()?
-            .map(|owner| {
-                self.face_owner(owner)
-                    .map(|face| ProjectSolveObject::Object(CacheObject::Face(face)))
-            })
-            .transpose()
-    }
-    fn face_surface(&self, object: ProjectSolveObject) -> Result<ProjectSolveObject> {
-        let face = Self::face_id(object)?;
-        self.brep
-            .face(face)?
-            .surface
-            .as_ref()
-            .ok_or(SolidError::null_pointer(OP_PROJECT))?;
-        Ok(ProjectSolveObject::Object(CacheObject::Surface(face)))
-    }
-    fn surface(&self, object: ProjectSolveObject) -> Result<&Surface> {
-        let ProjectSolveObject::Object(CacheObject::Surface(face)) = object else {
-            return Err(Self::context_error("expected registered surface handle"));
-        };
-        self.brep
-            .face(face)?
-            .surface
-            .as_ref()
-            .ok_or(SolidError::null_pointer(OP_PROJECT))
-    }
-    fn face_uv_domain(&self, object: ProjectSolveObject) -> Result<Extent2d> {
-        Ok(self.brep.face(Self::face_id(object)?)?.uv_domain)
-    }
-    fn face_tolerance(&self, object: ProjectSolveObject) -> Result<f64> {
-        Ok(self.brep.face(Self::face_id(object)?)?.tolerance)
-    }
-    fn surface_owner(&self, object: ProjectSolveObject) -> Result<Option<ProjectSolveObject>> {
-        self.surface(object)?
-            .owner()
-            .map(|owner| {
-                if owner.type_code == crate::topology::face::p2::TYPE {
-                    self.face_owner(owner)
-                        .map(|face| ProjectSolveObject::Object(CacheObject::Face(face)))
-                } else {
-                    Ok(ProjectSolveObject::Object(CacheObject::Other(owner)))
-                }
-            })
-            .transpose()
-    }
-    fn shape_member(&self, object: ProjectSolveObject) -> ShapeMember {
-        match object {
-            ProjectSolveObject::Object(CacheObject::Vertex(vertex)) => {
-                ShapeMember::Vertex((self.brep_id, vertex))
-            }
-            ProjectSolveObject::Object(CacheObject::Edge(edge)) => {
-                ShapeMember::Edge((self.brep_id, edge))
-            }
-            ProjectSolveObject::Object(CacheObject::Face(face)) => {
-                ShapeMember::Face((self.brep_id, face))
-            }
-            _ => ShapeMember::Other,
-        }
-    }
+    _k: &mut Kernel,
+    _b: &mut Brep,
+    _face: FaceId,
+    _tol: f64,
+    _curves_3d: &[Curve],
+    _uv_curves: &[Curve],
+) -> Result<(Vec<FaceId>, Vec<EdgeId>)> {
+    // UNPORTED(topology.brep_p2): SmBrep::MergeCurvesOnSurface
+    Err(SolidError::Unported {
+        upstream: "SmBrep::MergeCurvesOnSurface",
+        unit: "topology.brep_p2",
+    })
 }
 
 /// `sm_FindSideOfCurve` (unit `topology.brep_p1`): the `SmBoolean` it sets on success.
@@ -2426,12 +1752,20 @@ fn brep_faces(b: &Brep) -> Result<Vec<FaceId>> {
     p1::faces(b, None)
 }
 
-fn face_vertices(b: &Brep, f: FaceId) -> Result<Vec<VertexId>> {
-    crate::query::face::p2::face_vertices(b, f, false, None)
+fn face_vertices(_b: &Brep, _f: FaceId) -> Result<Vec<VertexId>> {
+    // UNPORTED(topology.face_p4): SmFace::GetVertices
+    Err(SolidError::Unported {
+        upstream: "SmFace::GetVertices",
+        unit: "topology.face_p4",
+    })
 }
 
-fn face_edges(b: &Brep, f: FaceId) -> Result<Vec<EdgeId>> {
-    crate::topology::topology_traverser::face_edges(b, f)
+fn face_edges(_b: &Brep, _f: FaceId) -> Result<Vec<EdgeId>> {
+    // UNPORTED(topology.face_p4): SmFace::GetEdges
+    Err(SolidError::Unported {
+        upstream: "SmFace::GetEdges",
+        unit: "topology.face_p4",
+    })
 }
 
 fn brep_bounding_box(k: &Kernel, b: &Brep) -> Result<Extent3d> {
@@ -2439,29 +1773,12 @@ fn brep_bounding_box(k: &Kernel, b: &Brep) -> Result<Extent3d> {
     crate::query::brep::calculate_loose_bounding_box(k, b, false, true)
 }
 
-fn point_from_solution(
-    b: &Brep,
-    solution: &Solution<ProjectSolveObject>,
-    start: usize,
-) -> Result<Point3> {
-    // Preserve the entire solution state. The shared native helper only needs
-    // an external curve's concrete type to skip its parameter before object 1;
-    // the selected shape member remains an exact B-rep handle.
-    let mapped = Solution {
-        solution_type: solution.solution_type,
-        num_variables: solution.num_variables,
-        start: solution.start,
-        end: solution.end,
-        num_objects: solution.num_objects,
-        objects: solution.objects.map(|slot| {
-            slot.map(|object| match object {
-                ProjectSolveObject::Object(object) => object,
-                ProjectSolveObject::Segment(reference, _) => CacheObject::Other(reference),
-            })
-        }),
-        nodes: solution.nodes,
-    };
-    p2::point_from_solution(b, &mapped, start)
+fn point_from_solution(_solution: &Solution<CacheObject>, _start: usize) -> Result<Point3> {
+    // UNPORTED(topology.brep_p2): sm_GetPointFromSol
+    Err(SolidError::Unported {
+        upstream: "sm_GetPointFromSol",
+        unit: "topology.brep_p2",
+    })
 }
 
 fn remove_faces(k: &mut Kernel, b: &mut Brep, faces: &[FaceId]) -> Result<()> {
@@ -2528,6 +1845,11 @@ fn project_and_trim_body(
 ) -> Result<()> {
     // Process each surface
     for (ii, &face) in projected.faces.iter().enumerate() {
+        let c3 = projected.curves_3d.get(ii).cloned();
+        let uv = projected.uv_curves.get(ii).cloned().flatten();
+        let c3: Vec<Curve> = c3.into_iter().collect();
+        let uv: Vec<Curve> = uv.into_iter().collect();
+
         // Tolerance: max of dTol, Face tol, optional given tol.
         let face_tol = b.face(face)?.tolerance;
         if face_tol > tol {
@@ -2538,7 +1860,7 @@ fn project_and_trim_body(
                 tol = t;
             }
         }
-        let _ = merge_curves_on_surface(k, b, env, projected, ii, face, tol)?;
+        let _ = merge_curves_on_surface(k, b, face, tol, &c3, &uv)?;
     }
 
     // If we're just Splitting, then we're done.
@@ -2557,12 +1879,78 @@ fn project_and_trim_body(
     remove_faces(k, b, &to_delete)
 }
 
+struct ProjectShapeObjects<'a> {
+    brep: &'a Brep,
+    id: BrepId,
+    keys: &'a dyn Fn(CacheObject) -> ObjectRef,
+    records: &'a mut BTreeMap<ObjectKey, Topology>,
+}
+
+impl ProjectShapeObjects<'_> {
+    fn member_key(&self, member: ShapeMember) -> Result<ObjectKey> {
+        let (id, object) = match member {
+            ShapeMember::Face((id, face)) => (id, CacheObject::Face(face)),
+            ShapeMember::Edge((id, edge)) => (id, CacheObject::Edge(edge)),
+            ShapeMember::Vertex((id, vertex)) => (id, CacheObject::Vertex(vertex)),
+            ShapeMember::Other => {
+                return Err(SolidError::invalid_input(
+                    OP_PROJECT,
+                    "unexpected shape member",
+                ));
+            }
+        };
+        if id != self.id {
+            return Err(SolidError::invalid_input(OP_PROJECT, "foreign shape B-rep"));
+        }
+        Ok((self.keys)(object).key)
+    }
+}
+
+impl ShapeObjects for ProjectShapeObjects<'_> {
+    fn brep(&self, id: BrepId) -> Result<&Brep> {
+        if id != self.id {
+            return Err(SolidError::invalid_input(
+                OP_PROJECT,
+                "unregistered shape B-rep",
+            ));
+        }
+        Ok(self.brep)
+    }
+    fn edge_owner(&self, owner: ObjectRef) -> Result<EdgeKey> {
+        self.brep
+            .edges()
+            .iter()
+            .find(|(edge, _)| (self.keys)(CacheObject::Edge(*edge)) == owner)
+            .map(|(edge, _)| (self.id, edge))
+            .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "unregistered edge owner"))
+    }
+    fn face_owner(&self, owner: ObjectRef) -> Result<FaceKey> {
+        self.brep
+            .faces()
+            .iter()
+            .find(|(face, _)| (self.keys)(CacheObject::Face(*face)) == owner)
+            .map(|(face, _)| (self.id, face))
+            .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "unregistered face owner"))
+    }
+    fn topology(&self, member: ShapeMember) -> Result<&Topology> {
+        self.records
+            .get(&self.member_key(member)?)
+            .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "missing topology mark record"))
+    }
+    fn topology_mut(&mut self, member: ShapeMember) -> Result<&mut Topology> {
+        let key = self.member_key(member)?;
+        self.records
+            .get_mut(&key)
+            .ok_or_else(|| SolidError::invalid_input(OP_PROJECT, "missing topology mark record"))
+    }
+}
+
 /// Classifies each face against the plane of the projected curve: by the votes of
 /// its vertices, else of its edges' mid-points, else by a ray along the projection
 /// direction.
 fn faces_to_delete(
     k: &mut Kernel,
-    b: &mut Brep,
+    b: &Brep,
     env: &mut ProjectEnv<'_>,
     curve: &BSplineCurve,
     direction: Vec3,
@@ -2624,14 +2012,15 @@ fn faces_to_delete(
             // Make a face shape with the face and its edges and vertices.
             let edge_keys: Vec<_> = edges.iter().map(|&e| (env.brep_id, e)).collect();
             let vertex_keys: Vec<_> = vertices.iter().map(|&v| (env.brep_id, v)).collect();
+            let mut shape_objects = ProjectShapeObjects {
+                brep: b,
+                id: env.brep_id,
+                keys: env.keys,
+                records: &mut *env.records,
+            };
             let shape = Shape::new_with_objects(
                 k,
-                &mut ProjectShapeObjects {
-                    brep: b,
-                    id: env.brep_id,
-                    keys: env.keys,
-                    records: env.records,
-                },
+                &mut shape_objects,
                 &[],
                 &[(env.brep_id, face)],
                 &edge_keys,
@@ -2647,40 +2036,32 @@ fn faces_to_delete(
             let ray_end = projected_center + direction * (2.0 * sphere.radius);
             let segment = Curve::from(BSplineCurve::create_line_segment(3, ray_start, ray_end)?);
 
-            let segment_key = ObjectKey(env.next_key);
-            env.next_key = env.next_key.checked_add(1).ok_or_else(|| {
-                SolidError::invalid_input(OP_PROJECT, "temporary curve identities exhausted")
-            })?;
-            let tolerance = b.tolerance();
-            let segment_ref = CurveRef {
-                curve: &segment,
-                handle: ProjectSolveObject::Segment(
-                    ObjectRef {
-                        type_code: BSPLINE_CURVE_TYPE,
-                        key: segment_key,
-                    },
-                    segment.natural_interval(),
-                ),
-            };
-            let mut objects = ProjectSolverObjects {
-                brep: &mut *b,
+            let cache = make_brep_cache(k, CacheSource::Brep(b), env.keys)?;
+            let objects = BrepObjects {
+                brep: b,
                 brep_id: env.brep_id,
+                cache: &cache,
                 keys: env.keys,
                 owner_of: env.owner_of,
-                segment: segment_ref,
             };
             // the two output vectors of the solve (uninitialised upstream)
             let vectors = [Vec3::ZERO, Vec3::ZERO];
             let solutions = TopologySolver::shape_curve_solve(
                 k,
-                &mut objects,
+                &objects,
                 &shape,
-                segment_ref.into(),
+                CurveRef {
+                    curve: &segment,
+                    handle: CacheObject::Other(ObjectRef {
+                        type_code: BSPLINE_CURVE_TYPE,
+                        key: ObjectKey(0),
+                    }),
+                },
                 &segment.natural_interval(),
                 TopologySolveOptions {
                     operation: SolverOperation::Minimize,
                     requested: SolutionRequested::Single,
-                    tolerance_3d: tolerance,
+                    tolerance_3d: b.tolerance(),
                     best_answer_so_far_sq: BIG_DOUBLE,
                     opt_vectors: &vectors,
                 },
@@ -2689,7 +2070,7 @@ fn faces_to_delete(
             let Some(first) = solutions.as_slice().first() else {
                 continue;
             };
-            let p = point_from_solution(b, first, 1)?;
+            let p = point_from_solution(first, 1)?;
             let tol1 = 5.0 * (b.face(face)?.tolerance + tol);
             match ignored(find_side_of_curve(k, curve, p, direction, tol1))? {
                 Some(side) => face_right_side = side,
@@ -2723,8 +2104,12 @@ fn delete_edge(_k: &mut Kernel, _b: &mut Brep, _e: EdgeId) -> Result<()> {
     })
 }
 
-fn brep_shell_vertices(b: &Brep) -> Result<Vec<VertexId>> {
-    p2::shell_vertices(b, None)
+fn brep_shell_vertices(_b: &Brep) -> Result<Vec<VertexId>> {
+    // UNPORTED(topology.brep_p2): SmBrep::GetShellVertices
+    Err(SolidError::Unported {
+        upstream: "SmBrep::GetShellVertices",
+        unit: "topology.brep_p2",
+    })
 }
 
 fn delete_vertex(_k: &mut Kernel, _b: &mut Brep, _v: VertexId) -> Result<()> {
@@ -2777,23 +2162,21 @@ pub struct ClosureSplit {
 /// `SmBrep::TestClosureSplitRegion(SmBoolean, SmFaceuse*, ...)` (unit
 /// `topology.brep_p6`) as the edge version calls it: `Some` outputs only for
 /// `SM_SUCCESS` (`eStat == SM_SUCCESS`), `None` for a native error status; Rust-side
-/// refusals and unported callees propagate. The same caller-owned marks,
-/// notification state and query provider are reused for every face-use call.
+/// refusals and unported callees propagate. Each call claims a fresh mark (upstream
+/// `SmNewMarkAndLock`), so a fresh [`Marks`] record per call is equivalent.
 fn test_closure_split_region_at_faceuse(
     k: &mut Kernel,
     b: &mut Brep,
-    marks: &mut Marks,
-    env: &mut edge::NotifyEnv<'_>,
     do_infinite_region_testing: bool,
     faceuse: Option<FaceuseId>,
-    queries: &mut dyn p6::RegionSplitQueries,
 ) -> Result<Option<(Option<ShellId>, Option<RegionId>)>> {
     // pFUStart->GetMate() dereferences a NULL face use upstream
     let fu = faceuse.ok_or(SolidError::invalid_input(
         OP_CLOSURE,
         "edge use without face use",
     ))?;
-    match p6::test_closure_split_region(k, b, marks, env, do_infinite_region_testing, fu, queries) {
+    match p6::test_closure_split_region(k, b, &mut Marks::default(), do_infinite_region_testing, fu)
+    {
         Ok(v) => Ok(Some(v)),
         Err(SolidError::Upstream { .. }) => Ok(None),
         Err(e) => Err(e),
@@ -2824,8 +2207,7 @@ fn cw(b: &Brep, eu: EdgeuseId) -> Result<EdgeuseId> {
 /// `SmBrep::TestClosureSplitRegion` (edge version): when `test_edge` is a spine edge
 /// (six or more edge uses) whose edge use loops pair up around the same edges, tests
 /// each paired loop's face uses for a region they close off and splits it; with
-/// `do_infinite_region_testing` the infinite region is found again. `marks`, `env`
-/// and `queries` are reused for all paired face-use calls.
+/// `do_infinite_region_testing` the infinite region is found again.
 ///
 /// # Errors
 ///
@@ -2835,11 +2217,8 @@ fn cw(b: &Brep, eu: EdgeuseId) -> Result<EdgeuseId> {
 pub fn test_closure_split_region(
     k: &mut Kernel,
     b: &mut Brep,
-    marks: &mut Marks,
-    env: &mut edge::NotifyEnv<'_>,
     do_infinite_region_testing: bool,
     test_edge: EdgeId,
-    queries: &mut dyn p6::RegionSplitQueries,
 ) -> Result<ClosureSplit> {
     // init outputs
     let mut out = ClosureSplit::default();
@@ -2922,7 +2301,7 @@ pub fn test_closure_split_region(
             let fu = eu1::faceuse(b, eu)?;
             // Note: don't SER here; no region nesting in these calls.
             if let Some((shell, Some(region))) =
-                test_closure_split_region_at_faceuse(k, b, marks, env, false, fu, queries)?
+                test_closure_split_region_at_faceuse(k, b, false, fu)?
             {
                 out.new_shells.push(shell);
                 out.new_regions.push(region);
@@ -2943,15 +2322,6 @@ mod tests {
     use crate::topology::brep_data::{
         EdgeData, EuData, FaceData, FaceuseData, Keyed, LoopData, RegionData, ShellData, VertexData,
     };
-
-    fn unexpected_ray(
-        _kernel: &mut Kernel,
-        _brep: &mut Brep,
-        _shell: ShellId,
-        _input: crate::topology::shell::ShellRayInput<EntityRef>,
-    ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
-        panic!("this topology-only fixture must not fire a geometric ray")
-    }
 
     fn key_of(e: EntityRef) -> ObjectRef {
         let (t, i) = match e {
@@ -3054,7 +2424,7 @@ mod tests {
                 start_vertex: i as u64,
                 end_vertex: n as u64,
                 prim_eu: i as i64,
-                interval: Extent1d::from_raw(0.0, 1.0),
+                interval: crate::geom::extent1d::Extent1d::from_raw(0.0, 1.0),
                 zone_tol_3d: 1e-6,
                 ..EdgeData::zeroed()
             });
@@ -3081,132 +2451,16 @@ mod tests {
         let mut b = Brep::new_with_infinite_region()?;
         let mut store = AttributeStore::new();
         let mut records = BTreeMap::new();
-        let mut queries = unexpected_ray;
         let mut env = TopologyEnv {
             all_attributes: &[],
             attributes: &mut store,
             key_of: &key_of,
             records: &mut records,
             next_key: 1,
-            region_queries: &mut queries,
         };
         make_topology_from_data(&mut k, &mut b, d, &mut env, opts)?;
         assert!(!k.context.doing_boolean());
         Ok(b)
-    }
-
-    #[test]
-    fn project_solver_resolves_only_its_registered_curve_and_live_shape_members() {
-        let mut data = square(1);
-        let brep = build(&mut data, MakeTopologyOptions::default()).unwrap();
-        let mut breps = crate::topology::Arena::<BrepId, Brep>::default();
-        let id = breps.insert(brep).unwrap();
-        let b = breps.get_mut(id).unwrap();
-        let face = b.faces().ids().next().unwrap();
-        let edge = b.edges().ids().next().unwrap();
-        b.edge_mut(edge).unwrap().tolerance = 0.125;
-        let segment = Curve::from(
-            BSplineCurve::create_line_segment(
-                3,
-                Point3::new(0.0, 0.0, -1.0),
-                Point3::new(0.0, 0.0, 1.0),
-            )
-            .unwrap(),
-        );
-        let segment_handle = ProjectSolveObject::Segment(
-            ObjectRef {
-                type_code: BSPLINE_CURVE_TYPE,
-                key: ObjectKey(1u64 << 55),
-            },
-            segment.natural_interval(),
-        );
-        let keys = |object| match object {
-            CacheObject::Face(face) | CacheObject::Surface(face) => key_of(EntityRef::Face(face)),
-            CacheObject::Edge(edge) | CacheObject::Curve(edge) => key_of(EntityRef::Edge(edge)),
-            CacheObject::Vertex(vertex) => key_of(EntityRef::Vertex(vertex)),
-            other => crate::topology::brep_cache::arena_identity(other),
-        };
-        let owner_of = |_: ObjectRef| None;
-        let objects = ProjectSolverObjects {
-            brep: b,
-            brep_id: id,
-            keys: &keys,
-            owner_of: &owner_of,
-            segment: CurveRef {
-                curve: &segment,
-                handle: segment_handle,
-            },
-        };
-        let k = Kernel::default();
-        assert_eq!(segment_handle.kind(), ObjectKind::Curve);
-        assert_eq!(
-            segment_handle.natural_interval(),
-            Some(segment.natural_interval())
-        );
-        assert!(core::ptr::eq(
-            core::ptr::from_ref(objects.curve(segment_handle).unwrap()),
-            core::ptr::from_ref(&segment),
-        ));
-        assert_eq!(objects.curve_edge(segment_handle).unwrap(), None);
-        assert_eq!(
-            objects
-                .object_zone_tol_3d(&k, Some(segment_handle))
-                .unwrap(),
-            crate::geom::tol::zone_tol_3d(&k, crate::geom::tol::SmallTopoType::NormalSize),
-        );
-        let unknown = ProjectSolveObject::Segment(
-            ObjectRef {
-                type_code: BSPLINE_CURVE_TYPE,
-                key: ObjectKey((1u64 << 55) + 1),
-            },
-            segment.natural_interval(),
-        );
-        assert!(matches!(
-            objects.curve(unknown),
-            Err(SolidError::InvalidInput { .. })
-        ));
-        assert!(matches!(
-            objects.object_zone_tol_3d(&k, Some(unknown)),
-            Err(SolidError::InvalidInput { .. }),
-        ));
-        let edge_curve = ProjectSolveObject::Object(CacheObject::Curve(edge));
-        assert_eq!(
-            objects.object_zone_tol_3d(&k, Some(edge_curve)).unwrap(),
-            0.125
-        );
-        let face_member = ShapeMember::Face((id, face));
-        assert_eq!(
-            objects.shape_member_object(face_member).unwrap(),
-            ProjectSolveObject::Object(CacheObject::Face(face)),
-        );
-        assert_eq!(
-            objects.shape_geometry_object(face_member).unwrap(),
-            ProjectSolveObject::Object(CacheObject::Surface(face)),
-        );
-        assert!(core::ptr::eq(
-            core::ptr::from_ref(
-                objects
-                    .surface(ProjectSolveObject::Object(CacheObject::Surface(face)))
-                    .unwrap()
-            ),
-            core::ptr::from_ref(objects.brep.face(face).unwrap().surface.as_ref().unwrap()),
-        ));
-
-        // The line parameter precedes the face's UVs even though the temporary
-        // line is stored outside the B-rep. Its concrete curve identity survives
-        // the bridge into sm_GetPointFromSol.
-        let mut solution = Solution::new();
-        solution.num_objects = 2;
-        solution.num_variables = 3;
-        solution.objects[0] = Some(segment_handle);
-        solution.objects[1] = Some(ProjectSolveObject::Object(CacheObject::Face(face)));
-        solution.start.parameters[0] = 0.75;
-        solution.start.parameters[1] = 0.125;
-        solution.start.parameters[2] = 0.875;
-        assert_eq!(
-            point_from_solution(objects.brep, &solution, 1).unwrap(),
-            Point3::new(0.125, 0.875, 0.0),
-        );
     }
 
     #[test]
@@ -3216,10 +2470,6 @@ mod tests {
             let mut d = square(mf);
             let b = build(&mut d, MakeTopologyOptions::default()).unwrap();
             assert_eq!(b.regions().len(), 1);
-            assert_eq!(
-                p1::regions(&b, None).unwrap(),
-                vec![b.infinite_region().unwrap()]
-            );
             assert_eq!(b.faces().len(), 1);
             assert_eq!(b.edges().len(), 4);
             assert_eq!(b.edgeuses().len(), 8);
@@ -3256,72 +2506,7 @@ mod tests {
     }
 
     #[test]
-    fn projection_topology_handles_retain_the_live_brep() {
-        let mut data = square(1);
-        let b = build(&mut data, MakeTopologyOptions::default()).unwrap();
-        let objects = ProjectionObjects {
-            brep: &b,
-            curves: ProjectionCurveSources::Scene {
-                curves_3d: &[],
-                uv_curves: &[],
-            },
-            owner_of: &|_| None,
-        };
-        for entity in [
-            EntityRef::Face(FaceId::from_index(0)),
-            EntityRef::Edge(EdgeId::from_index(0)),
-            EntityRef::Vertex(VertexId::from_index(0)),
-            EntityRef::Loop(LoopId::from_index(0)),
-        ] {
-            let handle = objects.topology_handle(entity).unwrap();
-            let (resolved_brep, resolved_entity) = objects.topology_entity(handle).unwrap();
-            assert!(std::ptr::eq(resolved_brep, std::ptr::from_ref(&b)));
-            assert_eq!(resolved_entity, entity);
-        }
-        assert!(objects
-            .topology_entity(ProjectionObject::Curve3d(0))
-            .is_none());
-    }
-
-    #[test]
-    fn hcr_merge_keeps_later_curve_and_missing_uv_error() {
-        let mut data = square(1);
-        let mut b = build(&mut data, MakeTopologyOptions::default()).unwrap();
-        b.set_editing_enabled(true);
-        let mut k = Kernel::default();
-        k.context.set_doing_boolean(true);
-        let line = |length| {
-            Curve::from(crate::curve::line::Line::from_points(
-                Point3::ZERO,
-                Point3::new(length, 0.0, 0.0),
-                3,
-            ))
-        };
-        // The first curve is shorter than tolerance and needs no UV inspection.
-        // The second must still be visited; zipping the arrays would hide it.
-        let curves = [line(0.01), line(1.0)];
-        let uv = [line(0.01)];
-        let result = merge_scene_curves_on_surface(
-            &mut k,
-            &b,
-            &|_| panic!("no owner is queried before the missing UV entry"),
-            FaceId::from_index(0),
-            0.1,
-            &curves,
-            &uv,
-        );
-        assert!(matches!(
-            result,
-            Err(SolidError::InvalidInput {
-                reason: "missing UV curve",
-                ..
-            })
-        ));
-        assert!(k.context.doing_boolean());
-    }
-
-    #[test]
-    fn healing_runs_and_manifold_is_recomputed() {
+    fn healing_runs_and_manifold_is_unported() {
         // HealBrep (topology.brep_p1) runs; only the healer's own later stubs defer
         let mut d = square(1);
         d.healer_version = 0;
@@ -3337,12 +2522,11 @@ mod tests {
             ..MakeTopologyOptions::default()
         };
         assert!(build(&mut d, opts).is_ok());
-        // an UNSURE manifold flag is computed (IsManifoldSolid): a sheet is not a
-        // manifold solid
         let mut d = square(UNSURE);
-        let b = build(&mut d, MakeTopologyOptions::default()).unwrap();
+        assert!(build(&mut d, MakeTopologyOptions::default())
+            .unwrap_err()
+            .is_unported());
         assert_eq!(d.manifold, 0);
-        assert!(!p2::is_manifold_solid(&b).unwrap());
         // sm_AddAttributes: an index past rAllAttributes (empty here)
         let mut d = square(1);
         d.attributes.push(0);
@@ -3390,14 +2574,12 @@ mod tests {
         let mut b = Brep::new();
         let mut store = AttributeStore::new();
         let mut records = BTreeMap::new();
-        let mut queries = unexpected_ray;
         let mut env = TopologyEnv {
             all_attributes: &[],
             attributes: &mut store,
             key_of: &key_of,
             records: &mut records,
             next_key: 1,
-            region_queries: &mut queries,
         };
         assert!(make_topology_from_data(
             &mut k,
@@ -3416,11 +2598,6 @@ mod tests {
         let b = build(&mut d, MakeTopologyOptions::default()).unwrap();
         // infinite + solid region, two shells (outer face uses swapped inside)
         assert_eq!(b.regions().len(), 2);
-        assert_eq!(
-            p1::regions(&b, None).unwrap(),
-            vec![RegionId::from_index(0), RegionId::from_index(1)],
-        );
-        assert_eq!(b.infinite_region(), Some(RegionId::from_index(0)));
         assert_eq!(b.shells().len(), 2);
         assert_eq!(b.region(RegionId::from_index(0)).unwrap().is_void, 1);
         assert_eq!(b.region(RegionId::from_index(1)).unwrap().is_void, 0);
@@ -3488,7 +2665,7 @@ mod tests {
                         start_vertex: key.0 as u64,
                         end_vertex: key.1 as u64,
                         prim_eu: d.edgeuses.len() as i64,
-                        interval: Extent1d::from_raw(0.0, 1.0),
+                        interval: crate::geom::extent1d::Extent1d::from_raw(0.0, 1.0),
                         ..EdgeData::zeroed()
                     });
                     edges.len() - 1
@@ -3524,93 +2701,17 @@ mod tests {
         let mut d = triangles(&pts, &[[0, 1, 2], [0, 1, 3], [0, 1, 4]]);
         let mut b = build(&mut d, opts).unwrap();
         let mut k = Kernel::default();
-        let mut marks = Marks::default();
-        let mut notify = p2::RegionNotifyState::new(&b);
-        let mut queries = unexpected_ray;
         assert_eq!(b.edge(EdgeId::from_index(0)).unwrap().edgeuses.len(), 6);
         for e in b.edges().ids().collect::<Vec<_>>() {
-            let r = test_closure_split_region(
-                &mut k,
-                &mut b,
-                &mut marks,
-                &mut notify.env(),
-                true,
-                e,
-                &mut queries,
-            )
-            .unwrap();
+            let r = test_closure_split_region(&mut k, &mut b, true, e).unwrap();
             assert_eq!(r, ClosureSplit::default());
         }
-        // The doubled triangle closes a shell. Native SmBrep.cpp:27864-27914
-        // moves the entire radial component, including both uses of the third
-        // face's attached sheet; the two opposite uses stay in the old shell.
+        // a doubled triangle: its loops traverse the same edges, so the face use
+        // version (unported) is reached
         let mut d = triangles(&pts, &[[0, 1, 2], [0, 1, 2], [0, 1, 3]]);
         let mut b = build(&mut d, opts).unwrap();
-        let old_shell = ShellId::from_index(0);
-        let old_region = RegionId::from_index(0);
-        let mut original_faceuses = b.shell(old_shell).unwrap().get_faceuses().unwrap();
-        let spine = EdgeId::from_index(0);
-        let original_spine_uses = b.edge(spine).unwrap().edgeuses.clone();
-        let was_editing = b.editing_enabled();
-        let mut marks = Marks::default();
-        let mut notify = p2::RegionNotifyState::new(&b);
-        let r = test_closure_split_region(
-            &mut k,
-            &mut b,
-            &mut marks,
-            &mut notify.env(),
-            false,
-            spine,
-            &mut queries,
-        )
-        .unwrap();
-        let new_shell = ShellId::from_index(1);
-        let new_region = RegionId::from_index(2);
-        assert_eq!(r.new_shells, [Some(new_shell)]);
-        assert_eq!(r.new_regions, [new_region]);
-        assert_eq!(b.shells().len(), 2);
-        assert_eq!(b.regions().len(), 3);
-        assert_eq!(
-            p1::regions(&b, None).unwrap(),
-            [old_region, RegionId::from_index(1), new_region]
-        );
-        assert_eq!(b.infinite_region(), Some(old_region));
-        assert_eq!(b.region(old_region).unwrap().shells, [old_shell]);
-        assert_eq!(b.region(new_region).unwrap().shells, [new_shell]);
-        assert_eq!(b.region(new_region).unwrap().is_void, 0);
-        assert_eq!(b.shell(old_shell).unwrap().region, Some(old_region));
-        assert_eq!(b.shell(new_shell).unwrap().region, Some(new_region));
-        let old_uses = b.shell(old_shell).unwrap().get_faceuses().unwrap();
-        let new_uses = b.shell(new_shell).unwrap().get_faceuses().unwrap();
-        assert_eq!(old_uses.len(), 2);
-        assert_eq!(new_uses.len(), 4);
-        let mut closed_faces = Vec::new();
-        for (owner, uses) in [(old_shell, &old_uses), (new_shell, &new_uses)] {
-            for &fu in uses {
-                let faceuse = b.faceuse(fu).unwrap();
-                assert_eq!(faceuse.shell, Some(owner));
-                let mate = b.faceuse(faceuse.mate.unwrap()).unwrap();
-                assert_eq!(mate.mate, Some(fu));
-                // Only the sheet has both sides on the same shell. Each of the
-                // doubled faces separates the old and newly closed regions.
-                assert_eq!(
-                    mate.shell == faceuse.shell,
-                    faceuse.face == Some(FaceId::from_index(2))
-                );
-                if owner == new_shell {
-                    closed_faces.push(faceuse.face.unwrap().index());
-                }
-            }
-        }
-        closed_faces.sort_unstable();
-        assert_eq!(closed_faces, [0, 1, 2, 2]);
-        let mut partition = old_uses;
-        partition.extend(new_uses);
-        partition.sort_unstable();
-        original_faceuses.sort_unstable();
-        assert_eq!(partition, original_faceuses);
-        assert_eq!(b.edge(spine).unwrap().edgeuses, original_spine_uses);
-        assert_eq!(b.editing_enabled(), was_editing);
+        let r = test_closure_split_region(&mut k, &mut b, false, EdgeId::from_index(0));
+        assert!(r.unwrap_err().is_unported());
     }
 
     #[test]
@@ -3618,19 +2719,7 @@ mod tests {
         let mut d = square(1);
         let mut b = build(&mut d, MakeTopologyOptions::default()).unwrap();
         let mut k = Kernel::default();
-        let mut marks = Marks::default();
-        let mut notify = p2::RegionNotifyState::new(&b);
-        let mut queries = unexpected_ray;
-        let r = test_closure_split_region(
-            &mut k,
-            &mut b,
-            &mut marks,
-            &mut notify.env(),
-            true,
-            EdgeId::from_index(0),
-            &mut queries,
-        )
-        .unwrap();
+        let r = test_closure_split_region(&mut k, &mut b, true, EdgeId::from_index(0)).unwrap();
         assert_eq!(r, ClosureSplit::default());
         assert!(remove_all_topology(&mut k, &mut b).is_err());
         b.set_editing_enabled(true);

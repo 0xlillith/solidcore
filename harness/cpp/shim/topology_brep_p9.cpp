@@ -9,7 +9,7 @@ SC_EXPORT int32_t sc_topology_brep_p9_eval(int32_t op, int32_t export_only,
     const char* path, const double* in, int64_t n,
     double parameter, const double* point, double start_tol, double end_tol,
     double* out, int64_t cap, int64_t* len) {
-    if (!path || !in || !point || !len || n < 1 || op < 0 || op > 8 || export_only < 0 || export_only > 2 || selector < 0 || variant < 0 || variant > 5)
+    if (!path || !in || !point || !len || n < 1 || op < 0 || op > 8 || selector < 0 || variant < 0 || variant > 5)
         return SC_ERR_ARG;
     SC_TRY
     Rd rd{in,0}; Built built; SmStatus status;
@@ -53,15 +53,15 @@ SC_EXPORT int32_t sc_topology_brep_p9_eval(int32_t op, int32_t export_only,
         edge->GetStartVertex()->SetTolerance(start_tol,FALSE);
         edge->GetEndVertex()->SetTolerance(end_tol,FALSE);
     }
+    if (export_only == 2) {
+        // Exact PRE metadata after native fixture preparation, before operation.
+        std::vector<double> result;
+        append_query_metadata(b,g,result);
+        return sc_copy_out(result.data(),result.size(),out,cap,len);
+    }
     if (export_only) {
         std::vector<double> result={(double)g.find(8,start_vu),(double)g.find(8,end_vu),0.0};
         export_graph(b,g,result);
-        if (export_only == 2) {
-            // Export graph and query facts from this same prepared B-rep. The
-            // historical export-only and operation protocols stay unchanged.
-            result.insert(result.begin(),(double)result.size());
-            append_query_metadata(b,g,result);
-        }
         return sc_copy_out(result.data(),result.size(),out,cap,len);
     }
     b->m_bEditingEnabled = editing ? TRUE : FALSE;

@@ -334,15 +334,13 @@ pub fn find_edge(brep: &Brep, point: Point3) -> Result<Option<EdgePick>> {
 /// Returns `None` when no solution is a face (upstream `SM_ERR`).
 /// The caller supplies its kernel, B-rep id, object keys and intermediate owners;
 /// owner keys must use the same mapping that assigned the geometry's owner links.
-/// The original B-rep is mutable so point classification retains any trim curves
-/// it creates while solving.
 ///
 /// # Errors
 /// Errors from B-rep cache construction and `BrepPointSolve`, including
 /// explicit deferrals for their unfinished dependencies.
 pub fn find_face(
     kernel: &Kernel,
-    brep: &mut Brep,
+    brep: &Brep,
     brep_id: BrepId,
     point: Point3,
     keys: &dyn Fn(CacheObject) -> ObjectRef,
@@ -477,7 +475,7 @@ fn brep_edges(brep: &Brep) -> Result<Vec<EdgeId>> {
 /// SM_BIG_DOUBLE, NULL, solutions)`: per solution, its first object if it is a face.
 fn brep_point_solve_faces(
     kernel: &Kernel,
-    brep: &mut Brep,
+    brep: &Brep,
     brep_id: BrepId,
     pt: Point3,
     tol: f64,
@@ -489,7 +487,7 @@ fn brep_point_solve_faces(
     use crate::intersect::topology_solver::p2::TopologySolveOptions;
     use crate::topology::brep_cache::{make_brep_cache, BrepObjects, CacheSource};
     let cache = make_brep_cache(kernel, CacheSource::Brep(brep), keys)?;
-    let mut objects = BrepObjects {
+    let objects = BrepObjects {
         brep,
         brep_id,
         cache: &cache,
@@ -498,7 +496,7 @@ fn brep_point_solve_faces(
     };
     let solutions = TopologySolver::brep_point_solve(
         kernel,
-        &mut objects,
+        &objects,
         Some(CacheObject::Brep),
         pt,
         TopologySolveOptions {
@@ -607,22 +605,16 @@ mod tests {
                 ..
             })
         ));
-        // Cache construction now reaches the actual B-rep box. This fixture has
-        // no faces and its curve has no owner, so BuildTrees omits that curve and
-        // FindFace returns no face after the real point solve.
-        let mut breps = crate::topology::Arena::<BrepId, Brep>::default();
-        let id = breps.insert(brep).unwrap();
-        assert_eq!(
+        assert!(matches!(
             find_face(
                 &Kernel::default(),
-                breps.get_mut(id).unwrap(),
-                id,
+                &brep,
+                BrepId::from_index(7),
                 p(0.0, 0.0, 0.0),
                 &crate::topology::brep_cache::arena_identity,
                 &|_| None,
-            )
-            .unwrap(),
-            None,
-        );
+            ),
+            Err(SolidError::Unported { .. })
+        ));
     }
 }

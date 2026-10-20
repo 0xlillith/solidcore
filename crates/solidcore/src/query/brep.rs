@@ -209,7 +209,8 @@ pub fn quadric_edge_attribute(
 /// The boundary solve, region list and ray-fire access used by [`point_3d_classify`].
 /// Handles remain caller-owned. [`BrepPointObjects`] resolves these operations
 /// against a live B-rep and its spatial cache, preserving its concrete geometry.
-/// Mutable access is required because ray sectoring may create UV trim curves.
+/// Mutable adapter access retains query-cache and classification state. The current
+/// [`BrepPointObjects`] borrows geometry read-only and defers unported ray fire.
 pub trait BrepClassifyObjects<O> {
     /// The first `BrepPointSolve(INTERSECT, SINGLE)` boundary hit, loaded into
     /// `classification` with `LoadFromIntersection`. Returns false without writing
@@ -334,7 +335,7 @@ impl Default for BoundingBoxOptions {
 fn face_bounding_box(kernel: &Kernel, brep: &Brep, face: FaceId, out: &mut Extent3d) -> Result<()> {
     // The loose face calculation writes its caller's box only on success. In
     // particular, the tight B-rep loop reuses the previous face's box on failure.
-    *out = crate::query::face::p1::calculate_loose_bounding_box(kernel, brep, face)?;
+    *out = crate::query::face::p1::calculate_bounding_box(kernel, brep, face, false)?;
     Ok(())
 }
 fn face_tight_bounding_box(
@@ -353,8 +354,9 @@ fn face_tight_bounding_box(
 /// [`crate::topology::brep::p1`], in their recorded order. Tolerance expansion is
 /// per object, in addition to any expansion performed by that object's box
 /// calculation; disabling it does not disable the child's own expansion.
-/// The tight face path can attach UV trim curves to the original B-rep. Use
-/// [`calculate_loose_bounding_box`] for a read-only query with `tight = false`.
+/// The tight path delegates to the current face query, which uses a local B-rep
+/// copy for point classification. [`calculate_loose_bounding_box`] provides the
+/// read-only entry point with `tight = false`.
 ///
 /// # Errors
 /// Propagates the first failing list lookup or edge or face box calculation.
@@ -410,7 +412,7 @@ pub fn calculate_loose_bounding_box(
     )?;
     for id in faces {
         let tolerance = brep.face(id)?.tolerance;
-        let mut fbox = crate::query::face::p1::calculate_loose_bounding_box(kernel, brep, id)?;
+        let mut fbox = crate::query::face::p1::calculate_bounding_box(kernel, brep, id, false)?;
         if expand_by_zone_tolerance {
             fbox.expand_absolute(tolerance);
         }

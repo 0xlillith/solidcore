@@ -73,14 +73,14 @@
 //!   [`HealData::cache_coin_vertices`] returns `false` there. Its only caller,
 //!   `HealTgts`, initialises that flag to `FALSE` once per call and runs the step
 //!   at most once, so the caller sees the same value.
-//! - **Dependency wiring:** `SmBrep::SetTolerance` (`topology.brep_p2`),
-//!   `SmFace::SetTolerance` and `SmFace::IsDegenerate` (`topology.face_p3`),
-//!   and the `SmBrep` overloads of `SmTol::GetModelSizeEstimate`,
+//! - **Unported callees** (`UNPORTED` stubs): `SmBrep::SetTolerance`
+//!   (`topology.brep_p2`). `SmFace::SetTolerance` and `SmFace::IsDegenerate`
+//!   (`topology.face_p3`) and the `SmBrep` overloads of `SmTol::GetModelSizeEstimate`,
 //!   `SetModelSizeEstimate` and `GetZoneTol3d` (`SmBrep::GetThisModelSizeEstimate`,
 //!   `SetThisModelSizeEstimate`, `GetTolerance`; `topology.brep_p1`) are wired.
-//!   Their errors propagate at the actual call; `Cache_DegenFaces` can still reach
-//!   an unported callee of `IsDegenerate`, including `SmCurveClassification`
-//!   (`intersect.curve_class_p4`).
+//!   `Fix_TolSizes` therefore stops at `SmBrep::SetTolerance` after setting the model
+//!   size estimate; `Cache_DegenFaces` defers where `IsDegenerate` does
+//!   (`SmCurveClassification`).
 //! - No recursion; no allocation from caller counts beyond the target lists given.
 
 use crate::error::{Result, SolidError};
@@ -1982,9 +1982,13 @@ fn set_brep_model_size_estimate(k: &mut Kernel, b: &mut Brep, size: f64) -> f64 
     b.set_this_model_size_estimate(k, size)
 }
 
-/// `SmBrep::SetTolerance(sZoneTol3d)` (`SM_OLDTOL_LINE`, default arguments).
-fn set_brep_tolerance(k: &Kernel, b: &mut Brep, zone_tol_3d: f64) -> Result<()> {
-    crate::topology::brep::p2::set_tolerance(k, b, zone_tol_3d, true, true)
+/// `SmBrep::SetTolerance` (`SM_OLDTOL_LINE`).
+fn set_brep_tolerance(_b: &mut Brep, _zone_tol_3d: f64) -> Result<()> {
+    // UNPORTED(topology.brep_p2): SmBrep::SetTolerance
+    Err(SolidError::Unported {
+        upstream: "SmBrep::SetTolerance",
+        unit: "topology.brep_p2",
+    })
 }
 
 /// `SmFace::SetTolerance(sNewZoneTol3d, bUpdateOnlyIfLarger)` (`bCascadeToBndries`
@@ -3002,9 +3006,9 @@ impl<O: LoopObject> HealData<O> {
     ///
     /// # Errors
     ///
-    /// Those of the B-rep and face tolerance setters, including unported downstream
-    /// callees; [`SolidError::InvalidInput`] for a dangling props record or one
-    /// without its topology.
+    /// [`SolidError::Unported`] for `SmBrep::SetTolerance` (`topology.brep_p2`) and
+    /// whatever the face tolerance setter reaches; [`SolidError::InvalidInput`] for a dangling props record
+    /// or one without its topology.
     #[allow(clippy::too_many_lines)]
     pub fn fix_tol_sizes(
         &mut self,
@@ -3063,7 +3067,7 @@ impl<O: LoopObject> HealData<O> {
                 set_brep_model_size_estimate(k, b, this_model_size);
             }
         }
-        set_brep_tolerance(k, b, this_est_zone_tol_3d)?;
+        set_brep_tolerance(b, this_est_zone_tol_3d)?;
 
         // for every problem Face - Calc and Store a new ZoneTol3d
         for &id in &bad_tol_face_props {

@@ -1,8 +1,6 @@
 //! Public `SmApi` queries against real native geometry. Topology inputs are imported
 //! from the established raw graph exporter; all query results come from `SmApi*`.
 //! Analytic wire curves are reconstructed as their concrete Rust kinds after import.
-//! Face closest-point queries retain the fixture's topology marks and resolve
-//! geometry owners through registered object keys when constructing their Shape.
 use crate::case::CaseContext;
 use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -13,8 +11,8 @@ use solidcore::curve::ellipse::{Ellipse, EllipseOptions};
 use solidcore::curve::line::{BoundedLineOptions, Line};
 use solidcore::geom::extent1d::Extent1d;
 use solidcore::geom::object::{EdgeKey, FaceKey, ObjectRef, ShapeMember, ShapeObjects};
-use solidcore::geom::solution_array::{ObjectKind, SolutionObject};
 use solidcore::intersect::point_class::PointClassification;
+use solidcore::geom::solution_array::{ObjectKind, SolutionObject};
 use solidcore::intersect::topology_solver::p1::TopologyObjects;
 use solidcore::kernel::Kernel;
 use solidcore::math::{Point3, Vec3};
@@ -30,9 +28,9 @@ use solidcore::surface::surf_of_revolution::SurfOfRevolution;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::brep_cache::BrepCache;
 use solidcore::topology::brep_cache::{arena_identity, CacheObject, CacheSource};
-use solidcore::topology::topology::Topology;
 use solidcore::topology::{Brep, BrepId, EdgeId, FaceId, FaceuseId, VertexId};
 use solidcore::{EntityRef, Result, SolidError};
+use solidcore::topology::topology::Topology;
 use solidcore_ffi::units::query_api_queries as ffi;
 
 /// Differential coverage of the public geometry and topology queries.
@@ -428,16 +426,11 @@ struct ShapeRecord {
 
 struct Objects<'a> {
     breps: [&'a mut Brep; 2],
-    caches: [std::rc::Rc<BrepCache<Object>>; 2],
-    // The two-scene solve stores namespaced Object handles, while the live
-    // single-B-rep classifier stores CacheObject handles. There is no borrowed
-    // tree remapping between these types yet, so the harness keeps a separate,
-    // lazily built classification cache for each original B-rep. Geometry and
-    // owners are shared; these cases do not measure native cache-build costs.
+    caches: [BrepCache<Object>; 2],
+    // The namespaced solver trees and single-B-rep classifier use distinct handle
+    // types; each original B-rep retains its own lazy classification cache.
+    // These fixtures do not qualify equivalence of native cache-build costs.
     point_caches: [Option<BrepCache>; 2],
-    // Records belong to this fixture's live objects and survive shape queries.
-    // They are registered only for a Shape source; other API operations need no
-    // mark storage. The closest-face fixture has one non-empty source B-rep.
     shape_records: Vec<ShapeRecord>,
 }
 impl<'a> Objects<'a> {
@@ -445,8 +438,8 @@ impl<'a> Objects<'a> {
         Ok(Self {
             breps,
             caches: [
-                std::rc::Rc::new(BrepCache::new(solidcore::geom::a_object::BREP_TYPE)?),
-                std::rc::Rc::new(BrepCache::new(solidcore::geom::a_object::BREP_TYPE)?),
+                BrepCache::new(solidcore::geom::a_object::BREP_TYPE)?,
+                BrepCache::new(solidcore::geom::a_object::BREP_TYPE)?,
             ],
             point_caches: [None, None],
             shape_records: Vec::new(),
@@ -454,17 +447,12 @@ impl<'a> Objects<'a> {
     }
     fn build(&mut self, k: &Kernel) -> Result<()> {
         for (i, (cache, brep)) in self.caches.iter_mut().zip(&self.breps).enumerate() {
-            std::rc::Rc::get_mut(cache)
-                .ok_or(SolidError::invalid_input(
-                    "query api cache build",
-                    "cache is in use",
-                ))?
-                .build_trees(
-                    k,
-                    CacheSource::Brep(brep),
-                    |o| Object(i, o),
-                    &arena_identity,
-                )?;
+            cache.build_trees(
+                k,
+                CacheSource::Brep(brep),
+                |o| Object(i, o),
+                &arena_identity,
+            )?;
         }
         Ok(())
     }
@@ -474,7 +462,6 @@ impl<'a> Objects<'a> {
             .map(|brep| &**brep)
             .ok_or(SolidError::sm_err("query api scene handle"))
     }
-
     fn register_shape(&mut self, id: BrepId) -> Result<()> {
         let brep = self.breps.get(id.index() as usize).ok_or_else(|| {
             SolidError::invalid_input("query api shape context", "unregistered B-rep")
@@ -612,211 +599,9 @@ impl api::BrepRelationshipObjects<Object> for Objects<'_> {
 }
 
 impl TopologyObjects<Object> for Objects<'_> {
-    fn with_brep_trees(
-        &mut self,
-        k: &Kernel,
-        first: Object,
-        second: Option<Object>,
-        solve: &mut solidcore::intersect::topology_solver::p1::BrepTreeSolve<'_, Object>,
-    ) -> Result<solidcore::geom::solution_array::SolutionArray<Object>> {
-        fn trees(
-            cache: &BrepCache<Object>,
-        ) -> Result<solidcore::intersect::topology_solver::p2::TopologyTrees<'_, Object>> {
-            Ok(solidcore::intersect::topology_solver::p2::TopologyTrees {
-                vertices: cache
-                    .vertex_tree()
-                    .ok_or(SolidError::null_pointer("query api vertex tree"))?,
-                curves: cache
-                    .curve_tree()
-                    .ok_or(SolidError::null_pointer("query api curve tree"))?,
-                surfaces: cache
-                    .surface_tree()
-                    .ok_or(SolidError::null_pointer("query api surface tree"))?,
-            })
-        }
-        let cache = |world: &Self, handle: Object| -> Result<std::rc::Rc<BrepCache<Object>>> {
-            world.brep_cache(k, handle)?;
-            world
-                .caches
-                .get(handle.0)
-                .cloned()
-                .ok_or(SolidError::sm_err("query api scene cache"))
-        };
-        let first_cache = cache(self, first)?;
-        let first_trees = trees(&first_cache)?;
-        let second_cache = second.map(|handle| cache(self, handle)).transpose()?;
-        let second_trees = second_cache.as_deref().map(trees).transpose()?;
-        solve(self, first_trees, second_trees)
-    }
-    fn object_zone_tol_3d(&self, k: &Kernel, object: Option<Object>) -> Result<f64> {
-        let Some(object) = object else {
-            return Ok(solidcore::geom::tol::zone_tol_3d(
-                k,
-                solidcore::geom::tol::SmallTopoType::NormalSize,
-            ));
-        };
-        solidcore::topology::brep_cache::object_zone_tol_3d(
-            k,
-            self.b(object)?,
-            Some(object.1),
-            &arena_identity,
-            &|_| None,
-        )
-    }
-    fn face_point_classify(
-        &mut self,
-        k: &Kernel,
-        face: Object,
-        uv: solidcore::math::Vec2,
-        source_zone_tolerance: f64,
-        do_boundaries: bool,
-        use_uv: bool,
-        classification: &mut PointClassification<EntityRef>,
-    ) -> Result<()> {
-        let CacheObject::Face(id) = face.1 else {
-            return Err(SolidError::sm_err("face handle"));
-        };
-        let brep = self
-            .breps
-            .get_mut(face.0)
-            .ok_or(SolidError::sm_err("query api scene handle"))?;
-        solidcore::query::face::p2::point_classify(
-            k,
-            brep,
-            id,
-            uv,
-            classification,
-            solidcore::query::face::p2::PointClassifyOptions {
-                src_zone_tol_3d: source_zone_tolerance,
-                do_boundary_intersections: do_boundaries,
-                use_uv_classification: use_uv,
-                ..solidcore::query::face::p2::PointClassifyOptions::default()
-            },
-        )
-    }
-    fn face_point_3d_classify(
-        &mut self,
-        k: &Kernel,
-        face: Object,
-        point: Point3,
-        source_zone_tolerance: f64,
-        do_boundaries: bool,
-        classification: &mut PointClassification<EntityRef>,
-    ) -> Result<()> {
-        let CacheObject::Face(id) = face.1 else {
-            return Err(SolidError::sm_err("face handle"));
-        };
-        let Some(uv) = solidcore::intersect::topology_solver::p1::face_point_3d_uv_with_context(
-            k,
-            self,
-            face,
-            id,
-            point,
-            source_zone_tolerance,
-            classification,
-            None,
-        )?
-        else {
-            return Ok(());
-        };
-        let brep = self
-            .breps
-            .get_mut(face.0)
-            .ok_or(SolidError::sm_err("query api scene handle"))?;
-        solidcore::query::face::p1::point_3d_classify_finish(
-            k,
-            brep,
-            id,
-            uv,
-            point,
-            source_zone_tolerance,
-            do_boundaries,
-            classification,
-            solidcore::query::face::p1::Point3dClassifyOptions::default(),
-        )
-    }
-
-    fn face_brep_editing_enabled(&self, face: Object) -> Result<bool> {
-        let CacheObject::Face(id) = face.1 else {
-            return Err(SolidError::invalid_input(
-                "query api scene",
-                "expected face handle",
-            ));
-        };
-        let brep = self.b(face)?;
-        brep.face(id)?;
-        Ok(brep.editing_enabled())
-    }
-
-    fn set_face_brep_editing_enabled(&mut self, face: Object, editing: bool) -> Result<()> {
-        let CacheObject::Face(id) = face.1 else {
-            return Err(SolidError::invalid_input(
-                "query api scene",
-                "expected face handle",
-            ));
-        };
-        let brep = self
-            .breps
-            .get_mut(face.0)
-            .ok_or_else(|| SolidError::invalid_input("query api scene", "unregistered B-rep"))?;
-        brep.face(id)?;
-        brep.set_editing_enabled(editing);
-        Ok(())
-    }
-
-    fn face_create_uv_trim_curves(&mut self, k: &Kernel, face: Object) -> Result<()> {
-        let CacheObject::Face(id) = face.1 else {
-            return Err(SolidError::invalid_input(
-                "query api scene",
-                "expected face handle",
-            ));
-        };
-        let brep = self
-            .breps
-            .get_mut(face.0)
-            .ok_or_else(|| SolidError::invalid_input("query api scene", "unregistered B-rep"))?;
-        solidcore::topology::face::p3::create_uv_trim_curves(k, brep, id, true, None).map(|_| ())
-    }
-
-    fn face_classification_object(&self, face: Object, entity: EntityRef) -> Result<Object> {
-        let CacheObject::Face(id) = face.1 else {
-            return Err(SolidError::invalid_input(
-                "query api scene",
-                "expected face handle",
-            ));
-        };
-        let brep = self.b(face)?;
-        brep.face(id)?;
-        let object = match entity {
-            EntityRef::Vertex(id) => {
-                brep.vertex(id)?;
-                CacheObject::Vertex(id)
-            }
-            EntityRef::Edge(id) => {
-                brep.edge(id)?;
-                CacheObject::Edge(id)
-            }
-            EntityRef::Face(id) => {
-                brep.face(id)?;
-                CacheObject::Face(id)
-            }
-            _ => {
-                return Err(SolidError::invalid_input(
-                    "query api scene",
-                    "classification entity has no cached topology handle",
-                ))
-            }
-        };
-        Ok(Object(face.0, object))
-    }
-
-    fn brep_cache(&self, _kernel: &Kernel, o: Object) -> Result<&BrepCache<Object>> {
-        if o.1 != CacheObject::Brep {
-            return Err(SolidError::sm_err("B-rep handle"));
-        }
+    fn brep_cache(&self, o: Object) -> Result<&BrepCache<Object>> {
         self.caches
             .get(o.0)
-            .map(std::rc::Rc::as_ref)
             .ok_or(SolidError::sm_err("query api scene cache"))
     }
     fn curve(&self, o: Object) -> Result<&Curve> {
@@ -956,16 +741,10 @@ fn topology(k: &mut Kernel, i: &Inputs, b: &mut Brep, second: &mut Brep) -> Resu
             objects.build(k)?;
             let handle = Object(0, CacheObject::Brep);
             match i.op {
-                4 => closest(
-                    &mut o,
-                    api::get_closest_point(k, &mut objects, handle, point)?,
-                ),
-                5 => closest(
-                    &mut o,
-                    api::brep_closest_point(k, &mut objects, handle, point)?,
-                ),
+                4 => closest(&mut o, api::get_closest_point(k, &objects, handle, point)?),
+                5 => closest(&mut o, api::brep_closest_point(k, &objects, handle, point)?),
                 6 => {
-                    let ps = api::brep_closest_point_all(k, &mut objects, handle, point)?;
+                    let ps = api::brep_closest_point_all(k, &objects, handle, point)?;
                     o.push(ps.len() as f64);
                     for p in ps {
                         closest(&mut o, p);
@@ -1037,7 +816,8 @@ fn topology(k: &mut Kernel, i: &Inputs, b: &mut Brep, second: &mut Brep) -> Resu
         18 => o.push(f64::from(
             api::face_classify_uv(
                 k,
-                b,
+                // (the classification may attach missing UV trim curves: a copy)
+                &mut b.clone(),
                 f.ok_or_else(missing)?,
                 solidcore::math::Point2::new(a[11], a[12]),
             )?
@@ -1047,8 +827,6 @@ fn topology(k: &mut Kernel, i: &Inputs, b: &mut Brep, second: &mut Brep) -> Resu
             let face = f.ok_or_else(missing)?;
             let mut objects = Objects::new([b, second])?;
             objects.register_shape(BrepId::from_index(0))?;
-            // ShapePointSolve consumes Shape's own trees. The native API builds
-            // no B-rep cache before constructing that face-scoped shape.
             closest(
                 &mut o,
                 api::face_closest_point(k, &mut objects, (BrepId::from_index(0), face), point)?,

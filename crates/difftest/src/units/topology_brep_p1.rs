@@ -17,10 +17,6 @@
 //! B-spline surfaces and `SmPlane`s exactly; other analytic kinds arrive as their
 //! B-spline part. The ops evaluating curves and surfaces (`topological` lists,
 //! `check_uv`) defer when the geometry they touch is inexact (as `topology.edgeuse_p1`).
-//! The Heal route additionally installs the native query metadata and retains a
-//! real registered shell-ray context for region splitting. Its geometric guards
-//! run at the selected read; a completed healer still uses the conservative
-//! whole-input representation check before comparing the resulting graph.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -48,8 +44,8 @@ use solidcore::topology::edge::AttributeFilter;
 use solidcore::topology::proto_topology::p1::CopyBrepMap;
 use solidcore::topology::topology_traverser::{Entity, Marks};
 use solidcore::topology::{
-    Arena, Brep, BrepId, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId,
-    LoopuseStart, RegionId, ShellId, VertexId, VertexuseId, VertexuseOwner,
+    Brep, EdgeId, EdgeuseId, EdgeuseOwner, FaceId, FaceuseId, LoopId, LoopuseId, LoopuseStart,
+    RegionId, ShellId, VertexId, VertexuseId, VertexuseOwner,
 };
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_p1::{self as ffi, Op, N_EXTRA_SCALARS, TARGET_TYPES};
@@ -58,8 +54,6 @@ use super::topology_edgeuse_p1::{
     brep_block_of, bspline_of, flag, gen_brep, gen_curve, import_with_types, path_of, push_curve,
     sel, BrepIn, CrvIn, ImportTypes, FILES,
 };
-use super::topology_shell::RayQueryContext;
-use super::topology_vertexuse::apply_query_metadata;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
 
 /// The difftest runner.
@@ -71,6 +65,8 @@ fn harness(msg: impl Into<String>) -> HarnessError {
 
 /// "Upstream would dereference null" in a status slot.
 const NULL_DEREF: f64 = -2.0;
+/// The shim's HANG-39 rejection of a corner blend (C++ not run; see `run_cpp`).
+const HANG34_GUARD: f64 = -34.0;
 
 /// The type codes `IsKindOf` is asked about (as the shim's `KIND_TYPES`).
 const KIND_TYPES: [i64; 9] = [16011, 16050, 12060, 11001, 16012, 16001, 16010, 16999, 0];
@@ -223,6 +219,14 @@ enum OpIn {
     },
     EdgeEdgeBlend {
         flag: u8,
+        eu1: i64,
+        eu2: i64,
+        dir: u8,
+    },
+    /// A ruled `CreateEdgeEdgeBlend` with `eu2` in a second B-rep `other` (not a file
+    /// block): each rail is read from its own arena.
+    EdgeEdgeBlend2 {
+        other: BrepIn,
         eu1: i64,
         eu2: i64,
         dir: u8,
@@ -447,6 +451,23 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
             eu2: sel(eu2, n_eu),
             dir: dir % 3,
         },
+        // (eu2 indexes the second B-rep: the FFI checks it against that B-rep's counts)
+        OpIn::EdgeEdgeBlend2 {
+            other,
+            eu1,
+            eu2,
+            dir,
+        } => {
+            if n_eu == 0 {
+                return None;
+            }
+            OpIn::EdgeEdgeBlend2 {
+                other,
+                eu1: sel(eu1, n_eu),
+                eu2,
+                dir: dir % 3,
+            }
+        }
         other @ (OpIn::Degenerate { .. }
         | OpIn::AddDeleted { .. }
         | OpIn::LockBox
@@ -459,6 +480,24 @@ fn resolve(op: &OpIn, c: [usize; 10]) -> Option<OpIn> {
 
 /// An op naming an entity kind the B-rep lacks (e.g. a face op on a wire B-rep): no code
 /// runs on either side, so the case is rejected (not counted as a pass).
+/// Inputs the FFI refuses, rejected on both sides before anything runs: a non-positive
+/// `ParallelProj` angle tolerance or an approximation tolerance below the smallest normal
+/// double (non-positive: the projector subdivides to it; subnormal: upstream spins,
+/// HANG-32). (A `CornerBlend` tangency tolerance below 1e-20 is rejected by the shim,
+/// only where upstream reaches the cross-tangent approximation: HANG-39.)
+fn refused_input(op: &OpIn) -> Option<Output> {
+    match op {
+        OpIn::ParallelProj { tol, ang, .. }
+            if tol.is_some_and(|t| t < f64::MIN_POSITIVE) || ang.is_some_and(|a| a <= 0.0) =>
+        {
+            Some(Output::rejected(
+                "projection tolerance the FFI refuses (non-positive, or subnormal: HANG-32)",
+            ))
+        }
+        _ => None,
+    }
+}
+
 fn no_entity() -> Output {
     Output::rejected("no entity of the op's kind in this B-rep: nothing runs on either side")
 }
@@ -655,6 +694,16 @@ fn op_args(op: &OpIn) -> Result<(Op, Vec<f64>), HarnessError> {
             a.extend([f64::from(*f), *eu1 as f64, *eu2 as f64, f64::from(*dir)]);
             Op::EdgeEdgeBlend
         }
+        OpIn::EdgeEdgeBlend2 {
+            other,
+            eu1,
+            eu2,
+            dir,
+        } => {
+            a.extend(brep_block_of(Some(other), false, false)?);
+            a.extend([*eu1 as f64, *eu2 as f64, f64::from(*dir)]);
+            Op::EdgeEdgeBlend2
+        }
         OpIn::ParallelProj {
             curve,
             vec,
@@ -833,12 +882,21 @@ fn run_cpp(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(op) = resolve(&i.op, c) else {
         return Ok(no_entity());
     };
+    if let Some(refused) = refused_input(&op) {
+        return Ok(refused);
+    }
     let (code, args) = op_args(&op)?;
     let mut input = brep_block(i)?;
     input.extend(args);
     let path = path_of(i.brep.as_ref())?;
     let out = ffi::eval(code, &path, &input).map_err(|e| harness(format!("c++: {e}")))?;
     let body = out.get(1..).ok_or_else(|| harness("c++: empty output"))?;
+    if matches!(op, OpIn::CornerBlend { .. }) && body.first() == Some(&HANG34_GUARD) {
+        return Ok(Output::rejected(
+            "HANG-39: a tangency tolerance below 1e-20 where upstream reaches the \
+             cross-tangent approximation (tens of seconds or more): nothing runs on either side",
+        ));
+    }
     Ok(guarded_output(body.to_vec()))
 }
 
@@ -1288,7 +1346,6 @@ fn run_rust_op(
     b: &mut Brep,
     types: &ImportTypes,
     op: &OpIn,
-    queries: Option<&mut RayQueryContext>,
 ) -> Result<Result<Vec<f64>, Output>, Fail> {
     let mut o: Vec<f64> = Vec::new();
     match op {
@@ -1879,6 +1936,12 @@ fn run_rust_op(
                     }
                 }
                 Err(e) if e.is_unported() => return Err(e.into()),
+                // UB-195: an empty rational-curve drop is where upstream reads sUVCurves[0]
+                // of an empty array; the port's InvalidInput there is that null dereference
+                Err(SolidError::InvalidInput {
+                    operation: "nurbs::b_spline_surface_n_lib::p1::create_non_rational_curve",
+                    ..
+                }) => o.extend([NULL_DEREF, 0.0]),
                 // upstream resets the output array before failing
                 Err(e) => o.extend([status_of(&e), 0.0]),
             }
@@ -1892,9 +1955,42 @@ fn run_rust_op(
             let id = |i: i64| (i >= 0).then(|| EdgeuseId::from_index(i as u32));
             match bp1::create_edge_edge_blend(
                 k,
-                b,
                 u64::from(*f),
+                b,
                 id(*eu1),
+                None,
+                id(*eu2),
+                u64::from(*dir),
+                None,
+            ) {
+                Ok(s) => {
+                    o.push(0.0);
+                    put_surface(&mut o, &s)?;
+                }
+                Err(e) if e.is_unported() => return Err(e.into()),
+                Err(e) => o.push(status_of(&e)),
+            }
+        }
+        OpIn::EdgeEdgeBlend2 {
+            other,
+            eu1,
+            eu2,
+            dir,
+        } => {
+            // the second B-rep in its own arena, imported from its own C++ export
+            let block2 = brep_block_of(Some(other), false, false)?;
+            let ex2 = ffi::eval(Op::Export, "", &block2)
+                .map_err(|e| harness(format!("c++ export of the second B-rep: {e}")))?;
+            let (_, graph_at2) =
+                ffi::counts(&ex2).ok_or_else(|| harness("the second B-rep does not build"))?;
+            let (mut b2, _) = import(&ex2, graph_at2)?;
+            let id = |i: i64| (i >= 0).then(|| EdgeuseId::from_index(i as u32));
+            match bp1::create_edge_edge_blend(
+                k,
+                0,
+                b,
+                id(*eu1),
+                Some(&mut b2),
                 id(*eu2),
                 u64::from(*dir),
                 None,
@@ -1972,13 +2068,8 @@ fn run_rust_op(
                     "healer op {healer_op} outside SM_HO_NONE..=SM_HO_ALL (0..=26)"
                 ))
             })?;
-            let queries =
-                queries.ok_or_else(|| harness("Heal requires its registered query context"))?;
-            bp1::heal_brep(k, b, healer_op, None, None, None, *make_uv, queries)?;
+            bp1::heal_brep(k, b, healer_op, None, None, None, *make_uv)?;
             // the healer evaluates the geometry: compared only where the import is exact
-            if let Some(d) = queries.metadata().deferred_output() {
-                return Ok(Err(d));
-            }
             if let Some(d) = inexact(types, None, None) {
                 return Ok(Err(d));
             }
@@ -1998,45 +2089,15 @@ fn run_rust(i: &Inputs) -> Result<Output, HarnessError> {
     let Some(op) = resolve(&i.op, c) else {
         return Ok(no_entity());
     };
-    let metadata = if matches!(op, OpIn::Heal { .. }) {
-        let raw = ffi::query_metadata(&path_of(i.brep.as_ref())?, &brep_block(i)?)
-            .map_err(|e| harness(format!("c++ query metadata: {e}")))?;
-        let report = apply_query_metadata(&mut b, &raw, &arena_identity)?;
-        if let Some(output) = report.deferred_output_for(false, false) {
-            return Ok(output);
-        }
-        Some(report)
-    } else {
-        None
-    };
-    let mut breps: Arena<BrepId, Brep> = Arena::default();
-    let brep_id = breps.insert(b).map_err(|e| harness(e.to_string()))?;
-    let b = breps
-        .get_mut(brep_id)
-        .ok_or_else(|| harness("registered B-rep disappeared"))?;
-    let mut queries =
-        metadata.map(|report| RayQueryContext::new(b, brep_id, report, arena_identity));
+    if let Some(refused) = refused_input(&op) {
+        return Ok(refused);
+    }
     let mut k = Kernel::default();
-    match run_rust_op(&mut k, b, &types, &op, queries.as_mut()) {
+    match run_rust_op(&mut k, &mut b, &types, &op) {
         Ok(Ok(o)) => Ok(guarded_output(o)),
         Ok(Err(o)) => Ok(o),
         Err(Fail::Solid(e)) => match Output::unported(&e) {
-            Some(o) => Ok(
-                if matches!(
-                    e,
-                    SolidError::Unported {
-                        unit: HARNESS_ANALYTIC_IMPORT,
-                        ..
-                    }
-                ) {
-                    queries
-                        .as_ref()
-                        .and_then(|q| q.metadata().deferred_output())
-                        .unwrap_or(o)
-                } else {
-                    o
-                },
-            ),
+            Some(o) => Ok(o),
             None => Err(harness(format!("rust: {e}"))),
         },
         Err(Fail::Harness(h)) => Err(h),

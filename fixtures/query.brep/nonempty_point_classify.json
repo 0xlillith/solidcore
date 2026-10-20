@@ -1,0 +1,127 @@
+{
+  "cases": [
+    {
+      "name": "nonempty_vertex_boundary_hit",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Point3DClassify; actual MakeShellVertex/PostInsert construction",
+      "inputs": {
+        "graph_point_classify": {
+          "bbox_brep": {
+            "kind": "vertices",
+            "points": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0
+              ]
+            ]
+          },
+          "extra_vertices": 0,
+          "extra_edges": 0,
+          "tolerances": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "drop_wire_curves": false,
+          "reverse_registry": false,
+          "steps": []
+        },
+        "point": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "tolerance": 1e-07,
+        "boundary": true,
+        "minimum_regions": 1
+      }
+    },
+    {
+      "name": "nonempty_boundary_miss_then_ray_dependency",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Point3DClassify; actual MakeShellVertex/PostInsert construction",
+      "inputs": {
+        "graph_point_classify": {
+          "bbox_brep": {
+            "kind": "vertices",
+            "points": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0
+              ]
+            ]
+          },
+          "extra_vertices": 0,
+          "extra_edges": 0,
+          "tolerances": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "drop_wire_curves": false,
+          "reverse_registry": false,
+          "steps": []
+        },
+        "point": [
+          2.0,
+          3.0,
+          4.0
+        ],
+        "tolerance": 1e-07,
+        "boundary": true,
+        "minimum_regions": 2
+      }
+    },
+    {
+      "name": "nonempty_region_ray_dependency",
+      "upstream_ref": "source/SMLib/src/SmBrep.cpp SmBrep::Point3DClassify; actual MakeShellVertex/PostInsert construction",
+      "inputs": {
+        "graph_point_classify": {
+          "bbox_brep": {
+            "kind": "vertices",
+            "points": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0
+              ]
+            ]
+          },
+          "extra_vertices": 0,
+          "extra_edges": 0,
+          "tolerances": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "drop_wire_curves": false,
+          "reverse_registry": false,
+          "steps": []
+        },
+        "point": [
+          2.0,
+          3.0,
+          4.0
+        ],
+        "tolerance": 1e-07,
+        "boundary": false,
+        "minimum_regions": 2
+      }
+    }
+  ]
+}

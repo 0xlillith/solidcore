@@ -1,5 +1,10 @@
 //! query.brep: actual `SM_API` evaluation entry points, status and failure atomicity.
 //! Surface APIs, decimation attributes and B-rep query batches.
+#[path = "query_brep/point_graph.rs"]
+mod point_graph;
+#[path = "query_brep/query_metadata.rs"]
+pub(crate) mod query_metadata;
+
 use super::surface_surface_cache_p1::{push3, status};
 use super::surface_surface_cache_p3::{gen_surf, push_surf, surf_domain, surface_in, SurfIn};
 use crate::case::CaseContext;
@@ -51,6 +56,9 @@ impl UnitDiff for Runner {
         "query.brep"
     }
     fn run_cpp(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("graph_point_classify").is_some() {
+            return point_graph::run_cpp(case);
+        }
         if case.inputs.get("bbox_brep").is_some() {
             return bbox_cpp(&case.parse()?);
         }
@@ -68,6 +76,9 @@ impl UnitDiff for Runner {
         Ok(record(out))
     }
     fn run_rust(&self, case: &Case) -> Result<Output, HarnessError> {
+        if case.inputs.get("graph_point_classify").is_some() {
+            return point_graph::run_rust(case);
+        }
         if case.inputs.get("bbox_brep").is_some() {
             return bbox_rust(&case.parse()?);
         }
@@ -545,13 +556,7 @@ fn bbox_list(
 
 fn bbox_import(
     export: &[f64],
-) -> Result<
-    (
-        solidcore::topology::Brep,
-        super::topology_vertexuse::QueryMetadata,
-    ),
-    HarnessError,
-> {
+) -> Result<(solidcore::topology::Brep, query_metadata::QueryMetadata), HarnessError> {
     use solidcore::topology::{EdgeId, FaceId, VertexId};
     let (length, rest) = export
         .split_first()
@@ -583,10 +588,10 @@ fn bbox_import(
             "truncated or trailing bbox query metadata",
         ));
     }
-    let metadata = super::topology_vertexuse::apply_query_metadata(
+    let metadata = query_metadata::apply_query_metadata(
         &mut graph,
         values.as_slice(),
-        &super::geom_object::query_graph_identity,
+        &query_metadata::query_graph_identity,
     )?;
     if metadata.deferred_output_for(false, false).is_none() {
         use solidcore::topology::brep::p1;

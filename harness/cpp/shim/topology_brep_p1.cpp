@@ -70,7 +70,6 @@
 #include <SmSurfaceCache.h>
 
 #include "sc_edgeuse_graph.h"
-#include "sc_brep_query_metadata.h"
 
 // SmBrep.cpp helpers with external linkage (no header declares them)
 SmBoolean sm_RedistributeSeamUVTrimCurves(SmEdge* pNewE, SmBSplineCurve* pUVTrimCurve, SmSurfParamType eSeamEdge, SmExtent2d sSrfDomain);
@@ -80,6 +79,7 @@ namespace
 {
 // Status of an op the shim refuses because upstream would dereference null (or recurse
 // without bound).
+const double ST_HANG34_GUARD = -34.0; // the runner reports the case as rejected
 const double ST_NULL_DEREF = -2.0;
 const SmStatus SM_ST_NULL_DEREF = (SmStatus)(-2);
 // Deepest sm_MarkLoopsToDelete recursion followed (as topology::brep::p1::MAX_LOOP_NESTING).
@@ -666,6 +666,7 @@ enum Op
     OP_EDGE_EDGE_BLEND = 24,
     OP_PARALLEL_PROJ = 25,
     OP_HEAL = 26,
+    OP_EDGE_EDGE_BLEND2 = 27,
 };
 
 // The type codes IsKindOf is asked about.
@@ -801,14 +802,25 @@ void attach(Rd& rd, Graph& g, int64_t id)
 }
 
 
-// SmBrep::CreateCornerBlend (SmBrep.cpp:2488-2665) up to the end of its UV phase, replayed
-// read-only on a copy of the B-rep (surface types preserved): TRUE when the real call would
-// copy a NULL UV trim curve (`SM_ASSERT(pUVCurve != NULL)` is a release no-op and
-// `pUVCurve->Copy` dereferences it). The replay keeps upstream's ordering, statuses and
-// early returns, so it is TRUE exactly when the real call reaches that dereference.
-static bool corner_blend_uv_null(SmBrep* brep, const SmContext& ctx, const SmTArray<SmEdgeuse*>& eus,
-                                 const SmTArray<SmBoolean>* tans, double tol)
+// SmBrep::CreateCornerBlend (SmBrep.cpp:2488-2775) replayed read-only on a copy of the B-rep
+// (surface types preserved), through SmBSplineSurface::CreateCornerBlend's curve conversion
+// (SmBSplineSurfaceNLib.cpp:3060-3115, sm_CreateNonRationalCurve :2906-2965). TRUE when the real
+// call would dereference memory it does not have:
+// - the UV phase copies a NULL UV trim curve (`SM_ASSERT(pUVCurve != NULL)` is a release no-op
+//   and `pUVCurve->Copy` dereferences it);
+// - UB-195: a rational B-spline 3D curve with a neighbour surface whose DropCurve succeeds with
+//   no curve, and `sUVCurves[0]` reads the empty array (the `SM_ASSERT(GetSize() == 1)` is a
+//   release no-op).
+// The replay keeps upstream's ordering, statuses and early returns, so it is TRUE exactly when
+// the real call reaches one of those dereferences. `reaches_tangents` reports whether the call
+// gets past the curve conversion into the cross-tangent approximation, the only place the
+// tangency tolerance is used (four sides with a neighbour surface, or more sides; HANG-39). The
+// later MakeCurvesCompatible / EditParameterization statuses are not replayed, so it may report
+// a call that stops there.
+static bool corner_blend_refused(SmBrep* brep, const SmContext& ctx, const SmTArray<SmEdgeuse*>& eus,
+                                 const SmTArray<SmBoolean>* tans, double tol, bool& reaches_tangents)
 {
+    reaches_tangents = false;
     SmCopyBrepMap rev;
     SmBrep* copy = new (ctx) SmBrep(*brep, NULL, &rev, TRUE, FALSE);
     SmObjDelete copy_clean(copy);
@@ -885,6 +897,12 @@ static bool corner_blend_uv_null(SmBrep* brep, const SmContext& ctx, const SmTAr
         if (!found)
             tol_scale *= 2.5;
     }
+    // the CreateCornerBlend input arrays (copies owned here)
+    SmTArray<SmCurve*> o3d;
+    SmObjsDelete<SmCurve*> clean3d(&o3d);
+    SmTArray<SmBSplineCurve*> ouv;
+    SmObjsDelete<SmBSplineCurve*> cleanuv(&ouv);
+    SmTArray<SmSurface*> osrf;
     for (ULONG ii = 0; ii < ordered.GetSize(); ii++)
     {
         SmEdgeuse* eu = ordered[ii];
@@ -892,11 +910,16 @@ static bool corner_blend_uv_null(SmBrep* brep, const SmContext& ctx, const SmTAr
         SmCurve* crv = NULL;
         if (e->GetCurve()->Copy(ctx, crv) != SM_SUCCESS)
             return false;
-        SmObjDelete crv_clean(crv);
+        o3d.Add(crv);
         SmExtent1d ivl = e->GetInterval();
         if (crv->Trim(ivl) != SM_SUCCESS)
             return false;
-        if (tangencies[ii])
+        if (!tangencies[ii])
+        {
+            ouv.Add(NULL);
+            osrf.Add(NULL);
+        }
+        else
         {
             SmBSplineCurve* uv = NULL;
             eu->GetOrCreateUVTrimCurve(uv);
@@ -905,13 +928,84 @@ static bool corner_blend_uv_null(SmBrep* brep, const SmContext& ctx, const SmTAr
             SmCurve* uv_copy = NULL;
             if (uv->Copy(ctx, uv_copy) != SM_SUCCESS)
                 return false;
-            SmObjDelete uv_clean(uv_copy);
-            if (!SM_CAST_PTR(SmBSplineCurve, uv_copy))
+            SmBSplineCurve* uv_b = SM_CAST_PTR(SmBSplineCurve, uv_copy);
+            if (!uv_b)
+            {
+                delete uv_copy;
                 return false;
-            if (eu->GetFace() == NULL)
+            }
+            ouv.Add(uv_b);
+            SmFace* f = eu->GetFace();
+            if (f == NULL)
                 return false;
+            osrf.Add(f->GetSurface());
         }
     }
+    // pad to 4 curves with point curves, then move the last entry to the front
+    for (ULONG ii = 0; ii < 2; ii++)
+    {
+        if (o3d.GetSize() >= 4)
+            break;
+        double param = (orients[1] == SM_OT_SAME) ? 1.0 : 0.0;
+        SmPoint3d pnt;
+        if (o3d[1]->EvaluatePoint(param, pnt) != SM_SUCCESS)
+            return false;
+        SmBSplineCurve* top = NULL;
+        if (SmBSplineCurve::CreatePointCurve(ctx, pnt, top) != SM_SUCCESS)
+            return false;
+        o3d.InsertAt(2 - ii, top);
+        orients.InsertAt(2 - ii, SM_OT_SAME);
+        ouv.InsertAt(2 - ii, (SmBSplineCurve*)NULL);
+        osrf.InsertAt(2 - ii, (SmSurface*)NULL);
+    }
+    o3d.InsertAt(0, o3d.GetLast());
+    o3d.RemoveLast();
+    ouv.InsertAt(0, ouv.GetLast());
+    ouv.RemoveLast();
+    osrf.InsertAt(0, osrf.GetLast());
+    osrf.RemoveLast();
+    // SmBSplineSurface::CreateCornerBlend(.., dThisApproxTol3d, .., bCreateBilinearPatch = FALSE)
+    ULONG n = o3d.GetSize();
+    if (n < 4)
+        return false;
+    ULONG nulls = 0;
+    for (ULONG ii = 0; ii < n; ii++)
+    {
+        if (ouv[ii] == NULL || osrf[ii] == NULL)
+            nulls++;
+        if (((n == 4 && nulls > 1) || (n > 4 && nulls > 0)) && (ouv[ii] == NULL || osrf[ii] == NULL))
+            return false; // NER(crUVCurves[ii]) / NER(crSurfaces[ii])
+    }
+    for (ULONG ii = 0; ii < n; ii++)
+    {
+        SmBSplineCurve* nurb = SM_CAST_PTR(SmBSplineCurve, o3d[ii]);
+        if (!nurb)
+            return false; // NER(pNurb)
+        if (!nurb->IsRational())
+            continue; // a plain copy
+        SmBSplineCurve* approx = NULL;
+        if (nurb->ApproximateRationalCurve(ctx, tol / 2.0, approx) != SM_SUCCESS)
+            return false;
+        SmObjDelete approx_clean(approx);
+        if (approx->ReparametrizeWithArcLength() != SM_SUCCESS)
+            return false;
+        if (osrf[ii])
+        {
+            SmExtent1d trim = approx->GetNaturalInterval();
+            SmExtent2d dom = osrf[ii]->GetNaturalUVDomain();
+            double max_dist, deviation;
+            SmTArray<SmBSplineCurve*> dropped;
+            SmObjsDelete<SmBSplineCurve*> dropped_clean(&dropped);
+            if (osrf[ii]->DropCurve(ctx, dom, *approx, trim, tol / 2.0, max_dist, deviation, dropped) != SM_SUCCESS)
+                return false;
+            if (dropped.GetSize() == 0)
+                return true; // UB-195
+        }
+    }
+    reaches_tangents = n > 4;
+    for (ULONG ii = 0; ii < n; ii++)
+        if (osrf[ii] != NULL)
+            reaches_tangents = true;
     return false;
 }
 
@@ -1763,12 +1857,21 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
                 if (p == NULL || p->GetEdge() == NULL)
                     null_deref = true;
             }
-            if (!null_deref && corner_blend_uv_null(brep, ctx, eus, has_tan ? &tans : NULL, tol))
+            bool reaches_tangents = false;
+            if (!null_deref && corner_blend_refused(brep, ctx, eus, has_tan ? &tans : NULL, tol, reaches_tangents))
                 null_deref = true;
             if (null_deref)
             {
                 o.push_back(ST_NULL_DEREF);
                 o.push_back(0.0); // upstream resets the output array first
+                break;
+            }
+            // HANG-39: a tangency tolerance below what doubles resolve makes the cross-tangent
+            // approximation and the Coons knot merge run for tens of seconds or more; the case
+            // is rejected only where upstream reaches that approximation
+            if (reaches_tangents && ang < 1e-20)
+            {
+                o.push_back(ST_HANG34_GUARD);
                 break;
             }
         }
@@ -1812,6 +1915,32 @@ void run_op(int32_t op, Rd& rd, const char* path, std::vector<double>& o)
         }
         SmSurface* out = nullptr;
         SmStatus s = SmBrep::CreateEdgeEdgeBlend(ctx, (ULONG)flag, e1, e2, (ULONG)dir, NULL, out);
+        o.push_back(st(s));
+        if (s == SM_SUCCESS)
+            put_surface(o, out);
+        delete out;
+        break;
+    }
+    case OP_EDGE_EDGE_BLEND2:
+    {
+        // the static SmBrep::CreateEdgeEdgeBlend with the second edge use in another B-rep
+        // (ruled; the FFI checks the second block builds and both indices)
+        SmStatus bst2;
+        Built b2;
+        b2.brep = build(rd, "", bst2);
+        int64_t i1 = rd.idx(), i2 = rd.idx();
+        int64_t dir = rd.idx();
+        if (b2.brep == nullptr)
+        {
+            o.push_back(st(bst2));
+            break;
+        }
+        Graph g2;
+        walk(b2.brep, g2);
+        walk_more(b2.brep, g2);
+        SmSurface* out = nullptr;
+        SmStatus s = SmBrep::CreateEdgeEdgeBlend(ctx, 0, g.edgeuses[(size_t)i1], g2.edgeuses[(size_t)i2],
+                                                 (ULONG)dir, NULL, out);
         o.push_back(st(s));
         if (s == SM_SUCCESS)
             put_surface(o, out);
@@ -1889,32 +2018,5 @@ SC_EXPORT int32_t sc_topology_brep_p1_eval(int32_t op, const char* path, const d
     std::vector<double> o;
     run_op(op, rd, path, o);
     return sc_copy_out(o.data(), (int64_t)o.size(), out, cap, out_len);
-    SC_CATCH
-}
-
-// Query metadata for the same construction and Graph registration as OP_EXPORT
-// and OP_HEAL. This entry point never invokes the healer or uses its result.
-SC_EXPORT int32_t sc_topology_brep_p1_query_metadata(
-    const char* path, const double* in, int64_t n_in,
-    double* out, int64_t cap, int64_t* out_len)
-{
-    if (in == NULL || n_in < 1 || out_len == NULL || path == NULL)
-        return SC_ERR_ARG;
-    SC_TRY
-    SmContext& ctx = const_cast<SmContext&>(the_context());
-    CtxSave save(ctx);
-    Rd rd{in, 0};
-    Built built;
-    SmStatus status = SM_SUCCESS;
-    built.brep = build(rd, path, status);
-    if (!built.brep || status != SM_SUCCESS)
-        return status == SM_SUCCESS ? SC_ERR_ARG : (int32_t)status;
-    if (rd.at != n_in) return SC_ERR_ARG;
-    Graph graph;
-    walk(built.brep, graph);
-    walk_more(built.brep, graph);
-    std::vector<double> metadata;
-    append_query_metadata(built.brep, graph, metadata);
-    return sc_copy_out(metadata.data(), (int64_t)metadata.size(), out, cap, out_len);
     SC_CATCH
 }

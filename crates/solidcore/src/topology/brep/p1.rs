@@ -53,12 +53,10 @@
 //!   typed ids and `None` is `NULL`. Where upstream dereferences a null pointer the
 //!   port returns [`SolidError::InvalidInput`]; `SM_ERR` returns are
 //!   [`SolidError::Upstream`] with that code.
-//! - The region list of the B-rep (`SmOwningTopology::m_pList`) stores its circular
-//!   links independently of arena ids. [`Brep::region_list_head`] selects its first
-//!   member; `ResetInfiniteRegion` only moves that head. Importers install actual
-//!   membership/order with [`Brep::set_region_list`]; removal unlinks an id through
-//!   [`Brep::remove_region_from_list`] without renumbering the arena. Regions whose
-//!   raw `Region::in_brep` owner is false are not reported by [`regions`].
+//! - The region list of the B-rep (`SmOwningTopology::m_pList`) is the region arena in
+//!   traversal order rotated to [`Brep::region_list_head`]; `ResetInfiniteRegion`
+//!   only moves the head. Regions not on the list (`Region::in_brep` false) are not
+//!   reported by [`regions`].
 //! - [`surfaces`] / [`curves`]: upstream's `GetOwner() == pFace` / `pEdge` test compares
 //!   the geometry's owner with the face's / edge's
 //!   [`arena_identity`](crate::topology::brep_cache::arena_identity) (the kernel's
@@ -94,13 +92,14 @@
 //!   (upstream hands back the shell's region pointer unchecked).
 //! - Calls into units not ported yet return [`SolidError::Unported`] (every site is
 //!   tagged `UNPORTED(<unit>)`, one stub per call site with the code after it ported):
-//!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBSplineSurface::CreateCornerBlend` with a
+//!   `SmFace::FaceIntersect` (`topology.face_p3`), `SmBrep::CalculateBoundingBox`, `LockBoundingBox`,
+//!   `UnLockBoundingBox` (`query.brep`), `SmBSplineSurface::CreateCornerBlend` with a
 //!   non-B-spline neighbour surface (`nurbs.b_spline_surface_n_lib_p2`, whose port takes
 //!   B-spline neighbours only).
-//! - `CreateEdgeEdgeBlend` takes the B-rep mutably (the edge use evaluations of
-//!   `topology.edgeuse_p3` take it so); it ignores both `EvaluateBinormal` statuses as
-//!   upstream and goes on with the outputs upstream sees after a failure (undefined, or
-//!   zeroed point, tangent and normal).
+//! - `CreateEdgeEdgeBlend` takes each edge use's B-rep (the second `None` when both are
+//!   in one B-rep), mutably: the edge use evaluations of `topology.edgeuse_p3` take it so.
+//!   It ignores both `EvaluateBinormal` statuses as upstream and goes on with the outputs
+//!   upstream sees after a failure (undefined, or zeroed point, tangent and normal).
 //! - `GetShells` dedups with a shell mark record local to the call (upstream marks the
 //!   `SmShell` objects); `SetRegionIsVoidFlagsForNestedSolids` bounds its shell queue at
 //!   `4 * shells + 16` passes.
@@ -314,8 +313,8 @@ impl Brep {
         Ok(())
     }
 
-    /// The head of the B-rep's region list (`SmOwningTopology::m_pList`). During
-    /// record construction, `None` uses the first listed region when one exists.
+    /// The head of the B-rep's region list (`SmOwningTopology::m_pList`), `None` for
+    /// the first region record.
     #[must_use]
     pub const fn region_list_head(&self) -> Option<RegionId> {
         self.region_list_head
@@ -324,70 +323,6 @@ impl Brep {
     /// Sets the head of the B-rep's region list (the friend write `m_pList = ..`).
     pub fn set_region_list_head(&mut self, region: Option<RegionId>) {
         self.region_list_head = region;
-    }
-
-    /// Installs the native circular region list in traversal order from its head.
-    /// Unlike the face/edge/vertex list setters, this may be a subset of the arena:
-    /// omitted regions remain allocated with `in_brep` false. Listed regions get
-    /// that owner flag, and the first listed id becomes the head. The independent
-    /// infinite-region pointer and all region contents are retained.
-    ///
-    /// # Errors
-    /// [`SolidError::NotFound`] for a dangling id, or [`SolidError::InvalidInput`]
-    /// for a repeated id. Validation finishes before any list or owner is changed.
-    pub fn set_region_list(&mut self, order: Vec<RegionId>) -> Result<()> {
-        let mut members = vec![false; self.regions.len()];
-        for &id in &order {
-            self.region(id)?;
-            let member = members.get_mut(id.index() as usize).ok_or_else(|| {
-                SolidError::invalid_input("topology::Brep::set_region_list", "invalid region id")
-            })?;
-            if *member {
-                return Err(SolidError::invalid_input(
-                    "topology::Brep::set_region_list",
-                    "repeated region id",
-                ));
-            }
-            *member = true;
-        }
-        let ids: Vec<_> = self.regions.ids().collect();
-        for (id, attached) in ids.into_iter().zip(members) {
-            self.region_mut(id)?.in_brep = attached;
-        }
-        self.region_list_head = order.first().copied();
-        self.region_list = order;
-        Ok(())
-    }
-
-    /// Unlinks a region from this B-rep (`SmOwningTopology::Remove`). The next
-    /// region becomes the head when the old head is removed; all other links and
-    /// arena ids retain their order. The infinite-region pointer is unchanged,
-    /// as native callers update it separately after deleting an empty region.
-    ///
-    /// # Errors
-    /// [`SolidError::NotFound`] for a dangling id. Native `SM_ERR` when the region
-    /// does not belong to this list; a missing head is a representation error.
-    pub fn remove_region_from_list(&mut self, region: RegionId) -> Result<()> {
-        const OP_REMOVE: &str = "topology::Brep::remove_region_from_list";
-        if !self.region(region)?.in_brep {
-            return Err(SolidError::sm_err(OP_REMOVE));
-        }
-        let position = self
-            .region_list
-            .iter()
-            .position(|&id| id == region)
-            .ok_or_else(|| SolidError::sm_err(OP_REMOVE))?;
-        let current = regions(self, None)?;
-        let head = current.first().copied();
-        let next_head = if head == Some(region) {
-            current.get(1).copied()
-        } else {
-            head
-        };
-        self.region_list.remove(position);
-        self.region_mut(region)?.in_brep = false;
-        self.region_list_head = next_head;
-        Ok(())
     }
 
     /// `AddDeletedSurface`: keeps a surface removed from the B-rep until the operation
@@ -457,12 +392,12 @@ fn filtered<I: Copy>(
 ///
 /// [`SolidError::NotFound`] when the list head is a dangling id.
 pub fn regions(b: &Brep, attribute: Option<&AttributeFilter<'_>>) -> Result<Vec<RegionId>> {
-    let mut on_list = Vec::new();
-    for &id in &b.region_list {
-        if b.region(id)?.in_brep {
-            on_list.push(id);
-        }
-    }
+    let on_list: Vec<RegionId> = b
+        .regions()
+        .iter()
+        .filter(|(_, r)| r.in_brep)
+        .map(|(id, _)| id)
+        .collect();
     let start = match b.region_list_head() {
         None => 0,
         Some(head) => {
@@ -700,8 +635,7 @@ pub fn curves<'b>(
 ///
 /// # Errors
 ///
-/// Invalid vertex references or an unavailable bounding-box dependency. Ordinary
-/// bounding-box failure statuses are ignored, as in `SmBrep::IsDegenerate`.
+/// An unavailable bounding-box dependency when the vertex check passes.
 pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
     let tol_sq = tol_3d * tol_3d;
     let verts = vertices(b, None)?;
@@ -720,7 +654,7 @@ pub fn is_degenerate(k: &Kernel, b: &Brep, tol_3d: f64) -> Result<bool> {
     // status is ignored: a failure leaves the default box)
     // CalculateBoundingBox(sBBox): header defaults bApprox = FALSE, bTight = FALSE,
     // bExpandByZoneTol3d = TRUE
-    let bbox = ignored(brep_loose_bounding_box(k, b, false, true))?.unwrap_or_default();
+    let bbox = ignored(brep_bounding_box(k, b, false, true))?.unwrap_or_default();
     Ok(bbox.is_point_sized(tol_3d))
 }
 
@@ -1472,7 +1406,7 @@ fn shell_mated_shells(k: &mut Kernel, b: &Brep, shell: ShellId) -> Result<Vec<Sh
 
 /// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
 /// `query.brep`).
-fn brep_loose_bounding_box(
+fn brep_bounding_box(
     k: &Kernel,
     b: &Brep,
     approx: bool,
@@ -2485,7 +2419,7 @@ pub fn create_corner_blend(
 
     // SmSurface::CreateCornerBlend locals
     let mut ordered_uv: Vec<Option<BSplineCurve>> = Vec::new();
-    let mut ordered_3d: Vec<BSplineCurve> = Vec::new();
+    let mut ordered_3d: Vec<Curve> = Vec::new();
     let mut ordered_surfs: Vec<Option<BSplineSurface>> = Vec::new();
 
     // for every ordered Edgeuse - load a trimmed copy of Edgeuse->Edge->Curve to sOrdered3D
@@ -2504,11 +2438,8 @@ pub fn create_corner_blend(
         let mut e_ivl = edge::interval(b, e)?;
         copy.trim(k, &mut e_ivl, TrimMode::Notify)?;
 
-        // build the sOrdered3D array
-        ordered_3d.push(
-            bspline_part(&copy)
-                .ok_or_else(|| null("CreateCornerBlend: curve without NURBS data"))?,
-        );
+        // build the sOrdered3D array (any SmCurve, as upstream)
+        ordered_3d.push(copy);
 
         // When Needed, put in UVTrimCurve and Surface in sOrderedUV and sOrderedSurfs arrays
         let tangent = tangencies.get(i).copied().unwrap_or(true);
@@ -2565,7 +2496,7 @@ pub fn create_corner_blend(
         let top_curve = BSplineCurve::create_point_curve(pnt)?;
 
         // add it to the input arrays at the proper location
-        ordered_3d.insert(2 - ii, top_curve);
+        ordered_3d.insert(2 - ii, Curve::from(top_curve));
         eu_orients.insert(2 - ii, OrientType::Same);
         ordered_uv.insert(2 - ii, None);
         ordered_surfs.insert(2 - ii, None);
@@ -2579,6 +2510,7 @@ pub fn create_corner_blend(
 
     // pass the call along (FALSE = bicubic patch through curves and crossTangents)
     let surfs: Vec<Option<&BSplineSurface>> = ordered_surfs.iter().map(Option::as_ref).collect();
+    let ordered_3d = corner_blend_bspline_curves(&ordered_3d, &ordered_uv, &surfs)?;
     BSplineSurface::create_corner_blend(
         &ordered_3d,
         &eu_orients,
@@ -2590,10 +2522,63 @@ pub fn create_corner_blend(
     )
 }
 
+/// The 3D curves `SmBSplineSurface::CreateCornerBlend` gets as `SmBSplineCurve`s (unit
+/// `nurbs.b_spline_surface_n_lib_p2`, whose port takes B-spline curves). Upstream passes
+/// any `SmCurve` and converts each, in order, with `sm_CreateNonRationalCurve`
+/// (SmBSplineSurfaceNLib.cpp:3100-3110), whose `SM_CAST_PTR(SmBSplineCurve, ..)` / `NER`
+/// returns `SM_ERR_NULL_POINTER` for the first curve of another kind. Its curve count
+/// check cannot fail here (the padding leaves at least 4 curves) and its earlier NULL UV
+/// curve / surface check (`:3078-3092`, bicubic patch) returns the same status. Before
+/// that curve only a rational curve's conversion can fail, so with one there (and the
+/// NULL check passing) the case is unported.
+fn corner_blend_bspline_curves(
+    curves: &[Curve],
+    uv_curves: &[Option<BSplineCurve>],
+    surfaces: &[Option<&BSplineSurface>],
+) -> Result<Vec<BSplineCurve>> {
+    let parts: Vec<Option<BSplineCurve>> = curves.iter().map(bspline_part).collect();
+    if parts.iter().all(Option::is_some) {
+        return Ok(parts.into_iter().flatten().collect());
+    }
+    // the NULL UV curve / surface check (bCreateBilinearPatch == FALSE)
+    let curve_cnt = curves.len();
+    let mut null_count = 0usize;
+    for (uv, srf) in uv_curves.iter().zip(surfaces).take(curve_cnt) {
+        if uv.is_none() || srf.is_none() {
+            null_count += 1;
+        }
+        if ((curve_cnt == 4 && null_count > 1) || (curve_cnt > 4 && null_count > 0))
+            && (uv.is_none() || srf.is_none())
+        {
+            return Err(SolidError::null_pointer(OP)); // NER(crUVCurves[ii]) / NER(crSurfaces[ii])
+        }
+    }
+    let mut converted = Vec::new();
+    for part in parts {
+        let Some(part) = part else {
+            if converted
+                .iter()
+                .any(|p: &BSplineCurve| p.is_rational().unwrap_or(true))
+            {
+                // UNPORTED(nurbs.b_spline_surface_n_lib_p2): SmBSplineSurface::CreateCornerBlend with a rational curve before a non-B-spline one
+                return Err(SolidError::unported(
+                    "SmBSplineSurface::CreateCornerBlend",
+                    "nurbs.b_spline_surface_n_lib_p2",
+                ));
+            }
+            return Err(SolidError::null_pointer(OP)); // NER(pNurb)
+        };
+        converted.push(part);
+    }
+    Ok(converted)
+}
+
 // ---- edge-to-edge blends (SmBrep::CreateEdgeEdgeBlend) ----------------------------------
 
 /// `CreateEdgeEdgeBlend`: a ruled (`blend_flag` 0) or G1/G2/G3 blend (`1`/`2`/`3`)
-/// surface between the trimmed NURBS curves of two edges. `curves_dir_flag`: `0`
+/// surface between the trimmed NURBS curves of two edges: `eu_1` in `b_1`, `eu_2` in
+/// `b_2` (`None`: also in `b_1`; upstream's edge uses may belong to two B-reps).
+/// `curves_dir_flag`: `0`
 /// guesses the pairing from the rail distances, `1` starts both at their curve starts,
 /// `2` pairs start with end. `opt_ds_def` (its curvature type is overwritten from
 /// `blend_flag`) tunes a blend.
@@ -2608,9 +2593,10 @@ pub fn create_corner_blend(
 #[allow(clippy::too_many_arguments)]
 pub fn create_edge_edge_blend(
     k: &Kernel,
-    b: &mut Brep,
     blend_flag: u64,
+    b_1: &mut Brep,
     eu_1: Option<EdgeuseId>,
+    b_2: Option<&mut Brep>,
     eu_2: Option<EdgeuseId>,
     curves_dir_flag: u64,
     opt_ds_def: Option<&mut DerivSurfDefinition<'_>>,
@@ -2618,17 +2604,37 @@ pub fn create_edge_edge_blend(
     let eu_1 = eu_1.ok_or_else(|| SolidError::null_pointer(OP))?; // NER
     let eu_2 = eu_2.ok_or_else(|| SolidError::null_pointer(OP))?; // NER
 
+    // eu_2's B-rep: `b_2`, or `b_1` when both edge uses are in one B-rep (each edge use's
+    // reads touch only its own B-rep, as upstream's)
+    let mut b_2 = b_2;
+    macro_rules! b2_mut {
+        () => {
+            match b_2.as_deref_mut() {
+                Some(other) => other,
+                None => &mut *b_1,
+            }
+        };
+    }
+    macro_rules! b2 {
+        () => {
+            match b_2.as_deref() {
+                Some(other) => other,
+                None => &*b_1,
+            }
+        };
+    }
+
     // locals
-    let (Some(edge1), Some(edge2)) = (eu1::edge(b, eu_1)?, eu1::edge(b, eu_2)?) else {
+    let (Some(edge1), Some(edge2)) = (eu1::edge(b_1, eu_1)?, eu1::edge(b2!(), eu_2)?) else {
         return Err(status(SM_ERR_INVALID_INPUT)); // Could not fetch Edge from Edgeuse
     };
 
     // edge locals
-    let ivl1 = edge::interval(b, edge1)?;
-    let mut ivl2 = edge::interval(b, edge2)?;
-    let rail1 = edge::create_trimmed_nurbs_curve(k, b, edge1)?;
-    let rail2 = edge::create_trimmed_nurbs_curve(k, b, edge2)?;
-    let tolerance = max2(edge::tolerance(b, edge1)?, edge::tolerance(b, edge2)?);
+    let ivl1 = edge::interval(b_1, edge1)?;
+    let mut ivl2 = edge::interval(b2!(), edge2)?;
+    let rail1 = edge::create_trimmed_nurbs_curve(k, b_1, edge1)?;
+    let rail2 = edge::create_trimmed_nurbs_curve(k, b2!(), edge2)?;
+    let tolerance = max2(edge::tolerance(b_1, edge1)?, edge::tolerance(b2!(), edge2)?);
     let (Some(rail1), Some(rail2)) = (rail1, rail2) else {
         return Err(status(SM_ERR_INVALID_INPUT)); // Could not build BSplineCurves from Edges
     };
@@ -2698,12 +2704,12 @@ pub fn create_edge_edge_blend(
 
     // face locals
     let face1 =
-        eu1::face(b, eu_1)?.ok_or_else(|| null("CreateEdgeEdgeBlend: edge use without face"))?;
-    let face2_ =
-        eu1::face(b, eu_2)?.ok_or_else(|| null("CreateEdgeEdgeBlend: edge use without face"))?;
+        eu1::face(b_1, eu_1)?.ok_or_else(|| null("CreateEdgeEdgeBlend: edge use without face"))?;
+    let face2_ = eu1::face(b2!(), eu_2)?
+        .ok_or_else(|| null("CreateEdgeEdgeBlend: edge use without face"))?;
     let surfaces_present = (
-        face2::surface(b, face1)?.is_some(),
-        face2::surface(b, face2_)?.is_some(),
+        face2::surface(b_1, face1)?.is_some(),
+        face2::surface(b2!(), face2_)?.is_some(),
     );
     if !(surfaces_present.0 && surfaces_present.1) {
         return Err(status(SM_ERR_INVALID_INPUT)); // Could not fetch Surface from Edgeuse
@@ -2716,28 +2722,28 @@ pub fn create_edge_edge_blend(
         tangent: mut edge1_tangent,
         face_normal: mut face1_normal,
         ..
-    } = evaluate_binormal_status_ignored(k, b, eu_1, ivl1.evaluate(0.5))?;
+    } = evaluate_binormal_status_ignored(k, b_1, eu_1, ivl1.evaluate(0.5))?;
     let BinormalEval {
         binormal: edge2_binormal,
         tangent: mut edge2_tangent,
         face_normal: mut face2_normal,
         ..
-    } = evaluate_binormal_status_ignored(k, b, eu_2, ivl2.evaluate(0.5))?;
-    if eu1::orientation(b, eu_1)? == OrientType::Opposite {
+    } = evaluate_binormal_status_ignored(k, b2_mut!(), eu_2, ivl2.evaluate(0.5))?;
+    if eu1::orientation(b_1, eu_1)? == OrientType::Opposite {
         edge1_tangent = -edge1_tangent;
     }
-    if eu1::orientation(b, eu_2)? == OrientType::Opposite {
+    if eu1::orientation(b2!(), eu_2)? == OrientType::Opposite {
         edge2_tangent = -edge2_tangent;
     }
-    let fu_orient = |eu: EdgeuseId| -> Result<OrientType> {
+    let fu_orient = |b: &Brep, eu: EdgeuseId| -> Result<OrientType> {
         let fu = eu1::faceuse(b, eu)?
             .ok_or_else(|| null("CreateEdgeEdgeBlend: edge use without face use"))?;
         eu1::faceuse_orientation(b, fu)
     };
-    if fu_orient(eu_1)? == OrientType::Opposite {
+    if fu_orient(b_1, eu_1)? == OrientType::Opposite {
         face1_normal = -face1_normal;
     }
-    if fu_orient(eu_2)? == OrientType::Opposite {
+    if fu_orient(b2!(), eu_2)? == OrientType::Opposite {
         face2_normal = -face2_normal;
     }
 
@@ -2796,8 +2802,8 @@ pub fn create_edge_edge_blend(
     let curve1 = Curve::from(rail1);
     let curve2 = Curve::from(rail2);
     // (the face surfaces fetched above; re-borrowed past the edge use evaluations)
-    let surface1 = face2::surface(b, face1)?.ok_or_else(|| SolidError::null_pointer(OP))?;
-    let surface2 = face2::surface(b, face2_)?.ok_or_else(|| SolidError::null_pointer(OP))?;
+    let surface1 = face2::surface(b_1, face1)?.ok_or_else(|| SolidError::null_pointer(OP))?;
+    let surface2 = face2::surface(b2!(), face2_)?.ok_or_else(|| SolidError::null_pointer(OP))?;
     surface1.create_blend_surface(
         k,
         &curve1,
@@ -3017,16 +3023,12 @@ impl LoopObject for HealLoopHandle {
 /// `HealBrep`: runs the healer sequence (`SmHealData::HealBrep`, on a fresh
 /// [`HealData`]) up to and including `healer_op` on the given vertices, edges and
 /// faces (default: all), optionally making the UV trim curves. Upstream returns
-/// `SM_SUCCESS` whatever native status the healer reports. The port ignores
-/// [`SolidError::Upstream`] and [`SolidError::Nlib`], while preserving errors for
-/// missing dependencies and invalid topology or query context.
+/// `SM_SUCCESS` whatever the healer reports: only [`SolidError::Unported`] (from the
+/// healer's own stubs, `heal.heal_data_p3` and later) propagates.
 ///
 /// # Errors
 ///
-/// Errors from the healer other than native [`SolidError::Upstream`] and
-/// [`SolidError::Nlib`] statuses, including [`SolidError::Unported`],
-/// [`SolidError::InvalidInput`] and [`SolidError::NotFound`].
-#[allow(clippy::too_many_arguments)] // native optional targets plus caller-owned query state
+/// [`SolidError::Unported`] from the healer.
 pub fn heal_brep(
     k: &mut Kernel,
     b: &mut Brep,
@@ -3035,12 +3037,10 @@ pub fn heal_brep(
     opt_edges: Option<&[EdgeId]>,
     opt_faces: Option<&[FaceId]>,
     make_uv_trim_curves: bool,
-    queries: &mut dyn crate::topology::brep::p6::RegionSplitQueries,
 ) -> Result<()> {
     let mut heal_data = HealData::<HealLoopHandle>::default();
-    // Ignore native statuses only; a missing or invalid Rust query context is
-    // not an upstream failure that SmBrep::HealBrep can silently discard.
-    match heal_data.heal_brep(
+    // pass the call along (status ignored upstream)
+    ignored(heal_data.heal_brep(
         k,
         Some(b),
         healer_op,
@@ -3050,11 +3050,8 @@ pub fn heal_brep(
             faces: opt_faces,
         },
         make_uv_trim_curves,
-        queries,
-    ) {
-        Ok(()) | Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => Ok(()),
-        Err(error) => Err(error),
-    }
+    ))?;
+    Ok(())
 }
 
 #[cfg(test)]
@@ -3062,41 +3059,6 @@ mod tests {
     use super::*;
     use crate::geom::a_object;
     use crate::topology::Region;
-
-    #[test]
-    fn heal_brep_preserves_missing_target_error() {
-        fn no_shell_ray(
-            _: &mut Kernel,
-            _: &mut Brep,
-            _: ShellId,
-            _: crate::topology::shell::ShellRayInput<EntityRef>,
-        ) -> crate::topology::shell::ShellRayAttempt<EntityRef> {
-            panic!("invalid targets must fail before shell queries")
-        }
-
-        let mut k = Kernel::default();
-        let mut b = Brep::new();
-        let missing = EdgeId::from_index(0);
-        // Exercise the public wrapper and the real Cache_EdgeProps stage. The
-        // old ignored(...) wrapper turned this dangling target into success.
-        let result = heal_brep(
-            &mut k,
-            &mut b,
-            HealerOpType::CacheEdgeprops,
-            None,
-            Some(&[missing]),
-            None,
-            false,
-            &mut no_shell_ray,
-        );
-        assert!(matches!(
-            result,
-            Err(SolidError::NotFound {
-                entity: EntityRef::Edge(id),
-                ..
-            }) if id == missing
-        ));
-    }
 
     #[test]
     fn type_queries() {
@@ -3130,87 +3092,6 @@ mod tests {
         assert_eq!(regions(&b, None).unwrap(), vec![r[1], r[2], r[0]]);
         assert!(!regions(&b, None).unwrap().contains(&off));
         assert!(!is_live_topology_member(&b, None));
-    }
-
-    #[test]
-    fn region_post_insert_and_remove_preserve_links_after_head_changes() {
-        let mut b = Brep::new();
-        let mut initial = Vec::new();
-        for _ in 0..4 {
-            let id = b
-                .add_region_record(Region {
-                    in_brep: true,
-                    ..Region::default()
-                })
-                .unwrap();
-            if initial.is_empty() {
-                b.set_region_list_head(Some(id));
-            }
-            initial.push(id);
-        }
-        assert_eq!(regions(&b, None).unwrap(), initial);
-        // Import a non-arena order. SmOwningTopology::PostInsert adds at the
-        // current tail even after ResetInfiniteRegion rotates the list head.
-        b.set_region_list(vec![initial[2], initial[0], initial[3], initial[1]])
-            .unwrap();
-        b.set_region_list_head(Some(initial[0]));
-        let added = b
-            .add_region_record(Region {
-                in_brep: true,
-                ..Region::default()
-            })
-            .unwrap();
-        assert_eq!(
-            regions(&b, None).unwrap(),
-            [initial[0], initial[3], initial[1], initial[2], added]
-        );
-        let added_again = b
-            .add_region_record(Region {
-                in_brep: true,
-                ..Region::default()
-            })
-            .unwrap();
-        assert_eq!(
-            regions(&b, None).unwrap(),
-            [
-                initial[0],
-                initial[3],
-                initial[1],
-                initial[2],
-                added,
-                added_again
-            ]
-        );
-        b.set_infinite_region(Some(initial[0]));
-        b.remove_region_from_list(initial[0]).unwrap();
-        assert_eq!(
-            regions(&b, None).unwrap(),
-            [initial[3], initial[1], initial[2], added, added_again]
-        );
-        assert_eq!(b.region_list_head(), Some(initial[3]));
-        // Remove does not decide which region is infinite or renumber records.
-        assert_eq!(b.infinite_region(), Some(initial[0]));
-        assert!(!b.region(initial[0]).unwrap().in_brep);
-        assert_eq!(b.regions().len(), 6);
-        b.remove_region_from_list(initial[1]).unwrap();
-        assert_eq!(
-            regions(&b, None).unwrap(),
-            [initial[3], initial[2], added, added_again]
-        );
-
-        let mut copy = b.clone();
-        copy.set_region_list(vec![added, initial[0]]).unwrap();
-        assert_eq!(regions(&copy, None).unwrap(), [added, initial[0]]);
-        assert_eq!(
-            regions(&b, None).unwrap(),
-            [initial[3], initial[2], added, added_again]
-        );
-        assert!(copy.region(initial[0]).unwrap().in_brep);
-        assert!(!copy.region(initial[3]).unwrap().in_brep);
-        let before = regions(&copy, None).unwrap();
-        assert!(copy.set_region_list(vec![added, added]).is_err());
-        assert_eq!(regions(&copy, None).unwrap(), before);
-        assert!(copy.region(initial[0]).unwrap().in_brep);
     }
 
     #[test]

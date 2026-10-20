@@ -3,8 +3,6 @@
 // of the algorithm under test. Evaluator arrays are adapted to upstream's index 1.
 #include "sc_shim.h"
 #include "StdAfx.h"
-#include "sc_edgeuse_graph.h"
-#include "sc_brep_query_metadata.h"
 #include <SmIntegrator.h>
 #include <cmath>
 #include <vector>
@@ -110,11 +108,10 @@ void put_moments(std::vector<double>& o, const SmTArray<SmVector3d>& m) {
 }
 }
 // kind 0: quadratic Bezier, 1: real SmLine through p0 with vector p1.
-// op 0: precise edge props, 1: public edge Length, 2: precise B-rep properties,
-// 3: export the constructed input wire, before any property calculation.
+// op 0: precise edge props, 1: public edge Length, 2: precise B-rep properties.
 SC_EXPORT int32_t sc_mass_integrator_edge(int32_t op,int32_t kind,const double* p,
     const double* weights,const double* controls,double* out,int64_t cap,int64_t* len) {
-    if(op<0||op>3||kind<0||kind>1)return SC_ERR_ARG;
+    if(op<0||op>2||kind<0||kind>1)return SC_ERR_ARG;
     SC_TRY
     SmContext ctx;
     std::unique_ptr<SmBrep> brep(new(ctx)SmBrep());
@@ -130,20 +127,6 @@ SC_EXPORT int32_t sc_mass_integrator_edge(int32_t op,int32_t kind,const double* 
     SmStatus st=brep->CreateWireEdgeFromCurve(c,SmExtent1d(controls[0],controls[1]),edge);
     std::vector<double> result;
     if(st!=SM_SUCCESS){result.push_back(st==SM_SUCCESS?0.0:(double)st);return sc_copy_out(result.data(),result.size(),out,cap,len);}
-    if(op==3){
-        Graph graph;
-        walk(brep.get(),graph);
-        std::vector<double> geometry{0.0};
-        export_graph(brep.get(),graph,geometry);
-        std::vector<double> metadata;
-        append_query_metadata(brep.get(),graph,metadata);
-        result.push_back(0.0);
-        result.push_back((double)geometry.size());
-        result.insert(result.end(),geometry.begin(),geometry.end());
-        result.push_back((double)metadata.size());
-        result.insert(result.end(),metadata.begin(),metadata.end());
-        return sc_copy_out(result.data(),result.size(),out,cap,len);
-    }
     double length=0,area=0,volume=0,mass=0;
     SmTArray<SmVector3d> moments;
     SmPoint3d origin(controls[3],controls[4],controls[5]);

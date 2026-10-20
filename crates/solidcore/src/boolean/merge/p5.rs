@@ -5,18 +5,17 @@
 //! | Rust | Upstream |
 //! |------|----------|
 //! | [`process_wires_and_shell_vertices`] | `SmMerge::ProcessWiresAndShellVertices` |
+//! | [`process_wires_and_shell_vertices_with_kernels`] | the same stage with each operand context |
 //! | [`Relations`] | shared bidirectional mate lookups from `m_vTI` |
 //!
 //! Deviations: operands, marks and mate maps are borrowed explicitly instead of
 //! reading `SmMerge::m_vTI`; ids replace pointers. Output stays mutable because
-//! upstream preserves its partial contents on failure. Classification borrows each
-//! live operand and its caller-owned query context; graph deletion waits
+//! upstream preserves its partial contents on failure. Classification borrows the
+//! live operand and its caller-owned query cache; graph deletion waits
 //! for `topology.brep_p4`; edge copying waits for `boolean.merge_p2`. Vertex
-//! copying delegates to [`p1::merge_vertex`]. Existing primary caches are resized
-//! against the other operand's geometry before copying, as upstream. Graph edits
-//! invalidate the affected caller-owned cache slots because this explicit copy
-//! adapter does not deliver all native cache notifications; later queries rebuild
-//! them. The deletion retry loop is iterative; wire collection uses the bounded
+//! copying delegates to [`p1::merge_vertex`]. B-rep
+//! caches are caller-owned; existing primary trees are resized before copies
+//! and affected slots are invalidated after edit attempts. The deletion retry loop is iterative; wire collection uses the bounded
 //! explicit stack of `topology_traverser`. No input-dependent recursion is added.
 //! Relations are shared mutably with `merge_p1`; notifications use its caller-owned
 //! records and attribute store. Newly created vertex relationships go through
@@ -34,7 +33,6 @@ use crate::intersect::point_class::{PointClassType, PointClassification};
 use crate::kernel::Kernel;
 use crate::math::{Point3, EFF_ZERO};
 use crate::query::brep::{point_3d_classify, BrepQueryContext};
-use crate::topology::brep::p1 as brep_lists;
 use crate::topology::edgeuse::p1 as edgeuse;
 use crate::topology::topology_traverser::{collect_wire_edges, Entity, Marks};
 use crate::topology::{edge, vertex, vertexuse, Brep, EdgeId, RegionId, VertexId};
@@ -176,10 +174,6 @@ fn keep_other(operation: BooleanOperation, is_void: bool) -> bool {
 /// a null pointer. The mate maps must refer to the supplied operands. `other` is
 /// mutable because relating a kept vertex (`SmTopologyIntersector::Relate`) raises the
 /// smaller of the two vertex tolerances, in whichever operand holds it.
-/// `brep_query` and `other_query` must describe their corresponding operands;
-/// classification restores each operand's editing flag on both success and error.
-/// Their optional geometry checks run when a source curve is evaluated or a
-/// target boundary/ray query is reached, leaving topology-only paths available.
 pub fn process_wires_and_shell_vertices(
     k: &Kernel,
     brep: &mut Brep,
@@ -196,15 +190,112 @@ pub fn process_wires_and_shell_vertices(
     other_mark: MarkType,
     keep_as_wires: &mut Vec<EdgeId>,
 ) -> Result<()> {
+    let keep_vertices = collect_wires_and_shell_vertices(
+        k,
+        k,
+        brep,
+        other,
+        brep_query,
+        other_query,
+        brep_marks,
+        other_marks,
+        relations,
+        operation,
+        brep_mark,
+        other_mark,
+        keep_as_wires,
+    )?;
+    for (vertex, region) in keep_vertices {
+        let status = p1::merge_vertex(
+            brep,
+            other,
+            Some(vertex),
+            Some(region),
+            relations,
+            copy,
+            context.as_deref_mut(),
+        );
+        *brep_query.cache = None;
+        *other_query.cache = None;
+        status?;
+    }
+    Ok(())
+}
+
+/// The shared wire stage with live, possibly distinct operand kernels.
+/// Marks are read from their owning contexts; copied other vertices notify through
+/// the other context (or the shared primary context). Caller records and attributes
+/// remain in `copy`; no replacement context or attribute store is constructed.
+pub fn process_wires_and_shell_vertices_with_kernels(
+    primary_kernel: &mut Kernel,
+    other_kernel: Option<&mut Kernel>,
+    brep: &mut Brep,
+    other: &mut Brep,
+    brep_query: &mut BrepQueryContext<'_>,
+    other_query: &mut BrepQueryContext<'_>,
+    brep_marks: &mut Marks,
+    other_marks: &mut Marks,
+    relations: &mut Relations,
+    copy: &mut VertexCopy<'_>,
+    operation: BooleanOperation,
+    brep_mark: MarkType,
+    other_mark: MarkType,
+    keep_as_wires: &mut Vec<EdgeId>,
+) -> Result<()> {
+    let keep_vertices = collect_wires_and_shell_vertices(
+        primary_kernel,
+        other_kernel.as_deref().unwrap_or(primary_kernel),
+        brep,
+        other,
+        brep_query,
+        other_query,
+        brep_marks,
+        other_marks,
+        relations,
+        operation,
+        brep_mark,
+        other_mark,
+        keep_as_wires,
+    )?;
+    let source_context = &mut other_kernel.unwrap_or(primary_kernel).context;
+    for (vertex, region) in keep_vertices {
+        let status = p1::merge_vertex(
+            brep,
+            other,
+            Some(vertex),
+            Some(region),
+            relations,
+            copy,
+            Some(&mut *source_context),
+        );
+        *brep_query.cache = None;
+        *other_query.cache = None;
+        status?;
+    }
+    Ok(())
+}
+
+fn collect_wires_and_shell_vertices(
+    k: &Kernel,
+    other_k: &Kernel,
+    brep: &mut Brep,
+    other: &mut Brep,
+    brep_query: &mut BrepQueryContext<'_>,
+    other_query: &mut BrepQueryContext<'_>,
+    brep_marks: &mut Marks,
+    other_marks: &mut Marks,
+    relations: &Relations,
+    operation: BooleanOperation,
+    brep_mark: MarkType,
+    other_mark: MarkType,
+    keep_as_wires: &mut Vec<EdgeId>,
+) -> Result<Vec<(VertexId, RegionId)>> {
     keep_as_wires.clear();
     let mut collected = Vec::new();
     let mut done = !removes_primary(operation);
     while !done {
         done = true;
-        let mut edges: Vec<_> = brep_lists::edges(brep, None)?
-            .into_iter()
-            .map(Some)
-            .collect();
+        let mut edges: Vec<_> = brep.edges().ids().map(Some).collect();
         for i in 0..edges.len() {
             let Some(id) = edges.get_mut(i).and_then(Option::take) else {
                 continue;
@@ -215,7 +306,7 @@ pub fn process_wires_and_shell_vertices(
                 continue;
             }
             let region = classify_region(
-                k,
+                other_k,
                 other,
                 other_query,
                 midpoint(brep, brep_query, id)?,
@@ -243,16 +334,20 @@ pub fn process_wires_and_shell_vertices(
                     if let Some(slot) = edges.iter_mut().find(|slot| **slot == Some(edge_id)) {
                         *slot = None;
                     }
-                    let status = delete_edge(brep, edge_id);
-                    *brep_query.cache = None;
-                    status?;
+                    {
+                        let status = delete_edge(brep, edge_id);
+                        *brep_query.cache = None;
+                        status?;
+                    }
                     for v in [Some(v1), (v1 != v2).then_some(v2)].into_iter().flatten() {
                         if vertex::is_shell_vertex(brep, v)?
                             && relations.vertices.other(v).is_none()
                         {
-                            let status = delete_vertex(brep, v);
-                            *brep_query.cache = None;
-                            status?;
+                            {
+                                let status = delete_vertex(brep, v);
+                                *brep_query.cache = None;
+                                status?;
+                            }
                         }
                     }
                 }
@@ -260,9 +355,9 @@ pub fn process_wires_and_shell_vertices(
         }
     }
 
-    for id in brep_lists::edges(other, None)? {
+    for id in other.edges().ids() {
         let is_wire = vertexuse::edge_is_wire(other, id)?;
-        let marked = other_marks.is_marked(k, Entity::Edge(id), other_mark);
+        let marked = other_marks.is_marked(other_k, Entity::Edge(id), other_mark);
         if is_wire && marked {
             match operation {
                 BooleanOperation::Union
@@ -294,7 +389,7 @@ pub fn process_wires_and_shell_vertices(
         )?;
         let Some(region) = region else { continue };
         collect_wire_edges(
-            k,
+            other_k,
             other,
             other_marks,
             Some(id),
@@ -315,15 +410,17 @@ pub fn process_wires_and_shell_vertices(
                 ))?;
             }
             for &edge in &collected {
-                let status = merge_edge(brep, other, edge, region.id);
-                *brep_query.cache = None;
-                status?;
+                {
+                    let status = merge_edge(brep, other, edge, region.id);
+                    *brep_query.cache = None;
+                    status?;
+                }
             }
         }
     }
 
     if removes_primary(operation) {
-        let vertices = brep_lists::vertices(brep, None)?;
+        let vertices: Vec<_> = brep.vertices().ids().collect();
         for v in vertices {
             if brep_marks.is_marked(k, Entity::Vertex(v), brep_mark)
                 || !vertex::is_shell_vertex(brep, v)?
@@ -332,7 +429,7 @@ pub fn process_wires_and_shell_vertices(
             }
             let vertex = brep.vertex(v)?;
             let region = classify_region(
-                k,
+                other_k,
                 other,
                 other_query,
                 vertex.point,
@@ -342,16 +439,18 @@ pub fn process_wires_and_shell_vertices(
             )?
             .ok_or_else(|| SolidError::sm_err(OP))?;
             if remove_in_region(operation, region.is_void) {
-                let status = delete_vertex(brep, v);
-                *brep_query.cache = None;
-                status?;
+                {
+                    let status = delete_vertex(brep, v);
+                    *brep_query.cache = None;
+                    status?;
+                }
             }
         }
     }
 
     let mut keep_vertices = Vec::new();
-    for v in brep_lists::vertices(other, None)? {
-        if other_marks.is_marked(k, Entity::Vertex(v), other_mark)
+    for v in other.vertices().ids() {
+        if other_marks.is_marked(other_k, Entity::Vertex(v), other_mark)
             || !vertex::is_shell_vertex(other, v)?
         {
             continue;
@@ -371,8 +470,8 @@ pub fn process_wires_and_shell_vertices(
             keep_vertices.push((v, region.id));
         }
     }
-    if !keep_vertices.is_empty() {
-        if let Some(cache) = brep_query.cache.as_mut() {
+    if let Some(cache) = brep_query.cache.as_mut() {
+        if !keep_vertices.is_empty() {
             let vertices: Vec<_> = keep_vertices.iter().map(|&(vertex, _)| vertex).collect();
             crate::error::ignore_status(cache.resize_trees(
                 k,
@@ -385,21 +484,7 @@ pub fn process_wires_and_shell_vertices(
             ))?;
         }
     }
-    for (vertex, region) in keep_vertices {
-        let status = p1::merge_vertex(
-            brep,
-            other,
-            Some(vertex),
-            Some(region),
-            relations,
-            copy,
-            context.as_deref_mut(),
-        );
-        *brep_query.cache = None;
-        *other_query.cache = None;
-        status?;
-    }
-    Ok(())
+    Ok(keep_vertices)
 }
 
 #[cfg(test)]
@@ -413,8 +498,7 @@ mod tests {
     use crate::curve::line::Line;
     use crate::geom::context::MarkLock;
     use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
-    use crate::topology::brep_cache::arena_identity;
-    use crate::topology::{BrepId, Edge, Edgeuse, EdgeuseOwner, Vertexuse, VertexuseOwner};
+    use crate::topology::{Edge, Edgeuse, EdgeuseOwner, Vertexuse, VertexuseOwner};
 
     fn copy<'a>(
         records: &'a mut BTreeMap<ObjectKey, Topology>,
@@ -478,17 +562,29 @@ mod tests {
     }
 
     #[test]
-    fn output_resets_and_preserves_mates_before_a_classification_error() {
+    fn output_resets_and_preserves_mates_before_a_geometry_error() {
+        let mut primary_cache = None;
+        let mut other_cache = None;
+        let keys = crate::topology::brep_cache::arena_identity;
+        let owner_of = |_| None;
+        let mut primary_query = BrepQueryContext::new(
+            crate::topology::BrepId::from_index(0),
+            &mut primary_cache,
+            &keys,
+            &owner_of,
+        );
+        let mut other_query = BrepQueryContext::new(
+            crate::topology::BrepId::from_index(1),
+            &mut other_cache,
+            &keys,
+            &owner_of,
+        );
+
         let mut k = Kernel::default();
         let lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, 1).unwrap();
         let mt = lock.mark_type();
         let mut a = Brep::new();
         let ae = wire(&mut a);
-        // Real malformed geometry makes the newly wired bounding-box dependency
-        // fail when an unmarked other wire reaches Point3DClassify.
-        let shell = a.add_shell().unwrap();
-        a.add_face(shell).unwrap();
-        a.set_editing_enabled(true);
         let mut b = Brep::new();
         let be = wire(&mut b);
         wire(&mut b);
@@ -501,27 +597,19 @@ mod tests {
         let mut records = BTreeMap::new();
         let mut attrs = AttributeStore::new();
         let mut keep = vec![EdgeId::from_index(u32::MAX)];
-        let mut a_cache = None;
-        let mut b_cache = None;
-        let owner_of = |_| None;
-        let mut a_query = BrepQueryContext::new(
-            BrepId::from_index(0),
-            &mut a_cache,
-            &arena_identity,
-            &owner_of,
-        );
-        let mut b_query = BrepQueryContext::new(
-            BrepId::from_index(1),
-            &mut b_cache,
-            &arena_identity,
-            &owner_of,
-        );
+        let unavailable_geometry = || {
+            Err(SolidError::invalid_input(
+                "test source geometry",
+                "fixture geometry unavailable",
+            ))
+        };
+        other_query = other_query.with_geometry_check(&unavailable_geometry);
         let result = process_wires_and_shell_vertices(
             &k,
             &mut a,
             &mut b,
-            &mut a_query,
-            &mut b_query,
+            &mut primary_query,
+            &mut other_query,
             &mut am,
             &mut bm,
             &mut relations,
@@ -532,13 +620,35 @@ mod tests {
             mt,
             &mut keep,
         );
-        assert!(matches!(result, Err(SolidError::InvalidInput { .. })));
+        assert!(matches!(
+            result,
+            Err(SolidError::InvalidInput {
+                operation: "test source geometry",
+                ..
+            })
+        ));
         assert_eq!(keep, [ae]);
-        assert!(a.editing_enabled());
     }
 
     #[test]
     fn missing_and_extreme_mates_return_errors_without_panicking() {
+        let mut primary_cache = None;
+        let mut other_cache = None;
+        let keys = crate::topology::brep_cache::arena_identity;
+        let owner_of = |_| None;
+        let mut primary_query = BrepQueryContext::new(
+            crate::topology::BrepId::from_index(0),
+            &mut primary_cache,
+            &keys,
+            &owner_of,
+        );
+        let mut other_query = BrepQueryContext::new(
+            crate::topology::BrepId::from_index(1),
+            &mut other_cache,
+            &keys,
+            &owner_of,
+        );
+
         let mut k = Kernel::default();
         let lock = MarkLock::new(std::slice::from_mut(&mut k.context), 0, 1).unwrap();
         let mt = lock.mark_type();
@@ -546,21 +656,6 @@ mod tests {
         let ae = wire(&mut a);
         let mut b = Brep::new();
         let be = wire(&mut b);
-        let mut a_cache = None;
-        let mut b_cache = None;
-        let owner_of = |_| None;
-        let mut a_query = BrepQueryContext::new(
-            BrepId::from_index(0),
-            &mut a_cache,
-            &arena_identity,
-            &owner_of,
-        );
-        let mut b_query = BrepQueryContext::new(
-            BrepId::from_index(1),
-            &mut b_cache,
-            &arena_identity,
-            &owner_of,
-        );
         let mut am = Marks::default();
         let mut bm = Marks::default();
         am.mark(&k, Entity::Edge(ae), mt);
@@ -586,8 +681,8 @@ mod tests {
                     &k,
                     &mut a,
                     &mut b,
-                    &mut a_query,
-                    &mut b_query,
+                    &mut primary_query,
+                    &mut other_query,
                     &mut am,
                     &mut bm,
                     &mut relations,
@@ -615,8 +710,8 @@ mod tests {
                     &k,
                     &mut a,
                     &mut b,
-                    &mut a_query,
-                    &mut b_query,
+                    &mut primary_query,
+                    &mut other_query,
                     &mut am,
                     &mut bm,
                     &mut relations,

@@ -10,11 +10,10 @@
 //! | [`find_coincident_edge`]  | `sc_geom_tools_find_coincident_edge`   | `SmTools::FindCoincidentEdge`            |
 //! | [`find_edge`]             | `sc_geom_tools_find_edge`              | `SmTools::FindEdge`                      |
 //! | [`find_face`]             | `sc_geom_tools_find_face`              | `SmTools::FindFace`                      |
-//! | [`query_export`]          | `sc_geom_tools_query_export`           | independent `SmBrep::ReadFromFile` input |
 
 use std::ffi::CString;
 
-use crate::{call_with_buffer, FfiError};
+use crate::FfiError;
 
 mod sys {
     use std::ffi::c_char;
@@ -57,12 +56,6 @@ mod sys {
             path: *const c_char,
             pnt: *const f64,
             out_ints: *mut i64,
-        ) -> i32;
-        pub fn sc_geom_tools_query_export(
-            path: *const c_char,
-            out: *mut f64,
-            cap: i64,
-            out_len: *mut i64,
         ) -> i32;
     }
 }
@@ -222,23 +215,5 @@ pub fn find_face(path: &str, pnt: [f64; 3]) -> Result<Call<[i64; 2]>, FfiError> 
     Ok(Call {
         status: shim_status(st)?,
         out: ints,
-    })
-}
-
-/// Export the independent ASCII file input as length-prefixed common graph and
-/// query metadata blocks. No `FindFace` or box operation is evaluated by export.
-pub fn query_export(path: &str) -> Result<Vec<f64>, FfiError> {
-    let path = c_path(path)?;
-    call_with_buffer(4096, |out, length| {
-        // SAFETY: path is NUL-terminated and lives through the call. The buffer
-        // and output length are writable; the shim owns the imported B-rep.
-        unsafe {
-            sys::sc_geom_tools_query_export(
-                path.as_ptr(),
-                out.as_mut_ptr(),
-                out.len() as i64,
-                &raw mut *length,
-            )
-        }
     })
 }

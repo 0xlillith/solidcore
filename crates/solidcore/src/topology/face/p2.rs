@@ -87,15 +87,12 @@
 //!   domain minimum, as upstream does (`plan/upstream-issues.md`).
 //! - **`CreateCurvesByTrimming`** drops its unused `bForceUVClassify` argument; the
 //!   output arrays are asked for with `want_3d` / `want_uv`.
-//! - **Classification dependencies.** The UV-line helper calls `query.face_p3`
-//!   with its retained geometry provider. Curve construction calls part 4's
-//!   `SmCurveClassification::with_curve` and then `SmFace::CurveOnClassify`
-//!   (`query.face_p2`), preserving their remaining `ReSet` / classification barriers.
-//!   `SmCurveInterval::GetIvlBound_EdgeuseObj` uses the caller's geometry provider.
-//!   Other callees, including `SmFace::CalculateUVDomainFromUVTrimCurves`
-//!   (`topology.face_p1`) and `SmSurface::IsSingularity` of a non-plane
-//!   (`surface.surface_p5`), retain their owning units' [`SolidError::Unported`]
-//!   results. A thick face's temporary
+//! - **Unported callees.** `SmCurveClassification::ReSet` in the constructor of a curve
+//!   (`intersect.curve_class_p2`; `SmFace::CurveOnClassify` follows it), the face member
+//!   `GetUpwardFaceuse` of an opaque handle in `SmCurveInterval::GetIvlBound_EdgeuseObj`,
+//!   `SmFace::CalculateUVDomainFromUVTrimCurves` (`topology.face_p1`),
+//!   `SmSurface::IsSingularity` of a non-plane
+//!   (`surface.surface_p5`) return [`SolidError::Unported`]. A thick face's temporary
 //!   `SmOffsetSurface` is built over a copy of the face surface (upstream shares it).
 
 use crate::curve::crv_on_surf::CrvOnSurf;

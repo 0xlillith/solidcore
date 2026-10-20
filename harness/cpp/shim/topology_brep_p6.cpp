@@ -2,7 +2,6 @@
 // SmBrep p6 on actual SMLib objects. Raw fixtures share the existing topology
 // protocol; operation results are never used to construct the Rust input graph.
 #include "sc_topology_fixture.h"
-#include "sc_brep_query_metadata.h"
 #include <memory>
 SC_EXPORT int32_t sc_topology_brep_p6_eval(
     int32_t op, const char* path, const double* input, int64_t n,
@@ -106,27 +105,5 @@ SC_EXPORT int32_t sc_topology_brep_p6_eval(
     result.push_back(infinite_index);
     result.push_back(infinite ? infinite->IsVoid() : -1);
     return sc_copy_out(result.data(), result.size(), out, cap, len);
-    SC_CATCH
-}
-
-// Import-only metadata, with the same native constructor and registry as eval.
-SC_EXPORT int32_t sc_topology_brep_p6_query_metadata(
-    const char* path, const double* input, int64_t count,
-    double* out, int64_t cap, int64_t* len)
-{
-    if (!path || !input || !len || count < 1) return SC_ERR_ARG;
-    SC_TRY
-    Rd rd{input, 0};
-    Built built;
-    SmStatus status = SM_SUCCESS;
-    built.brep = build(rd, path, status);
-    if (!built.brep || status != SM_SUCCESS)
-        return status == SM_SUCCESS ? SC_ERR_ARG : (int32_t)status;
-    if (rd.at != count) return SC_ERR_ARG;
-    Graph graph;
-    walk(built.brep, graph, true);
-    std::vector<double> metadata;
-    append_query_metadata(built.brep, graph, metadata);
-    return sc_copy_out(metadata.data(), (int64_t)metadata.size(), out, cap, len);
     SC_CATCH
 }

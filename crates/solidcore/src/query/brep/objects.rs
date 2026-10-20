@@ -14,16 +14,13 @@
 //! or detached from its owner. The cache is built only when a solve needs it, with
 //! the caller's kernel, and is reused within the caller's valid geometry state.
 //! The caller must invalidate that slot when edits invalidate the spatial trees
-//! (for example through `topology::brep::p2::notify` and `BrepCacheSlot`).
+//! before querying edited geometry again.
 //! Classification handles may include the application's B-rep identity; the
 //! default `EntityRef` handles are meaningful only within this one B-rep.
 //!
-//! Ray sectoring borrows the B-rep mutably because it may create UV trim curves.
-//! `RayFire`'s returned intersection is translated with `try_map_objects`, retaining
-//! every scalar and optional field. The coordinator never reads the ray's private
-//! intersection scratch after an error, so the returned-value `RayFire` API suffices.
-//! Unavailable face tolerance/trim queries remain errors of their real callees.
-//! No new recursion, interior mutability, default kernel or synthetic geometry.
+//! The main revision supplies read-only topology solving. RayFire belongs to the
+//! still-unported topology.brep_p2 unit and returns its explicit deferred error.
+//! Existing partial solver limitations are propagated without fabricated results.
 
 use super::BrepClassifyObjects;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
@@ -33,7 +30,7 @@ use crate::intersect::topology_solver::p1::TopologySolver;
 use crate::intersect::topology_solver::p2::TopologySolveOptions;
 use crate::kernel::Kernel;
 use crate::math::{Point3, Vec3, BIG_DOUBLE};
-use crate::topology::brep::{p1, p2};
+use crate::topology::brep::p1;
 use crate::topology::brep_cache::{
     make_brep_cache, BrepCache, BrepObjects, CacheObject, CacheSource,
 };
@@ -79,6 +76,18 @@ impl<'a> BrepQueryContext<'a> {
         }
     }
 
+    /// Reborrow the same identity, owner mappings, cache and geometry guard.
+    #[must_use]
+    pub fn reborrow(&mut self) -> BrepQueryContext<'_> {
+        BrepQueryContext {
+            brep_id: self.brep_id,
+            cache: &mut *self.cache,
+            keys: self.keys,
+            owner_of: self.owner_of,
+            geometry_check: self.geometry_check,
+        }
+    }
+
     /// Check that the caller's geometry is available before boundary or ray work.
     /// Region-only queries do not invoke this check. The default always succeeds.
     #[must_use]
@@ -95,9 +104,27 @@ impl<'a> BrepQueryContext<'a> {
         (self.geometry_check)()
     }
 
+    /// Borrow this context with application-wide classification identities.
+    #[must_use]
+    pub fn objects_with_handles<'query, O: ClassObject>(
+        &'query mut self,
+        brep: &'query Brep,
+        entity_handle: &'query dyn Fn(EntityRef) -> Result<O>,
+    ) -> BrepPointObjects<'query, O> {
+        BrepPointObjects::with_handles(
+            brep,
+            self.brep_id,
+            &mut *self.cache,
+            self.keys,
+            self.owner_of,
+            entity_handle,
+        )
+        .with_geometry_check(self.geometry_check)
+    }
+
     /// Borrow the matching live B-rep for a query with scoped entity handles.
     #[must_use]
-    pub fn objects<'query>(&'query mut self, brep: &'query mut Brep) -> BrepPointObjects<'query> {
+    pub fn objects<'query>(&'query mut self, brep: &'query Brep) -> BrepPointObjects<'query> {
         BrepPointObjects::new(
             brep,
             self.brep_id,
@@ -109,14 +136,14 @@ impl<'a> BrepQueryContext<'a> {
     }
 }
 
-/// A mutable B-rep and its caller-owned query state.
+/// A live B-rep and its caller-owned query state.
 ///
 /// `cache`, `keys` and `owner_of` must describe `brep`, as for [`BrepObjects`].
 /// An already populated cache must still be valid for its geometry and context.
 /// [`new`](Self::new) returns scoped `EntityRef` classifications;
 /// [`with_handles`](Self::with_handles) preserves application-wide identities.
 pub struct BrepPointObjects<'a, O = EntityRef> {
-    brep: &'a mut Brep,
+    brep: &'a Brep,
     brep_id: BrepId,
     cache: &'a mut Option<BrepCache>,
     keys: &'a dyn Fn(CacheObject) -> ObjectRef,
@@ -130,7 +157,7 @@ impl<'a> BrepPointObjects<'a> {
     /// The supplied cache is left untouched until a boundary or ray solve needs it.
     #[must_use]
     pub fn new(
-        brep: &'a mut Brep,
+        brep: &'a Brep,
         brep_id: BrepId,
         cache: &'a mut Option<BrepCache>,
         keys: &'a dyn Fn(CacheObject) -> ObjectRef,
@@ -149,7 +176,7 @@ impl<'a, O: ClassObject> BrepPointObjects<'a, O> {
     /// into this B-rep, so retained fields may still name another caller object.
     #[must_use]
     pub fn with_handles(
-        brep: &'a mut Brep,
+        brep: &'a Brep,
         brep_id: BrepId,
         cache: &'a mut Option<BrepCache>,
         keys: &'a dyn Fn(CacheObject) -> ObjectRef,
@@ -232,7 +259,7 @@ impl<O: ClassObject> BrepClassifyObjects<O> for BrepPointObjects<'_, O> {
     ) -> Result<bool> {
         (self.geometry_check)()?;
         let cache = cache_for(kernel, self.brep, self.cache, self.keys)?;
-        let mut objects = BrepObjects {
+        let objects = BrepObjects {
             brep: self.brep,
             brep_id: self.brep_id,
             cache,
@@ -241,7 +268,7 @@ impl<O: ClassObject> BrepClassifyObjects<O> for BrepPointObjects<'_, O> {
         };
         let solutions = TopologySolver::brep_point_solve(
             kernel,
-            &mut objects,
+            &objects,
             Some(CacheObject::Brep),
             point,
             TopologySolveOptions {
@@ -280,32 +307,16 @@ impl<O: ClassObject> BrepClassifyObjects<O> for BrepPointObjects<'_, O> {
 
     fn ray_fire(
         &mut self,
-        kernel: &Kernel,
-        point: Point3,
-        direction: Vec3,
-        point_zone_tolerance: f64,
-        classification: &mut PointClassification<O>,
+        _kernel: &Kernel,
+        _point: Point3,
+        _direction: Vec3,
+        _point_zone_tolerance: f64,
+        _classification: &mut PointClassification<O>,
     ) -> Result<Option<O>> {
-        (self.geometry_check)()?;
-        let slot = &mut *self.cache;
-        let keys = self.keys;
-        let hit = p2::ray_fire_with_cache(
-            kernel,
-            self.brep,
-            self.brep_id,
-            move |brep| cache_for(kernel, brep, slot, keys),
-            self.keys,
-            self.owner_of,
-            point,
-            direction,
-            point_zone_tolerance,
-            None,
-        )?;
-        *classification = hit
-            .intersection
-            .try_map_objects(|entity| self.entity_object(entity))?;
-        hit.region
-            .map(|region| self.entity_object(EntityRef::Region(region)))
-            .transpose()
+        // UNPORTED(topology.brep_p2): SmBrep::RayFire
+        Err(SolidError::Unported {
+            upstream: "SmBrep::RayFire",
+            unit: "topology.brep_p2",
+        })
     }
 }

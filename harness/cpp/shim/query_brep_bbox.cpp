@@ -4,6 +4,7 @@
 #include "sc_edgeuse_graph.h"
 #include "sc_brep_query_metadata.h"
 #include <array>
+#include <SmPointClass.h>
 namespace {
 // Complete the registry independently of the region/shell traversal. Its indices
 // identify objects; they are not the B-rep's native list order. Selected fixtures
@@ -46,11 +47,15 @@ bool put_bbox_lists(SmBrep* brep,Graph& graph,std::vector<double>& out) {
     return true;
 }
 }
-SC_EXPORT int32_t sc_query_brep_bbox(int32_t op,const char* path,const double* input,int64_t n_in,
-    double* out,int64_t cap,int64_t* out_len) {
-    if(op<0 || op>1 || !input || n_in<9) return SC_ERR_ARG;
-    SC_TRY
-    Rd rd{input,0}; Built built; SmStatus status=SM_SUCCESS;
+namespace {
+// Real additional region records expose the owned classifier's ray branch.
+struct QueryFixtureRegion : SmRegion {
+    QueryFixtureRegion() : SmRegion() {}
+    ~QueryFixtureRegion() override = default;
+};
+int32_t make_query_fixture(Rd& rd,const char* path,int64_t n_in,Built& built,
+    Graph& graph,std::vector<std::array<double,4>>& steps,int32_t minimum_regions,bool& reverse_registry) {
+    SmStatus status=SM_SUCCESS;
     const SmContext& ctx=the_context();
     if(rd.flag()) built.brep=build(rd,path,status);
     else built.brep=new (ctx) SmBrep();
@@ -59,7 +64,7 @@ SC_EXPORT int32_t sc_query_brep_bbox(int32_t op,const char* path,const double* i
     int64_t nv=rd.idx(),ne=rd.idx();
     double vt=rd.num(),et=rd.num(),ft=rd.num();
     bool drop=rd.flag();
-    bool reverse_registry=rd.flag();
+    reverse_registry=rd.flag();
     for(int64_t i=0;i<ne;i++) {
         SmPoint3d a((double)i*0.01,0.1,0.0),b((double)i*0.01+1.0,0.1,0.0);
         SmBSplineCurve* curve=nullptr;SmEdge* edge=nullptr;
@@ -73,7 +78,14 @@ SC_EXPORT int32_t sc_query_brep_bbox(int32_t op,const char* path,const double* i
         status=brep->MakeShellVertex(brep->GetInfiniteRegion(),SmPoint3d((double)i*0.01,(double)(i%7)*0.001,0.0),shell,vertex);
         if(status!=SM_SUCCESS) return (int32_t)status;
     }
-    Graph graph;bbox_walk(brep,graph,reverse_registry);
+    SmTArray<SmRegion*> existing_regions;brep->GetRegions(existing_regions);
+    for(ULONG i=existing_regions.GetSize();i<(ULONG)minimum_regions;++i) {
+        std::unique_ptr<QueryFixtureRegion> region(new (brep) QueryFixtureRegion());
+        status=brep->PostInsert(region.get());
+        if(status!=SM_SUCCESS) return (int32_t)status;
+        region.release();
+    }
+    bbox_walk(brep,graph,reverse_registry);
     for(auto* v:graph.vertices) v->SetTolerance(SmZoneTol3d(vt),FALSE,FALSE);
     for(auto* e:graph.edges) e->SetTolerance(SmZoneTol3d(et),FALSE,FALSE);
     for(auto* f:graph.faces) f->SetTolerance(SmZoneTol3d(ft),FALSE,FALSE);
@@ -81,12 +93,28 @@ SC_EXPORT int32_t sc_query_brep_bbox(int32_t op,const char* path,const double* i
         SmTArray<SmFace*> faces;e->GetFaces(faces);
         if(faces.GetSize()==0) e->SetCurve(NULL,TRUE,FALSE,FALSE);
     }
-    int64_t count=rd.idx();std::vector<std::array<double,4>> steps;
+    int64_t count=rd.idx();
     for(int64_t i=0;i<count;i++) {
         double code=rd.num(),a=rd.num(),b=rd.num(),c=rd.num();
         steps.push_back({code,a,b,c});
     }
     if(rd.at!=n_in) return SC_ERR_ARG;
+    return 0;
+
+}
+}
+
+SC_EXPORT int32_t sc_query_brep_bbox(int32_t op,const char* path,const double* input,int64_t n_in,
+    double* out,int64_t cap,int64_t* out_len) {
+    if(op<0 || op>1 || !input || n_in<9) return SC_ERR_ARG;
+    SC_TRY
+    Rd rd{input,0};Built built;Graph graph;
+    std::vector<std::array<double,4>> steps;
+    bool reverse_registry=false;
+    int32_t setup=make_query_fixture(rd,path,n_in,built,graph,steps,0,reverse_registry);
+    if(setup!=0) return setup;
+    SmBrep* brep=built.brep;
+    SmStatus status=SM_SUCCESS;
     std::vector<double> result;
     if(op==0) {
         // Envelope: graph length, unchanged common graph export, the three
@@ -127,6 +155,53 @@ SC_EXPORT int32_t sc_query_brep_bbox(int32_t op,const char* path,const double* i
             else return SC_ERR_ARG;
             result.push_back(st(status));put_vec(result,box.GetMin());put_vec(result,box.GetMax());
         }
+    }
+    return sc_copy_out(result.data(),(int64_t)result.size(),out,cap,out_len);
+    SC_CATCH
+}
+
+// Both branches reconstruct the same native PRE fixture. Export never classifies.
+SC_EXPORT int32_t sc_query_brep_graph_classify(int32_t op,const char* path,
+    const double* input,int64_t n_in,const double* point,double tolerance,
+    int32_t boundary,int32_t minimum_regions,double* out,int64_t cap,int64_t* out_len) {
+    if(op<0 || op>1 || !input || n_in<9 || !point || boundary<0 || boundary>1
+        || minimum_regions<1 || minimum_regions>4) return SC_ERR_ARG;
+    SC_TRY
+    Rd rd{input,0};Built built;Graph graph;std::vector<std::array<double,4>> steps;
+    bool reverse_registry=false;
+    int32_t setup=make_query_fixture(rd,path,n_in,built,graph,steps,minimum_regions,reverse_registry);
+    if(setup!=0) return setup;
+    SmBrep* brep=built.brep;
+    if(graph.vertices.empty() && graph.edges.empty() && graph.faces.empty()) return SC_ERR_ARG;
+    std::vector<double> result;
+    if(op==0) {
+        std::vector<double> exported{0.0};export_graph(brep,graph,exported);
+        result.push_back((double)exported.size());
+        result.insert(result.end(),exported.begin(),exported.end());
+        if(!put_bbox_lists(brep,graph,result)) return SC_ERR_ARG;
+        std::vector<double> metadata;append_query_metadata(brep,graph,metadata);
+        result.push_back((double)metadata.size());
+        result.insert(result.end(),metadata.begin(),metadata.end());
+    } else {
+        const SmContext& ctx=the_context();
+        SmPointClassification pc(SmZoneTol3d(17.0),&ctx);
+        pc.SetGap3d(31.0);pc.SetTParam(47.0,FALSE);pc.SetUVParam(SmPoint2d(53.0,59.0));
+        pc.SetPreSnapParam(61.0);pc.SetSSSPoint(SmPoint3d(67.0,71.0,73.0));
+        SmStatus status=brep->Point3DClassify(SmPoint3d(point[0],point[1],point[2]),
+            SmZoneTol3d(tolerance),boundary?TRUE:FALSE,pc);
+        double kind=-1.0,index=-1.0;
+        if(pc.GetObject()!=nullptr) {
+            const int registry[4]={0,3,7,9};
+            for(int i=0;i<4;++i) {
+                int64_t found=graph.find(registry[i],pc.GetObject());
+                if(found>=0) {kind=(double)i;index=(double)found;break;}
+            }
+            if(index<0.0) return SC_ERR_ARG;
+        }
+        SmPoint2d uv=pc.GetUVParam();SmPoint3d sss=pc.GetSSSPoint();
+        result={status==SM_SUCCESS?0.0:(double)status,(double)pc.GetPointClass(),kind,index,
+            pc.GetDeviation(),pc.GetTParam(),uv.x,uv.y,pc.AreParametersSet()?1.0:0.0,
+            pc.GetPreSnapParam(),pc.GetSSSPointFlag()?1.0:0.0,sss.x,sss.y,sss.z,(double)pc.GetTolerance()};
     }
     return sc_copy_out(result.data(),(int64_t)result.size(),out,cap,out_len);
     SC_CATCH

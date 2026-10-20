@@ -111,16 +111,12 @@ const VD_TOL_FACTOR: f64 = 5.0;
 pub trait ProtoBrep<O>: ProtoGeometry<O> + ProtoTopology<O> {
     /// `SmBrep::Point3DClassify` against the live B-rep named by `brep`.
     ///
-    /// The provider retains the B-rep's identity, concrete geometry, owner mapping
-    /// and valid query-cache slot. Use `query::brep::BrepPointObjects::with_handles`
-    /// to preserve application-wide handles in every classification field. The
-    /// existing output fields must remain visible after an ordinary failure:
-    /// `SmEdgeDefinition::Split` ignores that status and reads the classification.
-    /// Mutable access permits the ray-sector query to create UV trim curves.
+    /// Retain the B-rep identity, geometry owners and a valid caller-owned cache.
+    /// Preserve the original classification in/out state even on ordinary errors;
+    /// `SmEdgeDefinition::Split` ignores that status before reading its output.
     ///
     /// # Errors
-    ///
-    /// Those of the real B-rep classification; an unknown B-rep handle is invalid.
+    /// Those of the real B-rep query; unknown B-rep handles are invalid input.
     fn brep_point_3d_classify(
         &mut self,
         k: &Kernel,
@@ -2077,7 +2073,6 @@ mod tests {
     use crate::intersect::point_class::{ClassGeometry, ClassObjectKind};
     use crate::surface::surface::Surface;
     use crate::surface::volume::Volume;
-    use crate::topology::Brep;
 
     /// Pool handles: an index and a kind.
     #[derive(Debug, Clone, Copy, PartialEq)]
@@ -2220,9 +2215,7 @@ mod tests {
 
     fn manager() -> ProtoTopologyManager<H> {
         let b = H(100, ClassObjectKind::Other);
-        let e = Brep::new();
-        ProtoTopologyManager::new(&Kernel::default(), (b, &e), (b, &e), b, 1e-5, 1e-3, -1.0)
-            .unwrap()
+        ProtoTopologyManager::new(b, b, b, 1e-5, 1e-3, -1.0).unwrap()
     }
 
     fn region_pc(o: H) -> PointClassification<H> {

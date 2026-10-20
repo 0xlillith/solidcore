@@ -43,14 +43,13 @@
 #include <SmTArray.h>
 #include <SmVertex.h>
 
-#include <cmath>
 #include <memory>
 #include <vector>
 
 SC_EXPORT int32_t sc_query_face_p1_curve(int32_t kind, const double* data, double parameter,
                                          int32_t mask, double* out, int32_t* operation_status)
 {
-    if (!data || !out || !operation_status || kind < 0 || kind > 2)
+    if (!data || !out || !operation_status || kind < 0 || kind > 2 || mask < 0 || mask > 7)
         return SC_ERR_ARG;
     SC_TRY
     SmContext context;
@@ -100,19 +99,7 @@ struct Args
         }
         return in[at++];
     }
-    int64_t idx()
-    {
-        const double value = num();
-        // Validate the protocol's integral fields before the floating-to-integer
-        // cast. Numeric Point3DClassify arguments are read through num()/vec().
-        if (!std::isfinite(value) || std::trunc(value) != value || value < -2147483648.0
-            || value >= 2147483648.0)
-        {
-            ok = false;
-            return 0;
-        }
-        return static_cast<int64_t>(value);
-    }
+    int64_t idx() { return (int64_t)num(); }
     SmBoolean bflag() { return num() != 0.0 ? TRUE : FALSE; }
     SmVector3d vec()
     {

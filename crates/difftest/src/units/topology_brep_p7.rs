@@ -29,20 +29,12 @@
 //! **Deferred.** Every read that gets past `SmBrepData::ReadFromFile` (it now runs
 //! `MakeTopologyFromData` of `topology.brep_p10` on a B-rep with the infinite region
 //! and defers later: `sm_CheckAndFixUVTrimCurves`, analytic copies, `HealBrep`'s
-//! callees), every face made
-//! (`MakeShellVertex`, `MakeFaceTopology`, `GetInfiniteRegion`), every glue past its
-//! early returns, every copy (`SmBrep::SetTolerance`). The comparisons are the read
+//! callees), every face made (`MakeShellVertex`, `SmFace::SetTolerance` inside
+//! `MakeFaceTopology`), every glue past its early returns, every copy
+//! (`SmBrep::SetTolerance`). Every new B-rep is the shim's `new SmBrep()`, with its void
+//! infinite region (`native_brep`). The comparisons are the read
 //! errors of damaged files, the input errors of the face makers, the null-surface status
 //! of `MakeFace`, the glue no-ops and `MergeSelfIntersectionCurves` without curves.
-//! Region nesting borrows the live B-rep through the shell query provider. Native
-//! owner/list metadata uses the same build and traversal registry as each input;
-//! topology limitations are checked before traversal, and geometry limitations
-//! only when a query consumes that geometry.
-//! Glue imports the native notification records, including all five stored marks,
-//! flags and opaque user values, before invoking its real merge notification.
-//! Attribute storage and callbacks have no decoder here: their measured presence
-//! is a conservative fixture-level harness limit after the null/same-edge no-ops.
-//! Native marks are restored exactly and never trigger that representation guard.
 
 use std::cell::RefCell;
 use std::collections::BTreeMap;
@@ -69,19 +61,16 @@ use solidcore::nurbs::srf_basic::Surface as NlSurface;
 use solidcore::surface::plane::Plane;
 use solidcore::surface::surface::Surface;
 use solidcore::topology::brep::{p10, p7};
-use solidcore::topology::brep_cache::{arena_identity, CacheObject};
 use solidcore::topology::database_io::FileType;
 use solidcore::topology::edge as ed;
-use solidcore::topology::topology::Topology;
-use solidcore::topology::{Arena, Brep, BrepId, EdgeId, FaceId, Region};
+use solidcore::topology::{Brep, EdgeId, FaceId, RegionId};
 use solidcore::{EntityRef, SolidError};
 use solidcore_ffi::units::topology_brep_data as bd;
 use solidcore_ffi::units::topology_brep_p7::{self as ffi, Op};
 use solidcore_ffi::units::topology_vertexuse as fixture;
 use solidcore_ffi::FfiError;
 
-use super::topology_shell::RayQueryContext;
-use super::topology_vertexuse::{self as shared, apply_query_metadata, BrepIn, QueryMetadata};
+use super::topology_vertexuse::{self as shared, BrepIn};
 use crate::case::CaseContext;
 use crate::runner::default_cases;
 use crate::{Case, HarnessError, Output, Rng, UnitDiff};
@@ -564,6 +553,16 @@ fn hfail(e: impl core::fmt::Display) -> Fail {
     Fail::Harness(harness(e.to_string()))
 }
 
+/// The shim's `new SmBrep()`: an empty B-rep that owns its void infinite region, the
+/// head of its region list (`SmBrep.cpp:532-536`).
+fn native_brep() -> Result<(Brep, RegionId), Fail> {
+    let b = Brep::new_with_infinite_region().map_err(hfail)?;
+    let infinite = b
+        .infinite_region()
+        .ok_or_else(|| hfail("new B-rep without infinite region"))?;
+    Ok((b, infinite))
+}
+
 /// A case the shim answers with `-2` (upstream would dereference null): both sides would
 /// only echo that constant, so it is deferred under the guard's `label`, never compared.
 fn cpp_null_deref(label: &str, symbol: &str) -> Fail {
@@ -668,298 +667,8 @@ fn read_key_of(e: EntityRef) -> ObjectRef {
     }
 }
 
-fn read_query_key(object: CacheObject) -> ObjectRef {
-    match object {
-        CacheObject::Edge(edge) | CacheObject::Curve(edge) => read_key_of(EntityRef::Edge(edge)),
-        CacheObject::Face(face) | CacheObject::Surface(face) => read_key_of(EntityRef::Face(face)),
-        CacheObject::Vertex(vertex) => read_key_of(EntityRef::Vertex(vertex)),
-        CacheObject::Brep => ObjectRef {
-            type_code: 16011,
-            key: ObjectKey(1u64 << 40),
-        },
-        other => arena_identity(other),
-    }
-}
-
 fn this_face(f: FaceId) -> ObjectRef {
     key_of(EntityRef::Face(f))
-}
-
-fn query_key(object: CacheObject) -> ObjectRef {
-    match object {
-        CacheObject::Edge(edge) | CacheObject::Curve(edge) => key_of(EntityRef::Edge(edge)),
-        CacheObject::Face(face) | CacheObject::Surface(face) => key_of(EntityRef::Face(face)),
-        _ => arena_identity(object),
-    }
-}
-
-/// Fixture identities include the class because notification records are keyed
-/// only by `ObjectKey`. For example, edge 0 and vertex 0 must remain distinct.
-fn glue_object_ref(type_code: i64, index: u64) -> ObjectRef {
-    ObjectRef {
-        type_code,
-        key: ObjectKey(((type_code as u64) << 32) | (index + 1)),
-    }
-}
-
-fn glue_key(entity: EntityRef) -> ObjectRef {
-    let (type_code, index) = match entity {
-        EntityRef::Region(id) => (16012, id.index()),
-        EntityRef::Shell(id) => (16013, id.index()),
-        EntityRef::Faceuse(id) => (16022, id.index()),
-        EntityRef::Face(id) => (16002, id.index()),
-        EntityRef::Loopuse(id) => (16004, id.index()),
-        EntityRef::Loop(id) => (16003, id.index()),
-        EntityRef::Edgeuse(id) => (16005, id.index()),
-        EntityRef::Edge(id) => (16016, id.index()),
-        EntityRef::Vertexuse(id) => (16006, id.index()),
-        EntityRef::Vertex(id) => (16021, id.index()),
-        // Every call contains exactly the B-rep imported for this fixture.
-        EntityRef::Brep(_) => (16011, 0),
-    };
-    glue_object_ref(type_code, u64::from(index))
-}
-
-fn glue_query_key(object: CacheObject) -> ObjectRef {
-    let identity = arena_identity(object);
-    glue_object_ref(identity.type_code, identity.key.0)
-}
-
-struct GlueMetadataReader<'a> {
-    raw: &'a [f64],
-    at: usize,
-}
-
-impl<'a> GlueMetadataReader<'a> {
-    fn word(&mut self) -> Result<u32, HarnessError> {
-        let value = *self
-            .raw
-            .get(self.at)
-            .ok_or_else(|| harness("glue metadata: truncated integer"))?;
-        self.at += 1;
-        if !value.is_finite()
-            || value.fract() != 0.0
-            || !(0.0..=f64::from(u32::MAX)).contains(&value)
-        {
-            return Err(harness("glue metadata: invalid integer"));
-        }
-        Ok(value as u32)
-    }
-
-    fn count(&mut self) -> Result<usize, HarnessError> {
-        usize::try_from(self.word()?).map_err(|_| harness("glue metadata: count overflow"))
-    }
-
-    fn wide(&mut self) -> Result<u64, HarnessError> {
-        let lo = u64::from(self.word()?);
-        let hi = u64::from(self.word()?);
-        Ok(lo | (hi << 32))
-    }
-
-    fn flag(&mut self) -> Result<bool, HarnessError> {
-        match self.word()? {
-            0 => Ok(false),
-            1 => Ok(true),
-            _ => Err(harness("glue metadata: invalid flag")),
-        }
-    }
-
-    fn block(&mut self) -> Result<&'a [f64], HarnessError> {
-        let count = self.count()?;
-        let end = self
-            .at
-            .checked_add(count)
-            .ok_or_else(|| harness("glue metadata: block length overflow"))?;
-        let result = self
-            .raw
-            .get(self.at..end)
-            .ok_or_else(|| harness("glue metadata: truncated block"))?;
-        self.at = end;
-        Ok(result)
-    }
-}
-
-fn glue_topology_rows(brep: &Brep) -> Vec<(u32, u32, ObjectRef)> {
-    let mut rows = vec![(10, 0, glue_query_key(CacheObject::Brep))];
-    let mut push = |kind, index, entity| rows.push((kind, index, glue_key(entity)));
-    for id in brep.regions().ids() {
-        push(0, id.index(), EntityRef::Region(id));
-    }
-    for id in brep.shells().ids() {
-        push(1, id.index(), EntityRef::Shell(id));
-    }
-    for id in brep.faceuses().ids() {
-        push(2, id.index(), EntityRef::Faceuse(id));
-    }
-    for id in brep.faces().ids() {
-        push(3, id.index(), EntityRef::Face(id));
-    }
-    for id in brep.loopuses().ids() {
-        push(4, id.index(), EntityRef::Loopuse(id));
-    }
-    for id in brep.loops().ids() {
-        push(5, id.index(), EntityRef::Loop(id));
-    }
-    for id in brep.edgeuses().ids() {
-        push(6, id.index(), EntityRef::Edgeuse(id));
-    }
-    for id in brep.edges().ids() {
-        push(7, id.index(), EntityRef::Edge(id));
-    }
-    for id in brep.vertexuses().ids() {
-        push(8, id.index(), EntityRef::Vertexuse(id));
-    }
-    for id in brep.vertices().ids() {
-        push(9, id.index(), EntityRef::Vertex(id));
-    }
-    rows
-}
-
-/// Actual notification inputs imported from the native fixture's graph.
-struct GlueNotifications {
-    records: BTreeMap<ObjectKey, Topology>,
-    attributes: AttributeStore,
-}
-
-/// Decode all fields before the operation. The native getters serialize flags,
-/// all stored marks and user data as exact u32 limbs. Attribute/callback presence
-/// is checked only when `GlueEdgesGeneral` will reach notifications; its null and
-/// same-edge returns do not consume those unsupported fields.
-#[allow(clippy::too_many_lines)]
-fn import_glue_metadata(
-    brep: &mut Brep,
-    raw: &[f64],
-    reaches_notifications: bool,
-) -> Result<(QueryMetadata, GlueNotifications), Fail> {
-    let mut reader = GlueMetadataReader { raw, at: 0 };
-    if reader.word()? != 1 {
-        return Err(hfail("glue metadata: unsupported version"));
-    }
-    let query = reader.block()?;
-    let callback_present = reader.flag()?;
-    let expected = glue_topology_rows(brep);
-    if reader.count()? != expected.len() {
-        return Err(hfail("glue metadata: topology count differs from graph"));
-    }
-    let mut records = BTreeMap::new();
-    let mut attributed_objects = 0_usize;
-    for (kind, index, object) in expected {
-        if reader.word()? != kind || reader.word()? != index {
-            return Err(hfail("glue metadata: topology identity differs from graph"));
-        }
-        let mut record = Topology::new();
-        record.set_all_flags(reader.wide()?);
-        record.restore_marks([
-            reader.wide()?,
-            reader.wide()?,
-            reader.wide()?,
-            reader.wide()?,
-            reader.wide()?,
-        ]);
-        record.set_user_index1(reader.wide()?);
-        record.set_user_index2(reader.wide()?);
-        record.set_user_ptr1(reader.wide()?);
-        if reader.flag()? {
-            attributed_objects += 1;
-        }
-        if records.insert(object.key, record).is_some() {
-            return Err(hfail("glue metadata: colliding topology keys"));
-        }
-    }
-    let geometry = brep
-        .edges()
-        .iter()
-        .map(|(id, edge)| (0, id.index(), edge.curve.is_some()))
-        .chain(
-            brep.faces()
-                .iter()
-                .map(|(id, face)| (1, id.index(), face.surface.is_some())),
-        )
-        .chain(
-            brep.edgeuses()
-                .iter()
-                .map(|(id, edgeuse)| (2, id.index(), edgeuse.uv_trim_curve.is_some())),
-        )
-        .collect::<Vec<_>>();
-    if reader.count()? != geometry.len() {
-        return Err(hfail("glue metadata: geometry count differs from graph"));
-    }
-    for (kind, index, present) in geometry {
-        if reader.word()? != kind || reader.word()? != index || reader.flag()? != present {
-            return Err(hfail("glue metadata: geometry identity differs from graph"));
-        }
-        let attributed = reader.flag()?;
-        if attributed && !present {
-            return Err(hfail("glue metadata: attributes on absent geometry"));
-        }
-        if attributed {
-            attributed_objects += 1;
-        }
-    }
-    if reader.at != raw.len() {
-        return Err(hfail("glue metadata: trailing values"));
-    }
-    let metadata = apply_query_metadata(brep, query, &glue_query_key)?;
-    // Keep the existing lazy geometry checks: a later curve query diagnoses its
-    // actual dependency. Notification import does not consume all geometry.
-    if let Some(output) = metadata.deferred_output_for(false, false) {
-        return Err(Fail::Deferred(Box::new(output)));
-    }
-    if reaches_notifications && (callback_present || attributed_objects != 0) {
-        return Err(Fail::Deferred(Box::new(Output::deferred(
-            "harness:topology-notification-export",
-            format!(
-                "glue native input has callbacks={callback_present}, attributed_objects={attributed_objects}; those handlers are not decoded"
-            ),
-        ))));
-    }
-    Ok((
-        metadata,
-        GlueNotifications {
-            records,
-            // Every native attribute slot was checked. An empty store is used
-            // only when exact, or on a no-op that never observes notification state.
-            attributes: AttributeStore::default(),
-        },
-    ))
-}
-
-fn glue_metadata(
-    input: &BrepIn,
-    brep: &mut Brep,
-    reaches_notifications: bool,
-) -> Result<(QueryMetadata, GlueNotifications), Fail> {
-    let raw = ffi::eval(
-        Op::GlueMetadata,
-        &shared::path_of(input)?,
-        &brep_block(input)?,
-    )
-    .map_err(|error| hfail(format!("c++ glue metadata: {error}")))?;
-    import_glue_metadata(brep, &raw, reaches_notifications)
-}
-
-fn query_metadata(input: &BrepIn, brep: &mut Brep) -> Result<QueryMetadata, Fail> {
-    let raw = ffi::eval(
-        Op::QueryMetadata,
-        &shared::path_of(input)?,
-        &brep_block(input)?,
-    )
-    .map_err(|error| hfail(format!("c++ query metadata: {error}")))?;
-    let metadata = apply_query_metadata(brep, &raw, &query_key)?;
-    if let Some(output) = metadata.deferred_output_for(false, false) {
-        return Err(Fail::Deferred(Box::new(output)));
-    }
-    Ok(metadata)
-}
-
-fn query_status<T>(result: &Result<T, SolidError>, queries: &RayQueryContext) -> Result<f64, Fail> {
-    if matches!(result, Err(SolidError::Unported { unit, .. }) if *unit == "harness:analytic-geometry-export")
-    {
-        if let Some(output) = queries.metadata().deferred_output() {
-            return Err(Fail::Deferred(Box::new(output)));
-        }
-    }
-    status(result)
 }
 
 /// The record of a run.
@@ -1072,16 +781,7 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 ))));
             }
             // a B-rep as `new SmBrep(ctx)` makes it (with the infinite region)
-            let mut breps = Arena::<BrepId, Brep>::default();
-            let id = breps
-                .insert(Brep::new_with_infinite_region().map_err(hfail)?)
-                .map_err(hfail)?;
-            let b = breps
-                .get_mut(id)
-                .ok_or_else(|| hfail("missing registered B-rep"))?;
-            // ReadFromFile builds real geometry and owners from BrepData, without
-            // the legacy fixture importer's analytic stand-ins.
-            let mut queries = RayQueryContext::new(b, id, QueryMetadata::default(), read_query_key);
+            let mut b = Brep::new_with_infinite_region().map_err(hfail)?;
             let mut records = BTreeMap::new();
             let mut attrs = AttributeStore::default();
             let mut env = p10::TopologyEnv {
@@ -1090,12 +790,11 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 key_of: &read_key_of,
                 records: &mut records,
                 next_key: 1u64 << 50,
-                region_queries: &mut queries,
             };
-            let r = p7::read_from_file(k, b, bytes, FileType::Ascii, *rebuild, &mut env);
+            let r = p7::read_from_file(k, &mut b, bytes, FileType::Ascii, *rebuild, &mut env);
             let mut o = vec![status(&r)?];
             if r.is_ok() {
-                o.extend(brep_counts(b));
+                o.extend(brep_counts(&b));
             }
             Ok(o)
         }
@@ -1120,18 +819,9 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                     "SmBrep::MakeFaceWithCurves",
                 ));
             }
-            let mut b = Brep::new();
-            let region = if *region_null {
-                None
-            } else {
-                Some(
-                    b.add_region_record(Region {
-                        in_brep: true,
-                        ..Region::default()
-                    })
-                    .map_err(hfail)?,
-                )
-            };
+            // (the shim passes the new B-rep's GetInfiniteRegion() unless null)
+            let (mut b, infinite) = native_brep()?;
+            let region = (!*region_null).then_some(infinite);
             let mut c3 = Vec::new();
             let mut uv = Vec::new();
             for c in curves {
@@ -1204,16 +894,10 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                         return Ok(vec![NOT_RUN]);
                     }
                 }
-                // The shim's loop starts with MakeShellVertex in a fresh B-rep's region;
-                // run it, then MakeWireEdgeVertex and MakeWireEdge (topology.brep_p3)
-                // come before MakeFace sees the loop.
-                let mut b = Brep::new();
-                let region = b
-                    .add_region_record(Region {
-                        in_brep: true,
-                        ..Region::default()
-                    })
-                    .map_err(hfail)?;
+                // The shim's loop starts with MakeShellVertex in a fresh B-rep's
+                // GetInfiniteRegion(); run it, then MakeWireEdgeVertex and MakeWireEdge
+                // (topology.brep_p3) come before MakeFace sees the loop.
+                let (mut b, region) = native_brep()?;
                 let mut records = BTreeMap::new();
                 let mut attrs = AttributeStore::default();
                 let mut env = ed::NotifyEnv {
@@ -1238,18 +922,9 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                     "SmBrep::MakeWireEdgeVertex",
                 ))));
             }
-            let mut b = Brep::new();
-            let region = if *region_null {
-                None
-            } else {
-                Some(
-                    b.add_region_record(Region {
-                        in_brep: true,
-                        ..Region::default()
-                    })
-                    .map_err(hfail)?,
-                )
-            };
+            // (the shim passes the new B-rep's GetInfiniteRegion() unless null)
+            let (mut b, infinite) = native_brep()?;
+            let region = (!*region_null).then_some(infinite);
             let surface = (*kind == 1).then(|| {
                 Surface::from(Plane::from_normal(
                     Vec3::new(0.0, 0.0, 0.0),
@@ -1273,33 +948,25 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             new_face_record(&b, &r)
         }
         Inputs::Glue {
-            brep,
             e1,
             e2,
             orient,
             gap,
             nesting,
+            ..
         } => {
             let ex = ex.ok_or_else(|| hfail("no export"))?;
             let (mut b, _) = shared::import(ex)?;
-            let reaches_notifications = *e1 >= 0 && *e2 >= 0 && e1 != e2;
-            let (metadata, mut notifications) = glue_metadata(brep, &mut b, reaches_notifications)?;
-            let mut breps = Arena::<BrepId, Brep>::default();
-            let id = breps.insert(b).map_err(hfail)?;
-            let b = breps
-                .get_mut(id)
-                .ok_or_else(|| hfail("missing registered B-rep"))?;
-            let mut queries = RayQueryContext::new(b, id, metadata, glue_query_key);
             let eid = |x: i64| (x >= 0).then(|| EdgeId::from_index(x as u32));
             // the shim's guard: upstream dereferences a null edge curve
             // (CurveMaxDistanceBetween) when gluing two distinct non-wire edges with
             // SM_OT_SAME, the same intervals and exactly one curve (two null curves
             // compare equal)
             if let (Some(a), Some(d)) = (eid(*e1), eid(*e2)) {
-                if a != d && !ed::is_wire(b, d).map_err(hfail)? && *orient == 1 {
+                if a != d && !ed::is_wire(&b, d).map_err(hfail)? && *orient == 1 {
                     let (ia, id) = (
-                        ed::interval(b, a).map_err(hfail)?,
-                        ed::interval(b, d).map_err(hfail)?,
+                        ed::interval(&b, a).map_err(hfail)?,
+                        ed::interval(&b, d).map_err(hfail)?,
                     );
                     let one_null = b.edge(a).map_err(hfail)?.curve.is_none()
                         != b.edge(d).map_err(hfail)?.curve.is_none();
@@ -1311,15 +978,17 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                     }
                 }
             }
+            let mut records = BTreeMap::new();
+            let mut attrs = AttributeStore::default();
             let mut env = ed::NotifyEnv {
-                records: &mut notifications.records,
-                attributes: &mut notifications.attributes,
-                context: None, // native callback absence was checked before notification
-                key_of: &glue_key,
+                records: &mut records,
+                attributes: &mut attrs,
+                context: None,
+                key_of: &key_of,
             };
             let r = p7::glue_edges_general(
                 k,
-                b,
+                &mut b,
                 eid(*e1),
                 orient_of(*orient)?,
                 *gap,
@@ -1327,21 +996,20 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 eid(*e2),
                 None,
                 &mut env,
-                &mut queries,
             );
-            let s = query_status(&r, &queries)?;
+            let s = status(&r)?;
             // the B-rep's counts and tolerances after the op (the shim walks the C++ B-rep
             // afterwards)
             let mut o = vec![0.0, s];
-            o.extend(brep_counts(b));
-            o.extend(brep_tolerances(b));
+            o.extend(brep_counts(&b));
+            o.extend(brep_tolerances(&b));
             Ok(o)
         }
         Inputs::Copy { n, merge, .. } => {
             let ex = ex.ok_or_else(|| hfail("no export"))?;
             let (mut b, _) = shared::import(ex)?;
             let faces: Vec<FaceId> = b.faces().ids().take(*n as usize).collect();
-            let mut dest = Brep::new();
+            let (mut dest, _) = native_brep()?;
             let mut records = BTreeMap::new();
             let mut attrs = AttributeStore::default();
             let mut env = ed::NotifyEnv {
@@ -1361,16 +1029,9 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
             o.extend(brep_counts(&dest));
             Ok(o)
         }
-        Inputs::MergeSelf { brep, face, tol } => {
+        Inputs::MergeSelf { face, tol, .. } => {
             let ex = ex.ok_or_else(|| hfail("no export"))?;
             let (mut b, _) = shared::import(ex)?;
-            let metadata = query_metadata(brep, &mut b)?;
-            let mut breps = Arena::<BrepId, Brep>::default();
-            let id = breps.insert(b).map_err(hfail)?;
-            let b = breps
-                .get_mut(id)
-                .ok_or_else(|| hfail("missing registered B-rep"))?;
-            let mut queries = RayQueryContext::new(b, id, metadata, query_key);
             let f = FaceId::from_index(*face as u32);
             if b.face(f).map_err(hfail)?.surface.is_none() {
                 return Err(cpp_null_deref(
@@ -1386,16 +1047,8 @@ fn rust_record(k: &mut Kernel, i: &Inputs, ex: Option<&[f64]>) -> Record {
                 context: None,
                 key_of: &key_of,
             };
-            let r = p7::merge_self_intersection_curves(
-                k,
-                b,
-                Some(f),
-                *tol,
-                &[],
-                &mut env,
-                &mut queries,
-            );
-            let s = query_status(&r, &queries)?;
+            let r = p7::merge_self_intersection_curves(k, &mut b, Some(f), *tol, &[], &mut env);
+            let s = status(&r)?;
             let n = r.map_or(0, |v| v.len());
             Ok(vec![0.0, s, n as f64])
         }
@@ -1915,42 +1568,5 @@ impl UnitDiff for Runner {
             }
         }
         Ok(v)
-    }
-}
-
-#[cfg(test)]
-mod glue_notification_tests {
-    use super::*;
-
-    #[test]
-    fn glue_with_native_records_reaches_native_vertex_rejection() {
-        let input = Inputs::Glue {
-            brep: BrepIn::File {
-                file: "box_with_large_fillet.smb".to_owned(),
-                rebuild: false,
-            },
-            e1: 0,
-            e2: 1,
-            orient: 2,
-            gap: 1.0e-6,
-            nesting: false,
-        };
-        let (resolved, export) = resolve(&input)
-            .unwrap()
-            .unwrap_or_else(|_| panic!("native regression fixture must have both edges"));
-        let (op, path, encoded) = encode(&resolved).unwrap();
-        let native = ffi::eval(op, &path, &encoded).unwrap();
-        assert_eq!(native.get(..2), Some([0.0, 1001.0].as_slice()));
-        let result = rust_record(
-            &mut Kernel::default(),
-            &resolved,
-            export.as_deref().map(Vec::as_slice),
-        );
-        let actual = match result {
-            Ok(values) => values,
-            Err(Fail::Deferred(_)) => panic!("vertex rejection must be compared, not deferred"),
-            Err(Fail::Harness(error)) => panic!("native glue fixture: {error}"),
-        };
-        assert_eq!(actual, native);
     }
 }

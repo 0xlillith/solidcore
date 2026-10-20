@@ -16,9 +16,8 @@ use crate::intersect::point_class::{
     PointClassification,
 };
 use crate::kernel::Kernel;
-use crate::math::{max2, min2, Point2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO};
+use crate::math::{max2, Point2, Point3, Vec3, BIG_DOUBLE, EFF_ZERO};
 use crate::query::face::p2 as face_p2;
-use crate::topology::brep::p2 as brep_p2;
 use crate::topology::edgeuse::p1 as eu1;
 use crate::topology::topology as topo;
 use crate::topology::{edge, vertex, vertexuse, Brep, EdgeId, VertexId};
@@ -1883,101 +1882,33 @@ fn push_store<T>(store: &mut Vec<Option<T>>, item: T) -> Result<u32> {
 
 impl<O: ClassObject> ProtoTopologyManager<O> {
     /// `SmProtoTopologyManager(pBrep1, pBrep2, pTI, dCaptureDistance,
-    /// dOverrideTol)`. Each B-rep is passed as its handle and its [`Brep`]. The
-    /// tolerance is the topology intersector's approximation tolerance
-    /// (`pTI->GetThisApproxTol3d()`, passed as `ti_approx_tol_3d`; the override is
-    /// overwritten by it, as upstream); a tolerance below `SM_EFF_ZERO` becomes
-    /// `min(1.25 * (tol1 + tol2), 0.5 * min(edge1, edge2))` from the B-reps'
-    /// tolerances and smallest edge boxes ([`brep_p2::min_edge_bbox_size`]).
+    /// dOverrideTol)`. The tolerance is the topology intersector's approximation
+    /// tolerance (`pTI->GetThisApproxTol3d()`, passed as `ti_approx_tol_3d`; the
+    /// override is overwritten by it, as upstream); a tolerance below `SM_EFF_ZERO`
+    /// is computed from the B-reps' tolerances and smallest edge boxes.
     ///
     /// # Errors
     ///
-    /// [`SolidError::Unported`] from the edge box computation's unported callees;
-    /// [`SolidError::NotFound`] for a dangling edge list.
+    /// [`SolidError::Unported`] for that computation (`SmBrep::GetMinEdgeBBoxSize`,
+    /// unit `topology.brep_p2`).
     pub fn new(
-        k: &Kernel,
-        brep1: (O, &Brep),
-        brep2: (O, &Brep),
+        brep1: O,
+        brep2: O,
         ti: O,
         ti_approx_tol_3d: f64,
         capture_distance: f64,
         override_tol: f64,
-    ) -> Result<Self> {
-        Self::new_impl(
-            k,
-            brep1,
-            brep2,
-            ti,
-            ti_approx_tol_3d,
-            capture_distance,
-            override_tol,
-            None,
-        )
-    }
-
-    /// [`Self::new`] with a caller's check before each edge-curve read in the
-    /// tolerance fallback. The check receives the original B-rep handle and its
-    /// actual edge id. It is not called when the approximation tolerance is at
-    /// least `SM_EFF_ZERO`, or for edges without curves. Both B-rep tolerances are
-    /// read first, then the first B-rep's edge list and finally the second's.
-    ///
-    /// # Errors
-    ///
-    /// Those of [`Self::new`] and the reached curve checks, propagated unchanged
-    /// before the manager is created.
-    pub fn new_with_curve_check(
-        k: &Kernel,
-        brep1: (O, &Brep),
-        brep2: (O, &Brep),
-        ti: O,
-        ti_approx_tol_3d: f64,
-        capture_distance: f64,
-        override_tol: f64,
-        curve_check: &mut dyn FnMut(O, EdgeId) -> Result<()>,
-    ) -> Result<Self> {
-        Self::new_impl(
-            k,
-            brep1,
-            brep2,
-            ti,
-            ti_approx_tol_3d,
-            capture_distance,
-            override_tol,
-            Some(curve_check),
-        )
-    }
-
-    fn new_impl(
-        k: &Kernel,
-        brep1: (O, &Brep),
-        brep2: (O, &Brep),
-        ti: O,
-        ti_approx_tol_3d: f64,
-        capture_distance: f64,
-        override_tol: f64,
-        mut curve_check: Option<&mut dyn FnMut(O, EdgeId) -> Result<()>>,
     ) -> Result<Self> {
         let _ = override_tol;
-        let (brep1, b1) = brep1;
-        let (brep2, b2) = brep2;
-        // Get tol from pTI, which is from the SmMerge constructor.
-        let mut tol = ti_approx_tol_3d;
+        let tol = ti_approx_tol_3d;
         if tol < EFF_ZERO {
-            let brep_tol = b1.tolerance() + b2.tolerance();
-            let mut edge_bbox_size = |handle, b: &Brep| {
-                if let Some(check) = curve_check.as_deref_mut() {
-                    brep_p2::min_edge_bbox_size_with_curve_check(k, b, &mut |edge| {
-                        check(handle, edge)
-                    })
-                } else {
-                    brep_p2::min_edge_bbox_size(k, b)
-                }
-            };
-            // the edges found are unused, as upstream
-            let (edge1_size, _) = edge_bbox_size(brep1, b1)?;
-            let (edge2_size, _) = edge_bbox_size(brep2, b2)?;
-            let edge_size = min2(edge1_size, edge2_size);
-            tol = min2(brep_tol * 1.25, edge_size * 0.5);
+            // UNPORTED(topology.brep_p2): SmBrep::GetMinEdgeBBoxSize (the preceding
+            // SmBrep::GetTolerance calls are ported as Brep::tolerance, but the manager
+            // holds opaque B-rep handles, so wiring also needs the Breps in scope)
+            return Err(SolidError::unported(
+                "SmBrep::GetMinEdgeBBoxSize",
+                "topology.brep_p2",
+            ));
         }
         Ok(Self {
             brep1,

@@ -1311,8 +1311,8 @@
     },
     {
       "deferred": {
-        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
-        "unit": "harness:mass.integrator-face-construction"
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_5",
@@ -1323,8 +1323,8 @@
     },
     {
       "deferred": {
-        "symbol": "mass.integrator runner: no Rust face for the aggregate queries",
-        "unit": "harness:mass.integrator-face-construction"
+        "symbol": "SmBrep::IsManifoldSolid",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "face_api_dependency_6",
@@ -1366,12 +1366,16 @@
       "values_compared": 1
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
       "max_rel_err": 0.0,
       "name": "edge_0_2",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/mass.integrator/properties.json#135 (upstream tests/prog_test/src/smCurveTest.cpp:6700 (curve-interface length); source/SMLib/src/SmEdge.cpp:355)",
-      "values_compared": 27
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -1390,12 +1394,16 @@
       "values_compared": 1
     },
     {
+      "deferred": {
+        "symbol": "SmBrep::CalculateBoundingBox",
+        "unit": "query.brep"
+      },
       "max_rel_err": 0.0,
       "name": "edge_1_2",
-      "outcome": "pass",
-      "pass": true,
+      "outcome": "deferred",
+      "pass": false,
       "source": "fixture:fixtures/mass.integrator/properties.json#138 (upstream tests/prog_test/src/smCurveTest.cpp:6700 (curve-interface length); source/SMLib/src/SmEdge.cpp:355)",
-      "values_compared": 27
+      "values_compared": 0
     },
     {
       "max_rel_err": 0.0,
@@ -12247,12 +12255,14 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 5,
+  "cases_deferred": 7,
   "cases_failed": 0,
-  "cases_passed": 1523,
+  "cases_passed": 1521,
   "cases_total": 1528,
   "deferred_by_unit": {
-    "harness:mass.integrator-face-construction": 3,
+    "harness:mass.integrator-face-construction": 1,
+    "query.brep": 3,
+    "topology.brep_p2": 1,
     "topology.brep_p8": 2
   },
   "max_rel_err": 4.979280456316938e-14,

@@ -105,8 +105,6 @@ mod geometry_sys {
     }
 }
 /// Precise properties (0), API length (1), or B-rep properties (2), on a real edge.
-/// Mode 3 exports only the constructed wire input: status followed, on success,
-/// by length-prefixed geometry and query-metadata blocks. It calculates no properties.
 /// Kind 0 is a rational quadratic Bezier with stored control coordinates and weights;
 /// kind 1 is a real `SmLine` (p0 and direction p1). Controls: t0, t1, accuracy,
 /// computation origin xyz, tube radius. The interval must lie within [0,1].
@@ -118,7 +116,7 @@ pub fn edge(
     controls: &[f64; 7],
 ) -> Result<Vec<f64>, FfiError> {
     let [a, b, _, _, _, _, _] = *controls;
-    if !(0..=3).contains(&op)
+    if !(0..=2).contains(&op)
         || !(0..=1).contains(&kind)
         || a < 0.0
         || a > b

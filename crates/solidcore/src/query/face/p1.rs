@@ -8,40 +8,33 @@
 //! | Rust                                  | Upstream                         |
 //! |---------------------------------------|----------------------------------|
 //! | [`evaluate_curve`]                    | `SmApiEvaluateCurve`             |
-//! | [`calculate_bounding_box_into`], [`calculate_bounding_box`], [`calculate_loose_bounding_box`] | `SmFace::CalculateBoundingBox` |
+//! | [`calculate_bounding_box`]            | `SmFace::CalculateBoundingBox`   |
 //! | [`calculate_shell_bounding_box_into`], [`calculate_shell_bounding_box`] | `SmShell::CalculateBoundingBox` |
 //! | [`calculate_region_bounding_box_into`], [`calculate_region_bounding_box`] | `SmRegion::CalculateBoundingBox` |
 //! | [`point_3d_classify`], [`Point3dClassifyOptions`] | `SmFace::Point3DClassify` |
 //! | [`edge_curve_on_classify`], [`EdgeCurveOnOptions`], [`CurveOnClassification`] | `SmFace::EdgeCurveOnClassify` |
-//! | [`ClassifyProblem`]                   | `SmClassifyProblem` (also re-exported by `query.face_p3`) |
+//! | [`ClassifyProblem`]                   | `SmClassifyProblem` (CO-PORTED; re-exported by `query::face::p3`) |
 //!
 //! Deviations: a nullable curve is `Option<&Curve>`; `SmApiEvaluateCurve`'s three
 //! optional output pointers become one returned `[position, d1, d2]` (all three are
-//! evaluated upstream too). The face box's in/out form retains the boundary box
-//! published before fallible surface work in the tight path; the loose path writes
-//! only on success. The shell and region boxes initialise `output` first and keep
+//! evaluated upstream too). The face box returns its box (upstream writes its output
+//! only on success). The shell and region boxes initialise `output` first and keep
 //! the union of the children that succeeded before a failing child, as upstream's
 //! in/out box does; [`calculate_shell_bounding_box`] / [`calculate_region_bounding_box`]
-//! return the box instead. Box queries that expose the tight option take `&mut Brep`
-//! because the tight face calculation can create UV trim curves during classification;
-//! [`calculate_loose_bounding_box`] keeps the read-only face query. Shell and region
-//! boxes take `&mut Kernel` because the wire edge traversal claims a context mark. The surface box of a face expands by the
+//! return the box instead. Shell and region boxes take `&mut Kernel` because the wire
+//! edge traversal claims a context mark. The surface box of a face expands by the
 //! face's own tolerance (what `SmBSplineSurface::CalculateBoundingBox` reads through
 //! `GetFace()`): arena surfaces hold no owning face, so the B-spline/plane/revolution
 //! box is computed unexpanded and expanded here, as the override's last step does.
-//! `Point3DClassify` requests the surface cache before its local drop, allowing
-//! ordinary cache failure as upstream does, and reuses a successful checkout for
-//! the global drop with [`FacePointTest::Disabled`] (SmFace.cpp:12796-12801).
-//! This expresses the native `m_bPointTestEnabled` guard without changing shared
-//! cache state or the surface owner. The local drop does not read that flag.
-//! The subsequent explicit UV `PointClassify` still runs on the original B-rep;
-//! this entry point supplies it with no trimmed surface cache.
-//! The drop and classification phases are shared with providers that can resolve
-//! a surface's actual owner and mutably access that owner's B-rep. The direct
-//! [`point_3d_classify`] entry has no object-key mapping; a cache needing such a
-//! mapping reports the unresolved context instead of treating an owned surface
-//! as a standalone copy.
-//! `EdgeCurveOnClassify` lifts a 2D curve to a curve on the
+//! `Point3DClassify` builds no surface cache (the Rust point solvers take none, as in
+//! `topology::vertexuse` and `intersect::curve_class::p1`), so upstream's temporary
+//! switch-off of the cache's point test (SmFace.cpp:12801) has nothing to act on yet:
+//! the face-owned surface's solve stops at `surface::surface::p4`'s
+//! `UNPORTED(query.face_p2)` `SmFace::PointClassify` stub, a call the C++ never makes
+//! here, and that stub's NOTE lists this caller so the switch is added for it when it is
+//! wired. `PointClassify` gets
+//! no trimmed surface cache (a fresh one is never face-containment-complete, so its
+//! cache branch cannot run). `EdgeCurveOnClassify` lifts a 2D curve to a curve on the
 //! face's surface only when an upward edge use of the face is found (upstream lifts it
 //! first and ignores `SetAll`'s status); an `SmCrvOnSurf` over a surface other than a
 //! B-spline is a dispatch gap (`curve.crv_on_surf`). No recursion.
@@ -50,10 +43,8 @@ use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::{Curve, CurveKind};
 use crate::error::ignored;
 use crate::geom::extent1d::Extent1d;
-use crate::geom::extent2d::Extent2d;
 use crate::geom::extent3d::Extent3d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
-use crate::geom::solution_array::SolutionObject;
 use crate::geom::tol::xsect_tol_3d_from_zones;
 use crate::geom::vector2d::Point2;
 use crate::geom::vector3d::{Point3, Vec3};
@@ -62,11 +53,8 @@ use crate::kernel::Kernel;
 use crate::nurbs::b_spline_curve::BoundingBoxRequest;
 use crate::nurbs::b_spline_surface::SurfParamType;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
-use crate::query::face::p3;
-use crate::surface::surface::p1::get_surface_cache_with_context;
-use crate::surface::surface::p4::{FacePointTest, NoObject};
+use crate::surface::surface::p4::NoObject;
 use crate::surface::surface::{Surface, SurfaceKind};
-use crate::surface::surface_cache::p1::{OpaqueSurfaceCacheContext, SurfaceCacheContext};
 use crate::surface::volume::Volume;
 use crate::topology::face::p2 as fp2;
 use crate::topology::shell::{self, ShellType};
@@ -117,8 +105,8 @@ pub fn evaluate_curve(curve: Option<&Curve>, parameter: f64) -> Result<[Vec3; 3]
 
 // ---- bounding boxes ------------------------------------------------------------------------
 
-fn tight_face_box(k: &Kernel, b: &mut Brep, f: FaceId, output: &mut Extent3d) -> Result<()> {
-    p3::calculate_tight_bounding_box_into(k, b, f, output)
+fn tight_face_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
+    crate::query::face::p3::calculate_tight_bounding_box(k, b, f)
 }
 
 const NORMAL_BOX: BoundingBoxRequest = BoundingBoxRequest {
@@ -138,52 +126,14 @@ const NORMAL_BOX: BoundingBoxRequest = BoundingBoxRequest {
 ///
 /// [`SolidError::InvalidInput`] for a face without surface (upstream dereferences null)
 /// or a vertex use without vertex; those of the curve and surface boxes and of the
-/// face's vertex and edge lists; those of [`p3::calculate_tight_bounding_box`] for
-/// `tight`.
-pub fn calculate_bounding_box(
-    k: &Kernel,
-    b: &mut Brep,
-    f: FaceId,
-    tight: bool,
-) -> Result<Extent3d> {
-    let mut output = Extent3d::new();
-    calculate_bounding_box_into(k, b, f, tight, &mut output)?;
-    Ok(output)
-}
-
-/// [`calculate_bounding_box`] with the native in/out box contract.
-///
-/// Loose calculations replace `output` only on success. Tight calculations retain
-/// their partial box as documented by [`p3::calculate_tight_bounding_box_into`].
-///
-/// # Errors
-///
-/// Those of [`calculate_bounding_box`].
-pub fn calculate_bounding_box_into(
-    k: &Kernel,
-    b: &mut Brep,
-    f: FaceId,
-    tight: bool,
-    output: &mut Extent3d,
-) -> Result<()> {
+/// face's vertex and edge lists; with `tight`, those of
+/// [`crate::query::face::p3::calculate_tight_bounding_box`].
+pub fn calculate_bounding_box(k: &Kernel, b: &Brep, f: FaceId, tight: bool) -> Result<Extent3d> {
     // when asked - call expensive TightBoundingBox
     if tight {
-        return tight_face_box(k, b, f, output);
+        return tight_face_box(k, b, f);
     }
 
-    *output = calculate_loose_bounding_box(k, b, f)?;
-    Ok(())
-}
-
-/// The read-only, non-tight `SmFace::CalculateBoundingBox` path.
-///
-/// The returned box includes the native vertex, edge and surface tolerance
-/// expansions. No point classification or trim-curve creation is needed.
-///
-/// # Errors
-///
-/// Those of the face's surface, vertex and edge lists and their box calculations.
-pub fn calculate_loose_bounding_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
     let mut face_box = Extent3d::new();
 
     let surface = fp2::surface(b, f)?
@@ -227,7 +177,7 @@ pub fn calculate_loose_bounding_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<E
 fn surface_box(
     k: &Kernel,
     surface: &Surface,
-    uv_domain: &Extent2d,
+    uv_domain: &crate::geom::extent2d::Extent2d,
     face_tolerance: f64,
 ) -> Result<Extent3d> {
     let missing = || SolidError::invalid_input(OP_FACE_BOX, "missing surface box");
@@ -261,7 +211,7 @@ fn surface_box(
 /// holds the union of the children before the failing one.
 pub fn calculate_shell_bounding_box_into(
     k: &mut Kernel,
-    b: &mut Brep,
+    b: &Brep,
     id: ShellId,
     tight: bool,
     output: &mut Extent3d,
@@ -309,7 +259,7 @@ pub fn calculate_shell_bounding_box_into(
 /// Those of [`calculate_shell_bounding_box_into`].
 pub fn calculate_shell_bounding_box(
     k: &mut Kernel,
-    b: &mut Brep,
+    b: &Brep,
     id: ShellId,
     tight: bool,
 ) -> Result<Extent3d> {
@@ -328,7 +278,7 @@ pub fn calculate_shell_bounding_box(
 /// boxes. `output` then holds the union of the shells before the failing one.
 pub fn calculate_region_bounding_box_into(
     k: &mut Kernel,
-    b: &mut Brep,
+    b: &Brep,
     id: RegionId,
     tight: bool,
     output: &mut Extent3d,
@@ -355,7 +305,7 @@ pub fn calculate_region_bounding_box_into(
 /// Those of [`calculate_region_bounding_box_into`].
 pub fn calculate_region_bounding_box(
     k: &mut Kernel,
-    b: &mut Brep,
+    b: &Brep,
     id: RegionId,
     tight: bool,
 ) -> Result<Extent3d> {
@@ -477,176 +427,61 @@ pub fn point_3d_classify(
     opts: Point3dClassifyOptions<'_>,
 ) -> Result<()> {
     let uv_domain = fp2::uv_domain(b, f)?;
-    point_3d_classify_initialize(f, src_zone_tol_3d, pc);
+
+    // init output - SM_PC_UNKNOWN is used for OUTSIDE the face's trim boundary
+    pc.set_class_object(PointClassType::Unknown, None);
+    pc.set_face(Some(EntityRef::Face(f)));
+    pc.set_src_zone_tol_3d(src_zone_tol_3d);
+
     let uv = {
         let surface = fp2::surface(b, f)?
             .ok_or_else(|| SolidError::invalid_input(OP_POINT, "face without surface"))?;
-        point_3d_classify_uv_with_context(
-            k,
-            surface,
-            None::<NoObject>,
-            &uv_domain,
-            point,
-            src_zone_tol_3d,
-            opts.guess_uv,
-            &mut OpaqueSurfaceCacheContext,
-        )?
-    };
-    let Some(uv) = uv else {
-        return Ok(());
-    };
-    point_3d_classify_finish(
-        k,
-        b,
-        f,
-        uv,
-        point,
-        src_zone_tol_3d,
-        do_boundary_intersections,
-        pc,
-        opts,
-    )
-}
 
-/// Initialise the fields written by `SmFace::Point3DClassify`, retaining all
-/// other fields of the caller's classification. Call this after reading the
-/// face's UV domain and before resolving its surface, as the native method does.
-pub fn point_3d_classify_initialize(
-    face: FaceId,
-    source_zone_tolerance: f64,
-    classification: &mut PointClassification<EntityRef>,
-) {
-    // SM_PC_UNKNOWN is also used for points outside the face's trim boundary.
-    classification.set_class_object(PointClassType::Unknown, None);
-    classification.set_face(Some(EntityRef::Face(face)));
-    classification.set_src_zone_tol_3d(source_zone_tolerance);
-}
-
-/// Runs a face query with an exact numerical surface view and the original mutable
-/// B-rep. The view retains its surface's owner identity and NURBS data; resolve
-/// topology, owner state and trim writes through `brep` while using the view for
-/// numerical evaluation. The view lives only for the callback, so the returned
-/// value cannot borrow it. Changes made to `brep` remain visible even on error.
-///
-/// For `Point3DClassify`, read the UV domain and call
-/// [`point_3d_classify_initialize`] before entering this bridge, preserving the
-/// native order of classification writes and surface lookup.
-///
-/// # Errors
-///
-/// Propagates face lookup errors, [`SolidError::InvalidInput`] for a face without
-/// a surface or geometry exceeding the evaluation-copy depth bound, and the
-/// callback's error without replacing it.
-pub fn with_face_surface_evaluation<T>(
-    brep: &mut Brep,
-    face: FaceId,
-    query: impl FnOnce(&Surface, &mut Brep) -> Result<T>,
-) -> Result<T> {
-    let surface = fp2::surface(brep, face)?
-        .ok_or_else(|| SolidError::invalid_input(OP_POINT, "face without surface"))?
-        .clone_for_evaluation()?;
-    query(&surface, brep)
-}
-
-/// The surface-drop phase of `SmFace::Point3DClassify`, with the live owner and
-/// trim-creation context supplied separately from the numerical surface view.
-/// Cache acquisition precedes even a hinted local drop. The global drop reuses
-/// that checkout and disables its point filter; explicit UV classification is
-/// performed by [`point_3d_classify_finish`].
-///
-/// Returns `None` when there is no drop or it falls outside the face's UV domain.
-/// The caller must first use [`point_3d_classify_initialize`] so these successful
-/// early exits retain the native partial output.
-///
-/// # Errors
-///
-/// Propagates point-solve errors and unresolved owner/context errors. Ordinary
-/// native cache acquisition failures permit a null cache, as upstream does.
-pub fn point_3d_classify_uv_with_context<O: SolutionObject>(
-    k: &Kernel,
-    surface: &Surface,
-    surface_handle: Option<O>,
-    uv_domain: &Extent2d,
-    point: Point3,
-    src_zone_tol_3d: f64,
-    guess_uv: Option<Point2>,
-    context: &mut dyn SurfaceCacheContext<O>,
-) -> Result<Option<Point2>> {
-    let mut cache = match get_surface_cache_with_context(k, surface, surface_handle, context) {
-        Ok(cache) => Some(cache),
-        Err(SolidError::Upstream { .. } | SolidError::Nlib { .. }) => None,
-        Err(error) => return Err(error),
-    };
-
-    // When given a hint, use it in LocalSolve before trying a global solve.
-    let mut found = None;
-    if let Some(guess) = guess_uv {
-        let result = surface.local_point_solve_with_tolerance_context::<NoObject>(
-            k,
-            uv_domain,
-            SolverOperation::Intersect,
-            point,
-            guess,
-            &mut |surface| context.surface_owner_zone_tol_3d(k, surface, surface_handle),
-            &mut |surface| {
-                context
-                    .surface_zone_tol_3d(k, surface, surface_handle)
-                    .map(Some)
-            },
-        )?;
-        if result.found {
-            found = Some(solution_uv(&result.solution.start.parameters)?);
+        // when given a hint - use it in LocalSolve
+        let mut found = None;
+        if let Some(guess) = opts.guess_uv {
+            // intersect 3dPoint with surface
+            let r = surface.local_point_solve::<NoObject>(
+                k,
+                &uv_domain,
+                SolverOperation::Intersect,
+                point,
+                guess,
+            )?;
+            if r.found {
+                found = Some(solution_uv(&r.solution.start.parameters)?);
+            }
         }
-    }
 
-    let uv = if let Some(uv) = found {
-        uv
-    } else {
-        let solutions = surface.global_point_intersect_with_cache_context(
-            k,
-            surface_handle,
-            uv_domain,
-            point,
-            src_zone_tol_3d,
-            SolutionRequested::Single,
-            FacePointTest::Disabled,
-            &mut cache,
-            context,
-        )?;
-        let Some(first) = solutions.as_slice().first() else {
-            return Ok(None);
-        };
-        solution_uv(&first.start.parameters)?
+        // when Local Solve did not get an answer - try global solves
+        if let Some(uv) = found {
+            uv
+        } else {
+            // intersect 3DPoint with surface; no retries with larger tolerances
+            let solutions = surface.global_point_solve::<NoObject>(
+                k,
+                Some(NoObject),
+                &uv_domain,
+                SolverOperation::Intersect,
+                point,
+                src_zone_tol_3d,
+                None,
+                SolutionRequested::Single,
+            )?;
+            let Some(first) = solutions.as_slice().first() else {
+                // Point may not be inside of the boundary of the face.
+                return Ok(());
+            };
+            solution_uv(&first.start.parameters)?
+        }
     };
 
     // low work - UVPoint not contained by Face's domain
     let size = uv_domain.size().length();
     if !uv_domain.contains_point(uv, size / 1000.0) {
-        return Ok(None);
+        return Ok(());
     }
-    Ok(Some(uv))
-}
 
-/// Complete `SmFace::Point3DClassify` after a successful in-domain surface drop.
-/// This is the shared explicit UV classification, 3D-gap update and final object
-/// tolerance check; `b` is the original B-rep, including trims created during
-/// cache acquisition. The same classification record is used throughout.
-///
-/// # Errors
-///
-/// Propagates UV classification, geometry and tolerance errors, retaining every
-/// field written to `pc` before a failure.
-pub fn point_3d_classify_finish(
-    k: &Kernel,
-    b: &mut Brep,
-    f: FaceId,
-    uv: Point2,
-    point: Point3,
-    src_zone_tol_3d: f64,
-    do_boundary_intersections: bool,
-    pc: &mut PointClassification<EntityRef>,
-    opts: Point3dClassifyOptions<'_>,
-) -> Result<()> {
     // else pass the call along to PointClassify to classify the UVPoint
     super::p2::point_classify(
         k,
@@ -772,19 +607,21 @@ fn sector_classify_curve_on(
     curve: &Curve,
     opts: &EdgeCurveOnOptions,
 ) -> Result<CurveOnClassification> {
-    let sector_edge = |orientation| p3::SectorEdgeuse {
+    use crate::query::face::p3::{SectorClassifyInput, SectorEdgeuse};
+    let eu = |orientation| SectorEdgeuse {
         edgeuse,
         param: opts.edge_param,
         zone_tol_3d: edge_tolerance,
         orientation,
     };
-    let result = p3::sector_classify_curve_on(
+    // `lFaceIndx` only selects debug output upstream
+    let class = crate::query::face::p3::sector_classify_curve_on(
         k,
         b,
         f,
-        &p3::SectorClassifyInput {
-            eu1: sector_edge(OrientType::Same),
-            eu2: sector_edge(OrientType::Opposite),
+        &SectorClassifyInput {
+            eu1: eu(OrientType::Same),
+            eu2: eu(OrientType::Opposite),
             curve,
             curve_interval: opts.curve_interval,
             curve_orientation: opts.curve_orientation,
@@ -795,9 +632,9 @@ fn sector_classify_curve_on(
         },
     )?;
     Ok(CurveOnClassification {
-        inside: result.inside,
-        possible_problem: result.possible_problem,
-        problem: result.problem,
+        inside: class.inside,
+        possible_problem: class.possible_problem,
+        problem: class.problem,
     })
 }
 
@@ -834,7 +671,8 @@ fn lift_to_face(k: &Kernel, b: &Brep, f: FaceId, curve: &Curve) -> Result<Curve>
 /// # Errors
 ///
 /// `SM_ERR_NULL_POINTER` for a null `edge`; those of the edge use list, the curve lift
-/// and the sector classification ([`p3::sector_classify_curve_on`]).
+/// and the sector classification
+/// ([`crate::query::face::p3::sector_classify_curve_on`]).
 pub fn edge_curve_on_classify(
     k: &Kernel,
     b: &mut Brep,
@@ -917,7 +755,7 @@ mod tests {
             .add_region_record(crate::topology::Region::default())
             .unwrap();
         let mut out = Extent3d::from_point(Vec3::new(1., 2., 3.));
-        let e = calculate_region_bounding_box_into(&mut k, &mut b, r, false, &mut out).unwrap_err();
+        let e = calculate_region_bounding_box_into(&mut k, &b, r, false, &mut out).unwrap_err();
         assert!(matches!(e, SolidError::Upstream { .. }));
         assert_eq!(out, Extent3d::new());
     }

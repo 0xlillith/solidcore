@@ -91,7 +91,7 @@ impl UnitDiff for Runner {
         if let Some(g) = case.inputs.get("geometry") {
             let g =
                 serde_json::from_value(g.clone()).map_err(|e| HarnessError::new(e.to_string()))?;
-            return geometry_rust(&g);
+            return Ok(geometry_rust(&g));
         }
         let i: Input = case.parse()?;
         let [a, b, eps, h, hmin, tiny, algorithm] = i.controls;
@@ -293,77 +293,7 @@ fn geometry_cpp(g: &Geometry) -> Result<Output, HarnessError> {
         .map(output)
         .map_err(|e| HarnessError::new(e.to_string()))
 }
-/// Aggregate the actual wire created by the native fixture. The import contains
-/// topology, concrete curves, intervals, tolerances and owners, never properties.
-fn wire_brep_rust(
-    kind: i32,
-    points: &[f64; 9],
-    weights: &[f64; 3],
-    controls: &[f64; 7],
-) -> Result<Output, HarnessError> {
-    use solidcore::geom::attribute::AttributeStore;
-    use solidcore::kernel::Kernel;
-    use solidcore::mass::integrator::properties as props;
-    use solidcore::math::Vec3;
-    use solidcore::topology::brep_cache::CacheObject;
-    use solidcore::EntityRef;
-
-    let raw = ffi::edge(3, kind, points, weights, controls)
-        .map_err(|e| HarnessError::new(e.to_string()))?;
-    let (construction_status, payload) = raw
-        .split_first()
-        .ok_or_else(|| HarnessError::new("missing wire construction status"))?;
-    if *construction_status != 0.0 {
-        return Ok(output(raw));
-    }
-    let (brep, metadata) = super::geom_object::import_query_graph(payload)?;
-    if let Some(deferred) = metadata.deferred_output_for(true, false) {
-        return Ok(deferred);
-    }
-    // CreateWireEdgeFromCurve installs no mass attributes. The aggregate reads
-    // only faces, edges and vertices, under the imported graph's exact identities.
-    let store = AttributeStore::default();
-    let key_of = |entity| match entity {
-        EntityRef::Face(face) => {
-            super::geom_object::query_graph_identity(CacheObject::Face(face)).key
-        }
-        EntityRef::Edge(edge) => {
-            super::geom_object::query_graph_identity(CacheObject::Edge(edge)).key
-        }
-        EntityRef::Vertex(vertex) => {
-            super::geom_object::query_graph_identity(CacheObject::Vertex(vertex)).key
-        }
-        _ => brep.key(),
-    };
-    let attrs = props::PropertyAttributes {
-        store: &store,
-        key_of: &key_of,
-    };
-    let [_, _, accuracy, ox, oy, oz, radius] = *controls;
-    let properties = props::brep_properties(
-        &Kernel::default(),
-        &brep,
-        accuracy,
-        Vec3::new(ox, oy, oz),
-        props::MassPropertyBehavior {
-            edge_radius: radius,
-            ..Default::default()
-        },
-        &attrs,
-    );
-    Ok(match properties {
-        Ok(p) => {
-            let mut out = vec![0.0, p.area, p.volume, p.mass];
-            for moment in p.moments {
-                out.extend([moment.x, moment.y, moment.z]);
-            }
-            output(out)
-        }
-        Err(e) => Output::unported(&e).unwrap_or_else(|| output(vec![status(&e)])),
-    })
-}
-
-fn geometry_rust(g: &Geometry) -> Result<Output, HarnessError> {
+fn geometry_rust(g: &Geometry) -> Output {
     use solidcore::curve::curve::Curve;
     use solidcore::geom::extent1d::Extent1d;
     use solidcore::geom::extent2d::Extent2d;
@@ -373,17 +303,6 @@ fn geometry_rust(g: &Geometry) -> Result<Output, HarnessError> {
     use solidcore::nurbs::b_spline_curve::BSplineCurve;
     use solidcore::nurbs::math::CPoint;
     use solidcore::topology::Brep;
-
-    if let Geometry::Edge {
-        kind,
-        p,
-        weights,
-        controls,
-        query: 2,
-    } = g
-    {
-        return wire_brep_rust(*kind, p, weights, controls);
-    }
     let kernel = Kernel::default();
     let result: solidcore::Result<Vec<f64>> = (|| {
         match g {
@@ -420,6 +339,25 @@ fn geometry_rust(g: &Geometry) -> Result<Output, HarnessError> {
                 let ivl = Extent1d::from_min_max(a, b);
                 if *query == 1 {
                     return Ok(vec![0.0, c.length(&kernel, &ivl, accuracy)?]);
+                }
+                if *query == 2 {
+                    let store = solidcore::geom::attribute::AttributeStore::default();
+                    let attrs = props::PropertyAttributes {
+                        store: &store,
+                        key_of: &|_| solidcore::geom::attribute::ObjectKey(0),
+                    };
+                    props::brep_properties(
+                        &kernel,
+                        &Brep::new(),
+                        accuracy,
+                        Vec3::new(ox, oy, oz),
+                        props::MassPropertyBehavior {
+                            edge_radius: radius,
+                            ..Default::default()
+                        },
+                        &attrs,
+                    )?;
+                    return Err(SolidError::sm_err("unexpected brep dependency"));
                 }
                 let p = props::curve_properties(&c, &ivl, accuracy, Vec3::new(ox, oy, oz), radius)?;
                 let mut out = vec![0.0, p.length, p.properties.area, p.properties.volume];
@@ -622,10 +560,10 @@ fn geometry_rust(g: &Geometry) -> Result<Output, HarnessError> {
             }
         }
     })();
-    Ok(match result {
+    match result {
         Ok(v) => output(v),
         Err(e) => Output::unported(&e).unwrap_or_else(|| output(vec![status(&e)])),
-    })
+    }
 }
 
 #[cfg(test)]

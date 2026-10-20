@@ -46,11 +46,10 @@
 //!   [`SolidError::InvalidInput`] there. Its rescan of a vertex after gluing a closer
 //!   one is bounded by `4 * (n1 + n2) + 16` passes (each glue empties a slot, so
 //!   upstream needs at most `n1 + 2 * n2`).
-//! - `SmVertex::SetPoint`'s notifications run on records local to the call (no
-//!   attributes are attached by the stitch). `SmBrep::MakeVertexSplitEdge` instead
-//!   receives the caller's notification records, attributes and curve identities.
-//!   A refused split (`SM_ERR` with the nearby endpoint) is reported as `SM_ERR`,
-//!   the only distinction its caller makes.
+//! - `SmVertex::SetPoint`'s and `SmBrep::MakeVertexSplitEdge`'s notifications run on
+//!   record sets local to the call (no attributes are attached by the stitch). The
+//!   split's refusal (`SM_ERR` with the nearby endpoint) is reported as `SM_ERR`, the
+//!   only distinction its caller makes.
 //! - Uninitialised reads upstream: `DoSimpleFaceStitch` ignores `CurveMaxDistanceBetween`'s
 //!   status (`SE`) and reads the unset `dDistToCurve` after a failure (the port reads 0).
 //! - `UnifyNormals` ignores `NormalizedEvaluate`'s status and goes on with `sPnt` / `sDir`
@@ -59,12 +58,11 @@
 //! - `SmBrep::GlueVertices`, `RemoveFaces` (with the B-rep's own editing flag) and
 //!   `StitchAndOrient` call `topology.brep_p5`, which defers at its own barriers.
 //! - The calls into `GlueEdgesGeneral` (`topology.brep_p7`), `SqueezeEdge`
-//!   (`topology.brep_p3`), `SmFace::GetBrep`,
+//!   (`topology.brep_p3`), `Notify`
+//!   (`topology.brep_p2`), `CalculateBoundingBox` (`query.brep`), `SmFace::GetBrep`,
 //!   `GetVertices`, `GetEdges` (`topology.face_p4`) and `SmMerge::MergeAddedFace`
 //!   (`boolean.merge_p2`) return [`SolidError::Unported`]. The API entry points call
 //!   `DoStitching`, `StitchIntoSolid` and `StitchIntoShell` in [`super::p2`].
-//!   `SmBrep::Notify(SM_NO_PRE_EDIT)` is `topology::brep::p2::notify` on an empty notify
-//!   state (no B-rep cache, no attribute state on the heal path).
 
 use std::collections::BTreeMap;
 
@@ -385,11 +383,13 @@ pub fn select_topology_to_keep<C: StitchCallback + ?Sized>(
 
             // Find the distance from pEdge1->Curve to each face in sEFaces2.
             for &face2 in &faces2 {
-                let surface2 =
-                    fp2::surface(b, face2)?.ok_or_else(|| deref("face without surface"))?;
+                // (upstream reads the surface pointer first but dereferences it only in the
+                // distance call, after breaking on a null curve)
                 let Some(curve1) = edge::curve(b, edge1)? else {
                     break;
                 };
+                let surface2 =
+                    fp2::surface(b, face2)?.ok_or_else(|| deref("face without surface"))?;
                 // 0 samples: do a precise measurement; no max distance (status ignored)
                 if let Some(g) = ignored(curve1.surface_max_distance_between(
                     k,
@@ -411,11 +411,13 @@ pub fn select_topology_to_keep<C: StitchCallback + ?Sized>(
 
             // Find the distance from pEdge2->Curve to each face in sEFaces1.
             for &face1 in &faces1 {
-                let surface1 =
-                    fp2::surface(b, face1)?.ok_or_else(|| deref("face without surface"))?;
+                // (upstream reads the surface pointer first but dereferences it only in the
+                // distance call, after breaking on a null curve)
                 let Some(curve2) = edge::curve(b, edge2)? else {
                     break;
                 };
+                let surface1 =
+                    fp2::surface(b, face1)?.ok_or_else(|| deref("face without surface"))?;
                 if let Some(g) = ignored(curve2.surface_max_distance_between(
                     k,
                     &edge::interval(b, edge2)?,
@@ -542,20 +544,9 @@ pub struct EdgeSplitTest {
     pub new_edge: Option<EdgeId>,
 }
 
-/// Borrowed notification state and curve identities for an edge split.
-/// The caller keeps the actual records, attributes and identity registry alive
-/// across all splits; no replacement notification environment is constructed.
-pub struct EdgeSplitContext<'a, 'records> {
-    /// Actual topology notification records and attributes.
-    pub notifications: &'a mut edge::NotifyEnv<'records>,
-    /// Identity of a curve created for the specified edge and native type.
-    pub curve_ref: &'a dyn Fn(EdgeId, i64) -> ObjectRef,
-}
-
 /// `sm_TestAndSplitEdge`: drops `point` onto the edge (global solve, snap distance
 /// `tol`) and, when it lands within `max(tol, edge tolerance)` in the edge's interior
-/// ([`check_interior_edge`]), splits the edge there. Notifications and new curve
-/// identities use the caller's environment, which retains the split's mutations.
+/// ([`check_interior_edge`]), splits the edge there.
 ///
 /// # Errors
 ///
@@ -567,29 +558,6 @@ pub fn test_and_split_edge(
     e: EdgeId,
     point: Point3,
     tol: f64,
-    notifications: &mut edge::NotifyEnv<'_>,
-    curve_ref: &dyn Fn(EdgeId, i64) -> ObjectRef,
-) -> Result<EdgeSplitTest> {
-    let mut context = EdgeSplitContext {
-        notifications,
-        curve_ref,
-    };
-    test_and_split_edge_with_context(k, b, e, point, tol, Some(&mut context))
-}
-
-/// Tests an edge before requiring the caller's mutation notification context.
-/// Far drops and boundary hits retain their ordinary results without a context.
-///
-/// # Errors
-/// Those of [`test_and_split_edge`]; an explicit representation limitation only
-/// when an interior hit reaches the actual split without its caller context.
-pub fn test_and_split_edge_with_context(
-    k: &mut Kernel,
-    b: &mut Brep,
-    e: EdgeId,
-    point: Point3,
-    tol: f64,
-    context: Option<&mut EdgeSplitContext<'_, '_>>,
 ) -> Result<EdgeSplitTest> {
     // Init outputs
     let mut out = EdgeSplitTest {
@@ -628,22 +596,8 @@ pub fn test_and_split_edge_with_context(
         return Ok(out);
     }
 
-    // Must have a point which can split the Edge. The preceding geometric
-    // tests need no notification records or new-curve identity.
-    let context = context.ok_or_else(|| {
-        SolidError::unported(
-            "SmStitch edge split caller notification and curve identity context",
-            "representation:stitch-edge-split-context",
-        )
-    })?;
-    let (e1, e2, new_v) = match make_vertex_split_edge(
-        k,
-        b,
-        e,
-        dropped.parameter,
-        context.notifications,
-        context.curve_ref,
-    ) {
+    // Must have a point which can split the Edge.
+    let (e1, e2, new_v) = match make_vertex_split_edge(k, b, e, dropped.parameter) {
         Ok(r) => r,
         Err(err) if err.is_unported() => return Err(err),
         Err(_) => {
@@ -1204,8 +1158,7 @@ impl<'c> Stitch<'c> {
 
             // CalculateBoundingBox(sBrepBBox) with the header defaults; status ignored
             // upstream (a failure leaves the default-initialised box)
-            let brep_bbox =
-                ignored(brep_loose_bounding_box(k, b, false, true))?.unwrap_or_default();
+            let brep_bbox = ignored(brep_bounding_box(k, b, false, true))?.unwrap_or_default();
 
             let edges = bp1::edges(b, None)?;
             // lNumPerNode = max(500, edges/10) only sizes the memory blocks
@@ -2079,19 +2032,37 @@ pub(crate) fn squeeze_edge_to(b: &mut Brep, e: Option<EdgeId>, keep: VertexId) -
 }
 
 /// `SmBrep::MakeVertexSplitEdge(edge, t, rpE1, rpE2, rpNewV)` (unit `topology.brep_p9`),
-/// using the caller's actual notification records, attributes and curve identities.
-/// A refused split (`SM_ERR` with the nearby endpoint) is an `SM_ERR` error: the
-/// caller only tests for `SM_SUCCESS`.
+/// with its notifications on records local to the call (as [`set_point`]). A refused
+/// split (`SM_ERR` with the nearby endpoint) is an `SM_ERR` error: the caller only
+/// tests for `SM_SUCCESS`.
 pub(crate) fn make_vertex_split_edge(
     k: &mut Kernel,
     b: &mut Brep,
     e: EdgeId,
     t: f64,
-    notifications: &mut edge::NotifyEnv<'_>,
-    curve_ref: &dyn Fn(EdgeId, i64) -> ObjectRef,
 ) -> Result<(Option<EdgeId>, Option<EdgeId>, Option<VertexId>)> {
+    let mut records: BTreeMap<ObjectKey, Topology> = BTreeMap::new();
+    let mut attributes = AttributeStore::default();
+    let key_of = |entity: EntityRef| match entity {
+        EntityRef::Edge(id) => arena_identity(CacheObject::Edge(id)),
+        EntityRef::Face(id) => arena_identity(CacheObject::Face(id)),
+        EntityRef::Vertex(id) => arena_identity(CacheObject::Vertex(id)),
+        EntityRef::Edgeuse(id) => local_identity(crate::topology::edgeuse::p1::TYPE, id.index()),
+        EntityRef::Vertexuse(id) => local_identity(vertexuse::TYPE, id.index()),
+        EntityRef::Loopuse(id) => local_identity(crate::topology::loopuse::TYPE, id.index()),
+        _ => local_identity(crate::topology::topology::TYPE, 0),
+    };
+    // The kernel's context is the split's own `k`; no separate object context.
+    let mut env = edge::NotifyEnv {
+        records: &mut records,
+        attributes: &mut attributes,
+        context: None,
+        key_of: &key_of,
+    };
     let out =
-        crate::topology::brep::p9::make_vertex_split_edge(k, b, e, t, notifications, curve_ref)?;
+        crate::topology::brep::p9::make_vertex_split_edge(k, b, e, t, &mut env, &|edge, kind| {
+            local_identity(kind, edge.index())
+        })?;
     if !out.split {
         return Err(SolidError::sm_err(OP));
     }
@@ -2099,25 +2070,25 @@ pub(crate) fn make_vertex_split_edge(
     Ok((Some(e1), Some(e2), out.vertex))
 }
 
-/// `SmBrep::Notify(SM_NO_PRE_EDIT, this, NULL, NULL)` on the heal path's
-/// notification state. This API carries no attribute state or B-rep cache;
-/// `PreEdit` reads no topology record.
+/// A call-local identity: the type code above the index, outside the arena identities'
+/// key space (bare indices).
+fn local_identity(type_code: i64, index: u32) -> ObjectRef {
+    ObjectRef {
+        type_code,
+        key: ObjectKey((type_code.unsigned_abs() << 32) | u64::from(index)),
+    }
+}
+
+/// `SmBrep::Notify(SM_NO_PRE_EDIT, this, NULL, NULL)` (unit `topology.brep_p2`).
 pub(crate) fn brep_notify_pre_edit(b: &mut Brep) -> Result<()> {
-    use crate::topology::brep::p2;
-    let mut state = p2::RegionNotifyState::new(b);
-    let this = Some(p2::NotifyArg::Object(p2::brep_ref(b)));
-    p2::notify(
-        b,
-        &mut state.env(),
-        None,
-        crate::geom::object::NotifyOperation::PreEdit,
-        [this, None, None],
-    )
+    let _ = b;
+    // UNPORTED(topology.brep_p2): SmBrep::Notify
+    Err(SolidError::unported("SmBrep::Notify", "topology.brep_p2"))
 }
 
 /// `SmBrep::CalculateBoundingBox(rBox, bApprox, bTight, bExpandByZoneTol3d)` (unit
 /// `query.brep`; header defaults FALSE, FALSE, TRUE).
-fn brep_loose_bounding_box(
+fn brep_bounding_box(
     k: &Kernel,
     b: &Brep,
     approx: bool,
@@ -2371,80 +2342,6 @@ mod tests {
         let p = [3.0, 1.0, 2.0, 1.0, 5.0];
         let s = sort_by_param(5, |_| false, &p).unwrap();
         assert_eq!(s, vec![3, 1, 2, 0, 4]);
-    }
-
-    fn split_test_edge() -> (Brep, EdgeId) {
-        use crate::curve::line::Line;
-        use crate::geom::extent1d::Extent1d;
-        use crate::topology::{Edge, Vertex};
-        let mut b = Brep::new();
-        let start = Vec3::new(0.0, 0.0, 0.0);
-        let end = Vec3::new(10.0, 0.0, 0.0);
-        let a = b
-            .add_vertex_record(Vertex {
-                point: start,
-                ..Vertex::default()
-            })
-            .unwrap();
-        let z = b
-            .add_vertex_record(Vertex {
-                point: end,
-                ..Vertex::default()
-            })
-            .unwrap();
-        let e = b
-            .add_edge_record(Edge {
-                vertices: [a, z],
-                edgeuses: Vec::new(),
-                interval: Extent1d::from_min_max(0.0, 1.0),
-                tolerance: 0.0,
-                curve: Some(Curve::from(
-                    Line::create_line_segment(3, start, end, None).unwrap(),
-                )),
-            })
-            .unwrap();
-        (b, e)
-    }
-
-    #[test]
-    fn split_without_context_preserves_geometric_early_returns() {
-        let mut k = Kernel::default();
-        for (point, expected) in [
-            (Vec3::new(5.0, 3.0, 0.0), SplitReason::FarFromGeom),
-            (Vec3::new(0.0, 0.0, 0.0), SplitReason::CloseToBoundary),
-        ] {
-            let (mut b, e) = split_test_edge();
-            let result =
-                test_and_split_edge_with_context(&mut k, &mut b, e, point, 0.01, None).unwrap();
-            assert_eq!(result.reason, expected);
-            assert_eq!(result.new_edge, None);
-            assert_eq!(result.new_vertex, None);
-            assert_eq!(b.edges().len(), 1);
-            assert_eq!(b.vertices().len(), 2);
-        }
-    }
-
-    #[test]
-    fn interior_split_requires_context_before_any_topology_mutation() {
-        let mut k = Kernel::default();
-        let (mut b, e) = split_test_edge();
-        let result = test_and_split_edge_with_context(
-            &mut k,
-            &mut b,
-            e,
-            Vec3::new(5.0, 0.0, 0.0),
-            0.01,
-            None,
-        );
-        assert!(matches!(
-            result,
-            Err(SolidError::Unported {
-                unit: "representation:stitch-edge-split-context",
-                ..
-            })
-        ));
-        assert_eq!(b.edges().len(), 1);
-        assert_eq!(b.vertices().len(), 2);
     }
 
     #[test]

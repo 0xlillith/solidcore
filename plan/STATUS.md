@@ -1,255 +1,5 @@
 # solidcore status
 
-## Current PR #101 integration (2026-10-20; final validation pending)
-
-This draft integrates the query/cache work with its dependency branches.
-Combined native validation and published-head CI are pending. Historical
-results do not validate this candidate.
-
-The integration connects mutable B-rep query/cache providers, ProtoBrep/Glue,
-HCR scene-curve merging and Stitch query/split callers. Canonical topology
-numbering follows the actual region list. Native notification snapshots retain
-operand identity, flags, five stored marks and exact user fields; arbitrary
-attribute payloads/callback implementations remain explicit harness limits.
-
-### Offset scope and remaining coverage
-
-FillGapEdgeuses and MapEdgeuses now call real NormalizedEvaluate, superseding the former topology.edgeuse_p3 placeholder. FillGap preserves the native endpoint/candidate prefix, strict comparisons, duplicates/nulls and candidate accumulation across gap iterations. Exactly two candidates reach the real partial topology.brep_p1::create_corner_blend; ordinary coded failures collapse to SM_ERR while genuine dependency and Rust representation errors remain visible. Subsequent CreateFaceFromSurface is genuinely unported in TODO topology.brep_p8; no successful face creation or blend relations beyond it are certified. Map requires caller-owned MapEdgeuseNotifications, real UV evaluation, scale progression and DropPoint. UV lookup uses uv_trim_curve(...).0 with mate fallback. RelatePair precedes Copy notifications and source-slot removal, with distinct arena/type identities. The fixture additions include an opposite-original-faceuse case and correct MapPlane to separately owned equivalent faces. Runtime admissibility, intended scale/DropPoint execution, opposite-faceuse behavior and traversal agreement remain pending. F4/exactly-two-candidate coverage and accumulation across multiple processed gaps remain unqualified: FillTwoGaps returns on its first gap. Arbitrary attribute/callback behavior and marks/userdata qualification remain outside this fixture coverage.
-
-### Final validation
-
-| Evidence | Final candidate result |
-|---|---|
-| Source | Current PR #101 integration; final native qualification pending |
-| Formatting and strict plain all-target Clippy | Passed, including strict C++-feature all-target Clippy |
-| Default-feature workspace tests | 1541 core + 29 other tests passed |
-| C++-feature FFI and differential-runner self-tests | Pending |
-| wasm32-unknown-unknown | Passed |
-| Affected-unit C++ comparisons and full selected --green run | Pending; local runner compilation stopped by memory guard before cases ran |
-| Combined C++ report counts, errors and hashes | Pending; previous reports remain historical |
-| Published-head remote CI and mergeability | Awaiting checks after publishing the reconciled source |
-
-Deferred/rejected cases are not passes. Existing manifest states are not new
-certifications; promotions require final matching reports. Preserve unresolved
-geometry/context, handler and cache-lifetime limitations. No readiness claim
-is made while the final evidence is pending. PROGRESS.md remains CI-generated.
-
-## Historical checkpoints (source-specific evidence)
-
-All sections below retain their original provenance, authorship and results.
-Their references to latest/current/pending describe those historical snapshots,
-not the integration above. In particular the acc0fd57 224-unit run does not
-validate this candidate. Earlier failures remain attributed to earlier sources.
-
-## Follow-up to the p4 test assertions (2026-10-20)
-
-Source: `61b45b0bce203f6d2660508bc0b1bb84232a3027`, parent `acc0fd57fe05661723b6ad7be67d8a11c01cd62f`. This follow-up changes only the assertions in `intersect_curve_class_p4::tests::undefined_scripts_are_rejected`. The complete source comparison preserves the other 1,412 files and the runner content outside its test module, including canonical case generation.
-
-The separately observed p4 reproduction on the contents committed as acc0fd57 failed (zero passed, one failed; exit 101). Validation of the corrected test contents later committed as `61b45b0bce203f6d2660508bc0b1bb84232a3027` recorded `cargo test --profile difftest -p difftest --features cpp units::intersect_curve_class_p4::tests`: 3 passed, 0 failed, 0 ignored; the three tests are `edge_cases_are_accepted`, `generated_scripts_are_accepted`, `undefined_scripts_are_rejected`. Formatting and both Clippy configurations recorded exit 0 for `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo clippy --workspace --all-targets --features solidcore-ffi/cpp,difftest/cpp -- -D warnings`. All four commands ran with HEAD at acc0fd57 and the changed test contents; identical before/after source maps and the subsequent commit proof bind those results to `61b45b0bce203f6d2660508bc0b1bb84232a3027`. These are the commands actually run for this follow-up; the complete difftest Rust unit-test suite was not run.
-
-The canonical checkpoint and its report hashes below remain attributed to `acc0fd57fe05661723b6ad7be67d8a11c01cd62f`. No complete canonical run or new unit promotion is attributed to the follow-up commit. The p4 failure retained in the ACC checkpoint's readiness section describes that earlier source; this section records its subsequent assertion correction. Evidence: [p4 assertion follow-up source](https://github.com/0xlillith/solidcore/commit/61b45b0bce203f6d2660508bc0b1bb84232a3027).
-
-Last updated: 2026-10-20, PR #101 (source `acc0fd57fe05661723b6ad7be67d8a11c01cd62f`; draft).
-Per-unit state is in `plan/modules.toml`; differential evidence is in
-`reports/difftest/`. Progress below is computed from this checkpoint's manifest.
-
-## Latest checkpoint (2026-10-20, PR #101; draft)
-
-This correction checkpoint is acc0fd57, based on 0bbeb9dc, which merges main through 4db3d660 (batch #259, source batch 36cfad06) into the query.brep integration. It preserves the incoming contributors' port history and the earlier #149 follow-up contracts already incorporated in that parent. The five additional units selected in the parent remain blend.hcr, boolean.topology_intersector_p2, intersect.curve_class_p4, topology.brep_p5 and topology.brep_p9.
-
-The correction batch fixes RemoveExcessFaces' handling of an ignored native RemoveFaces status, imports GlueEdges' actual notification records with all five stored marks, and checks each consumed Glue curve's representation before its first geometric read. The existing adapters retain the original BRep, Kernel, ordered lists, notification inputs, mutable outputs and lazy query context. Historical 15a, e726 and incoming-main results remain attributed to their original sources. Results for the corrected source must come from its own reports; these source changes do not establish a new unit promotion.
-
-PR #149's later da779c51 follow-up is separate work. Its author reports closing 33 caller stubs and four stubs within p2; that head is not incorporated in this 0bb-derived correction checkpoint.
-
-### Source-bound validation
-
-The completed optimized canonical run belongs to source `acc0fd57fe05661723b6ad7be67d8a11c01cd62f` and covers
-all 224 green/partial units selected by the frozen manifest.
-It records **509,240 cases: 486,890 passed (482,423 with compared values, 4,467 without), 0 failed, 22,313 deferred and 37 rejected**.
-The with/without-values partition comes from matched console summaries and
-includes floating and exact integer/topology comparisons. Deferred and rejected
-cases are not passing comparisons; no floating-only counter is substituted.
-
-The correction commit has the single parent `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-Its retained source proof records that parent's earlier merge of `aa0595cc8fc726c3d1e3fd5872a62f2f29201362`
-and main `4db3d6602a57daae3ebe0d554a1d01636f209aaa`. This does not assert a passing canonical run for the parent.
-The preceding local gates ran with HEAD `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`, the corrected
-working-tree contents and no merge in progress. All
-1,413 source hashes are identical before/after those gates
-and in the correction commit. The canonical run's own before/after source
-attestation matches that same complete map. The correction changes
-9 source-file hashes relative to the parent.
-FFI's own before/after attestations match all 1,413 source hashes.
-Its fresh 480-file FFI/shim map is an exact matching subset;
-the recorded full-suite command and exit status were checked separately.
-
-| Local validation | Recorded result |
-|---|---|
-| Formatting | Exit 0 |
-| Strict plain all-target Clippy | Exit 0 |
-| Strict C++ all-target Clippy | Exit 0 |
-| Core tests | 1,474 passed; 0 failed; 0 ignored |
-| wasm32-unknown-unknown | Exit 0 |
-| FFI suite | 104 passed; 0 failed; 1 ignored |
-| Canonical optimized difftest | Exit 0; all selected reports present |
-
-Additional directed checks are recorded separately:
-
-- `runner-10` (`units::topology_shell::ray_query_tests::edge_curve_check_uses_metadata_identity_and_ignores_unvisited_geometry`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-- `runner-8` (`glue_with_native_records_reaches_native_vertex_rejection`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-- `runner-9` (`each_highlevel_probe_calls_its_real_method`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-- `runner-1` (`face_query_tests`): 6 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-- `runner-2` (`curve_guard_tests`): 2 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-- `runner-3` (`split_uses_native_notification_inputs_for_a_real_wire`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-- `runner-4` (`native_face_context_reaches_trim_creation_and_restores_the_original_state`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-- `runner-5` (`infinite_region_uses_native_owners_and_skips_cache_for_one_region`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-- `runner-6` (`curve_tolerance_uses_the_callers_live_owner_registration`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-- `runner-7` (`real_ray_preserves_initial_state_on_error_and_retained_fields_on_no_hit`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
-
-The canonical command was:
-
-```text
-cargo run --profile difftest -p difftest --features cpp -- --green
-```
-
-These local results do not assert a GitHub CI pass or a performance result.
-
-### Readiness
-
-PR #101 remains draft under AGENTS.md section 4.5.9/4a.
-
-- The exact intersect_curve_class_p4::tests::undefined_scripts_are_rejected test still fails on acc0fd57's contents (zero passed, one failed, exit 101). Its assertion correction is a separate pending follow-up. Only 16 selected difftest Rust tests across ten filters were run successfully here; the complete cpp-enabled difftest unit-test suite was not run and is not certified by the canonical case reports or FFI suite.
-- AGENTS.md section 4.5.9/4a remains open for this 0bb-derived source: brep/p2.rs still has calls to the ported Face::SetTolerance, Face::Notify, Face::CreateUVTrimCurves and the curve_class_p4 constructor behind explicit stubs. PR #149's later da779c51 reports closing those four stubs and 33 caller sites on its own source; those changes and results are not incorporated here. Missing providers and preflight guards still require their real context.
-- The original surface cache is not yet published before BuildTree for reentrant recovery and persistent reuse. The current per-query cache bridge does not certify those lifetime and reuse contracts.
-- Opaque-context consumers and the two remaining curve_class_p7 dispatch gaps remain integration work. brep/p5::find_and_set_infinite_region still has its own FindInfiniteRegion/ResetInfiniteRegion bridge pending; the implemented p9 provider does not automatically close that caller.
-- The p9 runner uses the default optional shell/bbox inputs. Its canonical cases and targeted partial-output assertions do not cover every optional limit or every late sector/classification mutation path.
-- Glue's five stored marks, flags and user values are now imported; nonzero marks are no longer a Glue notification deferral. Attributes and native system/user callbacks are still exported only as presence indicators. Their presence anywhere in the fixture conservatively defers a notifying Glue call, while null/same-edge no-ops are exempt. An unrelated attributed object can therefore still cause a deferral even if that particular operation would not visit it.
-- The selective Glue curve check preserves explicit concrete-type and owner-representation limits at the geometric read. Providers without individual-edge metadata keep their existing broader curve check. The new synthetic regressions do not establish native analytic-fixture parity, and p7's existing query_status text can aggregate metadata limitations even though the rejection decision selects the consumed edge.
-- The repaired two-unit rerun still reaches Glue's SmBrep::GetInfiniteRegion/topology.brep_p1 and SmBrep::FindAndSetInfiniteRegion/topology.brep_p5 dependencies. They account for the eight former Glue failures now deferred (six and two respectively); those transitions are not caused by the selective geometry guard.
-- Stitch still cannot restore nonzero native general marks or decode attribute storage and callbacks. Its separate fixture-wide guard can defer inputs before a native no-edit return. Glue's five-mark import is not a Stitch implementation or a new native-UB rejection rule.
-- RemoveExcessFaces still lacks the native editing-disabled classification scope and its success-only reset. Nonempty result-edge paths still reach the explicit NormalizedEvaluate dependency. The ignored RemoveFaces status correction does not certify nonempty removal or new numerical coverage.
-- Record erasure and remaining opaque mutation providers are not certified solely by early refusals or both-errored comparisons. MissingSurface checks preserve a Rust representation contract and are not numerical parity with a native null dereference.
-- PR #239 and later main batches beyond 4db3d660, including #269, are outside this source checkpoint. The #239 seam review still requires durable curve backing, the native owned-copy/UV identity contract and caller-visible partial outputs before the remaining editing callers can be wired.
-- These changes and source/fixture comparisons address correctness. No runtime performance measurement or additional unit promotion is asserted by this narrative.
-
-The acc0fd57 checkpoint contains main through 4db3d660, its 0bbeb9dc integration parent and the three corrections described here. PR #101 remains draft. PR #149's published da779c513ee274c7b33bc88d0cb57b2ec8d9823b follow-up and its author-reported 33 caller replacements, four p2 stub closures and validation results belong to that separate head; they are not integrated or counted here. GitHub CI must be attributed to the exact PR head, separately from local gates. Any merge needed to resolve a GitHub-reported conflict creates a new source checkpoint with its own evidence; a newer main commit alone does not invalidate gates for unchanged source. The pending p4 assertion-only follow-up is outside acc0fd57; any published result for that later commit must state its own validation scope.
-
-At the 2026-10-20 05:47 UTC GitHub observation, published PR #101 still pointed to aa0595cc and GitHub reported mergeable=false with mergeable_state=dirty. That observation concerns the published head, not this unpushed correction. The maintainer announcement prioritizes critical bugs and asks contributors to batch updates, avoiding a main merge or rebase solely for freshness. Conflict reconciliation must follow an actual GitHub conflict and be validated on its resulting source. PR #149 run 39379393912 completed successfully for da779c51, with seven successful jobs, as read at 06:50 UTC; those GitHub results remain separate from this checkpoint.
-
-## Archived 15a checkpoint (historical)
-
-The following original top block is retained verbatim. Its statements, counts
-and CI observations describe source 15a47378, not the current checkpoint.
-
-<details>
-<summary>Original 15a checkpoint and validation</summary>
-
-Last updated: 2026-10-19, PR #101 (`query.brep`, checkpoint `15a47378`; draft).
-Per-unit state is in `plan/modules.toml`; differential evidence is in
-`reports/difftest/`. The Progress table below is calculated from the manifest.
-Older per-unit tables and integration notes are historical snapshots, not a
-second current manifest.
-
-## Latest checkpoint (2026-10-19, PR #101; draft)
-
-The B-rep query integration supplies live mutable B-reps, registered identities,
-owner mappings and the caller's Kernel to classification, bounding-box, Shape,
-cache and shell callers. The faceuse region-split continuation uses the same
-RegionSplitQueries provider through p7 and Heal; native region-list order,
-partial classification state, persistent topology marks and lazy cache
-publication are retained. Earlier first-stop notes for these wired
-`UNPORTED(query.brep)` paths are superseded as detailed in `plan/findings.md`.
-
-**Readiness remains pending under AGENTS.md §4.5.9 and section 4a.** The point-face
-path of `intersect.topology_solver_p1` still has a read-only provider:
-`object_zone_tol_3d` needs the owning B-rep, and `face_point_classify` /
-`face_classifies_on_face` need mutable access to call the existing partial
-`query.face_p2` / `query.face_p1` implementations. These are incoming-backedge
-integration requirements, not absent numerical algorithms. Deferred cases do
-not satisfy this readiness gate, and the PR remains draft even if its completed
-comparisons and build checks pass.
-
-PR #238 review also confirmed a dispatch-context defect in
-`query.face_p1::Point3DClassify`: the missing `m_bPointTestEnabled = FALSE` setting
-around the solve accounts for its 57 cases labelled `query.face_p2` deferred.
-Native C++ disables that point test and does not reach `FacePointClassify` there.
-Those report labels are not faithful native dependency boundaries; the behavior
-is still unfixed in this validated source. Five direct `query.face_p1` stubs
-remain: two in `boolean.topology_intersector_p1`, one in
-`intersect.topology_solver_p1` and two in `intersect.curve_class_p7`.
-`geom.object` is no longer among those callers.
-
-**Latest-main integration is also outstanding.** This source includes main
-through `b6b6f7dd` and #149 through `3770f4b1`. Main advanced to `61670af3` (#153)
-during validation. Its merge-tree preview was clean, but that merge was not made
-into the validated source. The latest main snapshot observed at 12:10:03 UTC,
-`28cd7d9a`, adds only generated PROGRESS output on top of `61670af3`; its code and
-manifest counts are unchanged: 114 green, 97 partial and 50 todo units. The table
-below describes this PR branch after its three report-based promotions, not
-that newer main snapshot.
-
-### Final local validation of source `15a47378`
-
-These functional results belong to source
-`15a47378bc8ae2256403766fac4342f75fb77eaa`. Formatting, strict plain and
-C++-enabled all-target Clippy, 1,396 core tests and the
-`wasm32-unknown-unknown` check passed. FFI tests finished with 93 passed and one
-ignored child helper; the difftest harness finished with 155 passed and 24
-existing ignored debugging aids. The ten focused runners finished without a
-failure.
-
-The full debug-profile difftest test run was deliberately interrupted in
-`surface_surface_p7::generated_cases_are_diverse` because its 1,500 generated
-cases invoke expensive solves. The same complete battery subsequently passed
-under the optimized `difftest` profile, with debug assertions and overflow checks
-active, and without source, case or tolerance changes for that rerun.
-
-The full `--green` run covered all 213 green/partial manifest units. Its reports
-contain **495,296 cases: 477,794 passed, zero failed, 17,465 deferred and 37
-rejected**. Passes comprise 473,652 cases with compared values and 4,142 without
-compared values. The split comes from the matched full-run console summaries
-and includes both floating and exact integer/topology comparisons; a zero
-floating-comparison count alone does not mean a case compares only status.
-All 213 reports are present; 116 have green report status and
-97 are partial. Deferred and rejected cases are not passing comparisons.
-
-| Unit | Cases | Passed with values | Passed without values | Deferred | Rejected |
-|---|---:|---:|---:|---:|---:|
-| `query.brep` | 1,036 | 1,033 | 0 | 3 | 0 |
-| `geom.object` | 624 | 624 | 0 | 0 | 0 |
-| `geom.a_object` | 2,040 | 2,040 | 0 | 0 | 0 |
-| `topology.brep_cache` | 663 | 663 | 0 | 0 | 0 |
-
-These four reports have zero failures and `max_rel_err = 0`, with no absolute
-floors. `query.brep`'s three deferrals name the todo unit `query.face_p3`.
-`geom.object`, `geom.a_object` and `topology.brep_cache` are promoted from partial
-to green on this evidence. This does not certify the separate point-face bridge.
-All 450 passing p6 cases include exact integer/topology comparisons.
-
-Sensitivity detected every compared case in `query.brep` (1,033), `geom.object`
-(624), `topology.brep_cache` (663) and `harness.selftest` (28); the three
-`query.brep` deferrals remain deferred. The separate formatter/comment follow-up
-also detected all 2,040 `geom.a_object` cases, with zero deferrals.
-
-That follow-up consists of rustfmt output in two source files and comments in
-two others. Its verification completed at approximately 12:10:42 UTC:
-formatting, including the explicit include files, strict C++ all-target Clippy,
-the `query.face_p1` focal and status checks for the three promotions and
-`query.brep` passed. The face focal retained 2,224 cases, 1,535 passes with
-values, 689 deferred and zero failures. Final source hashes matched the reviewed
-follow-up and canonical reports remained unchanged. No descendant full-suite
-result or parity after merging newer main is claimed. GitHub CI run
-`39244008376` was queued at the last check; the completed local checks do not
-assert a CI pass.
-
-
-</details>
-
-## Earlier headline snapshots
-
-The previous summary paragraphs are retained below as historical handoff notes.
-Their counts describe those earlier checkpoints.
-
 Last updated: 2026-10-16, PR #127 (`sweep.trans_sweep_geometry` partial: 719 bit-identical passes, 50 deferred on `surface.cone_p2`, 19 rejected native fixtures). Per-unit state and evidence are in `plan/modules.toml` and `reports/difftest/`.
 
 Latest topology integration: `topology.brep_p6` partial (PR #169, after its dependency #154: 498 cases, 450 pass, 48 deferred, 0 failed; 206 units, 113 green and 93 partial); before: `topology.shell` partial (PR #154, continuing @0xlillith's PR #80: 192 ported units, 109 green and 83 partial); before: `surface.surface_p11` partial (PR #120: 176 ported units, 98 green and 78 partial; `intersect.surface_silhouette` promoted to green); before: `mass.integrator` partial and `curve.curve_p3` green (PR #119); PR #115 (`topology.brep_cache` partial). Update a summary line here when your unit changes it; per-unit state lives in `plan/modules.toml` and evidence in `reports/difftest/`.
@@ -321,22 +71,18 @@ can contribute. From now on all work goes through PRs; see AGENTS.md section 4.
 
 ## Progress
 
-Counts and assigned upstream function-body line estimates (`est_lines`) are
-calculated from this checkpoint's `plan/modules.toml`. Each unit contributes
-its entire assigned estimate to its manifest state, including paths deferred
-inside partial units. These are planned-scope totals by state, not measured
-implemented lines or a percentage of implementation coverage.
+Counts are from `plan/modules.toml`. Line counts are the upstream function-body lines
+(`est_lines`) assigned to each unit.
 
-| Manifest state | Units | Assigned upstream line estimate |
-|---|---:|---:|
-| green | 117 | 151,903 |
-| partial | 107 | 169,084 |
-| todo | 37 | 66,916 |
-| **Total** | **261** | **387,903** |
-
-The canonical selection contains 224 green/partial units.
-The manifest has 66 distinct dependency layers (0–65).
-The generated `plan/PROGRESS.md` is not edited by this update.
+| | |
+|---|---|
+| Units planned | 261 (65 layers), 387,903 upstream lines |
+| Green | **84** (105,920 lines): `geom.extent3d`, `geom.vector2d`, `nlib.knots`, `nlib.math`, `topology.database_io`, `geom.tol`, `nlib.geom`, `geom.assert_array`, `geom.context`, `geom.extent1d`, `geom.matrix`, `geom.periodic_extent1d`, `geom.vector3d`, `nlib.basis_basic`, `nlib.srf_basic`, `geom.axis2_placement`, `geom.extent2d`, `geom.geom_utility_p2`, `geom.hash_table`, `geom.local_solve1d`, `geom.local_solve_nd`, `geom.polynomial`, `nlib.basis_adv`, `nlib.bezier`, `nlib.funcs_basic`, `geom.geom_utility_p1`, `geom.polar_box`, `nlib.crv_basic`, `geom.pseudo_box`, `nlib.crv_fit_p1`, `nlib.crv_tool_p1`, `nlib.iges`, `nlib.srf_tool_p1`, `curve.hermite_curve`, `geom.point_set`, `nlib.crv_fit_p2`, `nlib.crv_nurb`, `nlib.funcs_adv`, `nlib.srf_fit`, `nlib.crv_fit_p3`, `nlib.crv_geom`, `nlib.crv_tool_p2`, `nurbs.nurbs_crv`, `topology.topology`, `nlib.crv_adv_p1`, `nlib.crv_common`, `nlib.spiral`, `nlib.crv_adv_p2`, `nlib.srf_common`, `nlib.crv_approx`, `nlib.crv_offset`, `nlib.srf_nurb`, `nlib.srf_tool_p2`, `nurbs.b_spline_curve_n_lib`, `nurbs.nurbs_srf`, `nlib.srf_adv_p2`, `nlib.srf_adv_p3`, `nlib.srf_tool_p3`, `nlib.srf_tool_p4`, `curve.conic`, `curve.projected_curve`, `nlib.srf_adv_p4`, `nlib.srf_adv_p1`, `nlib.srf_adv_p5`, `nlib.srf_adv_p6`, `nlib.srf_offset`, `curve.offset_curve`, `surface.b_spline_volume`, `nurbs.b_spline_curve_p1`, `curve.parabola`, `primitive.api_curves`, `nurbs.b_spline_curve_p2`, `curve.curve_p2`, `curve.curve_cache`, `curve.hyperbola`, `curve.line`, `curve.ellipse_p2`, `curve.curve_p6`, `curve.curve_p7`, `curve.ellipse_p1`, `curve.curve_p8`, `curve.composite_curve_p1`, `curve.composite_curve_p2`, `curve.curve_p9` |
+| Partial | **31** (41,289 lines): `geom.attribute`, `geom.tree`, `geom.object`, `geom.grid`, `geom.solution_array`, `geom.global_solver`, `geom.tools`, `geom.transform`, `geom.a_object`, `nurbs.b_spline_surface_p1`, `nurbs.b_spline_curve_p3`, `curve.crv_in_volume`, `curve.tangent_field`, `nurbs.b_spline_surface_n_lib_p1`, `curve.iso_curve`, `nurbs.b_spline_surface_n_lib_p2`, `nurbs.b_spline_surface_p2`, `surface.volume_p1`, `curve.curve_p4`, `surface.twist_volume`, `curve.curve_p3`, `curve.curve_p1`, `curve.crv_on_surf`, `surface.surface_p2`, `surface.curve_bounded_surface`, `surface.surface_cache_p1`, `curve.curve_p5`, `surface.trim_srf_cache`, `surface.plane_p1`, `surface.unbend_volume`, `surface.bend_volume` |
+| Ported (green + partial) | 115 units, 147,209 upstream lines (38.0%); about 150,000 Rust lines in `crates/solidcore/src` |
+| Claimed | 0 (claims now use draft PRs) |
+| Blocked | 0 |
+| Todo | 146 (240,694 lines) |
 
 ## What Wave 0 produced
 
@@ -372,10 +118,7 @@ The generated `plan/PROGRESS.md` is not edited by this update.
 - **prog_test_app:** PROG_TEST SUCCESS (16 default suites, 46 s). All 17 suites pass when
   run one at a time, including `stitch`.
 
-## Green units (historical snapshot)
-
-This retained table is historical. Current per-unit states and counts are in
-`plan/modules.toml` and the Progress section above.
+## Green units
 
 | Unit | Rust module | difftest | Notes |
 |---|---|---|---|
@@ -445,10 +188,7 @@ This retained table is historical. Current per-unit states and counts are in
 | `curve.composite_curve_p1` | `curve::composite_curve::p1` | 3093 cases, all bit-identical | promoted to green by `curve.curve_p5` (0 deferred after its stubs were wired) |
 | `curve.composite_curve_p2` | `curve::composite_curve::p2` | 661 cases, all bit-identical | promoted to green by `curve.curve_p5` (0 deferred after its stubs were wired) |
 
-## Partial units (historical snapshot)
-
-This retained table is historical. Current per-unit states and counts are in
-`plan/modules.toml` and the Progress section above.
+## Partial units
 
 Every non-deferred difftest case passes; deferred cases wait on the listed unit (never reported as green).
 
@@ -483,10 +223,7 @@ Every non-deferred difftest case passes; deferred cases wait on the listed unit 
 | `surface.surface_cache_p2` | `surface::surface_cache::p2` | 905 cases (105 fixture: the three pt_TestFiles .sms surfaces (and curve-bounded surfaces over them) through Bezier patch blocks, n-th bounding planes, TestAgainstTolerances on hand-built patch / aux-data / head nodes at the tolerance limits, SubdivideByBlock without surface, SM_API_test rectangle / hexagon planes, alternate cache eviction + 800 generated incl. 1e-4 / 1e4 scaled surfaces), 721 bit-identical; `--perturb` SENSITIVE; wired the `SmPlane::IsSingularity` override into the cache's Bezier approximation | 184 (`surface.plane_p1` 53: plane iso curves; `surface.surface_p1` 47: `GetFace` in the B-spline bounding box; `surface.surface_p5` 43: `IsSingularity`, curve-bounded iso curves; `surface.surface_p7` 28: `EvaluateNormal`; `surface.surface_p9` 13: `FindTessellationSplits` in every `SubdivideByBlock` with a surface) |
 | `curve.curve_p5` | `curve::curve::p5` | 3097 cases (97 fixture: SM_API_test rectangle / hexagon edges through clean-up, duplicates, IsLine / IsLinear / IsArc / Length / IsDomainBoundary, my_test_reversed_line_join lines, closest-point inversions, Newton Jacobians, edge cases + 3000 generated over 16 ops), 3067 bit-identical; a 20,097-case run was also clean; `--perturb` SENSITIVE; wiring its 13 stubs promoted 12 units to green | 30 (`mass.integrator` 28: `SmIntegrator::IntegrateIt` in `Length` of curved spans; `curve.curve_p2` 2: `GetNaturalInterval` through a solution handle in `TrimGap`) |
 
-## Ready set (historical snapshot)
-
-This retained table is historical. Current per-unit states and counts are in
-`plan/modules.toml` and the Progress section above.
+## Ready set
 
 2026-10-13 (after `surface.surface_cache_p1`): `surface.trim_srf_cache`
 (`surface.surface_cache_p2` also waits for `curve.curve_p5` and `surface.surface_p9`,
