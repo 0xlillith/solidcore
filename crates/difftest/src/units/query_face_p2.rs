@@ -509,7 +509,11 @@ fn pc_block(pc: &PointClassification<EntityRef>) -> Vec<f64> {
 
 /// The shim's `put_pc` block for a curve classification's point classification: only
 /// faces, edges and vertices have an export index (other objects are `-3, -1`).
-fn cc_pc_block(k: &Kernel, objects: &Objects<'_>, pc: &PointClassification<H>) -> Result<Vec<f64>, HarnessError> {
+fn cc_pc_block(
+    k: &Kernel,
+    objects: &Objects<'_>,
+    pc: &PointClassification<H>,
+) -> Result<Vec<f64>, HarnessError> {
     let (kind, index) = match pc.object() {
         None => (0.0, -1.0),
         Some(H::Face(f)) => (1.0, f64::from(f.index())),
@@ -777,7 +781,16 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let uv = Point2::new(a(0), a(1));
             let d1 = Extent2d::from_points(Point2::new(a(4), a(5)), Point2::new(a(6), a(7)));
             let d2 = Extent2d::from_points(Point2::new(a(9), a(10)), Point2::new(a(11), a(12)));
-            match qf::classify_param_on_faces(&k, &mut b.clone(), uv, zone_tol3d(&k, *tol), f1, &d1, f2, &d2) {
+            match qf::classify_param_on_faces(
+                &k,
+                &mut b.clone(),
+                uv,
+                zone_tol3d(&k, *tol),
+                f1,
+                &d1,
+                f2,
+                &d2,
+            ) {
                 Ok(w) => Ok(Output::new().values("which", vec![f64::from(w)])),
                 Err(e) => Ok(rust_err(&e)),
             }
@@ -801,21 +814,36 @@ fn rust(i: &Inputs) -> Result<Output, HarnessError> {
             let line = match BSplineCurve::create_line_segment(u64::from(*dim), p, q) {
                 Ok(line) => line,
                 Err(SolidError::Upstream { code, .. }) => {
-                    return Ok(Output::new().values("curve_classification", vec![-3.0, f64::from(code)]))
+                    return Ok(
+                        Output::new().values("curve_classification", vec![-3.0, f64::from(code)])
+                    )
                 }
                 Err(e) => return Ok(rust_err(&e)),
             };
             let curve = Curve::from(line);
             let interval = curve.natural_interval();
             let objects = Objects { brep: b, curve };
-            let mut cc: CurveClassification<H> =
-                CurveClassification::with_curve_interval(&k, H::Curve, interval, zone_tol3d(&k, *tol));
-            let (status, modified) =
-                match qf::curve_on_classify(&k, b, f, &objects, *do_pc, &mut cc, *big_gaps, *check3d, true) {
-                    Ok(modified) => (0.0, modified),
-                    Err(SolidError::Upstream { code, .. }) => (f64::from(code), false),
-                    Err(e) => return Ok(rust_err(&e)),
-                };
+            let mut cc: CurveClassification<H> = CurveClassification::with_curve_interval(
+                &k,
+                H::Curve,
+                interval,
+                zone_tol3d(&k, *tol),
+            );
+            let (status, modified) = match qf::curve_on_classify(
+                &k,
+                b,
+                f,
+                &objects,
+                *do_pc,
+                &mut cc,
+                *big_gaps,
+                *check3d,
+                true,
+            ) {
+                Ok(modified) => (0.0, modified),
+                Err(SolidError::Upstream { code, .. }) => (f64::from(code), false),
+                Err(e) => return Ok(rust_err(&e)),
+            };
             let mut o = vec![status, flag(modified), cc.size() as f64];
             for iv in cc.intervals() {
                 o.extend([iv.interval.min(), iv.interval.max()]);

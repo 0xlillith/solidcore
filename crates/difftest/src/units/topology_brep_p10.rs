@@ -269,7 +269,11 @@ fn set_field(d: &mut BrepData, field: i64, index: i64, value: i64) -> Result<(),
     // an index past the array is a no-op
     match field {
         0 => d.faces.get_mut(i).into_iter().for_each(|r| r.surface = u),
-        1 => d.faces.get_mut(i).into_iter().for_each(|r| r.start_loop = u),
+        1 => d
+            .faces
+            .get_mut(i)
+            .into_iter()
+            .for_each(|r| r.start_loop = u),
         2 => d.loops.get_mut(i).into_iter().for_each(|r| r.start_eu = u),
         3 => d.loops.get_mut(i).into_iter().for_each(|r| r.vertex = u),
         4 => d.edgeuses.get_mut(i).into_iter().for_each(|r| r.edge = u),
