@@ -23,7 +23,9 @@
 //! `BooleanLists` slices surface copies to base `SmSurface` upstream (WR-196); the missing
 //! base-only constructor branch is deferred to partial `surface.surface_p1`.
 //! Component-copy notifications use caller-owned records/attributes through
-//! `boolean_lists_with_notifications`; the arena-only entry defers at that boundary.
+//! `boolean_lists_with_notifications`; the arena-only entry passes an empty notification
+//! store, because the arena carries no attribute records, so upstream's attribute
+//! propagation has nothing to act on.
 //! Skip relations reuse `geom::tol::Relation` and its documented sorted-handle
 //! query order, rather than upstream's address-dependent hash order.
 
@@ -590,8 +592,9 @@ pub fn boolean_lists(
 }
 
 /// [`boolean_lists`] with caller-owned topology records, attributes and identity
-/// routing for the component-copy notifications. The arena-only entry defers if
-/// it reaches this environment boundary; no temporary notification store is used.
+/// routing for the component-copy notifications. Without them (the arena-only entry)
+/// the copy notifies through an empty store (`RegionNotifyState`) over both B-reps'
+/// regions: the arena carries no attribute records.
 pub fn boolean_lists_with_notifications(
     k: &mut Kernel,
     breps1: &[Brep],
@@ -689,22 +692,38 @@ pub fn boolean_lists_with_notifications(
                         };
                         // Defaults: pOptNewFaces=NULL, bUseMerge=TRUE,
                         // pOptMergeObject=NULL. Returned outputs are not inspected.
-                        let notify = notifications.as_deref_mut().ok_or_else(|| {
-                            // UNPORTED(topology.brep_p2): SmBrep::Notify (component-copy environment)
-                            SolidError::unported(
-                                "SmBrep::Notify (component-copy environment)",
-                                "topology.brep_p2",
-                            )
-                        })?;
-                        bp7::copy_faces(
-                            k,
-                            &mut result,
-                            &connected,
-                            &mut component,
-                            true,
-                            &face_ref,
-                            notify,
-                        )?;
+                        match notifications.as_deref_mut() {
+                            Some(notify) => {
+                                bp7::copy_faces(
+                                    k,
+                                    &mut result,
+                                    &connected,
+                                    &mut component,
+                                    true,
+                                    &face_ref,
+                                    notify,
+                                )?;
+                            }
+                            None => {
+                                // the arena entry carries no attribute records: an
+                                // empty notification store over both B-reps' regions
+                                let mut state =
+                                    crate::topology::brep::p2::RegionNotifyState::new(&result);
+                                state.records.extend(
+                                    crate::topology::brep::p2::RegionNotifyState::new(&component)
+                                        .records,
+                                );
+                                bp7::copy_faces(
+                                    k,
+                                    &mut result,
+                                    &connected,
+                                    &mut component,
+                                    true,
+                                    &face_ref,
+                                    &mut state.env(),
+                                )?;
+                            }
+                        }
                         ignored(stitch_and_orient(
                             k,
                             &mut component,

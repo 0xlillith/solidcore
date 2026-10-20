@@ -95,6 +95,7 @@ use crate::nurbs::b_spline_curve::{BSplineCurve, BoundingBoxRequest};
 use crate::nurbs::b_spline_curve_n_lib::TrimMode;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::query::edge as qedge;
+use crate::query::face::p1 as qface1;
 use crate::query::face::p2::{curve_on_classify, CurveOnClassifyObjects};
 use crate::surface::surface::{Surface, SurfaceKind};
 use crate::surface::trim_srf_cache::TrimSrfCache;
@@ -583,8 +584,7 @@ pub const fn brep_ref(b: &Brep) -> ObjectRef {
 ///
 /// [`SolidError::InvalidInput`] where upstream dereferences null (a cache without the
 /// tree, a face without surface); [`SolidError::Unported`] from unported callees
-/// (`SmFace::CalculateBoundingBox`, `query.face_p1`; rebuilding a cache, `query.brep`);
-/// errors of `SmSAGObject::Notify`.
+/// (rebuilding a cache, `query.brep`); errors of `SmSAGObject::Notify`.
 pub fn notify(
     b: &Brep,
     env: &mut NotifyEnv<'_>,
@@ -986,14 +986,14 @@ fn edge_box(k: &Kernel, b: &Brep, e: EdgeId) -> Result<Extent3d> {
     }
 }
 
-/// `SmFace::CalculateBoundingBox(box)` (unit `query.face_p1`).
+/// `SmFace::CalculateBoundingBox(box)` (default `bTight = FALSE`) with its status ignored
+/// (`SE`; the box stays initialised on failure), as [`edge_box`].
 fn face_box(k: &Kernel, b: &Brep, f: FaceId) -> Result<Extent3d> {
-    let _ = (k, b, f);
-    // UNPORTED(query.face_p1): SmFace::CalculateBoundingBox
-    Err(SolidError::unported(
-        "SmFace::CalculateBoundingBox",
-        "query.face_p1",
-    ))
+    match qface1::calculate_bounding_box(k, b, f, false) {
+        Ok(bbox) => Ok(bbox),
+        Err(err) if err.is_unported() => Err(err),
+        Err(_) => Ok(Extent3d::new()),
+    }
 }
 
 // ---- caches -------------------------------------------------------------------------------
