@@ -1050,6 +1050,63 @@ fn export(
     Ok(())
 }
 
+/// Shared post-state snapshot: topology in traversal order, sampled geometry,
+/// and lazy-cache initialization/UV fields not used by the p10 operation runner.
+pub(crate) fn snapshot(b: &Brep) -> Result<Output, HarnessError> {
+    let g = Graph::walk(b).map_err(|e| harness(e.to_string()))?;
+    let mut items = Vec::new();
+    export(b, &g, &BTreeMap::new(), &mut items).map_err(|e| harness(e.to_string()))?;
+    let mut output = to_output(&items).int("validate_only", i64::from(b.validate_only()));
+    // This caller uses the normal relative comparison, not p10's bit audit.
+    output.ints.remove("dbl_bits");
+    output.values.insert(
+        "dbls".into(),
+        items
+            .iter()
+            .filter_map(|x| match x {
+                Item::Dbl(v) => Some(*v),
+                Item::Int(_) => None,
+            })
+            .collect(),
+    );
+    let mut flags = Vec::new();
+    let mut uv = Vec::new();
+    let mut links = Vec::new();
+    for id in &g.faceuses.items {
+        let f = b.faceuse(*id).map_err(|e| harness(e.to_string()))?;
+        let (next, last) = f.sibling_links.unwrap_or((None, None));
+        links.extend([
+            g.faceuses.find(next, FaceuseId::index),
+            g.faceuses.find(last, FaceuseId::index),
+        ]);
+    }
+    for id in &g.edgeuses.items {
+        let e = b.edgeuse(*id).map_err(|e| harness(e.to_string()))?;
+        flags.extend([
+            i64::from(e.drop_curve_fail.is_some()),
+            e.drop_curve_fail
+                .as_ref()
+                .map_or(0, |f| i64::from(f.fail_status)),
+            i64::from(e.drop_curve_fail.as_ref().is_some_and(|f| f.brep.is_some())),
+            i64::from(e.max_edge_face_gap.is_init()),
+            i64::from(e.edge_ccw_edge_gap.is_init()),
+        ]);
+    }
+    for id in &g.vertexuses.items {
+        let v = b.vertexuse(*id).map_err(|e| harness(e.to_string()))?;
+        flags.extend([
+            i64::from(v.vertex_face_gap.is_init()),
+            i64::from(v.vertex_edge_gap.is_init()),
+        ]);
+        uv.extend([v.uv_point.x, v.uv_point.y]);
+    }
+    output = output
+        .ints("gap_initialized", flags)
+        .ints("faceuse_links", links)
+        .values("uv", uv);
+    Ok(output)
+}
+
 impl UnitDiff for Runner {
     fn id(&self) -> &'static str {
         "topology.brep_p10"

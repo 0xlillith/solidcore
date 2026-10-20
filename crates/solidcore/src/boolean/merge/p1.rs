@@ -15,7 +15,7 @@
 //! | [`merge_vertex`] | `SmMerge::MergeVertex` |
 //! | [`boolean_post_process`] | `SmMerge::BooleanPostProcess` |
 //! | [`propagate_other_src_region_attribs`] | `SmMerge::PropagateOtherSrcRegionAttribs` |
-//! | [`temporary_brep_transform`] | `SmTemporaryBrepTransform` (constructor/destructor) |
+//! | [`temporary_brep_transform`], [`TemporaryBrepTransform`] | `SmTemporaryBrepTransform` (constructor/destructor) |
 //!
 //! Deviations: option accessors are public fields; the context-only constructor's
 //! already-created intersector is supplied by its owner (its type belongs to
@@ -45,6 +45,7 @@ use crate::geom::extent3d::Extent3d;
 use crate::geom::object::{NotifyOperation, ObjectRef};
 use crate::intersect::point_class::{PointClassType, PointClassification};
 use crate::kernel::Kernel;
+use crate::math::Vec3;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::query::brep::{self as brep_query, BoundingBoxOptions, BrepQueryContext};
 use crate::topology::edgeuse::p1 as eu;
@@ -336,7 +337,22 @@ pub fn merge_vertex(
     region: Option<RegionId>,
     relations: &mut Relations,
     copy: &mut VertexCopy<'_>,
+    context: Option<&mut Context>,
+) -> Result<Option<VertexId>> {
+    merge_vertex_with_contexts(brep, other, source, region, relations, copy, context, None)
+}
+
+/// Copy with the destination construction context and the distinct source
+/// notification context. `None` source context means the same shared context.
+pub fn merge_vertex_with_contexts(
+    brep: &mut Brep,
+    other: &mut Brep,
+    source: Option<VertexId>,
+    region: Option<RegionId>,
+    relations: &mut Relations,
+    copy: &mut VertexCopy<'_>,
     mut context: Option<&mut Context>,
+    source_context: Option<&mut Context>,
 ) -> Result<Option<VertexId>> {
     let Some(source) = source else {
         return Ok(None);
@@ -365,7 +381,7 @@ pub fn merge_vertex(
     topo::notify(
         copy.records,
         copy.attributes,
-        context,
+        source_context.or(context),
         NotifyOperation::Copy,
         (copy.source_key)(source),
         Some((copy.destination_key)(EntityRef::Vertex(dest))),
@@ -670,13 +686,249 @@ pub fn with_temporary_brep_transform<T>(
 }
 
 fn transform_brep(_brep: &mut Brep, _axes: &Axis2Placement) -> Result<()> {
-    // UNPORTED(topology.brep_p5): SmBrep::Transform
-    unavailable("SmBrep::Transform", "topology.brep_p5")
+    // The compatibility entry lacks the caller notification environment.
+    unavailable(
+        "SmBrep::Transform caller notification context",
+        "representation:boolean-transform-notification-context",
+    )
+}
+
+/// Inverse translation retained until the entire Boolean operation leaves scope.
+/// Restore only operands that survive; extracted components are not operands of
+/// the upstream destructor. Preparation reads both boxes before mutation.
+#[derive(Debug)]
+#[must_use = "restore surviving operands after the complete Boolean scope"]
+pub struct TemporaryBrepTransform {
+    inverse: Option<Axis2Placement>,
+}
+
+impl TemporaryBrepTransform {
+    /// Apply the initial origin shift through the live notification provider.
+    /// Ordinary native statuses are ignored. A representation error stops the
+    /// scope and restores every operand whose transform has been attempted.
+    pub fn translate(
+        &self,
+        primary: &mut Brep,
+        other: &mut Brep,
+        mut transform: impl FnMut(&mut Brep, bool, &Axis2Placement, Option<Vec3>, bool) -> Result<()>,
+    ) -> Result<()> {
+        let Some(inverse) = self.inverse else {
+            return Ok(());
+        };
+        let mut forward = Axis2Placement::IDENTITY;
+        forward.translate(-inverse.origin());
+        if let Err(error) =
+            crate::error::ignore_status(transform(primary, false, &forward, None, true))
+        {
+            crate::error::ignore_status(transform(primary, false, &inverse, None, true))?;
+            return Err(error);
+        }
+        if let Err(error) =
+            crate::error::ignore_status(transform(other, true, &forward, None, true))
+        {
+            TemporaryBrepTransform {
+                inverse: Some(inverse),
+            }
+            .restore(Some(primary), Some(other), &mut transform)?;
+            return Err(error);
+        }
+        Ok(())
+    }
+
+    /// Explicit destructor for a completed scope with borrowed operands. `false`
+    /// identifies the primary operand and `true` the other; the callback applies
+    /// the placement with its live context and notification/attribute state.
+    /// The Boolean entry point uses [`Self::run`] to guarantee this on every exit.
+    pub fn restore(
+        self,
+        primary: Option<&mut Brep>,
+        other: Option<&mut Brep>,
+        mut transform: impl FnMut(&mut Brep, bool, &Axis2Placement, Option<Vec3>, bool) -> Result<()>,
+    ) -> Result<()> {
+        let mut first_error = None;
+        if let Some(inverse) = self.inverse {
+            for (brep, is_other) in [(primary, false), (other, true)] {
+                if let Some(brep) = brep {
+                    // Transform(sXfm) uses cpOptScale=NULL and bScaleTol=TRUE.
+                    if let Err(error) =
+                        crate::error::ignore_status(transform(brep, is_other, &inverse, None, true))
+                    {
+                        if first_error.is_none() {
+                            first_error = Some(error);
+                        }
+                    }
+                }
+            }
+        }
+        first_error.map_or(Ok(()), Err)
+    }
+
+    /// Run the complete Boolean scope, then `~SmTemporaryBrepTransform`.
+    /// Cleanup follows editing/mark cleanup, extraction and operand deletion on
+    /// every Result exit, including errors and imprint. Restore surviving primary
+    /// then other operands; ordinary transform statuses are ignored. Both closures
+    /// borrow one environment so cleanup uses the same live kernels, adapter and
+    /// attribute/notification state without retaining a competing mutable borrow.
+    pub fn run<T, E>(
+        self,
+        primary: &mut Option<Brep>,
+        other: &mut Option<Brep>,
+        environment: &mut E,
+        action: impl FnOnce(&mut E, &mut Option<Brep>, &mut Option<Brep>) -> Result<T>,
+        mut transform: impl FnMut(
+            &mut E,
+            &mut Brep,
+            bool,
+            &Axis2Placement,
+            Option<Vec3>,
+            bool,
+        ) -> Result<()>,
+    ) -> Result<T> {
+        let result = action(environment, primary, other);
+        self.restore(
+            primary.as_mut(),
+            other.as_mut(),
+            |brep, is_other, xfm, scale, scale_tol| {
+                transform(environment, brep, is_other, xfm, scale, scale_tol)
+            },
+        )?;
+        result
+    }
+}
+
+/// Prepare the Boolean origin shift using each operand's actual kernel.
+/// Box queries retain their normal lazy geometry updates. The origin shift is
+/// applied only when the returned token's `translate` method is called.
+pub fn prepare_temporary_brep_transform(
+    k: &Kernel,
+    other_k: &Kernel,
+    brep: &mut Brep,
+    other: &mut Brep,
+) -> Result<TemporaryBrepTransform> {
+    let bbox = ignore_failure(brep_query::calculate_bounding_box(
+        k,
+        brep,
+        BoundingBoxOptions::default(),
+    ))?
+    .unwrap_or_else(Extent3d::new);
+    let other_bbox = ignore_failure(brep_query::calculate_bounding_box(
+        other_k,
+        other,
+        BoundingBoxOptions::default(),
+    ))?
+    .unwrap_or_else(Extent3d::new);
+    let center = bbox.union(&other_bbox).evaluate(0.5, 0.5, 0.5);
+    let inverse = if center.length_squared() > 1.0e6 {
+        let mut inverse = Axis2Placement::IDENTITY;
+        inverse.translate(center);
+        Some(inverse)
+    } else {
+        None
+    };
+    Ok(TemporaryBrepTransform { inverse })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn temporary_translation_restores_survivors_after_every_result_exit() {
+        for deletes in [(false, false), (true, false), (false, true), (true, true)] {
+            for result in [Ok(true), Ok(false), Err(SolidError::sm_err("scope-test"))] {
+                let mut inverse = Axis2Placement::IDENTITY;
+                inverse.translate(Vec3::new(2001.0, -3002.0, 4003.0));
+                let token = TemporaryBrepTransform {
+                    inverse: Some(inverse),
+                };
+                let mut a = Brep::new();
+                let va = a
+                    .add_vertex_record(crate::topology::Vertex {
+                        point: Vec3::X,
+                        ..crate::topology::Vertex::default()
+                    })
+                    .unwrap();
+                let mut b = Brep::new();
+                let vb = b
+                    .add_vertex_record(crate::topology::Vertex {
+                        point: Vec3::Y,
+                        ..crate::topology::Vertex::default()
+                    })
+                    .unwrap();
+                let mut primary = Some(a);
+                let mut other = Some(b);
+                let expected = result.clone();
+                let mut restored = Vec::new();
+                let actual = token.run(
+                    &mut primary,
+                    &mut other,
+                    &mut Vec::new(),
+                    |environment, a, b| {
+                        environment.push("body");
+                        // Represents inner editing-scope cleanup, before inverse.
+                        a.as_mut().unwrap().set_editing_enabled(false);
+                        b.as_mut().unwrap().set_editing_enabled(false);
+                        if deletes.0 {
+                            *a = None;
+                        }
+                        if deletes.1 {
+                            *b = None;
+                        }
+                        result
+                    },
+                    |environment, brep, is_other, xfm, scale, scale_tol| {
+                        assert_eq!(environment.first(), Some(&"body"));
+                        assert_eq!(
+                            is_other,
+                            brep.vertex(brep.vertices().ids().next().unwrap())
+                                .unwrap()
+                                .point
+                                == Vec3::Y
+                        );
+                        assert!(!brep.editing_enabled());
+                        assert_eq!(scale, None);
+                        assert!(scale_tol);
+                        let id = brep.vertices().ids().next().unwrap();
+                        let old = brep.vertex(id).unwrap().point;
+                        restored.push(old);
+                        brep.vertex_mut(id).unwrap().point = xfm.transform_point(old);
+                        // A failed transform does not skip the next operand.
+                        Err(SolidError::sm_err("ignored-transform-status"))
+                    },
+                );
+                assert_eq!(actual, expected);
+                let expected_order: Vec<_> = [
+                    (!deletes.0).then_some(Vec3::X),
+                    (!deletes.1).then_some(Vec3::Y),
+                ]
+                .into_iter()
+                .flatten()
+                .collect();
+                assert_eq!(restored, expected_order);
+                if let Some(a) = primary {
+                    assert_eq!(
+                        a.vertex(va).unwrap().point,
+                        inverse.transform_point(Vec3::X)
+                    );
+                }
+                if let Some(b) = other {
+                    assert_eq!(
+                        b.vertex(vb).unwrap().point,
+                        inverse.transform_point(Vec3::Y)
+                    );
+                }
+            }
+        }
+        TemporaryBrepTransform { inverse: None }
+            .run(
+                &mut Some(Brep::new()),
+                &mut Some(Brep::new()),
+                &mut (),
+                |(), _, _| Ok(()),
+                |(), _, _, _, _, _| panic!("identity scope must not transform"),
+            )
+            .unwrap();
+    }
 
     #[test]
     fn unmatched_stale_intersections_are_skipped_before_dereferencing() {
@@ -741,7 +993,7 @@ mod tests {
         let color = attrs
             .insert(crate::geom::attribute::Attribute::color(
                 ids::COLOR,
-                crate::math::Vec3::X,
+                Vec3::X,
                 crate::geom::attribute::Behavior::StandaloneCopy,
             ))
             .unwrap();

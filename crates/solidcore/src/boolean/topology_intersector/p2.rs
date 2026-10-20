@@ -61,12 +61,13 @@
 //!   each tagged `UNPORTED(<unit>)`: `SmBrep::DeleteFace` (`topology.brep_p3`),
 //!   `SmBrep::DeleteEdge` /
 //!   `DeleteVertex` (`topology.brep_p4`), `SmBrep::CombineCoincidentVertices`
-//!   (`topology.brep_p5`), `SmFace::Point3DClassify` (`query.face_p1`), and the
+//!   (`topology.brep_p5`), and the
 //!   stubs of [`p1`](super::p1) for `SmFace::GetEdges` / `GetVertices` / `GetBrep`
 //!   (`topology.face_p4`), `SmFace::FaceIntersect` (`topology.face_p3`),
 //!   `SmBrep::MakeEdgeInFace` (`topology.brep_p5`). The code after a stub is ported
 //!   in full. `SmBrep::GlueEdgesGeneral` (`topology.brep_p7`) goes through
 //!   [`IntersectorBrep::brep_glue_edges_general`], as in part 1.
+//!   Face point classification uses the caller's live query provider.
 //! - **Undefined behaviour upstream** (a null or deleted object dereferenced, an
 //!   index past a list, a vertex mated to a non-vertex used as a vertex) is
 //!   [`SolidError::InvalidInput`].
@@ -91,7 +92,7 @@ use crate::intersect::point_class::{
     ClassGeometry, ClassObject, ClassObjectKind, PointClassType, PointClassification,
 };
 use crate::kernel::Kernel;
-use crate::math::{max2, max3, min2, Point2, Point3, BIG_DOUBLE, EFF_ZERO_SQRT};
+use crate::math::{max2, max3, min2, Point3, BIG_DOUBLE, EFF_ZERO_SQRT};
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
 use crate::surface::surface::p2::TsectCurveType;
 use crate::topology::edge::AttributeFilter;
@@ -267,27 +268,6 @@ fn brep_combine_coincident_vertices<O>(
     Err(SolidError::unported(
         "SmBrep::CombineCoincidentVertices",
         "topology.brep_p5",
-    ))
-}
-
-/// `SmFace::Point3DClassify(pt, sSrcZoneTol3d, bDoBoundaryIntersections, rPC,
-/// pOptGuessUV, bTgtLoopsOnly, pOptTgtLoops, bUVSpaceOkay)`.
-#[allow(clippy::too_many_arguments)]
-fn face_point_3d_classify<O>(
-    _face: O,
-    _point: Point3,
-    _src_zone_tol_3d: f64,
-    _do_boundary_intersections: bool,
-    _pc: &mut PointClassification<O>,
-    _opt_guess_uv: Option<Point2>,
-    _tgt_loops_only: bool,
-    _opt_tgt_loops: Option<&[O]>,
-    _uv_space_okay: bool,
-) -> Result<()> {
-    // UNPORTED(query.face_p1): SmFace::Point3DClassify
-    Err(SolidError::unported(
-        "SmFace::Point3DClassify",
-        "query.face_p1",
     ))
 }
 
@@ -1036,28 +1016,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     let mut pc2 = PointClassification::new(f2_zone_tol);
 
                     // classify the point against both faces; skip what doesn't classify
-                    let st1 = face_point_3d_classify(
-                        f1,
-                        pt,
-                        f1_zone_tol,
-                        true,
-                        &mut pc1,
-                        None,
-                        false,
-                        None,
-                        true,
-                    );
-                    let st2 = face_point_3d_classify(
-                        f2,
-                        pt,
-                        f2_zone_tol,
-                        true,
-                        &mut pc2,
-                        None,
-                        false,
-                        None,
-                        true,
-                    );
+                    let st1 =
+                        brep.face_point_3d_classify(k, f1, pt, f1_zone_tol, true, &mut pc1, None);
+                    let st2 =
+                        brep.face_point_3d_classify(k, f2, pt, f2_zone_tol, true, &mut pc2, None);
                     if ignore_soft(st1)?.is_none() {
                         continue;
                     }
@@ -1683,16 +1645,14 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     let crv_pt = eval_curve_point(brep, curve_h, edge_dom.evaluate(0.38))?;
                     // Allow any part of the Face: including Edges and Vertices
                     // (status unchecked).
-                    ignore_soft(face_point_3d_classify(
+                    ignore_soft(brep.face_point_3d_classify(
+                        k,
                         f,
                         crv_pt,
                         edge_zone_tol,
                         false,
                         &mut pt_class,
                         None,
-                        false,
-                        None,
-                        true,
                     ))?;
                     if !matches!(
                         pt_class.point_class(),
@@ -1705,16 +1665,14 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     }
 
                     let crv_pt = eval_curve_point(brep, curve_h, edge_dom.evaluate(0.71))?;
-                    ignore_soft(face_point_3d_classify(
+                    ignore_soft(brep.face_point_3d_classify(
+                        k,
                         f,
                         crv_pt,
                         approx_tol,
                         false,
                         &mut pt_class,
                         None,
-                        false,
-                        None,
-                        true,
                     ))?;
                     if !matches!(
                         pt_class.point_class(),

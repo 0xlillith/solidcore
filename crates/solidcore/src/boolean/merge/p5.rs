@@ -5,6 +5,7 @@
 //! | Rust | Upstream |
 //! |------|----------|
 //! | [`process_wires_and_shell_vertices`] | `SmMerge::ProcessWiresAndShellVertices` |
+//! | [`process_wires_and_shell_vertices_with_kernels`] | the same stage with each operand context |
 //! | [`Relations`] | shared bidirectional mate lookups from `m_vTI` |
 //!
 //! Deviations: operands, marks and mate maps are borrowed explicitly instead of
@@ -196,6 +197,109 @@ pub fn process_wires_and_shell_vertices(
     other_mark: MarkType,
     keep_as_wires: &mut Vec<EdgeId>,
 ) -> Result<()> {
+    let keep_vertices = collect_wires_and_shell_vertices(
+        k,
+        k,
+        brep,
+        other,
+        brep_query,
+        other_query,
+        brep_marks,
+        other_marks,
+        relations,
+        operation,
+        brep_mark,
+        other_mark,
+        keep_as_wires,
+    )?;
+    for (vertex, region) in keep_vertices {
+        let status = p1::merge_vertex(
+            brep,
+            other,
+            Some(vertex),
+            Some(region),
+            relations,
+            copy,
+            context.as_deref_mut(),
+        );
+        *brep_query.cache = None;
+        *other_query.cache = None;
+        status?;
+    }
+    Ok(())
+}
+
+/// The shared wire stage with live, possibly distinct operand kernels.
+/// Marks are read from their owning contexts; copied other vertices notify through
+/// the other context (or the shared primary context). Caller records and attributes
+/// remain in `copy`; no replacement context or attribute store is constructed.
+pub fn process_wires_and_shell_vertices_with_kernels(
+    primary_kernel: &mut Kernel,
+    other_kernel: Option<&mut Kernel>,
+    brep: &mut Brep,
+    other: &mut Brep,
+    brep_query: &mut BrepQueryContext<'_>,
+    other_query: &mut BrepQueryContext<'_>,
+    brep_marks: &mut Marks,
+    other_marks: &mut Marks,
+    relations: &mut Relations,
+    copy: &mut VertexCopy<'_>,
+    operation: BooleanOperation,
+    brep_mark: MarkType,
+    other_mark: MarkType,
+    keep_as_wires: &mut Vec<EdgeId>,
+    before_copy: &dyn Fn() -> Result<()>,
+) -> Result<()> {
+    let keep_vertices = collect_wires_and_shell_vertices(
+        primary_kernel,
+        other_kernel.as_deref().unwrap_or(primary_kernel),
+        brep,
+        other,
+        brep_query,
+        other_query,
+        brep_marks,
+        other_marks,
+        relations,
+        operation,
+        brep_mark,
+        other_mark,
+        keep_as_wires,
+    )?;
+    let mut source_context = other_kernel.map(|kernel| &mut kernel.context);
+    for (vertex, region) in keep_vertices {
+        before_copy()?;
+        let status = p1::merge_vertex_with_contexts(
+            brep,
+            other,
+            Some(vertex),
+            Some(region),
+            relations,
+            copy,
+            Some(&mut primary_kernel.context),
+            source_context.as_deref_mut(),
+        );
+        *brep_query.cache = None;
+        *other_query.cache = None;
+        status?;
+    }
+    Ok(())
+}
+
+fn collect_wires_and_shell_vertices(
+    k: &Kernel,
+    other_k: &Kernel,
+    brep: &mut Brep,
+    other: &mut Brep,
+    brep_query: &mut BrepQueryContext<'_>,
+    other_query: &mut BrepQueryContext<'_>,
+    brep_marks: &mut Marks,
+    other_marks: &mut Marks,
+    relations: &Relations,
+    operation: BooleanOperation,
+    brep_mark: MarkType,
+    other_mark: MarkType,
+    keep_as_wires: &mut Vec<EdgeId>,
+) -> Result<Vec<(VertexId, RegionId)>> {
     keep_as_wires.clear();
     let mut collected = Vec::new();
     let mut done = !removes_primary(operation);
@@ -215,7 +319,7 @@ pub fn process_wires_and_shell_vertices(
                 continue;
             }
             let region = classify_region(
-                k,
+                other_k,
                 other,
                 other_query,
                 midpoint(brep, brep_query, id)?,
@@ -262,7 +366,7 @@ pub fn process_wires_and_shell_vertices(
 
     for id in brep_lists::edges(other, None)? {
         let is_wire = vertexuse::edge_is_wire(other, id)?;
-        let marked = other_marks.is_marked(k, Entity::Edge(id), other_mark);
+        let marked = other_marks.is_marked(other_k, Entity::Edge(id), other_mark);
         if is_wire && marked {
             match operation {
                 BooleanOperation::Union
@@ -294,7 +398,7 @@ pub fn process_wires_and_shell_vertices(
         )?;
         let Some(region) = region else { continue };
         collect_wire_edges(
-            k,
+            other_k,
             other,
             other_marks,
             Some(id),
@@ -332,7 +436,7 @@ pub fn process_wires_and_shell_vertices(
             }
             let vertex = brep.vertex(v)?;
             let region = classify_region(
-                k,
+                other_k,
                 other,
                 other_query,
                 vertex.point,
@@ -351,7 +455,7 @@ pub fn process_wires_and_shell_vertices(
 
     let mut keep_vertices = Vec::new();
     for v in brep_lists::vertices(other, None)? {
-        if other_marks.is_marked(k, Entity::Vertex(v), other_mark)
+        if other_marks.is_marked(other_k, Entity::Vertex(v), other_mark)
             || !vertex::is_shell_vertex(other, v)?
         {
             continue;
@@ -385,21 +489,7 @@ pub fn process_wires_and_shell_vertices(
             ))?;
         }
     }
-    for (vertex, region) in keep_vertices {
-        let status = p1::merge_vertex(
-            brep,
-            other,
-            Some(vertex),
-            Some(region),
-            relations,
-            copy,
-            context.as_deref_mut(),
-        );
-        *brep_query.cache = None;
-        *other_query.cache = None;
-        status?;
-    }
-    Ok(())
+    Ok(keep_vertices)
 }
 
 #[cfg(test)]

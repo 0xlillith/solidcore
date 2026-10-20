@@ -65,6 +65,14 @@ pub enum Entity {
 pub struct Marks(BTreeMap<Entity, Topology>);
 
 impl Marks {
+    /// Restore the five stored marks of `entity` directly from caller-owned state.
+    ///
+    /// The order is `Mark`, `Mark2`, `Mark3`, `MarkIo`, `MarkAssert`. This does not advance
+    /// context counters, acquire locks or change any other stored topology field.
+    pub fn restore_marks(&mut self, entity: Entity, marks: [u64; 5]) {
+        self.0.entry(entity).or_default().restore_marks(marks);
+    }
+
     /// Whether `entity` carries the kernel's current `mark` value.
     #[must_use]
     pub fn is_marked(&self, k: &Kernel, entity: Entity, mark: MarkType) -> bool {
@@ -706,5 +714,34 @@ mod tests {
             None
         )
         .is_err());
+    }
+}
+
+#[cfg(test)]
+mod restored_mark_tests {
+    use super::*;
+
+    #[test]
+    fn restoration_preserves_exact_marks_context_and_unrelated_records() {
+        let kernel = Kernel::default();
+        let before = kernel.context.metadata();
+        let face = Entity::Face(FaceId::from_index(0));
+        let edge = Entity::Edge(EdgeId::from_index(0));
+        let mut marks = Marks::default();
+        let mut record = Topology::new();
+        record.set_all_flags(37);
+        record.set_user_index1(1_u64 << 60);
+        marks.0.insert(face, record);
+        marks.restore_marks(edge, [7, 8, 9, 10, 11]);
+        let edge_before = marks.0.get(&edge).copied().unwrap();
+        marks.restore_marks(face, [0, 1_u64 << 60, u64::MAX, 17, 23]);
+        let face_record = marks.0.get(&face).unwrap();
+        assert_eq!(face_record.all_flags(), 37);
+        assert_eq!(face_record.user_index1(), 1_u64 << 60);
+        let mut expected = record;
+        expected.restore_marks([0, 1_u64 << 60, u64::MAX, 17, 23]);
+        assert_eq!(*face_record, expected);
+        assert_eq!(*marks.0.get(&edge).unwrap(), edge_before);
+        assert_eq!(kernel.context.metadata(), before);
     }
 }

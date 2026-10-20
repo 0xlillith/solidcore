@@ -284,6 +284,29 @@ impl RayQueryContext {
         &self.metadata
     }
 
+    /// Restore native input marks on an already registered face, edge or vertex.
+    /// This does not create a record or advance any context counter.
+    pub(super) fn restore_member_marks(
+        &mut self,
+        member: CacheObject,
+        marks: [u64; 5],
+    ) -> solidcore::Result<()> {
+        if !matches!(
+            member,
+            CacheObject::Face(_) | CacheObject::Edge(_) | CacheObject::Vertex(_)
+        ) {
+            return Err(ray_context_error(
+                "ray mark input is not face, edge or vertex",
+            ));
+        }
+        self.records
+            .get_mut(&(self.keys)(member))
+            .ok_or_else(|| ray_context_error("ray mark input is not registered"))?
+            .1
+            .restore_marks(marks);
+        Ok(())
+    }
+
     fn register_members(&mut self, brep: &Brep) {
         let id = self.id;
         for face in brep.faces().ids().skip(self.registered_faces) {
@@ -2262,5 +2285,39 @@ mod ray_query_tests {
             }
             assert_eq!(attempt.state.classification, expected);
         }
+    }
+}
+
+#[cfg(test)]
+mod restored_member_mark_tests {
+    use super::*;
+
+    #[test]
+    fn restoration_requires_a_registered_member_and_keeps_exact_values() {
+        let mut brep = Brep::new();
+        let shell = brep.add_shell().unwrap();
+        let face = brep.add_face(shell).unwrap();
+        let object = CacheObject::Face(face);
+        let mut context = RayQueryContext::new(
+            &brep,
+            BrepId::from_index(0),
+            QueryMetadata::default(),
+            arena_identity,
+        ); // No ray/query runs; only existing-record restoration is tested.
+        let marks = [0, 1, 1_u64 << 60, u64::MAX - 1, u64::MAX];
+        context.restore_member_marks(object, marks).unwrap();
+        let record = &context.records.get(&arena_identity(object)).unwrap().1;
+        assert_eq!(MARK_TYPES.map(|kind| record.get_mark(kind)), marks);
+        let count = context.records.len();
+        assert!(context
+            .restore_member_marks(CacheObject::Brep, marks)
+            .is_err());
+        assert!(context
+            .restore_member_marks(
+                CacheObject::Face(FaceId::from_index(face.index() + 1)),
+                marks,
+            )
+            .is_err());
+        assert_eq!(context.records.len(), count);
     }
 }

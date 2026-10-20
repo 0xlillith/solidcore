@@ -169,6 +169,25 @@ pub trait NotifyCallback: std::fmt::Debug + Send {
     }
 }
 
+/// Exact non-callback state of a modeling context.
+///
+/// This snapshot does not own, clone or replace notification callbacks.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ContextMetadata {
+    /// Counters in `Mark`, `Mark2`, `Mark3`, `MarkIo`, `MarkAssert` order.
+    pub current_marks: [u64; 5],
+    /// Locks in the same five-mark order.
+    pub mark_locks: [bool; 5],
+    /// Whether a Boolean operation is active.
+    pub doing_boolean: bool,
+    /// Raw context model-size estimate.
+    pub model_size_estimate: f64,
+    /// Raw context large-to-small size ratio.
+    pub large_small_size_ratio: f64,
+    /// Raw context 3D zone tolerance.
+    pub zone_tol_3d: f64,
+}
+
 /// Shared modeling state (`SmContext`): traversal marks, the Boolean flag, notify
 /// callbacks and the context's model size estimate and zone tolerance.
 #[derive(Debug)]
@@ -201,6 +220,65 @@ impl Default for Context {
 }
 
 impl Context {
+    /// Snapshot all non-callback fields without advancing or locking any mark.
+    #[must_use]
+    pub const fn metadata(&self) -> ContextMetadata {
+        ContextMetadata {
+            current_marks: self.current_marks,
+            mark_locks: self.mark_locks,
+            doing_boolean: self.doing_boolean,
+            model_size_estimate: self.model_size_estimate,
+            large_small_size_ratio: self.large_small_size_ratio,
+            zone_tol_3d: self.zone_tol_3d,
+        }
+    }
+
+    /// Restore exact non-callback state without changing callback ownership.
+    ///
+    /// Values are copied directly: no default tolerance substitution, mark
+    /// advancement or lock acquisition occurs. Callers restoring fixture state
+    /// must do so before constructing any mark lock that relies on that state.
+    pub fn restore_metadata(&mut self, metadata: ContextMetadata) {
+        self.current_marks = metadata.current_marks;
+        self.mark_locks = metadata.mark_locks;
+        self.doing_boolean = metadata.doing_boolean;
+        self.model_size_estimate = metadata.model_size_estimate;
+        self.large_small_size_ratio = metadata.large_small_size_ratio;
+        self.zone_tol_3d = metadata.zone_tol_3d;
+    }
+
+    /// Borrow notification callbacks alongside the live kernel without moving
+    /// the kernel's traversal marks or tolerances. Notification APIs use mutable
+    /// Context while geometry APIs borrow Kernel; both refer to one upstream
+    /// context. Callback ownership is restored on every returned error as well.
+    pub(crate) fn with_notification_context<T>(
+        k: &mut Kernel,
+        action: impl FnOnce(&mut Kernel, &mut Context) -> T,
+    ) -> T {
+        let context = &mut k.context;
+        let mut notifications = context.metadata_copy();
+        notifications.user_notify_callback = context.user_notify_callback.take();
+        notifications.sys_notify_callback = context.sys_notify_callback.take();
+        let result = action(k, &mut notifications);
+        k.context.user_notify_callback = notifications.user_notify_callback;
+        k.context.sys_notify_callback = notifications.sys_notify_callback;
+        result
+    }
+
+    /// An immutable metadata snapshot, without copying callback ownership.
+    pub(crate) fn metadata_copy(&self) -> Self {
+        Self {
+            current_marks: self.current_marks,
+            mark_locks: self.mark_locks,
+            doing_boolean: self.doing_boolean,
+            model_size_estimate: self.model_size_estimate,
+            large_small_size_ratio: self.large_small_size_ratio,
+            zone_tol_3d: self.zone_tol_3d,
+            user_notify_callback: None,
+            sys_notify_callback: None,
+        }
+    }
+
     /// Creates a context (`SmContext::SmContext(double, double)`): every mark at 1 and
     /// unlocked, not in a Boolean, no callbacks; the zone tolerance follows from the
     /// model size estimate as in [`Context::set_this_model_size_estimate`]. Pass
@@ -859,5 +937,83 @@ mod tests {
         let mp = MassPropertyBehavior::default();
         assert_eq!(mp.density, 1.0);
         assert_eq!(mp.face_area_behavior, 0);
+    }
+}
+
+#[cfg(test)]
+mod metadata_tests {
+    use super::*;
+
+    #[derive(Debug)]
+    struct CallbackToken(u32);
+    impl NotifyCallback for CallbackToken {
+        fn execute(
+            &mut self,
+            _: object::NotifyOperation,
+            _: object::ObjectRef,
+            _: Option<object::ObjectRef>,
+            _: Option<object::ObjectRef>,
+            _: Option<object::ObjectRef>,
+        ) -> Result<()> {
+            Ok(())
+        }
+        fn as_any(&self) -> Option<&dyn core::any::Any> {
+            Some(self)
+        }
+    }
+
+    #[test]
+    fn exact_metadata_restore_preserves_callbacks_and_does_not_advance_marks() {
+        let mut context = Context::default();
+        context.set_user_notify_callback(Some(Box::new(CallbackToken(17))));
+        context.set_sys_notify_callback(Some(Box::new(CallbackToken(29))));
+        let metadata = ContextMetadata {
+            current_marks: [0, 1, 1_u64 << 60, u64::MAX - 1, u64::MAX],
+            mark_locks: [true, false, true, false, true],
+            doing_boolean: true,
+            model_size_estimate: -0.0,
+            large_small_size_ratio: f64::from_bits(0x3ff0_0000_0000_0001),
+            zone_tol_3d: f64::from_bits(1),
+        };
+        context.restore_metadata(metadata);
+        let observed = context.metadata();
+        assert_eq!(observed.current_marks, metadata.current_marks);
+        assert_eq!(observed.mark_locks, metadata.mark_locks);
+        assert!(observed.doing_boolean);
+        assert_eq!(
+            observed.model_size_estimate.to_bits(),
+            metadata.model_size_estimate.to_bits()
+        );
+        assert_eq!(
+            observed.large_small_size_ratio.to_bits(),
+            metadata.large_small_size_ratio.to_bits()
+        );
+        assert_eq!(
+            observed.zone_tol_3d.to_bits(),
+            metadata.zone_tol_3d.to_bits()
+        );
+        assert_eq!(context.metadata(), observed);
+        assert_eq!(
+            context
+                .user_notify_callback()
+                .unwrap()
+                .as_any()
+                .unwrap()
+                .downcast_ref::<CallbackToken>()
+                .unwrap()
+                .0,
+            17
+        );
+        assert_eq!(
+            context
+                .sys_notify_callback()
+                .unwrap()
+                .as_any()
+                .unwrap()
+                .downcast_ref::<CallbackToken>()
+                .unwrap()
+                .0,
+            29
+        );
     }
 }
