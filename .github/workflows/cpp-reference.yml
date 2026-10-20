@@ -43,7 +43,6 @@ jobs:
     # compatibility floor scripts/fetch-cpp.sh documents and checks.
     runs-on: blacksmith-16vcpu-ubuntu-2404
     env:
-      SOLIDCORE_CPP_DIR: ${{ runner.temp }}/cpp
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
@@ -51,6 +50,7 @@ jobs:
       - name: Compute key
         id: key
         run: |
+          echo "SOLIDCORE_CPP_DIR=$RUNNER_TEMP/cpp" >> "$GITHUB_ENV"
           key="$(scripts/cpp-ref-key.sh)"
           echo "key=$key" >> "$GITHUB_OUTPUT"
           echo "tag=cpp-ref-$key" >> "$GITHUB_OUTPUT"
