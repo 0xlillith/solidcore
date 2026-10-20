@@ -19,7 +19,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 
 - [ ] 🔨 `intersect.surface_drop_lib_p3` (2062 lines) — in progress: #136 @froglemonade2 (ready for review)
 - [ ] 🔨 `topology.brep_p8` (1768 lines) — in progress: #72 @bherbruck (ready for review)
-- [ ] 🔨 `topology.face_p4` (1812 lines) — in progress: #134 @bherbruck (draft)
+- [ ] 🔨 `topology.face_p4` (1812 lines) — in progress: #239 @denelson1-dot (ready for review)
 - [ ] 🔨 `query.face_p3` (1620 lines) — in progress: #132 @bherbruck (ready for review)
 - [ ] 🔨 `query.face_p4` (1432 lines) — in progress: #129 @bherbruck (ready for review)
 - [ ] 🔨 `topology.brep_p4` (2113 lines) — in progress: #173 @froglemonade2 (draft)
@@ -221,7 +221,7 @@ Anything `todo` can be claimed. These need stubs for, or co-porting of, the list
 - [ ] 🟡 `topology.edge` (2213 lines) — partial, 1787 cases
 - [ ] 🟡 `topology.edgeuse_p3` (2273 lines) — partial, 4789 cases
 - [ ] 🟡 `topology.trimming_tools` (2878 lines) — partial, 3263 cases
-- [ ] 🔨 `topology.face_p4` (1812 lines) — in progress: #134 @bherbruck (draft)
+- [ ] 🔨 `topology.face_p4` (1812 lines) — in progress: #239 @denelson1-dot (ready for review)
 - [ ] 🟡 `topology.brep_p10` (1890 lines) — partial, 1404 cases
 - [ ] 🟡 `topology.face_p3` (1881 lines) — partial, 1781 cases
 - [ ] 🟡 `topology.topology_traverser` (784 lines) — partial, 909 cases
