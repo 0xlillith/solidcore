@@ -42,28 +42,20 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::FindInfiniteRegion",
-        "unit": "topology.brep_p9"
-      },
       "max_rel_err": 0.0,
       "name": "isolated_op4_editing_False",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#4 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::FindInfiniteRegion",
-        "unit": "topology.brep_p9"
-      },
       "max_rel_err": 0.0,
       "name": "isolated_op4_editing_True",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#5 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "deferred": {
@@ -90,52 +82,36 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::m_bEditingEnabled",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "isolated_op7_editing_False",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#8 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::m_bEditingEnabled",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "isolated_op7_editing_True",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#9 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::m_bEditingEnabled",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "isolated_op8_editing_False",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#10 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::m_bEditingEnabled",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "isolated_op8_editing_True",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#11 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -203,8 +179,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetInfiniteRegion",
-        "unit": "topology.brep_p1"
+        "symbol": "SmBrep::MakeShellVertex",
+        "unit": "topology.brep_p9"
       },
       "max_rel_err": 0.0,
       "name": "isolated_op13_editing_False",
@@ -215,8 +191,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::GetInfiniteRegion",
-        "unit": "topology.brep_p1"
+        "symbol": "SmBrep::MakeShellVertex",
+        "unit": "topology.brep_p9"
       },
       "max_rel_err": 0.0,
       "name": "isolated_op13_editing_True",
@@ -259,8 +235,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::m_bEditingEnabled",
-        "unit": "topology.brep_p1"
+        "symbol": "SmBrep::DeleteVertex",
+        "unit": "topology.brep_p4"
       },
       "max_rel_err": 0.0,
       "name": "manifold_kind0_mode2",
@@ -286,16 +262,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "translate_deferred_kind0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#28 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "deferred": {
@@ -370,16 +342,12 @@
       "values_compared": 62
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::m_bEditingEnabled",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "manifold_kind1_mode0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#37 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -391,8 +359,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::m_bEditingEnabled",
-        "unit": "topology.brep_p1"
+        "symbol": "SmBrep::DeleteEdge",
+        "unit": "topology.brep_p4"
       },
       "max_rel_err": 0.0,
       "name": "manifold_kind1_mode2",
@@ -418,16 +386,12 @@
       "values_compared": 55
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "translate_deferred_kind1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#42 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "deferred": {
@@ -510,16 +474,12 @@
       "values_compared": 60
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::m_bEditingEnabled",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "manifold_kind2_mode0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#52 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -538,16 +498,12 @@
       "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "translate_deferred_kind2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#55 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "deferred": {
@@ -642,16 +598,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "identity_placement_delta_1e-11",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#66 (upstream source/SMLib/src/SmBrep.cpp)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -1766,28 +1718,20 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "defined_placement_zero_x",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#206 (upstream source/SMLib/src/SmAxis2Placement.cpp:SetCanonical)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "defined_placement_zero_y",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#207 (upstream source/SMLib/src/SmAxis2Placement.cpp:SetCanonical)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -1798,16 +1742,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "defined_placement_tiny_axis",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/branches.json#209 (upstream source/SMLib/src/SmAxis2Placement.cpp:SetCanonical)",
-      "values_compared": 0
+      "values_compared": 13
     },
     {
       "max_rel_err": 0.0,
@@ -2082,100 +2022,68 @@
       "values_compared": 50
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::UpdateVertexEdgeIntervals",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "combine_alias_wire_False_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#32 (upstream source/SMLib/src/SmBrep.cpp:1589)",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::UpdateVertexEdgeIntervals",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "combine_alias_wire_True_0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#33 (upstream source/SMLib/src/SmBrep.cpp:1589)",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::UpdateVertexEdgeIntervals",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "combine_alias_wire_False_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#34 (upstream source/SMLib/src/SmBrep.cpp:1589)",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::UpdateVertexEdgeIntervals",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "combine_alias_wire_True_1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#35 (upstream source/SMLib/src/SmBrep.cpp:1589)",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::UpdateVertexEdgeIntervals",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "combine_alias_wire_False_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#36 (upstream source/SMLib/src/SmBrep.cpp:1589)",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::UpdateVertexEdgeIntervals",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "combine_alias_wire_True_2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#37 (upstream source/SMLib/src/SmBrep.cpp:1589)",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::UpdateVertexEdgeIntervals",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "combine_alias_wire_False_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#38 (upstream source/SMLib/src/SmBrep.cpp:1589)",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::UpdateVertexEdgeIntervals",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "combine_alias_wire_True_3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p5/review_aliases.json#39 (upstream source/SMLib/src/SmBrep.cpp:1589)",
-      "values_compared": 0
+      "values_compared": 53
     },
     {
       "deferred": {
@@ -2898,16 +2806,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0054",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375541",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -3254,16 +3158,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0098",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375585",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -3762,28 +3662,20 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0161",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375648",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0162",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375649",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -3866,16 +3758,12 @@
       "values_compared": 50
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0173",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375660",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -4134,16 +4022,12 @@
       "values_compared": 23
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0206",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375693",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -4354,16 +4238,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0233",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375720",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -5102,16 +4982,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0326",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375813",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -5418,16 +5294,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0365",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375852",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -5598,16 +5470,12 @@
       "values_compared": 13
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0387",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375874",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -5922,16 +5790,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0427",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375914",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -6374,16 +6238,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0483",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375970",
-      "values_compared": 0
+      "values_compared": 52
     },
     {
       "max_rel_err": 0.0,
@@ -6482,16 +6342,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::GetVertices",
-        "unit": "topology.brep_p1"
-      },
       "max_rel_err": 0.0,
       "name": "gen0496",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427436154046375983",
-      "values_compared": 0
+      "values_compared": 50
     },
     {
       "max_rel_err": 0.0,
@@ -6612,17 +6468,88 @@
       "pass": true,
       "source": "generated:seed=16427436154046375998",
       "values_compared": 5
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "infinite_region_state_kind0_mode0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "infinite_region_state_kind0_mode1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "infinite_region_state_kind0_mode2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 13
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "infinite_region_state_kind1_mode0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "infinite_region_state_kind1_mode1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "infinite_region_state_kind1_mode2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 52
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "infinite_region_state_kind2_mode0",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "infinite_region_state_kind2_mode1",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 50
+    },
+    {
+      "max_rel_err": 0.0,
+      "name": "infinite_region_state_kind2_mode2",
+      "outcome": "pass",
+      "pass": true,
+      "source": "inline",
+      "values_compared": 50
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 59,
+  "cases_deferred": 23,
   "cases_failed": 0,
-  "cases_passed": 738,
-  "cases_total": 797,
+  "cases_passed": 783,
+  "cases_total": 806,
   "deferred_by_unit": {
-    "topology.brep_p1": 38,
     "topology.brep_p3": 7,
-    "topology.brep_p4": 12,
+    "topology.brep_p4": 14,
     "topology.brep_p9": 2
   },
   "max_rel_err": 0.0,

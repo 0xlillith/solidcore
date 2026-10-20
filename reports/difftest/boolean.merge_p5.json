@@ -526,16 +526,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeShellVertexTopology",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "other_shell_vertex_classify_op1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/boolean.merge_p5/branches.json#64 (upstream source/SMLib/src/SmMerge.cpp:7239 (branch case); tests/prog_test/src/smTopoTest.cpp:my_test_topology (wire construction))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -582,16 +578,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeShellVertexTopology",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "other_shell_vertex_classify_op4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/boolean.merge_p5/branches.json#70 (upstream source/SMLib/src/SmMerge.cpp:7239 (branch case); tests/prog_test/src/smTopoTest.cpp:my_test_topology (wire construction))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -606,16 +598,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeShellVertexTopology",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "other_shell_vertex_classify_op5",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/boolean.merge_p5/branches.json#72 (upstream source/SMLib/src/SmMerge.cpp:7239 (branch case); tests/prog_test/src/smTopoTest.cpp:my_test_topology (wire construction))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -630,16 +618,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmBrep::MakeShellVertexTopology",
-        "unit": "topology.brep_p2"
-      },
       "max_rel_err": 0.0,
       "name": "other_shell_vertex_classify_op6",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/boolean.merge_p5/branches.json#74 (upstream source/SMLib/src/SmMerge.cpp:7239 (branch case); tests/prog_test/src/smTopoTest.cpp:my_test_topology (wire construction))",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -1163,13 +1147,12 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 10,
+  "cases_deferred": 6,
   "cases_failed": 0,
-  "cases_passed": 130,
+  "cases_passed": 134,
   "cases_total": 140,
   "deferred_by_unit": {
     "boolean.merge_p2": 4,
-    "topology.brep_p2": 4,
     "topology.brep_p4": 2
   },
   "max_rel_err": 0.0,

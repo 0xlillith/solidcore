@@ -2304,7 +2304,8 @@ mod tests {
             .iter()
             .filter(|case| matches!(case.source, CaseSource::Fixture { .. }))
             .collect();
-        assert_eq!(fixtures.len(), 93);
+        // Includes nine live FillGap/Map regression probes added during integration.
+        assert_eq!(fixtures.len(), 102);
         for case in fixtures {
             case.parse::<Inputs>().unwrap();
         }

@@ -3679,8 +3679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::FindInfiniteRegion",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::FindAndSetInfiniteRegion caller kernel and query context",
+        "unit": "representation:infinite-region-query-context"
       },
       "max_rel_err": 0.0,
       "name": "closure_inf_spine_doubled",
@@ -4155,8 +4155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::FindInfiniteRegion",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::FindAndSetInfiniteRegion caller kernel and query context",
+        "unit": "representation:infinite-region-query-context"
       },
       "max_rel_err": 0.0,
       "name": "review_spine_doubled_m1_closure_True",
@@ -13440,12 +13440,12 @@
   "cases_passed": 854,
   "cases_total": 1404,
   "deferred_by_unit": {
+    "representation:infinite-region-query-context": 2,
     "surface.cone_p1": 41,
     "surface.sphere": 328,
     "surface.surf_of_extrusion_p2": 10,
     "surface.surface_cache_p2": 5,
     "surface.surface_p2": 96,
-    "topology.brep_p9": 2,
     "topology.face_p2": 60,
     "topology.face_p4": 8
   },
