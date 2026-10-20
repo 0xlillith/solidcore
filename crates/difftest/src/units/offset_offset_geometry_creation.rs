@@ -712,6 +712,32 @@ impl Two {
             .copied()
     }
 
+    /// Whether `ExtendTrimEdges` of `eu` onto `off` lifts through `sm_ExtractIsoCurve` on a
+    /// face imported as its B-spline part: the lift's UV curve (the edge use's or its
+    /// radial's UV trim curve) is an iso line and `off`'s face is not exact. The C++ iso
+    /// curve then keeps the subclass's kind (an `SmCircle` on a surface of revolution),
+    /// which becomes the offset edge's curve, while the Rust lifts a B-spline.
+    fn lifts_iso_on_inexact_face(&self, eu: H, off: H) -> solidcore::Result<bool> {
+        match self.edgeuse_face(off)? {
+            Some(face) if self.face_exact(face) != Some(true) => {}
+            _ => return Ok(false),
+        }
+        let mut uses = vec![eu];
+        if let Some(rad) = self.edgeuse_radial(eu)? {
+            uses.push(rad);
+        }
+        for u in uses {
+            let curve = self.edgeuse_uv_trim_curve(u)?;
+            if curve
+                .and_then(|h| ClassGeometry::curve(self, h))
+                .is_some_and(is_uv_iso_segment)
+            {
+                return Ok(true);
+            }
+        }
+        Ok(false)
+    }
+
     /// Whether `face`'s surface is an `SmSphere` (see `types`).
     fn face_is_sphere(&self, face: H) -> bool {
         usize::try_from(face.b)
@@ -2241,6 +2267,51 @@ fn would_reverse(two: &Two, eu: H, c3: H, orig: Option<H>) -> Result<bool, Fail>
     Ok(t1.dot(t2) < 0.0)
 }
 
+/// Whether a UV curve is a degree-1 B-spline (or line) along a constant `u` or `v`: the
+/// UV curves `sm_ExtractIsoCurve` lifts to the surface's iso curve (their extensions in
+/// `ExtendTrimEdges` stay such lines). The bound is generous, so a borderline curve
+/// is counted as iso.
+fn is_uv_iso_segment(c: &SmCurve) -> bool {
+    let nurb = match c.kind() {
+        CurveKind::BSpline(b) => b.gw_nurb().cloned(),
+        CurveKind::Line(l) => {
+            let mut l = l.clone();
+            if l.base().gw_nurb().is_none() && l.make_nurb().is_err() {
+                return false;
+            }
+            l.base().gw_nurb().cloned()
+        }
+        _ => return false,
+    };
+    let Some(n) = nurb else {
+        return false;
+    };
+    if n.degree() > 1 {
+        return false;
+    }
+    let pts: Vec<(f64, f64)> = n
+        .cpts()
+        .iter()
+        .map(|p| {
+            if p.w == NOW {
+                (p.x, p.y)
+            } else {
+                (p.x / p.w, p.y / p.w)
+            }
+        })
+        .collect();
+    let flat = |f: fn(&(f64, f64)) -> f64| {
+        let (lo, hi) = pts
+            .iter()
+            .map(f)
+            .fold((f64::INFINITY, f64::NEG_INFINITY), |(l, h), x| {
+                (l.min(x), h.max(x))
+            });
+        hi - lo <= 1e-9 * (1.0 + lo.abs().max(hi.abs()))
+    };
+    flat(|p| p.0) || flat(|p| p.1)
+}
+
 /// Whether the curve is of a B-spline kind (`IsKindOf(SmBSplineCurve_TYPE)`).
 fn is_bspline_kind(c: &SmCurve) -> bool {
     c.is_kind_of(BSPLINE_CURVE_TYPE)
@@ -2646,6 +2717,13 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                     o.push(NULL_DEREF);
                     continue;
                 }
+                // LiftCurve's iso curve keeps the subclass's kind (lifts_iso_on_inexact_face)
+                if two.lifts_iso_on_inexact_face(eu, off)? {
+                    return Err(Fail::Solid(SolidError::Unported {
+                        upstream: "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
+                        unit: ANALYTIC_EXPORT,
+                    }));
+                }
                 let r = geom.extend_trim_edges(
                     &k,
                     &mut two,
@@ -2757,6 +2835,15 @@ fn run_rust_script(i: &Inputs, p: Prepared) -> Result<Vec<f64>, Fail> {
                         if bad {
                             o.push(NULL_DEREF);
                             continue;
+                        }
+                        // ExtendTrimEdges' LiftCurve (lifts_iso_on_inexact_face)
+                        if let Some(off) = off {
+                            if two.lifts_iso_on_inexact_face(orig, off)? {
+                                return Err(Fail::Solid(SolidError::Unported {
+                                    upstream: "SmSurface::LiftCurve iso curve of a subclass (face surface imported as its B-spline part)",
+                                    unit: ANALYTIC_EXPORT,
+                                }));
+                            }
                         }
                     }
                 }

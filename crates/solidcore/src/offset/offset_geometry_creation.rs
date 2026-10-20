@@ -2285,7 +2285,7 @@ impl OffsetGeometryCreation {
             let dropped = surface_of(brep, other_ext_h)?.drop_and_trim_curve::<O>(
                 k,
                 &other_ext_domain,
-                &Curve::from(lifted_curve.clone()),
+                &lifted_curve,
                 &lifted_curve.natural_interval(),
                 off_tol / 3.0,
                 true,
@@ -2358,7 +2358,7 @@ impl OffsetGeometryCreation {
 
         // Now that we have created one or two UV curves and a 3D curve find trimming
         // interval and if we find a good one replace the geometry.
-        let lifted_h = store_curve(brep, Curve::from(lifted_curve.clone()))?;
+        let lifted_h = store_curve(brep, lifted_curve.clone())?;
         let trim_ivl = self.trim_extended_edge(
             k,
             brep,

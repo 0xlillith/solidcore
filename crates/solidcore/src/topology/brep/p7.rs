@@ -759,7 +759,7 @@ pub fn make_face_with_curves(
                             zone_tol / 4.0,
                             false,
                         ))?
-                        .map(|l| Curve::from(l.curve))
+                        .map(|l| l.curve)
                     };
                     if new3d.is_some() {
                         to_check.push(s3d.len());

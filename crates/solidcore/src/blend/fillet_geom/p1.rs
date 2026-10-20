@@ -3501,7 +3501,7 @@ pub fn join_verts_by_capping(
 
             // add the curves to the output arrays
             uv_curves.push(uv_curve);
-            curves_3d.push(Curve::from(lifted.curve));
+            curves_3d.push(lifted.curve);
             orients.push(OrientType::Same);
         }
     }

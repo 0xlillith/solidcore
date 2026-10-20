@@ -2533,7 +2533,7 @@ pub fn mate_lamina_edge_to_surface(
                     true,
                 )?
             };
-            let new_3d = Curve::from(lifted.curve);
+            let new_3d = lifted.curve;
             let new_ivl = new_3d.natural_interval();
             // side effect: delete current UVTrimCurves
             give_edge_curve(b, env, e_side, new_3d)?;
@@ -2571,8 +2571,10 @@ fn set_vertex_point(b: &mut Brep, env: &mut NotifyEnv<'_>, v: VertexId, p: Point
 /// `pEU->GetOrCreateUVTrimCurve(pUV)` (status ignored; header defaults `NULL`, `NULL`,
 /// `TRUE`), then `SER(pUV->Copy(..))`: a copy of the edge use's UV trim curve. A
 /// missing curve is dereferenced upstream (after its `SM_ASSERT`). UV trim curves are
-/// made as B-splines (the `SmBSplineCurve*&` overload casts); a curve of another kind
-/// is [`SolidError::InvalidInput`].
+/// made as B-splines (the `SmBSplineCurve*&` overload casts). An `SmLine` is an
+/// `SmBSplineCurve`: its copy serves `CreateExtendedCurve` through its B-spline part,
+/// whose NURB `GetOrCreateGwNurbPointer` makes (`MakeNurb`, the `SmLine` override; status
+/// ignored) when missing. A curve of another kind is [`SolidError::InvalidInput`].
 fn uv_trim_curve_copy(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<BSplineCurve> {
     let _ = eu3::get_or_create_uv_trim_curve(k, b, eu, false, false, true)?;
     let curve = eu1::uv_trim_curve(b, eu)?
@@ -2580,6 +2582,13 @@ fn uv_trim_curve_copy(k: &Kernel, b: &mut Brep, eu: EdgeuseId) -> Result<BSpline
         .ok_or(null_deref("edge use without UV trim curve"))?;
     match curve.kind() {
         CurveKind::BSpline(c) => Ok(c.clone()),
+        CurveKind::Line(l) => {
+            let mut l = l.clone();
+            if l.base.gw_nurb().is_none() {
+                let _ = l.make_nurb();
+            }
+            Ok(l.base)
+        }
         _ => Err(SolidError::InvalidInput {
             operation: OP,
             reason: "UV trim curve is not a B-spline",
