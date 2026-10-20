@@ -7807,24 +7807,38 @@ PR #203 (on main's #146). Part 2 of `SmTopologyIntersector.cpp`: `RegisterExisti
 - **Coverage (what the passes complete).** Per op occurrence in non-deferred cases:
   `RemoveRelationship` 29 success / 35 `SM_ERR`; `CheckForSqueezeVertices` 75 success
   without a conflicting mate (empty lists) / 26 `SM_ERR` (existing relationship better),
-  every conflict that combines defers (`CombineCoincidentVertices`, `topology.brep_p5`);
+  every conflict that combines defers inside `CombineCoincidentVertices` (wired to
+  `topology.brep_p5` through `IntersectorBrepP2::brep_combine_coincident_vertices`);
   `DeleteFaces` 68 success, all with an empty face list (a face reaches `SmFace::GetEdges`,
   `topology.face_p4`); `FixGaps` 119 success without a gap pair / 14
-  `SM_ERR_NULL_POINTER` (gap pair with an unmated vertex); `SetRelationships` 39 success on
+  `SM_ERR_NULL_POINTER` (gap pair with an unmated vertex), a pair that combines defers
+  as in `CheckForSqueezeVertices`; `SetRelationships` 39 success on
   managers without definitions; `FixupClassMates` 56 success / 17 `SM_ERR` (sizes differ);
-  `FixupSplitVertexPair` 57 success, 6 removing the interval; `EdgeEdgeIntersect` 127
-  success without a split (a split defers on `MakeVertexSplitEdge`, `topology.brep_p9`);
+  `FixupSplitVertexPair` 57 success, 6 removing the interval; `EdgeEdgeIntersect` 136
+  success, none with a non-empty first split list (the 9 that reached
+  `MakeVertexSplitEdge` compare since main's `topology.brep_p9`);
   `EdgeFaceCoincidence` 128 success without an imprint (`Point3DClassify`,
-  `query.face_p1`); `IntersectTopology` and `IntersectInsertRelate`: no passing case (both
-  start with `SmBrep::GetFaces`, `topology.brep_p1`). The census is the ignored test
-  `units::boolean_topology_intersector_p2::tests::census`. Main's topology.shell fixture changes
-  (the shell-state export and import, `sc_topology_fixture::append_shell_state` /
-  `topology_vertexuse::read_shell_state`, and the GetEdges-first walk) changed 10 generated
-  cases at the merge of main@86f2d3bd: the walk renumbers the handles, so the same seeds
-  select other entities and the C++ reference output itself changes, not only the Rust
-  side. Net -2 passes: 4 pass -> defer (2 at `MakeVertexSplitEdge`, 2 at
-  `CombineCoincidentVertices`) and 2 defer -> pass; the other 4 still pass with a different
-  value count (more in most, gen0767 172 -> 169). 0 fail before and after.
+  `query.face_p1`); `IntersectTopology` 1 success (the smTopoTest pair
+  `RegisterExistingSSI` marks as not intersecting) and `IntersectInsertRelate` none: with
+  `SmBrep::GetFaces` wired to `topology.brep_p1` (`IntersectorBrepP2::brep_faces`), the
+  former 124 `GetFaces` deferrals stop at `SmFace::GetTolerance` (70, `topology.face_p2`),
+  `SmBrep::CalculateBoundingBox` (41, `query.brep`) and `SmFace::FaceIntersect` (12,
+  `topology.face_p3`); 1 passes. With `CombineCoincidentVertices` wired to
+  `topology.brep_p5` (follow-up to #203, after main@36cfad06), its 15 deferrals stop
+  inside it: `SmBrep::SqueezeEdge` 8 (`topology.brep_p3`), `SmBrep::Notify` 4
+  (`topology.brep_p2`), `SmBrep::m_bEditingEnabled` 3 (`topology.brep_p1`); none
+  passes yet, so the shim's `squeeze_breps_ok` assumption (a first block that combines
+  reaches the second) is still unexercised: re-check it when those land. Main's
+  `topology.face_p3` (#139) moved the 3 `CreateUVTrimCurves` deferrals on to
+  `SmFace::GetUpwardLoopuses` (`topology.face_p4`). The census is the ignored test
+  `units::boolean_topology_intersector_p2::tests::census`. Main's topology.shell fixture
+  changes (the shell-state export and import, `sc_topology_fixture::append_shell_state` /
+  `topology_vertexuse::read_shell_state`, and the GetEdges-first walk) changed 10
+  generated cases at the merge of main@86f2d3bd: the walk renumbers the handles, so the
+  same seeds select other entities and the C++ reference output itself changes, not only
+  the Rust side. Net -2 passes: 4 pass -> defer (2 at `MakeVertexSplitEdge`, 2 at
+  `CombineCoincidentVertices`) and 2 defer -> pass; the other 4 still pass with a
+  different value count (more in most, gen0767 172 -> 169). 0 fail before and after.
 - **Guards.** The shim refuses (`-2`) what upstream dereferences: vertex members of a mate
   that is not a vertex, edges of a vertex without curve (`FixGaps`,
   `EdgeFaceCoincidence`), faces without surface, an interval index past a
