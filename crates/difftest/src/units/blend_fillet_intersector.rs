@@ -673,8 +673,14 @@ fn rust_record(i: &Inputs) -> Result<Vec<f64>, Fail> {
         orient,
         [None, None],
     );
-    for slot in solver.solver.surfaces.iter_mut().flatten() {
-        slot.surface.set_allow_extension(true);
+    for srf in solver
+        .solver
+        .surfaces
+        .iter_mut()
+        .flatten()
+        .map(|slot| &mut slot.surface)
+    {
+        srf.set_allow_extension(true);
     }
 
     let mut fi: Fi<'_> = match FilletIntersector::new(&a, &ext(i.dom1), bref, &ext(i.dom2), None)
