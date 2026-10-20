@@ -51,14 +51,17 @@
 //!   are swallowed here too, except that [`SolidError::Unported`] always propagates.
 //!   The double tolerances passed to `GlobalPointSolve` convert to `SmZoneTol3d`
 //!   (`USE_DEFAULT` becomes the zone tolerance, then `fabs`).
-//! - **Unported callees.** `sm_SrfSrfIntersection` (`blend.fillet_geom_p2`) in every
-//!   vertex calculator and in the non-iso-parametric branch of `sm_CreateUVCurve`;
-//!   `GetRailIndexOfVertexuse` and `JoinTwoFilletVertsByCurves` and
+//! - **Surface/surface intersections.** `sm_SrfSrfIntersection` is
+//!   `blend.fillet_geom_p2`'s, called with the fillet vertices' points; its curves are
+//!   used through their B-spline part (an `SmLine` / `SmEllipse` intersection curve
+//!   loses its analytic overrides in the later evaluations here).
+//! - **Unported callees.** `GetRailIndexOfVertexuse` and `JoinTwoFilletVertsByCurves` and
 //!   `SmFilletEdge::CalcBlendingRail` (`blend.fillet_geom_p6`); the fillet executive's
 //!   topology intersector, attribute users and topology bookkeeping
 //!   (`blend.fillet_executive_p1`), `SmTopologyIntersector::MergeCurveOnSurfaces`
-//!   (`boolean.topology_intersector_p3`), `RegisterExistingSSI`
-//!   (`boolean.topology_intersector_p2`) and `RecordFilletError`
+//!   (`boolean.topology_intersector_p3`), `RegisterExistingSSI` (ported in
+//!   `boolean.topology_intersector_p2`, but it needs the executive's intersector, so its
+//!   stub is tagged `blend.fillet_executive_p1`) and `RecordFilletError`
 //!   (`blend.fillet_geom_p6`) in `InsertIntersectionTopology`. Each stub replaces only
 //!   its call; the code behind it is ported. The 777/778 marker attributes
 //!   `InsertIntersectionTopology` puts on a face for the executive's split check travel
@@ -84,15 +87,11 @@
 //! - **Arguments.** Out-params become return values; `iDebugLevel` and debug drawing
 //!   are dropped.
 
-use std::collections::BTreeMap;
-
 use crate::blend::fillet_solver::p1::{FilletSolver, FilletSurfaceGeneratorType};
 use crate::curve::curve::{Curve, CurveKind};
 use crate::error::{EntityRef, Result, SolidError};
-use crate::geom::attribute::{AttributeStore, ObjectKey};
 use crate::geom::extent1d::Extent1d;
 use crate::geom::global_solver::{SolutionRequested, SolverOperation};
-use crate::geom::object::ObjectRef;
 use crate::geom::solution_array::SolutionArray;
 use crate::geom::tol::zone_tol3d;
 use crate::geom::vector2d::{Point2, Vec2};
@@ -158,7 +157,7 @@ fn smin(a: f64, b: f64) -> f64 {
 /// `SmVertex::SetPoint` on a fillet vertex: the `SM_NO_CHANGE_GEOMETRY` notification
 /// resets the cached gaps of every vertex use of the vertex, then the point is stored
 /// (as `blend.fillet_geom_p1` does).
-fn set_vertex_point(brep: &mut Brep, v: VertexId, point: Point3) -> Result<()> {
+pub(super) fn set_vertex_point(brep: &mut Brep, v: VertexId, point: Point3) -> Result<()> {
     for vu in brep.vertex(v)?.vertexuses.clone() {
         let vu = brep.vertexuse_mut(vu)?;
         vu.vertex_edge_gap.reset();
@@ -173,7 +172,7 @@ fn set_vertex_point(brep: &mut Brep, v: VertexId, point: Point3) -> Result<()> {
 /// its cached edge/face gap (its mate's too) and the cached gaps of the edge's vertex
 /// uses; then the curve (possibly `NULL`) replaces the old one (as
 /// `blend.fillet_geom_p1` does for a rail).
-fn set_edge_curve(brep: &mut Brep, e: EdgeId, curve: Option<Curve>) -> Result<()> {
+pub(super) fn set_edge_curve(brep: &mut Brep, e: EdgeId, curve: Option<Curve>) -> Result<()> {
     for eu in edge::edgeuses(brep, e, None, None)? {
         let mate_eu = eu1::mate(brep, eu)?;
         let rec = brep.edgeuse_mut(eu)?;
@@ -249,14 +248,17 @@ struct SrfSrfCurves {
     uv_curve2: Option<BSplineCurve>,
 }
 
-/// `sm_SrfSrfIntersection` (unit `blend.fillet_geom_p2`).
+/// `sm_SrfSrfIntersection` ([`super::p2::srf_srf_intersection`]) with fillet vertices
+/// (their points) for its `SmVertex` arguments; the curves continue as their B-spline
+/// part (`SmBSplineCurve*`; an analytic intersection curve keeps only its B-spline
+/// base here, see the module deviations).
 #[allow(clippy::too_many_arguments)]
 fn srf_srf_intersection(
     k: &Kernel,
     fb: &FilletBrep,
     start_fv: Option<VertexId>,
     end_fv: Option<VertexId>,
-    dir: Option<Vec3>,
+    dir: Option<&mut Vec3>,
     end_dir: Option<Vec3>,
     surface1: &Surface,
     surface2: &Surface,
@@ -265,25 +267,29 @@ fn srf_srf_intersection(
     skip_two_pnts_intersection: bool,
     ref_point: Option<Point3>,
 ) -> Result<SrfSrfCurves> {
-    // UNPORTED(blend.fillet_geom_p2): sm_SrfSrfIntersection
-    unported_on(
-        (
-            k,
-            fb,
-            start_fv,
-            end_fv,
-            dir,
-            end_dir,
-            surface1,
-            surface2,
-            approx_tol,
-            ang_tol,
+    let start = start_fv.map(|v| fb.vertex_point(v)).transpose()?;
+    let end = end_fv.map(|v| fb.vertex_point(v)).transpose()?;
+    let r = super::p2::srf_srf_intersection(
+        k,
+        start,
+        end,
+        dir,
+        end_dir,
+        surface1,
+        surface2,
+        approx_tol,
+        ang_tol,
+        super::p2::SrfSrfOptions {
             skip_two_pnts_intersection,
             ref_point,
-        ),
-        "sm_SrfSrfIntersection",
-        "blend.fillet_geom_p2",
-    )
+        },
+    )?;
+    let part = |c: Option<Curve>| c.as_ref().and_then(as_b_spline).cloned();
+    Ok(SrfSrfCurves {
+        curve_3d: part(r.curve_3d),
+        uv_curve1: part(r.uv_curve1),
+        uv_curve2: part(r.uv_curve2),
+    })
 }
 
 /// `SmFilletCorner::GetCornerType` (unit `blend.fillet_corner_p1`).
@@ -418,18 +424,20 @@ fn merge_curve_on_surfaces(
     )
 }
 
-/// `SmTopologyIntersector::RegisterExistingSSI` with no curves (unit
-/// `boolean.topology_intersector_p2`).
+/// `SmTopologyIntersector::RegisterExistingSSI` with no curves. The routine itself is
+/// ported ([`crate::boolean::topology_intersector::p2`]), but it runs on the executive's
+/// topology intersector, which [`TopologyIntersectorRef`] only stands for until
+/// `blend.fillet_executive_p1` is ported; the stub is tagged with that unit.
 fn register_existing_ssi(
     ti: TopologyIntersectorRef,
     face_surface: FaceId,
     fillet_surface: Option<&Surface>,
 ) -> Result<()> {
-    // UNPORTED(boolean.topology_intersector_p2): SmTopologyIntersector::RegisterExistingSSI
+    // UNPORTED(blend.fillet_executive_p1): SmFilletExecutive::GetTopologyIntersector()->RegisterExistingSSI
     unported_on(
         (ti, face_surface, fillet_surface),
         "SmTopologyIntersector::RegisterExistingSSI",
-        "boolean.topology_intersector_p2",
+        "blend.fillet_executive_p1",
     )
 }
 
@@ -490,8 +498,8 @@ pub struct UvCurves {
 /// `SM_ERR` when the seam surface is not closed, a cut corner is not found, a point
 /// does not drop or multiple solutions cannot be sorted out; `SM_ERR_NULL_POINTER` for
 /// a surface that is not an `SmBSplineSurface` in the plane branch; those of the
-/// evaluations, solves and line creations; [`SolidError::Unported`] for the plane
-/// branch (`sm_SrfSrfIntersection`).
+/// evaluations, solves and line creations; [`SolidError::Unported`] from the plane
+/// branch's `sm_SrfSrfIntersection` ([`super::p2::srf_srf_intersection`]).
 #[allow(clippy::too_many_lines)] // one upstream routine
 pub fn create_uv_curve(
     k: &Kernel,
@@ -847,7 +855,7 @@ pub fn create_uv_curve(
         }
 
         // StartPt to EndPt 3d unit-vector
-        let dir = (end_pnt - start_pnt).unitize()?;
+        let mut dir = (end_pnt - start_pnt).unitize()?;
 
         // pick a likely ZAxis: the cone's axis, else a fillet vertex use's curve
         // derivative
@@ -894,7 +902,7 @@ pub fn create_uv_curve(
                     fb,
                     Some(start_fv),
                     Some(end_fv),
-                    Some(dir),
+                    Some(&mut dir),
                     None,
                     surface,
                     &plane,
@@ -1009,7 +1017,7 @@ impl FilletBrep {
     /// fails (also for a missing fillet surface, which `sm_SrfSrfIntersection` rejects;
     /// the vertex is then `SM_FIL_SURF_INT_FAILURE`); `SM_ERR_NULL_POINTER` for a
     /// cross-section edge without fillet geometry or solver, or a vertex without
-    /// corner; [`SolidError::Unported`] for the intersection (`sm_SrfSrfIntersection`).
+    /// corner; [`SolidError::Unported`] from the intersection (`sm_SrfSrfIntersection`).
     pub fn calc_nx2_vert_fillet_x_fillet(
         &mut self,
         k: &Kernel,
@@ -1113,7 +1121,7 @@ impl FilletBrep {
     /// `SM_ERR_NULL_POINTER` without corner, fillet geometry or solver; `SM_ERR` when
     /// a neighbour vertex is not processed or the curves do not meet once;
     /// [`SolidError::Unported`] for the corner's filleted vertex
-    /// (`blend.fillet_corner_p1`) and the intersection (`sm_SrfSrfIntersection`).
+    /// (`blend.fillet_corner_p1`) and from the intersection (`sm_SrfSrfIntersection`).
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn calc_fillet_int_2_fillets(
         &mut self,
@@ -1174,7 +1182,7 @@ impl FilletBrep {
             let filleted_pnt = target
                 .vertex(filleted_vertex.ok_or_else(|| SolidError::null_pointer(OP_INT2))?)?
                 .point;
-            let dir = filleted_pnt - other_pnt;
+            let mut dir = filleted_pnt - other_pnt;
             let skip_two_pnts_intersection = true;
 
             let result = srf_srf_intersection(
@@ -1182,7 +1190,7 @@ impl FilletBrep {
                 self,
                 Some(other_fv),
                 None,
-                Some(dir),
+                Some(&mut dir),
                 None,
                 fillet_surface1,
                 fillet_surface2,
@@ -1290,7 +1298,7 @@ impl FilletBrep {
     /// side face, solver, corner or extended B-spline surface; `SM_ERR` when the
     /// neighbour vertex is not processed or no end lies on the face;
     /// [`SolidError::Unported`] for the corner type and extended surface
-    /// (`blend.fillet_corner_p1`) and the intersection (`sm_SrfSrfIntersection`).
+    /// (`blend.fillet_corner_p1`) and from the intersection (`sm_SrfSrfIntersection`).
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn calc_rail_int_extended_edgeuse(
         &mut self,
@@ -1552,7 +1560,8 @@ impl FilletBrep {
     /// curves to the max-v rail(s), those reversed and the side curves back (gaps
     /// capped when the side curves do not connect); with UV curves
     /// (`MakeFaceWithCurves`) unless the geometry is a cliff side patch
-    /// (`TrimSurfaceWithModelSpaceCurves`). Sets the geometry's capped flags.
+    /// (`TrimSurfaceWithModelSpaceCurves`). Sets the geometry's capped flags. `env`
+    /// carries the notifications the face makers send to `brep`'s entities.
     ///
     /// # Errors
     ///
@@ -1567,6 +1576,7 @@ impl FilletBrep {
         g: FilletGeomId,
         solvers: &[FilletSolver],
         brep: &mut Brep,
+        env: &mut edge::NotifyEnv<'_>,
     ) -> Result<()> {
         let nul = || SolidError::null_pointer(OP_FACE);
 
@@ -1807,17 +1817,6 @@ impl FilletBrep {
 
         // Make Face
         let region = brep.infinite_region();
-        // The pseudo-B-rep carries no attributes and no context: its notifications go to
-        // call-local records under call-local identities.
-        let mut records = BTreeMap::new();
-        let mut attributes = AttributeStore::default();
-        let key_of = local_identity;
-        let mut env = edge::NotifyEnv {
-            records: &mut records,
-            attributes: &mut attributes,
-            context: None,
-            key_of: &key_of,
-        };
         if use_uv_curves {
             let input = FaceCurvesInput {
                 loops: curve_loops,
@@ -1826,7 +1825,8 @@ impl FilletBrep {
                 orientations: lists1.orients,
                 loop_points: Vec::new(),
             };
-            let face_ref = |f: FaceId| local_identity(EntityRef::Face(f));
+            let key_of = env.key_of;
+            let face_ref = |f: FaceId| key_of(EntityRef::Face(f));
             make_face_with_curves(
                 k,
                 brep,
@@ -1837,7 +1837,7 @@ impl FilletBrep {
                 OrientType::Same,
                 None,
                 &face_ref,
-                &mut env,
+                env,
             )?;
         } else {
             let input = TrimInput {
@@ -1850,7 +1850,7 @@ impl FilletBrep {
                 surface_orientation: OrientType::Same,
             };
             trim_surface_with_model_space_curves(
-                k, brep, region, d3d_tol, input, true, false, false, &mut env,
+                k, brep, region, d3d_tol, input, true, false, false, env,
             )?;
         }
 
@@ -1901,7 +1901,7 @@ impl FilletBrep {
     ///
     /// `SM_ERR_NULL_POINTER` without solver or executive; the merge's status;
     /// [`SolidError::Unported`] for the executive (`blend.fillet_executive_p1`) and the
-    /// topology intersector (`boolean.topology_intersector_p2`, `_p3`).
+    /// topology intersector's merge (`boolean.topology_intersector_p3`).
     #[allow(clippy::too_many_lines)] // one upstream routine
     pub fn insert_intersection_topology(
         &mut self,
@@ -2236,28 +2236,6 @@ impl FilletBrep {
     }
 }
 
-/// The call-local identity `MakeFaceBrep` notifies a pseudo-B-rep entity under: the
-/// entity's type code above its index (plus one), so kinds never share a key.
-fn local_identity(entity: EntityRef) -> ObjectRef {
-    let (type_code, index) = match entity {
-        EntityRef::Brep(id) => (crate::topology::brep::p1::TYPE, id.index()),
-        EntityRef::Face(id) => (crate::topology::face::p2::TYPE, id.index()),
-        EntityRef::Edge(id) => (edge::TYPE, id.index()),
-        EntityRef::Vertex(id) => (vertex::TYPE, id.index()),
-        EntityRef::Edgeuse(id) => (eu1::TYPE, id.index()),
-        EntityRef::Vertexuse(id) => (crate::topology::vertexuse::TYPE, id.index()),
-        EntityRef::Loopuse(id) => (crate::topology::loopuse::TYPE, id.index()),
-        EntityRef::Shell(id) => (crate::topology::topology::TYPE, id.index()),
-        EntityRef::Loop(id) => (crate::topology::topology::TYPE, id.index()),
-        EntityRef::Region(id) => (crate::topology::topology::TYPE, id.index()),
-        EntityRef::Faceuse(id) => (crate::topology::topology::TYPE, id.index()),
-    };
-    ObjectRef {
-        type_code,
-        key: ObjectKey((type_code.unsigned_abs() << 32) | (1 + u64::from(index))),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2429,7 +2407,19 @@ mod tests {
         let mut fb = FilletBrep::new();
         let g = fb.add_geom(FilletGeom::new(&k, None, FilletGeomType::Default).unwrap());
         let mut b = Brep::new();
-        assert!(fb.make_face_brep(&k, g, &[], &mut b).is_err());
+        let mut records = std::collections::BTreeMap::new();
+        let mut attributes = crate::geom::attribute::AttributeStore::default();
+        let key_of = |_e: EntityRef| crate::geom::object::ObjectRef {
+            type_code: 0,
+            key: crate::geom::attribute::ObjectKey(0),
+        };
+        let mut env = edge::NotifyEnv {
+            records: &mut records,
+            attributes: &mut attributes,
+            context: None,
+            key_of: &key_of,
+        };
+        assert!(fb.make_face_brep(&k, g, &[], &mut b, &mut env).is_err());
     }
 
     #[test]

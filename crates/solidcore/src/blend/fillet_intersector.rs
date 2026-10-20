@@ -85,6 +85,7 @@
 //! - **Not ported.** `Dump` and the `SM_DEBUG_CODE` drawing blocks; `SM_ASSERT`s.
 
 use crate::blend::fillet_custom_solver::{offset_evaluate_1st, ConstantRadiusAssistedFs};
+use crate::blend::fillet_solver::p1::OffsetSurfaceSlot;
 use crate::curve::crv_on_surf::CrvOnSurf;
 use crate::curve::curve::p3::PointSolveOptions;
 use crate::curve::curve::Curve;
@@ -527,13 +528,13 @@ impl FilletSolverOps for ConstantRadiusAssistedFs {
     type FilletGeom = ();
 
     fn set_surfaces_to_zero_offset(&mut self) -> Result<()> {
-        for (surface, saved) in self
+        for (slot, saved) in self
             .solver
             .surfaces
             .iter_mut()
             .zip(self.saved_offsets.iter_mut())
         {
-            if let Some(s) = surface.as_mut().map(|slot| &mut slot.surface) {
+            if let Some(OffsetSurfaceSlot { surface: s, .. }) = slot {
                 *saved = s.offset_distance();
                 s.set_offset_distance(0.0);
             }
@@ -542,13 +543,13 @@ impl FilletSolverOps for ConstantRadiusAssistedFs {
     }
 
     fn reload_surface_offsets(&mut self) -> Result<()> {
-        for (surface, saved) in self
+        for (slot, saved) in self
             .solver
             .surfaces
             .iter_mut()
             .zip(self.saved_offsets.iter())
         {
-            if let Some(s) = surface.as_mut().map(|slot| &mut slot.surface) {
+            if let Some(OffsetSurfaceSlot { surface: s, .. }) = slot {
                 s.set_offset_distance(*saved);
             }
         }
