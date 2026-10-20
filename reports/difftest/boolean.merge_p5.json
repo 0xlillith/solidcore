@@ -527,8 +527,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "other_shell_vertex_classify_op1",
@@ -583,8 +583,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "other_shell_vertex_classify_op4",
@@ -607,8 +607,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "other_shell_vertex_classify_op5",
@@ -631,8 +631,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::MakeShellVertex",
-        "unit": "topology.brep_p9"
+        "symbol": "SmBrep::MakeShellVertexTopology",
+        "unit": "topology.brep_p2"
       },
       "max_rel_err": 0.0,
       "name": "other_shell_vertex_classify_op6",
@@ -1169,8 +1169,8 @@
   "cases_total": 140,
   "deferred_by_unit": {
     "boolean.merge_p2": 4,
-    "topology.brep_p4": 2,
-    "topology.brep_p9": 4
+    "topology.brep_p2": 4,
+    "topology.brep_p4": 2
   },
   "max_rel_err": 0.0,
   "pass": true,

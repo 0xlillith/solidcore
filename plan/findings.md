@@ -9790,3 +9790,162 @@ status recommendations are emitted separately for review, including
 recommendations affecting units outside this contextual note set.
 Evidence inputs: `solidcore-integration-canonical-lowmem-summary-20261019.json` and `solidcore-integration-validation-summary-20261019.json`; their hashes and the commit
 attestation are retained in the accompanying audit.
+
+## Main #259 integration and canonical corrections (PR #101, 2026-10-20)
+
+### Scope and provenance
+
+The parent 0bbeb9dc merges aa0595cc with main 4db3d660 and preserves batch #259's contributor history and the preceding live-cache integration. Its completed canonical run exposed failures in offset.offset_executive_p1 and topology.brep_p7. The three corrections below address the native status contract, the missing notification input records and a geometry-representation guard identified during review. The native reference remains SMLib c9c5979f04cea8c38213004d4f04df0dcfb40d05. The later PR #149 head da779c51, including its author's reported 33 caller replacements and four p2 stub closures, is outside this source checkpoint.
+
+At SmOffsetExecutive.cpp:2100, RemoveExcessFaces calls RemoveFaces without propagating its ordinary status and then returns SM_SUCCESS. The 0bb remove_empty probe exposed C++ 1000 versus Rust 1001 when RemoveFaces refused editing. The Rust correction retains that real call, including the enabled empty call's traversal-mark effects, while ignoring ordinary native statuses at this caller. Missing dependencies and Rust representation errors still propagate. Nonempty NormalizedEvaluate and the caller's native editing-disabled scope remain separate limits.
+
+GlueEdges now imports the actual native topology records used by its notifications. The exporter captures flags, all five stored marks and opaque user values immediately after the fixture graph walk, before additional query-metadata traversals can change marks. Two checked 32-bit limbs preserve each u64 value through the double ABI. Keys combine topology type and graph index, so equally numbered entities of different types remain distinct; the registered BRep uses the same identity in query metadata and notification arguments. The existing survivor PreEdit datum continues to be that actual BRep. Topology::restore_marks restores only the five stored values and leaves context counters, list links, flags, user fields and other records unchanged.
+
+The new RegionSplitQueries edge-curve hook guards the Same/equal-interval branch only when both curves exist and that branch will read them. Glue checks the survivor and then the deleted edge after the native notification sequence and applicable early returns, before either natural_interval or CurveMaxDistanceBetween/EvaluatePoint can consume an unsupported import. RayQueryContext selects the actual EdgeId through require_curve_geometry, so unrelated curves or surfaces do not trigger this check. Providers without per-edge metadata retain their previous curve-check policy through the default hook.
+
+The existing infinite-region and ray adapters still operate on the original BRep and Kernel, registered geometry and persistent marks. They retain incoming and partial classification/region state, native retry order and lazy cache acquisition. Intersector construction keeps the actual first/second BRep face lists, filters and tolerance order; its minimum-edge-box guard remains local to the curve visited by the native fallback. The Point3D face bridge keeps the original face/BRep context around its exact surface evaluation copy.
+
+Stitch is a separate adapter: it exports flags and user-field values, checks three general-mark values, and records presence indicators for attributes and native notification callbacks. It still defers nonzero general marks or present attributes/callbacks that it cannot represent, including some fixtures that would take an earlier no-edit return. Glue's new five-mark restoration does not change that Stitch limit. Glue also retains explicit presence-based limits for attributes and callbacks when its operation is not a null/same-edge no-op.
+
+The regressions encode assertions for the real native Glue fixture's later vertex rejection, exact mark restoration without contamination of other records, and the retained RemoveFaces call. Synthetic guard regressions exercise notification order, both curve checks, null/same edges, wire deletion, Opposite orientation, unequal intervals, absent curves and an unvisited curve with unsupported metadata. They are control-flow and metadata checks, not a claim of new native analytic-fixture parity. Current directed, FFI and canonical results must be attributed to the corrected source; earlier checkpoint results and the historical p2/p7/intersector/p9/Stitch sections do not establish that validation.
+
+A separate differential rerun limited to topology.brep_p7 and offset.offset_executive_p1 used the same repaired source before and after the run. P7 recorded 232 passing comparisons and 84 deferrals in 316 cases; offset recorded 688 passing comparisons, four deferrals and one explicit rejection in 693 cases. Both units had zero failures and remained PARTIAL. Tracking the same case identities from the failed parent run, its 44 failures became 36 passing comparisons and eight later dependency deferrals. Six Glue cases on torus.smb/toruswvy.smb now reach SmBrep::GetInfiniteRegion in topology.brep_p1; disk.smb and surf_sphere150.smb contribute one SmBrep::FindAndSetInfiniteRegion deferral each in topology.brep_p5. These eight outcomes arise from those missing callers, not from the selective geometry guard or a nonrepresentable-geometry rejection. These case totals and transitions belong to the two-unit rerun; FFI and full canonical validation have separate evidence.
+
+The corrected contents were committed as acc0fd57fe05661723b6ad7be67d8a11c01cd62f, with single parent 0bbeb9dc and nine changed source paths. The 16 selected difftest Rust tests passed across ten command filters on that exact file map, and the separately run C++-enabled FFI suite completed with 104 passed, zero failed and one ignored. The complete difftest Rust unit-test suite with cpp was not run for this checkpoint. A separate exact run of units::intersect_curve_class_p4::tests::undefined_scripts_are_rejected reproduced its failure with zero passed, one failed and exit 101; the reported assertion was loop_crossings_props_null_face_1. The test file is unchanged in acc0fd57. Its proposed assertion correction is a separate follow-up, with its own source and test evidence. These selected tests and FFI results do not establish that the whole difftest unit-test suite passes, and any full canonical reports for acc0fd57 remain attributed to that source rather than the later test-only commit.
+
+This section is the current local checkpoint. The complete 15a/e726
+history above remains unchanged and applies only to its recorded sources.
+
+### Completed canonical validation
+
+The completed optimized canonical run belongs to source `acc0fd57fe05661723b6ad7be67d8a11c01cd62f` and covers
+all 224 green/partial units selected by the frozen manifest.
+It records **509,240 cases: 486,890 passed (482,423 with compared values, 4,467 without), 0 failed, 22,313 deferred and 37 rejected**.
+The with/without-values partition comes from matched console summaries and
+includes floating and exact integer/topology comparisons. Deferred and rejected
+cases are not passing comparisons; no floating-only counter is substituted.
+
+The correction commit has the single parent `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+Its retained source proof records that parent's earlier merge of `aa0595cc8fc726c3d1e3fd5872a62f2f29201362`
+and main `4db3d6602a57daae3ebe0d554a1d01636f209aaa`. This does not assert a passing canonical run for the parent.
+The preceding local gates ran with HEAD `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`, the corrected
+working-tree contents and no merge in progress. All
+1,413 source hashes are identical before/after those gates
+and in the correction commit. The canonical run's own before/after source
+attestation matches that same complete map. The correction changes
+9 source-file hashes relative to the parent.
+FFI's own before/after attestations match all 1,413 source hashes.
+Its fresh 480-file FFI/shim map is an exact matching subset;
+the recorded full-suite command and exit status were checked separately.
+
+| Local validation | Recorded result |
+|---|---|
+| Formatting | Exit 0 |
+| Strict plain all-target Clippy | Exit 0 |
+| Strict C++ all-target Clippy | Exit 0 |
+| Core tests | 1,474 passed; 0 failed; 0 ignored |
+| wasm32-unknown-unknown | Exit 0 |
+| FFI suite | 104 passed; 0 failed; 1 ignored |
+| Canonical optimized difftest | Exit 0; all selected reports present |
+
+Additional directed checks are recorded separately:
+
+- `runner-10` (`units::topology_shell::ray_query_tests::edge_curve_check_uses_metadata_identity_and_ignores_unvisited_geometry`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+- `runner-8` (`glue_with_native_records_reaches_native_vertex_rejection`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+- `runner-9` (`each_highlevel_probe_calls_its_real_method`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+- `runner-1` (`face_query_tests`): 6 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+- `runner-2` (`curve_guard_tests`): 2 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+- `runner-3` (`split_uses_native_notification_inputs_for_a_real_wire`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+- `runner-4` (`native_face_context_reaches_trim_creation_and_restores_the_original_state`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+- `runner-5` (`infinite_region_uses_native_owners_and_skips_cache_for_one_region`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+- `runner-6` (`curve_tolerance_uses_the_callers_live_owner_registration`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+- `runner-7` (`real_ray_preserves_initial_state_on_error_and_retained_fields_on_no_hit`): 1 passed, 0 failed; recorded head `0bbeb9dcdf0a85ff1929eb8bdd402ce31bef70c5`.
+
+The canonical command was:
+
+```text
+cargo run --profile difftest -p difftest --features cpp -- --green
+```
+
+These local results do not assert a GitHub CI pass or a performance result.
+
+### Units with integration notes or changed reports
+
+| Unit | Cases | Passed with values | Passed without values | Failed | Deferred | Rejected |
+|---|---:|---:|---:|---:|---:|---:|
+| `boolean.merge_p1` | 248 | 212 | 0 | 0 | 36 | 0 |
+| `boolean.merge_p5` | 140 | 130 | 0 | 0 | 10 | 0 |
+| `boolean.topology_intersector_p1` | 827 | 713 | 3 | 0 | 111 | 0 |
+| `boolean.topology_intersector_p2` | 841 | 670 | 2 | 0 | 169 | 0 |
+| `heal.heal_data_p2` | 738 | 469 | 0 | 0 | 269 | 0 |
+| `heal.heal_data_p3` | 474 | 329 | 0 | 0 | 145 | 0 |
+| `heal.stitch_p1` | 301 | 176 | 0 | 0 | 125 | 0 |
+| `intersect.topology_solver_p2` | 2,429 | 2,386 | 0 | 0 | 43 | 0 |
+| `offset.offset_executive_p1` | 693 | 688 | 0 | 0 | 4 | 1 |
+| `query.face_p1` | 2,341 | 1,585 | 0 | 0 | 756 | 0 |
+| `topology.brep_p10` | 1,404 | 854 | 0 | 0 | 550 | 0 |
+| `topology.brep_p2` | 1,709 | 1,404 | 0 | 0 | 305 | 0 |
+| `topology.brep_p6` | 498 | 450 | 0 | 0 | 48 | 0 |
+| `topology.brep_p7` | 316 | 232 | 0 | 0 | 84 | 0 |
+| `topology.brep_p9` | 684 | 539 | 0 | 0 | 145 | 0 |
+| `topology.face_p2` | 2,692 | 1,852 | 494 | 0 | 346 | 0 |
+| `topology.proto_topology_p1` | 1,862 | 1,770 | 0 | 0 | 92 | 0 |
+| `topology.shell` | 911 | 890 | 9 | 0 | 12 | 0 |
+| `topology.topology` | 657 | 657 | 0 | 0 | 0 | 0 |
+
+Only those note prefixes and report-supported manifest states are updated.
+Each earlier note is preserved verbatim after the prefix. The report baseline
+and canonical SHA256 maps determine which reports changed; prose counts are
+not parsed as test evidence.
+
+### Remaining limits and readiness
+
+PR #101 remains draft.
+
+- The exact intersect_curve_class_p4::tests::undefined_scripts_are_rejected test still fails on acc0fd57's contents (zero passed, one failed, exit 101). Its assertion correction is a separate pending follow-up. Only 16 selected difftest Rust tests across ten filters were run successfully here; the complete cpp-enabled difftest unit-test suite was not run and is not certified by the canonical case reports or FFI suite.
+- AGENTS.md section 4.5.9/4a remains open for this 0bb-derived source: brep/p2.rs still has calls to the ported Face::SetTolerance, Face::Notify, Face::CreateUVTrimCurves and the curve_class_p4 constructor behind explicit stubs. PR #149's later da779c51 reports closing those four stubs and 33 caller sites on its own source; those changes and results are not incorporated here. Missing providers and preflight guards still require their real context.
+- The original surface cache is not yet published before BuildTree for reentrant recovery and persistent reuse. The current per-query cache bridge does not certify those lifetime and reuse contracts.
+- Opaque-context consumers and the two remaining curve_class_p7 dispatch gaps remain integration work. brep/p5::find_and_set_infinite_region still has its own FindInfiniteRegion/ResetInfiniteRegion bridge pending; the implemented p9 provider does not automatically close that caller.
+- The p9 runner uses the default optional shell/bbox inputs. Its canonical cases and targeted partial-output assertions do not cover every optional limit or every late sector/classification mutation path.
+- Glue's five stored marks, flags and user values are now imported; nonzero marks are no longer a Glue notification deferral. Attributes and native system/user callbacks are still exported only as presence indicators. Their presence anywhere in the fixture conservatively defers a notifying Glue call, while null/same-edge no-ops are exempt. An unrelated attributed object can therefore still cause a deferral even if that particular operation would not visit it.
+- The selective Glue curve check preserves explicit concrete-type and owner-representation limits at the geometric read. Providers without individual-edge metadata keep their existing broader curve check. The new synthetic regressions do not establish native analytic-fixture parity, and p7's existing query_status text can aggregate metadata limitations even though the rejection decision selects the consumed edge.
+- The repaired two-unit rerun still reaches Glue's SmBrep::GetInfiniteRegion/topology.brep_p1 and SmBrep::FindAndSetInfiniteRegion/topology.brep_p5 dependencies. They account for the eight former Glue failures now deferred (six and two respectively); those transitions are not caused by the selective geometry guard.
+- Stitch still cannot restore nonzero native general marks or decode attribute storage and callbacks. Its separate fixture-wide guard can defer inputs before a native no-edit return. Glue's five-mark import is not a Stitch implementation or a new native-UB rejection rule.
+- RemoveExcessFaces still lacks the native editing-disabled classification scope and its success-only reset. Nonempty result-edge paths still reach the explicit NormalizedEvaluate dependency. The ignored RemoveFaces status correction does not certify nonempty removal or new numerical coverage.
+- Record erasure and remaining opaque mutation providers are not certified solely by early refusals or both-errored comparisons. MissingSurface checks preserve a Rust representation contract and are not numerical parity with a native null dereference.
+- PR #239 and later main batches beyond 4db3d660, including #269, are outside this source checkpoint. The #239 seam review still requires durable curve backing, the native owned-copy/UV identity contract and caller-visible partial outputs before the remaining editing callers can be wired.
+- These changes and source/fixture comparisons address correctness. No runtime performance measurement or additional unit promotion is asserted by this narrative.
+
+The acc0fd57 checkpoint contains main through 4db3d660, its 0bbeb9dc integration parent and the three corrections described here. PR #101 remains draft. PR #149's published da779c513ee274c7b33bc88d0cb57b2ec8d9823b follow-up and its author-reported 33 caller replacements, four p2 stub closures and validation results belong to that separate head; they are not integrated or counted here. GitHub CI must be attributed to the exact PR head, separately from local gates. Any merge needed to resolve a GitHub-reported conflict creates a new source checkpoint with its own evidence; a newer main commit alone does not invalidate gates for unchanged source. The pending p4 assertion-only follow-up is outside acc0fd57; any published result for that later commit must state its own validation scope.
+
+At the 2026-10-20 05:47 UTC GitHub observation, published PR #101 still pointed to aa0595cc and GitHub reported mergeable=false with mergeable_state=dirty. That observation concerns the published head, not this unpushed correction. The maintainer announcement prioritizes critical bugs and asks contributors to batch updates, avoiding a main merge or rebase solely for freshness. Conflict reconciliation must follow an actual GitHub conflict and be validated on its resulting source. PR #149 run 39379393912 completed successfully for da779c51, with seven successful jobs, as read at 06:50 UTC; those GitHub results remain separate from this checkpoint.
+
+Public repository evidence:
+
+- [Validated source commit](https://github.com/tangency-labs/solidcore/commit/acc0fd57fe05661723b6ad7be67d8a11c01cd62f).
+- Canonical JSON reports in [`reports/difftest/`](../reports/difftest/);
+  the updated per-unit manifest notes record the corresponding report SHA256 values.
+
+Local audit input identifiers (not published repository files; their SHA256
+values are retained in the local audit for this update):
+
+- `solidcore-main259-metadata-provenance-fix-20261019.json`.
+- `solidcore-main259-status-current-20261019.json`.
+- `solidcore-main259-baseline-report-hashes-20261019.json`.
+- `integration-main259-repair-canonical-v3-20261020-summary.json`.
+- `integration-main259-repair-source-commit-20261020-result.json`.
+- `integration-main259-repair-v3-20261020-source-attestation.json`.
+- `integration-main259-repair-ffi-v3-20261020-source-attestation.json`.
+- `integration-main259-repair-targeted-v3-20261020-evidence.json`.
+- `integration-main259-repair-canonical-v3-20261020-source-attestation.json`.
+- `solidcore-main259-correction-root-reviewed-narrative-20261020.json`.
+
+## intersect.curve_class_p4: assertion follow-up (PR #101, 2026-10-20)
+
+The exact `undefined_scripts_are_rejected` reproduction on the contents committed as `acc0fd57fe05661723b6ad7be67d8a11c01cd62f` failed with exit 101 (zero passed, one failed). Its null-face `LoopCrossings` scripts are rejected by the native input validator. Rust already reports status 1007 in the operation output; the test incorrectly required a `Fail::Harness` result.
+
+Follow-up source `61b45b0bce203f6d2660508bc0b1bb84232a3027`, with parent acc0fd57, changes only the assertions in that test. The updated assertion checks the complete preceding output prefix bit for bit and the appended `LoopCrossings` record `[32, 1007]`, while retaining the FFI rejection. This correction neither invokes undefined native input nor establishes numerical parity for those scripts.
+
+Validation of the exact follow-up contents: `cargo test --profile difftest -p difftest --features cpp units::intersect_curve_class_p4::tests`: 3 passed, 0 failed, 0 ignored; the three tests are `edge_cases_are_accepted`, `generated_scripts_are_accepted`, `undefined_scripts_are_rejected`; exit 0 for `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo clippy --workspace --all-targets --features solidcore-ffi/cpp,difftest/cpp -- -D warnings`. All four commands ran before the follow-up commit with HEAD at acc0fd57 and the changed test contents; the before/after source maps and subsequent commit proof bind those results to `61b45b0bce203f6d2660508bc0b1bb84232a3027`.
+
+The source proof records one changed path, `crates/difftest/src/units/intersect_curve_class_p4.rs`, and an unchanged prefix outside the test module. All other 1,412 source entries and all 224 canonical report hashes match acc0fd57. The complete canonical execution belongs to acc0fd57 and was not repeated for the follow-up source. This adds no unit promotion or new canonical case coverage. The complete difftest Rust unit-test suite was not run; the earlier sixteen selected tests across ten filters and the later p4 module tests remain distinct executions. Evidence: [p4 assertion follow-up source](https://github.com/0xlillith/solidcore/commit/61b45b0bce203f6d2660508bc0b1bb84232a3027).

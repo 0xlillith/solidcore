@@ -2039,8 +2039,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::RemoveFaces",
-        "unit": "topology.brep_p5"
+        "symbol": "SmFace::GetEdges",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "remove_all_edit_Defeature_inset_cube",
@@ -2059,8 +2059,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::RemoveFaces",
-        "unit": "topology.brep_p5"
+        "symbol": "SmFace::GetEdges",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "remove_all_edit_Defeature_brep1",
@@ -2079,8 +2079,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::RemoveFaces",
-        "unit": "topology.brep_p5"
+        "symbol": "SmFace::GetEdges",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "remove_all_edit_Boolean_BoltMBox1",
@@ -2099,8 +2099,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::RemoveFaces",
-        "unit": "topology.brep_p5"
+        "symbol": "SmFace::GetEdges",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "remove_all_edit_Boolean_BoltMBox2",
@@ -2119,8 +2119,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::RemoveFaces",
-        "unit": "topology.brep_p5"
+        "symbol": "SmFace::GetEdges",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "remove_all_edit_Boolean_extrudeHoles1",
@@ -3679,8 +3679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::FindAndSetInfiniteRegion",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::FindInfiniteRegion",
+        "unit": "topology.brep_p9"
       },
       "max_rel_err": 0.0,
       "name": "closure_inf_spine_doubled",
@@ -4155,8 +4155,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::FindAndSetInfiniteRegion",
-        "unit": "topology.brep_p5"
+        "symbol": "SmBrep::FindInfiniteRegion",
+        "unit": "topology.brep_p9"
       },
       "max_rel_err": 0.0,
       "name": "review_spine_doubled_m1_closure_True",
@@ -10763,8 +10763,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::RemoveFaces",
-        "unit": "topology.brep_p5"
+        "symbol": "SmFace::GetEdges",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0011",
@@ -11591,8 +11591,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::RemoveFaces",
-        "unit": "topology.brep_p5"
+        "symbol": "SmFace::GetEdges",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0098",
@@ -12487,8 +12487,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmBrep::RemoveFaces",
-        "unit": "topology.brep_p5"
+        "symbol": "SmFace::GetEdges",
+        "unit": "topology.face_p4"
       },
       "max_rel_err": 0.0,
       "name": "gen0196",
@@ -13445,8 +13445,9 @@
     "surface.surf_of_extrusion_p2": 10,
     "surface.surface_cache_p2": 5,
     "surface.surface_p2": 96,
-    "topology.brep_p5": 10,
-    "topology.face_p2": 60
+    "topology.brep_p9": 2,
+    "topology.face_p2": 60,
+    "topology.face_p4": 8
   },
   "max_rel_err": 0.0,
   "pass": true,
