@@ -8296,10 +8296,41 @@ validation section below. These results do not certify the review fixes.
   `MateLaminaEdgeToSurface`, is built as a real `SmPlane`), but the geometry calls they reach are
   only compared on B-splines here.
 - **Ops without compared values.** `RayFire` defers every case (`SmBrep::CalculateBoundingBox`:
-  `query.brep`) and `ReplaceSurface` every case (`SmFace::Notify`: `topology.face_p3`).
-  `MateLaminaEdgeToSurface` and `MergeCurvesOnSurface` only compare their early statuses
-  (editing disabled, not a lamina edge, short or no curves); past those they defer on
-  `SmFace::Notify` and the curve classification constructor (`intersect.curve_class_p4`).
+  `query.brep`) and `ReplaceSurface` every case (16: `SmFace::SetSurface`'s `SmFace::Notify`,
+  one of the stubs `topology.face_p3` left in `topology/face/p1.rs`).
+  `MergeCurvesOnSurface` compares its early statuses (short or no curves); past those the
+  wired curve classification constructor (`intersect.curve_class_p4`) reaches
+  `SmCurveClassification::ReSet` (`intersect.curve_class_p2`, 1 case).
+- **`MateLaminaEdgeToSurface` past its early returns (review 5578349117 round).** With
+  `topology.face_p3`'s `SetTolerance` / `Notify` / `CreateUVTrimCurves` wired in `p2.rs`, 12
+  more mate cases pass (2 compared values each); 20 defer on
+  `SmPlane::CreateIsoParametricCurve` (`surface.surface_cache_p1`) and 8 on
+  `SmSurface::DropCurve`. The UV trim curve `CreateUVTrimCurves` builds on a plane is an
+  `SmLine`, which upstream is an `SmBSplineCurve` (`GetOrCreateGwNurbPointer` makes its NURB
+  through `MakeNurb`); `uv_trim_curve_copy` accepts a `CurveKind::Line` the same way instead
+  of refusing it (23 cases failed before).
+- **Canonical numbering in the shared graph export (`boolean_merge_p1::graph`).** The C++ shim
+  numbers records in first-seen order of its walk (regions from `GetRegions`, then every edge
+  from `GetEdges`; per edge use: edge, owner, cw, ccw, vertex use, next, last), while the Rust
+  arenas append new records, so after an edit that creates or deletes topology the raw arena
+  indices differ from the C++ numbers on the same graph. `Canon::of` replays the shim's walk on
+  the Rust B-rep and both the graph and the id slots the `topology.brep_p9` and
+  `boolean.merge_p1` runners record are mapped through it (on a C++ import it is the identity).
+  This fixed 97 `brep_p9` and 3 `merge_p1` mismatches once `SmBrep::Notify` stopped deferring
+  them.
+- **`LiftCurve` keeps the iso curve's kind.** `sm_ExtractIsoCurve` returns the iso curve as
+  the surface's own kind made it (an `SmLine` on a plane, an `SmCircle` on a surface of
+  revolution), and `LiftCurve`'s callers (`ExtendTrimEdges` stores it as the offset edge's
+  curve) dispatch on it; `LiftedCurve::curve` is now a `Curve` rather than a B-spline (6
+  `offset.offset_geometry_creation` mismatches). On a face the offset runner imports as its
+  B-spline part the Rust runs the B-spline `CreateIsoParametricCurve` where the C++ runs the
+  subclass's override (an `SmCircle` on a surface of revolution), so `ExtendTrimEdges` and
+  `EdgeuseOffset`'s `ExtendTrimEdges` path defer (`harness:analytic-geometry-export`) when
+  the lift's UV curve (the edge use's or its radial's UV trim curve) is a degree-1 iso line
+  and the offset edge use's face is not exact. 6 cases that passed on main are in that class
+  and now defer (the override returned a B-spline there, so they agreed by coincidence:
+  gen0009, gen0119, gen0148, gen0376, gen0520, gen0707); gen0683 (an `EdgeuseOffset`, circle
+  14021 against B-spline 14033) was the mismatch that showed the class.
 - **Make ops (after `topology.shell`, #154).** `MakeShellVertexTopology`,
   `MakeEdgeVertexTopology` and `MakeEdgeTopology` run (76 cases flipped from the shell stubs)
   and output, after the status, the B-rep's topology read back through fresh list queries on

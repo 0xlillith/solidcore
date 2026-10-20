@@ -403,8 +403,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmCurveClassification::SmCurveClassification",
-        "unit": "intersect.curve_class_p4"
+        "symbol": "SmCurveClassification::ReSet",
+        "unit": "intersect.curve_class_p2"
       },
       "max_rel_err": 0.0,
       "name": "merge_plane10_line",
@@ -471,8 +471,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "mate_plane10_e0",
@@ -491,8 +491,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "mate_plane10_e1",
@@ -511,8 +511,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "mate_plane10_e2",
@@ -531,8 +531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "mate_plane10_e3",
@@ -639,8 +639,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "mate_Endcap_e0",
@@ -659,8 +659,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "mate_Endcap_e1",
@@ -679,8 +679,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "mate_Endcap_e2",
@@ -699,8 +699,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmSurface::DropCurve",
+        "unit": "intersect.surface_drop_lib_p3"
       },
       "max_rel_err": 0.0,
       "name": "mate_Endcap_e3",
@@ -823,8 +823,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_cone_e1",
@@ -859,8 +859,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_cone_e3",
@@ -890,16 +890,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_disk_e0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#53 (upstream upstream/TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -910,16 +906,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_disk_e1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#55 (upstream upstream/TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -930,16 +922,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_disk_e2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#57 (upstream upstream/TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -950,16 +938,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_disk_e3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#59 (upstream upstream/TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "deferred": {
@@ -983,8 +967,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_ellips_ts2_e0",
@@ -1003,8 +987,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_ellips_ts2_e1",
@@ -1023,8 +1007,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_ellips_ts2_e2",
@@ -1043,8 +1027,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_ellips_ts2_e3",
@@ -1074,16 +1058,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_plane_circ_e0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#71 (upstream upstream/TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -1094,16 +1074,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_plane_circ_e1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#73 (upstream upstream/TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -1114,16 +1090,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_plane_circ_e2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#75 (upstream upstream/TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -1134,16 +1106,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_plane_circ_e3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#77 (upstream upstream/TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "deferred": {
@@ -1166,16 +1134,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_plane_square_e0",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#80 (upstream upstream/TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -1186,16 +1150,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_plane_square_e1",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#82 (upstream upstream/TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -1206,16 +1166,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_plane_square_e2",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#84 (upstream upstream/TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "max_rel_err": 0.0,
@@ -1226,16 +1182,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "mate_plane_square_e3",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/ops.json#86 (upstream upstream/TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 2
     },
     {
       "deferred": {
@@ -1335,8 +1287,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_extrude_e0",
@@ -1355,8 +1307,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_extrude_e1",
@@ -1375,8 +1327,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_extrude_e2",
@@ -1395,8 +1347,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_extrude_e3",
@@ -1427,8 +1379,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_rev_e0",
@@ -1447,8 +1399,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_rev_e1",
@@ -1467,8 +1419,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_rev_e2",
@@ -1487,8 +1439,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_rev_e3",
@@ -1519,8 +1471,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_sphere150_e0",
@@ -1539,8 +1491,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_sphere150_e1",
@@ -1559,8 +1511,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_sphere150_e2",
@@ -1579,8 +1531,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_surf_sphere150_e3",
@@ -1779,8 +1731,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_vase_rev_e1",
@@ -1799,8 +1751,8 @@
     },
     {
       "deferred": {
-        "symbol": "SmFace::Notify",
-        "unit": "topology.face_p3"
+        "symbol": "SmPlane::CreateIsoParametricCurve",
+        "unit": "surface.surface_cache_p1"
       },
       "max_rel_err": 0.0,
       "name": "mate_vase_rev_e2",
@@ -9414,16 +9366,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_plane10_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#27 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -9434,16 +9382,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_plane10_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#29 (upstream tests/prog_test/src/smTopoTest.cpp:1640)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -9458,16 +9402,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_plane10_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#31 (upstream tests/prog_test/src/smTopoTest.cpp:1640)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -9538,16 +9478,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_Mouse_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#40 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -9558,16 +9494,12 @@
       "values_compared": 16
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_Mouse_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#42 (upstream upstream/TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "deferred": {
@@ -9582,16 +9514,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_Mouse_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#44 (upstream upstream/TestFiles/pt_TestFiles/Mouse.smb)",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "deferred": {
@@ -9666,16 +9594,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_Endcap_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#53 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -9686,16 +9610,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_Endcap_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#55 (upstream upstream/TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -9710,16 +9630,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_Endcap_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#57 (upstream upstream/TestFiles/pt_TestFiles/Endcap.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -9790,16 +9706,12 @@
       "values_compared": 34
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_box_with_large_fillet_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#66 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "max_rel_err": 0.0,
@@ -9810,16 +9722,12 @@
       "values_compared": 34
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_box_with_large_fillet_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#68 (upstream upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "deferred": {
@@ -9834,16 +9742,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_box_with_large_fillet_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#70 (upstream upstream/TestFiles/pt_TestFiles/box_with_large_fillet.smb)",
-      "values_compared": 0
+      "values_compared": 34
     },
     {
       "deferred": {
@@ -9918,16 +9822,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_cone_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#79 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -9938,16 +9838,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_cone_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#81 (upstream upstream/TestFiles/pt_TestFiles/cone.smb)",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "deferred": {
@@ -9962,16 +9858,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_cone_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#83 (upstream upstream/TestFiles/pt_TestFiles/cone.smb)",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "deferred": {
@@ -10046,16 +9938,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_disk_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#92 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -10066,16 +9954,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_disk_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#94 (upstream upstream/TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "deferred": {
@@ -10090,16 +9974,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_disk_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#96 (upstream upstream/TestFiles/pt_TestFiles/disk.smb)",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "deferred": {
@@ -10174,16 +10054,12 @@
       "values_compared": 47
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_ellips_ts2_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#105 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "max_rel_err": 0.0,
@@ -10194,16 +10070,12 @@
       "values_compared": 47
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_ellips_ts2_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#107 (upstream upstream/TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
@@ -10218,16 +10090,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_ellips_ts2_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#109 (upstream upstream/TestFiles/pt_TestFiles/ellips_ts2.smb)",
-      "values_compared": 0
+      "values_compared": 47
     },
     {
       "deferred": {
@@ -10302,16 +10170,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_plane_circ_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#118 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -10322,16 +10186,12 @@
       "values_compared": 5
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_plane_circ_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#120 (upstream upstream/TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -10346,16 +10206,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_plane_circ_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#122 (upstream upstream/TestFiles/pt_TestFiles/plane_circ.smb)",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -10430,16 +10286,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_plane_square_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#131 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -10450,16 +10302,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_plane_square_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#133 (upstream upstream/TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -10474,16 +10322,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_plane_square_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#135 (upstream upstream/TestFiles/pt_TestFiles/plane_square.smb)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -10558,16 +10402,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_sphere_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#144 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -10578,16 +10418,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_sphere_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#146 (upstream upstream/TestFiles/pt_TestFiles/sphere.smb)",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -10602,16 +10438,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_sphere_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#148 (upstream upstream/TestFiles/pt_TestFiles/sphere.smb)",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -10686,16 +10518,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_surf_extrude_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#157 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -10706,16 +10534,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_surf_extrude_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#159 (upstream upstream/TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -10730,16 +10554,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_surf_extrude_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#161 (upstream upstream/TestFiles/pt_TestFiles/surf_extrude.smb)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -10814,16 +10634,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_surf_rev_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#170 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -10834,16 +10650,12 @@
       "values_compared": 11
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_surf_rev_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#172 (upstream upstream/TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -10858,16 +10670,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_surf_rev_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#174 (upstream upstream/TestFiles/pt_TestFiles/surf_rev.smb)",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "deferred": {
@@ -10942,16 +10750,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_surf_sphere150_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#183 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -10962,16 +10766,12 @@
       "values_compared": 7
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_surf_sphere150_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#185 (upstream upstream/TestFiles/pt_TestFiles/surf_sphere150.smb)",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "deferred": {
@@ -10986,16 +10786,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_surf_sphere150_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#187 (upstream upstream/TestFiles/pt_TestFiles/surf_sphere150.smb)",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "deferred": {
@@ -11070,16 +10866,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_torus_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#196 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11090,16 +10882,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_torus_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#198 (upstream upstream/TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -11114,16 +10902,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_torus_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#200 (upstream upstream/TestFiles/pt_TestFiles/torus.smb)",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -11198,16 +10982,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_toruswvy_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#209 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -11218,16 +10998,12 @@
       "values_compared": 6
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_toruswvy_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#211 (upstream upstream/TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -11242,16 +11018,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_toruswvy_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#213 (upstream upstream/TestFiles/pt_TestFiles/toruswvy.smb)",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "deferred": {
@@ -11326,16 +11098,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_vase_rev_1e4",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#222 (upstream tests/prog_test/src/smTopoTest.cpp:696)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "max_rel_err": 0.0,
@@ -11346,16 +11114,12 @@
       "values_compared": 8
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_vase_rev_big",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#224 (upstream upstream/TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -11370,16 +11134,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "settol_vase_rev_neg",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "fixture:fixtures/topology.brep_p2/tolerance.json#226 (upstream upstream/TestFiles/pt_TestFiles/vase_rev.smb)",
-      "values_compared": 0
+      "values_compared": 8
     },
     {
       "deferred": {
@@ -11602,16 +11362,12 @@
       "values_compared": 17
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0018",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511490872",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "deferred": {
@@ -12306,16 +12062,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0096",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511490950",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "deferred": {
@@ -12378,16 +12130,12 @@
       "values_compared": 0
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0103",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511490957",
-      "values_compared": 0
+      "values_compared": 5
     },
     {
       "max_rel_err": 0.0,
@@ -12894,16 +12642,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0160",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511491014",
-      "values_compared": 0
+      "values_compared": 16
     },
     {
       "max_rel_err": 0.0,
@@ -12946,16 +12690,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0166",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511491020",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -13262,16 +13002,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0202",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511491056",
-      "values_compared": 0
+      "values_compared": 6
     },
     {
       "max_rel_err": 0.0,
@@ -13338,16 +13074,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0211",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511491065",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -13818,16 +13550,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0265",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511491119",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -14226,16 +13954,12 @@
       "values_compared": 2
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0313",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511491167",
-      "values_compared": 0
+      "values_compared": 11
     },
     {
       "max_rel_err": 0.0,
@@ -14666,16 +14390,12 @@
       "values_compared": 3
     },
     {
-      "deferred": {
-        "symbol": "SmFace::SetTolerance",
-        "unit": "topology.face_p3"
-      },
       "max_rel_err": 0.0,
       "name": "gen0360",
-      "outcome": "deferred",
-      "pass": false,
+      "outcome": "pass",
+      "pass": true,
       "source": "generated:seed=16427432855511491214",
-      "values_compared": 0
+      "values_compared": 7
     },
     {
       "max_rel_err": 0.0,
@@ -15043,16 +14763,17 @@
     }
   ],
   "cases_both_errored": 0,
-  "cases_deferred": 342,
+  "cases_deferred": 272,
   "cases_failed": 0,
-  "cases_passed": 1367,
+  "cases_passed": 1437,
   "cases_total": 1709,
   "deferred_by_unit": {
-    "intersect.curve_class_p4": 1,
-    "intersect.surface_drop_lib_p3": 77,
+    "intersect.curve_class_p2": 1,
+    "intersect.surface_drop_lib_p3": 85,
     "query.brep": 93,
+    "surface.surface_cache_p1": 20,
     "topology.face_p2": 19,
-    "topology.face_p3": 114,
+    "topology.face_p3": 16,
     "topology.face_p4": 38
   },
   "max_rel_err": 0.0,
