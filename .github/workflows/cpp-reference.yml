@@ -3,14 +3,15 @@ name: C++ reference
 # Builds the upstream SMLib/SM_API reference libraries with harness/cpp/build.sh and
 # publishes them as the GitHub Release cpp-ref-<key> (asset
 # solidcore-cpp-ref-<key>-linux-x86_64.tar.zst plus .sha256), which scripts/fetch-cpp.sh
-# downloads in CI and on contributors' machines instead of compiling SMLib (~10 min).
+# downloads in CI and on contributors' machines instead of compiling SMLib (about a
+# minute on a 16-vCPU runner plus tool installs; 10+ minutes on a typical laptop).
 # <key> comes from scripts/cpp-ref-key.sh: the pinned upstream commit plus a hash of
 # harness/cpp/{CMakeLists.txt,build.sh,stubs/**,patches/**}. Shims are compiled by
 # solidcore-ffi, so editing them never needs a new release. Until a new key is published,
 # CI falls back to building from source (and caches that build).
 on:
   push:
-    branches: [main, ci/cpp-prebuilt]  # TEMP: ci/cpp-prebuilt publishes the first key; drop before merge
+    branches: [main]
     paths:
       - 'harness/cpp/**'
       - '!harness/cpp/shim/**'
